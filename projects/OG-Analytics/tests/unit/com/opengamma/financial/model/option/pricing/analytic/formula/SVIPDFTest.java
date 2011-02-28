@@ -33,7 +33,6 @@ public class SVIPDFTest {
   private final static Function1D<Double, Double> SVI = new Function1D<Double, Double>() {
     final SVIFormula svi = new SVIFormula();
 
-    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double k) {
       return svi.impliedVolatility(k, A, B, RHO, SIGMA, M);
@@ -59,7 +58,7 @@ public class SVIPDFTest {
   }
 
   @Test
-  public void SABRTest() {
+  public void testSABR() {
     final double[] strikes = new double[] {0.02, 0.03, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.05, 0.06};
     final int n = strikes.length;
     final double[] vols = new double[n];

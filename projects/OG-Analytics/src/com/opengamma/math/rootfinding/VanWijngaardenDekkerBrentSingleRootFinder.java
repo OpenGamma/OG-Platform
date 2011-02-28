@@ -17,7 +17,7 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
   private static final double ZERO = 1e-16;
 
   public VanWijngaardenDekkerBrentSingleRootFinder() {
-    _accuracy = 1e-9;
+    this(1e-15);
   }
 
   public VanWijngaardenDekkerBrentSingleRootFinder(final double accuracy) {

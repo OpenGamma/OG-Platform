@@ -368,4 +368,8 @@ public final class Client implements Runnable, SessionContextInitializationEvent
     };
   }
 
+  // TODO: reduce this to an abstract client class with the common I/O for C++
+  // TODO: create a LocalClient which has the remainder of the code here for normal use (with a user context)
+  // TODO: create a DebugClient which connects to another Java process (e.g. running in Eclipse) (has no user context)
+
 }

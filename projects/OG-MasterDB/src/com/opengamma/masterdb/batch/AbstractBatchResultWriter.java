@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
@@ -190,8 +191,14 @@ public abstract class AbstractBatchResultWriter {
     _session = (SessionImplementor) getSessionFactory().getCurrentSession();
   }
   
+  /**
+   * This will close the session only if the caller previously created a new session with openSession.
+   * joinSession will leave the session open.
+   */
   public void closeSession() {
-    //_session.close();
+    if (_session instanceof StatelessSession) {
+      ((StatelessSession) _session).close();
+    }
     _session = null;
   }
   

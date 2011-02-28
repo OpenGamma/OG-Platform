@@ -17,7 +17,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
   private static final double ZERO = 1e-16;
 
   public RidderSingleRootFinder() {
-    _accuracy = 1e-9;
+    this(1e-15);
   }
 
   public RidderSingleRootFinder(final double accuracy) {

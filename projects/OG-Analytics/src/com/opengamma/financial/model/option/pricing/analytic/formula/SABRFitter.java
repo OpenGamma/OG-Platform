@@ -91,7 +91,7 @@ public class SABRFitter {
       final double beta = mp[1];
       final double nu = mp[2];
       final double rho = mp[3];
-      double value = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);      
+      final double value = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
       mp[0] = value;
     }
 

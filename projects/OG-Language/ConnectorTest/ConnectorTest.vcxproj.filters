@@ -41,5 +41,8 @@
     <ClCompile Include="JVMTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SynchronousCallsTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

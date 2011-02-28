@@ -12,6 +12,7 @@ import static com.opengamma.math.ComplexMathUtils.mod;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.sqrt;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.number.ComplexNumber.I;
 
 import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.number.ComplexNumber;
@@ -34,34 +35,34 @@ public class IntegratedCIRTimeChangeCharacteristicExponent extends Characteristi
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber u) {
+  public ComplexNumber evaluate(final ComplexNumber u) {
 
     if (u.getReal() == 0.0 && u.getImaginary() == 0.0) {
       return new ComplexNumber(0.0);
     }
 
-    ComplexNumber ui = multiply(I, u);
+    final ComplexNumber ui = multiply(I, u);
 
     //handle small lambda properly 
     if (2 * mod(u) * _lambda * _lambda / _kappa / _kappa < 1e-6) {
-      double d = _theta * _t + (1 - _theta) * (1 - Math.exp(-_kappa * _t)) / _kappa;
+      final double d = _theta * _t + (1 - _theta) * (1 - Math.exp(-_kappa * _t)) / _kappa;
       return multiply(d, ui);
     }
 
     ComplexNumber temp = subtract(_kappa * _kappa, multiply(2 * _lambda * _lambda, ui));
-    ComplexNumber gamma = sqrt(temp);
-    ComplexNumber gammaHalfT = multiply(gamma, _t / 2.0);
+    final ComplexNumber gamma = sqrt(temp);
+    final ComplexNumber gammaHalfT = multiply(gamma, _t / 2.0);
     temp = divide(multiply(2, ui), add(_kappa, divide(gamma, TrigonometricFunctionUtils.tanh(gammaHalfT))));
-    ComplexNumber kappaOverGamma = divide(_kappa, gamma);
-    double power = 2 * _kappa * _theta / _lambda / _lambda;
-    ComplexNumber res = add(multiply(power, subtract(_kappa * _t / 2, getLogCoshSinh(gammaHalfT, kappaOverGamma))), temp);
+    final ComplexNumber kappaOverGamma = divide(_kappa, gamma);
+    final double power = 2 * _kappa * _theta / _lambda / _lambda;
+    final ComplexNumber res = add(multiply(power, subtract(_kappa * _t / 2, getLogCoshSinh(gammaHalfT, kappaOverGamma))), temp);
     return res;
 
   }
 
   // ln(cosh(a) + bsinh(a)
   private ComplexNumber getLogCoshSinh(final ComplexNumber a, final ComplexNumber b) {
-    ComplexNumber temp = add(TrigonometricFunctionUtils.cosh(a), multiply(b, TrigonometricFunctionUtils.sinh(a)));
+    final ComplexNumber temp = add(TrigonometricFunctionUtils.cosh(a), multiply(b, TrigonometricFunctionUtils.sinh(a)));
     return log(temp);
   }
 

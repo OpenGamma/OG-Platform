@@ -190,6 +190,7 @@ public class DependencyGraphBuilder {
       protected boolean more() {
         while (itr.hasNext()) {
           final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
+          //s_logger.debug("Considering {} for {}", resolvedFunction, requirement);
           final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
           final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
           final ValueSpecification originalOutput = resolvedFunction.getSecond();

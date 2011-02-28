@@ -3,25 +3,31 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.statistics.leastsquare;
+package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.BitSet;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFitter;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
 public class SABRFittingTest {
+
+  protected Logger _logger = LoggerFactory.getLogger(SABRFittingTest.class);
+  protected int _hotspotWarmupCycles = 200;
+  protected int _benchmarkCycles = 1000;
 
   private static final double F = 0.03;
   private static final double T = 7.0;
@@ -71,37 +77,59 @@ public class SABRFittingTest {
   }
 
   @Test
-  public void testNoisyFit() {
+  public void TimeingTest() {
+    final SABRFormulaHagan hagan = new SABRFormulaHagan();
 
+    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+      hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+
+    }
+
+    if (_benchmarkCycles > 0) {
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles SABR", _benchmarkCycles);
+      for (int i = 0; i < _benchmarkCycles; i++) {
+        hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+      }
+      timer.finished();
+    }
+
+  }
+
+  @Test
+  public void FitTimeTest() {
     final BitSet fixed = new BitSet();
-    // fixed.set(1, true);
+
+    final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
+
+    final SABRFitter fitter = new SABRFitter(SABR);
+
+    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+      fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
+    }
+
+    if (_benchmarkCycles > 0) {
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles fitting", _benchmarkCycles);
+      for (int i = 0; i < _benchmarkCycles; i++) {
+        fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
+      }
+      timer.finished();
+    }
+
+  }
+
+  @Test
+  public void testNoisyFit() {
+    final BitSet fixed = new BitSet();
+    fixed.set(1, true);
     final double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
     final SABRFitter fitter = new SABRFitter(SABR);
     final LeastSquareResults results = fitter.solve(F, T, STRIKES, NOISY_VOLS, ERRORS, start, fixed, 0, false);
-    // assertTrue(results.getChiSq() < 3.0);
-    final DoubleMatrix2D covar = results.getCovariance();
-    final double sigmaLNRootT = ALPHA * Math.pow(F, BETA - 1) * Math.sqrt(T);
-
-    // for (int i = 0; i < STRIKES.length; i++) {
-    // System.out.print(STRIKES[i] + "\t" + VOLS[i] + "\t" + NOISY_VOLS[i] + "\n");
-    // }
-
+    assertTrue(results.getChiSq() < 10.0);
     final double[] res = results.getParameters().getData();
-
-    double k, m;
-    for (int i = 0; i < 100; i++) {
-      m = -3 + i * 4.5 / 100;
-      k = F * Math.exp(m * sigmaLNRootT);
-      // System.out.print(k + "\t" + SABR.impliedVolatility(F, ALPHA, BETA, NU, RHO, k, T) + "\t" + SABR.impliedVolatility(F, res[0], res[1], res[2], res[3], k, T) + "\n");
-    }
-
-    // System.out.print("\n" + res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\n");
-    // System.out.println(results.getChiSq());
-
-    // assertEquals(ALPHA, res[0], 1e-7);
-    // assertEquals(BETA, res[1], 1e-7);
-    // assertEquals(NU, res[2], 1e-7);
-    // assertEquals(RHO, res[3], 1e-7);
+    assertEquals(ALPHA, res[0], 1e-3);
+    assertEquals(BETA, res[1], 1e-7);
+    assertEquals(RHO, res[3], 1e-1);
+    assertEquals(NU, res[2], 1e-2);
   }
 
   @Test

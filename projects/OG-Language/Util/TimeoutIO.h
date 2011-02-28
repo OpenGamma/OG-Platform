@@ -17,7 +17,7 @@ private:
 	OVERLAPPED m_overlapped;
 #define FILE_REFERENCE		HANDLE
 #else
-	CAtomicPointer m_oBlockedThread;
+	CAtomicPointer<void*> m_oBlockedThread;
 #define TIMEOUT_IO_DEFAULT	1000
 #define FILE_REFERENCE		int
 #endif

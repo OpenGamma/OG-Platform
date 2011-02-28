@@ -18,7 +18,7 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
   private static final double ZERO = 1e-16;
 
   public BisectionSingleRootFinder() {
-    _accuracy = 1e-9;
+    this(1e-15);
   }
 
   public BisectionSingleRootFinder(final double accuracy) {

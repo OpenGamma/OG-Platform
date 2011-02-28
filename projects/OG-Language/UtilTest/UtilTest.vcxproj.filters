@@ -36,6 +36,9 @@
     <ClCompile Include="BufferedInputTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AsynchronousTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

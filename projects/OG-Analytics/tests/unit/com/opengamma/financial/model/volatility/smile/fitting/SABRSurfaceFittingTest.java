@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.math.statistics.leastsquare;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
@@ -13,6 +13,8 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormula
 import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
