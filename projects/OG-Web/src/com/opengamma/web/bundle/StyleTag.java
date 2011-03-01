@@ -106,11 +106,15 @@ public class StyleTag {
   private String printDev() {
     StringBuilder buf = new StringBuilder();
     Bundle bundle = _bundleManager.getBundle(_bundleId);
-    String basePath = _bundleManager.getBaseDir().getName();
-    buf.append("<style type=\"text/css\" media=\"all\">\n");
-    String imports = BundleImportUriUtils.buildImports(bundle, _webBundleUris, basePath);
-    buf.append(imports);
-    buf.append("</style>");
+    if (bundle != null) {
+      String basePath = _bundleManager.getBaseDir().getName();
+      buf.append("<style type=\"text/css\" media=\"all\">\n");
+      String imports = BundleImportUriUtils.buildImports(bundle, _webBundleUris, basePath);
+      buf.append(imports);
+      buf.append("</style>");
+    } else {
+      s_logger.warn("{} not available ", _bundleId);
+    }
     return buf.toString();
   }
 

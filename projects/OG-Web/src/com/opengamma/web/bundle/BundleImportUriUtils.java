@@ -29,9 +29,9 @@ public final class BundleImportUriUtils {
       }
       if (node instanceof Fragment) {
         Fragment fragment = (Fragment) node;
-        String absolutePath = fragment.getFile().getAbsolutePath();
-        int indexOf = absolutePath.indexOf(basePath);
-        buf.append("@import url('/" + absolutePath.substring(indexOf) + "');\n");
+        String uri = fragment.getFile().toURI().toASCIIString();
+        int indexOf = uri.indexOf(basePath);
+        buf.append("@import url('/" + uri.substring(indexOf) + "');\n");
       }
     }
     return buf.toString();
