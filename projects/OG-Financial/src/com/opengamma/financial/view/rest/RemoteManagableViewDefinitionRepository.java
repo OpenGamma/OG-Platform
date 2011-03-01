@@ -62,7 +62,8 @@ public class RemoteManagableViewDefinitionRepository implements ManageableViewDe
 
   @Override
   public void removeViewDefinition(String name) {
-    throw new NotImplementedException();
+    URI uri = ViewDefinitionResource.uri(_baseUri, name);
+    _client.access(uri).delete();
   }
   
 }

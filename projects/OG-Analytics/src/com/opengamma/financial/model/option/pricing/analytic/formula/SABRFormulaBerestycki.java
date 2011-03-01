@@ -14,6 +14,7 @@ import com.opengamma.util.CompareUtils;
 public class SABRFormulaBerestycki implements SABRFormula {
   private static final double EPS = 1e-15;
 
+  @Override
   public double impliedVolatility(final double f, final double alpha, final double beta, final double nu, final double rho, final double k, final double t) {
 
     double i0;
@@ -39,14 +40,14 @@ public class SABRFormulaBerestycki implements SABRFormula {
         } else {
           z = nu * (Math.pow(f, beta1) - Math.pow(k, beta1)) / alpha / beta1;
         }
-        double temp = (Math.sqrt(1 + z * (z - 2 * rho)) + z - rho) / (1 - rho);
+        final double temp = (Math.sqrt(1 + z * (z - 2 * rho)) + z - rho) / (1 - rho);
         i0 = nu * x / Math.log(temp);
 
       }
     }
 
     final double f1sqrt = Math.pow(f * k, beta1 / 2);
-    double i1 = beta1 * beta1 * alpha * alpha / 24 / f1sqrt / f1sqrt + rho * alpha * beta * nu / 4 / f1sqrt + nu * nu * (2 - 3 * rho * rho) / 24;
+    final double i1 = beta1 * beta1 * alpha * alpha / 24 / f1sqrt / f1sqrt + rho * alpha * beta * nu / 4 / f1sqrt + nu * nu * (2 - 3 * rho * rho) / 24;
 
     return i0 * (1 + i1 * t);
   }

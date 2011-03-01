@@ -61,13 +61,21 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
     if (jacobianObject == null) {
       throw new NullPointerException("Could not get " + ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     }
-    @SuppressWarnings("unchecked")
-    final List<double[]> parRateJacobianList = (List<double[]>) jacobianObject;
-    final int rows = parRateJacobianList.size();
-    final double[][] array = new double[rows][];
-    int i = 0;
-    for (final double[] d : parRateJacobianList) {
-      array[i++] = d;
+    final double[][] array;
+    // Fudge encodings of double[][] and List<double[]> are identical, so receiving either is valid.
+    if (jacobianObject instanceof double[][]) {
+      array = (double[][]) jacobianObject;
+    } else if (jacobianObject instanceof List<?>) {
+      @SuppressWarnings("unchecked")
+      final List<double[]> parRateJacobianList = (List<double[]>) jacobianObject;
+      final int rows = parRateJacobianList.size();
+      array = new double[rows][];
+      int i = 0;
+      for (final double[] d : parRateJacobianList) {
+        array[i++] = d;
+      }
+    } else {
+      throw new ClassCastException("Jacobian object " + jacobianObject + " not List<double[]> or double[][]");
     }
     final DoubleMatrix2D parRateJacobian = new DoubleMatrix2D(array);
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
@@ -80,7 +88,7 @@ public class YieldCurveNodeSensitivityFixedFloatSwapFunction extends FixedFloatS
     final double[] values = new double[n];
     final Object[] labels = YieldCurveLabelGenerator.getLabels(_definitionSource, getCurrencyForTarget(security), forwardCurveName);
     DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       labelledMatrix = (DoubleLabelledMatrix1D) labelledMatrix.add(keys[i], labels[i], sensitivitiesForCurves.getEntry(i));
     }
     final YieldCurveNodeSensitivityDataBundle data = new YieldCurveNodeSensitivityDataBundle(getCurrencyForTarget(security), labelledMatrix, forwardCurveName);

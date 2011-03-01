@@ -13,9 +13,6 @@ import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.fft.JTransformsWrapper;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -25,9 +22,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 public class FFTPricer {
   private static Logger s_logger = LoggerFactory.getLogger(FFTPricer.class);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static BracketRoot s_bracketRoot = new BracketRoot();
-  private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
-  private static final IntegralLimitCalculator s_limitCal = new IntegralLimitCalculator();
+  private static final IntegralLimitCalculator LIMIT_CALCULATOR = new IntegralLimitCalculator();
 
   /**
    * Price a European option across a range of strikes using a FFT. The terminal price is assumed to be of the form S = F*exp(x), where F is the forward,
@@ -41,7 +36,7 @@ public class FFTPricer {
    * @param minStrikesDisplayed minimum number of strikes returned (actual number depends on set up) 
    * @param alpha Regularization factor. Values of 0 or -1 are. -0.5 is recommended  
    * @param tol Tolerance - smaller values give more accuracy 
-   * @param limitSigma Approximate Balck vol - used to calculate size of FFT
+   * @param limitSigma Approximate Black vol - used to calculate size of FFT
    * @return array of arrays of strikes and prices 
    */
   public double[][] price(final double forward, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double lowestStrike, final double highestStrike,
@@ -54,7 +49,7 @@ public class FFTPricer {
     Validate.isTrue(limitSigma > 0.0, "need limitSigma");
     double kMax;
     final double limitSigmaRootT = limitSigma * Math.sqrt(ce.getTime());
-    double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
+    final double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
 
     if (alpha > 0) {
       kMax = -Math.log((2 * atm - 1) * tol) / alpha;
@@ -64,8 +59,8 @@ public class FFTPricer {
       kMax = -Math.log(2 * (1 - atm) * tol) * Math.max(-1.0 / alpha, 1 / (1 + alpha));
     }
 
-    Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
-    double xMax = s_limitCal.solve(psi, alpha, tol);
+    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
+    final double xMax = LIMIT_CALCULATOR.solve(psi, alpha, tol);
 
     double deltaK;
     if (highestStrike == lowestStrike) {
@@ -74,15 +69,15 @@ public class FFTPricer {
       deltaK = Math.min(Math.log(highestStrike / lowestStrike) / (minStrikesDisplayed - 1), Math.PI / xMax);
     }
 
-    double log2 = Math.log(2);
-    int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
+    final double log2 = Math.log(2);
+    final int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
 
-    int n = (int) Math.pow(2, twoPow);
-    double delta = 2 * Math.PI / n / deltaK;
-    int m = (int) (xMax * deltaK * n / 2 / Math.PI);
+    final int n = (int) Math.pow(2, twoPow);
+    final double delta = 2 * Math.PI / n / deltaK;
+    final int m = (int) (xMax * deltaK * n / 2 / Math.PI);
 
-    int nLowStrikes = (int) Math.ceil(Math.log(forward / lowestStrike) / deltaK);
-    int nHighStrikes = (int) Math.ceil(Math.log(highestStrike / forward) / deltaK);
+    final int nLowStrikes = (int) Math.ceil(Math.log(forward / lowestStrike) / deltaK);
+    final int nHighStrikes = (int) Math.ceil(Math.log(highestStrike / forward) / deltaK);
 
     return price(forward, discountFactor, isCall, ce, nLowStrikes, nHighStrikes, alpha, delta, n, m);
   }
@@ -98,7 +93,7 @@ public class FFTPricer {
    * @param maxDeltaMoneyness Gives the (maximum) step size of the strikes in moneyness m = ln(K/F), where K is strike and F is forward 
    * @param alpha Regularization factor. Values of 0 or -1 are. -0.5 is recommended  
    * @param tol Tolerance - smaller values give more accuracy 
-   * @param limitSigma Approximate Balck vol - used to calculate size of FFT
+   * @param limitSigma Approximate Black vol - used to calculate size of FFT
    * @return array of arrays of strikes and prices 
    */
   public double[][] price(final double forward, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final int nStrikes, final double maxDeltaMoneyness,
@@ -107,7 +102,7 @@ public class FFTPricer {
     Validate.isTrue(limitSigma > 0.0, "need limitSigma");
     double kMax;
     final double limitSigmaRootT = limitSigma * Math.sqrt(ce.getTime());
-    double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
+    final double atm = NORMAL.getCDF(limitSigmaRootT / 2.0);
 
     if (alpha > 0) {
       kMax = -Math.log((2 * atm - 1) * tol) / alpha;
@@ -117,17 +112,17 @@ public class FFTPricer {
       kMax = -Math.log(2 * (1 - atm) * tol) * Math.max(-1.0 / alpha, 1 / (1 + alpha));
     }
 
-    Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
-    double xMax = s_limitCal.solve(psi, alpha, tol);
+    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
+    final double xMax = LIMIT_CALCULATOR.solve(psi, alpha, tol);
 
-    double deltaK = Math.min(maxDeltaMoneyness, Math.PI / xMax);
+    final double deltaK = Math.min(maxDeltaMoneyness, Math.PI / xMax);
 
-    double log2 = Math.log(2);
-    int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
+    final double log2 = Math.log(2);
+    final int twoPow = (int) Math.ceil(Math.log(kMax / deltaK) / log2);
 
-    int n = (int) Math.pow(2, twoPow);
-    double delta = 2 * Math.PI / n / deltaK;
-    int m = (int) (xMax * deltaK * n / 2 / Math.PI);
+    final int n = (int) Math.pow(2, twoPow);
+    final double delta = 2 * Math.PI / n / deltaK;
+    final int m = (int) (xMax * deltaK * n / 2 / Math.PI);
 
     int nLowStrikes;
     int nHighStrikes;
@@ -174,7 +169,7 @@ public class FFTPricer {
     Validate.isTrue(m > 0, "need m > 0");
     Validate.isTrue(n >= 2 * m - 1, "need n > 2m-1");
 
-    Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFT(ce);
+    final Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFT(ce);
 
     int halfN;
     if (n % 2 == 0) {
@@ -183,11 +178,11 @@ public class FFTPricer {
       halfN = (n + 1) / 2;
     }
 
-    double a = -(halfN - 1) * delta;
-    ComplexNumber[] z = new ComplexNumber[n];
+    final double a = -(halfN - 1) * delta;
+    final ComplexNumber[] z = new ComplexNumber[n];
 
-    int lowerPadOutSize = halfN - m;
-    int upperPadOutSize = n - halfN + 1 - m;
+    final int lowerPadOutSize = halfN - m;
+    final int upperPadOutSize = n - halfN + 1 - m;
 
     for (int i = 0; i < lowerPadOutSize; i++) {
       z[i] = new ComplexNumber(0.0);
@@ -198,33 +193,33 @@ public class FFTPricer {
     }
 
     ComplexNumber u = new ComplexNumber(0.0, -(1 + alpha));
-    int offset = halfN - 1;
+    final int offset = halfN - 1;
     z[offset] = func.evaluate(u);
 
     for (int i = 1; i < m; i++) {
       u = new ComplexNumber(i * delta, -(1 + alpha));
-      ComplexNumber f = func.evaluate(u);
+      final ComplexNumber f = func.evaluate(u);
       z[offset + i] = f;
       z[offset - i] = ComplexMathUtils.conjugate(f);
     }
 
-    ComplexNumber[] x = JTransformsWrapper.transform1DComplex(z);
+    final ComplexNumber[] x = JTransformsWrapper.transform1DComplex(z);
 
-    int nLowStrikes = Math.min(halfN, nStrikesBelowATM);
-    int nHighStrikes = Math.min(n - halfN, nStrikesAboveATM);
-    int p = 1 + nLowStrikes + nHighStrikes;
+    final int nLowStrikes = Math.min(halfN, nStrikesBelowATM);
+    final int nHighStrikes = Math.min(n - halfN, nStrikesAboveATM);
+    final int p = 1 + nLowStrikes + nHighStrikes;
 
-    double[][] res = new double[p][2];
+    final double[][] res = new double[p][2];
 
-    double deltaK = 2 * Math.PI / delta / n;
+    final double deltaK = 2 * Math.PI / delta / n;
 
     for (int i = 0; i < nLowStrikes; i++) {
-      double k = (i - nLowStrikes) * deltaK;
+      final double k = (i - nLowStrikes) * deltaK;
       res[i][0] = forward * Math.exp(k);
       res[i][1] = discountFactor * forward * getReducedPrice(x[i + n - nLowStrikes], alpha, delta, k, a, isCall);
     }
     for (int i = nLowStrikes; i < p; i++) {
-      double k = (i - nLowStrikes) * deltaK;
+      final double k = (i - nLowStrikes) * deltaK;
       res[i][0] = forward * Math.exp(k);
       res[i][1] = discountFactor * forward * getReducedPrice(x[i - nLowStrikes], alpha, delta, k, a, isCall);
     }
@@ -233,9 +228,9 @@ public class FFTPricer {
 
   private double getReducedPrice(final ComplexNumber x, final double alpha, final double delta, final double k, final double a, final boolean isCall) {
 
-    ComplexNumber temp = ComplexMathUtils.multiply(ComplexMathUtils.exp(new ComplexNumber(-alpha * k, -k * a)), x);
+    final ComplexNumber temp = ComplexMathUtils.multiply(ComplexMathUtils.exp(new ComplexNumber(-alpha * k, -k * a)), x);
 
-    double y = delta * temp.getReal() / 2 / Math.PI;
+    final double y = delta * temp.getReal() / 2 / Math.PI;
     if (isCall) {
       if (alpha > 0.0) {
         return y;

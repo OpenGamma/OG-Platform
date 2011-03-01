@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="AbstractSettings.h" />
     <ClInclude Include="AbstractTest.h" />
+    <ClInclude Include="Asynchronous.h" />
     <ClInclude Include="Atomic.h" />
     <ClInclude Include="BufferedInput.h" />
     <ClInclude Include="File.h" />
@@ -108,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="AbstractSettings.cpp" />
     <ClCompile Include="AbstractTest.cpp" />
+    <ClCompile Include="Asynchronous.cpp" />
     <ClCompile Include="BufferedInput.cpp" />
     <ClCompile Include="DllVersion.cpp" />
     <ClCompile Include="Logging.cpp" />

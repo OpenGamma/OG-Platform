@@ -34,7 +34,7 @@ public class Bundle extends DirectBean implements BundleNode {
   private final List<BundleNode> _childNodes = new ArrayList<BundleNode>();
   
   /**
-   * The resource name for the bundle
+   * The Id for the bundle
    */
   @PropertyDefinition
   private String _id;
@@ -152,7 +152,7 @@ public class Bundle extends DirectBean implements BundleNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the id for the bundle
+   * Gets the Id for the bundle
    * @return the value of the property
    */
   public String getId() {
@@ -160,7 +160,7 @@ public class Bundle extends DirectBean implements BundleNode {
   }
 
   /**
-   * Sets the id for the bundle
+   * Sets the Id for the bundle
    * @param id  the new value of the property
    */
   public void setId(String id) {

@@ -5,30 +5,27 @@
  */
 package com.opengamma.math.statistics.leastsquare;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class LeastSquareResults {
-
   private final double _chiSq;
   private final DoubleMatrix1D _parameters;
   private final DoubleMatrix2D _covariance;
 
   public LeastSquareResults(final double chiSq, final DoubleMatrix1D parameters, final DoubleMatrix2D covariance) {
-    ArgumentChecker.notNegative(chiSq, "chi square");
-    ArgumentChecker.notNull(parameters, "parameters");
-    ArgumentChecker.notNull(covariance, "covariance");
-    int n = parameters.getNumberOfElements();
-    if (covariance.getNumberOfColumns() != covariance.getNumberOfRows()) {
-      throw new IllegalArgumentException("covariance matrix not square");
-    }
-    if (n != covariance.getNumberOfRows()) {
-      throw new IllegalArgumentException("covariance matrix wrong size");
-    }
+    Validate.isTrue(chiSq > 0, "chi square < 0");
+    Validate.notNull(parameters, "parameters");
+    Validate.notNull(covariance, "covariance");
+    final int n = parameters.getNumberOfElements();
+    Validate.isTrue(covariance.getNumberOfColumns() == n, "covariance matrix not square");
+    Validate.isTrue(covariance.getNumberOfRows() == n, "covariance matrix wrong size");
     _chiSq = chiSq;
     _parameters = parameters;
     _covariance = covariance;
@@ -65,13 +62,13 @@ public class LeastSquareResults {
     long temp;
     temp = Double.doubleToLongBits(_chiSq);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_covariance == null) ? 0 : _covariance.hashCode());
-    result = prime * result + ((_parameters == null) ? 0 : _parameters.hashCode());
+    result = prime * result + _covariance.hashCode();
+    result = prime * result + _parameters.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -81,25 +78,14 @@ public class LeastSquareResults {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    LeastSquareResults other = (LeastSquareResults) obj;
+    final LeastSquareResults other = (LeastSquareResults) obj;
     if (Double.doubleToLongBits(_chiSq) != Double.doubleToLongBits(other._chiSq)) {
       return false;
     }
-    if (_covariance == null) {
-      if (other._covariance != null) {
-        return false;
-      }
-    } else if (!_covariance.equals(other._covariance)) {
+    if (!ObjectUtils.equals(_covariance, other._covariance)) {
       return false;
     }
-    if (_parameters == null) {
-      if (other._parameters != null) {
-        return false;
-      }
-    } else if (!_parameters.equals(other._parameters)) {
-      return false;
-    }
-    return true;
+    return ObjectUtils.equals(_parameters, other._parameters);
   }
 
 }

@@ -60,10 +60,10 @@ public:
 	}
 	PTYPE GetAndSet (PTYPE pNewValue) {
 #ifdef _WIN32
-		return InterlockedExchangePointer ((void * volatile *)&m_pValue, (void*)pNewValue);
+		return (PTYPE)InterlockedExchangePointer ((void * volatile *)&m_pValue, (void*)pNewValue);
 #else
 		// Is the signature for the method wrong; shouldn't it be void * volatile * or volatile PVOID *?
-		return apr_atomic_xchgptr ((volatile void**)&m_pValue, (void*)pNewValue);
+		return (PTYPE)apr_atomic_xchgptr ((volatile void**)&m_pValue, (void*)pNewValue);
 #endif
 	}
 	PTYPE Get () {

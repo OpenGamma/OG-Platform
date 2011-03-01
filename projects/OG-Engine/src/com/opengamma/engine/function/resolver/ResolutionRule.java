@@ -129,6 +129,7 @@ public class ResolutionRule {
     // Of the maximal outputs, is one valid for the requirement
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {
+      //s_logger.debug("Considering {} for {}", resultSpec, output);
       if (output.isSatisfiedBy(resultSpec)) {
         validSpec = resultSpec;
       }

@@ -39,6 +39,7 @@ protected:
 		FudgeMsg_retain (m_msg);
 		m_nMessages++;
 		m_oMutex.Leave ();
+		m_oSemaphore.Signal ();
 	}
 	void OnThreadDisconnect () {
 		LOGDEBUG (TEXT ("Callback thread disconnected"));

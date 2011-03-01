@@ -9,6 +9,8 @@ import static com.opengamma.math.ComplexMathUtils.add;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.pow;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.number.ComplexNumber.I;
+import static com.opengamma.math.number.ComplexNumber.ZERO;
 
 import org.apache.commons.lang.Validate;
 
@@ -27,6 +29,7 @@ public class CGMYCharacteristicExponent extends CharacteristicExponent {
   private final double _r1;
   private final double _r2;
   private final double _r3;
+  private final ComplexNumber _complexR3;
 
   public CGMYCharacteristicExponent(final double c, final double g, final double m, final double y, final double t) {
     Validate.isTrue(c > 0, "C > 0");
@@ -44,27 +47,28 @@ public class CGMYCharacteristicExponent extends CharacteristicExponent {
     _r1 = Math.pow(m, y) + Math.pow(g, y);
     _r2 = t * c * (new GammaFunction()).evaluate(-y);
     _r3 = _r2 * (Math.pow(m - 1, y) + Math.pow(g + 1, y) - _r1);
+    _complexR3 = new ComplexNumber(_r3);
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber x) {
+  public ComplexNumber evaluate(final ComplexNumber x) {
 
     //that u = 0 gives zero is true for any characteristic function
     if (x.getReal() == 0.0) {
       if (x.getImaginary() == 0.0) {
-        return new ComplexNumber(0.0);
+        return ZERO;
       }
       if (x.getImaginary() == -1.0) {
-        new ComplexNumber(_r3);
+        return _complexR3;
       }
     }
 
-    ComplexNumber ix = multiply(I, x);
-    ComplexNumber c1 = pow(subtract(_m, ix), _y);
-    ComplexNumber c2 = pow(add(_g, ix), _y);
-    ComplexNumber c3 = add(c1, c2);
-    ComplexNumber c4 = subtract(c3, _r1);
-    ComplexNumber res = multiply(_r2, c4);
+    final ComplexNumber ix = multiply(I, x);
+    final ComplexNumber c1 = pow(subtract(_m, ix), _y);
+    final ComplexNumber c2 = pow(add(_g, ix), _y);
+    final ComplexNumber c3 = add(c1, c2);
+    final ComplexNumber c4 = subtract(c3, _r1);
+    final ComplexNumber res = multiply(_r2, c4);
     return res;
   }
 
