@@ -53,6 +53,9 @@ public class Main {
    */
   public static boolean svcStart() {
     try {
+      // TODO: pass in the service runner RELEASE/DEBUG flag (this is effectively the DEBUG/RELEASE state of the infrastructure)
+      // TODO: pass in the language binding RELEASE/DEBUG flag (this is effectively the DEBUG/RELEASE state of the binding)
+      // TODO: the latter is actually per-client so should be part of the Client object
       s_logger.info("Starting OpenGamma language integration service");
       s_springContext = new GenericApplicationContext();
       s_logger.debug("Reading Client.xml");
@@ -85,6 +88,8 @@ public class Main {
     try {
       s_logger.info("Accepted connection from {}", userName);
       s_logger.debug("Using pipes IN:{} OUT:{}", inputPipeName, outputPipeName);
+      // TODO: pass in the context factory bean name from C++, allowing multiple language bindings to exist in one JVM
+      // TODO: allow the client factory to be selected/overridden from command line, or property for e.g. the remote debugging version
       final Client client = s_clientFactory.createClient(inputPipeName, outputPipeName, s_contextFactory
           .createSessionContext(userName));
       s_activeConnections++;
