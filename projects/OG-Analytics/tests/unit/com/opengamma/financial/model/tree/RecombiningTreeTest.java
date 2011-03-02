@@ -53,7 +53,7 @@ public class RecombiningTreeTest {
 
   @Test
   public void testGetters() {
-    assertArrayEquals(TREE.getTree(), DATA1);
+    assertArrayEquals(TREE.getNodes(), DATA1);
     assertEquals(TREE.getDepth(), 4);
     assertEquals(TREE.getNumberOfTerminatingNodes(), 5);
     for (int i = 0; i < DATA1.length; i++) {
@@ -90,6 +90,8 @@ public class RecombiningTreeTest {
     protected int getMaxNodesForStep(final int step) {
       return DATA1[step].length;
     }
+
+    
 
   }
 }
