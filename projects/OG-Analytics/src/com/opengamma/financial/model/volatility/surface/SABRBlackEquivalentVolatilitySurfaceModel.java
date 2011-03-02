@@ -32,6 +32,6 @@ public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurf
     final double ksi = data.getVolOfVol();
     final double b = data.getCostOfCarry();
     final double f = data.getSpot() * Math.exp(b * t);
-    return new VolatilitySurface(ConstantDoublesSurface.from(SABR_FUNCTION.getVolatilityFunction(new EuropeanVanillaOption(k, beta, true)).evaluate(new SABRFormulaData(f, alpha, beta, ksi, rho))));
+    return new VolatilitySurface(ConstantDoublesSurface.from(SABR_FUNCTION.getVolatilityFunction(new EuropeanVanillaOption(k, t, true)).evaluate(new SABRFormulaData(f, alpha, beta, ksi, rho))));
   }
 }
