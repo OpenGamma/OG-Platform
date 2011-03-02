@@ -16,7 +16,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 /**
  * data bundle for the SDE df = a(f,t)dt + b(f,t)dw  
  */
-public class ForwardOptionDataBundle extends StandardOptionDataBundle {
+public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
 
   private final DriftSurface _drift;
 
@@ -26,9 +26,9 @@ public class ForwardOptionDataBundle extends StandardOptionDataBundle {
    * @param localDrift The function a(f,t)
    * @param localVolatility The function b(f,t)
    * @param spot Time zero value of f 
-   * @param date
+   * @param date Date created 
    */
-  public ForwardOptionDataBundle(final YieldAndDiscountCurve discountCurve, final DriftSurface localDrift, final VolatilitySurface localVolatility, final double spot, final ZonedDateTime date) {
+  public GeneralNormalOptionDataBundle(final YieldAndDiscountCurve discountCurve, final DriftSurface localDrift, final VolatilitySurface localVolatility, final double spot, final ZonedDateTime date) {
     super(discountCurve, 0.0, localVolatility, spot, date);
     Validate.notNull(localDrift, "null localDrift");
     _drift = localDrift;
@@ -50,24 +50,24 @@ public class ForwardOptionDataBundle extends StandardOptionDataBundle {
     return getVolatility(t, f);
   }
 
-  public ForwardOptionDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
-    return new ForwardOptionDataBundle(curve, getDriftSurface(), getVolatilitySurface(), getSpot(), getDate());
+  public GeneralNormalOptionDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
+    return new GeneralNormalOptionDataBundle(curve, getDriftSurface(), getVolatilitySurface(), getSpot(), getDate());
   }
 
-  public ForwardOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
-    return new ForwardOptionDataBundle(getInterestRateCurve(), getDriftSurface(), surface, getSpot(), getDate());
+  public GeneralNormalOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), surface, getSpot(), getDate());
   }
 
-  public ForwardOptionDataBundle withDate(final ZonedDateTime date) {
-    return new ForwardOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), getSpot(), date);
+  public GeneralNormalOptionDataBundle withDate(final ZonedDateTime date) {
+    return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), getSpot(), date);
   }
 
-  public ForwardOptionDataBundle withSpot(final double spot) {
-    return new ForwardOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), spot, getDate());
+  public GeneralNormalOptionDataBundle withSpot(final double spot) {
+    return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), spot, getDate());
   }
 
-  public ForwardOptionDataBundle withDriftSurface(final DriftSurface localDrift) {
-    return new ForwardOptionDataBundle(getInterestRateCurve(), localDrift, getVolatilitySurface(), getSpot(), getDate());
+  public GeneralNormalOptionDataBundle withDriftSurface(final DriftSurface localDrift) {
+    return new GeneralNormalOptionDataBundle(getInterestRateCurve(), localDrift, getVolatilitySurface(), getSpot(), getDate());
   }
 
   //TODO finish this once we have the ability to multiply / divide surfaces by a constant amount
@@ -94,7 +94,7 @@ public class ForwardOptionDataBundle extends StandardOptionDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForwardOptionDataBundle other = (ForwardOptionDataBundle) obj;
+    GeneralNormalOptionDataBundle other = (GeneralNormalOptionDataBundle) obj;
     if (_drift == null) {
       if (other._drift != null) {
         return false;
