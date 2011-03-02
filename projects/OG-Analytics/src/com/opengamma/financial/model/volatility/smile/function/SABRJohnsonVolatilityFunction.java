@@ -13,7 +13,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFun
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
+import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.util.CompareUtils;
 public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
   private static final CEVPriceFunction CEV_FUNCTION = new CEVPriceFunction();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new NewtonRaphsonSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {

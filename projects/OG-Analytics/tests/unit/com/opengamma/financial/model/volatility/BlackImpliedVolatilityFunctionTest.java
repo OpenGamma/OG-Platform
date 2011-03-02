@@ -26,8 +26,8 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 public class BlackImpliedVolatilityFunctionTest {
   private final Logger _logger = LoggerFactory.getLogger(BlackImpliedVolatilityFunctionTest.class);
-  private final int _hotspotWarmupCycles = 0;
-  private final int _benchmarkCycles = 1;
+  private final int _hotspotWarmupCycles = 200;
+  private final int _benchmarkCycles = 10000;
   private static final double FORWARD = 134.5;
   private static final double DF = 0.87;
   private static final double T = 4.5;
@@ -60,7 +60,7 @@ public class BlackImpliedVolatilityFunctionTest {
     testRootFinder(rootFinder);
     rootFinder = new RidderSingleRootFinder();
     testRootFinder(rootFinder);
-    rootFinder = new NewtonRaphsonSingleRootFinder(1e-8);
+    rootFinder = new NewtonRaphsonSingleRootFinder();
     testRootFinder(rootFinder);
   }
 

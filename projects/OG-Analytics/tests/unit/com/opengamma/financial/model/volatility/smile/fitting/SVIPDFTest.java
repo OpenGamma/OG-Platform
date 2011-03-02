@@ -23,7 +23,7 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 /**
  * 
  */
-public class SVIPDF1Test {
+public class SVIPDFTest {
   private static final double A = 0.7;
   private static final double B = -1.0;
   private static final double RHO = 0.4;
@@ -65,7 +65,7 @@ public class SVIPDF1Test {
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
     final SABRFormulaData data = new SABRFormulaData(F, initialValues[0], initialValues[1], initialValues[2], initialValues[3]);
 
-    final SABRFitter1 fitter = new SABRFitter1(sabr);
+    final SABRLeastSquaresFitter fitter = new SABRLeastSquaresFitter(sabr);
     final LeastSquareResults result = fitter.solve(options, data, vols, errors, initialValues, fixed, 0, false);
 
     final double chiSqr = result.getChiSq();

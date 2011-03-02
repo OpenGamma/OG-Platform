@@ -70,9 +70,7 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    */
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
-    Validate.notNull(function, "function");
-    Validate.notNull(x1, "x1");
-    Validate.notNull(x2, "x2");
+    checkInputs(function, x1, x2);
     final DoubleFunction1D f = DoubleFunction1D.from(function);
     return getRoot(f, f.derivative(), x1, x2);
   }
@@ -86,9 +84,7 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
    */
   public Double getRoot(final DoubleFunction1D function, final Double x1, final Double x2) {
-    Validate.notNull(function, "function");
-    Validate.notNull(x1, "x1");
-    Validate.notNull(x2, "x2");
+    checkInputs(function, x1, x2);
     return getRoot(function, function.derivative(), x1, x2);
   }
 
@@ -102,10 +98,8 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
    */
   public Double getRoot(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final Double x1, final Double x2) {
-    Validate.notNull(function, "function");
+    checkInputs(function, x1, x2);
     Validate.notNull(derivative, "derivative");
-    Validate.notNull(x1, "x1");
-    Validate.notNull(x2, "x2");
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x1, x2);
   }
 
@@ -119,31 +113,39 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
    */
   public Double getRoot(final DoubleFunction1D function, final DoubleFunction1D derivative, final Double x1, final Double x2) {
-    Validate.notNull(function);
+    checkInputs(function, x1, x2);
     Validate.notNull(derivative, "derivative function");
-    Validate.notNull(x1);
-    Validate.notNull(x2);
-    double y = function.evaluate(x1);
-    if (Math.abs(y) < _accuracy) {
+    final double y1 = function.evaluate(x1);
+    if (Math.abs(y1) < _accuracy) {
       return x1;
     }
-    y = function.evaluate(x2);
-    if (Math.abs(y) < _accuracy) {
+    final double y2 = function.evaluate(x2);
+    if (Math.abs(y2) < _accuracy) {
       return x2;
     }
-
     double x = (x1 + x2) / 2;
+    double x3 = y2 < 0 ? x2 : x1;
+    double x4 = y2 < 0 ? x1 : x2;
     final double xLower = x1 > x2 ? x2 : x1;
     final double xUpper = x1 > x2 ? x1 : x2;
     for (int i = 0; i < MAX_ITER; i++) {
-      final double newX = x - (function.evaluate(x) / derivative.evaluate(x));
-      if (newX < xLower || newX > xUpper) {
-        throw new MathException("Step has taken x outside original bounds");
+      final double y = function.evaluate(x);
+      final double dy = derivative.evaluate(x);
+      double dx = -y / dy;
+      if (Math.abs(dx) <= _accuracy) {
+        return x + dx;
       }
-      if (Math.abs(newX - x) <= _accuracy) {
-        return newX;
+      System.out.println(x + " " + y);
+      x += dx;
+      if (x < xLower || x > xUpper) {
+        dx = (x4 - x3) / 2;
+        x = x3 + dx;
       }
-      x = newX;
+      if (y < 0) {
+        x3 = x;
+      } else {
+        x4 = x;
+      }
     }
     throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }

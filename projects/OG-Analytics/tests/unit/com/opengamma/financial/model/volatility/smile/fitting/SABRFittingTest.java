@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
@@ -26,8 +26,8 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * 
  */
-public class SABRFitting1Test {
-  protected Logger _logger = LoggerFactory.getLogger(SABRFitting1Test.class);
+public class SABRFittingTest {
+  protected Logger _logger = LoggerFactory.getLogger(SABRFittingTest.class);
   protected int _hotspotWarmupCycles = 200;
   protected int _benchmarkCycles = 1000;
 
@@ -68,7 +68,7 @@ public class SABRFitting1Test {
 
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
-    final SABRFitter1 fitter = new SABRFitter1(SABR);
+    final SABRLeastSquaresFitter fitter = new SABRLeastSquaresFitter(SABR);
     final LeastSquareResults results = fitter.solve(OPTIONS, DATA, VOLS, ERRORS, start, fixed, 0, false);
     //    final LeastSquareResults results = fitter.solve(F, T, STRIKES, VOLS, ERRORS, start, fixed, 0, false);
     final double[] res = results.getParameters().getData();
@@ -81,17 +81,20 @@ public class SABRFitting1Test {
 
   @Test
   public void testTiming() {
-    final SABRFormulaHagan hagan = new SABRFormulaHagan();
-
+    final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+    final SABRFormulaData data = new SABRFormulaData(F, ALPHA, BETA, NU, RHO);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(0.9 * F, T, true);
+    final Function1D<SABRFormulaData, Double> f = sabr.getVolatilityFunction(option);
+    double x = 0;
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
-      hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+      x += f.evaluate(data);
 
     }
 
     if (_benchmarkCycles > 0) {
       final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles SABR", _benchmarkCycles);
       for (int i = 0; i < _benchmarkCycles; i++) {
-        hagan.impliedVolatility(F, ALPHA, BETA, NU, RHO, 0.9 * F, T);
+        x += f.evaluate(data);
       }
       timer.finished();
     }
@@ -104,7 +107,7 @@ public class SABRFitting1Test {
 
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
 
-    final SABRFitter1 fitter = new SABRFitter1(SABR);
+    final SABRLeastSquaresFitter fitter = new SABRLeastSquaresFitter(SABR);
 
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
       fitter.solve(OPTIONS, DATA, VOLS, ERRORS, start, fixed, 0, false);
@@ -125,7 +128,7 @@ public class SABRFitting1Test {
     final BitSet fixed = new BitSet();
     fixed.set(1, true);
     final double[] start = new double[] {0.03, 0.5, 0.1, 0.2};
-    final SABRFitter1 fitter = new SABRFitter1(SABR);
+    final SABRLeastSquaresFitter fitter = new SABRLeastSquaresFitter(SABR);
     final LeastSquareResults results = fitter.solve(OPTIONS, DATA, NOISY_VOLS, ERRORS, start, fixed, 0, false);
     assertTrue(results.getChiSq() < 10.0);
     final double[] res = results.getParameters().getData();

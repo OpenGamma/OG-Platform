@@ -32,7 +32,7 @@ public class BlackImpliedVolatilityFormula {
     final double f = data.getF();
     final double k = option.getK();
     final double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
-    Validate.isTrue(optionPrice >= intrinsicPrice, "option price less than intrinsic value");
+    Validate.isTrue(optionPrice >= intrinsicPrice, "option price (" + optionPrice + ") less than intrinsic value (" + intrinsicPrice + ")");
 
     if (optionPrice == intrinsicPrice) {
       return 0.0;
@@ -48,7 +48,7 @@ public class BlackImpliedVolatilityFormula {
       }
     };
 
-    final double[] range = BRACKETER.getBracketedPoints(func, 0.0, 1.0);
+    final double[] range = BRACKETER.getBracketedPoints(func, 0.0, 10.0);
     return _rootFinder.getRoot(func, range[0], range[1]);
 
   }

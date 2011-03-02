@@ -17,6 +17,14 @@ public class SABRFormulaData {
   private final double _alpha;
   private final double _forward;
 
+  /**
+   * 
+   * @param forward The forward value of the underlying 
+   * @param alpha The initial value of the stochastic volatility 
+   * @param beta The CEV parameter 
+   * @param nu The vol-of-vol
+   * @param rho The correlation between the driver of the underlying and the driver of the stochastic volatility 
+   */
   public SABRFormulaData(final double forward, final double alpha, final double beta, final double nu, final double rho) {
     Validate.isTrue(forward > 0.0, "f must be > 0.0");
     Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");

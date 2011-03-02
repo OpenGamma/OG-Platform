@@ -10,9 +10,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
-import com.opengamma.financial.model.option.pricing.analytic.formula.NormalFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -23,19 +26,20 @@ public class DistributionFromImpliedVolatilityTest {
 
   private static double F = 4.0;
   private static double VOL = 0.3;
-  private static double NORMAl_VOL;
+  private static double NORMAL_VOL;
   private static double T = 2.5;
   private static double ROOT_T = Math.sqrt(T);
   private static double ROOT_2_PI = Math.sqrt(2 * Math.PI);
   private static ProbabilityDistribution<Double> BLACK;
   private static ProbabilityDistribution<Double> BACHELIER;
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final NormalPriceFunction NORMAL_PRICE_FUNCTION = new NormalPriceFunction();
   private static Function1D<Double, Double> FLAT = new Function1D<Double, Double>() {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       return VOL;
     }
   };
@@ -44,22 +48,24 @@ public class DistributionFromImpliedVolatilityTest {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double evaluate(Double x) {
-      double price = NormalFormula.optionPrice(F, x, 1.0, NORMAl_VOL, T, true);
-      return BlackImpliedVolFormula.impliedVol(price, F, x, 1.0, T, true);
+    public Double evaluate(final Double x) {
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(x, T, true);
+      final BlackFunctionData data = new BlackFunctionData(F, 1, NORMAL_VOL);
+      final double price = NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
+      return BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
     }
   };
 
   static {
     BLACK = new DistributionFromImpliedVolatility(F, T, FLAT);
     BACHELIER = new DistributionFromImpliedVolatility(F, T, NORM);
-    NORMAl_VOL = F * VOL;
+    NORMAL_VOL = F * VOL;
   }
 
   @Test
   public void logNormalTest() {
     for (int i = 0; i < 100; i++) {
-      double x = 0.1 + 0.1 * i;
+      final double x = 0.1 + 0.1 * i;
       // System.out.println(x + "\t" + logNormalPDF(x) + "\t" + BLACK.getPDF(x));
       assertEquals(logNormalPDF(x), BLACK.getPDF(x), 1e-6);
       assertEquals(logNormalCDF(x), BLACK.getCDF(x), 1e-6);
@@ -69,34 +75,34 @@ public class DistributionFromImpliedVolatilityTest {
   @Test
   public void normalTest() {
     for (int i = 0; i < 100; i++) {
-      double x = 0.1 + 0.1 * i;
+      final double x = 0.1 + 0.1 * i;
       // System.out.println(x + "\t" + normalPDF(x) + "\t" + BACHELIER.getPDF(x));
       assertEquals(normalPDF(x), BACHELIER.getPDF(x), 1e-4);
       assertEquals(normalCDF(x), BACHELIER.getCDF(x), 1e-4);
     }
   }
 
-  private double normalPDF(double x) {
-    return NORMAL.getPDF((x - F) / NORMAl_VOL / ROOT_T) / NORMAl_VOL / ROOT_T;
+  private double normalPDF(final double x) {
+    return NORMAL.getPDF((x - F) / NORMAL_VOL / ROOT_T) / NORMAL_VOL / ROOT_T;
   }
 
-  private double normalCDF(double x) {
-    return NORMAL.getCDF((x - F) / NORMAl_VOL / ROOT_T);
+  private double normalCDF(final double x) {
+    return NORMAL.getCDF((x - F) / NORMAL_VOL / ROOT_T);
   }
 
-  private double logNormalPDF(double x) {
+  private double logNormalPDF(final double x) {
     if (x <= 0) {
       return 0.0;
     }
-    double d1 = (Math.log(x / F) + VOL * VOL * T / 2) / VOL / ROOT_T;
+    final double d1 = (Math.log(x / F) + VOL * VOL * T / 2) / VOL / ROOT_T;
     return Math.exp(-d1 * d1 / 2) / ROOT_2_PI / VOL / ROOT_T / x;
   }
 
-  private double logNormalCDF(double x) {
+  private double logNormalCDF(final double x) {
     if (x <= 0) {
       return 0.0;
     }
-    double d2 = (Math.log(F / x) - VOL * VOL * T / 2) / VOL / ROOT_T;
+    final double d2 = (Math.log(F / x) - VOL * VOL * T / 2) / VOL / ROOT_T;
     return NORMAL.getCDF(-d2);
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 /**
  * 
  */
-public class SVIFitter1Test {
+public class SVIFittingTest {
   private static final double VARIANCE = 0.3;
   private static final double T = 1.3;
   private static final double SIGMA = Math.sqrt(VARIANCE / T);
@@ -31,7 +31,7 @@ public class SVIFitter1Test {
   private static final double[] ERRORS;
   private static final double[] INITIAL_VALUES;
   private static final BitSet FIXED = new BitSet();
-  private static final SVIFitter1 FITTER = new SVIFitter1();
+  private static final SVILeastSquaresFitter FITTER = new SVILeastSquaresFitter();
   private static final double EPS = 1e-9;
 
   static {
@@ -51,65 +51,65 @@ public class SVIFitter1Test {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullOptions() {
-    FITTER.solve(null, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(null, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyOptions() {
-    FITTER.solve(new EuropeanVanillaOption[0], DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(new EuropeanVanillaOption[0], DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    FITTER.solve(OPTIONS, null, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(OPTIONS, null, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBlackVols() {
-    FITTER.solve(OPTIONS, DATA, null, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, null, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLengthBlackVols() {
-    FITTER.solve(OPTIONS, DATA, new double[] {1, 1, 1}, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, new double[] {1, 1, 1}, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullErrors() {
-    FITTER.solve(OPTIONS, DATA, BLACK_VOLS, null, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, null, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLengthErrors() {
-    FITTER.solve(OPTIONS, DATA, BLACK_VOLS, new double[] {1, 1, 1, 1}, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, new double[] {1, 1, 1, 1}, INITIAL_VALUES, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInitialValues() {
-    FITTER.solve(OPTIONS, DATA, BLACK_VOLS, ERRORS, null, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, ERRORS, null, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongLengthInitialValues() {
-    FITTER.solve(OPTIONS, DATA, BLACK_VOLS, ERRORS, new double[] {1, 1, 1, 1, 1, 1, 1}, FIXED);
+    FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, ERRORS, new double[] {1, 1, 1, 1, 1, 1, 1}, FIXED);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFixed() {
-    FITTER.solve(OPTIONS, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, null);
+    FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongMaturity() {
     final EuropeanVanillaOption[] options = Arrays.copyOf(OPTIONS, OPTIONS.length);
     options[5] = new EuropeanVanillaOption(OPTIONS[5].getK(), OPTIONS[5].getT() + 0.05, OPTIONS[5].isCall());
-    FITTER.solve(options, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
+    FITTER.getFitResult(options, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
   }
 
   // should have a = SIGMA, the variance level parameter, b = 0 and the others staying near their initial values and chiSq = 0
   @Test
   public void testSolutionFlatSurface() {
-    final LeastSquareResults results = FITTER.solve(OPTIONS, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
+    final LeastSquareResults results = FITTER.getFitResult(OPTIONS, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
     final DoubleMatrix1D parameters = results.getParameters();
     //assertEquals(parameters.getEntry(0), SIGMA, EPS);
     assertEquals(parameters.getEntry(1), 0, EPS);

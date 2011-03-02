@@ -8,7 +8,6 @@ package com.opengamma.financial.model.volatility.smile.function;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaBerestycki;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 

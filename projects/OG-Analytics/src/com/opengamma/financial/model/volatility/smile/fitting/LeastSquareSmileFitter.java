@@ -13,9 +13,8 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 /**
  * 
  */
-public interface SmileFitter<T> {
+public interface LeastSquareSmileFitter<T> {
 
-  LeastSquareResults solve(final EuropeanVanillaOption[] options, T data, double[] blackVols, double[] errors, final double[] initialValues, final BitSet fixed);
+  LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, T data, double[] blackVols, double[] errors, final double[] initialValues, final BitSet fixed);
 
-  //LeastSquareResults solve(EuropeanVanillaOption[] options, SABRFormulaData[] data, double[] blackVols, double[] errors, double[] initialValues, BitSet fixed);
 }
