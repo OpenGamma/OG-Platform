@@ -66,7 +66,7 @@ public class TrinomialOptionModelTest {
   public void test() {
     final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3);
     final Function1D<StandardOptionDataBundle, RecombiningTrinomialTree<DoublesPair>> f = model.getTreeGeneratingFunction(CALL);
-    final DoublesPair[][] tree = f.evaluate(DATA).getTree();
+    final DoublesPair[][] tree = f.evaluate(DATA).getNodes();
     final DoublesPair[][] expected = new DoublesPair[4][7];
     final double df1 = Math.exp(-0.02);
     final double df2 = Math.exp(-0.04);

@@ -72,6 +72,7 @@ public class BundleParser {
    */
   public BundleParser(File xmlFile, File baseDir) {
     validate(xmlFile, baseDir);
+    _bundleManager.setBaseDir(baseDir);
     _xmlFile = xmlFile;
     _baseDir = baseDir;
   }
@@ -81,7 +82,7 @@ public class BundleParser {
     ArgumentChecker.isTrue(xmlFile.exists(), xmlFile + "does not exists");
     
     if (baseDir != null) {
-      ArgumentChecker.isTrue(baseDir.exists(), baseDir + "does not exists");
+      ArgumentChecker.isTrue(baseDir.exists(), baseDir + " does not exists");
     }
   }
 
@@ -92,9 +93,9 @@ public class BundleParser {
         Document document = builder.parse(_xmlFile);
         processXMLDocument(document);
       } catch (SAXException ex) {
-        s_logger.warn("Unable to parse : " + _xmlFile.getAbsolutePath(), ex);
+        throw new OpenGammaRuntimeException("unable to parse : " + _xmlFile.getAbsolutePath(), ex);
       } catch (IOException ex) {
-        s_logger.warn("Unable to read : " + _xmlFile.getAbsolutePath(), ex);
+        throw new OpenGammaRuntimeException("unable to read : " + _xmlFile.getAbsolutePath(), ex);
       }
     }
     return _bundleManager;
