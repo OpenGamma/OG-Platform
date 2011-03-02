@@ -10,9 +10,10 @@ import java.net.URI;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import com.opengamma.util.web.BundleType;
 
 /**
  * RESTful resource for a bundle
@@ -29,13 +30,25 @@ public class WebProdBundleResource extends AbstractWebBundleResource {
   }
     
   @GET
-  @Produces(MediaType.TEXT_HTML)
   public Response get(@PathParam("bundleId") String idStr) {
     CompressedBundleSource compressedBundleSource = data().getCompressedBundleSource();
     String compressedContent = compressedBundleSource.getBundle(idStr);
-    return Response.ok(compressedContent).build();
+    BundleType type = BundleType.getType(idStr);
+    String mimeType = null;
+    switch (type) {
+      case JS:
+        mimeType = "text/javascript";
+        break;
+      case CSS:
+        mimeType = "text/css";
+        break;
+      default:
+        mimeType = MediaType.TEXT_HTML;
+        break;
+    }
+    return Response.ok(compressedContent).header("Content-type", mimeType).build();
   }
-  
+
   /**
    * Builds a URI for this resource.
    * @param data  the data, not null
