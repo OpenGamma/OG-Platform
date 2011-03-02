@@ -35,7 +35,7 @@ public class SVIPDFTest {
 
     @Override
     public Double evaluate(final Double k) {
-      return svi.impliedVolatility(k, A, B, RHO, SIGMA, M);
+      return svi.impliedVolatility(k, A, B, RHO, SIGMA, M, T);
     }
   };
 

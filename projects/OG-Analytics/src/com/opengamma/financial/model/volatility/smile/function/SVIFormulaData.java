@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -18,7 +17,6 @@ public class SVIFormulaData {
   private final double _m;
 
   public SVIFormulaData(final double a, final double b, final double rho, final double sigma, final double m) {
-    Validate.isTrue(rho >= -1 && rho <= 1, "Correlation must be in the range -1 <= rho <= 1");
     _a = a;
     _b = b;
     _rho = rho;

@@ -15,14 +15,14 @@ public class SABRFormulaData {
   private final double _rho;
   private final double _beta;
   private final double _alpha;
-  private final double _f;
+  private final double _forward;
 
-  public SABRFormulaData(final double f, final double alpha, final double beta, final double nu, final double rho) {
-    Validate.isTrue(f > 0.0, "f must be > 0.0");
+  public SABRFormulaData(final double forward, final double alpha, final double beta, final double nu, final double rho) {
+    Validate.isTrue(forward > 0.0, "f must be > 0.0");
     Validate.isTrue(beta >= 0.0, "beta must be >= 0.0");
     Validate.isTrue(nu >= 0.0, "nu must be >= 0.0");
     Validate.isTrue(rho >= -1 && rho <= 1, "rho must be between -1 and 1");
-    _f = f;
+    _forward = forward;
     _alpha = alpha;
     _beta = beta;
     _rho = rho;
@@ -45,8 +45,8 @@ public class SABRFormulaData {
     return _alpha;
   }
 
-  public double getF() {
-    return _f;
+  public double getForward() {
+    return _forward;
   }
 
   @Override
@@ -58,7 +58,7 @@ public class SABRFormulaData {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_beta);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_f);
+    temp = Double.doubleToLongBits(_forward);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_nu);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -85,7 +85,7 @@ public class SABRFormulaData {
     if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
       return false;
     }
-    if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f)) {
+    if (Double.doubleToLongBits(_forward) != Double.doubleToLongBits(other._forward)) {
       return false;
     }
     if (Double.doubleToLongBits(_nu) != Double.doubleToLongBits(other._nu)) {

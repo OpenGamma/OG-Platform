@@ -15,12 +15,12 @@ public class NormalFormula {
 
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
-  public static double optionPrice(final double f, final double k, final double discountFactor, final double sigma, final double t, boolean isCall) {
+  public static double optionPrice(final double f, final double k, final double discountFactor, final double sigma, final double t, final boolean isCall) {
 
     final double sigmaRootT = sigma * Math.sqrt(t);
 
     final int sign = isCall ? 1 : -1;
-    double arg = sign * (f - k) / sigmaRootT;
+    final double arg = sign * (f - k) / sigmaRootT;
     return discountFactor * (sign * (f - k) * NORMAL.getCDF(arg) + sigmaRootT * NORMAL.getPDF(arg));
   }
 }

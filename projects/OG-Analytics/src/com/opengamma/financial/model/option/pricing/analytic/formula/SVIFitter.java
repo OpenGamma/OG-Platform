@@ -42,7 +42,7 @@ public class SVIFitter {
     TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
   }
 
-  public LeastSquareResults solve(final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitSet fixed) {
+  public LeastSquareResults solve(final double t, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitSet fixed) {
 
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
@@ -60,8 +60,7 @@ public class SVIFitter {
         final double rho = mp.getEntry(2);
         final double sigma = mp.getEntry(3);
         final double m = mp.getEntry(4);
-
-        return _formula.impliedVolatility(strike, a, b, rho, sigma, m);
+        return _formula.impliedVolatility(strike, a, b, rho, sigma, m, t);
       }
     };
 

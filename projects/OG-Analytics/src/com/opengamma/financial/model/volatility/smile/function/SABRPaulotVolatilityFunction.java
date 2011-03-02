@@ -38,7 +38,7 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getF();
+        final double f = data.getForward();
 
         double sigma0, sigma1;
 
@@ -60,11 +60,10 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
           double kPlus, kMinus;
           kPlus = f * Math.exp(delta);
           kMinus = f * Math.exp(-delta);
-          option.setK(kPlus);
-          final double yPlus = getVolatilityFunction(option).evaluate(data);
-          option.setK(kMinus);
-          final double yMinus = getVolatilityFunction(option).evaluate(data);
-          option.setK(k);
+          EuropeanVanillaOption other = new EuropeanVanillaOption(kPlus, option.getT(), option.isCall());
+          final double yPlus = getVolatilityFunction(other).evaluate(data);
+          other = new EuropeanVanillaOption(kMinus, option.getT(), option.isCall());
+          final double yMinus = getVolatilityFunction(other).evaluate(data);
           final double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
           final double a1 = (yPlus - yMinus) / 2 / delta;
           return a2 * x * x + a1 * x + a0;

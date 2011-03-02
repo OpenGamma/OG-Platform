@@ -32,7 +32,7 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getF();
+        final double f = data.getForward();
         double i0;
         final double beta1 = 1 - beta;
 

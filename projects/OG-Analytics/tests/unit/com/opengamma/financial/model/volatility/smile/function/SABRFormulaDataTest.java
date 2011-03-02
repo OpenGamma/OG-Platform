@@ -50,7 +50,7 @@ public class SABRFormulaDataTest {
   public void test() {
     assertEquals(DATA.getAlpha(), ALPHA, 0);
     assertEquals(DATA.getBeta(), BETA, 0);
-    assertEquals(DATA.getF(), F, 0);
+    assertEquals(DATA.getForward(), F, 0);
     assertEquals(DATA.getNu(), NU, 0);
     assertEquals(DATA.getRho(), RHO, 0);
     SABRFormulaData other = new SABRFormulaData(F, ALPHA, BETA, NU, RHO);

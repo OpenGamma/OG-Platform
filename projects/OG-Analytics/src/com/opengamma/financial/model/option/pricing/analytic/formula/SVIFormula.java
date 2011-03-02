@@ -10,9 +10,10 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
  */
 public class SVIFormula {
 
-  public double impliedVolatility(final double strike, final double a, final double b, final double rho, final double sigma, final double m) {
+  public double impliedVolatility(final double strike, final double a, final double b, final double rho, final double sigma, final double m, final double t) {
     final double d = strike - m;
-    return a + b * (rho * d + Math.sqrt(d * d + sigma * sigma));
+    final double dummy = a + b * (rho * d + Math.sqrt(d * d + sigma * sigma)) / t;
+    return Math.sqrt(a + b * (rho * d + Math.sqrt(d * d + sigma * sigma)) / t);
   }
 
 }

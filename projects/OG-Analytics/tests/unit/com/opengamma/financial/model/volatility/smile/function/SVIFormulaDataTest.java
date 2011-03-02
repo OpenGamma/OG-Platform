@@ -21,16 +21,6 @@ public class SVIFormulaDataTest {
   private static final double M = 0.35;
   private static final SVIFormulaData DATA = new SVIFormulaData(A, B, RHO, SIGMA, M);
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowRho() {
-    new SVIFormulaData(A, B, RHO - 10, SIGMA, M);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighRho() {
-    new SVIFormulaData(A, B, RHO + 10, SIGMA, M);
-  }
-
   @Test
   public void test() {
     assertEquals(DATA.getA(), A, 0);

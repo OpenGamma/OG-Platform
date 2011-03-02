@@ -11,11 +11,10 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.fitting.SABRFitter1;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -55,27 +54,29 @@ public class SVIPDF1Test {
     final int n = strikes.length;
     final double[] vols = new double[n];
     final double[] errors = new double[n];
+    final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
     for (int i = 0; i < n; i++) {
       errors[i] = 0.001;
       vols[i] = SVI.evaluate(strikes[i]);
+      options[i] = new EuropeanVanillaOption(strikes[i], T, true);
     }
-
     final double[] initialValues = new double[] {0.04, 1, 0.2, -0.3};
     final BitSet fixed = new BitSet();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+    final SABRFormulaData data = new SABRFormulaData(F, initialValues[0], initialValues[1], initialValues[2], initialValues[3]);
 
     final SABRFitter1 fitter = new SABRFitter1(sabr);
-    final LeastSquareResults result = fitter.solve(F, T, strikes, vols, errors, initialValues, fixed, 0, false);
+    final LeastSquareResults result = fitter.solve(options, data, vols, errors, initialValues, fixed, 0, false);
 
     final double chiSqr = result.getChiSq();
     final DoubleMatrix1D params = result.getParameters();
-    final SABRFormulaData data = new SABRFormulaData(F, params.getEntry(0), params.getEntry(1), params.getEntry(2), params.getEntry(3));
+    final SABRFormulaData fittedData = new SABRFormulaData(F, params.getEntry(0), params.getEntry(1), params.getEntry(2), params.getEntry(3));
 
     final Function1D<Double, Double> sabrFunction = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double k) {
         final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
-        return sabr.getVolatilityFunction(option).evaluate(data);
+        return sabr.getVolatilityFunction(option).evaluate(fittedData);
       }
     };
 

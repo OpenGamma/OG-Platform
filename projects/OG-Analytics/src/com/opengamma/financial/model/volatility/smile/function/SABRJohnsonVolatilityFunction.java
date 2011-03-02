@@ -39,7 +39,7 @@ public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getF();
+        final double f = data.getForward();
         if (CompareUtils.closeEquals(nu, 0, EPS)) {
           if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
             return alpha; // this is just log-normal

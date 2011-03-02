@@ -27,7 +27,7 @@ public class SVIVolatilityFunction implements VolatilityFunctionProvider<SVIForm
         Validate.notNull(data, "data");
         final double b = data.getB();
         final double rho = data.getRho();
-        Validate.isTrue(b * (1 + Math.abs(rho)) <= 4. / t, "No-arbitrage condition not satisfied");
+        //Validate.isTrue(b * (1 + Math.abs(rho)) <= 4. / t, "No-arbitrage condition not satisfied"); //TODO doesn't seem to work when fitting
         final double a = data.getA();
         final double sigma = data.getSigma();
         final double m = data.getM();

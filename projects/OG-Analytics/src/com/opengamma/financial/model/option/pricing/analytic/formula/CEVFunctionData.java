@@ -22,4 +22,33 @@ public class CEVFunctionData extends BlackFunctionData {
   public double getBeta() {
     return _beta;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_beta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CEVFunctionData other = (CEVFunctionData) obj;
+    if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
+      return false;
+    }
+    return true;
+  }
+
 }
