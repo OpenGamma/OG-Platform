@@ -27,6 +27,7 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
 
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+    checkInputs(function, x1, x2);
     final double y1 = function.evaluate(x1);
     double y = function.evaluate(x2);
     if (Math.abs(y) < _accuracy) {
@@ -34,9 +35,6 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
     }
     if (Math.abs(y1) < _accuracy) {
       return x1;
-    }
-    if (y1 * y >= 0) {
-      throw new MathException(x1 + " and " + x2 + " do not bracket a root");
     }
     double dx, xRoot, xMid;
     if (y1 < 0) {

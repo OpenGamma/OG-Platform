@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -18,6 +20,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
 
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
     final double k = option.getK();
     final double t = option.getT();
     return new Function1D<BlackFunctionData, Double>() {
@@ -25,6 +28,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
+        Validate.notNull(data, "data");
         final double sigma = data.getSigma();
         final double f = data.getF();
         final double discountFactor = data.getDf();
@@ -45,16 +49,18 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     };
   }
 
-  public Function1D<BlackFunctionData, Double> getVegaFormula(final EuropeanVanillaOption option) {
+  public Function1D<BlackFunctionData, Double> getVegaFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
+    final double k = option.getK();
+    final double t = option.getT();
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
+        Validate.notNull(data, "data");
         final double sigma = data.getSigma();
         final double f = data.getF();
-        final double k = option.getK();
-        final double t = option.getT();
         final double discountFactor = data.getDf();
         final double rootT = Math.sqrt(t);
         final double d1 = getD1(f, k, sigma * rootT);

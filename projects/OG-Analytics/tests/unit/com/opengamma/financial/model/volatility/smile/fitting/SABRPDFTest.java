@@ -9,10 +9,10 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRJohnsonVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -22,7 +22,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * 
  */
-public class SABRPDF1Test {
+public class SABRPDFTest {
   private static final double F = 5;
   private static final double BETA = 0.99;
   private static final double NU = 0.4;

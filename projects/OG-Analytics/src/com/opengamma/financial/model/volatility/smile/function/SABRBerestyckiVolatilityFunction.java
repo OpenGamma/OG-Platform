@@ -5,31 +5,34 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- *  This is the form given in Obloj, Fine-Tune Your Simle (2008), and supposedly corresponds to that given in Berestycki, 
- *  Computing the implied volatility in stochastic volatility models (2004). However appears to be the same as Hagan's 
+ *  This is the form given in Obloj (2008), "<it>Fine-Tune Your Smile</it>", and supposedly corresponds to that given in Berestycki (2004), 
+ *  "<it>Computing the implied volatility in stochastic volatility models</it>". However, appears to be the same as Hagan's.
  */
 public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
     final double k = option.getK();
     final double t = option.getT();
     return new Function1D<SABRFormulaData, Double>() {
 
       @Override
       public final Double evaluate(final SABRFormulaData data) {
+        Validate.notNull(data, "data");
         final double alpha = data.getAlpha();
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getF();
+        final double f = data.getForward();
         double i0;
         final double beta1 = 1 - beta;
 

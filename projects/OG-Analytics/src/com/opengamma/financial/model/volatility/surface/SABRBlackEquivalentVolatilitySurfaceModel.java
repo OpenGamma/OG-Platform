@@ -9,14 +9,16 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaHagan;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * 
  */
 public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, SABRDataBundle> {
-  private static final SABRFormulaHagan SABR = new SABRFormulaHagan();
+  private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
 
   @Override
   public VolatilitySurface getSurface(final OptionDefinition option, final SABRDataBundle data) {
@@ -30,8 +32,6 @@ public class SABRBlackEquivalentVolatilitySurfaceModel implements VolatilitySurf
     final double ksi = data.getVolOfVol();
     final double b = data.getCostOfCarry();
     final double f = data.getSpot() * Math.exp(b * t);
-
-    return new VolatilitySurface(ConstantDoublesSurface.from(SABR.impliedVolatility(f, alpha, beta, ksi, rho, k, t)));
+    return new VolatilitySurface(ConstantDoublesSurface.from(SABR_FUNCTION.getVolatilityFunction(new EuropeanVanillaOption(k, t, true)).evaluate(new SABRFormulaData(f, alpha, beta, ksi, rho))));
   }
-
 }

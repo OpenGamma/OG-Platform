@@ -13,7 +13,7 @@ import com.opengamma.math.number.ComplexNumber;
 /**
  * 
  */
-public class TestIntegrandDecay {
+public class IntegrandDecayTest {
 
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;

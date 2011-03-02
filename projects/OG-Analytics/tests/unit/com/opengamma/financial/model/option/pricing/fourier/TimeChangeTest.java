@@ -14,7 +14,7 @@ import com.opengamma.math.number.ComplexNumber;
 /**
  * 
  */
-public class TestTimeChange {
+public class TimeChangeTest {
 
   private static final double FORWARD = 1.0;
   private static final double T = 3.0;

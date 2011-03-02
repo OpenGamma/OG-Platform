@@ -13,7 +13,7 @@ import com.opengamma.math.statistics.distribution.NonCentralChiSquareDistributio
 /**
  * 
  */
-public class CEVVolatilityFunction implements OptionPriceFunction<CEVFunctionData> {
+public class CEVPriceFunction implements OptionPriceFunction<CEVFunctionData> {
 
   @Override
   public Function1D<CEVFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {

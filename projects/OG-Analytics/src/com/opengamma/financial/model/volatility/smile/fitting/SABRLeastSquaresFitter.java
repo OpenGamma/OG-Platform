@@ -3,12 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.option.pricing.analytic.formula;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
@@ -28,17 +31,14 @@ import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
  */
-public class SABRFitter {
-
+public class SABRLeastSquaresFitter implements LeastSquareSmileFitter<SABRFormulaData> {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
-
   private static final int N_PARAMETERS = 4;
-  private final SABRFormula _formula;
-
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
   static {
@@ -49,27 +49,45 @@ public class SABRFitter {
     TRANSFORMS[3] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
   }
 
-  public SABRFitter(final SABRFormula formula) {
-    _formula = formula;
-  }
+  private final VolatilityFunctionProvider<SABRFormulaData> _formula;
+  private final SABRATMVolSolver _atmSolver;
 
   @SuppressWarnings("synthetic-access")
-  public LeastSquareResults solve(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
-      final BitSet fixed, final double atmVol, final boolean recoverATMVol) {
+  public SABRLeastSquaresFitter(final VolatilityFunctionProvider<SABRFormulaData> formula) {
+    _formula = formula;
+    _atmSolver = new SABRATMVolSolver(_formula);
+  }
 
-    final SABRATMVolSolver atmSolver = new SABRATMVolSolver(_formula);
+  @Override
+  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final SABRFormulaData sabrModelData, final double[] blackVols, final double[] errors, final double[] initialValues,
+      final BitSet fixed) {
+    return solve(options, sabrModelData, blackVols, errors, initialValues, fixed, 0, false);
+  }
+
+  public LeastSquareResults solve(final EuropeanVanillaOption[] options, final SABRFormulaData sabrModelData, final double[] blackVols, final double[] errors, final double[] initialValues,
+      final BitSet fixed, final double atmVol, final boolean recoverATMVol) {
+    Validate.notEmpty(options, "options");
+    final int n = options.length;
+    Validate.notNull(sabrModelData, "SABR model data");
+    Validate.notNull(initialValues, "initial values");
+    Validate.isTrue(initialValues.length == N_PARAMETERS, "must have length of initial values array equal to number of parameters");
+    Validate.notNull(fixed, "fixed");
     if (recoverATMVol) {
-      Validate.isTrue(atmVol > 0.0, "ATM  must be > 0");
+      Validate.isTrue(atmVol > 0.0, "ATM volatility must be > 0");
       fixed.set(0, true);
     }
-
-    final int n = strikes.length;
-    Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
-    Validate.isTrue(n == errors.length, "errors and vols must be same length");
-
+    final double[] strikes = new double[n];
+    final double maturity = options[0].getT();
+    final double forward = sabrModelData.getForward();
+    strikes[0] = options[0].getK();
+    for (int i = 1; i < n; i++) {
+      Validate.isTrue(CompareUtils.closeEquals(options[i].getT(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getT());
+      strikes[i] = options[i].getK();
+    }
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
         final DoubleMatrix1D mp = transforms.inverseTransform(fp);
@@ -77,10 +95,16 @@ public class SABRFitter {
         final double beta = mp.getEntry(1);
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
+        final SABRFormulaData data;
         if (recoverATMVol) {
-          alpha = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
+          final EuropeanVanillaOption atmOption = new EuropeanVanillaOption(forward, maturity, true);
+          alpha = _atmSolver.solve(new SABRFormulaData(forward, alpha, beta, nu, rho), atmOption, atmVol);
+          data = new SABRFormulaData(forward, alpha, beta, nu, rho);
+        } else {
+          data = new SABRFormulaData(forward, alpha, beta, nu, rho);
         }
-        return _formula.impliedVolatility(forward, alpha, beta, nu, rho, strike, maturity);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
+        return _formula.getVolatilityFunction(option).evaluate(data);
       }
     };
 
@@ -91,20 +115,24 @@ public class SABRFitter {
       final double beta = mp[1];
       final double nu = mp[2];
       final double rho = mp[3];
-      final double value = atmSolver.solve(forward, maturity, atmVol, beta, nu, rho);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(forward, maturity, true);
+      final SABRFormulaData data = new SABRFormulaData(forward, mp[0], beta, nu, rho);
+      final double value = _atmSolver.solve(data, option, atmVol);
       mp[0] = value;
     }
-
     return new LeastSquareResults(lsRes.getChiSq(), new DoubleMatrix1D(mp), new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
   }
 
-  public LeastSquareResults solveByCG(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
-      final BitSet fixed) {
+  public LeastSquareResults solveByConjugateGradient(final EuropeanVanillaOption[] options, final SABRFormulaData sabrModelData, final double[] blackVols, final double[] errors,
+      final double[] initialValues, final BitSet fixed) {
+    Validate.notEmpty(options, "options");
+    final int n = options.length;
+    Validate.notNull(sabrModelData, "SABR model data");
+    Validate.notNull(initialValues, "initial values");
+    Validate.isTrue(initialValues.length == N_PARAMETERS, "must have length of initial values array equal to number of parameters");
+    Validate.notNull(fixed, "fixed");
 
-    final int n = strikes.length;
-    Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
-    Validate.isTrue(n == errors.length, "errors and vols must be same length");
-
+    final double forward = sabrModelData.getForward();
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
     final Function1D<DoubleMatrix1D, Double> function = new Function1D<DoubleMatrix1D, Double>() {
 
@@ -117,8 +145,9 @@ public class SABRFitter {
         final double nu = mp.getEntry(2);
         final double rho = mp.getEntry(3);
         double chiSqr = 0;
+        final SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
         for (int i = 0; i < n; i++) {
-          chiSqr += FunctionUtils.square((blackVols[i] - _formula.impliedVolatility(forward, alpha, beta, nu, rho, strikes[i], maturity)) / errors[i]);
+          chiSqr += FunctionUtils.square((blackVols[i] - _formula.getVolatilityFunction(options[i]).evaluate(data)) / errors[i]);
         }
 
         return chiSqr;
@@ -135,25 +164,26 @@ public class SABRFitter {
   }
 
   private final class SABRATMVolSolver {
-    private final SABRFormula _sabrFormula;
+    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFormula;
     private final BracketRoot _bracketer = new BracketRoot();
     private final RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
 
-    private SABRATMVolSolver(final SABRFormula formula) {
+    private SABRATMVolSolver(final VolatilityFunctionProvider<SABRFormulaData> formula) {
       _sabrFormula = formula;
     }
 
-    double solve(final double forward, final double maturity, final double atmVol, final double beta, final double nu, final double rho) {
-
+    double solve(final SABRFormulaData data, final EuropeanVanillaOption option, final double atmVol) {
+      Validate.notNull(data, "data");
       final Function1D<Double, Double> f = new Function1D<Double, Double>() {
+
         @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double alpha) {
-          return _sabrFormula.impliedVolatility(forward, alpha, beta, nu, rho, forward, maturity) - atmVol;
+          final SABRFormulaData newData = new SABRFormulaData(data.getForward(), alpha, data.getBeta(), data.getNu(), data.getRho());
+          return _sabrFormula.getVolatilityFunction(option).evaluate(newData) - atmVol;
         }
       };
-
-      final double alphaTry = atmVol * Math.pow(forward, 1 - beta);
+      final double alphaTry = atmVol * Math.pow(data.getForward(), 1 - data.getBeta());
       final double[] range = _bracketer.getBracketedPoints(f, alphaTry / 2.0, 2 * alphaTry);
       return _rootFinder.getRoot(f, range[0], range[1]);
     }
