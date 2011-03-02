@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.web;
+package com.opengamma.web.bundle;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -37,3 +37,4 @@ public enum BundleType {
     return null;
   }
 }
+

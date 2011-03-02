@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.web.BundleType;
 
 /**
  * Builds the Bundle Manager for development bundles

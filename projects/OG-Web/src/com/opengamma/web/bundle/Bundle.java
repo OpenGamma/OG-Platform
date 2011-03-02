@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.web.BundleType;
 
 /**
  * A bundle representation
