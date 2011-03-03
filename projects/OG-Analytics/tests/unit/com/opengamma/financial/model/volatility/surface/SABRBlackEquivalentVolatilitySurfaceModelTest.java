@@ -53,7 +53,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
 
   @Test
   public void testBetaApproachesZero() {
-    SABRDataBundle data = DATA.withBeta(1e-12);
+    final SABRDataBundle data = DATA.withBeta(1e-12);
     assertEquals(MODEL.getSurface(OPTION, DATA.withBeta(1e-12)).getVolatility(PAIR), MODEL.getSurface(OPTION, data).getVolatility(PAIR), 1e-9);
   }
 

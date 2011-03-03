@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import static com.opengamma.math.ComplexMathUtils.add;
 import static com.opengamma.math.ComplexMathUtils.multiply;
+import static com.opengamma.math.number.ComplexNumber.MINUS_I;
 
 import org.apache.commons.lang.Validate;
 
@@ -20,16 +21,16 @@ public class MeanCorrectedCharacteristicExponent extends CharacteristicExponent 
   private final CharacteristicExponent _base;
   private final ComplexNumber _w;
 
-  public MeanCorrectedCharacteristicExponent(CharacteristicExponent base) {
+  public MeanCorrectedCharacteristicExponent(final CharacteristicExponent base) {
     Validate.notNull(base);
     _base = base;
-    ComplexNumber temp = _base.evaluate(MINUS_I);
+    final ComplexNumber temp = _base.evaluate(MINUS_I);
     Validate.isTrue(Math.abs(temp.getImaginary()) < 1e-12, "problem with CharacteristicExponentFunction");
     _w = new ComplexNumber(0, -temp.getReal());
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber u) {
+  public ComplexNumber evaluate(final ComplexNumber u) {
 
     return add(_base.evaluate(u), multiply(_w, u));
   }

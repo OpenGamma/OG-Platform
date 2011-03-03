@@ -145,4 +145,16 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
 
     };
   }
+
+  public static DoubleFunction1D from(final Function1D<Double, Double> f) {
+    Validate.notNull(f, "f");
+    return new DoubleFunction1D() {
+
+      @Override
+      public Double evaluate(final Double x) {
+        return f.evaluate(x);
+      }
+
+    };
+  }
 }

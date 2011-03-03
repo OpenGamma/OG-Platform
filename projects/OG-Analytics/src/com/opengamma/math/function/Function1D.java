@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.function;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.opengamma.util.ArgumentChecker;
 
 /**
  *         Many functions only need one argument: extending this function
@@ -23,9 +22,8 @@ public abstract class Function1D<S, T> implements Function<S, T> {
 
   @Override
   public T evaluate(final S... x) {
-    ArgumentChecker.notNull(x, "Null parameter list");
-    ArgumentChecker.notEmpty(x, "Parameter list");
-    ArgumentChecker.noNulls(x, "Parameter list");
+    Validate.notEmpty(x, "Parameter list");
+    Validate.noNullElements(x, "Parameter list");
     if (x.length > 1) {
       s_logger.info("Array had more than one element; only using the first");
     }
