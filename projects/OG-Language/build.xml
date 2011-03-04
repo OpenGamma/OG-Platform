@@ -129,8 +129,10 @@
 		<subant target="compile" buildpath="${basedir}/Connector" />
 
 		<!-- C++ tests -->
+<!--
 		<subant target="tests" buildpath="${basedir}/UtilTest" />
 		<subant target="tests" buildpath="${basedir}/ServiceTest" />
+--> <!-- DON'T CHECK IN -->
 		<subant target="tests" buildpath="${basedir}/ConnectorTest" />
 
 		<!-- Java tests -->

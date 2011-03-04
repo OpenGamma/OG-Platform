@@ -1,5 +1,11 @@
-#ifndef __INC_OPENGAMMA_VERSION_H
-#define __INC_OPENGAMMA_VERSION_H
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+#ifndef __inc_og_language_version_h
+#define __inc_og_language_version_h
 
 // Major version number
 #define VERSION_MAJOR	0
@@ -29,4 +35,4 @@
 #define QUOTE(x)	QUOTE_(x)
 #define VERSION		TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
 
-#endif /* ifndef __INC_OPENGAMMA_VERSION_H */
+#endif /* ifndef __inc_og_language_version_h */
