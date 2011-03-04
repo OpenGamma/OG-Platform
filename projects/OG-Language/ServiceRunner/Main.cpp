@@ -45,10 +45,36 @@ static SERVICE_TABLE_ENTRY *_CreateDispatchTable () {
 	return pEntry;
 }
 
+static void _RegisterWithRestartManager () {
+	OSVERSIONINFO version;
+	ZeroMemory (&version, sizeof (version));
+	version.dwOSVersionInfoSize = sizeof (version);
+	GetVersionEx (&version);
+	if (version.dwMajorVersion >= 6) {
+		// Only available on Vista and higher
+		LOGDEBUG (TEXT ("Register for application restart on update"));
+#ifdef _DEBUG
+		// When debugging, don't want it to restart after a crash or a hang
+		HRESULT hr = RegisterApplicationRestart (TEXT ("run"), RESTART_NO_CRASH | RESTART_NO_HANG);
+#else /* ifdef _DEBUG */
+		// Release mode, restart is good
+		HRESULT hr = RegisterApplicationRestart (TEXT ("run"), 0);
+#endif /* ifdef _DEBUG */
+		if (SUCCEEDED (hr)) {
+			LOGDEBUG (TEXT ("Registered with restart manager"));
+		} else {
+			LOGWARN (TEXT ("Couldn't register with restart manager, error ") << hr);
+		}
+	} else {
+		LOGDEBUG (TEXT ("RestartManager not supported on version ") << version.dwMajorVersion);
+	}
+}
+
 int _tmain (int argc, _TCHAR* argv[]) {
 	_mainStart ();
 	if ((argc == 2) && !_tcscmp (argv[1], TEXT ("run"))) {
 		LOGDEBUG (TEXT ("Running inline"));
+		_RegisterWithRestartManager ();
 		ServiceRun (SERVICE_RUN_INLINE);
 	} else {
 		LOGDEBUG (TEXT ("Running as service"));
