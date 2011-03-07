@@ -10,6 +10,8 @@
 
 LOGGING(com.opengamma.language.service.Main);
 
+static CFudgeInitialiser g_oFudgeInitialiser;
+
 static void _InitialiseLogging () {
 	CSettings oSettings;
 	LoggingInit (&oSettings);

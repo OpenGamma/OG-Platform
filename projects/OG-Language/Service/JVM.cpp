@@ -12,7 +12,7 @@
 #include "Service.h"
 #include "Settings.h"
 
-LOGGING(com.opengamma.connector.service.JVM);
+LOGGING(com.opengamma.language.service.JVM);
 
 //#define DESTROY_JVM /* If there are rogue threads, the JVM won't terminate gracefully so comment this line out */
 #define MAIN_CLASS		"com/opengamma/language/connector/Main"
@@ -277,8 +277,8 @@ CJVM *CJVM::Create () {
 	}
 	LOGDEBUG (TEXT ("Registering native methods"));
 	JNINativeMethod methods[2] = {
-		{ "notifyPause", "()V", (void*)&_notifyPause },
-		{ "notifyStop", "()V", (void*)&_notifyStop }
+		{ (char*)"notifyPause", (char*)"()V", (void*)&_notifyPause },
+		{ (char*)"notifyStop", (char*)"()V", (void*)&_notifyStop }
 	};
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
@@ -457,7 +457,7 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 		jstring jsUserName = m_pEnv->NewStringUTF (pszUserName);
 		jstring jsInputPipe = m_pEnv->NewStringUTF (pszInputPipe);
 		jstring jsOutputPipe = m_pEnv->NewStringUTF (pszOutputPipe);
-		jstring jsLanguageUD = m_pEnv->NewStringUTF (pszLanguageID);
+		jstring jsLanguageID = m_pEnv->NewStringUTF (pszLanguageID);
 #endif
 #ifdef _DEBUG
 #define DEBUG_FLAG true

@@ -8,6 +8,14 @@
 
 // Test the functions and objects in Connector/SynchronousCalls.cpp
 
+#ifdef _M_CEE
+#ifdef _UNICODE
+#define GetMessage	GetMessageW
+#else
+#define GetMessage	GetMessageA
+#endif /* ifdef _UNICODE */
+#endif /* ifdef _M_CEE */
+
 #include "Connector/SynchronousCalls.h"
 
 LOGGING (com.opengamma.language.connector.SynchronousCallsTest);

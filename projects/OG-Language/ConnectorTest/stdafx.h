@@ -8,6 +8,7 @@
 #define __inc_og_language_connectortest_stdafx_h
 
 #if defined (_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <tchar.h>
 #include <strsafe.h>

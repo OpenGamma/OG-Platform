@@ -9,10 +9,13 @@
 // Generic testing abstraction
 
 #include "AbstractTest.h"
+#include "Fudge.h"
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/basicconfigurator.h>
 
 LOGGING (com.opengamma.language.util.AbstractTest);
+
+static CFudgeInitialiser g_oInitialiseFudge;
 
 #ifndef __cplusplus_cli
 

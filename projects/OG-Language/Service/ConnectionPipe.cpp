@@ -58,7 +58,6 @@ ClientConnect *CConnectionPipe::ReadMessage () {
 		}
 		LOGDEBUG (TEXT ("Connection accepted - reading from pipe"));
 		CBufferedInput oBuffer;
-
 		if (!oBuffer.Read (poClient, 8, m_dwReadTimeout)) { // Fudge headers are 8-bytes long
 			int ec = GetLastError ();
 			delete poClient;
@@ -70,6 +69,7 @@ ClientConnect *CConnectionPipe::ReadMessage () {
 				return NULL;
 			}
 		}
+		LOGDEBUG (TEXT ("Read ") << oBuffer.GetAvailable () << TEXT (" bytes"));
 		FudgeStatus status;
 		FudgeMsgHeader header;
 		fudge_byte *ptr = (fudge_byte*)oBuffer.GetData ();
@@ -79,6 +79,7 @@ ClientConnect *CConnectionPipe::ReadMessage () {
 			SetLastError (EIO_READ);
 			return NULL;
 		}
+		LOGDEBUG (TEXT ("Fudge message header found - reading ") << header.numbytes << TEXT (" byte message"));
 		if (!oBuffer.Read (poClient, header.numbytes, m_dwReadTimeout)) {
 			int ec = GetLastError ();
 			delete poClient;

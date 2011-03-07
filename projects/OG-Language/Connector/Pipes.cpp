@@ -126,11 +126,11 @@ bool CClientPipes::Connect (const TCHAR *pszLanguageID, CNamedPipe *poService, u
 		FudgeMsg_release (msg);
 		return false;
 	}
-	FudgeMsg_release (msg);
 	fudge_byte *ptrBuffer;
 	fudge_i32 cbBuffer;
 	FudgeStatus status = FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer);
 	FudgeMsgEnvelope_release (env);
+	FudgeMsg_release (msg);
 	if (status != FUDGE_OK) {
 		LOGWARN (TEXT ("Couldn't encode Fudge message"));
 		FudgeMsgEnvelope_release (env);

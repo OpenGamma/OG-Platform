@@ -95,11 +95,11 @@ public:
 			ASSERT (ClientConnect_toFudgeMsg (&cc, &msg) == FUDGE_OK);
 			FudgeMsgEnvelope env;
 			ASSERT (FudgeMsgEnvelope_create (&env, 0, 0, 0, msg) == FUDGE_OK);
-			FudgeMsg_release (msg);
 			fudge_byte *ptrBuffer;
 			fudge_i32 cbBuffer;
 			ASSERT (FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer) == FUDGE_OK);
 			FudgeMsgEnvelope_release (env);
+			FudgeMsg_release (msg);
 			ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT) == cbBuffer);
 			delete ptrBuffer;
 		} else {
