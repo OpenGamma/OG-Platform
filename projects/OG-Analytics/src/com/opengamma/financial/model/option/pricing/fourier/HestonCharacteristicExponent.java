@@ -9,9 +9,12 @@ import static com.opengamma.math.ComplexMathUtils.add;
 import static com.opengamma.math.ComplexMathUtils.divide;
 import static com.opengamma.math.ComplexMathUtils.exp;
 import static com.opengamma.math.ComplexMathUtils.log;
+import static com.opengamma.math.ComplexMathUtils.mod;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 import static com.opengamma.math.ComplexMathUtils.sqrt;
 import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.math.number.ComplexNumber.I;
+import static com.opengamma.math.number.ComplexNumber.ZERO;
 
 import com.opengamma.math.number.ComplexNumber;
 
@@ -35,6 +38,7 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
    * @param vol0 starting value of vol
    * @param omega vol-of-vol
    * @param rho correlation
+   * @param t time
    */
   public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho, final double t) {
     _kappa = kappa;
@@ -44,9 +48,9 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
     _rho = rho;
     _t = t;
 
-    double t1 = _omega - 2 * _kappa * _rho;
-    double rhoStar = 1 - _rho * _rho;
-    double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
+    final double t1 = _omega - 2 * _kappa * _rho;
+    final double rhoStar = 1 - _rho * _rho;
+    final double root = Math.sqrt(t1 * t1 + 4 * _kappa * _kappa * rhoStar);
     _alphaMin = (t1 - root) / _omega / rhoStar - 1;
     _alphaMax = (t1 + root) / _omega / rhoStar + 1;
 
@@ -54,52 +58,62 @@ public class HestonCharacteristicExponent extends CharacteristicExponent {
 
   @Override
   public ComplexNumber evaluate(final ComplexNumber u) {
-    //that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected 
+    // that u = 0 gives zero is true for any characteristic function, that u = -i gives zero is because this is already mean corrected
     if (u.getReal() == 0.0 && (u.getImaginary() == 0.0 || u.getImaginary() == -1.0)) {
-      return new ComplexNumber(0.0);
+      return ZERO;
     }
 
-    ComplexNumber c = getC(u);
-    ComplexNumber dv0 = multiply(_vol0, getD(u));
+    //non-stochastic vol limit 
+    if (_omega == 0.0 || mod(multiply(multiply(_omega / _kappa, u), add(I, u))) < 1e-6) {
+      final ComplexNumber z = multiply(u, add(I, u));
+      if (_kappa * _t < 1e-6) {
+        return multiply(-_vol0 / 2 * _t, z);
+      }
+      final double var = _theta * _t + (_vol0 - _theta) * (1 - Math.exp(-_kappa * _t)) / _kappa;
+      return multiply(-var / 2, z);
+    }
+
+    final ComplexNumber c = getC(u);
+    final ComplexNumber dv0 = multiply(_vol0, getD(u));
     return add(c, dv0);
   }
 
   private ComplexNumber getC(final ComplexNumber u) {
-    ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
-    ComplexNumber c = c(u);
-    ComplexNumber d = d(u);
-    ComplexNumber c3 = multiply(_t, add(_kappa, subtract(d, c1)));
-    ComplexNumber e = exp(multiply(d, _t));
-    ComplexNumber c4 = divide(subtract(multiply(c, e), 1), subtract(c, 1));
+    final ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
+    final ComplexNumber c = c(u);
+    final ComplexNumber d = d(u);
+    final ComplexNumber c3 = multiply(_t, subtract(_kappa, add(d, c1)));
+    final ComplexNumber e = exp(multiply(d, -_t));
+    ComplexNumber c4 = divide(subtract(c, e), subtract(c, 1));
     c4 = log(c4);
     return multiply(_kappa * _theta / _omega / _omega, subtract(c3, multiply(2, c4)));
   }
 
   private ComplexNumber getD(final ComplexNumber u) {
-    ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
-    ComplexNumber c = c(u);
-    ComplexNumber d = d(u);
-    ComplexNumber c3 = add(_kappa, subtract(d, c1));
-    ComplexNumber e = exp(multiply(d, _t));
-    ComplexNumber c4 = divide(subtract(e, 1), subtract(multiply(c, e), 1));
+    final ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
+    final ComplexNumber c = c(u);
+    final ComplexNumber d = d(u);
+    final ComplexNumber c3 = add(_kappa, subtract(d, c1));
+    final ComplexNumber e = exp(multiply(d, -_t));
+    final ComplexNumber c4 = divide(subtract(1, e), subtract(c, e));
     return divide(multiply(c3, c4), _omega * _omega);
   }
 
-  private ComplexNumber c(ComplexNumber u) {
-    ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
-    ComplexNumber c2 = d(u);
-    ComplexNumber num = add(_kappa, subtract(c2, c1));
-    ComplexNumber denom = subtract(_kappa, add(c2, c1));
+  private ComplexNumber c(final ComplexNumber u) {
+    final ComplexNumber c1 = multiply(u, new ComplexNumber(0, _rho * _omega));
+    final ComplexNumber c2 = d(u);
+    final ComplexNumber num = add(_kappa, subtract(c2, c1));
+    final ComplexNumber denom = subtract(_kappa, add(c2, c1));
     return divide(num, denom);
   }
 
-  private ComplexNumber d(ComplexNumber u) {
+  private ComplexNumber d(final ComplexNumber u) {
     ComplexNumber c1 = subtract(multiply(u, new ComplexNumber(0, _rho * _omega)), _kappa);
     c1 = multiply(c1, c1);
-    ComplexNumber c2 = multiply(u, new ComplexNumber(0, _omega * _omega));
+    final ComplexNumber c2 = multiply(u, new ComplexNumber(0, _omega * _omega));
     ComplexNumber c3 = multiply(u, _omega);
     c3 = multiply(c3, c3);
-    ComplexNumber c4 = add(add(c1, c2), c3);
+    final ComplexNumber c4 = add(add(c1, c2), c3);
     return multiply(1, sqrt(c4));
   }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
+import static com.opengamma.math.number.ComplexNumber.MINUS_I;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.ComplexMathUtils;
@@ -26,8 +28,8 @@ public class TimeChangedCharacteristicExponent extends CharacteristicExponent {
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber u) {
-    ComplexNumber z = ComplexMathUtils.multiply(MINUS_I, _base.evaluate(u));
+  public ComplexNumber evaluate(final ComplexNumber u) {
+    final ComplexNumber z = ComplexMathUtils.multiply(MINUS_I, _base.evaluate(u));
     return _timeChange.evaluate(z);
   }
 

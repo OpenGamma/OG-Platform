@@ -63,6 +63,9 @@
     <ClInclude Include="com_opengamma_language_connector_UserMessage.h">
       <Filter>Header Files\Fudge</Filter>
     </ClInclude>
+    <ClInclude Include="SynchronousCalls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="com_opengamma_language_connector_UserMessage.c">
       <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="SynchronousCalls.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

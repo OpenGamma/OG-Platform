@@ -23,6 +23,7 @@ import static com.opengamma.web.bundle.BundleTest.makejsBundleCommon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -36,11 +37,17 @@ import com.opengamma.web.bundle.Fragment;
  * Test BundleManager
  */
 public class BundleManagerTest {
+  
+  private static List<Fragment> EXPECTED_JS_BUNDLE_COMMON = Lists.newArrayList(CORE_JS, INIT_JS, JQUERY_JS);
+  
+  private static List<Fragment> EXPECTED_CSS_UTIL = Lists.newArrayList(RESET_CSS, LINKS_CSS);
+  
+  private static List<Fragment> EXPECTED_CSS_BUNDLE_COMMON = Lists.newArrayList(FRAG_A, BUTTON_CSS, CORE_CSS);
 
   private final BundleManager _manager = new BundleManager();
   
   @Test
-  public void test_addBundle() {
+  public void test_addBundle_with_fragments() {
     
     _manager.addBundle(makeCssBundleCommon());
     _manager.addBundle(makeCssUtil());
@@ -48,32 +55,41 @@ public class BundleManagerTest {
       
     Bundle bundle = _manager.getBundle(OG_COMMON_CSS);
     assertNotNull(bundle);
-    assertEquals(expectedCssBundleFragments(), bundle.getAllFragment());
+    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, bundle.getAllFragment());
     
     bundle = _manager.getBundle(CSS_UTIL_CSS);
     assertNotNull(bundle);
-    assertEquals(expectedCssUtilFragments(), bundle.getAllFragment());
+    assertEquals(EXPECTED_CSS_UTIL, bundle.getAllFragment());
     
     bundle = _manager.getBundle(JS_BUNDLE_COMMON_JS);
     assertNotNull(bundle);
-    assertEquals(expectedJsBundleFragments(), bundle.getAllFragment());
+    assertEquals(EXPECTED_JS_BUNDLE_COMMON, bundle.getAllFragment());
     
   }
-
-  private List<Fragment> expectedJsBundleFragments() {
-    List<Fragment> expectedList = Lists.newArrayList(CORE_JS, INIT_JS, JQUERY_JS);
-    return expectedList;
+  
+  @Test
+  public void test_addBundle_with_bundles() {
+    
+    Bundle test = new Bundle("Composite");
+    test.addChildNode(makeCssBundleCommon());
+    test.addChildNode(makeCssUtil());
+    
+    _manager.addBundle(test);
+    
+    Bundle cssBundleCommon = _manager.getBundle(OG_COMMON_CSS);
+    assertNotNull(cssBundleCommon);
+    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, cssBundleCommon.getAllFragment());
+    
+    Bundle cssUtil = _manager.getBundle(CSS_UTIL_CSS);
+    assertNotNull(cssUtil);
+    assertEquals(EXPECTED_CSS_UTIL, cssUtil.getAllFragment());
+    
+    Bundle composite = _manager.getBundle("Composite");
+    assertNotNull(cssBundleCommon);
+    List<Fragment> expectedComposite = new ArrayList<Fragment>(EXPECTED_CSS_BUNDLE_COMMON);
+    expectedComposite.addAll(EXPECTED_CSS_UTIL);
+    assertEquals(expectedComposite, composite.getAllFragment());
+    
   }
-
-  private List<Fragment> expectedCssUtilFragments() {
-    List<Fragment> expectedList = Lists.newArrayList(RESET_CSS, LINKS_CSS);
-    return expectedList;
-  }
-
-  private List<Fragment> expectedCssBundleFragments() {
-    List<Fragment> expectedList = Lists.newArrayList(FRAG_A, BUTTON_CSS, CORE_CSS);
-    return expectedList;
-  }
-
 
 }

@@ -47,7 +47,7 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), new VolatilityCurve(ConstantDoublesCurve.from(0.1)), date);
     final BlackDermanToyYieldOnlyInterestRateModel model = new BlackDermanToyYieldOnlyInterestRateModel(steps);
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);
-    final Triple[][] result = tree.getTree();
+    final Triple[][] result = tree.getNodes();
     final Triple[][] expected = new Triple[4][4];
     expected[0][0] = new Triple<Double, Double, Double>(0.05, 0.9524, 1.0);
     expected[1][0] = new Triple<Double, Double, Double>(0.045, 0.9569, 0.4762);

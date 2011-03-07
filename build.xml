@@ -238,6 +238,7 @@
 	</target>
 
 	<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">
+		<git-pull dest="." />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />

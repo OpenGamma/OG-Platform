@@ -12,5 +12,5 @@ package com.opengamma.financial.model.volatility.surface;
  */
 public interface VolatilitySurfaceModel<T, U> {
 
-  VolatilitySurface getSurface(T marketData, U data);
+  VolatilitySurface getSurface(T t, U u);
 }
