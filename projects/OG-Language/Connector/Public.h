@@ -80,7 +80,7 @@ public:
 		static void Release (CCallback *poCallback) { if (!poCallback->m_oRefCount.DecrementAndGet ()) delete poCallback; }
 	};
 	~CConnector ();
-	static CConnector *Start ();
+	static CConnector *Start (const TCHAR *pszLanguageID);
 	bool Stop ();
 	bool WaitForStartup (unsigned long lTimeout);
 	void Retain () { m_oRefCount.IncrementAndGet (); }

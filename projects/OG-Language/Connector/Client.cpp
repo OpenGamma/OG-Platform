@@ -170,7 +170,7 @@ endMessageLoop:
 	}
 };
 
-CClientService::CClientService ()
+CClientService::CClientService (const TCHAR *pszLanguageID)
 : m_oPipesSemaphore (1, 1) {
 	m_poStateChangeCallback = NULL;
 	m_poMessageReceivedCallback = NULL;
@@ -178,6 +178,7 @@ CClientService::CClientService ()
 	m_poRunner = NULL;
 	m_poPipes = NULL;
 	m_poJVM = NULL;
+	m_pszLanguageID = _tcsdup (pszLanguageID);
 }
 
 CClientService::~CClientService () {
@@ -198,6 +199,7 @@ CClientService::~CClientService () {
 	if (m_poJVM) {
 		delete m_poJVM;
 	}
+	delete (m_pszLanguageID);
 }
 
 bool CClientService::Start () {
@@ -368,7 +370,7 @@ bool CClientService::ConnectPipes () {
 		}
 	} while (true);
 	LOGDEBUG (TEXT ("Connected to service"));
-	bool bResult = m_poPipes->Connect (poPipe, lTimeout);
+	bool bResult = m_poPipes->Connect (m_pszLanguageID, poPipe, lTimeout);
 	if (!bResult) {
 		LOGWARN (TEXT ("Couldn't connect to JVM service, error ") << GetLastError ());
 	}

@@ -3,7 +3,7 @@
 	<property environment="env" />
 	<property file="${user.home}/.OG-Build-common.properties" />
 	<property file="${basedir}/build.properties" />
-	<property file="${basedir}/../../common/build.properties" />
+	<property file="${common.dir}/build.properties" />
 
 	<path id="build.path">
 		<pathelement path="${basedir}/Connector" />
@@ -129,10 +129,8 @@
 		<subant target="compile" buildpath="${basedir}/Connector" />
 
 		<!-- C++ tests -->
-<!--
 		<subant target="tests" buildpath="${basedir}/UtilTest" />
 		<subant target="tests" buildpath="${basedir}/ServiceTest" />
---> <!-- DON'T CHECK IN -->
 		<subant target="tests" buildpath="${basedir}/ConnectorTest" />
 
 		<!-- Java tests -->
@@ -183,6 +181,6 @@
 
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
-	<import file="${basedir}/../../common/common-ivy.xml" />
+	<import file="${common.dir}/common-ivy.xml" />
 
 </project>

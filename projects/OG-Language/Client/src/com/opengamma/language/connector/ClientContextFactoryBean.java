@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,17 +10,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.Lifecycle;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Constructs {@link Client} instances as connections are received.
+ * Constructs a {@link ClientContext} instance
  */
-public final class ClientFactoryBean implements InitializingBean, Lifecycle {
+public final class ClientContextFactoryBean implements ClientContextFactory {
 
   /**
    * The Fudge context to use for encoding/decoding messages sent and received.
@@ -68,7 +66,20 @@ public final class ClientFactoryBean implements InitializingBean, Lifecycle {
    */
   private UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
 
-  private ClientContext _clientContext;
+  public ClientContextFactoryBean() {
+  }
+
+  public ClientContextFactoryBean(final ClientContextFactoryBean copyFrom) {
+    ArgumentChecker.notNull(copyFrom, "copyFrom");
+    setFudgeContext(copyFrom.getFudgeContext());
+    setScheduler(copyFrom.getScheduler());
+    setMessageTimeout(copyFrom.getMessageTimeout());
+    setHeartbeatTimeout(copyFrom.getHeartbeatTimeout());
+    setTerminationTimeout(copyFrom.getTerminationTimeout());
+    setMaxThreadsPerClient(copyFrom.getMaxThreadsPerClient());
+    setMaxClientThreads(copyFrom.getMaxClientThreads());
+    setMessageHandler(copyFrom.getMessageHandler());
+  }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -115,7 +126,7 @@ public final class ClientFactoryBean implements InitializingBean, Lifecycle {
     return _terminationTimeout;
   }
 
-  public void setMaxThreadPerClient(final int maxThreadsPerClient) {
+  public void setMaxThreadsPerClient(final int maxThreadsPerClient) {
     _maxThreadsPerClient = maxThreadsPerClient;
   }
 
@@ -140,42 +151,15 @@ public final class ClientFactoryBean implements InitializingBean, Lifecycle {
     return _messageHandler;
   }
 
-  private void setClientContext(final ClientContext context) {
-    _clientContext = context;
-  }
-
-  private ClientContext getClientContext() {
-    return _clientContext;
-  }
-
-  public Client createClient(final String inputPipeName, final String outputPipeName,
-      final SessionContext sessionContext) {
-    return new Client(getClientContext(), inputPipeName, outputPipeName, sessionContext);
-  }
-
-  // Lifecycle
+  // ClientContextFactory
 
   @Override
-  public boolean isRunning() {
-    return false;
-  }
-
-  @Override
-  public void start() {
-    setClientContext(new ClientContext(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
-        getMaxClientThreads()), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(),
-        getMessageHandler()));
-  }
-
-  @Override
-  public void stop() {
-  }
-
-  // InitializingBean
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
+  public ClientContext createClientContext() {
+    // Only messageHandler could still be null - the others have defaults and won't let null be set
     ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
+    return new ClientContext(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
+        getMaxClientThreads()), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(),
+        getMessageHandler());
   }
 
 }

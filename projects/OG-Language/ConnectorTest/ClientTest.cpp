@@ -15,6 +15,7 @@
 
 LOGGING (com.opengamma.language.connector.ClientTest);
 
+#define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_START		30000
 #define TIMEOUT_HEARTBEAT	30000
 #define TIMEOUT_MESSAGE		3000
@@ -72,7 +73,7 @@ static CClientService *g_poService;
 static CStateCallback *g_poCallback;
 
 static void Start () {
-	g_poService = CClientService::Create ();
+	g_poService = CClientService::Create (TEST_LANGUAGE);
 	ASSERT (g_poService);
 	g_poCallback = new CStateCallback ();
 	g_poService->SetStateChangeCallback (g_poCallback);

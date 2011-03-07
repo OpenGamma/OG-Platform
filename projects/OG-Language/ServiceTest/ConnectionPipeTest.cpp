@@ -23,11 +23,15 @@ static CConnectionPipe *_CreateTestPipe () {
 	return po;
 }
 
-#define TEST_USERNAME		"Username"
-#define TEST_CPP2JAVA		"\\\\.\\pipe\\Foo"
-#define TEST_JAVA2CPP		"\\\\.\\pipe\\Bar"
-#define __L(str)			L##str
-#define _L(str)				__L(str)
+#define TEST_USERNAME		TEXT ("Username")
+#define TEST_CPP2JAVA		TEXT ("\\\\.\\pipe\\Foo")
+#define TEST_JAVA2CPP		TEXT ("\\\\.\\pipe\\Bar")
+#define TEST_LANGUAGE		TEXT ("test")
+#ifdef _DEBUG
+#define TEST_DEBUG			FUDGE_TRUE
+#else /* ifdef _DEBUG */
+#define TEST_DEBUG			FUDGE_FALSE
+#endif /* ifdef _DEBUG */
 
 class CConnectionServerThread : public CThread {
 private:
@@ -40,15 +44,19 @@ public:
 		ASSERT (Start ());
 	}
 	void Run () {
-		PJAVACLIENT_CONNECT pjcc = m_poPipe->ReadMessage ();
-		if (pjcc) {
-			LOGDEBUG (TEXT ("UserName=") << JavaClientGetUserName (pjcc));
-			LOGDEBUG (TEXT ("CPP2Java=") << JavaClientGetCPPToJavaPipe (pjcc));
-			LOGDEBUG (TEXT ("Java2CPP=") << JavaClientGetJavaToCPPPipe (pjcc));
-			ASSERT (!_tcscmp (JavaClientGetUserName (pjcc), TEXT (TEST_USERNAME)));
-			ASSERT (!_tcscmp (JavaClientGetCPPToJavaPipe (pjcc), TEXT (TEST_CPP2JAVA)));
-			ASSERT (!_tcscmp (JavaClientGetJavaToCPPPipe (pjcc), TEXT (TEST_JAVA2CPP)));
-			free (pjcc);
+		ClientConnect *pcc = m_poPipe->ReadMessage ();
+		if (pcc) {
+			LOGDEBUG (TEXT ("UserName=") << pcc->_userName);
+			LOGDEBUG (TEXT ("CPP2Java=") << pcc->_CPPToJavaPipe);
+			LOGDEBUG (TEXT ("Java2CPP=") << pcc->_JavaToCPPPipe);
+			LOGDEBUG (TEXT ("Language=") << pcc->_languageID);
+			LOGDEBUG (TEXT ("Debug=") << pcc->_debug);
+			ASSERT (!_tcscmp (pcc->_userName, TEST_USERNAME));
+			ASSERT (!_tcscmp (pcc->_CPPToJavaPipe, TEST_CPP2JAVA));
+			ASSERT (!_tcscmp (pcc->_JavaToCPPPipe, TEST_JAVA2CPP));
+			ASSERT (!_tcscmp (pcc->_languageID, TEST_LANGUAGE));
+			ASSERT (pcc->_debug == TEST_DEBUG);
+			ClientConnect_free (pcc);
 			m_bOk = true;
 		}
 	}
@@ -60,11 +68,9 @@ public:
 class CConnectionClientThread : public CThread {
 private:
 	const TCHAR *m_pszPipeName;
-	bool m_bUnicode;
 public:
-	CConnectionClientThread (const TCHAR *pszPipeName, bool bUnicode) {
+	CConnectionClientThread (const TCHAR *pszPipeName) {
 		m_pszPipeName = pszPipeName;
-		m_bUnicode = bUnicode;
 		ASSERT (Start ());
 	}
 	void Run () {
@@ -78,15 +84,24 @@ public:
 		} while (!poPipe && (GetLastError () == ENOENT) && (++nAttempt < 10));
 		if (poPipe) {
 			LOGDEBUG (TEXT ("Client connected"));
-			PJAVACLIENT_CONNECT pjcc;
-			if (m_bUnicode) {
-				pjcc = JavaClientCreateW (_L (TEST_USERNAME), _L (TEST_CPP2JAVA), _L (TEST_JAVA2CPP));
-			} else {
-				pjcc = JavaClientCreateA (TEST_USERNAME, TEST_CPP2JAVA, TEST_JAVA2CPP);
-			}
-			ASSERT (pjcc);
-			ASSERT (poPipe->Write (pjcc, pjcc->cbSize, TIMEOUT) == pjcc->cbSize);
-			delete poPipe;
+			ClientConnect cc;
+			memset (&cc, 0, sizeof (cc));
+			cc._userName = TEST_USERNAME;
+			cc._CPPToJavaPipe = TEST_CPP2JAVA;
+			cc._JavaToCPPPipe = TEST_JAVA2CPP;
+			cc._languageID = TEST_LANGUAGE;
+			cc._debug = TEST_DEBUG;
+			FudgeMsg msg;
+			ASSERT (ClientConnect_toFudgeMsg (&cc, &msg) == FUDGE_OK);
+			FudgeMsgEnvelope env;
+			ASSERT (FudgeMsgEnvelope_create (&env, 0, 0, 0, msg) == FUDGE_OK);
+			FudgeMsg_release (msg);
+			fudge_byte *ptrBuffer;
+			fudge_i32 cbBuffer;
+			ASSERT (FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer) == FUDGE_OK);
+			FudgeMsgEnvelope_release (env);
+			ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT) == cbBuffer);
+			delete ptrBuffer;
 		} else {
 			LOGWARN (TEXT ("Couldn't open client pipe, error ") << GetLastError ());
 		}
@@ -96,24 +111,10 @@ public:
 static void NormalOperation () {
 	CConnectionPipe *poPipe = _CreateTestPipe ();
 	CConnectionServerThread *poServer = new CConnectionServerThread (poPipe);
-	CConnectionClientThread *poClient = new CConnectionClientThread (poPipe->GetName (), sizeof (TCHAR) == sizeof (wchar_t));
+	CConnectionClientThread *poClient = new CConnectionClientThread (poPipe->GetName ());
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poClient->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->IsOk ());
-	CThread::Release (poServer);
-	CThread::Release (poClient);
-	delete poPipe;
-}
-
-static void UnicodeMismatch () {
-	CConnectionPipe *poPipe = _CreateTestPipe ();
-	// Use LazyClose to set a timeout
-	poPipe->LazyClose (TIMEOUT);
-	CConnectionServerThread *poServer = new CConnectionServerThread (poPipe);
-	CConnectionClientThread *poClient = new CConnectionClientThread (poPipe->GetName (), sizeof (TCHAR) != sizeof (wchar_t));
-	ASSERT (poServer->Wait (TIMEOUT_JOIN));
-	ASSERT (poClient->Wait (TIMEOUT_JOIN));
-	ASSERT (!poServer->IsOk ());
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	delete poPipe;
@@ -123,5 +124,4 @@ static void UnicodeMismatch () {
 
 BEGIN_TESTS (ConnectionPipeTest)
 	TEST (NormalOperation)
-	TEST (UnicodeMismatch)
 END_TESTS

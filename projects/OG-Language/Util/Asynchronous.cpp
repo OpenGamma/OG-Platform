@@ -8,8 +8,8 @@
 
 // Base class for an asynchronous callback service
 
-#include "Asynchronous.h"
 #include "Logging.h"
+#include "Asynchronous.h"
 
 #define DEFAULT_TIMEOUT_INACTIVITY		 30000 /* 30s of inactivity and threads die */
 #define DEFAULT_TIMEOUT_RESCHEDULE		   250 /* 1/4 s retry delay */

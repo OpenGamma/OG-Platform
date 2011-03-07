@@ -57,7 +57,7 @@ public final class Client implements Runnable, SessionContextInitializationEvent
   private FudgeStreamWriter _outputPipe;
   private volatile boolean _poisoned;
 
-  /* package */Client(final ClientContext clientContext, final String inputPipeName, final String outputPipeName,
+  protected Client(final ClientContext clientContext, final String inputPipeName, final String outputPipeName,
       final SessionContext session) {
     _clientContext = clientContext;
     _sessionContext = session;

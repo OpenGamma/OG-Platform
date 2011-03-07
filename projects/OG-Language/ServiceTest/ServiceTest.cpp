@@ -14,6 +14,16 @@
 
 LOGGING (com.opengamma.language.service.ServiceTest);
 
+#define TEST_USERNAME		TEXT ("Username")
+#define TEST_CPP2JAVA		TEXT ("\\\\.\\pipe\\Foo")
+#define TEST_JAVA2CPP		TEXT ("\\\\.\\pipe\\Bar")
+#define TEST_LANGUAGE		TEXT ("test")
+#ifdef _DEBUG
+#define TEST_DEBUG			FUDGE_TRUE
+#else /* ifdef _DEBUG */
+#define TEST_DEBUG			FUDGE_FALSE
+#endif /* ifdef _DEBUG */
+
 #define TIMEOUT_START		30000
 #define TIMEOUT_STOP		1000
 #define TIMEOUT_CONNECT		1000
@@ -43,11 +53,26 @@ public:
 		CNamedPipe *poPipe = CNamedPipe::ClientWrite (settings.GetConnectionPipe ());
 		ASSERT (poPipe);
 		LOGDEBUG (TEXT ("Client connected"));
-		PJAVACLIENT_CONNECT pjcc = JavaClientCreate (TEXT ("User"), TEXT ("Foo"), TEXT ("Bar"));
+		ClientConnect cc;
+		memset (&cc, 0, sizeof (cc));
+		cc._userName = TEST_USERNAME;
+		cc._CPPToJavaPipe = TEST_CPP2JAVA;
+		cc._JavaToCPPPipe = TEST_JAVA2CPP;
+		cc._languageID = TEST_LANGUAGE;
+		cc._debug = TEST_DEBUG;
+		FudgeMsg msg;
+		ASSERT (ClientConnect_toFudgeMsg (&cc, &msg) == FUDGE_OK);
+		FudgeMsgEnvelope env;
+		ASSERT (FudgeMsgEnvelope_create (&env, 0, 0, 0, msg) == FUDGE_OK);
+		FudgeMsg_release (msg);
+		fudge_byte *ptrBuffer;
+		fudge_i32 cbBuffer;
+		ASSERT (FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer) == FUDGE_OK);
+		FudgeMsgEnvelope_release (env);
 		LOGDEBUG (TEXT ("Writing connection packet"));
-		ASSERT (poPipe->Write (pjcc, pjcc->cbSize, TIMEOUT_CONNECT) == (size_t)pjcc->cbSize);
+		ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT_CONNECT) == cbBuffer);
 		LOGDEBUG (TEXT ("Connection packet written"));
-		free (pjcc);
+		delete ptrBuffer;
 		LOGDEBUG (TEXT ("Disconnecting"));
 		delete poPipe;
 	}

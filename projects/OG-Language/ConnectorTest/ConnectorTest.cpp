@@ -14,6 +14,7 @@
 
 LOGGING (com.opengamma.language.connector.ConnectorTest);
 
+#define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
 #define TIMEOUT_CALL		3000
 #ifdef TIMEOUT_ASYNC
@@ -90,7 +91,7 @@ static fudge_i32 g_nonce;
 static CTestMessageCallback *g_poCallback;
 
 static void StartConnector () {
-	g_poConnector = CConnector::Start ();
+	g_poConnector = CConnector::Start (TEST_LANGUAGE);
 	ASSERT (g_poConnector);
 	ASSERT (g_poConnector->WaitForStartup (TIMEOUT_STARTUP));
 	g_poCallback = new CTestMessageCallback ();

@@ -444,7 +444,7 @@ bool CJVM::IsRunning () {
 	return bResult;
 }
 
-void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe) {
+void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID) {
 	m_oMutex.Enter ();
 	if (m_bRunning) {
 		m_pEnv->PushLocalFrame (3);
@@ -452,12 +452,20 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 		jstring jsUserName = m_pEnv->NewString ((jchar*)pszUserName, wcslen (pszUserName));
 		jstring jsInputPipe = m_pEnv->NewString ((jchar*)pszInputPipe, wcslen (pszInputPipe));
 		jstring jsOutputPipe = m_pEnv->NewString ((jchar*)pszOutputPipe, wcslen (pszOutputPipe));
+		jstring jsLanguageID = m_pEnv->NewString ((jchar*)pszLanguageID, wcslen (pszLanguageID));
 #else
 		jstring jsUserName = m_pEnv->NewStringUTF (pszUserName);
 		jstring jsInputPipe = m_pEnv->NewStringUTF (pszInputPipe);
 		jstring jsOutputPipe = m_pEnv->NewStringUTF (pszOutputPipe);
+		jstring jsLanguageUD = m_pEnv->NewStringUTF (pszLanguageID);
 #endif
-		if (Invoke (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z", jsUserName, jsInputPipe, jsOutputPipe)) {
+#ifdef _DEBUG
+#define DEBUG_FLAG true
+#else /* ifdef _DEBUG */
+#define DEBUG_FLAG false
+#endif /* ifdef _DEBUG */
+		if (Invoke (m_pEnv, "svcAccept", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Z", jsUserName, jsInputPipe, jsOutputPipe, jsLanguageID, DEBUG_FLAG)) {
+#undef DEBUG_FLAG
 			LOGINFO (TEXT ("Connection from ") << pszUserName << TEXT (" accepted"));
 		} else {
 			LOGWARN (TEXT ("Couldn't accept connection from ") << pszUserName);

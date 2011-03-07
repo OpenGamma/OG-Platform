@@ -17,24 +17,24 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 /**
- * Tests the extension points for chaining custom information and behaviours to the contexts.
+ * Tests the extension points for chaining custom information and behaviors to the contexts.
  */
 public class ContextTest {
 
   @Test
   public void testCreateSessions() {
-    final ContextFactoryBean contextFactory = new ContextFactoryBean();
-    final SessionContext session1 = contextFactory.createSessionContext("user1");
+    final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();
+    final SessionContext session1 = contextFactory.createSessionContext("user1", false);
     assertNotNull(session1);
     assertNotNull(session1.getUserContext());
     assertNotNull(session1.getGlobalContext());
-    final SessionContext session2 = contextFactory.createSessionContext("user2");
+    final SessionContext session2 = contextFactory.createSessionContext("user2", false);
     assertNotNull(session2);
     assertNotNull(session2.getUserContext());
     assertNotNull(session2.getGlobalContext());
     assertNotSame(session1.getUserContext(), session2.getUserContext());
     assertSame(session1.getGlobalContext(), session2.getGlobalContext());
-    final SessionContext session3 = contextFactory.createSessionContext("user1");
+    final SessionContext session3 = contextFactory.createSessionContext("user1", false);
     assertNotNull(session3);
     assertSame(session1.getUserContext(), session3.getUserContext());
     assertSame(session1.getGlobalContext(), session3.getGlobalContext());
@@ -42,28 +42,28 @@ public class ContextTest {
 
   @Test
   public void testDestroySessions() {
-    final ContextFactoryBean contextFactory = new ContextFactoryBean();
-    final SessionContext session1 = contextFactory.createSessionContext("user");
-    final SessionContext session2 = contextFactory.createSessionContext("user");
+    final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();
+    final SessionContext session1 = contextFactory.createSessionContext("user", false);
+    final SessionContext session2 = contextFactory.createSessionContext("user", false);
     assertSame(session1.getUserContext(), session2.getUserContext());
     session1.initContext(new NullSessionContextEventHandler());
     session2.initContext(new NullSessionContextEventHandler());
     session1.doneContext();
     session2.doneContext();
-    final SessionContext session3 = contextFactory.createSessionContext("user");
+    final SessionContext session3 = contextFactory.createSessionContext("user", false);
     assertNotSame(session1.getUserContext(), session3.getUserContext());
     assertNotSame(session2.getUserContext(), session3.getUserContext());
   }
 
   @Test
   public void testGlobalEventHandler() {
-    final ContextFactoryBean contextFactory = new ContextFactoryBean();
+    final GlobalContextFactoryBean globalContextFactory = new GlobalContextFactoryBean();
     final AtomicReference<GlobalContext> context1 = new AtomicReference<GlobalContext>();
     final AtomicInteger handler1 = new AtomicInteger();
     final AtomicReference<GlobalContext> context2 = new AtomicReference<GlobalContext>();
     final AtomicInteger handler2 = new AtomicInteger();
     // This handler should be run first
-    contextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(contextFactory
+    globalContextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(globalContextFactory
         .getGlobalContextEventHandler()) {
       @Override
       protected void initContextImpl(MutableGlobalContext context) {
@@ -73,7 +73,7 @@ public class ContextTest {
       }
     });
     // This handler should be run second
-    contextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(contextFactory
+    globalContextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(globalContextFactory
         .getGlobalContextEventHandler()) {
       @Override
       protected void initContextImpl(MutableGlobalContext context) {
@@ -83,14 +83,16 @@ public class ContextTest {
         handler2.incrementAndGet();
       }
     });
-    SessionContext sessionContext = contextFactory.createSessionContext("user1");
+    final SessionContextFactoryBean sessionContextFactory = new SessionContextFactoryBean(new UserContextFactoryBean(
+        globalContextFactory));
+    SessionContext sessionContext = sessionContextFactory.createSessionContext("user1", false);
     // Both handlers to have been run
     assertEquals(1, handler1.get());
     assertEquals(1, handler2.get());
     // Context passed the same as the one on the session
     assertSame(context1.get(), sessionContext.getGlobalContext());
     assertSame(context2.get(), sessionContext.getGlobalContext());
-    contextFactory.createSessionContext("user2");
+    sessionContextFactory.createSessionContext("user2", false);
     // Handlers do not get run again
     assertEquals(1, handler1.get());
     assertEquals(1, handler2.get());
@@ -98,12 +100,12 @@ public class ContextTest {
 
   @Test
   public void testUserEventHandler() {
-    final ContextFactoryBean contextFactory = new ContextFactoryBean();
+    final UserContextFactoryBean userContextFactory = new UserContextFactoryBean();
     final AtomicReference<UserContext> context1 = new AtomicReference<UserContext>();
     final AtomicInteger handler1 = new AtomicInteger();
     final AtomicReference<UserContext> context2 = new AtomicReference<UserContext>();
     final AtomicInteger handler2 = new AtomicInteger();
-    contextFactory.setUserContextEventHandler(new AbstractUserContextEventHandler(contextFactory
+    userContextFactory.setUserContextEventHandler(new AbstractUserContextEventHandler(userContextFactory
         .getUserContextEventHandler()) {
 
       // This handler should be run first
@@ -125,7 +127,7 @@ public class ContextTest {
       }
 
     });
-    contextFactory.setUserContextEventHandler(new AbstractUserContextEventHandler(contextFactory
+    userContextFactory.setUserContextEventHandler(new AbstractUserContextEventHandler(userContextFactory
         .getUserContextEventHandler()) {
 
       // This handler should be run second
@@ -147,14 +149,15 @@ public class ContextTest {
       }
 
     });
-    final SessionContext sessionContext1 = contextFactory.createSessionContext("user");
+    final SessionContextFactoryBean sessionContextFactory = new SessionContextFactoryBean(userContextFactory);
+    final SessionContext sessionContext1 = sessionContextFactory.createSessionContext("user", false);
     // Both handlers to have been run
     assertEquals(1, handler1.get());
     assertEquals(1, handler2.get());
     // Context passed the same as the one on the session
     assertSame(context1.get(), sessionContext1.getUserContext());
     assertSame(context2.get(), sessionContext1.getUserContext());
-    final SessionContext sessionContext2 = contextFactory.createSessionContext("user");
+    final SessionContext sessionContext2 = sessionContextFactory.createSessionContext("user", false);
     // Handlers do not get run again
     assertEquals(1, handler1.get());
     assertEquals(1, handler2.get());
@@ -168,7 +171,7 @@ public class ContextTest {
     assertEquals(2, handler2.get());
     assertNull(context1.get());
     assertNull(context2.get());
-    contextFactory.createSessionContext("user");
+    sessionContextFactory.createSessionContext("user", false);
     // Handlers get run again on new user
     assertEquals(3, handler1.get());
     assertEquals(3, handler2.get());
@@ -176,7 +179,7 @@ public class ContextTest {
 
   @Test
   public void testSessionEventHandler() {
-    final ContextFactoryBean contextFactory = new ContextFactoryBean();
+    final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();
     final AtomicReference<SessionContext> context1 = new AtomicReference<SessionContext>();
     final AtomicInteger handler1 = new AtomicInteger();
     final AtomicReference<SessionContext> context2 = new AtomicReference<SessionContext>();
@@ -224,7 +227,7 @@ public class ContextTest {
       }
 
     });
-    final SessionContext sessionContext1 = contextFactory.createSessionContext("user");
+    final SessionContext sessionContext1 = contextFactory.createSessionContext("user", false);
     // Both handlers to not have been run
     assertEquals(0, handler1.get());
     assertEquals(0, handler2.get());
@@ -235,7 +238,7 @@ public class ContextTest {
     // Context passed the same
     assertSame(context1.get(), sessionContext1);
     assertSame(context2.get(), sessionContext1);
-    final SessionContext sessionContext2 = contextFactory.createSessionContext("user");
+    final SessionContext sessionContext2 = contextFactory.createSessionContext("user", false);
     sessionContext2.initContext(new NullSessionContextEventHandler());
     // Handlers get run again
     assertEquals(2, handler1.get());

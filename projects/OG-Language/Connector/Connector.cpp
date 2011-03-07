@@ -182,8 +182,8 @@ CConnector::~CConnector () {
 	CClientService::Release (m_poClient);
 }
 
-CConnector *CConnector::Start () {
-	CClientService *poClient = CClientService::Create ();
+CConnector *CConnector::Start (const TCHAR *pszLanguage) {
+	CClientService *poClient = CClientService::Create (pszLanguage);
 	if (!poClient) {
 		LOGERROR (TEXT ("Couldn't create client"));
 		return NULL;

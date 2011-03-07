@@ -1,4 +1,4 @@
-<project name="build-posix">
+<project name="build-cpp-impl">
 
 	<property file="${basedir}/build.properties" />
 	<property file="${solution.dir}/build.properties" />

@@ -28,7 +28,7 @@ public:
 	bool IsBusy (unsigned long dwTimeout);
 	bool IsRunning ();
 	bool IsStopped ();
-	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe);
+	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID);
 };
 
 #endif /* ifndef __inc_og_language_service_jvm_h */

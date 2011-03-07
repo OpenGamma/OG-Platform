@@ -41,6 +41,7 @@ public:
 private:
 	class CRunnerThread;
 	// Attributes
+	TCHAR *m_pszLanguageID;
 	CAtomicInt m_oRefCount;
 	CMutex m_oStateMutex;
 	CMutex m_oStopMutex;
@@ -56,7 +57,7 @@ private:
 	unsigned long m_lSendTimeout;
 	unsigned long m_lShortTimeout;
 	// Private constructor - stops stack allocation
-	CClientService ();
+	CClientService (const TCHAR *pszLanguageID);
 	~CClientService ();
 	// Thread runner callbacks
 	bool ClosePipes ();
@@ -74,7 +75,7 @@ private:
 	bool StopJVM ();
 public:
 	// Creation
-	static CClientService *Create () { return new CClientService (); }
+	static CClientService *Create (const TCHAR *pszLanguageID) { return new CClientService (pszLanguageID); }
 	void Retain () { m_oRefCount.IncrementAndGet (); }
 	static void Release (CClientService *poClientService) { if (!poClientService->m_oRefCount.DecrementAndGet ()) delete poClientService; }
 	// Control
