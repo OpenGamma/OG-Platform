@@ -88,14 +88,27 @@ public:
 				bStatus = false;
 				break;
 			}
-			if (!m_poService->StartJVM () || !m_poService->ConnectPipes ()) {
-				if (m_poService->ClosePipes ()) {
-					if (bRetry) {
-						LOGWARN (TEXT ("Unable to connect to the Java framework"));
-						CAlert::Bad (TEXT ("Restarting service"));
-						bRetry = false;
-						continue;
-					}
+			if (!m_poService->StartJVM ()) {
+				if (bRetry) {
+					LOGWARN (TEXT ("Unable to initiate Java framework"));
+					m_poService->ClosePipes ();
+					CAlert::Bad (TEXT ("Restarting service"));
+					bRetry = false;
+					continue;
+				}
+				LOGERROR (TEXT ("Unable to initiate Java framework"));
+				CAlert::Bad (TEXT ("Unable to start service"));
+				bStatus = false;
+				break;
+			}
+			if (!m_poService->ConnectPipes ()) {
+				if (bRetry) {
+					LOGWARN (TEXT ("Unable to connect to Java framework"));
+					m_poService->ClosePipes ();
+					CAlert::Bad (TEXT ("Restarting service"));
+					m_poService->StopJVM ();
+					bRetry = false;
+					continue;
 				}
 				LOGERROR (TEXT ("Unable to connect to Java framework"));
 				CAlert::Bad (TEXT ("Unable to start service"));
@@ -105,12 +118,11 @@ public:
 			if (!SendHeartbeat (true) || !WaitForHeartbeatResponse ()) {
 				if (bRetry) {
 					LOGWARN (TEXT ("Java framework is not responding"));
-					if (m_poService->ClosePipes ()) {
-						CAlert::Bad (TEXT ("Restarting service"));
-						m_poService->StopJVM ();
-						bRetry = false;
-						continue;
-					}
+					m_poService->ClosePipes ();
+					CAlert::Bad (TEXT ("Restarting service"));
+					m_poService->StopJVM ();
+					bRetry = false;
+					continue;
 				}
 				LOGERROR (TEXT ("Java framework is not responding"));
 				CAlert::Bad (TEXT ("Service is not responding"));
@@ -154,17 +166,17 @@ public:
 				} while (env);
 			} while (m_poService->GetState () == RUNNING);
 endMessageLoop:
+			m_poService->ClosePipes ();
 			if (!m_poService->SetState (STOPPING)) break;
 			LOGINFO (TEXT ("Restarting Java framework"));
 			CAlert::Bad (TEXT ("Reconnecting to service"));
-			m_poService->ClosePipes ();
 		} while (true);
 		if (m_poService->GetState () != POISONED) {
 			LOGINFO (TEXT ("Poisoning Java framework"));
 			m_poService->SetState (POISONED);
 			bStatus &= m_poService->SendPoison ();
 		}
-		bStatus &= m_poService->ClosePipes ();
+		m_poService->ClosePipes ();
 		m_poService->SetState (bStatus ? STOPPED : ERRORED);
 		LOGINFO (TEXT ("Runner thread stopped"));
 	}
@@ -303,19 +315,14 @@ void CClientService::SetMessageReceivedCallback (CMessageReceived *poCallback) {
 	m_oMessageReceivedMutex.Leave ();
 }
 
-bool CClientService::ClosePipes () {
+void CClientService::ClosePipes () {
 	LOGINFO (TEXT ("Closing pipes"));
 	m_oPipesSemaphore.Wait ();
 	if (m_poPipes) {
 		delete m_poPipes;
 		m_poPipes = NULL;
-		m_oPipesSemaphore.Signal ();
-		return true;
-	} else {
-		m_oPipesSemaphore.Signal ();
-		LOGWARN (TEXT ("Pipes not created"));
-		return false;
 	}
+	m_oPipesSemaphore.Signal ();
 }
 
 bool CClientService::ConnectPipes () {
@@ -537,8 +544,9 @@ retrySend:
 #ifdef _WIN32
 					LOGFATAL (TEXT ("Not first connection but ERROR_PIPE_LISTENING returned"));
 					assert (0);
-#endif
-					LOGWARN (TEXT ("Couldn't write message, error ") << ec);
+#endif /* ifdef _WIN32 */
+					LOGWARN (TEXT ("Couldn't write message, error ") << ec << TEXT (", rewritten to ENOTCONN"));
+					ec = ENOTCONN;
 				}
 			} else {
 				LOGWARN (TEXT ("Couldn't write message, error ") << ec);
@@ -592,7 +600,7 @@ bool CClientService::SetState (ClientServiceState eNewState) {
 		bResult = true;
 	}
 	m_oStateMutex.Leave ();
-	if (bResult) {
+	if (bResult && (eOriginalState != eNewState)) {
 		m_oStateChangeMutex.Enter ();
 		if (m_poStateChangeCallback) {
 			LOGDEBUG (TEXT ("State changed from ") << eOriginalState << TEXT (" to ") << eNewState);
@@ -629,12 +637,11 @@ bool CClientService::StopJVM () {
 		LOGDEBUG (TEXT ("JVM not running"));
 		return true;
 	}
-	if (m_poJVM->Stop ()) {
-		delete m_poJVM;
-		m_poJVM = NULL;
-		return true;
-	} else {
+	bool bResult = m_poJVM->Stop ();
+	if (!bResult) {
 		LOGWARN (TEXT ("Couldn't stop JVM, error ") << GetLastError ());
-		return false;
 	}
+	delete m_poJVM;
+	m_poJVM = NULL;
+	return bResult;
 }

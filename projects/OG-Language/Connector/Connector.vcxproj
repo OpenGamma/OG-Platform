@@ -90,7 +90,7 @@
     <ClInclude Include="JVM.h" />
     <ClInclude Include="MessageDirectives.h" />
     <ClInclude Include="Pipes.h" />
-    <ClInclude Include="Public.h" />
+    <ClInclude Include="Connector.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SynchronousCalls.h" />

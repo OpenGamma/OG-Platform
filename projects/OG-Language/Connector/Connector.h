@@ -4,13 +4,14 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_connector_public_h
-#define __inc_og_language_connector_public_h
+#ifndef __inc_og_language_connector_connector_h
+#define __inc_og_language_connector_connector_h
 
 // Public definitions for the main interface to the library
 
+#include <assert.h>
+#include <Util/Asynchronous.h>
 #include <Util/Fudge.h>
-#include <Util/Atomic.h>
 #include "Client.h"
 #include "SynchronousCalls.h"
 
@@ -29,11 +30,13 @@ private:
 		CCallback *m_poCallback;
 	public:
 		CCallbackEntry *m_poNext;
+		bool m_bUsed;
 		CCallbackEntry (FudgeString strClass, CCallback *poCallback, CCallbackEntry *poNext)
 			: m_oRefCount (1) {
 			m_strClass = strClass;
 			m_poCallback = poCallback;
 			m_poNext = poNext;
+			m_bUsed = false;
 		}
 		~CCallbackEntry () {
 			assert (m_oRefCount.Get () == 0);
@@ -49,12 +52,15 @@ private:
 	};
 	class CCallbackEntry *m_poCallbacks;
 	CSynchronousCalls m_oSynchronousCalls;
+	CAsynchronous *m_poDispatch;
 	CConnector (CClientService *poClient);
 	friend class CConnectorMessageDispatch;
 	friend class CConnectorThreadDisconnectDispatch;
+	friend class CConnectorDispatcher;
 protected:
 	void OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState);
 	void OnMessageReceived (FudgeMsg msg);
+	void OnDispatchThreadDisconnect ();
 public:
 	class CCall {
 	private:
@@ -93,4 +99,4 @@ public:
 	bool RemoveCallback (CCallback *poCallback);
 };
 
-#endif /* ifndef __inc_og_language_connector_public_h */
+#endif /* ifndef __inc_og_language_connector_connector_h */

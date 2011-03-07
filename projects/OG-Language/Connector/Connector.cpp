@@ -8,19 +8,19 @@
 
 // Main connector API
 
-#include "Public.h"
+#include "Connector.h"
 #define FUDGE_NO_NAMESPACE
 #include "com_opengamma_language_connector_UserMessage.h"
 
 LOGGING (com.opengamma.language.connector.Connector);
 
-class CConnectorMessageDispatch : public IRunnable {
+class CConnectorMessageDispatch : public CAsynchronous::COperation {
 private:
 	CConnector::CCallbackEntry *m_poCallback;
 	FudgeMsg m_msg;
 public:
 	CConnectorMessageDispatch (CConnector::CCallbackEntry *poCallback, FudgeMsg msg)
-	: IRunnable () {
+	: COperation () {
 		poCallback->Retain ();
 		m_poCallback = poCallback;
 		FudgeMsg_retain (msg);
@@ -35,12 +35,12 @@ public:
 	}
 };
 
-class CConnectorThreadDisconnectDispatch : public IRunnable {
+class CConnectorThreadDisconnectDispatch : public CAsynchronous::COperation {
 private:
 	CConnector::CCallbackEntry *m_poCallback;
 public:
 	CConnectorThreadDisconnectDispatch (CConnector::CCallbackEntry *poCallback)
-	: IRunnable () {
+	: COperation (true) {
 		poCallback->Retain ();
 		m_poCallback = poCallback;
 	}
@@ -49,6 +49,26 @@ public:
 	}
 	void Run () {
 		m_poCallback->OnThreadDisconnect ();
+	}
+};
+
+class CConnectorDispatcher : public CAsynchronous {
+private:
+	CConnector *m_poConnector;
+	CConnectorDispatcher (CConnector *poConnector) : CAsynchronous () {
+		poConnector->Retain ();
+		m_poConnector = poConnector;
+	}
+	~CConnectorDispatcher () {
+		CConnector::Release (m_poConnector);
+	}
+protected:
+	void OnThreadExit () {
+		m_poConnector->OnDispatchThreadDisconnect ();
+	}
+public:
+	static CConnectorDispatcher *Create (CConnector *poConnector) {
+		return new CConnectorDispatcher (poConnector);
 	}
 };
 
@@ -108,8 +128,18 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 			while (poCallback) {
 				if (poCallback->IsClass (field.data.string)) {
 					LOGDEBUG (TEXT ("Dispatching message to user callback"));
-					new CConnectorMessageDispatch (poCallback, msgPayload);
-					TODO (TEXT ("Dispatch the runnable asynchronously"));
+					CAsynchronous::COperation *poDispatch = new CConnectorMessageDispatch (poCallback, msgPayload);
+					if (poDispatch) {
+						poCallback->m_bUsed = true;
+						if (!m_poDispatch->Run (poDispatch)) {
+							delete poDispatch;
+							LOGWARN (TEXT ("Couldn't dispatch message to user callback"));
+						}
+					} else {
+						LOGFATAL (TEXT ("Out of memory"));
+					}
+					// Stop on first matching callback -- is it ever useful to register multiple callbacks for the same message class?
+					break;
 				}
 				poCallback = poCallback->m_poNext;
 			}
@@ -119,6 +149,17 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 		}
 		FudgeMsg_release (msgPayload);
 	}
+}
+
+void CConnector::OnDispatchThreadDisconnect () {
+	LOGINFO (TEXT ("Dispatcher thread disconnected"));
+	m_oControlMutex.Enter ();
+	CCallbackEntry *poCallback = m_poCallbacks;
+	while (poCallback) {
+		poCallback->OnThreadDisconnect ();
+		poCallback = poCallback->m_poNext;
+	}
+	m_oControlMutex.Leave ();
 }
 
 CConnector::CCall::CCall (CSynchronousCallSlot *poSlot) {
@@ -164,6 +205,7 @@ CConnector::CConnector (CClientService *poClient)
 	poClient->SetMessageReceivedCallback (this);
 	poClient->SetStateChangeCallback (this);
 	m_poCallbacks = NULL;
+	m_poDispatch = CConnectorDispatcher::Create (this);
 }
 
 CConnector::~CConnector () {
@@ -177,6 +219,10 @@ CConnector::~CConnector () {
 		CCallbackEntry *poCallback = m_poCallbacks;
 		m_poCallbacks = poCallback->m_poNext;
 		CCallbackEntry::Release (poCallback);
+	}
+	if (m_poDispatch) {
+		LOGDEBUG (TEXT ("Poisoning asynchronous dispatch"));
+		CAsynchronous::PoisonAndRelease (m_poDispatch);
 	}
 	LOGDEBUG (TEXT ("Releasing client"));
 	CClientService::Release (m_poClient);
@@ -201,6 +247,11 @@ CConnector *CConnector::Start (const TCHAR *pszLanguage) {
 bool CConnector::Stop () {
 	m_oControlMutex.Enter ();
 	bool bResult = m_poClient->Stop ();
+	if (m_poDispatch) {
+		LOGDEBUG (TEXT ("Poisoning asynchronous dispatch"));
+		CAsynchronous::PoisonAndRelease (m_poDispatch);
+		m_poDispatch = NULL;
+	}
 	m_oControlMutex.Leave ();
 	return bResult;
 }
@@ -244,9 +295,26 @@ bool CConnector::Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned lon
 	CCall *poOverlapped = Call (msgPayload);
 	if (!poOverlapped) {
 		int error = GetLastError ();
-		LOGWARN (TEXT ("Couldn't initiate call, error ") << error);
-		SetLastError (error);
-		return false;
+		if (error == ENOTCONN) {
+			LOGDEBUG (TEXT ("Not connected; waiting for startup (or restart) to complete"));
+			if (WaitForStartup (lTimeout)) {
+				poOverlapped = Call (msgPayload);
+				if (!poOverlapped) {
+					error = GetLastError ();
+					LOGWARN (TEXT ("Couldn't initiate call, error ") << error);
+					SetLastError (error);
+					return false;
+				}
+			} else {
+				LOGWARN (TEXT ("Couldn't initiate call - not connected"));
+				SetLastError (error);
+				return false;
+			}
+		} else {
+			LOGWARN (TEXT ("Couldn't initiate call, error ") << error);
+			SetLastError (error);
+			return false;
+		}
 	}
 	if (poOverlapped->WaitForResult (pmsgResponse, lTimeout)) {
 		delete poOverlapped;
@@ -295,8 +363,10 @@ CConnector::CCall *CConnector::Call (FudgeMsg msgPayload) {
 		LOGDEBUG (TEXT ("Message sent on slot ") << poSlot->GetIdentifier () << TEXT (" with handle ") << handle);
 		return new CCall (poSlot);
 	} else {
-		LOGWARN (TEXT ("Couldn't send message on slot ") << poSlot->GetIdentifier ());
+		int error = GetLastError ();
+		LOGWARN (TEXT ("Couldn't send message on slot ") << poSlot->GetIdentifier () << TEXT (", error ") << error);
 		poSlot->Release ();
+		SetLastError (error);
 		return NULL;
 	}
 }
@@ -350,8 +420,17 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 		if (poEntry->IsCallback (poCallback)) {
 			*ppoPrevious = poEntry->m_poNext;
 			poEntry->FreeString ();
-			new CConnectorThreadDisconnectDispatch (poEntry);
-			TODO (TEXT ("Shedule the runnable"));
+			if (poEntry->m_bUsed) {
+				CAsynchronous::COperation *poDispatch = new CConnectorThreadDisconnectDispatch (poEntry);
+				if (poDispatch) {
+					if (!m_poDispatch->Run (poDispatch)) {
+						delete poDispatch;
+						LOGWARN (TEXT ("Couldn't dispatch disconnect message"));
+					}
+				} else {
+					LOGFATAL (TEXT ("Out of memory"));
+				}
+			}
 			CCallbackEntry::Release (poEntry);
 			bFound = true;
 			break;

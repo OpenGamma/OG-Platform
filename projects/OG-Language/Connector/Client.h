@@ -60,7 +60,7 @@ private:
 	CClientService (const TCHAR *pszLanguageID);
 	~CClientService ();
 	// Thread runner callbacks
-	bool ClosePipes ();
+	void ClosePipes ();
 	bool ConnectPipes ();
 	bool CreatePipes ();
 	bool DispatchAndRelease (FudgeMsgEnvelope env);

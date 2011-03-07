@@ -60,7 +60,7 @@ public class Main {
       s_logger.debug("Trying {}", beanName);
       return s_springContext.getBean(beanName, clazz);
     } catch (BeansException e) {
-      s_logger.warn("Bean {} not defined");
+      s_logger.warn("Bean {} not defined", beanName);
       return null;
     }
   }
