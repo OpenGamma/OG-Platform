@@ -5,17 +5,17 @@
  */
 package com.opengamma.financial.batch;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.calendar.LocalDate;
 
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.calc.SingleComputationCycle;
-import com.opengamma.util.VersionUtil;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.util.VersionUtils;
 
 /**
  * A batch run where results already exist in memory, but
@@ -30,66 +30,32 @@ public class AdHocBatchJobRun extends BatchJobRun {
   /**
    * The result that already exists in memory
    */
-  private final SingleComputationCycle _cycle;
+  private final AdHocBatchResult _result;
   
   /**
-   * What snapshot to use
+   * Snapshot ID
    */
-  private SnapshotId _snapshotId;
-  
-  /**
-   * When this batch run was created
-   */
-  private final Instant _creationTime;
+  private final SnapshotId _snapshotId;
   
   // --------------------------------------------------------------------------
   
-  public AdHocBatchJobRun(
-      SingleComputationCycle cycle,
-      BatchId batchId) {
-
-    super(batchId);
-    
-    _cycle = cycle;
-    _creationTime = Instant.now();
-    
-    setView(cycle.getView());
+  public AdHocBatchJobRun(AdHocBatchResult result,
+      SnapshotId snapshotId) {
+    super(result.getBatchId());
+    _result = result;
+    _snapshotId = snapshotId;
   }
   
   // --------------------------------------------------------------------------
+  
+  public ViewComputationResultModel getResultModel() {
+    return _result.getResult();
+  }
   
   @Override
   public SnapshotId getSnapshotId() {
-    if (_snapshotId == null) {
-      throw new IllegalStateException("Snapshot ID not set");
-    }
     return _snapshotId;
   }
-
-  public void setSnapshotId(SnapshotId snapshotId) {
-    _snapshotId = snapshotId;
-  }
-
-  public void saveSnapshot(BatchDbManager dbManager) {
-    dbManager.createLiveDataSnapshot(getSnapshotId());
-    
-    Set<LiveDataValue> values = new HashSet<LiveDataValue>();
-    for (ComputedValue liveData : _cycle.getAllLiveData()) {
-      values.add(new LiveDataValue(liveData));      
-    }
-    
-    dbManager.addValuesToSnapshot(getSnapshotId(), values);
-  }
-  
-  // --------------------------------------------------------------------------
-  
-  public void saveResult(BatchDbManager dbManager) {
-    
-    
-  }
-  
-  // --------------------------------------------------------------------------
-  
 
   @Override
   public String getRunReason() {
@@ -98,22 +64,22 @@ public class AdHocBatchJobRun extends BatchJobRun {
 
   @Override
   public Instant getValuationTime() {
-    return _cycle.getValuationTime();
+    return getResultModel().getValuationTime();
   }
 
   @Override
   public RunCreationMode getRunCreationMode() {
-    return RunCreationMode.ALWAYS;
+    return RunCreationMode.CREATE_NEW_OVERWRITE;
   }
 
   @Override
   public String getOpenGammaVersion() {
-    return VersionUtil.getVersion("og-financial");
+    return VersionUtils.getVersion("og-financial");
   }
 
   @Override
   public Instant getCreationTime() {
-    return _creationTime;
+    return getResultModel().getResultTimestamp();
   }
 
   @Override
@@ -127,4 +93,24 @@ public class AdHocBatchJobRun extends BatchJobRun {
     return Collections.emptyMap();
   }
 
+  @Override
+  public Collection<String> getCalculationConfigurations() {
+    return getResultModel().getCalculationConfigurationNames();
+  }
+
+  @Override
+  public Set<String> getAllOutputValueNames() {
+    return getResultModel().getAllOutputValueNames();
+  }
+
+  @Override
+  public Collection<ComputationTargetSpecification> getAllComputationTargets() {
+    return getResultModel().getAllTargets();
+  }
+
+  @Override
+  public ComputationTarget resolve(ComputationTargetSpecification spec) {
+    return null;
+  }
+  
 }

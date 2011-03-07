@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.core.position.PortfolioNode;
@@ -22,6 +23,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -42,7 +44,7 @@ public class SummingFunction extends PropertyPreservingFunction {
 
   @Override
   protected String[] getPreservedProperties() {
-    return new String[] {ValuePropertyNames.CURRENCY};
+    return new String[] {ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, YieldCurveFunction.PROPERTY_FORWARD_CURVE, YieldCurveFunction.PROPERTY_FUNDING_CURVE };
   }
 
   private final String _requirementName;
@@ -128,8 +130,8 @@ public class SummingFunction extends PropertyPreservingFunction {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
-    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getCompositeSpecificationProperties(inputs));
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueSpecification result = new ValueSpecification(_requirementName, target.toSpecification(), getCompositeSpecificationProperties(inputs.keySet()));
     return Collections.singleton(result);
   }
 

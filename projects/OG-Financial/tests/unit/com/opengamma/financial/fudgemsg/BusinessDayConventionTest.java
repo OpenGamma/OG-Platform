@@ -14,6 +14,9 @@ import org.junit.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 
+/**
+ * Test BusinessDayConvention Fudge support.
+ */
 public class BusinessDayConventionTest extends FinancialTestBase {
 
   private static final BusinessDayConvention s_ref = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -25,7 +28,7 @@ public class BusinessDayConventionTest extends FinancialTestBase {
 
   @Test
   public void testFromString() {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(BusinessDayConvention.class, new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getConventionName(), null, null)));
+    assertEquals(s_ref, getFudgeContext().getFieldValue(BusinessDayConvention.class, FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getConventionName())));
   }
 
 }

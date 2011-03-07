@@ -11,7 +11,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
 /**
@@ -60,7 +60,7 @@ public class OptionSecurityTypeUserType extends EnumUserType<OptionSecurityType>
       }
 
       @Override
-      public String visitSwapOptionSecurity(SwapOptionSecurity security) {
+      public String visitSwaptionSecurity(SwaptionSecurity security) {
         return SWAP;
       }
     });

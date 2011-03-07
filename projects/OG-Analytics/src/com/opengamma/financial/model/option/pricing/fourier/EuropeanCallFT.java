@@ -22,19 +22,15 @@ public class EuropeanCallFT extends Function1D<ComplexNumber, ComplexNumber> {
 
   private final CharacteristicExponent _ce;
 
-  private final double _t;
-
-  public EuropeanCallFT(final CharacteristicExponent ce, final double maturity) {
+  public EuropeanCallFT(final CharacteristicExponent ce) {
     _ce = new MeanCorrectedCharacteristicExponent(ce);
-    _t = maturity;
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber z) {
-
-    ComplexNumber num = exp(_ce.evaluate(z, _t));
-    ComplexNumber denom = multiply(z, add(z, I));
-    ComplexNumber res = multiply(-1.0, divide(num, denom));
+  public ComplexNumber evaluate(final ComplexNumber z) {
+    final ComplexNumber num = exp(_ce.evaluate(z));
+    final ComplexNumber denom = multiply(z, add(z, I));
+    final ComplexNumber res = multiply(-1.0, divide(num, denom));
     return res;
   }
 }

@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -55,6 +56,10 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * The change manager.
    */
   private MasterChangeManager _changeManager = new BasicMasterChangeManager();
+  /**
+   * The maximum number of retries.
+   */
+  private int _maxRetries = 10;
 
   /**
    * Creates an instance.
@@ -64,6 +69,28 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   public AbstractDocumentDbMaster(final DbSource dbSource, final String defaultScheme) {
     super(dbSource, defaultScheme);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the maximum number of retries.
+   * The default is ten.
+   * 
+   * @return the maximum number of retries, not null
+   */
+  public int getMaxRetries() {
+    return _maxRetries;
+  }
+
+  /**
+   * Sets the maximum number of retries.
+   * The default is ten.
+   * 
+   * @param maxRetries  the maximum number of retries, not negative
+   */
+  public void setMaxRetries(final int maxRetries) {
+    ArgumentChecker.notNegative(maxRetries, "maxRetries");
+    _maxRetries = maxRetries;
   }
 
   //-------------------------------------------------------------------------
@@ -93,7 +120,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the change manager, not null if in use
    */
   public MasterChangeManager changeManager() {
-    return _changeManager;
+    return getChangeManager();
   }
 
   //-------------------------------------------------------------------------
@@ -351,22 +378,31 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document, "document");
     s_logger.debug("add {}", document);
     
-    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-      @Override
-      public D doInTransaction(final TransactionStatus status) {
-        // insert new row
-        final Instant now = Instant.now(getTimeSource());
-        document.setVersionFromInstant(now);
-        document.setVersionToInstant(null);
-        document.setCorrectionFromInstant(now);
-        document.setCorrectionToInstant(null);
-        document.setUniqueId(null);
-        insert(document);
-        return document;
+    // retry to handle concurrent conflicting inserts into unique content tables
+    for (int retry = 0; true; retry++) {
+      try {
+        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
+          @Override
+          public D doInTransaction(final TransactionStatus status) {
+            // insert new row
+            final Instant now = Instant.now(getTimeSource());
+            document.setVersionFromInstant(now);
+            document.setVersionToInstant(null);
+            document.setCorrectionFromInstant(now);
+            document.setCorrectionToInstant(null);
+            document.setUniqueId(null);
+            insert(document);
+            return document;
+          }
+        });
+        changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
+        return result;
+      } catch (DataIntegrityViolationException ex) {
+        if (retry == getMaxRetries()) {
+          throw ex;
+        }
       }
-    });
-    changeManager().masterChanged(MasterChangedType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -377,29 +413,38 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("update {}", document);
     
-    final UniqueIdentifier beforeId = document.getUniqueId();
-    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
-    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-      @Override
-      public D doInTransaction(final TransactionStatus status) {
-        // load old row
-        final D oldDoc = getCheckLatestVersion(beforeId);
-        // update old row
-        final Instant now = Instant.now(getTimeSource());
-        oldDoc.setVersionToInstant(now);
-        updateVersionToInstant(oldDoc);
-        // insert new row
-        document.setVersionFromInstant(now);
-        document.setVersionToInstant(null);
-        document.setCorrectionFromInstant(now);
-        document.setCorrectionToInstant(null);
-        document.setUniqueId(oldDoc.getUniqueId().toLatest());
-        insert(document);
-        return document;
+    // retry to handle concurrent conflicting inserts into unique content tables
+    for (int retry = 0; true; retry++) {
+      try {
+        final UniqueIdentifier beforeId = document.getUniqueId();
+        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
+          @Override
+          public D doInTransaction(final TransactionStatus status) {
+            // load old row
+            final D oldDoc = getCheckLatestVersion(beforeId);
+            // update old row
+            final Instant now = Instant.now(getTimeSource());
+            oldDoc.setVersionToInstant(now);
+            updateVersionToInstant(oldDoc);
+            // insert new row
+            document.setVersionFromInstant(now);
+            document.setVersionToInstant(null);
+            document.setCorrectionFromInstant(now);
+            document.setCorrectionToInstant(null);
+            document.setUniqueId(oldDoc.getUniqueId().toLatest());
+            insert(document);
+            return document;
+          }
+        });
+        changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+        return result;
+      } catch (DataIntegrityViolationException ex) {
+        if (retry == getMaxRetries()) {
+          throw ex;
+        }
       }
-    });
-    changeManager().masterChanged(MasterChangedType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -409,19 +454,29 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(uniqueId);
     s_logger.debug("remove {}", uniqueId);
     
-    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-      @Override
-      public D doInTransaction(final TransactionStatus status) {
-        // load old row
-        final D oldDoc = getCheckLatestVersion(uniqueId);
-        // update old row
-        final Instant now = Instant.now(getTimeSource());
-        oldDoc.setVersionToInstant(now);
-        updateVersionToInstant(oldDoc);
-        return oldDoc;
+    // retry to handle concurrent conflicting inserts into unique content tables
+    for (int retry = 0; true; retry++) {
+      try {
+        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
+          @Override
+          public D doInTransaction(final TransactionStatus status) {
+            // load old row
+            final D oldDoc = getCheckLatestVersion(uniqueId);
+            // update old row
+            final Instant now = Instant.now(getTimeSource());
+            oldDoc.setVersionToInstant(now);
+            updateVersionToInstant(oldDoc);
+            return oldDoc;
+          }
+        });
+        changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
+        return;
+      } catch (DataIntegrityViolationException ex) {
+        if (retry == getMaxRetries()) {
+          throw ex;
+        }
       }
-    });
-    changeManager().masterChanged(MasterChangedType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -431,29 +486,38 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("correct {}", document);
     
-    final UniqueIdentifier beforeId = document.getUniqueId();
-    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
-    D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-      @Override
-      public D doInTransaction(final TransactionStatus status) {
-        // load old row
-        final D oldDoc = getCheckLatestCorrection(beforeId);
-        // update old row
-        final Instant now = Instant.now(getTimeSource());
-        oldDoc.setCorrectionToInstant(now);
-        updateCorrectionToInstant(oldDoc);
-        // insert new row
-        document.setVersionFromInstant(oldDoc.getVersionFromInstant());
-        document.setVersionToInstant(oldDoc.getVersionToInstant());
-        document.setCorrectionFromInstant(now);
-        document.setCorrectionToInstant(null);
-        document.setUniqueId(oldDoc.getUniqueId().toLatest());
-        insert(document);
-        return document;
+    // retry to handle concurrent conflicting inserts into unique content tables
+    for (int retry = 0; true; retry++) {
+      try {
+        final UniqueIdentifier beforeId = document.getUniqueId();
+        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueIdentifier must be versioned");
+        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
+          @Override
+          public D doInTransaction(final TransactionStatus status) {
+            // load old row
+            final D oldDoc = getCheckLatestCorrection(beforeId);
+            // update old row
+            final Instant now = Instant.now(getTimeSource());
+            oldDoc.setCorrectionToInstant(now);
+            updateCorrectionToInstant(oldDoc);
+            // insert new row
+            document.setVersionFromInstant(oldDoc.getVersionFromInstant());
+            document.setVersionToInstant(oldDoc.getVersionToInstant());
+            document.setCorrectionFromInstant(now);
+            document.setCorrectionToInstant(null);
+            document.setUniqueId(oldDoc.getUniqueId().toLatest());
+            insert(document);
+            return document;
+          }
+        });
+        changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+        return result;
+      } catch (DataIntegrityViolationException ex) {
+        if (retry == getMaxRetries()) {
+          throw ex;
+        }
       }
-    });
-    changeManager().masterChanged(MasterChangedType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
+    }
   }
 
   //-------------------------------------------------------------------------

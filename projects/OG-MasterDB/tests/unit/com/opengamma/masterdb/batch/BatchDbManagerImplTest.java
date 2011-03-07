@@ -28,11 +28,19 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchSearchResultItem;
@@ -77,14 +85,15 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().setViewName("test_view");
     
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
-    _batchJobRun.setView(ViewTestUtils.getMockView());
+    ViewImpl view = ViewTestUtils.getMockView();
+    _batchJobRun.setView(view);
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();
     doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
-    doc.setValue(_batchJobRun.getView().getDefinition());
+    doc.setValue(view.getDefinition());
     _batchJobRun.setViewDefinitionConfig(doc);
     
     _batchJob.addRun(_batchJobRun);
@@ -518,6 +527,55 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     BatchErrorSearchResult result = _dbManager.getErrors(request);
     assertNotNull(result);
     assertTrue(result.getItems().isEmpty());
+  }
+  
+  @Test(expected=IllegalStateException.class)
+  public void deleteNonExisting() {
+    _dbManager.deleteBatch(_batchJobRun);
+  }
+  
+  @Test
+  public void delete() {
+    assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+    
+    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _dbManager.startBatch(_batchJobRun);
+    
+    assertNotNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+    
+    _dbManager.deleteBatch(_batchJobRun);
+    assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+  }
+  
+  @Test
+  public void writeAdHocBatchResult() {
+    commit(); // don't want this test to be transactional
+    
+    Instant now = Instant.now();
+    
+    BatchId batchId = new BatchId(LocalDate.of(2005, 1, 2), "LDN_CLOSE");
+    InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    result.setResultTimestamp(now);
+    result.setValuationTime(now);
+    result.setViewName("testview");
+    
+    ComputationTargetSpecification spec = new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)); 
+    result.addLiveData(new ComputedValue(
+        new ValueSpecification(
+            "MarketValue", 
+            spec, 
+            ValueProperties.with(ValuePropertyNames.FUNCTION, "marketdatafunction").get()), 
+        1.12));
+    result.addValue("MyCalcConf", 
+        new ComputedValue(
+            new ValueSpecification(
+                "PresentValue", 
+                spec, 
+                ValueProperties.with(ValuePropertyNames.FUNCTION, "pvfunction").get()), 
+            1.12));
+    
+    AdHocBatchResult adHocBatchResult = new AdHocBatchResult(batchId, result);
+    _dbManager.write(adHocBatchResult);    
   }
   
 }

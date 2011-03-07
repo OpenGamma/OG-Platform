@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 
 /**
  * A source of yield curve definitions.
@@ -23,7 +23,7 @@ public interface InterpolatedYieldCurveDefinitionSource {
    * @param name  the name, not null
    * @return the definition, null if not found
    */
-  YieldCurveDefinition getDefinition(Currency currency, String name);
+  YieldCurveDefinition getDefinition(CurrencyUnit currency, String name);
 
   /**
    * Gets a yield curve definition for a currency, name and version.
@@ -32,6 +32,6 @@ public interface InterpolatedYieldCurveDefinitionSource {
    * @param version  the version instant, not null
    * @return the definition, null if not found
    */
-  YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version);
+  YieldCurveDefinition getDefinition(CurrencyUnit currency, String name, InstantProvider version);
 
 }

@@ -55,6 +55,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), Identifier.of("CPARTY", "C104"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
     expected.setUniqueId(uid);
+    expected.setProviderKey(Identifier.of("B", "404"));
     assertEquals(expected, test);
   }
 
@@ -67,6 +68,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), Identifier.of("CPARTY", "C105"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "123", "0"));
     expected.setUniqueId(uid);
+    expected.setProviderKey(Identifier.of("B", "405"));
     assertEquals(expected, test);
   }
 
@@ -79,6 +81,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), Identifier.of("CPARTY", "C221"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "0"));
     expected.setUniqueId(uid);
+    expected.setProviderKey(Identifier.of("B", "407"));
     assertEquals(expected, test);
   }
 
@@ -91,6 +94,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
     expected.setUniqueId(uid);
+    expected.setProviderKey(Identifier.of("B", "408"));
     assertEquals(expected, test);
   }
 
@@ -110,6 +114,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), Identifier.of("CPARTY", "C222"));
     expected.setPositionId(UniqueIdentifier.of("DbPos", "221", "1"));
     expected.setUniqueId(UniqueIdentifier.of("DbPos", "407", "1"));
+    expected.setProviderKey(Identifier.of("B", "408"));
     assertEquals(expected, test);
   }
 

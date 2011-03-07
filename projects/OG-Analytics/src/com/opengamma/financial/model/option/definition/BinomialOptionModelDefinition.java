@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
@@ -19,4 +19,5 @@ public abstract class BinomialOptionModelDefinition<T extends OptionDefinition, 
   public abstract double getDownFactor(T option, U data, int n, int j);
 
   public abstract RecombiningBinomialTree<Double> getUpProbabilityTree(T option, U data, int n, int j);
+
 }

@@ -43,7 +43,7 @@ public final class NotionalBeanOperation {
       @Override
       public NotionalBean visitInterestRateNotional(InterestRateNotional notional) {
         final NotionalBean bean = createNotionalBean(notional);
-        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(notional.getCurrency().getISOCode()));
+        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(notional.getCurrency().getCode()));
         bean.setAmount(notional.getAmount());
         return bean;
       }

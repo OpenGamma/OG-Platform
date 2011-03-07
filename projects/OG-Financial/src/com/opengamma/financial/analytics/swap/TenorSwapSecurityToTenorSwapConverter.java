@@ -94,7 +94,7 @@ public class TenorSwapSecurityToTenorSwapConverter {
 
     final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
 
-    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
+    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
 
     final ForwardLiborAnnuity pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,

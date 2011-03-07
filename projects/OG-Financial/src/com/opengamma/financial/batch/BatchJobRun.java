@@ -8,14 +8,13 @@ package com.opengamma.financial.batch;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import com.opengamma.engine.view.ViewCalculationConfiguration;
-import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,11 +30,6 @@ public abstract class BatchJobRun {
    * Identifies the batch in the database 
    */
   private final BatchId _batchId;
-  
-  /**
-   * View associated with this batch
-   */
-  private ViewInternal _view;
   
   /**
    * When the run was first created in database.
@@ -77,6 +71,19 @@ public abstract class BatchJobRun {
   public abstract Instant getCreationTime();
   
   public abstract boolean isFailed();
+  
+  public abstract Collection<String> getCalculationConfigurations();
+  
+  public abstract Collection<ComputationTargetSpecification> getAllComputationTargets();
+  
+  public abstract Set<String> getAllOutputValueNames();
+  
+  /**
+   * @param spec one of the targets returned by {@link #getAllComputationTargets()}
+   * @return {@code null} if full information about this target is not available. 
+   * A valid {@code ComputationTarget} otherwise.
+   */
+  public abstract ComputationTarget resolve(ComputationTargetSpecification spec);
   
   // --------------------------------------------------------------------------
 
@@ -141,26 +148,11 @@ public abstract class BatchJobRun {
     _originalCreationTime = originalCreationTime;
   }
   
-  public Collection<ViewCalculationConfiguration> getCalculationConfigurations() {
-    return getView().getDefinition().getAllCalculationConfigurations();
-  }
-  
-  public ViewInternal getView() {
-    return _view;
-  }
-  
-  public void setView(ViewInternal view) {
-    _view = view;
-  }
-
   // --------------------------------------------------------------------------
   
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("Observation date", getObservationDate())
-      .append("Observation time", getObservationTime())
-      .append("Run reason", getRunReason()).toString(); 
+    return _batchId.toString(); 
   }
 
 }

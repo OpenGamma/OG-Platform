@@ -8,6 +8,7 @@ package com.opengamma.engine.fudgemsg;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -20,7 +21,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.util.FudgeFieldChecker;
 
 /**
  * Fudge message builder for {@code CalculationJobItem}.
@@ -64,13 +64,13 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
   public CalculationJobItem buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     
     ComputationTargetSpecification computationTargetSpecification = context.fudgeMsgToObject(ComputationTargetSpecification.class, message);
-    FudgeFieldChecker.notNull(computationTargetSpecification, "Fudge message is not a CalculationJobItem - field 'computationTargetSpecification' is not present");
+    Validate.notNull(computationTargetSpecification, "Fudge message is not a CalculationJobItem - field 'computationTargetSpecification' is not present");
     
     String functionUniqueId = message.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
-    FudgeFieldChecker.notNull(functionUniqueId, "Fudge message is not a CalculationJobItem - field 'functionUniqueIdentifier' is not present");
+    Validate.notNull(functionUniqueId, "Fudge message is not a CalculationJobItem - field 'functionUniqueIdentifier' is not present");
     
     FudgeField fudgeField = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
-    FudgeFieldChecker.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
+    Validate.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
     FunctionParameters functionParameters = context.fieldValueToObject(FunctionParameters.class, fudgeField);
 
     final long[] inputIdentifiers = (long[]) message.getByName(INPUT_FIELD_NAME).getValue();

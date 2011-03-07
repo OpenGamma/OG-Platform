@@ -12,10 +12,7 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Doubles;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.Region;
@@ -47,7 +44,6 @@ import com.opengamma.id.Identifier;
  */
 public class FixedFloatSwapSecurityToSwapConverter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FixedFloatSwapSecurityToSwapConverter.class);
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;
@@ -98,7 +94,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = getCalendar(regionId);
-    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getISOCode();
+    final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
     return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar),

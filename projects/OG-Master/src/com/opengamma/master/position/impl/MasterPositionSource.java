@@ -300,8 +300,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     sourceTrade.setParentPositionId(posId);
     sourceTrade.setQuantity(manTrade.getQuantity());
     sourceTrade.setSecurityKey(manTrade.getSecurityKey());
-    if (manTrade.getCounterpartyId() != null) {
-      sourceTrade.setCounterparty(new CounterpartyImpl(manTrade.getCounterpartyId()));
+    if (manTrade.getCounterpartyKey() != null) {
+      sourceTrade.setCounterparty(new CounterpartyImpl(manTrade.getCounterpartyKey()));
     }
     sourceTrade.setTradeDate(manTrade.getTradeDate());
     sourceTrade.setTradeTime(manTrade.getTradeTime());

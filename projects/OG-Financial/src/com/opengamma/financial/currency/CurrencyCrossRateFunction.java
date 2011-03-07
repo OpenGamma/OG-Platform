@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,12 +36,12 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
   private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
 
   public CurrencyCrossRateFunction(final String intermediateCurrencyISO) {
-    this(Currency.getInstance(intermediateCurrencyISO));
+    this(CurrencyUnit.of(intermediateCurrencyISO));
   }
 
-  public CurrencyCrossRateFunction(final Currency currency) {
+  public CurrencyCrossRateFunction(final CurrencyUnit currency) {
     ArgumentChecker.notNull(currency, "currency");
-    _intermediate = currency.getISOCode();
+    _intermediate = currency.getCode();
   }
 
   public void setRateLookupValueName(final String rateLookupValueName) {
@@ -66,8 +66,8 @@ public class CurrencyCrossRateFunction extends AbstractFunction.NonCompiledInvok
     return _intermediate;
   }
 
-  public Currency getIntermediateCurrency() {
-    return Currency.getInstance(getIntermediateCurrencyISO());
+  public CurrencyUnit getIntermediateCurrency() {
+    return CurrencyUnit.of(getIntermediateCurrencyISO());
   }
 
   private static Pair<String, String> parse(final ComputationTarget target) {

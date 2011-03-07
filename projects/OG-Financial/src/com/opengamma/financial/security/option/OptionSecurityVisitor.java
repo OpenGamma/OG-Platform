@@ -22,6 +22,6 @@ public interface OptionSecurityVisitor<T> {
 
   T visitOptionOptionSecurity(OptionOptionSecurity security);
 
-  T visitSwapOptionSecurity(SwapOptionSecurity security);
+  T visitSwaptionSecurity(SwaptionSecurity security);
 
 }

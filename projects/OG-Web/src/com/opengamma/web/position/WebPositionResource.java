@@ -62,13 +62,13 @@ public class WebPositionResource extends AbstractWebPositionResource {
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response put(
       @FormParam("quantity") String quantityStr) {
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
-    }
-    
+    }    
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
     if (quantityStr == null) {
@@ -82,26 +82,59 @@ public class WebPositionResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = updatePosition(doc, quantity);
+    return Response.seeOther(uri).build();
+  }
+  
+  @PUT
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON(
+      @FormParam("quantity") String quantityStr) {
+    PositionDocument doc = data().getPosition();
+    if (doc.isLatest() == false) {
+      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    }
+    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+    updatePosition(doc, quantity);
+    return Response.ok().build();
+  }
+
+  private URI updatePosition(PositionDocument doc, BigDecimal quantity) {
     ManageablePosition position = doc.getPosition();
     if (Objects.equal(position.getQuantity(), quantity) == false) {
       position.setQuantity(quantity);
       doc = data().getPositionMaster().update(doc);
       data().setPosition(doc);
     }
-    URI uri = WebPositionResource.uri(data());
-    return Response.seeOther(uri).build();
+    return WebPositionResource.uri(data());
   }
 
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
   public Response delete() {
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
     }
-    
-    data().getPositionMaster().remove(doc.getUniqueId());
-    URI uri = WebPositionResource.uri(data());
+    URI uri = deletePosition(doc);
     return Response.seeOther(uri).build();
+  }
+  
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteJSON() {
+    PositionDocument doc = data().getPosition();
+    if (doc.isLatest()) {
+      deletePosition(doc);
+    }
+    return Response.ok().build();
+  }
+
+  private URI deletePosition(PositionDocument doc) {
+    data().getPositionMaster().remove(doc.getUniqueId());
+    return WebPositionResource.uri(data());
   }
 
   //-------------------------------------------------------------------------

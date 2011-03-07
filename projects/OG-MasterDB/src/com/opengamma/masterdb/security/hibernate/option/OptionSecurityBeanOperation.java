@@ -43,7 +43,7 @@ import com.opengamma.financial.security.option.PayoffStyleVisitor;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
@@ -193,8 +193,8 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       }
 
       @Override
-      public OptionSecurity visitSwapOptionSecurity(SwapOptionSecurity security) {
-        return new SwapOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+      public OptionSecurity visitSwaptionSecurity(SwaptionSecurity security) {
+        return new SwaptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
             currencyBeanToCurrency(bean.getCurrency()));
       }
     });
@@ -255,7 +255,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       }
 
       @Override
-      public Boolean visitSwapOptionSecurity(SwapOptionSecurity security) {
+      public Boolean visitSwaptionSecurity(SwaptionSecurity security) {
         if (!beanEquals(security)) {
           return false;
         }
@@ -364,7 +364,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
         bean.setStrike(security.getStrike());
         bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
-        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
+        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
         return bean;
       }
 
@@ -372,8 +372,8 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       public OptionSecurityBean visitFXOptionSecurity(FXOptionSecurity security) {
         final OptionSecurityBean bean = createSecurityBean(security);
         bean.setCounterparty(security.getCounterparty());
-        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getISOCode()));
-        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getISOCode()));
+        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
+        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getCode()));
         return bean;
       }
 
@@ -407,7 +407,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       }
 
       @Override
-      public OptionSecurityBean visitSwapOptionSecurity(SwapOptionSecurity security) {
+      public OptionSecurityBean visitSwaptionSecurity(SwaptionSecurity security) {
         final OptionSecurityBean bean = createSecurityBean(security);
         return bean;
       }

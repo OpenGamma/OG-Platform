@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="AbstractSettings.h" />
     <ClInclude Include="AbstractTest.h" />
+    <ClInclude Include="Asynchronous.h" />
     <ClInclude Include="Atomic.h" />
     <ClInclude Include="BufferedInput.h" />
     <ClInclude Include="File.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="Mutex.h" />
     <ClInclude Include="NamedPipe.h" />
+    <ClInclude Include="Process.h" />
     <ClInclude Include="Semaphore.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="String.h" />
@@ -107,10 +109,12 @@
   <ItemGroup>
     <ClCompile Include="AbstractSettings.cpp" />
     <ClCompile Include="AbstractTest.cpp" />
+    <ClCompile Include="Asynchronous.cpp" />
     <ClCompile Include="BufferedInput.cpp" />
     <ClCompile Include="DllVersion.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="NamedPipe.cpp" />
+    <ClCompile Include="Process.cpp" />
     <ClCompile Include="Semaphore.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

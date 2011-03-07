@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -22,48 +22,48 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  * Function to classify positions by Currency.
  *
  */
-public class CurrencyAggregationFunction implements AggregationFunction<Currency> {
+public class CurrencyAggregationFunction implements AggregationFunction<CurrencyUnit> {
   private static final String NAME = "Currency";
   
   @Override
-  public Currency classifyPosition(Position position) {
+  public CurrencyUnit classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
       FinancialSecurity finSec = (FinancialSecurity) security;
-      return finSec.accept(new FinancialSecurityVisitor<Currency>() {
+      return finSec.accept(new FinancialSecurityVisitor<CurrencyUnit>() {
 
         @Override
-        public Currency visitBondSecurity(BondSecurity security) {
+        public CurrencyUnit visitBondSecurity(BondSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitCashSecurity(CashSecurity security) {
+        public CurrencyUnit visitCashSecurity(CashSecurity security) {
           return null;
         }
 
         @Override
-        public Currency visitEquitySecurity(EquitySecurity security) {
+        public CurrencyUnit visitEquitySecurity(EquitySecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitFRASecurity(FRASecurity security) {
+        public CurrencyUnit visitFRASecurity(FRASecurity security) {
           return null;
         }
 
         @Override
-        public Currency visitFutureSecurity(FutureSecurity security) {
+        public CurrencyUnit visitFutureSecurity(FutureSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitOptionSecurity(OptionSecurity security) {
+        public CurrencyUnit visitOptionSecurity(OptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitSwapSecurity(SwapSecurity security) {
+        public CurrencyUnit visitSwapSecurity(SwapSecurity security) {
           return null;
         }
 

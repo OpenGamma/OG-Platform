@@ -6,6 +6,7 @@
 package com.opengamma.engine.function;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -68,7 +69,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
      * @return the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}
      */
     @Override
-    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       return getResults(context, target);
     }
 
@@ -258,7 +259,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
      * @return the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}
      */
     @Override
-    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
       return getResults(context, target);
     }
 

@@ -39,7 +39,7 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
 import com.opengamma.math.function.Function1D;
@@ -154,12 +154,12 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     ValueProperties.Builder properties = createValueProperties();
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    for (ValueSpecification input : inputs) {
+    for (ValueSpecification input : inputs.keySet()) {
       if (underlyingGreekRequirementName.equals(input.getValueName())) {
         properties.with(ValuePropertyNames.CURRENCY, input.getProperty(ValuePropertyNames.CURRENCY));
         break;
@@ -207,7 +207,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
     }
 
     @Override
-    public Double visitSwapOptionSecurity(SwapOptionSecurity security) {
+    public Double visitSwaptionSecurity(SwaptionSecurity security) {
       return 1.0;
     }
   };

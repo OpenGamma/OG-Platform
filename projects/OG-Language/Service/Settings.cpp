@@ -13,16 +13,17 @@
 LOGGING(com.opengamma.language.service.Settings);
 
 #define DEFAULT_CONNECTION_TIMEOUT	3000	/* 3s default */
+#define DEFAULT_BUSY_TIMEOUT		2000	/* 2s default */
 #define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
-#ifdef _WIN32
-#define DEFAULT_SDDL				NULL
-#endif /* ifdef _WIN32 */
-#define DEFAULT_LOG_CONFIGURATION	NULL
 #ifdef _WIN32
 #define DEFAULT_JVM_LIBRARY			TEXT ("jvm.dll")
 #else
 #define DEFAULT_JVM_LIBRARY			TEXT ("jvm.so")
 #endif
+#define DEFAULT_LOG_CONFIGURATION	NULL
+#ifdef _WIN32
+#define DEFAULT_SDDL				NULL
+#endif /* ifdef _WIN32 */
 
 CSettings::CSettings () : CAbstractSettings () {
 	m_pszDefaultJvmLibrary = NULL;
@@ -39,6 +40,8 @@ CSettings::~CSettings () {
 		m_pszDefaultJarPath = NULL;
 	}
 }
+
+// TODO [XLS-171] Defer the scanning for defaults
 
 #ifdef _WIN32
 static BOOL _IsValidLibrary (PCTSTR pszLibrary) {
@@ -172,26 +175,6 @@ unsigned long CSettings::GetConnectionTimeout () {
 	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
-static bool _GetExecutableName (TCHAR *pszBuffer, size_t cchBuffer) {
-#ifdef _WIN32
-	HMODULE hModule;
-	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
-		LOGWARN (TEXT ("Couldn't get module handle, error ") << GetLastError ());
-		return false;
-	}
-	if (!GetModuleFileName (hModule, pszBuffer, cchBuffer)) {
-		LOGWARN (TEXT ("Couldn't get module filename, error ") << GetLastError ());
-		return false;
-	}
-#else
-	if (readlink ("/proc/self/exe", pszBuffer, cchBuffer / sizeof (TCHAR)) <= 0) {
-		LOGWARN (TEXT ("Couldn't get module filename, error ") << GetLastError ());
-		return false;
-	}
-#endif
-	return true;
-}
-
 #define CLIENT_JAR_NAME		TEXT ("client.jar")
 #define CLIENT_JAR_LEN		10
 const TCHAR *CSettings::GetJarPath () {
@@ -200,8 +183,8 @@ const TCHAR *CSettings::GetJarPath () {
 		// JARs and DLLs are in the same folder, but also in the case of a build system where we have sub-folders
 		// for the different configurations/platforms.
 		TCHAR szPath[256 + CLIENT_JAR_LEN]; // Guarantee room for Client.jar at the end
-		if (_GetExecutableName (szPath, 256)) {
-			LOGDEBUG (TEXT ("Executable = ") << szPath);
+		if (CProcess::GetCurrentModule (szPath, 256)) {
+			LOGDEBUG (TEXT ("Module = ") << szPath);
 			TCHAR *pszEnd = _tcsrchr (szPath, PATH_CHAR);
 			while (pszEnd) {
 #ifdef _DEBUG
@@ -249,6 +232,10 @@ const TCHAR *CSettings::GetJarPath () {
 
 const TCHAR *CSettings::GetAnnotationCache () {
 	return GetAnnotationCache (GetJarPath ());
+}
+
+unsigned long CSettings::GetBusyTimeout () {
+	return GetBusyTimeout (DEFAULT_BUSY_TIMEOUT);
 }
 
 const TCHAR *CSettings::GetLogConfiguration () {

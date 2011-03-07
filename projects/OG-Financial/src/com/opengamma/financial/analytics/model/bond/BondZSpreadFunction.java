@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -24,11 +24,14 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.BondCalculator;
@@ -38,20 +41,16 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
-  private final String _curveName;
-  private final String _requirementName;
 
-  public BondZSpreadFunction(final String curveName, final String valueRequirementName) {
-    Validate.notNull(curveName, "curve name");
-    Validate.notNull(valueRequirementName, "value requirement name");
-    _curveName = curveName;
-    _requirementName = valueRequirementName;
+  private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
+
+  public BondZSpreadFunction() {
   }
 
   @Override
@@ -63,32 +62,41 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final BondSecurity security = (BondSecurity) position.getSecurity();
-    final ValueRequirement curveRequirement = new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId());
-    final Object curveObject = inputs.getValue(curveRequirement);
+    final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (curveObject == null) {
-      throw new NullPointerException("Could not get " + curveRequirement);
+      throw new NullPointerException("Could not get " + ValueRequirementNames.YIELD_CURVE);
+    }
+
+    String curveName = null;
+    for (ValueRequirement desiredValue : desiredValues) {
+      curveName = YieldCurveFunction.getCurveName(desiredValue);
+      if (curveName != null) {
+        break;
+      }
+    }
+    if (curveName == null) {
+      throw new NullPointerException("Curve name not specified as value constraint in " + desiredValues);
     }
 
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final Bond bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true).toDerivative(now.toLocalDate(), _curveName);
+    final Bond bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true).toDerivative(now.toLocalDate(), curveName);
 
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-    bundle = new YieldCurveBundle(new String[] {_curveName}, new YieldAndDiscountCurve[] {curve});
+    bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve });
 
-    final ValueRequirement priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
-    final Object priceObject = inputs.getValue(priceRequirement);
+    final Object priceObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (priceObject == null) {
-      throw new NullPointerException("Could not get " + priceRequirement);
+      throw new NullPointerException("Could not get " + MarketDataRequirementNames.MARKET_VALUE);
     }
     final double cleanPrice = (Double) priceObject;
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice / 100.0);
 
     final Double zSpread = new BondZSpreadCalculator().calculate(bond, bundle, dirtyPrice);
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, position), getUniqueId());
+    final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, curveName).get());
     return Sets.newHashSet(new ComputedValue(specification, zSpread * 10000)); //report z-spread in BPS
   }
 
@@ -103,19 +111,28 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId()), new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-          ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
-    }
-    return null;
+    final String curveName = YieldCurveFunction.getCurveName(context, desiredValue);
+    return Sets.newHashSet(
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getCurrency(target).getUniqueId(), ValueProperties.with(ValuePropertyNames.CURVE, curveName).get()),
+        new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.Z_SPREAD, target.getPosition()), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE).get()));
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String curveName = null;
+    for (ValueSpecification input : inputs.keySet()) {
+      if (ValueRequirementNames.YIELD_CURVE.equals(input.getValueName())) {
+        curveName = input.getProperty(ValuePropertyNames.CURVE);
+        break;
+      }
     }
-    return null;
+    ArgumentChecker.notNull(curveName, "curveName");
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, curveName).get()));
   }
 
   @Override
@@ -123,7 +140,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     return ComputationTargetType.POSITION;
   }
 
-  private Currency getCurrency(final ComputationTarget target) {
+  private CurrencyUnit getCurrency(final ComputationTarget target) {
     final BondSecurity bond = (BondSecurity) target.getPosition().getSecurity();
     return bond.getCurrency();
   }

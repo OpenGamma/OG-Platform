@@ -42,7 +42,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     } else if (y < -TANH_MAX) {
       return _lower;
     }
-    return _mid + _scale * TrigonometricFunctionUtils.tanh(y).doubleValue();
+    return _mid + _scale * TrigonometricFunctionUtils.tanh(y);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     } else if (x == _lower) {
       return -TANH_MAX;
     }
-    return TrigonometricFunctionUtils.atanh((x - _mid) / _scale).doubleValue();
+    return TrigonometricFunctionUtils.atanh((x - _mid) / _scale);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    return _scale * (1 - FunctionUtils.square(TrigonometricFunctionUtils.tanh(y).doubleValue()));
+    return _scale * (1 - FunctionUtils.square(TrigonometricFunctionUtils.tanh(y)));
   }
 
   @Override

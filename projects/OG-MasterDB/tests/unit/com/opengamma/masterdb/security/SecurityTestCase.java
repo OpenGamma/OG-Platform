@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -33,7 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
@@ -86,7 +87,7 @@ import com.opengamma.financial.security.option.PayoffStyle;
 import com.opengamma.financial.security.option.PoweredPayoffStyle;
 import com.opengamma.financial.security.option.SimpleChooserPayoffStyle;
 import com.opengamma.financial.security.option.SupersharePayoffStyle;
-import com.opengamma.financial.security.option.SwapOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -238,10 +239,10 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
             RandomStringUtils.randomAlphanumeric(16))));
       }
     });
-    s_dataProviders.put(Currency.class, new TestDataProvider<Currency>() {
+    s_dataProviders.put(CurrencyUnit.class, new TestDataProvider<CurrencyUnit>() {
       @Override
-      public void getValues(final Collection<Currency> values) {
-        values.add(Currency.getInstance(RandomStringUtils.randomAlphabetic(3)));
+      public void getValues(final Collection<CurrencyUnit> values) {
+        values.add(CurrencyUnit.of(RandomStringUtils.randomAlphabetic(3).toUpperCase(Locale.ENGLISH)));
       }
     });
     s_dataProviders.put(YieldConvention.class, new TestDataProvider<YieldConvention>() {
@@ -624,7 +625,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
   @Override
   @Test
   public void testSwapOptionSecurity() {
-    testSecurities(SwapOptionSecurity.class);
+    testSecurities(SwaptionSecurity.class);
   }
 
   @Override

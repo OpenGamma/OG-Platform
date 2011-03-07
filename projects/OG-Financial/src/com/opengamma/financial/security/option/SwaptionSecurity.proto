@@ -1,0 +1,19 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.option {
+ 
+  message SwaptionSecurity extends OptionSecurity {
+   
+    required string securityType [default = "SWAPTION"];
+    
+    binding Java {
+      body "public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity (this); }";
+    }
+    
+  }
+   
+}

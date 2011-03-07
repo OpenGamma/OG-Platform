@@ -11,6 +11,7 @@
 			<arg value="-s${src.dir}" />
 			<arg value="${src.dir}/com/opengamma/language/Data.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/ConnectorMessage.proto" />
+			<arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
 		</java>
 	</target>

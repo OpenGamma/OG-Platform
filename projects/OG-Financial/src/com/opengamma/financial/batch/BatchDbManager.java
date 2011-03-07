@@ -35,6 +35,13 @@ public interface BatchDbManager {
   void endBatch(BatchJobRun batch);
   
   /**
+   * Deletes a batch and all its risk from the database.
+   * 
+   * @param batch The batch job to delete, not null
+   */
+  void deleteBatch(BatchJobRun batch);
+  
+  /**
    * Creates a LiveData snapshot in the database. 
    * If the snapshot already exists, does nothing.
    * 
@@ -74,6 +81,11 @@ public interface BatchDbManager {
   /**
    * Gets a factory for executing dependency graphs and
    * writing risk values into the database.
+   * <p>
+   * The risk is written into the database incrementally,
+   * as the dependency graph is being executed. This
+   * is useful if you do not already have the results in
+   * memory.
    * 
    * @param batch The batch job for which results will be written
    * @return A factory used to execute the batch dependency graph

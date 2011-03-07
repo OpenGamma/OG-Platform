@@ -14,6 +14,9 @@ import org.junit.Test;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 
+/**
+ * Test Frequency Fudge support.
+ */
 public class FrequencyTest extends FinancialTestBase {
 
   private static final Frequency s_ref = SimpleFrequency.BIMONTHLY;
@@ -26,6 +29,6 @@ public class FrequencyTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Frequency.class,
-        new FudgeMsgField(StringFieldType.INSTANCE, s_ref.getConventionName(), null, null)));
+        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getConventionName())));
   }
 }

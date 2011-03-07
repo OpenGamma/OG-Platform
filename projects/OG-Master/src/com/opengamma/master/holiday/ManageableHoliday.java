@@ -23,7 +23,7 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
@@ -72,7 +72,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * This must be null if the type is not CURRENCY.
    */
   @PropertyDefinition
-  private Currency _currency;
+  private CurrencyUnit _currency;
   /**
    * The list of dates that the target (currency/region/exchange) is on holiday, not null.
    */
@@ -110,7 +110,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * @param currency  the currency of this CURRENCY holiday schedule, not null
    * @param holidaySeries  the dates on which holidays fall, not null
    */
-  public ManageableHoliday(Currency currency, Collection<LocalDate> holidaySeries) {
+  public ManageableHoliday(CurrencyUnit currency, Collection<LocalDate> holidaySeries) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(holidaySeries, "holidaySeries");
     setCurrency(currency);
@@ -198,7 +198,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
         setExchangeKey((Identifier) newValue);
         return;
       case 575402001:  // currency
-        setCurrency((Currency) newValue);
+        setCurrency((CurrencyUnit) newValue);
         return;
       case -367347:  // holidayDates
         setHolidayDates((List<LocalDate>) newValue);
@@ -325,7 +325,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * This must be null if the type is not CURRENCY.
    * @return the value of the property
    */
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
 
@@ -334,7 +334,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * This must be null if the type is not CURRENCY.
    * @param currency  the new value of the property
    */
-  public void setCurrency(Currency currency) {
+  public void setCurrency(CurrencyUnit currency) {
     this._currency = currency;
   }
 
@@ -343,7 +343,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
    * This must be null if the type is not CURRENCY.
    * @return the property, not null
    */
-  public final Property<Currency> currency() {
+  public final Property<CurrencyUnit> currency() {
     return metaBean().currency().createProperty(this);
   }
 
@@ -402,7 +402,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
+    private final MetaProperty<CurrencyUnit> _currency = DirectMetaProperty.ofReadWrite(this, "currency", CurrencyUnit.class);
     /**
      * The meta-property for the {@code holidayDates} property.
      */
@@ -477,7 +477,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public final MetaProperty<CurrencyUnit> currency() {
       return _currency;
     }
 

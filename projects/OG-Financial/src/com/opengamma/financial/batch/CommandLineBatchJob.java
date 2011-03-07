@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -37,7 +37,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.VersionUtil;
+import com.opengamma.util.VersionUtils;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -126,7 +126,7 @@ public class CommandLineBatchJob {
    * Given a range of days, used to decide which days to run the batch for. Optional.
    * If not given, all days for which there is a snapshot are used.
    */
-  private Currency _holidayCurrency;
+  private CurrencyUnit _holidayCurrency;
   
   /**
    * Used to populate the batch DB with market data in real time while the batch is running.
@@ -171,7 +171,7 @@ public class CommandLineBatchJob {
   // --------------------------------------------------------------------------
 
   public String getOpenGammaVersion() {
-    return VersionUtil.getVersion(getSystemVersionPropertyFile());
+    return VersionUtils.getVersion(getSystemVersionPropertyFile());
   }
   
   public String getSystemVersionPropertyFile() {
@@ -292,11 +292,11 @@ public class CommandLineBatchJob {
     _holidaySource = holidaySource;
   }
   
-  public Currency getHolidayCurrency() {
+  public CurrencyUnit getHolidayCurrency() {
     return _holidayCurrency;
   }
 
-  public void setHolidayCurrency(Currency holidayCurrency) {
+  public void setHolidayCurrency(CurrencyUnit holidayCurrency) {
     _holidayCurrency = holidayCurrency;
   }
   
@@ -341,7 +341,8 @@ public class CommandLineBatchJob {
     options.addOption("snapshotObservationTime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationTime.");
     options.addOption("snapshotObservationDate", true, "Observation date of LiveData snapshot to use. yyyyMMdd. Default - same as observationDate");
 
-    options.addOption("runCreationMode", true, "One of auto, always, never (case insensitive). Specifies whether to create a new run in the database." +
+    options.addOption("runCreationMode", true, "One of auto, create_new, create_new_overwrite, reuse_existing (case insensitive)." +
+        " Specifies whether to create a new run in the database." +
         " See documentation of RunCreationMode Java enum to find out more. Default - auto.");
 
     options.addOption("configDbTime", true, "Time at which documents should be loaded from the configuration database. HH:mm[:ss]. Default - system clock.");
@@ -433,10 +434,12 @@ public class CommandLineBatchJob {
       String creationMode = line.getOptionValue("runCreationMode");
       if (creationMode.equalsIgnoreCase("auto")) {
         setRunCreationMode(RunCreationMode.AUTO);
-      } else if (creationMode.equalsIgnoreCase("always")) {
-        setRunCreationMode(RunCreationMode.ALWAYS);
-      } else if (creationMode.equalsIgnoreCase("never")) {
-        setRunCreationMode(RunCreationMode.NEVER);
+      } else if (creationMode.equalsIgnoreCase("create_new")) {
+        setRunCreationMode(RunCreationMode.CREATE_NEW);
+      } else if (creationMode.equalsIgnoreCase("create_new_overwrite")) {
+        setRunCreationMode(RunCreationMode.CREATE_NEW_OVERWRITE);
+      } else if (creationMode.equalsIgnoreCase("reuse_existing")) {
+        setRunCreationMode(RunCreationMode.REUSE_EXISTING);
       } else {
         throw new OpenGammaRuntimeException("Unrecognized runCreationMode. " +
             "Should be one of AUTO, ALWAYS, NEVER. " +

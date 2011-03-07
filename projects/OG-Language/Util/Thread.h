@@ -42,21 +42,21 @@ private:
 	CMemoryPool m_oPool;
 	static void *APR_THREAD_FUNC StartProc (apr_thread_t *handle, void *pObject);
 #endif
-public:
-	CThread () : IRunnable () {
-		m_oRefCount.Set (1);
-#ifdef _WIN32
-		m_hThread = NULL;
-#else
-		m_pThread = NULL;
-#endif
-	}
+protected:
 	~CThread () {
 		assert (m_oRefCount.Get () == 0);
 #ifdef _WIN32
 		if (m_hThread) CloseHandle (m_hThread);
 #else
 		if (m_pThread) apr_thread_detach (m_pThread);
+#endif
+	}
+public:
+	CThread () : IRunnable (), m_oRefCount (1) {
+#ifdef _WIN32
+		m_hThread = NULL;
+#else
+		m_pThread = NULL;
 #endif
 	}
 	void Retain () {
@@ -134,6 +134,18 @@ public:
 		::Sleep (millis);
 #else
 		usleep (millis * 1000);
+#endif
+	}
+#ifdef Yield
+#undef Yield
+#endif /* ifdef Yield */
+	static void Yield () {
+#ifdef _WIN32
+		SwitchToThread ();
+#elif defined (HAVE_PTHREAD)
+		pthread_yield ();
+#else
+		apr_thread_yield ();
 #endif
 	}
 #ifndef _WIN32

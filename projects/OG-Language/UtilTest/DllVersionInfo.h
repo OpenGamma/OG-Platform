@@ -8,6 +8,10 @@
 #define __inc_og_language_utiltest_dllversioninfo_h
 
 #define DllVersion_FileDescription	"Language integration utilities test"
+#ifdef _WIN32
 #define DllVersion_OriginalFilename	"UtilTest.dll"
+#else
+#define DllVersion_OriginalFilename	"UtilTest"
+#endif
 
 #endif /* ifndef __inc_og_language_utiltest_dllversioninfo_h */

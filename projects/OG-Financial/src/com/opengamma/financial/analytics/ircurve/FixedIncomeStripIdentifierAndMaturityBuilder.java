@@ -61,7 +61,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       ZonedDateTime maturity;
       switch (strip.getInstrumentType()) {
         case CASH:
-          CashSecurity cashSecurity = getCash(curveSpecification, strip);
+          CashSecurity cashSecurity = getCash(curveSpecification, strip, marketValues);
           if (cashSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve cash curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
@@ -72,7 +72,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = cashSecurity;
           break;
         case FRA:
-          FRASecurity fraSecurity = getFRA(curveSpecification, strip);
+          FRASecurity fraSecurity = getFRA(curveSpecification, strip, marketValues);
           if (fraSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve FRA curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
@@ -89,7 +89,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = futureSecurity;
           break;
         case LIBOR:
-          CashSecurity rateSecurity = getCash(curveSpecification, strip);
+          CashSecurity rateSecurity = getCash(curveSpecification, strip, marketValues);
           if (rateSecurity == null) { 
             throw new OpenGammaRuntimeException("Could not resolve future curve instrument " + strip.getSecurity() + " from strip " + strip + " in " + curveSpecification); 
           }
@@ -123,23 +123,23 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
   }
   
-  private CashSecurity getCash(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
+  private CashSecurity getCash(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
 //    CashSecurity sec = new CashSecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
 //                                        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
     CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), 
-        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)));
+        new DateTimeWithZone(spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00)), marketValues.get(strip.getSecurity()), 1.0d);
     sec.setIdentifiers(IdentifierBundle.of(strip.getSecurity()));
     return sec;
   }
   
-  private FRASecurity getFRA(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
+  private FRASecurity getFRA(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
     LocalDate curveDate = spec.getCurveDate(); // quick hack
     LocalDate startDate = curveDate.plus(strip.getMaturity().getPeriod()).minus(Period.ofMonths(3));
     LocalDate endDate = startDate.plusMonths(3); // quick hack, needs to be sorted.
 //    return new FRASecurity(spec.getCurrency(), RegionUtils.countryRegionId("US"), 
 //                           new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), 
-        new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)));
+        new DateTimeWithZone(startDate.atTime(11, 00)), new DateTimeWithZone(endDate.atTime(11, 00)), marketValues.get(strip.getSecurity()), 1.0d);
   }
   
   private FutureSecurity getFuture(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip) {
@@ -155,7 +155,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
     Double initialRate = null; 
@@ -205,7 +205,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     DateTimeWithZone tradeDate = new DateTimeWithZone(curveDate.atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone effectiveDate = new DateTimeWithZone(DateUtil.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC));
     DateTimeWithZone maturityDate = new DateTimeWithZone(curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC));
-    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getISOCode() + "_TENOR_SWAP"));
+    ConventionBundle convention = _conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_TENOR_SWAP"));
     String counterparty = "";
     ConventionBundle floatRateConvention = source.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     Double initialRate = null; 

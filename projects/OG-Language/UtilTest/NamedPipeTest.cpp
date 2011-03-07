@@ -29,18 +29,6 @@ LOGGING (com.opengamma.language.util.NamedPipeTest);
 #define PAYLOAD_SIZE				8192
 #endif
 
-TCHAR *NamedPipeTest_CreatePipeName () {
-	TCHAR szPipeTest[256];
-#ifdef _WIN32
-	StringCbPrintf (szPipeTest, sizeof (szPipeTest), TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Test"));
-	// TODO: append the user's name to the string
-#else
-	StringCbPrintf (szPipeTest, sizeof (szPipeTest), TEXT ("%s/OpenGammaLanguageAPI-Test"), getenv ("HOME"));
-#endif
-	LOGDEBUG (TEXT ("Using ") << szPipeTest << TEXT (" for pipe tests"));
-	return _tcsdup (szPipeTest);
-}
-
 static int _ReadAndWrite (CTimeoutIO *poIO, int nOperations, bool bThrottle, const TCHAR *pszLabel) {
 	LOGDEBUG (pszLabel << TEXT (" ") << ((nOperations > 0) ? TEXT ("reading") : TEXT ("writing")));
 	int nCount = 0;
@@ -116,7 +104,7 @@ public:
 	}
 	void Run () {
 		LOGDEBUG (TEXT ("Creating server pipe"));
-		CNamedPipe *poServer = m_bRead ? CNamedPipe::ServerRead (m_pszPipeName) : CNamedPipe::ServerWrite (m_pszPipeName);
+		CNamedPipe *poServer = m_bRead ? CNamedPipe::ServerRead (m_pszPipeName, false) : CNamedPipe::ServerWrite (m_pszPipeName, false);
 		if (poServer) {
 			if (m_bAccept) {
 repeatOperation:
@@ -161,6 +149,25 @@ repeatOperation:
 	}
 	int GetFailure () {
 		return m_nFailure;
+	}
+};
+
+class CExclusivePipeServerThread : public CThread {
+private:
+	const TCHAR *m_pszPipeName;
+	bool m_bRead;
+public:
+	CExclusivePipeServerThread (const TCHAR *pszPipeName, bool bRead) : CThread () {
+		m_pszPipeName = pszPipeName;
+		m_bRead = bRead;
+		ASSERT (Start ());
+	}
+	void Run () {
+		LOGDEBUG (TEXT ("Creating server pipe"));
+		CNamedPipe *poServer = m_bRead ? CNamedPipe::ServerRead (m_pszPipeName, true) : CNamedPipe::ServerWrite (m_pszPipeName, true);
+		ASSERT (poServer);
+		LOGDEBUG (TEXT ("Deleting server object"));
+		delete poServer;
 	}
 };
 
@@ -271,7 +278,7 @@ public:
 	}
 
 static void ClientToServerComplete () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 2);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -279,21 +286,19 @@ static void ClientToServerComplete () {
 	ASSERT_FAILURE (FAIL_NONE, FAIL_NONE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ClientToServerTimeoutConnectServer () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 1);
 	CThread::Sleep (TIMEOUT_PIPE * 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->GetFailure () == FAIL_NO_ACCEPT);
 	CThread::Release (poServer);
-	free (pszPipeName);
 }
 
 static void ClientToServerTimeoutConnectClient () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, false, 0);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -305,11 +310,10 @@ static void ClientToServerTimeoutConnectClient () {
 #endif
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ClientToServerTimeoutReadServer () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 1);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 0);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -317,11 +321,10 @@ static void ClientToServerTimeoutReadServer () {
 	ASSERT_FAILURE (FAIL_NO_READWRITE, FAIL_NONE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ClientToServerTimeoutWriteClient () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 0);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -329,11 +332,10 @@ static void ClientToServerTimeoutWriteClient () {
 	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ServerToClientComplete () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, true, 2);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, true, 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -341,21 +343,19 @@ static void ServerToClientComplete () {
 	ASSERT_FAILURE (FAIL_NONE, FAIL_NONE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ServerToClientTimeoutConnectServer () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, true, 1);
 	CThread::Sleep (TIMEOUT_PIPE * 2);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
 	ASSERT (poServer->GetFailure () == FAIL_NO_ACCEPT);
 	CThread::Release (poServer);
-	free (pszPipeName);
 }
 
 static void ServerToClientTimeoutConnectClient () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, false, 0);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, true, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -367,11 +367,10 @@ static void ServerToClientTimeoutConnectClient () {
 #endif
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ServerToClientTimeoutReadClient () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, true, 0);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, true, 1);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -379,11 +378,10 @@ static void ServerToClientTimeoutReadClient () {
 	ASSERT_FAILURE (FAIL_NONE, FAIL_NO_READWRITE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void ServerToClientTimeoutWriteServer () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, false, true, 1);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, true, 0);
 	ASSERT (poServer->Wait (TIMEOUT_JOIN));
@@ -391,11 +389,10 @@ static void ServerToClientTimeoutWriteServer () {
 	ASSERT_FAILURE (FAIL_NO_READWRITE, FAIL_NONE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
 }
 
 static void TestClose (bool bClientToServer, bool bCloseServer) {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, bClientToServer, true, READWRITE_OPERATIONS);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, !bClientToServer, READWRITE_OPERATIONS);
 	CPipeClosingThread *poCloser = new CPipeClosingThread (bCloseServer ? &poServer->m_poPipe : &poClient->m_poPipe, 0, false);
@@ -406,7 +403,6 @@ static void TestClose (bool bClientToServer, bool bCloseServer) {
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	CThread::Release (poCloser);
-	free (pszPipeName);
 }
 
 static void ClientToServerCloseServer () {
@@ -426,7 +422,7 @@ static void ServerToClientCloseClient () {
 }
 
 static void TestLazyClose (bool bClientToServer, bool bCloseServer) {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, bClientToServer, true, READWRITE_OPERATIONS, !bCloseServer);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, !bClientToServer, READWRITE_OPERATIONS, bCloseServer);
 	CPipeClosingThread *poCloser = new CPipeClosingThread (bCloseServer ? &poServer->m_poPipe : &poClient->m_poPipe, TIMEOUT_READWRITE * 2, false);
@@ -447,7 +443,6 @@ static void TestLazyClose (bool bClientToServer, bool bCloseServer) {
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	CThread::Release (poCloser);
-	free (pszPipeName);
 }
 
 static void ClientToServerLazyCloseServer () {
@@ -467,7 +462,7 @@ static void ServerToClientLazyCloseClient () {
 }
 
 static void TestCancelLazyClose (bool bClientToServer, bool bCloseServer) {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, bClientToServer, true, READWRITE_OPERATIONS);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, !bClientToServer, READWRITE_OPERATIONS);
 	CPipeClosingThread *poCloser = new CPipeClosingThread (bCloseServer ? &poServer->m_poPipe : &poClient->m_poPipe, TIMEOUT_READWRITE * 2, true);
@@ -478,7 +473,6 @@ static void TestCancelLazyClose (bool bClientToServer, bool bCloseServer) {
 	CThread::Release (poServer);
 	CThread::Release (poClient);
 	CThread::Release (poCloser);
-	free (pszPipeName);
 }
 
 static void ClientToServerCancelLazyCloseServer () {
@@ -498,7 +492,7 @@ static void ServerToClientCancelLazyCloseClient () {
 }
 
 static void RepeatedOperation () {
-	TCHAR *pszPipeName = NamedPipeTest_CreatePipeName ();
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
 	CPipeServerThread *poServer = new CPipeServerThread (pszPipeName, true, true, 2);
 	CPipeClientThread *poClient = new CPipeClientThread (pszPipeName, false, 2);
 	poServer->SetRepeat ();
@@ -508,7 +502,20 @@ static void RepeatedOperation () {
 	ASSERT_FAILURE (FAIL_NONE, FAIL_NONE);
 	CThread::Release (poServer);
 	CThread::Release (poClient);
-	free (pszPipeName);
+}
+
+static void ServerWriteExclusive () {
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
+	CExclusivePipeServerThread *poServer = new CExclusivePipeServerThread (pszPipeName, false);
+	ASSERT (poServer->Wait (TIMEOUT_JOIN));
+	CThread::Release (poServer);
+}
+
+static void ServerReadExclusive () {
+	const TCHAR *pszPipeName = CNamedPipe::GetTestPipePrefix ();
+	CExclusivePipeServerThread *poServer = new CExclusivePipeServerThread (pszPipeName, true);
+	ASSERT (poServer->Wait (TIMEOUT_JOIN));
+	CThread::Release (poServer);
 }
 
 BEGIN_TESTS (NamedPipeTest)
@@ -535,4 +542,6 @@ BEGIN_TESTS (NamedPipeTest)
 	TEST (ServerToClientCancelLazyCloseServer)
 	TEST (ServerToClientCancelLazyCloseClient)
 	TEST (RepeatedOperation)
+	TEST (ServerWriteExclusive)
+	TEST (ServerReadExclusive)
 END_TESTS

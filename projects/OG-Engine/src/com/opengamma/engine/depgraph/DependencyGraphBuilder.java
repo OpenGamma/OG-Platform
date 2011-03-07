@@ -10,8 +10,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -24,7 +26,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
-import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -189,6 +190,7 @@ public class DependencyGraphBuilder {
       protected boolean more() {
         while (itr.hasNext()) {
           final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
+          //s_logger.debug("Considering {} for {}", resolvedFunction, requirement);
           final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
           final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
           final ValueSpecification originalOutput = resolvedFunction.getSecond();
@@ -226,6 +228,7 @@ public class DependencyGraphBuilder {
   }
 
   private Pair<DependencyNode, ValueSpecification> addTargetRequirement(final ResolutionState resolved) {
+    final Map<ValueSpecification, ValueRequirement> requirementLookup = new HashMap<ValueSpecification, ValueRequirement>();
     do {
       if (resolved.isEmpty()) {
         return resolved.getLastValid();
@@ -240,6 +243,7 @@ public class DependencyGraphBuilder {
           return Pair.of(existingNode, resolutionNode.getValueSpecification());
         }
       }
+      requirementLookup.clear();
       final DependencyNode graphNode = resolutionNode.getDependencyNode();
       // Resolve and add the inputs, or just add them if repeating because of a backtrack
       if (resolutionNode.getInputStates() == null) {
@@ -255,6 +259,7 @@ public class DependencyGraphBuilder {
               final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
               graphNode.addInputNode(inputValue.getFirst());
               graphNode.addInputValue(inputValue.getSecond());
+              requirementLookup.put(inputValue.getSecond(), inputRequirement);
               if (!inputState.isEmpty()) {
                 pendingInputStates = true;
               }
@@ -291,7 +296,6 @@ public class DependencyGraphBuilder {
           throw new UnsupportedOperationException("In-situ specification reduction not implemented");
         }
       } else {
-        // TODO factor the guarded code into a method and only set up the try/catch overhead if we're not a single resolve
         try {
           // This is a "retry" following a backtrack so clear any previous inputs and remove this node from the graph
           _graph.removeDependencyNode(graphNode);
@@ -301,6 +305,7 @@ public class DependencyGraphBuilder {
             final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
             graphNode.addInputNode(inputValue.getFirst());
             graphNode.addInputValue(inputValue.getSecond());
+            requirementLookup.put(inputValue.getSecond(), inputState.getValueRequirement());
             if (!inputState.isEmpty()) {
               pendingInputStates = true;
             }
@@ -328,7 +333,7 @@ public class DependencyGraphBuilder {
       if (!strictConstraints) {
         final Set<ValueSpecification> newOutputValues;
         try {
-          newOutputValues = functionDefinition.getResults(getCompilationContext(), graphNode.getComputationTarget(), graphNode.getInputValues());
+          newOutputValues = functionDefinition.getResults(getCompilationContext(), graphNode.getComputationTarget(), requirementLookup);
         } catch (Throwable t) {
           // detect failure from .getResults
           s_logger.debug("Deep backtracking at late resolution failure", t);
