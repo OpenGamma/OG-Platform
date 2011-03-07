@@ -195,7 +195,7 @@ static void JVMCrash () {
 	ASSERT (tEnd - tStart < TIMEOUT_CALL);
 	FudgeMsg_release (msgToSend);
 	// And now it should be operational again
-	SyncCall (2);
+	SyncCall (3);
 }
 
 static void JVMHang () {
