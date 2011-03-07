@@ -33,9 +33,31 @@ CAbstractTest::CAbstractTest () {
 CAbstractTest::~CAbstractTest () {
 }
 
+#ifndef _WIN32
+
+static void _IgnoreSignal (int signal) {
+	LOGDEBUG (TEXT ("Signal ") << signal << TEXT (" ignored"));
+}
+
+static void exitProc () {
+	pid_t grp = getpgid (0);
+	if (grp > 1) {
+		LOGINFO (TEXT ("Killing process group ") << grp);
+		sigset (SIGHUP, _IgnoreSignal); // but not us
+		kill (-grp, SIGHUP);
+	} else {
+		LOGWARN (TEXT ("Couldn't get process group for termination"));
+	}
+}
+#endif /* ifndef _WIN32 */
+
 void CAbstractTest::Main () {
 	int nTest;
 	InitialiseLogs ();
+#ifndef _WIN32
+	setpgrp ();
+	atexit (exitProc);
+#endif /* ifndef _WIN32 */
 	for (nTest = 0; nTest < g_nTests; nTest++) {
 		LOGINFO (TEXT ("Running test ") << (nTest + 1));
 		g_poTests[nTest]->BeforeAll ();
