@@ -108,7 +108,7 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
           <link href="http://download.oracle.com/javase/6/docs/api/" />
           <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
-          <link href="https://jsr-310.dev.java.net/nonav/doc-2010-06-22/" />
+          <link href="http://threeten.sourceforge.net/apidocs/" />
           <link href="http://joda-beans.sourceforge.net/apidocs/" />
 	    </javadoc>
 	</target>
