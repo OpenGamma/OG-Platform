@@ -1,7 +1,5 @@
 <project name="build-cpp-impl">
 
-	<property file="${solution.dir}/build.properties" />
-
 	<target name="run-msbuild">
 		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
 		<exec executable="msbuild" failonerror="true">

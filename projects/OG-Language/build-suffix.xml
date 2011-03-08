@@ -1,0 +1,189 @@
+<project name="build-suffix" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<path id="build.path">
+		<path refid="java.build.path" />
+		<path refid="cc.build.path" />
+		<path refid="cctest.build.path" />
+		<path refid="javatest.build.path" />
+	</path>
+
+	<macrodef name="unpack-include">
+		<attribute name="org" />
+		<attribute name="name" />
+		<sequential>
+			<unzip dest="${lib.dir}/include" overwrite="false">
+				<fileset dir="${lib.dir}/include/@{org}/@{name}">
+					<include name="*.zip" />
+				</fileset>
+			</unzip>
+		</sequential>
+	</macrodef>
+	<macrodef name="unpack-dll">
+		<attribute name="org" />
+		<attribute name="name" />
+		<attribute name="file" />
+		<attribute name="debug" default="" />
+		<attribute name="release" default="" />
+		<attribute name="win32" default="" />
+		<attribute name="x64" default="" />
+		<sequential>
+			<copy tofile="${lib.dir}/DebugWin32/@{file}@{win32}@{debug}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-DebugWin32-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/ReleaseWin32/@{file}@{win32}@{release}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-ReleaseWin32-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Debugx64/@{file}@{x64}@{debug}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-Debugx64-*.dll" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Releasex64/@{file}@{x64}@{release}.dll" overwrite="false">
+				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
+					<include name="@{name}-Releasex64-*.dll" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+	<macrodef name="unpack-lib">
+		<attribute name="org" />
+		<attribute name="name" />
+		<attribute name="file" />
+		<sequential>
+			<copy tofile="${lib.dir}/DebugWin32/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-DebugWin32-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/ReleaseWin32/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-ReleaseWin32-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Debugx64/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-Debugx64-*.lib" />
+				</fileset>
+			</copy>
+			<copy tofile="${lib.dir}/Releasex64/@{file}.lib" overwrite="false">
+				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
+					<include name="@{name}-Releasex64-*.lib" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+	<condition property="is.windows" value="true"><os family="windows" /></condition>
+	<target name="unpack-resolve-impl-posix" unless="is.windows">
+		<mkdir dir="${lib.dir}/Debug" />
+		<mkdir dir="${lib.dir}/Release" />
+	</target>
+	<target name="unpack-resolve-impl-windows" if="is.windows">
+		<unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
+		<unpack-include org="org.fudgemsg" name="fudge-c" />
+		<unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />
+		<unpack-dll org="org.apache" name="log4cxx" file="log4cxx" />
+		<unpack-include org="org.apache" name="log4cxx" />
+		<unpack-lib org="org.apache" name="log4cxx" file="log4cxx" />
+		<unpack-dll org="org.apache" name="apr" file="apr" />
+		<unpack-dll org="org.apache" name="apr-util" file="aprutil" />
+	</target>
+	<target name="unpack-resolve" depends="resolve,unpack-resolve-impl-posix,unpack-resolve-impl-windows" description="--> unpacks include files and Windows binaries" />
+
+	<target name="deploy-jars">
+		<mkdir dir="${build.dir}/jar" />
+		<ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />
+	</target>
+
+	<target name="compile" depends="unpack-resolve,deploy-jars" description="--> compile all components">
+		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
+		<subant target="compile" buildpathref="cc.build.path" />
+	</target>
+
+	<target name="tests" depends="unpack-resolve,deploy-jars" description="--> compile and run unit tests">
+		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
+		<subant target="compile" buildpathref="cc.build.path" />
+		<subant target="tests" buildpathref="cctest.build.path" />
+		<subant target="tests" buildpathref="javatest.build.path" antfile="build.parent-invoked.xml" />
+	</target>
+
+	<target name="tests-with-clover" description="--> build and run all tests with local Clover reports generated">
+		<subant target="tests-with-clover" buildpathref="javatest.build.path" />
+	</target>
+
+	<target name="local-version">
+		<tstamp>
+			<format property="now" pattern="yyyyMMddHHmmss" />
+		</tstamp>
+		<property name="version" value="${module.version}-local-${now}" />
+	</target>
+	<target name="version">
+		<tstamp>
+			<format property="now" pattern="yyyyMMddHHmmss" />
+		</tstamp>
+		<property name="version" value="${module.version}" />
+	</target>
+	<target name="publish" depends="dist,version">
+		<!-- TODO -->
+	</target>
+	<target name="publish-local" depends="dist,local-version">
+		<ivy:publish	artifactspattern="${dist.dir}/[artifact].[ext]"
+				resolver="local"
+				pubrevision="${version}"
+				pubdate="${now}"
+				status="integration"
+				forcedeliver="true" />
+	</target>
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/bin" />
+		<mkdir dir="${dist.dir}/include" />
+		<mkdir dir="${dist.dir}/lib" />
+		<subant target="dist" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
+		<subant target="dist" buildpathref="cc.build.path" />
+		<zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" />
+		<zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" />
+		<zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" />
+	</target>
+
+	<target name="tarball" depends="dist">
+		<!-- TODO -->
+	</target>
+
+	<target name="zipfile" depends="dist">
+		<!-- TODO -->
+	</target>
+
+	<target name="clean" description="--> clean the project">
+		<subant target="clean" buildpathref="build.path" />
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
+		<delete includeemptydirs="true" failonerror="false" dir="${dist.dir}" />
+		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
+	</target>
+
+	<target name="clean-lib" description="--> clean the library path" unless="clean.lib.disabled">
+		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
+	</target>
+
+	<target name="clean-src" description="--> clean the auto-generated source code files">
+		<subant target="clean-src" buildpathref="build.path" />
+	</target>
+
+	<target name="fudge-proto" description="--> autogenerate files from Fudge .proto definitions">
+		<subant target="fudge-proto" buildpathref="java.build.path" />
+		<subant target="proto-c" buildpathref="java.build.path" />
+	</target>
+
+	<target name="joda-bean">
+		<!-- TODO -->
+	</target>
+
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<import file="${common.dir}/common-ivy.xml" />
+
+</project>

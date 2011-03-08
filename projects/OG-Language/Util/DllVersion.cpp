@@ -97,4 +97,10 @@ PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
 	}
 }
 
+#else /* ifdef _WIN32 */
+
+#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL;
+DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
+
 #endif /* ifdef _WIN32 */

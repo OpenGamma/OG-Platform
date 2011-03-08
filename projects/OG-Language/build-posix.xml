@@ -1,8 +1,5 @@
 <project name="build-cpp-impl">
 
-	<property file="${basedir}/build.properties" />
-	<property file="${solution.dir}/build.properties" />
-
 	<target name="clean" depends="clean-src" description="--> clean the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
@@ -15,7 +12,10 @@
 			outtype="static"
 			outputfileproperty="cpptask.ok"
 			failonerror="false">
-			<includepath path="${solution.dir}" />
+			<includepath>
+				<pathelement path="${solution.dir}" />
+				<pathelement path="${solution.dir}/lib/include" />
+			</includepath>
 			<fileset dir="${basedir}">
 				<include name="stdafx.cpp" />
 			</fileset>
@@ -42,12 +42,16 @@
 				<define name="NDEBUG" if="cc.isRelease" />
 				<define name="HAVE_PTHREAD" if="cc.library.have_pthread" />
 			</defineset>
-			<includepath path="${solution.dir}" />
+			<includepath>
+				<pathelement path="${solution.dir}" />
+				<pathelement path="${solution.dir}/lib/include" />
+			</includepath>
 			<fileset dir="${basedir}">
 				<include name="*.c" />
 				<include name="*.cpp" />
 			</fileset>
-			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libSet}" if="cc.libSet" />
+			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
+			<libset dir="${solution.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
 		</cc>
 	</target>
 	<target name="compile-debug" if="cpptask.ok">

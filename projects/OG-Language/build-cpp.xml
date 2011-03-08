@@ -2,6 +2,7 @@
 
 	<property file="${basedir}/build.properties" />
 	<property environment="env" />
+	<property file="${solution.dir}/build.properties" />
 
 	<!-- Use Visual Studio if it's available -->
 	<available property="cpp.environment" value="msvc" file="msbuild.exe" filepath="${env.Path}" />
