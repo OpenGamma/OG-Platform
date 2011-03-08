@@ -1,4 +1,4 @@
-<project name="build-cpp-impl">
+<project name="build-cpp-impl" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
 	<target name="clean" depends="clean-src" description="--> clean the output folders">
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Debug" />
@@ -7,7 +7,7 @@
 
 	<target name="cpptask">
 		<taskdef resource="cpptasks.tasks" />
-		<cc	objdir="${build.dir}"
+		<cpptasks:cc objdir="${build.dir}"
 			outfile="${build.dir}/stdafx"
 			outtype="static"
 			outputfileproperty="cpptask.ok"
@@ -19,7 +19,7 @@
 			<fileset dir="${basedir}">
 				<include name="stdafx.cpp" />
 			</fileset>
-		</cc>
+		</cpptasks:cc>
 	</target>
 	<target name="cpptask-none" unless="cpptask.ok">
 		<echo>Can't build ${ant.project.name} - required header files and libraries missing</echo>
@@ -28,7 +28,7 @@
 	<target name="compile-impl">
 		<mkdir dir="${basedir}/${cc.configuration}" />
 		<mkdir dir="${build.dir}/${cc.configuration}" />
-		<cc	debug="${cc.debug}"
+		<cpptasks:cc debug="${cc.debug}"
 			multithreaded="${cc.multithreaded}"
 			objdir="${basedir}/${cc.configuration}"
 			optimize="${cc.optimization}"
@@ -52,7 +52,7 @@
 			</fileset>
 			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
 			<libset dir="${solution.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
-		</cc>
+		</cpptasks:cc>
 	</target>
 	<target name="compile-debug" if="cpptask.ok">
 		<antcall target="compile-impl">
