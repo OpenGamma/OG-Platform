@@ -3,7 +3,7 @@ How to use the build system
 
 As usual, all this assumes that ant is already in your path.
 
-  ant pull-or-clone
+  ant clone-or-pull
 
 will do the initial clone of each project into the 'projects' directory.  When you run this subsequently, it does a
 git pull on each project, although you will probably need to edit the build.xml file to tell the git task which 
