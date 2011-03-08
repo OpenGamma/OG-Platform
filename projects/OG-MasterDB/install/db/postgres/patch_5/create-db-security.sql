@@ -7,9 +7,9 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE sec_security_seq as bigint
+CREATE SEQUENCE sec_security_seq
     start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE sec_idkey_seq as bigint
+CREATE SEQUENCE sec_idkey_seq
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -33,7 +33,7 @@ CREATE INDEX ix_sec_security_ver_to_instant ON sec_security(ver_to_instant);
 CREATE INDEX ix_sec_security_corr_from_instant ON sec_security(corr_from_instant);
 CREATE INDEX ix_sec_security_corr_to_instant ON sec_security(corr_to_instant);
 CREATE INDEX ix_sec_security_name ON sec_security(name);
--- CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
+CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
 CREATE INDEX ix_sec_security_sec_type ON sec_security(sec_type);
 
 CREATE TABLE sec_idkey (
