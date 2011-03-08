@@ -38,7 +38,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * RESTful resource publishing details from a SecurityMaster.
+ * RESTful resource publishing details from a {@link SecurityMaster}.
  */
 public class SecurityMasterResource {
 
