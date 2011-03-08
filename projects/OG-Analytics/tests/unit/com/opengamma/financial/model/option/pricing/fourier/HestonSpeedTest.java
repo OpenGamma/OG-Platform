@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -44,7 +43,7 @@ public class HestonSpeedTest {
   final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
   private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(0.01 * EPS, 20);
   private static final FFTPricer FFT_PRICER = new FFTPricer();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   //Accuracy
   @Test

@@ -13,7 +13,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFun
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -22,13 +21,14 @@ import com.opengamma.util.CompareUtils;
 public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
   private static final CEVPriceFunction CEV_FUNCTION = new CEVPriceFunction();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
+    final Function1D<CEVFunctionData, Double> priceFunction = CEV_FUNCTION.getPriceFunction(option);
     return new Function1D<SABRFormulaData, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -50,22 +50,20 @@ public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider
         if (beta > 0) {
           final double sigmaDD = alpha * beta * Math.pow(f, beta - 1);
           final double eta = (1 - beta) / beta * f;
-          double sigmaBBF;
-          double sigmaTrunc;
           double sigmaBlend;
           if (CompareUtils.closeEquals(f, k, EPS)) {
             sigmaBlend = sigmaDD;
           } else {
             final double z = nu / sigmaDD * Math.log((f + eta) / (k + eta));
-            sigmaBBF = sigmaDD * z / Math.log((z - rho + Math.sqrt(1 - 2 * rho * z + z * z)) / (1 - rho));
-            sigmaTrunc = sigmaDD * Math.pow(1 - 4 * rho * z + (4.0 / 3.0 + 5 * rho * rho) * z * z, 1.0 / 8.0);
+            final double sigmaBBF = sigmaDD * z / Math.log((z - rho + Math.sqrt(1 - 2 * rho * z + z * z)) / (1 - rho));
+            final double sigmaTrunc = sigmaDD * Math.pow(1 - 4 * rho * z + (4.0 / 3.0 + 5 * rho * rho) * z * z, 1.0 / 8.0);
             final double w = Math.min(1.0, 1.0 / nu / Math.sqrt(t));
             sigmaBlend = 1.0 / (w / sigmaBBF + (1 - w) / sigmaTrunc);
           }
           sigmaBlend *= 1 + (rho * nu * sigmaDD / 4 + (2 - 3 * rho * rho) * nu * nu / 24) * t;
           final double sigmaCEV = sigmaBlend * Math.pow(f, 1 - beta) / beta;
           final CEVFunctionData cevData = new CEVFunctionData(f, 1, sigmaCEV, beta);
-          final double price = CEV_FUNCTION.getPriceFunction(option).evaluate(cevData);
+          final double price = priceFunction.evaluate(cevData);
           return BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, price);
         }
         throw new NotImplementedException("Have not implemented the case where b <= 0");

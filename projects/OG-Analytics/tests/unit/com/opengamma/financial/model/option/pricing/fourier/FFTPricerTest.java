@@ -18,7 +18,6 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.number.ComplexNumber;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 
 /**
  * 
@@ -33,7 +32,7 @@ public class FFTPricerTest {
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
   private static final FFTPricer PRICER = new FFTPricer();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA, T);
 
@@ -121,13 +120,9 @@ public class FFTPricerTest {
     final double[] vol = new double[n];
     for (int i = 0; i < n; i++) {
       k[i] = strikeNPrice[i][0];
-      try {
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(k[i], T, isCall);
-        final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
-        vol[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, strikeNPrice[i][1]);
-      } catch (final Exception e) {
-        vol[i] = 0.0;
-      }
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k[i], t, isCall);
+      final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
+      vol[i] = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, strikeNPrice[i][1]);
     }
 
     final Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(k, vol);
@@ -136,7 +131,7 @@ public class FFTPricerTest {
     final int m = strikeNPrice2.length;
     for (int i = 0; i < m; i++) {
       final double strike = strikeNPrice2[i][0];
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, isCall);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, t, isCall);
       final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
       final double sigma = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, strikeNPrice2[i][1]);
       assertEquals(sigma, INTERPOLATOR.interpolate(dataBundle, strike), 1e-5);

@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 
 /**
  * 
@@ -27,12 +31,18 @@ public class EuropeanVanillaOption {
     return _isCall;
   }
 
-  public double getT() {
+  public double getTimeToExpiry() {
     return _t;
   }
 
-  public double getK() {
+  public double getStrike() {
     return _k;
+  }
+
+  public static EuropeanVanillaOption fromDefinition(final EuropeanVanillaOptionDefinition definition, final ZonedDateTime date) {
+    Validate.notNull(definition, "definition");
+    Validate.notNull(date, "date");
+    return new EuropeanVanillaOption(definition.getStrike(), definition.getTimeToExpiry(date), definition.isCall());
   }
 
   @Override

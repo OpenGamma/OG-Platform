@@ -20,7 +20,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -30,8 +29,8 @@ import com.opengamma.util.monitor.OperationTimer;
 public class HestonFitterTest {
 
   protected Logger _logger = LoggerFactory.getLogger(HestonFitterTest.class);
-  protected int _hotspotWarmupCycles = 1;
-  protected int _benchmarkCycles = 0;
+  protected int _hotspotWarmupCycles = 0;
+  protected int _benchmarkCycles = 1;
 
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
@@ -57,7 +56,7 @@ public class HestonFitterTest {
     final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
     final FourierPricer pricer = new FourierPricer();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula();
     final double beta = 0.5;
     final double alpha = SIGMA * Math.pow(FORWARD, 1 - beta);
     final double nu = 0.4;

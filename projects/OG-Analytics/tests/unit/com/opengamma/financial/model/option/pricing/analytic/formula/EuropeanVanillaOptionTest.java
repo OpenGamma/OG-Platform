@@ -31,8 +31,8 @@ public class EuropeanVanillaOptionTest {
 
   @Test
   public void test() {
-    assertEquals(OPTION.getK(), K, 0);
-    assertEquals(OPTION.getT(), T, 0);
+    assertEquals(OPTION.getStrike(), K, 0);
+    assertEquals(OPTION.getTimeToExpiry(), T, 0);
     assertEquals(OPTION.isCall(), IS_CALL);
     EuropeanVanillaOption other = new EuropeanVanillaOption(K, T, IS_CALL);
     assertEquals(other, OPTION);

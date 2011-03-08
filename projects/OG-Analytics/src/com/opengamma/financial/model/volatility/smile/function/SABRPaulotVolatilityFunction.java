@@ -26,8 +26,8 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -60,9 +60,9 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
           double kPlus, kMinus;
           kPlus = f * Math.exp(delta);
           kMinus = f * Math.exp(-delta);
-          EuropeanVanillaOption other = new EuropeanVanillaOption(kPlus, option.getT(), option.isCall());
+          EuropeanVanillaOption other = new EuropeanVanillaOption(kPlus, option.getTimeToExpiry(), option.isCall());
           final double yPlus = getVolatilityFunction(other).evaluate(data);
-          other = new EuropeanVanillaOption(kMinus, option.getT(), option.isCall());
+          other = new EuropeanVanillaOption(kMinus, option.getTimeToExpiry(), option.isCall());
           final double yMinus = getVolatilityFunction(other).evaluate(data);
           final double a2 = (yPlus + yMinus - 2 * a0) / 2 / delta / delta;
           final double a1 = (yPlus - yMinus) / 2 / delta;
