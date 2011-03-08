@@ -97,8 +97,8 @@
 	</target>
 
 	<target name="deploy-jars">
-                <copy file="${basedir}/config/Client.properties" todir="${build.dir}" failonerror="true" />
-                <copy file="${basedir}/config/Client.xml" todir="${build.dir}" failonerror="true" />
+                <copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
+                <copy file="${basedir}/config/OpenGamma.xml" todir="${build.dir}" failonerror="true" />
                 <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
                 <mkdir dir="${build.dir}/jar" />
                 <ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />

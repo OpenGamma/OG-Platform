@@ -74,9 +74,9 @@ public class Main {
     try {
       s_logger.info("Starting OpenGamma language integration service");
       s_springContext = new GenericApplicationContext();
-      s_logger.debug("Reading Client.xml");
-      final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(s_springContext);
-      reader.loadBeanDefinitions(new ClassPathResource("Client.xml"));
+      s_logger.debug("Reading OpenGamma.xml");
+      final XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(s_springContext);
+      xmlReader.loadBeanDefinitions(new ClassPathResource("OpenGamma.xml"));
       s_logger.debug("Finished loading core bean definitions");
       s_springContext.refresh();
       // TODO: load other .xml files from the ext/ folder

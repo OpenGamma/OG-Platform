@@ -14,4 +14,4 @@
 #define DllVersion_OriginalFilename "ServiceTest"
 #endif
 
-#endif /* ifndef __inc_og_language_service_dllversioninfo_h */
+#endif /* ifndef __inc_og_language_servicetest_dllversioninfo_h */

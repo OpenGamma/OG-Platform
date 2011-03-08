@@ -3,7 +3,7 @@
 <beans>
 
   <!--
-    A language bound implementation should provide its own Client.xml & Client.properties in the classpath
+    A language bound implementation should provide its own OpenGamma.xml & OpenGamma.properties in the classpath
     which describe how to connect to the local OpenGamma infrastructure, and define language specific
     extensions.
   -->
@@ -31,7 +31,7 @@
   -->
 
   <!--
-    TODO: scan the ext/ folder for extension .xml files rather than require them go in here
+    TODO: scan the ext/ folder for language extension .xml files rather than require them go in here
   -->
   
 </beans>

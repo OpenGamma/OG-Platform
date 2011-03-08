@@ -5,12 +5,12 @@
   <!-- System properties -->
   <bean id="systemSettingsLoader" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location">
-      <value>classpath:Client.properties</value>
+      <value>classpath:OpenGamma.properties</value>
     </property>
   </bean>
   <bean id="systemSettings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <property name="location">
-      <value>classpath:Client.properties</value>
+      <value>classpath:OpenGamma.properties</value>
     </property>
   </bean>
   
