@@ -16,4 +16,13 @@
 		</subant>
 	</target>
 
+	<target name="dist" depends="build-cpp-impl.dist">
+		<mkdir dir="${dist.dir}/include/${ant.project.name}" />
+		<copy todir="${dist.dir}/include/${ant.project.name}">
+			<fileset dir="${basedir}">
+				<include name="*.h" />
+			</fileset>
+		</copy>
+	</target>
+
 </project>

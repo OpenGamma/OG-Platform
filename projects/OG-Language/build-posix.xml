@@ -89,4 +89,23 @@
 	</target>
 	<target name="tests" depends="cpptask,cpptask-none,tests-debug,tests-release" description="--> run tests in the project" />
 
+	<target name="dist-impl">
+		<mkdir dir="${dist.dir}/lib/${cc.configuration}" />
+		<mkdir dir="${dist.dir}/bin/${cc.configuration}" />
+		<copy file="${build.dir}/${cc.configuration}/lib${ant.project.name}.a" todir="${dist.dir}/lib/${cc.configuration}" failonerror="false" />
+		<copy file="${build.dir}/${cc.configuration}/lib${ant.project.name}.so" todir="${dist.dir}/lib/${cc.configuration}" failonerror="false" />
+		<copy file="${build.dir}/${cc.configuration}/${ant.project.name}" todir="${dist.dir}/bin/${cc.configuration}" failonerror="false" />
+	</target>
+	<target name="dist-debug" if="cpptask.ok">
+		<antcall target="dist-impl">
+			<param name="cc.configuration" value="Debug" />
+		</antcall>
+	</target>
+	<target name="dist-release" if="cpptask.ok">
+		<antcall target="dist-impl">
+			<param name="cc.configuration" value="Release" />
+		</antcall>
+	</target>
+	<target name="dist" depends="cpptask,cpptask-none,dist-debug,dist-release" description="--> copy artifacts to distribution directories" />
+
 </project>

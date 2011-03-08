@@ -143,23 +143,57 @@
 		<subant target="tests-with-clover" buildpath="${basedir}/Client" />
 	</target>
 
-	<target name="publish" depends="compile">
+	<target name="local-version">
+		<tstamp>
+			<format property="now" pattern="yyyyMMddHHmmss" />
+		</tstamp>
+		<property name="version" value="${module.version}-local-${now}" />
+	</target>
+	<target name="version">
+		<tstamp>
+			<format property="now" pattern="yyyyMMddHHmmss" />
+		</tstamp>
+		<property name="version" value="${module.version}" />
+	</target>
+	<target name="publish" depends="dist,version">
 		<!-- TODO -->
 	</target>
-	<target name="publish-local" depends="compile">
-		<!-- TODO -->
+	<target name="publish-local" depends="dist,local-version">
+		<ivy:publish	artifactspattern="${dist.dir}/[artifact].[ext]"
+				resolver="local"
+				pubrevision="${version}"
+				pubdate="${now}"
+				status="integration"
+				forcedeliver="true" />
 	</target>
-	<target name="tarball" depends="compile">
+
+	<target name="dist" depends="compile">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/bin" />
+		<mkdir dir="${dist.dir}/include" />
+		<mkdir dir="${dist.dir}/lib" />
+		<subant target="dist" buildpath="${basedir}/Client" antfile="build.parent-invoked.xml" />
+		<subant target="dist" buildpath="${basedir}/Util" />
+		<subant target="dist" buildpath="${basedir}/Service" />
+		<subant target="dist" buildpath="${basedir}/ServiceRunner" />
+		<subant target="dist" buildpath="${basedir}/Connector" />
+		<zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" />
+		<zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" />
+		<zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" />
+	</target>
+
+	<target name="tarball" depends="dist">
 		<!-- TODO -->
 	</target>
 
-	<target name="zipfile" depends="compile">
+	<target name="zipfile" depends="dist">
 		<!-- TODO -->
 	</target>
 
 	<target name="clean" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
 		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
+		<delete includeemptydirs="true" failonerror="false" dir="${dist.dir}" />
 	</target>
 
 	<target name="clean-lib" description="--> clean the library path" unless="clean.lib.disabled">

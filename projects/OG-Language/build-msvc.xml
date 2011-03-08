@@ -86,4 +86,30 @@
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Releasex64" />
 	</target>
 
+	<target name="dist-impl">
+		<mkdir dir="${dist.dir}/lib/${msbuild.config}${msbuild.platform}" />
+		<mkdir dir="${dist.dir}/bin/${msbuild.config}${msbuild.platform}" />
+		<copy file="${build.dir}/${msbuild.config}${msbuild.platform}/${ant.project.name}.lib" todir="${dist.dir}/lib/${msbuild.config}${msbuild.platform}" failonerror="false" />
+		<copy file="${build.dir}/${msbuild.config}${msbuild.platform}/${ant.project.name}.dll" todir="${dist.dir}/lib/${msbuild.config}${msbuild.platform}" failonerror="false" />
+		<copy file="${build.dir}/${msbuild.config}${msbuild.platform}/${ant.project.name}.exe" todir="${dist.dir}/bin/${msbuild.config}${msbuild.platform}" failonerror="false" />
+	</target>
+	<target name="dist">
+		<antcall target="dist-impl">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="dist-impl">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="dist-impl">
+			<param name="msbuild.config" value="Debug" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="dist-impl">
+			<param name="msbuild.config" value="Release" />
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+	</target>
+
 </project>
