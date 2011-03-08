@@ -8,8 +8,8 @@ package com.opengamma.core.marketdatasnapshot;
 import java.util.Map;
 
 import com.opengamma.core.common.CurrencyUnit;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -22,7 +22,7 @@ public interface MarketDataSnapshot extends UniqueIdentifiable  {
   
   String getName();
   
-  Map<Identifier, ValueSnapshot> getValues();
+  Map<UniqueIdentifier, ValueSnapshot> getValues();
 
   Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> getYieldCurves();
 

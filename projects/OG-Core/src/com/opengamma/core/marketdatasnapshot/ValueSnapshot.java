@@ -11,7 +11,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -23,7 +23,7 @@ public class ValueSnapshot {
   /**
    * The security from which the {@link getMarketValue} was taken
    */
-  private final Identifier _security;
+  private final UniqueIdentifier _security;
 
   /**
    * The value sampled from the market
@@ -35,7 +35,7 @@ public class ValueSnapshot {
    */
   private Double _overrideValue;
 
-  public ValueSnapshot(double marketValue, Double overrideValue, Identifier security) {
+  public ValueSnapshot(double marketValue, Double overrideValue, UniqueIdentifier security) {
     super();
     _marketValue = marketValue;
     _overrideValue = overrideValue;
@@ -45,7 +45,7 @@ public class ValueSnapshot {
   /**
    * @return The security from which the {@link getMarketValue} was taken
    */
-  public Identifier getSecurity() {
+  public UniqueIdentifier getSecurity() {
     return _security;
   }
 
@@ -83,6 +83,6 @@ public class ValueSnapshot {
   public static ValueSnapshot fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
     return new ValueSnapshot(msg.getDouble("marketValue"),
         msg.hasField("overrideValue") ? Double.valueOf(msg.getDouble("overrideValue")) : null,
-        context.fudgeMsgToObject(Identifier.class, msg));
+        context.fudgeMsgToObject(UniqueIdentifier.class, msg));
   }
 }

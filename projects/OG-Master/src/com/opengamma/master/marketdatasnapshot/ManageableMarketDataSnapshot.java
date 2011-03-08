@@ -22,7 +22,6 @@ import com.opengamma.core.marketdatasnapshot.FXVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
@@ -55,7 +54,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    *        structured object in which it appears (e.g. yield curve)
    */
   @PropertyDefinition
-  private Map<Identifier, ValueSnapshot> _values;
+  private Map<UniqueIdentifier, ValueSnapshot> _values;
 
   /**
    * The yield curves in this snapshot
@@ -84,7 +83,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * @param yieldCurves the yield curves
    * @param fxVolatilitySurfaces the FX volatility surfaces
    */
-  public ManageableMarketDataSnapshot(String name, Map<Identifier, ValueSnapshot> values,
+  public ManageableMarketDataSnapshot(String name, Map<UniqueIdentifier, ValueSnapshot> values,
       Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> yieldCurves,
       Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot> fxVolatilitySurfaces) {
     super();
@@ -138,7 +137,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
         setName((String) newValue);
         return;
       case -823812830:  // values
-        setValues((Map<Identifier, ValueSnapshot>) newValue);
+        setValues((Map<UniqueIdentifier, ValueSnapshot>) newValue);
         return;
       case 119589713:  // yieldCurves
         setYieldCurves((Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot>) newValue);
@@ -213,7 +212,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * structured object in which it appears (e.g. yield curve)
    * @return the value of the property
    */
-  public Map<Identifier, ValueSnapshot> getValues() {
+  public Map<UniqueIdentifier, ValueSnapshot> getValues() {
     return _values;
   }
 
@@ -223,7 +222,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * structured object in which it appears (e.g. yield curve)
    * @param values  the new value of the property
    */
-  public void setValues(Map<Identifier, ValueSnapshot> values) {
+  public void setValues(Map<UniqueIdentifier, ValueSnapshot> values) {
     this._values = values;
   }
 
@@ -233,7 +232,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * structured object in which it appears (e.g. yield curve)
    * @return the property, not null
    */
-  public final Property<Map<Identifier, ValueSnapshot>> values() {
+  public final Property<Map<UniqueIdentifier, ValueSnapshot>> values() {
     return metaBean().values().createProperty(this);
   }
 
@@ -309,7 +308,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Identifier, ValueSnapshot>> _values = DirectMetaProperty.ofReadWrite(this, "values", (Class) Map.class);
+    private final MetaProperty<Map<UniqueIdentifier, ValueSnapshot>> _values = DirectMetaProperty.ofReadWrite(this, "values", (Class) Map.class);
     /**
      * The meta-property for the {@code yieldCurves} property.
      */
@@ -372,7 +371,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Identifier, ValueSnapshot>> values() {
+    public final MetaProperty<Map<UniqueIdentifier, ValueSnapshot>> values() {
       return _values;
     }
 
