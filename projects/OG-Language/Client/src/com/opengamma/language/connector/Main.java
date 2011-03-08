@@ -77,12 +77,13 @@ public class Main {
       s_logger.debug("Reading Client.xml");
       final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(s_springContext);
       reader.loadBeanDefinitions(new ClassPathResource("Client.xml"));
-      s_logger.debug("Finished loading bean definitions");
+      s_logger.debug("Finished loading core bean definitions");
       s_springContext.refresh();
+      // TODO: load other .xml files from the ext/ folder
       s_logger.info("Starting application context");
       s_springContext.start();
       s_logger.info("Application context started");
-      s_clientFactories = DefaultClientFactory.getFactory();
+      s_clientFactories = ClientFactory.getFactory();
       // TODO: allow the client factory factory to be selected/overridden from command line, or property for e.g. the remote debugging version
       final ClientContextFactory clientContextFactory = getBean(Character.toLowerCase(CLIENT_CONTEXT_FACTORY.charAt(0))
           + CLIENT_CONTEXT_FACTORY.substring(1), ClientContextFactory.class);

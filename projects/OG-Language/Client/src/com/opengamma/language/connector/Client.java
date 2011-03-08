@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -42,7 +42,7 @@ import com.opengamma.language.context.SessionContextInitializationEventHandler;
  * Client connection thread to interface with the C++ module. This connects to the two
  * pipe interfaces and provides user message routing.
  */
-public final class Client implements Runnable, SessionContextInitializationEventHandler {
+public class Client implements Runnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Client.class);
 
@@ -57,7 +57,7 @@ public final class Client implements Runnable, SessionContextInitializationEvent
   private FudgeStreamWriter _outputPipe;
   private volatile boolean _poisoned;
 
-  protected Client(final ClientContext clientContext, final String inputPipeName, final String outputPipeName,
+  protected Client(ClientContext clientContext, final String inputPipeName, final String outputPipeName,
       final SessionContext session) {
     _clientContext = clientContext;
     _sessionContext = session;
@@ -66,11 +66,11 @@ public final class Client implements Runnable, SessionContextInitializationEvent
     _outputPipeName = outputPipeName;
   }
 
-  private ClientContext getClientContext() {
+  protected ClientContext getClientContext() {
     return _clientContext;
   }
 
-  private SessionContext getSessionContext() {
+  protected SessionContext getSessionContext() {
     return _sessionContext;
   }
 
@@ -146,51 +146,58 @@ public final class Client implements Runnable, SessionContextInitializationEvent
     };
   }
 
-  private void sendUserMessage(final UserMessage message) {
+  protected void sendUserMessage(final UserMessage message) {
     getOutputMessageBuffer().add(
         new FudgeMsgEnvelope(message.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.USER));
   }
 
-  @Override
-  public void initContext(MutableSessionContext context) {
-    context.setMessageSender(new MessageSender() {
+  protected SessionContextInitializationEventHandler getSessionInitializer() {
+    return new SessionContextInitializationEventHandler() {
 
       @Override
-      public UserMessagePayload call(final UserMessagePayload message, final long timeoutMillis)
-          throws TimeoutException {
-        // TODO: implement this if/when we need it
-        throw new UnsupportedOperationException();
+      public void initContext(MutableSessionContext context) {
+        context.setMessageSender(new MessageSender() {
+
+          @Override
+          public UserMessagePayload call(final UserMessagePayload message, final long timeoutMillis)
+              throws TimeoutException {
+            // TODO: implement this if/when we need it
+            throw new UnsupportedOperationException();
+          }
+
+          @Override
+          public long getDefaultTimeout() {
+            return getClientContext().getMessageTimeout();
+          }
+
+          @Override
+          public void send(final UserMessagePayload payload) {
+            sendUserMessage(new UserMessage(payload));
+          }
+
+          @Override
+          public void sendAndWait(final UserMessagePayload message, final long timeoutMillis) throws TimeoutException {
+            // TODO: implement this if/when we need it
+            throw new UnsupportedOperationException();
+          }
+
+        });
       }
 
       @Override
-      public long getDefaultTimeout() {
-        return getClientContext().getMessageTimeout();
+      public void initContextWithStash(MutableSessionContext context, FudgeFieldContainer stash) {
+        initContext(context);
       }
 
-      @Override
-      public void send(final UserMessagePayload payload) {
-        sendUserMessage(new UserMessage(payload));
-      }
-
-      @Override
-      public void sendAndWait(final UserMessagePayload message, final long timeoutMillis) throws TimeoutException {
-        // TODO: implement this if/when we need it
-        throw new UnsupportedOperationException();
-      }
-    });
-  }
-
-  @Override
-  public void initContextWithStash(MutableSessionContext context, FudgeFieldContainer stash) {
-    initContext(context);
+    };
   }
 
   private void initializeContext(final FudgeFieldContainer stash) {
     s_logger.info("Initializing session context");
     if (stash != null) {
-      getSessionContext().initContextWithStash(this, stash);
+      getSessionContext().initContextWithStash(getSessionInitializer(), stash);
     } else {
-      getSessionContext().initContext(this);
+      getSessionContext().initContext(getSessionInitializer());
     }
     s_logger.debug("Session context initialized");
   }
@@ -201,7 +208,7 @@ public final class Client implements Runnable, SessionContextInitializationEvent
    * when messages arrive.
    */
   @Override
-  public void run() {
+  public final void run() {
     if (!connectPipes()) {
       s_logger.error("Couldn't connect to client");
       return;
@@ -345,13 +352,17 @@ public final class Client implements Runnable, SessionContextInitializationEvent
     }
   }
 
+  protected UserMessagePayload dispatchUserMessage(final UserMessagePayload message) {
+    return message.accept(getClientContext().getMessageHandler(), getSessionContext());
+  }
+
   private Runnable dispatchUserMessage(final UserMessage message) {
     return new Runnable() {
       @Override
       public void run() {
         UserMessagePayload response = null;
         try {
-          response = message.getPayload().accept(getClientContext().getMessageHandler(), getSessionContext());
+          response = dispatchUserMessage(message.getPayload());
         } catch (Throwable t) {
           s_logger.error("Error in user message handler", t);
           response = UserMessagePayload.EMPTY_PAYLOAD;
@@ -367,9 +378,5 @@ public final class Client implements Runnable, SessionContextInitializationEvent
       }
     };
   }
-
-  // TODO: reduce this to an abstract client class with the common I/O for C++
-  // TODO: create a LocalClient which has the remainder of the code here for normal use (with a user context)
-  // TODO: create a DebugClient which connects to another Java process (e.g. running in Eclipse) (has no user context)
 
 }

@@ -29,5 +29,9 @@
       //...
     }
   -->
+
+  <!--
+    TODO: scan the ext/ folder for extension .xml files rather than require them go in here
+  -->
   
 </beans>
