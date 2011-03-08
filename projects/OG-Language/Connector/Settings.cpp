@@ -88,6 +88,9 @@ int CSettings::GetSendTimeout () {
 
 const TCHAR *CSettings::GetServiceExecutable () {
 	if (!m_pszDefaultServiceExecutable) {
+#ifdef _WIN32
+		// TODO: if the service is installed, get the executable from the service settings
+#endif /* ifdef _WIN32 */
 		do {
 			TCHAR szPath[260];
 			if (!CProcess::GetCurrentModule (szPath, (sizeof (szPath) / sizeof (TCHAR)) - _tcslen (DEFAULT_SERVICE_EXECUTABLE))) {
@@ -141,7 +144,6 @@ const TCHAR *CSettings::GetServiceExecutable () {
 }
 
 const TCHAR *CSettings::GetServiceName () {
-	// TODO: if we know the service executable, could iterate through the service database to "guess" the correct service name
 	return GetServiceName (DEFAULT_SERVICE_NAME);
 }
 

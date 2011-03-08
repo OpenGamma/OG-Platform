@@ -47,7 +47,8 @@
 			<arg value="/resultsfile:${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
 			<arg value="/detail:stdout" />
 			<arg value="/detail:stderr" />
-			<env key="LOG4CXX_CONFIGURATION" value="${log4cxx.cofiguration}" />
+			<arg value="/runconfig:${basedir}\..\Local.testsettings" />
+			<env key="LOG4CXX_CONFIGURATION" value="${log4cxx.configuration}" />
 			<env key="WORKING_DIRECTORY" value="${build.dir}\${msbuild.config}${msbuild.platform}" />
 		</exec>
 		<copy file="${log4cxx.logfile}" tofile="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.log" failonerror="false" />
