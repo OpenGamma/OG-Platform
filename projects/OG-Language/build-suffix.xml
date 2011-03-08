@@ -145,9 +145,9 @@
 		<mkdir dir="${dist.dir}/lib" />
 		<subant target="dist" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
 		<subant target="dist" buildpathref="cc.build.path" />
-		<zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" />
-		<zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" />
-		<zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" />
+		<zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
+		<zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
+		<zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
 	</target>
 
 	<target name="tarball" depends="dist">
