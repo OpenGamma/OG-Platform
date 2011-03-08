@@ -346,8 +346,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-        return Sets
-            .newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
+        return Sets.newHashSet(
+            new ComputedValue(_fundingCurveResult, fundingCurve), 
+            new ComputedValue(_forwardCurveResult, forwardCurve),
+            new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
+            new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), 
+            new ComputedValue(_forwardCurveSpecResult, _forwardCurveSpecification));
       }
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
@@ -477,7 +481,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
       return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
-    		  new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities), new ComputedValue(_forwardCurveSpecResult, forwardCurveSpecificationWithSecurities));
+    		  new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), new ComputedValue(_forwardCurveSpecResult, _forwardCurveSpecification));
 
     }
 
