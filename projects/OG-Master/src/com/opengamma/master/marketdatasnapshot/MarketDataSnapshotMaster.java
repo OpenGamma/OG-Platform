@@ -15,4 +15,12 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument> {
 
+  /**
+   * Searches for snasphots matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request);
 }

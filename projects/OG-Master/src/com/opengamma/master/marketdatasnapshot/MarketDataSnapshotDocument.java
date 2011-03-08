@@ -49,6 +49,17 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
   }
 
   /**
+   * Creates an instance from a snapshot and an id.
+   * @param uniqueId the identifier
+   * @param snapshot  the snapshot, not null
+   */
+  public MarketDataSnapshotDocument(final UniqueIdentifier uniqueId, final ManageableMarketDataSnapshot snapshot) {
+    ArgumentChecker.notNull(snapshot, "snapshot");
+    setUniqueId(uniqueId);
+    setSnapshot(snapshot);
+  }
+  
+  /**
    * Creates an instance from a snapshot.
    * @param snapshot  the snapshot, not null
    */
