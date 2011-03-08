@@ -16,7 +16,7 @@ import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.marketdatasnapshot.FXVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -64,7 +64,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     ManageableMarketDataSnapshot marketDataSnapshot = new ManageableMarketDataSnapshot();
     marketDataSnapshot.setName("Test");
     
-    HashMap<Identifier,ValueSnapshot> values = new HashMap<Identifier,ValueSnapshot>();
+    HashMap<UniqueIdentifier,ValueSnapshot> values = new HashMap<UniqueIdentifier,ValueSnapshot>();
     HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot>();
     HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot>();
     
@@ -85,13 +85,13 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     ManageableMarketDataSnapshot marketDataSnapshot = new ManageableMarketDataSnapshot();
     marketDataSnapshot.setName("Test");
     
-    HashMap<Identifier,ValueSnapshot> values = new HashMap<Identifier,ValueSnapshot>();
+    HashMap<UniqueIdentifier,ValueSnapshot> values = new HashMap<UniqueIdentifier,ValueSnapshot>();
     HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot>();
     HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot>();
     
     
-    Identifier identA = Identifier.parse("XXX::AAA");
-    Identifier identB = Identifier.parse("XXX::BBB");
+    UniqueIdentifier identA = UniqueIdentifier.parse("XXX::AAA");
+    UniqueIdentifier identB = UniqueIdentifier.parse("XXX::BBB");
     
     values.put(identA, new ValueSnapshot(12,null,identA));
     values.put(identB, new ValueSnapshot(12,Double.valueOf(11),identB));
@@ -108,7 +108,7 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     MarketDataSnapshotDocument loaded = _snpMaster.get(added.getUniqueId());
     
     assertEquals(added.getSnapshot().getValues().keySet(), loaded.getSnapshot().getValues().keySet());
-    for (Identifier id : added.getSnapshot().getValues().keySet()) {
+    for (UniqueIdentifier id : added.getSnapshot().getValues().keySet()) {
         ValueSnapshot addedValue = added.getSnapshot().getValues().get(id);
         ValueSnapshot loadedValue = loaded.getSnapshot().getValues().get(id);
         
