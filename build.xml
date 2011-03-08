@@ -80,7 +80,6 @@
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
-				<exclude name="OG-Language/*" /> <!-- Not ready for a build yet -->
 				<include name="*/build.xml" />
 			</fileset>
 		</ivy:buildlist>
