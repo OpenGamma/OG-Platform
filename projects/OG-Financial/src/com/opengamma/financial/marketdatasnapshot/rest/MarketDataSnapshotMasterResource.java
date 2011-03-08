@@ -32,8 +32,8 @@ public class MarketDataSnapshotMasterResource {
 
   private final FudgeContext _fudgeContext;
 
-  public MarketDataSnapshotMasterResource(final MarketDataSnapshotMaster securityMaster, final FudgeContext fudgeContext) {
-    _snapshotMaster = securityMaster;
+  public MarketDataSnapshotMasterResource(final MarketDataSnapshotMaster snapshotMaster, final FudgeContext fudgeContext) {
+    _snapshotMaster = snapshotMaster;
     _fudgeContext = fudgeContext;
   }
 
