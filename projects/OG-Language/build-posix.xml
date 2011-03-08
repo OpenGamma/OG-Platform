@@ -5,8 +5,11 @@
 		<delete includeemptydirs="true" failonerror="false" dir="${basedir}/Release" />
 	</target>
 
-	<target name="cpptask">
+	<target name="cpptask-defined">
 		<taskdef resource="cpptasks.tasks" />
+		<available classname="net.sf.antcontrib.cpptasks.CCTask" property="cpptasks.present" />
+	</target>
+	<target name="cpptask" depends="cpptask-defined" if="cpptasks.present">
 		<cpptasks:cc objdir="${build.dir}"
 			outfile="${build.dir}/stdafx"
 			outtype="static"
