@@ -31,8 +31,6 @@ import com.opengamma.math.function.Function1D;
  * <li> Right hand
  * <li> Left hand
  * <li> Mid point
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * }
  * <li> Trapezoidal
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{equation*}

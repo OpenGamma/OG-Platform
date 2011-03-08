@@ -33,4 +33,13 @@ public class RecombiningTrinomialTree<T> extends RecombiningTree<T> {
     return NODES.evaluate(step);
   }
 
+//  @SuppressWarnings("unchecked")
+//  @Override
+//  public T[][] getEmptyNodes(int size) {
+//    Object[][] res = new Object[size+1][];
+//    for (int i = 0; i <= size; i++) {
+//      res[i] = new Object[NODES.evaluate(i)];
+//    }
+//    return (T[][]) res;
+//  }
 }

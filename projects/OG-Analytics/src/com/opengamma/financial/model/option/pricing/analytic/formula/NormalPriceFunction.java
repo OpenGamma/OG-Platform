@@ -19,6 +19,7 @@ public class NormalPriceFunction implements OptionPriceFunction<BlackFunctionDat
 
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
     final double k = option.getK();
     final double t = option.getT();
     return new Function1D<BlackFunctionData, Double>() {
@@ -32,6 +33,10 @@ public class NormalPriceFunction implements OptionPriceFunction<BlackFunctionDat
         final double sigma = data.getSigma();
         final double sigmaRootT = sigma * Math.sqrt(t);
         final int sign = option.isCall() ? 1 : -1;
+        if (sigmaRootT < 1e-16) {
+          final double x = sign * (f - k);
+          return (x > 0 ? discountFactor * x : 0.0);
+        }
         final double arg = sign * (f - k) / sigmaRootT;
         return discountFactor * (sign * (f - k) * NORMAL.getCDF(arg) + sigmaRootT * NORMAL.getPDF(arg));
       }

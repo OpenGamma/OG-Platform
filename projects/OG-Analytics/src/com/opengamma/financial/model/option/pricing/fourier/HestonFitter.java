@@ -9,8 +9,10 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFormula;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -23,6 +25,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
@@ -30,23 +33,17 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
  * 
  */
 public class HestonFitter {
-
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
   private static final FFTPricer FFT_PRICER = new FFTPricer();
   private static final FourierPricer FOURIER_PRICER = new FourierPricer();
-  // private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = Interpolator1DFactory.getInterpolator("NaturalCubicSpline");
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
-
+  private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
+  private static final BlackImpliedVolatilityFormula BLACK_VOL_FUNCTION = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
   static {
     TRANSFORMS = new ParameterLimitsTransform[N_PARAMETERS];
-    // TRANSFORMS[0] = new NullTransform();
-    // TRANSFORMS[1] = new NullTransform();
-    // TRANSFORMS[2] = new NullTransform();
-    // TRANSFORMS[3] = new NullTransform();
-    // TRANSFORMS[4] = new NullTransform();
     TRANSFORMS[0] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // kappa > 0
     TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // theta > 0
     TRANSFORMS[2] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // vol0 > 0
@@ -90,7 +87,9 @@ public class HestonFitter {
         for (int i = 0; i < nStrikes; i++) {
           k[i] = strikeNPrice[i][0];
           try {
-            vol[i] = BlackImpliedVolFormula.impliedVolNewton(strikeNPrice[i][1], forward, k[i], 1.0, maturity, true);
+            final EuropeanVanillaOption option = new EuropeanVanillaOption(k[i], maturity, true);
+            final BlackFunctionData data = new BlackFunctionData(forward, 1, 0);
+            vol[i] = BLACK_VOL_FUNCTION.getImpliedVolatility(data, option, strikeNPrice[i][1]);
           } catch (final Exception e) {
             vol[i] = 0.0;
           }
@@ -127,7 +126,9 @@ public class HestonFitter {
     final double tol = 1e-8;
     final double[] prices = new double[blackVols.length];
     for (int i = 0; i < blackVols.length; i++) {
-      prices[i] = BlackFormula.optionPrice(forward, strikes[i], 1.0, blackVols[i], maturity, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], maturity, true);
+      final BlackFunctionData data = new BlackFunctionData(forward, 1, blackVols[i]);
+      prices[i] = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
     }
     final double limitSigma = (blackVols[0] + blackVols[blackVols.length - 1]) / 2.0;
 
@@ -193,8 +194,9 @@ public class HestonFitter {
         final CharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, maturity);
 
         final double price = FOURIER_PRICER.price(forward, strike, 1.0, true, ce, alpha, tol, limitSigma);
-
-        final double vol = BlackImpliedVolFormula.impliedVolNewton(price, forward, strike, 1.0, maturity, true);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
+        final BlackFunctionData data = new BlackFunctionData(forward, 1, 0);
+        final double vol = BLACK_VOL_FUNCTION.getImpliedVolatility(data, option, price);
 
         return vol;
       }

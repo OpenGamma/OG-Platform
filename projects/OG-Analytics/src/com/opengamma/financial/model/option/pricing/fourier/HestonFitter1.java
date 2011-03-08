@@ -9,8 +9,8 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFormula;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
@@ -38,6 +38,7 @@ public class HestonFitter1 {
   private static final FourierPricer FOURIER_PRICER = new FourierPricer();
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL_FORMULA = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
@@ -124,7 +125,9 @@ public class HestonFitter1 {
     final double tol = 1e-8;
     final double[] prices = new double[blackVols.length];
     for (int i = 0; i < blackVols.length; i++) {
-      prices[i] = BlackFormula.optionPrice(forward, strikes[i], 1.0, blackVols[i], maturity, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strikes[i], maturity, true);
+      final BlackFunctionData data = new BlackFunctionData(forward, 1, blackVols[i]);
+      prices[i] = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
     }
     final double limitSigma = (blackVols[0] + blackVols[blackVols.length - 1]) / 2.0;
 

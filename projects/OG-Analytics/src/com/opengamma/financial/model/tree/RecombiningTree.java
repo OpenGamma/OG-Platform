@@ -44,7 +44,7 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
   }
 
   @Override
-  public T[][] getTree() {
+  public T[][] getNodes() {
     return _tree;
   }
 

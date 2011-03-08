@@ -43,7 +43,7 @@ public class Bundle extends DirectBean implements BundleNode {
    * The type of bundle js or css
    */
   @PropertyDefinition
-  private String _type;
+  private BundleType _type;
 
   /**
    * Creates a bundle.
@@ -58,6 +58,7 @@ public class Bundle extends DirectBean implements BundleNode {
   public Bundle(final String id) {
     ArgumentChecker.notNull(id, "id");
     _id = id;
+    _type = BundleType.getType(id);
   }
 
   @Override
@@ -118,7 +119,7 @@ public class Bundle extends DirectBean implements BundleNode {
         setId((String) newValue);
         return;
       case 3575610:  // type
-        setType((String) newValue);
+        setType((BundleType) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -180,7 +181,7 @@ public class Bundle extends DirectBean implements BundleNode {
    * Gets the type of bundle js or css
    * @return the value of the property
    */
-  public String getType() {
+  public BundleType getType() {
     return _type;
   }
 
@@ -188,7 +189,7 @@ public class Bundle extends DirectBean implements BundleNode {
    * Sets the type of bundle js or css
    * @param type  the new value of the property
    */
-  public void setType(String type) {
+  public void setType(BundleType type) {
     this._type = type;
   }
 
@@ -196,7 +197,7 @@ public class Bundle extends DirectBean implements BundleNode {
    * Gets the the {@code type} property.
    * @return the property, not null
    */
-  public final Property<String> type() {
+  public final Property<BundleType> type() {
     return metaBean().type().createProperty(this);
   }
 
@@ -222,7 +223,7 @@ public class Bundle extends DirectBean implements BundleNode {
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<String> _type = DirectMetaProperty.ofReadWrite(this, "type", String.class);
+    private final MetaProperty<BundleType> _type = DirectMetaProperty.ofReadWrite(this, "type", BundleType.class);
     /**
      * The meta-properties.
      */
@@ -273,7 +274,7 @@ public class Bundle extends DirectBean implements BundleNode {
      * The meta-property for the {@code type} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> type() {
+    public final MetaProperty<BundleType> type() {
       return _type;
     }
 

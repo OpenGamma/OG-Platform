@@ -35,11 +35,11 @@ public class GeneralizedParetoDistributionMomentEstimator extends DistributionPa
 
       @Override
       public Double evaluate(final Double a) {
-        return 2 * (1 + a) * Math.sqrt(1 - 2 * a) / (1 - 3 * a) - skewness;
+        return 2 * (1 + a) * Math.sqrt(1 - 2. * a) / (1 - 3. * a) - skewness;
       }
 
     };
-    final double ksi = ROOT_FINDER.getRoot(ksiFunction, -10000., 10000.);
+    final double ksi = ROOT_FINDER.getRoot(ksiFunction, 0., 0.5);
     final double ksiP1 = 1 - ksi;
     final double sigma = Math.sqrt(variance * (1 - 2 * ksi) * ksiP1 * ksiP1);
     final double mu = mean - sigma / ksiP1;

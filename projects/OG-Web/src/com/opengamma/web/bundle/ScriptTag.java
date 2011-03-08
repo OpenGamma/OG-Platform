@@ -122,10 +122,10 @@ public class ScriptTag {
   }
 
   private String buildFragmentUrl(Fragment fragment) {
-    String absolutePath = fragment.getFile().getAbsolutePath();
+    String uri = fragment.getFile().toURI().toASCIIString();
     String baseDir = _bundleManager.getBaseDir().getName();
-    int indexOf = absolutePath.indexOf(baseDir);
-    return absolutePath.substring(indexOf);
+    int indexOf = uri.indexOf(baseDir);
+    return uri.substring(indexOf);
   }
 
 }
