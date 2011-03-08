@@ -6,8 +6,6 @@
 package com.opengamma.master.marketdatasnapshot;
 
 import com.opengamma.master.AbstractMaster;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.PublicSPI;
 
 /**
