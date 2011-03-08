@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,7 +43,7 @@ CConnectionPipe *CConnectionPipe::Create (const TCHAR *pszSuffix) {
 	return new CConnectionPipe (poPipe, settings.GetConnectionTimeout ());
 }
 
-PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
+ClientConnect *CConnectionPipe::ReadMessage () {
 	do {
 		LOGDEBUG (TEXT ("Waiting for client connection"));
 		CNamedPipe *poClient = m_poPipe->Accept (0xFFFFFFFF);
@@ -58,7 +58,7 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 		}
 		LOGDEBUG (TEXT ("Connection accepted - reading from pipe"));
 		CBufferedInput oBuffer;
-		if (!oBuffer.Read (poClient, sizeof (JAVACLIENT_CONNECT), m_dwReadTimeout)) {
+		if (!oBuffer.Read (poClient, 8, m_dwReadTimeout)) { // Fudge headers are 8-bytes long
 			int ec = GetLastError ();
 			delete poClient;
 			if (ec == ETIMEDOUT) {
@@ -69,10 +69,18 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 				return NULL;
 			}
 		}
-		PJAVACLIENT_CONNECT pConnect = (PJAVACLIENT_CONNECT)oBuffer.GetData ();
-		size_t cbSize = pConnect->cbSize;
-		LOGDEBUG (TEXT ("Initial message ") << cbSize << TEXT (" bytes"));
-		if (!oBuffer.Read (poClient, cbSize, m_dwReadTimeout)) {
+		LOGDEBUG (TEXT ("Read ") << oBuffer.GetAvailable () << TEXT (" bytes"));
+		FudgeStatus status;
+		FudgeMsgHeader header;
+		fudge_byte *ptr = (fudge_byte*)oBuffer.GetData ();
+		if ((status = FudgeHeader_decodeMsgHeader (&header, ptr, 8)) != FUDGE_OK) {
+			delete poClient;
+			LOGERROR (TEXT ("Couldn't decode Fudge envelope header, status ") << status);
+			SetLastError (EIO_READ);
+			return NULL;
+		}
+		LOGDEBUG (TEXT ("Fudge message header found - reading ") << header.numbytes << TEXT (" byte message"));
+		if (!oBuffer.Read (poClient, header.numbytes, m_dwReadTimeout)) {
 			int ec = GetLastError ();
 			delete poClient;
 			if (ec == ETIMEDOUT) {
@@ -85,22 +93,22 @@ PJAVACLIENT_CONNECT CConnectionPipe::ReadMessage () {
 		}
 		LOGDEBUG (TEXT ("Closing client"));
 		delete poClient;
-		pConnect = (PJAVACLIENT_CONNECT)oBuffer.GetData ();
-		if (pConnect->cbChar != sizeof (TCHAR)) {
-			LOGERROR (TEXT ("Unicode mismatch with client - expected ") << sizeof (TCHAR) << TEXT (", received ") << pConnect->cbChar);
-			// TODO [XLS-173]: Convert the message to the correct character width
-			continue;
-		}
-		pConnect = (PJAVACLIENT_CONNECT)malloc (cbSize);
-		if (!pConnect) {
-			LOGFATAL (TEXT ("Out of memory"));
+		ptr = (fudge_byte*)oBuffer.GetData ();
+		FudgeMsgEnvelope env;
+		status = FudgeCodec_decodeMsg (&env, ptr, header.numbytes);
+		oBuffer.Discard (header.numbytes);
+		if (status != FUDGE_OK) {
+			LOGERROR (TEXT ("Couldn't decode Fudge message, status ") << status);
+			SetLastError (EIO_READ);
 			return NULL;
 		}
-		memcpy (pConnect, oBuffer.GetData (), cbSize);
-		oBuffer.Discard (cbSize);
-		cbSize = oBuffer.GetAvailable ();
-		if (cbSize > 0) {
-			LOGWARN (TEXT ("Extra characters found after client packet, ") << cbSize << TEXT (" bytes"));
+		ClientConnect *pConnect;
+		status = ClientConnect_fromFudgeMsg (FudgeMsgEnvelope_getMessage (env), &pConnect);
+		FudgeMsgEnvelope_release (env);
+		if (status != FUDGE_OK) {
+			LOGERROR (TEXT ("Couldn't decode Fudge message, status ") << status);
+			SetLastError (EIO_READ);
+			return NULL;
 		}
 		return pConnect;
 	} while (!IsClosed ());

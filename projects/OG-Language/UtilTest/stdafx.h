@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@
 // Common include file for all source code in UtilTest
 
 #if defined (_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <tchar.h>
 #include <strsafe.h>

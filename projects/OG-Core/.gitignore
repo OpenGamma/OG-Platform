@@ -11,7 +11,6 @@ lib/
 temp/
 tests/classes/
 tests/output/
-.settings/org.eclipse.ltk.core.refactoring.prefs
 .settings/
 /.fudge-proto-gitignore
 /MANIFEST.MF

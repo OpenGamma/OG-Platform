@@ -38,4 +38,11 @@ public abstract class AbstractContext {
     }
   }
 
+  protected void removeValue(final String key) {
+    ArgumentChecker.notNull(key, "key");
+    if (_values.remove(key) == null) {
+      throw new IllegalStateException("Value '" + key + "' not in the context");
+    }
+  }
+
 }

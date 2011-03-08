@@ -7,12 +7,18 @@ package com.opengamma.language.context;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * A global information context shared by all client instances. This corresponds to the
  * OpenGamma installation the language integration framework is connecting to.
  */
 public abstract class GlobalContext extends AbstractContext {
+
+  /**
+   * 
+   */
+  protected static final String SYSTEM_SETTINGS = "system.settings";
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
@@ -55,6 +61,23 @@ public abstract class GlobalContext extends AbstractContext {
    */
   protected synchronized UserContext getUserContext(final String userName) {
     return _userContexts.get(userName);
+  }
+
+  /**
+   * Returns {@code true} iff the service is running from a debug build. This is dependent
+   * only on the service runner and should probably control infrastructure behavior,
+   * logging or diagnostics. The session context will indicate whether the code used by
+   * the bound language is a debug build which could control the operation available or
+   * additional debugging/diagnostic metadata apply to the results.
+   * 
+   * @return {@code true} if the service runner is a debug build, {@code false} otherwise
+   */
+  public static boolean isDebug() {
+    return System.getProperty("system.debug") != null;
+  }
+
+  public Properties getSystemSettings() {
+    return getValue(SYSTEM_SETTINGS);
   }
 
 }

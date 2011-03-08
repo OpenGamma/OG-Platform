@@ -18,4 +18,8 @@
 
 	<target name="deploy" depends="jar,proto-c" description="--> generates files into C++ project folders" />
 
+	<target name="dist">
+		<copy file="${build.dir}/client.jar" tofile="${dist.dir}/og-language-client.jar" />
+	</target>
+
 </project>

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -96,5 +96,11 @@ PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
 		return TEXT ("");
 	}
 }
+
+#else /* ifdef _WIN32 */
+
+#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL;
+DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
 
 #endif /* ifdef _WIN32 */

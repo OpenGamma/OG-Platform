@@ -67,6 +67,10 @@ public class MutableSessionContext extends SessionContext {
     _messageSender = messageSender;
   }
 
+  public void setDebug() {
+    setValue(DEBUG, Boolean.TRUE);
+  }
+
   // Arbitrary values
 
   @Override
