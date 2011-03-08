@@ -6,6 +6,8 @@
 package com.opengamma.master.marketdatasnapshot;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -15,4 +17,12 @@ import com.opengamma.util.PublicSPI;
 @PublicSPI
 public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument> {
 
+  /**
+   * Searches for snasphots matching the specified search criteria.
+   * 
+   * @param request  the search request, not null
+   * @return the search result, not null
+   * @throws IllegalArgumentException if the request is invalid
+   */
+  MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request);
 }
