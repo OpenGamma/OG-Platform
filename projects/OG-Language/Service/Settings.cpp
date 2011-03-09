@@ -41,7 +41,7 @@ CSettings::~CSettings () {
 	}
 }
 
-// TODO [XLS-171] Defer the scanning for defaults
+// TODO [PLAT-1118] Defer the scanning for defaults
 
 #ifdef _WIN32
 static BOOL _IsValidLibrary (PCTSTR pszLibrary) {

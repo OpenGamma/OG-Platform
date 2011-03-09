@@ -203,7 +203,7 @@ void ServiceRun (int nReason) {
 				LOGINFO (TEXT ("Connection received from ") << pcc->_userName);
 				LOGDEBUG (TEXT ("C++ -> Java = ") << pcc->_CPPToJavaPipe);
 				LOGDEBUG (TEXT ("Java -> C++ = ") << pcc->_JavaToCPPPipe);
-				// TODO [XLS-181] Use challenge/response to verify the user name
+				// TODO [PLAT-1117] Use challenge/response to verify the user name
 				g_poJVM->UserConnection (pcc->_userName, pcc->_CPPToJavaPipe, pcc->_JavaToCPPPipe, pcc->_languageID);
 				ClientConnect_free (pcc);
 				if (!g_poJVM->IsStopped ()) {
