@@ -8,7 +8,7 @@
 
 #ifndef __cplusplus_cli
 int main (int argc, char **argv) {
-	CAbstractTest::Main ();
+	CAbstractTest::Main (argc, argv);
 	return 0;
 }
 #endif /* ifndef __cplusplus_cli */

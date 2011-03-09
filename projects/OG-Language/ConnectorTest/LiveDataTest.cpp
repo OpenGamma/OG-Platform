@@ -36,7 +36,7 @@ static void QueryAvailable () {
 	ASSERT (query.Recv (CRequestBuilder::GetDefaultTimeout ()));
 }
 
-BEGIN_TESTS(ProceduresTest)
+BEGIN_TESTS(LiveDataTest)
 	TEST (QueryAvailable)
 	BEFORE_TEST (StartConnector)
 	AFTER_TEST (StopConnector)

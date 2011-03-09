@@ -25,8 +25,9 @@ static int g_nTests = 0;
 static int g_nSuccessfulTests = 0;
 static CAbstractTest *g_poTests[MAX_TESTS];
 
-CAbstractTest::CAbstractTest () {
+CAbstractTest::CAbstractTest (const TCHAR *pszName) {
 	ASSERT (g_nTests < MAX_TESTS);
+	m_pszName = pszName;
 	g_poTests[g_nTests++] = this;
 }
 
@@ -51,7 +52,7 @@ static void exitProc () {
 }
 #endif /* ifndef _WIN32 */
 
-void CAbstractTest::Main () {
+void CAbstractTest::Main (int argc, TCHAR **argv) {
 	int nTest;
 	InitialiseLogs ();
 #ifndef _WIN32
@@ -59,7 +60,21 @@ void CAbstractTest::Main () {
 	atexit (exitProc);
 #endif /* ifndef _WIN32 */
 	for (nTest = 0; nTest < g_nTests; nTest++) {
-		LOGINFO (TEXT ("Running test ") << (nTest + 1));
+		if (argc > 1) {
+			int i;
+			bool bRun = false;
+			for (i = 1; i < argc; i++) {
+				if (!_tcscmp (argv[i], g_poTests[nTest]->m_pszName)) {
+					bRun = true;
+					break;
+				}
+			}
+			if (!bRun) {
+				LOGINFO (TEXT ("Skipping test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
+				continue;
+			}
+		}
+		LOGINFO (TEXT ("Running test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
 		g_poTests[nTest]->BeforeAll ();
 		g_poTests[nTest]->Run ();
 		g_poTests[nTest]->AfterAll ();
