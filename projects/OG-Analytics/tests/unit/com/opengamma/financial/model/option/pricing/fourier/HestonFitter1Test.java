@@ -14,13 +14,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFormula;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -29,8 +28,8 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 public class HestonFitter1Test {
   protected Logger _logger = LoggerFactory.getLogger(HestonFitter1Test.class);
-  protected int _hotspotWarmupCycles = 1;
-  protected int _benchmarkCycles = 0;
+  protected int _hotspotWarmupCycles = 0;
+  protected int _benchmarkCycles = 1;
 
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
@@ -50,11 +49,13 @@ public class HestonFitter1Test {
   private static final double[] SABR_VOLS;
   private static final double[] ERRORS;
 
+  private static final BlackPriceFunction BLACK_PRICE = new BlackPriceFunction();
+
   static {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
-    final FourierPricer pricer = new FourierPricer();
+    final CharacteristicExponent1 heston = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA, RH0);
+    final FourierPricer1 pricer = new FourierPricer1();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula();
     final double beta = 0.5;
     final double alpha = SIGMA * Math.pow(FORWARD, 1 - beta);
     final double nu = 0.4;
@@ -65,12 +66,13 @@ public class HestonFitter1Test {
     SABR_VOLS = new double[N];
     ERRORS = new double[N];
 
+    final BlackFunctionData data = new BlackFunctionData(FORWARD, 1, SIGMA);
     for (int i = 0; i < N; i++) {
       ERRORS[i] = 0.001; //10bps errors 
       STRIKES[i] = 0.01 + 0.01 * i;
-      final double price = pricer.price(FORWARD, STRIKES[i], 1.0, true, heston, -0.5, 1e-9, SIGMA);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
-      VOLS[i] = blackImpliedVol.getImpliedVolatility(new BlackFunctionData(FORWARD, 1, SIGMA), option, price);
+      final double price = pricer.price(data, option, heston, -0.5, 1e-9, true);
+      VOLS[i] = blackImpliedVol.getImpliedVolatility(data, option, price);
       SABR_VOLS[i] = sabr.getVolatilityFunction(option).evaluate(new SABRFormulaData(FORWARD, alpha, beta, nu, rho));
     }
   }
@@ -131,11 +133,13 @@ public class HestonFitter1Test {
 
   @Test
   public void testExactFitPrices() {
-    final HestonFitter fitter = new HestonFitter();
+    final HestonFitter1 fitter = new HestonFitter1();
     final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
     final double[] pErrors = new double[N];
     for (int i = 0; i < N; i++) {
-      pErrors[i] = ERRORS[i] * BlackFormula.vega(FORWARD, STRIKES[i], DF, VOLS[i], T);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
+      final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, VOLS[i]);
+      pErrors[i] = ERRORS[i] * BLACK_PRICE.getVegaFunction(option).evaluate(data);
     }
 
     for (int i = 0; i < _hotspotWarmupCycles; i++) {

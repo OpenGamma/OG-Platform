@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -24,7 +24,7 @@ public:
 	static CNamedPipe *CreateOutput (const TCHAR *pszPrefix, int nMaxAttempts);
 	static CClientPipes *Create ();
 	~CClientPipes ();
-	bool Connect (CNamedPipe *poService, unsigned long lTimeout);
+	bool Connect (const TCHAR *pszLanguageID, CNamedPipe *poService, unsigned long lTimeout);
 	bool Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeout);
 	void *PeekInput (size_t cb, unsigned long lTimeout);
 	void DiscardInput (size_t cb) { m_oInputBuffer.Discard (cb); }

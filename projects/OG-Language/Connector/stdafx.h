@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,15 +26,13 @@
 
 #include <Util/Fudge.h>
 #ifdef __cplusplus
+#include <Util/Logging.h>
+#include <Util/Asynchronous.h>
 #include <Util/BufferedInput.h>
 #include <Util/File.h>
-#include <Util/Logging.h>
-#include <Util/Mutex.h>
 #include <Util/NamedPipe.h>
 #include <Util/Process.h>
-#include <Util/Semaphore.h>
 #include <Util/String.h>
-#include <Util/Thread.h>
 #endif /* ifdef __cplusplus */
 
 #endif /* ifndef __inc_og_language_connector_stdafx_h */

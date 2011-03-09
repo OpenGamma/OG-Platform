@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -50,7 +50,7 @@ public:
 };
 
 static void BasicOperations () {
-	CAsynchronous *poCaller = new CAsynchronous ();
+	CAsynchronous *poCaller = CAsynchronous::Create ();
 	int nRun1 = 0, nRun2 = 0, nRun3 = 0;
 	CTestAsyncOperation1 *poRun1 = new CTestAsyncOperation1 (0, &nRun1);
 	CTestAsyncOperation1 *poRun2 = new CTestAsyncOperation1 (2, &nRun2);
@@ -66,7 +66,7 @@ static void BasicOperations () {
 }
 
 static void VitalOperations () {
-	CAsynchronous *poCaller = new CAsynchronous ();
+	CAsynchronous *poCaller = CAsynchronous::Create ();
 	int nRun1 = 0, nRun2 = 0, nRun3 = 0, nRun4 = 0, nRun5 = 0;
 	CTestAsyncOperation2 *poRun1 = new CTestAsyncOperation2 (false, &nRun1);
 	CTestAsyncOperation2 *poRun2 = new CTestAsyncOperation2 (false, &nRun2);

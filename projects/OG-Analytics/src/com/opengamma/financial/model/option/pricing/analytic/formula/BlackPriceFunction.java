@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -18,16 +20,18 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
 
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
-    final double k = option.getK();
-    final double t = option.getT();
+    Validate.notNull(option, "option");
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
-        final double sigma = data.getSigma();
-        final double f = data.getF();
-        final double discountFactor = data.getDf();
+        Validate.notNull(data, "data");
+        final double sigma = data.getBlackVolatility();
+        final double f = data.getForward();
+        final double discountFactor = data.getDiscountFactor();
         final int sign = option.isCall() ? 1 : -1;
         final double sigmaRootT = sigma * Math.sqrt(t);
         if (f == k) {
@@ -45,17 +49,19 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     };
   }
 
-  public Function1D<BlackFunctionData, Double> getVegaFormula(final EuropeanVanillaOption option) {
+  public Function1D<BlackFunctionData, Double> getVegaFunction(final EuropeanVanillaOption option) {
+    Validate.notNull(option, "option");
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BlackFunctionData data) {
-        final double sigma = data.getSigma();
-        final double f = data.getF();
-        final double k = option.getK();
-        final double t = option.getT();
-        final double discountFactor = data.getDf();
+        Validate.notNull(data, "data");
+        final double sigma = data.getBlackVolatility();
+        final double f = data.getForward();
+        final double discountFactor = data.getDiscountFactor();
         final double rootT = Math.sqrt(t);
         final double d1 = getD1(f, k, sigma * rootT);
         return f * rootT * discountFactor * NORMAL.getPDF(d1);

@@ -5,15 +5,19 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 
 /**
  * 
  */
 public class EuropeanVanillaOption {
-  private boolean _isCall;
-  private double _t;
-  private double _k;
+  private final boolean _isCall;
+  private final double _t;
+  private final double _k;
 
   public EuropeanVanillaOption(final double k, final double t, final boolean isCall) {
     Validate.isTrue(k > 0.0, "k must be > 0.0");
@@ -27,24 +31,55 @@ public class EuropeanVanillaOption {
     return _isCall;
   }
 
-  public double getT() {
+  public double getTimeToExpiry() {
     return _t;
   }
 
-  public double getK() {
+  public double getStrike() {
     return _k;
   }
 
-  public void setCall(final boolean isCall) {
-    _isCall = isCall;
+  public static EuropeanVanillaOption fromDefinition(final EuropeanVanillaOptionDefinition definition, final ZonedDateTime date) {
+    Validate.notNull(definition, "definition");
+    Validate.notNull(date, "date");
+    return new EuropeanVanillaOption(definition.getStrike(), definition.getTimeToExpiry(date), definition.isCall());
   }
 
-  public void setT(final double t) {
-    _t = t;
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (_isCall ? 1231 : 1237);
+    long temp;
+    temp = Double.doubleToLongBits(_k);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_t);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
   }
 
-  public void setK(final double k) {
-    _k = k;
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final EuropeanVanillaOption other = (EuropeanVanillaOption) obj;
+    if (_isCall != other._isCall) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_k) != Double.doubleToLongBits(other._k)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_t) != Double.doubleToLongBits(other._t)) {
+      return false;
+    }
+    return true;
   }
 
 }

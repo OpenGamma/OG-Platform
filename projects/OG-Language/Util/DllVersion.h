@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,6 +19,18 @@
 #include "DllVersionInfo.h"
 #endif /* ifndef _WIN32 */
 
+#define DLLVERSION_ATTRIBUTES \
+	ATTRIBUTE (Comments) \
+	ATTRIBUTE (CompanyName) \
+	ATTRIBUTE (FileDescription) \
+	ATTRIBUTE (InternalName) \
+	ATTRIBUTE (LegalCopyright) \
+	ATTRIBUTE (OriginalFilename) \
+	ATTRIBUTE (ProductName) \
+	ATTRIBUTE (ProductVersion) \
+	ATTRIBUTE (PrivateBuild) \
+	ATTRIBUTE (SpecialBuild)
+
 class CDllVersion {
 private:
 #ifdef _WIN32
@@ -26,6 +38,10 @@ private:
 	void Init (HMODULE hModule);
 	void Init (PCTSTR pszModule);
 	PCTSTR GetString (PCTSTR pszString);
+#else /* ifdef _WIN32 */
+#define ATTRIBUTE(name) static const TCHAR *s_psz##name;
+	DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
 #endif /* ifdef _WIN32 */
 public:
 	// Default constructor queries the DLL (or EXE) containing this static code
@@ -36,23 +52,18 @@ public:
 	CDllVersion (PCTSTR pszModule);
 	~CDllVersion ();
 	static HMODULE GetCurrentModule ();
-#define ACCESSOR(attribute)	const TCHAR * Get##attribute () { return GetString (TEXT (#attribute)); }
+#define ATTRIBUTE(name) const TCHAR *Get##name () { return GetString (TEXT (#name)); }
 #else
 	// Non-Win32 version must defined the version constants before including this file
-#define ACCESSOR(attribute)	const TCHAR * Get##attribute () { return TEXT (DllVersion_##attribute); }
+	static void Initialise () {
+#define ATTRIBUTE(name) s_psz##name = TEXT (DllVersion_##name);
+		DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
+	}
+#define ATTRIBUTE(name) const TCHAR *Get##name () { return s_psz##name ? s_psz##name : TEXT (DllVersion_##name); }
 #endif
-	ACCESSOR (Comments)
-	ACCESSOR (CompanyName)
-	ACCESSOR (FileDescription)
-	ACCESSOR (FileVersion)
-	ACCESSOR (InternalName)
-	ACCESSOR (LegalCopyright)
-	ACCESSOR (OriginalFilename)
-	ACCESSOR (ProductName)
-	ACCESSOR (ProductVersion)
-	ACCESSOR (PrivateBuild)
-	ACCESSOR (SpecialBuild)
-#undef ACCESSOR
+	DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
 };
 
 #endif /* ifndef __inc_og_language_util_dllversion_h */

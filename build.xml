@@ -80,7 +80,6 @@
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
-				<exclude name="OG-Language/*" /> <!-- Not ready for a build yet -->
 				<include name="*/build.xml" />
 			</fileset>
 		</ivy:buildlist>
@@ -246,6 +245,7 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Activ.git" dest="projects/OG-Activ" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Excel.git" dest="projects/OG-Excel" />
+	<!--	<git-clone-pull repository="git@github.com:OpenGamma/OG-Pirate.git" dest="projects/OG-Pirate" /> -->
 	</target>
 
 	<target name="pull" depends="clean-src" description="pull origin master all projects from git">
@@ -257,6 +257,7 @@
 		<git-pull dest="projects/OG-Reuters" />
 		<git-pull dest="projects/OG-Activ" />
 		<git-pull dest="projects/OG-Excel" />
+	<!--	<git-pull dest="projects/OG-Pirate" /> -->
 	</target>
 
 	<target name="status" description="display the status of all projects from git">
@@ -268,6 +269,7 @@
 		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
 		<git-status dest="projects/OG-Activ" displayName="OG-Activ" />
 		<git-status dest="projects/OG-Excel" displayName="OG-Excel" />
+		<git-status dest="projects/OG-Pirate" displayName="OG-Pirate" />
 	</target>
 
 	<target name="publish-common-dir" if="publish-common-dir" description="publish common files">

@@ -16,7 +16,6 @@ import com.opengamma.math.number.ComplexNumber;
  * This class is primarily for testing 
  */
 public class GaussianCharacteristicExponent extends CharacteristicExponent {
-
   private final double _mu;
   private final double _sigma;
   private final double _t;
@@ -30,10 +29,10 @@ public class GaussianCharacteristicExponent extends CharacteristicExponent {
   }
 
   @Override
-  public ComplexNumber evaluate(ComplexNumber u) {
-
-    ComplexNumber temp = multiply(_sigma, u);
-    ComplexNumber res = add(multiply(u, new ComplexNumber(0, _mu)), multiply(-0.5, multiply(temp, temp)));
+  public ComplexNumber evaluate(final ComplexNumber u) {
+    Validate.notNull(u, "u");
+    final ComplexNumber temp = multiply(_sigma, u);
+    final ComplexNumber res = add(multiply(u, new ComplexNumber(0, _mu)), multiply(-0.5, multiply(temp, temp)));
     return multiply(_t, res);
   }
 
@@ -51,4 +50,5 @@ public class GaussianCharacteristicExponent extends CharacteristicExponent {
   public double getTime() {
     return _t;
   }
+
 }

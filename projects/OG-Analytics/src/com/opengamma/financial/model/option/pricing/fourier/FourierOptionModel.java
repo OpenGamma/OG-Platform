@@ -1,0 +1,89 @@
+/**
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.model.option.pricing.fourier;
+
+import java.util.Set;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.financial.model.option.definition.BlackOptionDataBundle;
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.pricing.OptionModel;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.integration.Integrator1D;
+
+/**
+ * 
+ */
+public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> {
+  private static final Logger s_logger = LoggerFactory.getLogger(FourierOptionModel.class);
+  private static final double DEFAULT_ALPHA = -0.5;
+  private static final double DEFAULT_LIMIT_TOLERANCE = 1e-8;
+  private static final boolean DEFAULT_USE_VARIANCE_REDUCTION = false;
+  private final CharacteristicExponent1 _characteristicExponent;
+  private final FourierPricer1 _pricer;
+  private final boolean _useVarianceReduction;
+  private final double _limitTolerance;
+  private final double _alpha;
+
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent) {
+    this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
+  }
+
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
+    this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
+  }
+
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final double alpha, final double limitTolerance, final boolean useVarianceReduction) {
+    Validate.notNull(characteristicExponent, "characteristic exponent");
+    _characteristicExponent = characteristicExponent;
+    _pricer = new FourierPricer1();
+    _alpha = alpha;
+    _limitTolerance = limitTolerance;
+    _useVarianceReduction = useVarianceReduction;
+  }
+
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final double alpha,
+      final double limitTolerance, final boolean useVarianceReduction) {
+    Validate.notNull(characteristicExponent, "characteristic exponent");
+    Validate.notNull(integrator, "integrator");
+    _characteristicExponent = characteristicExponent;
+    _pricer = new FourierPricer1(integrator);
+    _alpha = alpha;
+    _limitTolerance = limitTolerance;
+    _useVarianceReduction = useVarianceReduction;
+  }
+
+  @Override
+  public GreekResultCollection getGreeks(final EuropeanVanillaOptionDefinition definition, final BlackOptionDataBundle dataBundle, final Set<Greek> requiredGreeks) {
+    Validate.notNull(definition, "definition");
+    Validate.notNull(dataBundle, "data bundle");
+    Validate.notNull(requiredGreeks, "required greeks");
+    if (!requiredGreeks.contains(Greek.FAIR_PRICE)) {
+      throw new NotImplementedException("Can only calculate fair price at the moment: asked for " + requiredGreeks);
+    }
+    if (requiredGreeks.size() > 1) {
+      s_logger.warn("Can only calculate fair price - ignoring other greeks");
+    }
+    final ZonedDateTime date = dataBundle.getDate();
+    final EuropeanVanillaOption option = EuropeanVanillaOption.fromDefinition(definition, date);
+    final BlackFunctionData data = BlackFunctionData.fromDataBundle(dataBundle, definition);
+    final double price = _pricer.price(data, option, _characteristicExponent, _alpha, _limitTolerance, _useVarianceReduction);
+    final GreekResultCollection result = new GreekResultCollection();
+    result.put(Greek.FAIR_PRICE, price);
+    return result;
+  }
+
+}

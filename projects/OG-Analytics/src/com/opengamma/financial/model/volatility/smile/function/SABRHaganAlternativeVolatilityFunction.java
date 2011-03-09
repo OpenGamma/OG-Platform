@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaBerestycki;
-import com.opengamma.financial.model.option.pricing.analytic.formula.SABRFormulaData;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
@@ -20,17 +20,19 @@ public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctio
 
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
-    final double k = option.getK();
-    final double t = option.getT();
+    Validate.notNull(option, "option");
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
       @Override
       public final Double evaluate(final SABRFormulaData data) {
+        Validate.notNull(data, "data");
         final double alpha = data.getAlpha();
         final double beta = data.getBeta();
         final double rho = data.getRho();
         final double nu = data.getNu();
-        final double f = data.getF();
+        final double f = data.getForward();
         double i0;
         final double beta1 = 1 - beta;
         if (CompareUtils.closeEquals(f, k, EPS)) {

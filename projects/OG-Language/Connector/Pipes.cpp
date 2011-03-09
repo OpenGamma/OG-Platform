@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -87,7 +87,7 @@ CClientPipes *CClientPipes::Create () {
 	return NULL;
 }
 
-bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
+bool CClientPipes::Connect (const TCHAR *pszLanguageID, CNamedPipe *poService, unsigned long lTimeout) {
 	assert (!m_bConnected);
 	// TODO: the user stuff should be moved into util so it can be used on pipe suffixes in the tests
 #ifdef _WIN32
@@ -105,14 +105,39 @@ bool CClientPipes::Connect (CNamedPipe *poService, unsigned long lTimeout) {
 		return false;
 	}
 #endif /* ifdef _WIN32 */
-	PJAVACLIENT_CONNECT pjcc = JavaClientCreate (pszUserName, m_poOutput->GetName (), m_poInput->GetName ());
-	if (!pjcc) {
-		LOGWARN (TEXT ("Couldn't create pipe connection message, error ") << GetLastError ());
+	ClientConnect cc;
+	memset (&cc, 0, sizeof (cc));
+#ifdef _DEBUG
+	cc._debug = FUDGE_TRUE;
+#endif /* ifdef _DEBUG */
+	cc._userName = pszUserName;
+	cc._CPPToJavaPipe = m_poOutput->GetName ();
+	cc._JavaToCPPPipe = m_poInput->GetName ();
+	cc._languageID = pszLanguageID;
+	LOGDEBUG (TEXT ("Writing connection message"));
+	FudgeMsg msg;
+	if (ClientConnect_toFudgeMsg (&cc, &msg) != FUDGE_OK) {
+		LOGWARN (TEXT ("Couldn't create Fudge message"));
 		return false;
 	}
-	LOGDEBUG (TEXT ("Writing connection message"));
-	m_bConnected = poService->Write (pjcc, pjcc->cbSize, lTimeout) == (size_t)pjcc->cbSize;
-	free (pjcc);
+	FudgeMsgEnvelope env;
+	if (FudgeMsgEnvelope_create (&env, 0, 0, 0, msg) != FUDGE_OK) {
+		LOGWARN (TEXT ("Couldn't create Fudge message envelope"));
+		FudgeMsg_release (msg);
+		return false;
+	}
+	fudge_byte *ptrBuffer;
+	fudge_i32 cbBuffer;
+	FudgeStatus status = FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer);
+	FudgeMsgEnvelope_release (env);
+	FudgeMsg_release (msg);
+	if (status != FUDGE_OK) {
+		LOGWARN (TEXT ("Couldn't encode Fudge message"));
+		FudgeMsgEnvelope_release (env);
+		return false;
+	}
+	m_bConnected = poService->Write (ptrBuffer, cbBuffer, lTimeout) == (size_t)cbBuffer;
+	free (ptrBuffer);
 	if (m_bConnected) {
 		LOGINFO (TEXT ("Connected to JVM"));
 	} else {

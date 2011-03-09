@@ -18,11 +18,11 @@
     </layout>
   </appender>
 
-  <root level="WARN">
+  <root level="warn">
     <appender-ref ref="FILE" />
   </root>
   
-  <logger name="com.opengamma.transport.jaxrs" level="ERROR" />
-  <logger name="com.opengamma.language.connector" level="DEBUG" />
+  <logger name="com.opengamma.transport.jaxrs" level="error" />
+  <logger name="com.opengamma.language.connector" level="debug" />
 
 </configuration>

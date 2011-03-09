@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -49,12 +49,13 @@ private:
 	void MakeCallbacks ();
 	friend class CAsynchronousRunnerThread;
 protected:
+	CAsynchronous ();
 	virtual ~CAsynchronous ();
 	virtual void OnThreadExit () { }
 	void EnterCriticalSection () { m_mutex.Enter (); }
 	void LeaveCriticalSection () { m_mutex.Leave (); }
 public:
-	CAsynchronous ();
+	static CAsynchronous *Create () { return new CAsynchronous (); }
 	// Returns true if the operation was accepted, and delete will at some point be called on the
 	// operation.
 	bool Run (COperation *poOperation);

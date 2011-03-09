@@ -11,7 +11,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -41,22 +43,24 @@ public class HestonSpeedTest {
   final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
   private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(0.01 * EPS, 20);
   private static final FFTPricer FFT_PRICER = new FFTPricer();
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   //Accuracy
   @Test
   public void testEquals() {
-    int n = 21;
-    double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    final int n = 21;
+    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
     for (int i = 0; i < n; i++) {
-      double k = fft_strikeNprice[i][0];
-      double fft_price = fft_strikeNprice[i][1];
-      double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
-      double priceWithCorrection = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
+      final double k = fft_strikeNprice[i][0];
+      final double fft_price = fft_strikeNprice[i][1];
+      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
+      final double priceWithCorrection = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
       assertEquals(price, fft_price, 0.01 * EPS);
-
-      double fft_vol = BlackImpliedVolFormula.impliedVol(fft_price, FORWARD, k, DF, T, true);
-      double integral_vol = BlackImpliedVolFormula.impliedVol(price, FORWARD, k, DF, T, true);
-      double integral_vol_corrected = BlackImpliedVolFormula.impliedVol(priceWithCorrection, FORWARD, k, DF, T, true);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
+      final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
+      final double fft_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, fft_price);
+      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+      final double integral_vol_corrected = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, priceWithCorrection);
       assertEquals(fft_vol, integral_vol, EPS);
       assertEquals(fft_vol, integral_vol_corrected, EPS);
     }
@@ -68,7 +72,7 @@ public class HestonSpeedTest {
       priceWithIntegral();
     }
     if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on Intergal", _benchmarkCycles);
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on integral", _benchmarkCycles);
       for (int i = 0; i < _benchmarkCycles; i++) {
         priceWithIntegral();
       }
@@ -82,7 +86,7 @@ public class HestonSpeedTest {
       priceWithIntegralCorrection();
     }
     if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on Intergal (corrected)", _benchmarkCycles);
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on integral (corrected)", _benchmarkCycles);
       for (int i = 0; i < _benchmarkCycles; i++) {
         priceWithIntegralCorrection();
       }
@@ -105,26 +109,26 @@ public class HestonSpeedTest {
   }
 
   private void priceWithIntegral() {
-    int n = 7;
+    final int n = 7;
 
     for (int i = 0; i < n; i++) {
-      double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
-      double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
+      final double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
+      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
     }
   }
 
   private void priceWithIntegralCorrection() {
-    int n = 7;
+    final int n = 7;
 
     for (int i = 0; i < n; i++) {
-      double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
-      double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
+      final double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
+      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
     }
   }
 
   private void priceWithFFT() {
-    int n = 7;
-    double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    final int n = 7;
+    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
   }
 
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
@@ -37,9 +39,7 @@ public class RidderSingleRootFinder extends RealSingleRootFinder {
     if (Math.abs(y2) < _accuracy) {
       return x1;
     }
-    if (y1 * y2 >= 0) {
-      throw new MathException(x1 + " and " + xHigh + " do not bracket a root");
-    }
+    Validate.isTrue(y1 * y2 < 0, "Root was not bracketed by " + x1 + " and " + x2);
     double xMid, yMid, denom, xNew, yNew;
     for (int i = 0; i < MAX_ITER; i++) {
       xMid = (x1 + x2) / 2;

@@ -16,8 +16,11 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedVolFormula;
-import com.opengamma.financial.model.option.pricing.analytic.formula.CEVFormula;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.CEVFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -30,6 +33,9 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class CrankNicolsonFiniteDifferenceTest {
+  
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
+  private static final CEVPriceFunction CEV = new CEVPriceFunction();
 
   private static final double SPOT = 100;
   private static final double FORWARD;
@@ -146,14 +152,17 @@ public class CrankNicolsonFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerBound = 0.0;
     double upperBound = 5 * FORWARD;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
+  
     CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
     double[] res = solver.solve(DATA, timeSteps, priceSteps, T, lowerBound, upperBound);
     int n = res.length;
     for (int i = 10; i < n - 15; i++) {
       double spot = lowerBound + i * (upperBound - lowerBound) / priceSteps;
+      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
       double impVol;
       try {
-        impVol = BlackImpliedVolFormula.impliedVol(res[i], spot / df, FORWARD, df, T, true);
+        impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
       } catch (Exception e) {
         impVol = 0.0;
       }
@@ -172,14 +181,17 @@ public class CrankNicolsonFiniteDifferenceTest {
     int priceSteps = 200;
     double lowerBound = Math.log(FORWARD / 100.0);
     double upperBound = Math.log(50 * FORWARD);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
     CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
+    
     double[] res = solver.solve(LN_DATA, timeSteps, priceSteps, T, lowerBound, upperBound);
     int n = res.length;
     for (int i = 80; i < n-70; i++) {
       double spot = Math.exp(lowerBound + i * (upperBound - lowerBound) / priceSteps);
+      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
       double impVol;
       try {
-        impVol = BlackImpliedVolFormula.impliedVol(res[i], spot / df, FORWARD, df, T, true);
+        impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
       } catch (Exception e) {
         impVol = 0.0;
       }
@@ -196,19 +208,25 @@ public class CrankNicolsonFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerBound = 0.0;
     double upperBound = 5 * FORWARD;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
+    
     CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
     double[] res = solver.solve(BETA_DATA, timeSteps, priceSteps, T, lowerBound, upperBound);
     int n = res.length;
     for (int i = 10; i < n-30; i++) {
       double spot = lowerBound + i * (upperBound - lowerBound) / priceSteps;
+      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
       double impVol;
       try {
-        impVol = BlackImpliedVolFormula.impliedVol(res[i], spot / df, FORWARD, df, T, true);
+        impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
       } catch (Exception e) {
         impVol = 0.0;
       }
-      double cevPrice = CEVFormula.optionPrice(spot / df, FORWARD, BETA, df, VOL_BETA, T, true);
-      double cevVol = BlackImpliedVolFormula.impliedVol(cevPrice, spot / df, FORWARD, df, T, true);
+      
+      final CEVFunctionData cevData = new CEVFunctionData(spot/df, 1.0, VOL_BETA, BETA);
+      final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+      final double cevVol =  BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+      
 
    //   System.out.println(i + "\t" + spot + "\t" + res[i] + "\t" + cevVol + "\t" + impVol);
       assertEquals(cevVol, impVol, 1e-3);
