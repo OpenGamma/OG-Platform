@@ -65,7 +65,7 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
       return 0.0;
     }
 
-    if ((_dofOverTwo + _lambdaOverTwo) > 10000) {
+    if ((_dofOverTwo + _lambdaOverTwo) > 1000) {
       return getFraserApproxCDF(x);
     }
 
