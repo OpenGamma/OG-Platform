@@ -65,6 +65,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -82,6 +85,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DllVersionInfo.h" />
@@ -92,8 +98,11 @@
     <ClCompile Include="AlertTest.cpp" />
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="ConnectorTest.cpp" />
+    <ClCompile Include="FunctionsTest.cpp" />
     <ClCompile Include="JVMTest.cpp" />
+    <ClCompile Include="LiveDataTest.cpp" />
     <ClCompile Include="PipesTest.cpp" />
+    <ClCompile Include="ProceduresTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

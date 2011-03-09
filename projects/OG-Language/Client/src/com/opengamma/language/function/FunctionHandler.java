@@ -6,6 +6,7 @@
 
 package com.opengamma.language.function;
 
+import com.opengamma.language.connector.Function;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.custom.CustomFunctionVisitor;
@@ -33,6 +34,17 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   @Override
   public UserMessagePayload visitCustom(final Custom message, final SessionContext data) {
     return _customVisitors.visit(message, data);
+  }
+
+  @Override
+  public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
+    // TODO:
+    return null;
+  }
+
+  @Override
+  public UserMessagePayload visitUnexpected(final Function message, final SessionContext data) {
+    throw new IllegalStateException("Message " + message + " should not have been sent by client");
   }
 
 }

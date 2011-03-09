@@ -5,7 +5,7 @@
 package com.opengamma.language.connector;
 public abstract class Function extends com.opengamma.language.connector.UserMessagePayload implements java.io.Serializable {
           public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) { return visitor.visitFunction (this, data); }
-        public abstract <T1,T2> T1 accept (final com.opengamma.language.function.FunctionVisitor<T1,T2> visitor, final T2 data);
+        public <T1,T2> T1 accept (final com.opengamma.language.function.FunctionVisitor<T1,T2> visitor, final T2 data) { return visitor.visitUnexpected (this, data); }
   private static final long serialVersionUID = 1l;
   public Function () {
   }
