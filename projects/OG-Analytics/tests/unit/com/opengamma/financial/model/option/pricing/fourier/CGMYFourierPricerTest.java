@@ -78,7 +78,6 @@ public class CGMYFourierPricerTest {
     for (int i = 0; i < 201; i++) {
       final double x = -15. + i * 30. / 200.0;
       final ComplexNumber res = integrand.getIntegrand(x);
-      //System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
     }
   }
 

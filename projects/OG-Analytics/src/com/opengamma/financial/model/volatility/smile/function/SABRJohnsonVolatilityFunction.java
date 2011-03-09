@@ -43,9 +43,8 @@ public class SABRJohnsonVolatilityFunction implements VolatilityFunctionProvider
         if (CompareUtils.closeEquals(nu, 0, EPS)) {
           if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
             return alpha; // this is just log-normal
-          } else {
-            throw new NotImplementedException("Have not implemented the case where nu = 0, beta != 0");
           }
+          throw new NotImplementedException("Have not implemented the case where nu = 0, beta != 0");
         }
         if (beta > 0) {
           final double sigmaDD = alpha * beta * Math.pow(f, beta - 1);

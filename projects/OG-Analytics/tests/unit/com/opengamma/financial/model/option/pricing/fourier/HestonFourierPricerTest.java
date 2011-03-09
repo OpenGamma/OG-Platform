@@ -43,7 +43,6 @@ public class HestonFourierPricerTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k * FORWARD, T, true);
       final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
       final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      // System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }
   }
@@ -87,14 +86,14 @@ public class HestonFourierPricerTest {
     final double omega = 2; // vol-of-vol
     final double rho = -0.8; // correlation
     final double t = 1.0;// / 52.0;
-    // final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
-    // EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(heston, alpha, 1, 2, t, true, 0.5);
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, t);
+    final EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(heston, alpha, 1, 2, true, 0.5);
     //
-    // for (int i = 0; i < 201; i++) {
-    // double x = -0. + i * 80. / 200.0;
-    // ComplexNumber res = intergrand.getIntegrand(x);
-    // System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
-    // }
+    //    for (int i = 0; i < 201; i++) {
+    //      final double x = -0. + i * 80. / 200.0;
+    //      final ComplexNumber res = intergrand.getIntegrand(x);
+    //      System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
+    //    }
 
   }
 

@@ -18,7 +18,6 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
  * 
  */
 public class IntegralLimitCalculator1 {
-
   private static BracketRoot s_bracketRoot = new BracketRoot();
   private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder(1e-1);
 
@@ -28,11 +27,6 @@ public class IntegralLimitCalculator1 {
     Validate.isTrue(tol > 0.0, "need tol > 0");
 
     final double k = Math.log(tol) + Math.log(ComplexMathUtils.mod(psi.evaluate(new ComplexNumber(0.0, -(1 + alpha)))));
-    // debug;
-    if (Double.isNaN(k)) {
-      psi.evaluate(new ComplexNumber(0.0, -(1 + alpha)));
-    }
-
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
@@ -40,9 +34,7 @@ public class IntegralLimitCalculator1 {
         return Math.log(ComplexMathUtils.mod(psi.evaluate(z))) - k;
       }
     };
-    double[] range = null;
-
-    range = s_bracketRoot.getBracketedPoints(f, 0.0, 200.0);
+    final double[] range = s_bracketRoot.getBracketedPoints(f, 0.0, 200.0);
     return s_root.getRoot(f, range[0], range[1]);
   }
 

@@ -33,6 +33,134 @@ public class FFTPricer1Test {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CharacteristicExponent1 CEF = new GaussianCharacteristicExponent1(MU, SIGMA);
   private static final FFTPricer1 PRICER = new FFTPricer1();
+  private static final EuropeanVanillaOption OPTION = new EuropeanVanillaOption(FORWARD, T, true);
+  private static final double ALPHA = -0.5;
+  private static final double TOL = 1e-8;
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData1() {
+    PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullOption1() {
+    PRICER.price(DATA, null, CEF, 10, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCharacteristicExponent1() {
+    PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeTolerance1() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeNStrikes() {
+    PRICER.price(DATA, OPTION, CEF, -10, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeMaxDeltaMoneyness() {
+    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeVol1() {
+    PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroAlpha1() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, 0, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData2() {
+    PRICER.price(null, OPTION, CEF, 10, 110, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullOption2() {
+    PRICER.price(DATA, null, CEF, 10, 110, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCharacteristicExponent2() {
+    PRICER.price(DATA, OPTION, null, 10, 110, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeTolerance2() {
+    PRICER.price(DATA, OPTION, CEF, 10, 110, 10, ALPHA, -TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeVol2() {
+    PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 110, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroAlpha2() {
+    PRICER.price(DATA, OPTION, CEF, 10, 110, 10, 0, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongLowStrike() {
+    PRICER.price(DATA, OPTION, CEF, FORWARD + 10, 110, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongHighStrike() {
+    PRICER.price(DATA, OPTION, CEF, 10, FORWARD, 10, ALPHA, TOL);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData3() {
+    PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullOption3() {
+    PRICER.price(DATA, null, CEF, 10, 10, ALPHA, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCharacteristicExponent3() {
+    PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testZeroAlpha3() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, 0, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeStrikesAboveATM() {
+    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeStrikesBelowATM() {
+    PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeDelta() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -0.5, 64, 20);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeM() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, -10);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongN() {
+    PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 128);
+  }
 
   @Test
   public void testLargeNumberOfStrikes() {
@@ -72,7 +200,6 @@ public class FFTPricer1Test {
         impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(DATA, o, price);
       } catch (final Exception e) {
       }
-      // System.out.println(k + "\t" + price + "\t" + impVol);
       assertEquals(SIGMA, impVol, 1e-5);
     }
   }
@@ -139,7 +266,7 @@ public class FFTPricer1Test {
   @Test
   public void testDirect() {
     final double alpha = 0.5;
-    final EuropeanCallFT1 callFT = new EuropeanCallFT1(CEF);
+    final EuropeanCallFourierTransform callFT = new EuropeanCallFourierTransform(CEF);
     final Function1D<ComplexNumber, ComplexNumber> callFunction = callFT.getFunction(T);
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
@@ -163,18 +290,17 @@ public class FFTPricer1Test {
     } catch (final Exception e) {
     }
     assertEquals(SIGMA, impVol, 1e-5);
-    // System.out.println(FORWARD + "\t" + price + "\t" + impVol);
   }
 
   @Test
   public void testEuropeanCallFT() {
 
-    final Function1D<ComplexNumber, ComplexNumber> callFT = new EuropeanCallFT1(CEF).getFunction(T);
+    final Function1D<ComplexNumber, ComplexNumber> callFT = new EuropeanCallFourierTransform(CEF).getFunction(T);
     for (int i = 0; i < 101; i++) {
       final double x = -10.0 + 20.0 * i / 100;
       final ComplexNumber z = new ComplexNumber(x, -1.5);
       final ComplexNumber u = callFT.evaluate(z);
-      // System.out.println(x + "\t" + u.getReal() + "\t" + u.getImaginary());
+      //System.out.println(x + "\t" + u.getReal() + "\t" + u.getImaginary());
     }
 
   }

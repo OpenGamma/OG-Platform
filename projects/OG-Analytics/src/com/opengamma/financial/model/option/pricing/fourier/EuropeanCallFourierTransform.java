@@ -10,16 +10,20 @@ import static com.opengamma.math.ComplexMathUtils.divide;
 import static com.opengamma.math.ComplexMathUtils.exp;
 import static com.opengamma.math.ComplexMathUtils.multiply;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
  */
-public class EuropeanCallFT1 {
+public class EuropeanCallFourierTransform {
   private final CharacteristicExponent1 _ce;
 
-  public EuropeanCallFT1(final CharacteristicExponent1 ce) {
+  public EuropeanCallFourierTransform(final CharacteristicExponent1 ce) {
+    Validate.notNull(ce, "characteristic exponent");
     _ce = new MeanCorrectedCharacteristicExponent1(ce);
   }
 
@@ -36,4 +40,36 @@ public class EuropeanCallFT1 {
       }
     };
   }
+
+  /**
+   * Gets the _ce field.
+   * @return the _ce
+   */
+  public CharacteristicExponent1 getCharacteristicExponent() {
+    return _ce;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _ce.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final EuropeanCallFourierTransform other = (EuropeanCallFourierTransform) obj;
+    return ObjectUtils.equals(_ce, other._ce);
+  }
+
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.option.pricing.fourier;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
@@ -12,6 +12,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent1;
+import com.opengamma.financial.model.option.pricing.fourier.FFTPricer1;
+import com.opengamma.financial.model.option.pricing.fourier.FourierPricer1;
+import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent1;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
@@ -68,10 +72,17 @@ public class HestonFitter1 {
     _limitTolerance = limitTolerance;
   }
 
-  public LeastSquareResults solve(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitSet fixed) {
+  public LeastSquareResults fitVolatilityFFT(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
+      final BitSet fixed) {
+    Validate.notNull(strikes, "strikes");
+    Validate.notNull(blackVols, "black vols");
+    Validate.notNull(errors, "errors");
+    Validate.notNull(initialValues, "initialValues");
+    Validate.notNull(fixed, "fixed");
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
     Validate.isTrue(n == errors.length, "errors and vols must be same length");
+    Validate.isTrue(n == initialValues.length, "initial values and vols must be same length");
 
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
     final double alpha = -0.5;

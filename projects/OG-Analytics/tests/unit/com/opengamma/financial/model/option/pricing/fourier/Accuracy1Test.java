@@ -67,9 +67,9 @@ public class Accuracy1Test {
       final double k = fftStrikeNprice[i][0];
       final double fftPrice = fftStrikeNprice[i][1];
       final EuropeanVanillaOption o = new EuropeanVanillaOption(k, t, true);
-      final double integralPprice = integralPricer.price(data, o, ce, ALPHA, 0.1 * integralTol, false);
+      final double integralPrice = integralPricer.price(data, o, ce, ALPHA, 0.1 * integralTol, false);
       final double fftVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, fftPrice);
-      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, integralPprice);
+      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, integralPrice);
       assertEquals(SIGMA, integral_vol, EPS);
       assertEquals(SIGMA, fftVol, EPS);
 

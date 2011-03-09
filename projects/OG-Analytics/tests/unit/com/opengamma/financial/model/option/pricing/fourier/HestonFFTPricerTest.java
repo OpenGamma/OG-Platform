@@ -49,7 +49,7 @@ public class HestonFFTPricerTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
       final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
       final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      //  System.out.println(k + "\t" + impVol);
+      //System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }
   }

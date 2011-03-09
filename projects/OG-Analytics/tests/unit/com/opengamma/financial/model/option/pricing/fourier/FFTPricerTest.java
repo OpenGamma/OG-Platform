@@ -75,7 +75,6 @@ public class FFTPricerTest {
         impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
       } catch (final Exception e) {
       }
-      // System.out.println(k + "\t" + price + "\t" + impVol);
       assertEquals(SIGMA, impVol, 1e-5);
     }
   }
@@ -165,7 +164,6 @@ public class FFTPricerTest {
     } catch (final Exception e) {
     }
     assertEquals(SIGMA, impVol, 1e-5);
-    // System.out.println(FORWARD + "\t" + price + "\t" + impVol);
   }
 
   @Test
@@ -176,7 +174,6 @@ public class FFTPricerTest {
       final double x = -10.0 + 20.0 * i / 100;
       final ComplexNumber z = new ComplexNumber(x, -1.5);
       final ComplexNumber u = callFT.evaluate(z);
-      // System.out.println(x + "\t" + u.getReal() + "\t" + u.getImaginary());
     }
 
   }

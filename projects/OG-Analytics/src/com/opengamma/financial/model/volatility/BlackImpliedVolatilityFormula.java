@@ -58,22 +58,6 @@ public class BlackImpliedVolatilityFormula {
       }
       if (count++ > MAX_ITERATIONS) {
         throw new MathException();
-        //        final BracketRoot bracketer = new BracketRoot();
-        //        final VanWijngaardenDekkerBrentSingleRootFinder rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
-        //        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-        //
-        //          @SuppressWarnings({"synthetic-access", "hiding"})
-        //          @Override
-        //          public Double evaluate(final Double sigma) {
-        //            final BlackFunctionData newData = new BlackFunctionData(data.getF(), data.getDf(), sigma);
-        //            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(newData) - optionPrice;
-        //          }
-        //        };
-        //
-        //        final double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);
-        //        final double temp = rootFinder.getRoot(func, range[0], range[1]);
-        //        System.out.println(temp);
-        //        return temp;
       }
     }
     return sigma;

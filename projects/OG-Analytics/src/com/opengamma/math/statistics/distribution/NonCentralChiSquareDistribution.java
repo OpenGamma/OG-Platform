@@ -88,7 +88,7 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     int i = _k;
 
     // first add terms below _k
-    while (i > 0 && Math.abs(sum - oldSum) > _eps) {
+    while (i > 0 && Math.abs(sum - oldSum) / sum > _eps) {
       i--;
       p *= (i + 1) / _lambdaOverTwo;
       // temp = (_dofOverTwo + i) * logX - halfX;

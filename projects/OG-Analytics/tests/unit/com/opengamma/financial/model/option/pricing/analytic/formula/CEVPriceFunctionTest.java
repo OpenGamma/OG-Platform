@@ -91,4 +91,23 @@ public class CEVPriceFunctionTest {
     }
   }
 
+  @Test
+  public void funnySmileTest() {
+    final double beta = 0.4;
+    final double t = 5.0;
+    final double r = 0.0;
+    final double spot = 100;
+    final double k = spot * Math.exp(-r * t);
+    final double atmVol = 0.20;
+    final double volBeta = atmVol * Math.pow(k, 1 - beta);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+    for (int i = 0; i < 101; i++) {
+      final double f = 350.0 + 1.0 * i;
+      final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, volBeta, beta);
+      final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+      final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+      //System.out.println(f + "\t" + cevPrice + "\t" + cevVol);
+    }
+
+  }
 }

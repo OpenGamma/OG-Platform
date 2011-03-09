@@ -41,10 +41,10 @@ public class TimeChangeTest {
 
   @Test
   public void testAgainstHeston() {
-    int n = 21;
+    final int n = 21;
 
-    double[][] heston_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
-    double[][] normalCIR_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, NORMAL_CIR, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    final double[][] heston_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    final double[][] normalCIR_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, NORMAL_CIR, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
 
     for (int i = 0; i < n; i++) {
       assertEquals(heston_strikeNprice[i][0], normalCIR_strikeNprice[i][0], 1e-12);//should have the same strikes
@@ -57,13 +57,12 @@ public class TimeChangeTest {
   public void testCE() {
 
     for (int i = 0; i < 101; i++) {
-      double x = 10.0 * i / 100.0;
-      ComplexNumber z = new ComplexNumber(x, -(1 + ALPHA));
-      ComplexNumber res1 = NORMAL_CIR.evaluate(z);
-      ComplexNumber res2 = NORMAL.evaluate(z);
-      ComplexNumber res3 = HESTON.evaluate(z);
-      // System.out.println(x + "\t" + res1.getReal() + "\t" + +res2.getReal() + "\t" + res3.getReal() + "\t" + res1.getImaginary() + "\t" +
-      //    res2.getImaginary() + "\t" + res3.getImaginary());
+      final double x = 10.0 * i / 100.0;
+      final ComplexNumber z = new ComplexNumber(x, -(1 + ALPHA));
+      final ComplexNumber res1 = NORMAL_CIR.evaluate(z);
+      final ComplexNumber res2 = NORMAL.evaluate(z);
+      final ComplexNumber res3 = HESTON.evaluate(z);
+      //System.out.println(x + "\t" + res1.getReal() + "\t" + +res2.getReal() + "\t" + res3.getReal() + "\t" + res1.getImaginary() + "\t" + res2.getImaginary() + "\t" + res3.getImaginary());
     }
 
   }

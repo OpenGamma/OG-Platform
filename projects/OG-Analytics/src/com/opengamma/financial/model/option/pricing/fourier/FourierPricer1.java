@@ -38,10 +38,14 @@ public class FourierPricer1 {
 
   public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent1 ce, final double alpha, final double limitTolerance,
       final boolean useVarianceReduction) {
+    Validate.notNull(data, "data");
+    Validate.notNull(option, "option");
+    Validate.notNull(ce, "characteristic exponent");
+    Validate.isTrue(limitTolerance > 0, "limit tolerance must be > 0");
     Validate.isTrue(alpha <= ce.getLargestAlpha() && alpha >= ce.getSmallestAlpha(),
         "The value of alpha is not valid for the Characteristic Exponent and will most likely lead to mispricing. Choose a value between " + ce.getSmallestAlpha() + " and " + ce.getLargestAlpha());
     final EuropeanPriceIntegrand1 integrand = new EuropeanPriceIntegrand1(ce, alpha, useVarianceReduction);
-    final EuropeanCallFT1 psi = new EuropeanCallFT1(ce);
+    final EuropeanCallFourierTransform psi = new EuropeanCallFourierTransform(ce);
     final double strike = option.getStrike();
     final double t = option.getTimeToExpiry();
     final boolean isCall = option.isCall();

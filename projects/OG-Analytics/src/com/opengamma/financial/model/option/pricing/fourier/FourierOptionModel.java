@@ -42,12 +42,22 @@ public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefi
     this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
   }
 
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final boolean useVarianceReduction) {
+    this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
+  }
+
   public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
     this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
   }
 
+  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final boolean useVarianceReduction) {
+    this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
+  }
+
   public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final double alpha, final double limitTolerance, final boolean useVarianceReduction) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
+    Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be equal to -1 or 0");
+    Validate.isTrue(limitTolerance > 0, "limit tolerance > 0");
     _characteristicExponent = characteristicExponent;
     _pricer = new FourierPricer1();
     _alpha = alpha;
@@ -59,6 +69,8 @@ public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefi
       final double limitTolerance, final boolean useVarianceReduction) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
     Validate.notNull(integrator, "integrator");
+    Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be equal to -1 or 0");
+    Validate.isTrue(limitTolerance > 0, "limit tolerance > 0");
     _characteristicExponent = characteristicExponent;
     _pricer = new FourierPricer1(integrator);
     _alpha = alpha;

@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -52,15 +53,16 @@ public class TimeChange1Test {
 
   @Test
   public void testCE() {
-
     for (int i = 0; i < 101; i++) {
       final double x = 10.0 * i / 100.0;
       final ComplexNumber z = new ComplexNumber(x, -(1 + ALPHA));
       final ComplexNumber res1 = NORMAL_CIR.getFunction(T).evaluate(z);
       final ComplexNumber res2 = NORMAL.getFunction(1).evaluate(z);
       final ComplexNumber res3 = HESTON.getFunction(T).evaluate(z);
-      // System.out.println(x + "\t" + res1.getReal() + "\t" + +res2.getReal() + "\t" + res3.getReal() + "\t" + res1.getImaginary() + "\t" +
-      //    res2.getImaginary() + "\t" + res3.getImaginary());
+      assertTrue(Math.abs(res1.getImaginary()) < EPS);
+      assertTrue(Math.abs(res2.getImaginary()) < EPS);
+      assertTrue(Math.abs(res3.getImaginary()) < EPS);
+      assertEquals(res1.getReal(), res3.getReal(), EPS);
     }
 
   }

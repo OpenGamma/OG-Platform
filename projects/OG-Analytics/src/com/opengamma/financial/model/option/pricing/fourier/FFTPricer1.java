@@ -40,7 +40,9 @@ public class FFTPricer1 {
       final int minStrikesDisplayed, final double alpha, final double tol) {
     Validate.notNull(data, "data");
     Validate.notNull(option, "option");
+    Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(tol > 0.0, "need tol > 0");
+    Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
     final double forward = data.getForward();
     final double limitSigma = data.getBlackVolatility();
     Validate.isTrue(lowestStrike <= forward, "need lowestStrike <= forward");
@@ -59,7 +61,7 @@ public class FFTPricer1 {
       kMax = -Math.log(2 * (1 - atm) * tol) * Math.max(-1.0 / alpha, 1 / (1 + alpha));
     }
 
-    final EuropeanCallFT1 psi = new EuropeanCallFT1(ce);
+    final EuropeanCallFourierTransform psi = new EuropeanCallFourierTransform(ce);
     final Function1D<ComplexNumber, ComplexNumber> psiFunction = psi.getFunction(t);
     final double xMax = LIMIT_CALCULATOR.solve(psiFunction, alpha, tol);
 
@@ -99,7 +101,11 @@ public class FFTPricer1 {
       final double tol) {
     Validate.notNull(data, "data");
     Validate.notNull(option, "option");
+    Validate.notNull(ce, "characteristicExponent");
     Validate.isTrue(tol > 0.0, "need tol > 0");
+    Validate.isTrue(nStrikes > 0, "need number of strikes > 0");
+    Validate.isTrue(maxDeltaMoneyness > 0, "need max delta moneyness > 0");
+    Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
     final double limitSigma = data.getBlackVolatility();
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
     final double t = option.getTimeToExpiry();
@@ -115,7 +121,7 @@ public class FFTPricer1 {
       kMax = -Math.log(2 * (1 - atm) * tol) * Math.max(-1.0 / alpha, 1 / (1 + alpha));
     }
 
-    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT1(ce).getFunction(t);
+    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFourierTransform(ce).getFunction(t);
     final double xMax = LIMIT_CALCULATOR.solve(psi, alpha, tol);
 
     final double deltaK = Math.min(maxDeltaMoneyness, Math.PI / xMax);
@@ -158,11 +164,11 @@ public class FFTPricer1 {
       final double alpha, final double delta, final int n, final int m) {
     Validate.notNull(data, "data");
     Validate.notNull(option, "option");
+    Validate.notNull(ce, "characteristic exponent");
     Validate.isTrue(nStrikesBelowATM >= 0, "nStrikesBelowATM >= 0");
     Validate.isTrue(nStrikesAboveATM >= 0, "nStrikesAboveATM >= 0");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");
     Validate.isTrue(delta > 0.0, "need delta > 0");
-    Validate.isTrue(n > 0, "need n > 0");
     Validate.isTrue(m > 0, "need m > 0");
     Validate.isTrue(n >= 2 * m - 1, "need n > 2m-1");
 
@@ -170,7 +176,7 @@ public class FFTPricer1 {
     final double forward = data.getForward();
     final double discountFactor = data.getDiscountFactor();
     final boolean isCall = option.isCall();
-    final Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFT1(ce).getFunction(t);
+    final Function1D<ComplexNumber, ComplexNumber> func = new EuropeanCallFourierTransform(ce).getFunction(t);
     final int halfN = n % 2 == 0 ? n / 2 : (n + 1) / 2;
     final double a = -(halfN - 1) * delta;
     final ComplexNumber[] z = getPaddedArray(alpha, delta, n, m, func, halfN);

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.option.pricing.fourier;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
@@ -12,6 +12,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
+import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
+import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;

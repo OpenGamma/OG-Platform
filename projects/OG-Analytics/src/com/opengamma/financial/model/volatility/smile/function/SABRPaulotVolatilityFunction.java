@@ -48,9 +48,8 @@ public class SABRPaulotVolatilityFunction implements VolatilityFunctionProvider<
         if (CompareUtils.closeEquals(nu, 0, EPS)) {
           if (CompareUtils.closeEquals(beta, 1.0, EPS)) {
             return alpha; // this is just log-normal
-          } else {
-            throw new NotImplementedException("Have not implemented the case where nu = 0, beta != 0");
           }
+          throw new NotImplementedException("Have not implemented the case where nu = 0, beta != 0");
         }
 
         // the formula behaves very badly close to ATM

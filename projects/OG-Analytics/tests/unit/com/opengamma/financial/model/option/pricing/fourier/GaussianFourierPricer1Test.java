@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.util.monitor.OperationTimer;
@@ -67,43 +66,27 @@ public class GaussianFourierPricer1Test {
     final EuropeanPriceIntegrand1 integrand = new EuropeanPriceIntegrand1(CEF, 0.5, false);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(1.1 * FORWARD, T, true);
     final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0.15);
-    final double k = Math.log(option.getStrike() / data.getForward());
-    final Function1D<ComplexNumber, ComplexNumber> ce = integrand.getCharacteristicExponent().getFunction(T);
-    final Function1D<ComplexNumber, ComplexNumber> gaussian = integrand.useVarianceReduction() ? CEF.getFunction(T) : null;
+    final Function1D<Double, Double> function = integrand.getFunction(data, option);
     if (TEST_TIMING) {
-      ComplexNumber res = ComplexNumber.ZERO;
+      double res = 0;
       for (int count = 0; count < WARMUP_CYCLES; count++) {
         for (int i = 0; i < 100; i++) {
           final double x = -0. + i * 1000. / 100.0;
-          res = ComplexMathUtils.add(res, integrand.getIntegrand(x, ce, gaussian, k));
+          res += function.evaluate(x);
         }
       }
-      res = ComplexMathUtils.add(res, res);
+      res *= 2;
       if (BENCHMARK_CYCLES > 0) {
         final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on integral", BENCHMARK_CYCLES);
         for (int count = 0; count < BENCHMARK_CYCLES; count++) {
           for (int i = 0; i < 100; i++) {
             final double x = -0. + i * 1000. / 100.0;
-            res = ComplexMathUtils.add(res, integrand.getIntegrand(x, ce, gaussian, k));
+            res += function.evaluate(x);
           }
         }
         timer.finished();
       }
-      res = ComplexMathUtils.add(res, res);
-    }
-    for (int i = 0; i < 100; i++) {
-      final double x = -0. + i * 1000. / 100.0;
-      final ComplexNumber res = integrand.getIntegrand(x, ce, gaussian, k);
-      if (i > 4) {
-        assertEquals(res.getReal(), 0, EPS);
-        assertEquals(res.getImaginary(), 0, EPS);
-      }
-    }
-    for (int i = 0; i < 101; i++) {
-      final double x = 1000. + i * 10000. / 100.0;
-      final ComplexNumber res = integrand.getIntegrand(x, ce, gaussian, k);
-      assertEquals(res.getReal(), 0, EPS);
-      assertEquals(res.getImaginary(), 0, EPS);
+      res *= 3;
     }
   }
 }
