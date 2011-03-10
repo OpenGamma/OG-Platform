@@ -22,8 +22,8 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 public class HestonSpeed1Test {
   private static Logger s_logger = LoggerFactory.getLogger(HestonSpeed1Test.class);
-  private static int WARMUP_CYCLES = 200;
-  private static int BENCHMARK_CYCLES = 1000;
+  private static int WARMUP_CYCLES = 0;
+  private static int BENCHMARK_CYCLES = 1;
 
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;

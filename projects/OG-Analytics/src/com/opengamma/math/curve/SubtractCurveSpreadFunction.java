@@ -48,6 +48,7 @@ public class SubtractCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
+  @Override
   public String getOperationName() {
     return NAME;
   }

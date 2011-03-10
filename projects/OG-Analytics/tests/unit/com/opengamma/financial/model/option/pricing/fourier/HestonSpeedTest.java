@@ -37,8 +37,8 @@ public class HestonSpeedTest {
   private static final double ALPHA = -0.5;
 
   protected Logger _logger = LoggerFactory.getLogger(HestonSpeedTest.class);
-  protected int _hotspotWarmupCycles = 200;
-  protected int _benchmarkCycles = 1000;
+  protected int _hotspotWarmupCycles = 0;
+  protected int _benchmarkCycles = 1;
 
   final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
   private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(0.01 * EPS, 20);

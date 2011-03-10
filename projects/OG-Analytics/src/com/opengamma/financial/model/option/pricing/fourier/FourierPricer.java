@@ -88,6 +88,14 @@ public class FourierPricer {
     final BlackFunctionData data = new BlackFunctionData(forward, discountFactor, blackVol);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, ce.getTime(), isCall);
     final double black = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
+    //    if (i == 0) {
+    //      System.out.println(forward + " " + discountFactor + " " + blackVol);
+    //      System.out.println("black\t" + black);
+    //      System.out.println("discountFactor\t" + discountFactor);
+    //      System.out.println("forward\t" + forward);
+    //      System.out.println("integral\t" + integral);
+    //      i++;
+    //    }
     final double diff = discountFactor * forward * integral;
 
     return diff + black;

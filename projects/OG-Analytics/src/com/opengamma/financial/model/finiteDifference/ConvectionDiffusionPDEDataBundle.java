@@ -23,7 +23,7 @@ public class ConvectionDiffusionPDEDataBundle implements ParabolicPDEDataBundle 
   private final Function1D<Double, Double> _initialCondition;
   
   public ConvectionDiffusionPDEDataBundle(final Surface<Double, Double, Double> a, final Surface<Double, Double, Double> b, final Surface<Double, Double, Double> c, 
-      final Function1D<Double, Double> initialCondition){
+      final Function1D<Double, Double> initialCondition) {
     Validate.notNull(a, "null a");
     Validate.notNull(b, "null b");
     Validate.notNull(c, "null c");

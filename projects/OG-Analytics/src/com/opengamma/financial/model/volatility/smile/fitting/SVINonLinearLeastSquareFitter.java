@@ -28,7 +28,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * 
  */
-public class SVILeastSquaresFitter implements LeastSquareSmileFitter<BlackFunctionData> {
+public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
@@ -44,26 +44,26 @@ public class SVILeastSquaresFitter implements LeastSquareSmileFitter<BlackFuncti
   }
 
   @Override
-  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData data, final double[] blackVols, final double[] errors, final double[] initialValues,
-      final BitSet fixed) {
-    Validate.notEmpty(options, "options");
+  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed) {
+    return getFitResult(options, data, null, initialFitParameters, fixed);
+  }
+
+  @Override
+  public LeastSquareResults getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters, final BitSet fixed) {
+    testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     final int n = options.length;
-    Validate.notNull(data, "data");
-    Validate.notNull(blackVols, "black volatility data");
-    Validate.isTrue(blackVols.length == n, "Black volatility data array must be the same length as the option array");
-    Validate.notNull(errors, "volatility error data");
-    Validate.isTrue(errors.length == n, "Volatility error data array must be the same length as the option array");
-    Validate.notNull(initialValues, "initial values");
-    Validate.isTrue(initialValues.length == N_PARAMETERS, "must have length of initial values array equal to number of parameters");
-    Validate.notNull(fixed, "fixed");
     final double[] strikes = new double[n];
+    final double[] blackVols = new double[n];
     final double maturity = options[0].getTimeToExpiry();
     strikes[0] = options[0].getStrike();
+    blackVols[0] = data[0].getBlackVolatility();
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
+      Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity),
+          "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
       strikes[i] = options[i].getStrike();
+      blackVols[i] = data[i].getBlackVolatility();
     }
-    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
+    final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialFitParameters), TRANSFORMS, fixed);
 
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @SuppressWarnings("synthetic-access")
@@ -80,8 +80,9 @@ public class SVILeastSquaresFitter implements LeastSquareSmileFitter<BlackFuncti
       }
     };
 
-    final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialValues));
-    final LeastSquareResults lsRes = SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
+    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
+        new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
     final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
     return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));
 

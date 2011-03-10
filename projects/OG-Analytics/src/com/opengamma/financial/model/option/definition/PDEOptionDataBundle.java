@@ -43,6 +43,7 @@ public class PDEOptionDataBundle extends StandardOptionDataBundle {
     return _c.getZValue(f, t);
   }
 
+  @Override
   public PDEOptionDataBundle withSpot(final double spot) {
     return new PDEOptionDataBundle(_a, _b, _c, spot, getDate());
   }

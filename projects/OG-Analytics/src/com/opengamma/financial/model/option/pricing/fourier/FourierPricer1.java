@@ -76,4 +76,24 @@ public class FourierPricer1 {
     }
     return discountFactor * (forward * integral + strike);
   }
+
+  public double priceFromVol(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent1 ce, final double alpha, final double limitTolerance,
+      final boolean useVarianceReduction) {
+    final double forward = data.getForward();
+    final double discountFactor = data.getDiscountFactor();
+    final double t = option.getTimeToExpiry();
+    final double strike = option.getStrike();
+
+    final EuropeanPriceIntegrand1 integrand = new EuropeanPriceIntegrand1(ce, alpha, useVarianceReduction);
+    final EuropeanCallFourierTransform callFourierTransform = new EuropeanCallFourierTransform(ce);
+
+    final Function1D<ComplexNumber, ComplexNumber> psi = callFourierTransform.getFunction(t);
+    final double xMax = LIMIT_CALCULATOR.solve(psi, alpha, limitTolerance);
+
+    final double integral = Math.exp(-alpha * Math.log(strike / forward)) * _integrator.integrate(integrand.getFunction(data, option), 0.0, xMax) / Math.PI;
+    final double black = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
+    final double diff = discountFactor * forward * integral;
+
+    return diff + black;
+  }
 }

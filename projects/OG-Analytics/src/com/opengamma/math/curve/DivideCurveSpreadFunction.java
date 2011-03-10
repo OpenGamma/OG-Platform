@@ -48,6 +48,7 @@ public class DivideCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
+  @Override
   public String getOperationName() {
     return NAME;
   }

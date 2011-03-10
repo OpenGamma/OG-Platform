@@ -54,7 +54,8 @@ public class HestonFitter {
     TRANSFORMS[4] = new DoubleRangeLimitTransform(-1.0, 1.0); // -1 <= rho <= 1
   }
 
-  public LeastSquareResults solve(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, final BitSet fixed) {
+  public LeastSquareResults solve(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues, 
+      final BitSet fixed) {
 
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
@@ -173,18 +174,16 @@ public class HestonFitter {
 
   public LeastSquareResults solveFourierIntegral(final double forward, final double maturity, final double[] strikes, final double[] blackVols, final double[] errors, final double[] initialValues,
       final BitSet fixed) {
-
     final int n = strikes.length;
     Validate.isTrue(n == blackVols.length, "strikes and vols must be same length");
     Validate.isTrue(n == errors.length, "errors and vols must be same length");
 
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
-
     final double alpha = -0.5;
     final double tol = 1e-8;
     final double limitSigma = (blackVols[0] + blackVols[blackVols.length - 1]) / 2.0;
-
     final ParameterizedFunction<Double, DoubleMatrix1D, Double> function = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike, final DoubleMatrix1D fp) {
@@ -195,12 +194,10 @@ public class HestonFitter {
         final double omega = mp.getEntry(3);
         final double rho = mp.getEntry(4);
         final CharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, maturity);
-
         final double price = FOURIER_PRICER.price(forward, strike, 1.0, true, ce, alpha, tol, limitSigma);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
-        final BlackFunctionData data = new BlackFunctionData(forward, 1, 0);
+        final BlackFunctionData data = new BlackFunctionData(forward, 1);
         final double vol = BLACK_VOL_FUNCTION.getImpliedVolatility(data, option, price);
-
         return vol;
       }
     };
