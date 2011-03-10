@@ -13,8 +13,11 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFuncti
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
@@ -23,7 +26,7 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
   private static final BlackFunctionData[] SMILE_DATA;
   private static final SVIVolatilityFunction SVI_VOL_FUNCTION = new SVIVolatilityFunction();
   private static final SVIFormulaData SVI_DATA = new SVIFormulaData(0.6, 0.3, 0.5, 1.5, 70);
-  private static final SVINonLinearLeastSquareFitter FITTER = new SVINonLinearLeastSquareFitter();
+  private static final SVINonLinearLeastSquareFitter FITTER = new SVINonLinearLeastSquareFitter(new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-9));
   protected static final double[] INITIAL_VALUES;
 
   static {
@@ -38,6 +41,11 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
       ERRORS[i] = ERROR;
     }
     INITIAL_VALUES = new double[] {0.01, 0.01, 0.01, 0.01, FORWARD * 0.5};
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSolver() {
+    new SVINonLinearLeastSquareFitter(null);
   }
 
   @Override

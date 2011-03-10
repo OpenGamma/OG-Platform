@@ -27,7 +27,7 @@ public abstract class LeastSquareSmileFitterTestCase {
   protected static final BlackFunctionData[] FLAT_DATA;
   protected static final double[] ERRORS;
   protected static final BitSet FIXED = new BitSet();
-  protected static final double EPS = 1e-9;
+  protected static final double EPS = 1e-3;
 
   static {
     final int n = 100;

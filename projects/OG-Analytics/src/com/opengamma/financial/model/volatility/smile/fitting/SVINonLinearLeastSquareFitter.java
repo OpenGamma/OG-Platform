@@ -14,8 +14,10 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.math.function.ParameterizedFunction;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
@@ -29,10 +31,10 @@ import com.opengamma.util.CompareUtils;
  * 
  */
 public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
-  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
   private static final SVIVolatilityFunction FORMULA = new SVIVolatilityFunction();
+  private final NonLinearLeastSquare _solver;
 
   static {
     TRANSFORMS = new ParameterLimitsTransform[N_PARAMETERS];
@@ -41,6 +43,15 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     TRANSFORMS[2] = new NullTransform();
     TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
     TRANSFORMS[4] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);
+  }
+
+  public SVINonLinearLeastSquareFitter() {
+    this(new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4));
+  }
+
+  public SVINonLinearLeastSquareFitter(final NonLinearLeastSquare solver) {
+    Validate.notNull(solver, "solver");
+    _solver = solver;
   }
 
   @Override
@@ -81,7 +92,7 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
-    final LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes),
+    final LeastSquareResults lsRes = errors == null ? _solver.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : _solver.solve(new DoubleMatrix1D(strikes),
         new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
     final DoubleMatrix1D mp = transforms.inverseTransform(lsRes.getParameters());
     return new LeastSquareResults(lsRes.getChiSq(), mp, new DoubleMatrix2D(new double[N_PARAMETERS][N_PARAMETERS]));

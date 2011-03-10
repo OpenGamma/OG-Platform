@@ -21,7 +21,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.matrix.OGMatrixAlgebra;
+import com.opengamma.math.matrix.MatrixAlgebraFactory;
 
 /**
  * 
@@ -33,9 +33,13 @@ public class NonLinearLeastSquare {
   private final MatrixAlgebra _algebra;
 
   public NonLinearLeastSquare() {
-    _decomposition = DecompositionFactory.SV_COLT;
-    _algebra = new OGMatrixAlgebra();
-    _eps = 1e-4;
+    this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
+  }
+  
+  public NonLinearLeastSquare(Decomposition<?> decomposition, MatrixAlgebra algebra, double eps) {
+    _decomposition = decomposition;
+    _algebra = algebra;
+    _eps = eps;
   }
 
   /**

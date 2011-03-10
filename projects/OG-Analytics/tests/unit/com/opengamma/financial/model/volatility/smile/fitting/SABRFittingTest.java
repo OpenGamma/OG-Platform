@@ -74,11 +74,12 @@ public class SABRFittingTest {
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
     final LeastSquareResults results = NLSS.getFitResult(OPTIONS, DATA, ERRORS, start, fixed);
     final double[] res = results.getParameters().getData();
-    assertEquals(ALPHA, res[0], 1e-7);
-    assertEquals(BETA, res[1], 1e-7);
-    assertEquals(NU, res[2], 1e-7);
-    assertEquals(RHO, res[3], 1e-7);
-    assertEquals(0.0, results.getChiSq(), 1e-7);
+    final double eps = 1e-4;
+    assertEquals(ALPHA, res[0], eps);
+    assertEquals(BETA, res[1], eps);
+    assertEquals(NU, res[2], eps);
+    assertEquals(RHO, res[3], eps);
+    assertEquals(0.0, results.getChiSq(), eps);
   }
 
   @Test
@@ -87,11 +88,12 @@ public class SABRFittingTest {
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
     final LeastSquareResults results = CG.getFitResult(OPTIONS, DATA, ERRORS, start, fixed);
     final double[] res = results.getParameters().getData();
-    //    assertEquals(ALPHA, res[0], 1e-7);
-    //    assertEquals(BETA, res[1], 1e-7);
-    //    assertEquals(NU, res[2], 1e-7);
-    //    assertEquals(RHO, res[3], 1e-7);
-    //    assertEquals(0.0, results.getChiSq(), 1e-7);
+    final double eps = 1e-4;
+    //    assertEquals(ALPHA, res[0], eps);
+    //    assertEquals(BETA, res[1], eps);
+    //    assertEquals(NU, res[2], eps);
+    //    assertEquals(RHO, res[3], eps);
+    //    assertEquals(0.0, results.getChiSq(), eps);
   }
 
   @Test

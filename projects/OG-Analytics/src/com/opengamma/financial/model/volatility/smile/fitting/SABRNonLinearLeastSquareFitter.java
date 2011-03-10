@@ -14,8 +14,10 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.function.ParameterizedFunction;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
@@ -29,7 +31,7 @@ import com.opengamma.util.CompareUtils;
  * 
  */
 public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
-  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare();
+  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4);
   private static final int N_PARAMETERS = 4;
   private static final ParameterLimitsTransform[] TRANSFORMS;
 
