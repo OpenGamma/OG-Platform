@@ -8,6 +8,9 @@
 			<arg value="/p:Configuration=${msbuild.config}" />
 			<arg value="/p:Platform=${msbuild.platform}" />
 		</exec>
+		<antcall target="compile-after">
+			<param name="compile.type" value="${msbuild.config}${msbuild.platform}" />
+		</antcall>
 	</target>
 	<target name="compile-win32" if="msvc.win32">
 		<antcall target="run-msbuild">

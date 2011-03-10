@@ -60,6 +60,9 @@
 			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
 			<libset dir="${solution.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
 		</cpptasks:cc>
+		<antcall target="compile-after">
+			<param name="compile.type" value="${cc.configuration}" />
+		</antcall>
 	</target>
 	<target name="compile-debug" if="cpptask.ok">
 		<antcall target="compile-impl">
