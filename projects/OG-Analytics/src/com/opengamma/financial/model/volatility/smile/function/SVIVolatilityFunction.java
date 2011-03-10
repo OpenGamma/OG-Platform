@@ -18,8 +18,8 @@ public class SVIVolatilityFunction implements VolatilityFunctionProvider<SVIForm
   @Override
   public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<SVIFormulaData, Double>() {
 
       @Override

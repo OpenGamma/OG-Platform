@@ -15,8 +15,10 @@ public final class NullGlobalContextEventHandler implements GlobalContextEventHa
 
   private static final Logger s_logger = LoggerFactory.getLogger(NullGlobalContextEventHandler.class);
 
+  // GlobalContextEventHandler
+
   @Override
-  public void initContext(MutableGlobalContext context) {
+  public void initContext(final MutableGlobalContext context) {
     s_logger.info("Initialising global context {}", context);
     // No-op
   }

@@ -14,7 +14,7 @@ import com.opengamma.math.function.Function1D;
  * specialised methods.
  */
 public class RungeKuttaIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
-  private static final double DEF_TOL = 1e-7;
+  private static final double DEF_TOL = 1e-10;
   private static final double STEP_SIZE_LIMIT = 1e-50;
   private static final int DEF_MIN_STEPS = 10;
   private final double _absTol, _relTol;
@@ -76,8 +76,7 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Function1D<Doub
     return result;
   }
 
-  private double calculateRungeKuttaFourthOrder(final Function1D<Double, Double> f, final double x, final double h, final double fl, final double fm,
-      final double fu) {
+  private double calculateRungeKuttaFourthOrder(final Function1D<Double, Double> f, final double x, final double h, final double fl, final double fm, final double fu) {
 
     final double f1 = f.evaluate(x + 0.25 * h);
     final double f2 = f.evaluate(x + 0.75 * h);

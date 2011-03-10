@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,6 +12,8 @@
 #ifdef _WIN32
 #include <Util/DllVersion.h>
 #endif /* ifdef _WIN32 */
+#include <Util/File.h>
+#include <Util/Process.h>
 
 LOGGING (com.opengamma.language.connector.Settings);
 
@@ -24,7 +26,7 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_CONNECTION_PIPE		SERVICE_DEFAULT_CONNECTION_PIPE
 #define DEFAULT_CONNECT_TIMEOUT		3000	/* 3s default */
 #define DEFAULT_DISPLAY_ALERTS		true
-#define DEFAULT_HEARTBEAT_TIMEOUT	5000	/* 5s default */
+#define DEFAULT_HEARTBEAT_TIMEOUT	3000	/* 3s default */
 #define DEFAULT_INPUT_PIPE_PREFIX	DEFAULT_PIPE_PREFIX	TEXT ("Input-")
 #define DEFAULT_LOG_CONFIGURATION	NULL
 #define DEFAULT_MAX_PIPE_ATTEMPTS	3
@@ -88,6 +90,9 @@ int CSettings::GetSendTimeout () {
 
 const TCHAR *CSettings::GetServiceExecutable () {
 	if (!m_pszDefaultServiceExecutable) {
+#ifdef _WIN32
+		// TODO: if the service is installed, get the executable from the service settings
+#endif /* ifdef _WIN32 */
 		do {
 			TCHAR szPath[260];
 			if (!CProcess::GetCurrentModule (szPath, (sizeof (szPath) / sizeof (TCHAR)) - _tcslen (DEFAULT_SERVICE_EXECUTABLE))) {
@@ -141,7 +146,6 @@ const TCHAR *CSettings::GetServiceExecutable () {
 }
 
 const TCHAR *CSettings::GetServiceName () {
-	// TODO: if we know the service executable, could iterate through the service database to "guess" the correct service name
 	return GetServiceName (DEFAULT_SERVICE_NAME);
 }
 

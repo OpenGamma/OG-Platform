@@ -83,4 +83,18 @@ public class NonCentralChiSquareDistributionTest {
 
   }
 
+  /**
+   * Numbers computed from R
+   */
+  @Test
+  public void debugTest() {
+    double dof = 3.666;
+    double nonCentrality = 75;
+    double x = 13.89;
+
+    NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(dof, nonCentrality);
+    double y1 = Math.log(chiSq1.getCDF(x));
+    assertEquals(-15.92129, y1, 1e-5);
+  }
+
 }

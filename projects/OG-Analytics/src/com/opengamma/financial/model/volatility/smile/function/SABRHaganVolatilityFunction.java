@@ -20,8 +20,8 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
       @SuppressWarnings("synthetic-access")

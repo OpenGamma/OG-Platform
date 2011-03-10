@@ -2,6 +2,7 @@
 
 	<property file="${basedir}/build.properties" />
 	<property environment="env" />
+	<property file="${solution.dir}/build.properties" />
 
 	<!-- Use Visual Studio if it's available -->
 	<available property="cpp.environment" value="msvc" file="msbuild.exe" filepath="${env.Path}" />
@@ -14,6 +15,15 @@
 		<subant genericantfile="${basedir}/../../../common/gitignore.xml">
 			<dirset dir="${basedir}" />
 		</subant>
+	</target>
+
+	<target name="dist" depends="build-cpp-impl.dist">
+		<mkdir dir="${dist.dir}/include/${ant.project.name}" />
+		<copy todir="${dist.dir}/include/${ant.project.name}">
+			<fileset dir="${basedir}">
+				<include name="*.h" />
+			</fileset>
+		</copy>
 	</target>
 
 </project>

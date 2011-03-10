@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,6 +14,7 @@
 #ifdef _WIN32
 #define PROCESS_REFERENCE	HANDLE
 #else
+#include <signal.h>
 #define PROCESS_REFERENCE	pid_t
 #endif
 

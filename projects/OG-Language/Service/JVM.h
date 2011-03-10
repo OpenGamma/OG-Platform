@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,10 @@
 #define __inc_og_language_service_jvm_h
 
 // Start up an embedded JVM, and call methods on the "Main" class
+
+#include <Util/Library.h>
+#include <Util/Mutex.h>
+#include <Util/Thread.h>
 
 class CJVM {
 private:
@@ -28,7 +32,7 @@ public:
 	bool IsBusy (unsigned long dwTimeout);
 	bool IsRunning ();
 	bool IsStopped ();
-	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe);
+	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID);
 };
 
 #endif /* ifndef __inc_og_language_service_jvm_h */

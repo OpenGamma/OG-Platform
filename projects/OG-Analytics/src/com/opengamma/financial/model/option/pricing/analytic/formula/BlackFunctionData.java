@@ -7,6 +7,9 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.option.definition.BlackOptionDataBundle;
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+
 /**
  * 
  */
@@ -22,16 +25,24 @@ public class BlackFunctionData {
     _sigma = sigma;
   }
 
-  public double getF() {
+  public double getForward() {
     return _f;
   }
 
-  public double getDf() {
+  public double getDiscountFactor() {
     return _df;
   }
 
-  public double getSigma() {
+  public double getBlackVolatility() {
     return _sigma;
+  }
+
+  public static BlackFunctionData fromDataBundle(final BlackOptionDataBundle bundle, final EuropeanVanillaOptionDefinition definition) {
+    Validate.notNull(bundle, "bundle");
+    Validate.notNull(definition, "definition");
+    final double t = definition.getTimeToExpiry(bundle.getDate());
+    final double k = definition.getStrike();
+    return new BlackFunctionData(bundle.getForward(), bundle.getDiscountFactor(t), bundle.getVolatility(t, k));
   }
 
   @Override
@@ -66,10 +77,7 @@ public class BlackFunctionData {
     if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f)) {
       return false;
     }
-    if (Double.doubleToLongBits(_sigma) != Double.doubleToLongBits(other._sigma)) {
-      return false;
-    }
-    return true;
+    return Double.doubleToLongBits(_sigma) == Double.doubleToLongBits(other._sigma);
   }
 
 }

@@ -14,27 +14,30 @@ import com.opengamma.math.statistics.distribution.NonCentralChiSquareDistributio
  * 
  */
 public class CEVPriceFunction implements OptionPriceFunction<CEVFunctionData> {
+  private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
+  private static final NormalPriceFunction NORMAL_PRICE_FUNCTION = new NormalPriceFunction();
 
   @Override
   public Function1D<CEVFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     final boolean isCall = option.isCall();
     return new Function1D<CEVFunctionData, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final CEVFunctionData data) {
         Validate.notNull(data, "data");
-        final double f = data.getF();
-        final double discountFactor = data.getDf();
-        final double sigma = data.getSigma();
+        final double f = data.getForward();
+        final double discountFactor = data.getDiscountFactor();
+        final double sigma = data.getBlackVolatility();
         final double beta = data.getBeta();
         if (beta == 1.0) {
-          final Function1D<BlackFunctionData, Double> blackFormula = new BlackPriceFunction().getPriceFunction(option);
+          final Function1D<BlackFunctionData, Double> blackFormula = BLACK_PRICE_FUNCTION.getPriceFunction(option);
           return blackFormula.evaluate(data);
         }
         if (beta == 0.0) {
-          final Function1D<BlackFunctionData, Double> normalFormula = new NormalPriceFunction().getPriceFunction(option);
+          final Function1D<BlackFunctionData, Double> normalFormula = NORMAL_PRICE_FUNCTION.getPriceFunction(option);
           return normalFormula.evaluate(data);
         }
         final double b = 1.0 / (1 - beta);

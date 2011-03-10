@@ -78,7 +78,7 @@ import com.opengamma.util.tuple.Pair;
         synchronized (ClientExecutor.this) {
           synchronized (PerClientExecutor.this) {
             if ((--_activeCommands == 0) && (_waitingTermination > 0)) {
-              notifyAll();
+              PerClientExecutor.this.notifyAll();
             }
             if (_clientCommands.isEmpty()) {
               _activeClientThreads--;
@@ -128,7 +128,7 @@ import com.opengamma.util.tuple.Pair;
               if (command != null) {
                 // Don't do this on the first time round the loop
                 if ((--_activeCommands == 0) && (_waitingTermination > 0)) {
-                  notifyAll();
+                  PerClientExecutor.this.notifyAll();
                 }
               }
               command = _clientCommands.poll();

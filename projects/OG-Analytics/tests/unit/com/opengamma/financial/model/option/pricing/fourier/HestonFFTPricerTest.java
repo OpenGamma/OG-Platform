@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 
 /**
  * 
@@ -22,7 +21,7 @@ public class HestonFFTPricerTest {
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
   private static final double DF = 0.93;
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Test
   public void testLowVolOfVol() {
@@ -50,7 +49,7 @@ public class HestonFFTPricerTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
       final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
       final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      //  System.out.println(k + "\t" + impVol);
+      //System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }
   }

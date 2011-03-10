@@ -57,11 +57,11 @@ public class SVILeastSquaresFitter implements LeastSquareSmileFitter<BlackFuncti
     Validate.isTrue(initialValues.length == N_PARAMETERS, "must have length of initial values array equal to number of parameters");
     Validate.notNull(fixed, "fixed");
     final double[] strikes = new double[n];
-    final double maturity = options[0].getT();
-    strikes[0] = options[0].getK();
+    final double maturity = options[0].getTimeToExpiry();
+    strikes[0] = options[0].getStrike();
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(CompareUtils.closeEquals(options[i].getT(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getT());
-      strikes[i] = options[i].getK();
+      Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
+      strikes[i] = options[i].getStrike();
     }
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
 

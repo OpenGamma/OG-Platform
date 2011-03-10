@@ -24,9 +24,6 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Public.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="com_opengamma_language_connector_ConnectorMessage.h">
       <Filter>Header Files\Fudge</Filter>
     </ClInclude>
@@ -65,6 +62,39 @@
     </ClInclude>
     <ClInclude Include="SynchronousCalls.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Connector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Procedures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_QueryAvailable.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_livedata_QueryAvailable.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_procedure_QueryAvailable.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="Functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LiveData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_connector_Function.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_connector_LiveData.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_connector_Procedure.h">
+      <Filter>Header Files\Fudge</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +139,36 @@
     </ClCompile>
     <ClCompile Include="SynchronousCalls.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_QueryAvailable.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_QueryAvailable.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_QueryAvailable.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="RequestBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Available.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Available.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Available.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_connector_Function.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_connector_LiveData.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_connector_Procedure.c">
+      <Filter>Source Files\Fudge</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
