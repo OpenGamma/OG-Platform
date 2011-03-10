@@ -44,6 +44,7 @@
 			runtime="${cc.runtime}"
 			subsystem="${cc.subsystem}"
 			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
+			<compilerarg value="${cc.cflags}" if="cc.cflags" />
 			<defineset>
 				<define name="_DEBUG" if="cc.isDebug" />
 				<define name="NDEBUG" if="cc.isRelease" />
