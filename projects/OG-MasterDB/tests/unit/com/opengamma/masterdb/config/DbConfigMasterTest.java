@@ -69,7 +69,7 @@ public class DbConfigMasterTest extends DBTest {
     ConfigDocument<Identifier> addDoc = new ConfigDocument<Identifier>();
     addDoc.setName("Config test");
     addDoc.setValue(Identifier.of("A", "B"));
-    ConfigDocument<Identifier> added = (ConfigDocument<Identifier>) _cfgMaster.add(addDoc);
+    ConfigDocument<Identifier> added = _cfgMaster.add(addDoc);
     
     ConfigDocument<Identifier> loaded = _cfgMaster.get(added.getUniqueId(), Identifier.class);
     assertEquals(added, loaded);
@@ -85,12 +85,12 @@ public class DbConfigMasterTest extends DBTest {
     identifierDoc.setName("Identifier test");
     identifierDoc.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> addedIdentifier =  (ConfigDocument<Identifier>) _cfgMaster.add(identifierDoc);
+    ConfigDocument<Identifier> addedIdentifier = _cfgMaster.add(identifierDoc);
     
     ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>();
     bundleDoc.setName("Bundle test");
     bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
-    ConfigDocument<IdentifierBundle> addedBundle =  (ConfigDocument<IdentifierBundle>) _cfgMaster.add(bundleDoc);
+    ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
     
     ConfigDocument<Identifier> loadedIdentifier = _cfgMaster.get(addedIdentifier.getUniqueId(), Identifier.class);
     assertEquals(addedIdentifier, loadedIdentifier);
@@ -111,7 +111,7 @@ public class DbConfigMasterTest extends DBTest {
     ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>();
     bundleDoc.setName("Bundle test");
     bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
-    ConfigDocument<IdentifierBundle> addedBundle =  (ConfigDocument<IdentifierBundle>) _cfgMaster.add(bundleDoc);
+    ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
     
     _cfgMaster.get(addedBundle.getUniqueId(), Identifier.class);    
   }

@@ -21,7 +21,34 @@ import com.opengamma.util.PublicSPI;
  * Many different kinds of configuration element may be stored in a single master.
  */
 @PublicSPI
-public interface ConfigMaster extends /*AbstractMaster<ConfigDocument<?>>,*/ NotifyingMaster {
+public interface ConfigMaster extends NotifyingMaster {
+  
+  /**
+   * Gets a document by unique identifier.
+   * <p>
+   * The identifier version string will be used to return the correct historic version providing
+   * that the master supports history.
+   * 
+   * @param uniqueId  the unique identifier, not null
+   * @return the document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  ConfigDocument<?> get(UniqueIdentifier uniqueId);
+  
+  /**
+   * Gets a document by object identifier and version-correction locator.
+   * <p>
+   * The version-correction will be used to return the correct historic version providing
+   * that the master supports history.
+   * 
+   * @param objectId  the object identifier, not null
+   * @param versionCorrection  the version-correction locator to search at, not null
+   * @return the document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection);
 
   /**
    * Gets a document by unique identifier.

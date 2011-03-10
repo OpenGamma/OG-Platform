@@ -40,7 +40,7 @@ import com.opengamma.util.db.Paging;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryConfigMaster /*extends AbstractInMemoryMaster<ConfigDocument<?>>*/ implements ConfigMaster {
+public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
    * The default scheme used for each {@link ObejctIdentifier}.
@@ -100,12 +100,14 @@ public class InMemoryConfigMaster /*extends AbstractInMemoryMaster<ConfigDocumen
   }
 
   //-------------------------------------------------------------------------
-  private ConfigDocument<?> get(UniqueIdentifier uniqueId) {
+  @Override
+  public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
     return get(uniqueId, VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------
-  private ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+  @Override
+  public ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final ConfigDocument<?> document = _store.get(objectId.getObjectId());
@@ -247,4 +249,5 @@ public class InMemoryConfigMaster /*extends AbstractInMemoryMaster<ConfigDocumen
     }
     return (ConfigDocument<T>) document;
   }
+
 }

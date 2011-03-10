@@ -144,10 +144,10 @@ public class InMemoryConfigMasterTest {
 
   @Test
   public void test_get_populatedMaster() {
-    assertSame(_doc1, _testPopulated.get(_doc1.getUniqueId(), Identifier.class));
-    assertSame(_doc2, _testPopulated.get(_doc2.getUniqueId(), Identifier.class));
-    assertSame(_doc3, _testPopulated.get(_doc3.getUniqueId(), IdentifierBundle.class));
-    assertSame(_doc4, _testPopulated.get(_doc4.getUniqueId(), IdentifierBundle.class));
+    assertSame(_doc1, _testPopulated.get(_doc1.getUniqueId()));
+    assertSame(_doc2, _testPopulated.get(_doc2.getUniqueId()));
+    assertSame(_doc3, _testPopulated.get(_doc3.getUniqueId()));
+    assertSame(_doc4, _testPopulated.get(_doc4.getUniqueId()));
   }
   
   @Test

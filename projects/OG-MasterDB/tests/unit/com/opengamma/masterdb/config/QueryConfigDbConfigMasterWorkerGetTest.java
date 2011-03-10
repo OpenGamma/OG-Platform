@@ -6,6 +6,8 @@
 package com.opengamma.masterdb.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.TimeZone;
 
@@ -84,6 +86,19 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
     ConfigDocument<Identifier> test = _cfgMaster.get(oid, Identifier.class);
     assert202(test);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void test_get_noType() {
+    UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
+    ConfigDocument<?> test = _cfgMaster.get(uid);
+    assertNotNull(test);
+    if (test.getValue() instanceof Identifier) {
+      assert101((ConfigDocument<Identifier>)test);
+    } else {
+      fail();
+    }
   }
 
   //-------------------------------------------------------------------------
