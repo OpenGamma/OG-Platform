@@ -12,6 +12,7 @@
 #ifndef _WIN32
 #include <semaphore.h>
 #include <time.h>
+#include <string.h>
 #include "Mutex.h"
 #endif /* ifndef _WIN32 */
 
