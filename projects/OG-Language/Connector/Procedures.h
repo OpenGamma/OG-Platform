@@ -11,17 +11,16 @@
 #include "com_opengamma_language_procedure_Available.h"
 #include "com_opengamma_language_procedure_QueryAvailable.h"
 
-class CProcedureQueryAvailable : public CRequestBuilder {
+REQUESTBUILDER_BEGIN (CProcedureQueryAvailable)
 protected:
 	REQUESTBUILDER_REQUEST (com_opengamma_language_procedure_QueryAvailable)
 public:
-	CProcedureQueryAvailable (CConnector *poConnector) : CRequestBuilder (poConnector) { }
 	bool Send () {
 		com_opengamma_language_procedure_QueryAvailable query;
 		memset (&query, 0, sizeof (query));
 		return Send (&query);
 	}
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_procedure_Available)
-};
+REQUESTBUILDER_END
 
 #endif /* ifndef __inc_og_language_connector_procedures_h */

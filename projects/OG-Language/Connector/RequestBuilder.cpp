@@ -47,6 +47,7 @@ FudgeMsg CRequestBuilder::RecvMsg (long lTimeout) {
 		return NULL;
 	}
 	delete m_poQuery;
+	m_poQuery = NULL;
 	return msg;
 }
 
@@ -54,11 +55,11 @@ CRequestBuilder::CRequestBuilder (CConnector *poConnector) {
 	poConnector->Retain ();
 	m_poConnector = poConnector;
 	m_poQuery = NULL;
-	Init ();
+	m_pResponse = NULL;
 }
 
 CRequestBuilder::~CRequestBuilder () {
-	Done ();
+	assert (!m_pResponse);
 	if (m_poConnector) {
 		CConnector::Release (m_poConnector);
 	}
