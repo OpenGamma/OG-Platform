@@ -27,18 +27,12 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesMetaData;
 import com.opengamma.master.timeseries.TimeSeriesMetaDataResolver;
-import com.opengamma.master.timeseries.impl.DefaultTimeSeriesMetaDataResolver;
-import com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMaster;
-import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfiguration;
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataRating;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -68,11 +62,10 @@ public class DefaultTimeSeriesMetaDataResolverTest {
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigTypeMaster<TimeSeriesMetaDataConfiguration> timeSeriesConfigMaster = configMaster.typed(TimeSeriesMetaDataConfiguration.class);
     ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
     testDoc.setName(CONFIG_DOC_NAME);
     testDoc.setValue(createRules());
-    ConfigMasterUtils.storeByName(timeSeriesConfigMaster, testDoc);
+    ConfigMasterUtils.storeByName(configMaster, testDoc);
   }
 
   private TimeSeriesMetaDataConfiguration createRules() {

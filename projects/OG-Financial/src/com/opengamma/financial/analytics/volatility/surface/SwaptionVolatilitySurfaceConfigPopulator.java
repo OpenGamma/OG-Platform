@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.volatility.surface;
 import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -21,20 +20,15 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   }
   
   public static ConfigMaster populateVolatilitySurfaceConfigMaster(ConfigMaster configMaster) {
-    ConfigTypeMaster<VolatilitySurfaceSpecification> specConfigMaster = configMaster.typed(VolatilitySurfaceSpecification.class);
-    populateVolatilitySurfaceSpecifications(specConfigMaster);
-    @SuppressWarnings("rawtypes")
-    ConfigTypeMaster<VolatilitySurfaceDefinition> definitionConfigMaster = configMaster.typed(VolatilitySurfaceDefinition.class);
-    populateVolatilitySurfaceDefinitions(definitionConfigMaster);
+    populateVolatilitySurfaceSpecifications(configMaster);
+    populateVolatilitySurfaceDefinitions(configMaster);
     return configMaster;
   }
 
   /**
    * @param definitionConfigMaster
    */
-  private static void populateVolatilitySurfaceDefinitions(@SuppressWarnings("rawtypes") ConfigTypeMaster<VolatilitySurfaceDefinition> definitionConfigMaster) {
-    @SuppressWarnings("unchecked") // why is this so hard.
-    ConfigTypeMaster<VolatilitySurfaceDefinition<Tenor, Tenor>> configMaster = (ConfigTypeMaster<VolatilitySurfaceDefinition<Tenor, Tenor>>) (Object) definitionConfigMaster;
+  private static void populateVolatilitySurfaceDefinitions(ConfigMaster configMaster) {
     Tenor[] timeToExpiry = new Tenor[] {Tenor.ofMonths(1), Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1),
                                          Tenor.ofMonths(18), Tenor.ofYears(2), Tenor.ofYears(3), Tenor.ofYears(4), Tenor.ofYears(5),
                                          Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10),
@@ -71,9 +65,9 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   /**
    * @param specConfigMaster
    */
-  private static void populateVolatilitySurfaceSpecifications(ConfigTypeMaster<VolatilitySurfaceSpecification> specConfigMaster) {
+  private static void populateVolatilitySurfaceSpecifications(ConfigMaster configMaster) {
     SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
     VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT", CurrencyUnit.USD, surfaceInstrumentProvider);
-    specConfigMaster.add(makeConfigDocument(us));
+    configMaster.add(makeConfigDocument(us));
   }
 }

@@ -23,12 +23,12 @@ import com.opengamma.master.config.ConfigDocument;
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigTypeMasterWorkerRemoveTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerRemoveTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerRemoveTest.class);
 
-  public ModifyConfigDbConfigTypeMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -47,7 +47,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerRemoveTest extends AbstractDbCo
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     _cfgMaster.remove(uid);
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
     
     assertEquals(uid, test.getUniqueId());
     assertEquals(_version1aInstant, test.getVersionFromInstant());

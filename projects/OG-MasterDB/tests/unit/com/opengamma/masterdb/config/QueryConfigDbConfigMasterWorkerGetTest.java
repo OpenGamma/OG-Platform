@@ -21,12 +21,12 @@ import com.opengamma.master.config.ConfigDocument;
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
-public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorkerGetTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerGetTest.class);
 
-  public QueryConfigDbConfigTypeMasterWorkerGetTest(String databaseType, String databaseVersion) {
+  public QueryConfigDbConfigMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -35,40 +35,40 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
   //-------------------------------------------------------------------------
   @Test(expected = IllegalArgumentException.class)
   public void test_getConfig_nullUID() {
-    _cfgMaster.get(null);
+    _cfgMaster.get(null, Object.class);
   }
 
   @Test(expected = DataNotFoundException.class)
   public void test_getConfig_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
-    _cfgMaster.get(uid);
+    _cfgMaster.get(uid, Object.class);
   }
 
   @Test
   public void test_getConfig_versioned_oneConfigKey() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
     assert101(test);
   }
 
   @Test
   public void test_getConfig_versioned_twoConfigKeys() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "102", "0");
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
     assert102(test);
   }
 
   @Test
   public void test_getConfig_versioned_notLatest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
     assert201(test);
   }
 
   @Test
   public void test_getConfig_versioned_latest() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "1");
-    ConfigDocument<Identifier> test = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(uid, Identifier.class);
     assert202(test);
   }
 
@@ -76,13 +76,13 @@ public class QueryConfigDbConfigTypeMasterWorkerGetTest extends AbstractDbConfig
   @Test(expected = DataNotFoundException.class)
   public void test_getConfig_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0");
-    _cfgMaster.get(uid);
+    _cfgMaster.get(uid, Object.class);
   }
 
   @Test
   public void test_getConfig_unversioned() {
     UniqueIdentifier oid = UniqueIdentifier.of("DbCfg", "201");
-    ConfigDocument<Identifier> test = _cfgMaster.get(oid);
+    ConfigDocument<Identifier> test = _cfgMaster.get(oid, Identifier.class);
     assert202(test);
   }
 

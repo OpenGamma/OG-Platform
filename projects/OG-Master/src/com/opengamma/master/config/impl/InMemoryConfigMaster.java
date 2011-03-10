@@ -5,11 +5,32 @@
  */
 package com.opengamma.master.config.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.time.Instant;
+
 import com.google.common.base.Supplier;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
-import com.opengamma.master.config.ConfigTypeMaster;
+import com.opengamma.id.UniqueIdentifiables;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigHistoryRequest;
+import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.listener.BasicMasterChangeManager;
+import com.opengamma.master.listener.MasterChangeManager;
+import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.Paging;
 
 /**
  * A simple, in-memory implementation of {@code ConfigMaster}.
@@ -19,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * This implementation does not copy stored elements, making it thread-hostile.
  * As such, this implementation is currently most useful for testing scenarios.
  */
-public class InMemoryConfigMaster extends DefaultConfigMaster {
+public class InMemoryConfigMaster /*extends AbstractInMemoryMaster<ConfigDocument<?>>*/ implements ConfigMaster {
 
   /**
    * The default scheme used for each {@link ObejctIdentifier}.
@@ -27,15 +48,32 @@ public class InMemoryConfigMaster extends DefaultConfigMaster {
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
 
   /**
+   * A cache of securities by identifier.
+   */
+  private final ConcurrentMap<ObjectIdentifier, ConfigDocument<?>> _store = new ConcurrentHashMap<ObjectIdentifier, ConfigDocument<?>>();
+  /**
    * The supplied of identifiers.
    */
   private final Supplier<ObjectIdentifier> _objectIdSupplier;
+  /**
+   * The change manager.
+   */
+  private final MasterChangeManager _changeManager;
 
   /**
-   * Creates an instance using the default scheme for any {@link ObjectIdentifier}s created.
+   * Creates an instance.
    */
   public InMemoryConfigMaster() {
-    this(new ObjectIdentifierSupplier(DEFAULT_OID_SCHEME));
+    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME));
+  }
+
+  /**
+   * Creates an instance specifying the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryConfigMaster(final MasterChangeManager changeManager) {
+    this(new ObjectIdentifierSupplier(InMemoryConfigMaster.DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -44,14 +82,169 @@ public class InMemoryConfigMaster extends DefaultConfigMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
+    this(objectIdSupplier, new BasicMasterChangeManager());
+  }
+
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers and change manager.
+   * 
+   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryConfigMaster(final Supplier<ObjectIdentifier> objectIdSupplier, final MasterChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
+    _changeManager = changeManager;
+  }
+
+  //-------------------------------------------------------------------------
+  private ConfigDocument<?> get(UniqueIdentifier uniqueId) {
+    return get(uniqueId, VersionCorrection.LATEST);
+  }
+
+  //-------------------------------------------------------------------------
+  private ConfigDocument<?> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    final ConfigDocument<?> document = _store.get(objectId.getObjectId());
+    if (document == null) {
+      throw new DataNotFoundException("Config not found: " + objectId);
+    }
+    return document;
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> add(ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getName(), "document.name");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
+    
+    final Object value = document.getValue();
+    final ObjectIdentifier objectId = _objectIdSupplier.get();
+    final UniqueIdentifier uniqueId = objectId.atVersion("");
+    final Instant now = Instant.now();
+    UniqueIdentifiables.setInto(value, uniqueId);
+    final ConfigDocument<Object> doc = new ConfigDocument<Object>();
+    doc.setName(document.getName());
+    doc.setValue(value);
+    doc.setUniqueId(uniqueId);
+    doc.setVersionFromInstant(now);
+    _store.put(objectId, doc);
+    _changeManager.masterChanged(MasterChangedType.ADDED, null, uniqueId, now);
+    return (ConfigDocument<T>) doc;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected <T> ConfigTypeMaster<T> createTypedMaster(Class<T> clazz) {
-    return new InMemoryConfigTypeMaster<T>(_objectIdSupplier);
+  public <T> ConfigDocument<T> update(ConfigDocument<T> document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
+    
+    final UniqueIdentifier uniqueId = document.getUniqueId();
+    final Instant now = Instant.now();
+    final ConfigDocument<?> storedDocument = _store.get(uniqueId.getObjectId());
+    if (storedDocument == null) {
+      throw new DataNotFoundException("Config not found: " + uniqueId);
+    }
+    document.setVersionFromInstant(now);
+    document.setVersionToInstant(null);
+    document.setCorrectionFromInstant(now);
+    document.setCorrectionToInstant(null);
+    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
+      throw new IllegalArgumentException("Concurrent modification");
+    }
+    _changeManager.masterChanged(MasterChangedType.UPDATED, uniqueId, document.getUniqueId(), now);
+    return document;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public void remove(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Config not found: " + uniqueId);
+    }
+    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> ConfigDocument<T> correct(ConfigDocument<T> document) {
+    throw new UnsupportedOperationException("In memory master does not support versioning or correction");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
+  }
+
+  //------------------------------------------------------------------------- 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> get(UniqueIdentifier uniqueId, Class<T> clazz) {
+    ArgumentChecker.notNull(clazz, "clazz");
+    ConfigDocument<?> document = get(uniqueId);
+    if (!clazz.isInstance(document.getValue())) {
+      throw new DataNotFoundException("Config not found: " + uniqueId.getObjectId());
+    }
+    return (ConfigDocument<T>) document;
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
+    ArgumentChecker.notNull(request, "request");
+    final List<ConfigDocument<T>> list = new ArrayList<ConfigDocument<T>>();
+    for (ConfigDocument<?> doc : _store.values()) {
+      if (request.matches(doc)) {
+        list.add((ConfigDocument<T>) doc);
+      }
+    }
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    
+    List<ConfigDocument<T>> select = request.getPagingRequest().select(list);
+    
+    result.getDocuments().addAll(select);
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    ArgumentChecker.notNull(request.getType(), "request.configClazz");
+    
+    final ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
+    final ConfigDocument<T> doc = get(request.getObjectId(), VersionCorrection.LATEST, request.getType());
+    if (doc != null) {
+      result.getDocuments().add(doc);
+    }
+    result.setPaging(Paging.of(result.getDocuments()));
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ConfigDocument<T> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection, Class<T> clazz) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    ArgumentChecker.notNull(clazz, "clazz");
+    
+    ConfigDocument<?> document = get(objectId, versionCorrection);
+    if (!clazz.isInstance(document.getValue())) {
+      throw new DataNotFoundException("Config not found: " + objectId);
+    }
+    return (ConfigDocument<T>) document;
+  }
 }

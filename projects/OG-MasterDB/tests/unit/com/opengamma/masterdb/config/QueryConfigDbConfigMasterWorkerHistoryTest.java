@@ -23,22 +23,29 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Tests QueryConfigDbConfigMasterWorker.
  */
-public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigTypeMasterWorkerHistoryTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerHistoryTest.class);
 
-  public QueryConfigDbConfigTypeMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
+  public QueryConfigDbConfigMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test(expected = IllegalArgumentException.class)
+  public void test_invalid_historyRequest() {
+    ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>();
+    _cfgMaster.history(request);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_history_documents() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -46,11 +53,16 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
     assert201(test.getDocuments().get(1));
   }
 
+  private ConfigHistoryRequest<Identifier> createRequest(ObjectIdentifier oid) {
+    ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>(oid, Identifier.class);
+    return request;
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_history_noInstants() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -66,7 +78,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_noInstants_pageOne() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setPagingRequest(new PagingRequest(1, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -81,7 +93,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_noInstants_pageTwo() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setPagingRequest(new PagingRequest(2, 1));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -100,7 +112,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsFrom_preFirst() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -114,7 +126,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsFrom_firstToSecond() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -126,7 +138,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsFrom_postSecond() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsFromInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -138,7 +150,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsTo_preFirst() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version1aInstant.minusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -150,7 +162,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsTo_firstToSecond() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version1cInstant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
@@ -161,7 +173,7 @@ public class QueryConfigDbConfigTypeMasterWorkerHistoryTest extends AbstractDbCo
   @Test
   public void test_history_versionsTo_postSecond() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbCfg", "201");
-    ConfigHistoryRequest request = new ConfigHistoryRequest(oid);
+    ConfigHistoryRequest<Identifier> request = createRequest(oid);
     request.setVersionsToInstant(_version2Instant.plusSeconds(5));
     ConfigHistoryResult<Identifier> test = _cfgMaster.history(request);
     
