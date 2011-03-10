@@ -65,7 +65,7 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
       return 0.0;
     }
 
-    if ((_dofOverTwo + _lambdaOverTwo) > 10000) {
+    if ((_dofOverTwo + _lambdaOverTwo) > 1000) {
       return getFraserApproxCDF(x);
     }
 
@@ -88,7 +88,7 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     int i = _k;
 
     // first add terms below _k
-    while (i > 0 && Math.abs(sum - oldSum) > _eps) {
+    while (i > 0 && Math.abs(sum - oldSum) / sum > _eps) {
       i--;
       p *= (i + 1) / _lambdaOverTwo;
       // temp = (_dofOverTwo + i) * logX - halfX;

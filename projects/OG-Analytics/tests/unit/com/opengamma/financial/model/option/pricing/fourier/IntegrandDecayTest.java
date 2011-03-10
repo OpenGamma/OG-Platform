@@ -33,13 +33,12 @@ public class IntegrandDecayTest {
   @Test
   public void test() {
     ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));
-    double mod0 = ComplexMathUtils.mod(PSI.evaluate(z));
+    final double mod0 = ComplexMathUtils.mod(PSI.evaluate(z));
     for (int i = 0; i < 101; i++) {
-      double x = 0.0 + 100.0 * i / 100;
+      final double x = 0.0 + 100.0 * i / 100;
       z = new ComplexNumber(x, -(1 + ALPHA));
-      ComplexNumber u = PSI.evaluate(z);
-      double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
-      //System.out.println(x + "\t" + res);
+      final ComplexNumber u = PSI.evaluate(z);
+      final double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
     }
   }
 
@@ -48,23 +47,22 @@ public class IntegrandDecayTest {
     final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO, T);
     final EuropeanCallFT psi = new EuropeanCallFT(heston);
 
-    //    ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));
-    //    double mod0 = ComplexMathUtils.mod(psi.evaluate(z));
-    //    for (int i = 0; i < 101; i++) {
-    //      double x = 0.0 + 100.0 * i / 100;
-    //      z = new ComplexNumber(x, -(1 + ALPHA));
-    //      ComplexNumber u = psi.evaluate(z);
-    //      double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
-    //      System.out.println(x + "\t" + res);
-    //    }
+    ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));
+    final double mod0 = ComplexMathUtils.mod(psi.evaluate(z));
+    for (int i = 0; i < 101; i++) {
+      final double x = 0.0 + 100.0 * i / 100;
+      z = new ComplexNumber(x, -(1 + ALPHA));
+      final ComplexNumber u = psi.evaluate(z);
+      final double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
+      //System.out.println(x + "\t" + res);
+    }
 
-    IntegralLimitCalculator cal = new IntegralLimitCalculator();
+    final IntegralLimitCalculator cal = new IntegralLimitCalculator();
 
     double x = 0;
     for (int i = 0; i < 1000; i++) {
       x = cal.solve(psi, ALPHA, 1e-6);
     }
-    // System.out.println("x: " + x);
   }
 
 }

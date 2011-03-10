@@ -39,7 +39,7 @@ public class FourierPricer {
     _integrator = integrator;
   }
 
-  double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol) {
+  public double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol) {
 
     if (alpha >= ce.getLargestAlpha() || alpha <= ce.getSmallestAlpha()) {
       s_logger.warn("The value of alpha is not valid for the Characteristic Exponent and will most likely lead to mispricing. Choose a value between " + ce.getSmallestAlpha() + " and "
@@ -76,7 +76,7 @@ public class FourierPricer {
 
   }
 
-  double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol,
+  public double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol,
       final double blackVol) {
 
     final Function1D<Double, Double> func = new EuropeanPriceIntegrand(ce, alpha, forward, strike, true, blackVol);

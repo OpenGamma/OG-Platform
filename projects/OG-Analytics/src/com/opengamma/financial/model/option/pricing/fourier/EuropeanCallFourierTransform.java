@@ -1,0 +1,75 @@
+/**
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.model.option.pricing.fourier;
+
+import static com.opengamma.math.ComplexMathUtils.add;
+import static com.opengamma.math.ComplexMathUtils.divide;
+import static com.opengamma.math.ComplexMathUtils.exp;
+import static com.opengamma.math.ComplexMathUtils.multiply;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.number.ComplexNumber;
+
+/**
+ * 
+ */
+public class EuropeanCallFourierTransform {
+  private final CharacteristicExponent1 _ce;
+
+  public EuropeanCallFourierTransform(final CharacteristicExponent1 ce) {
+    Validate.notNull(ce, "characteristic exponent");
+    _ce = new MeanCorrectedCharacteristicExponent1(ce);
+  }
+
+  public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
+    return new Function1D<ComplexNumber, ComplexNumber>() {
+
+      @Override
+      public ComplexNumber evaluate(final ComplexNumber z) {
+        @SuppressWarnings("synthetic-access")
+        final ComplexNumber num = exp(_ce.getFunction(t).evaluate(z));
+        final ComplexNumber denom = multiply(z, add(z, ComplexNumber.I));
+        final ComplexNumber res = multiply(-1.0, divide(num, denom));
+        return res;
+      }
+    };
+  }
+
+  /**
+   * Gets the _ce field.
+   * @return the _ce
+   */
+  public CharacteristicExponent1 getCharacteristicExponent() {
+    return _ce;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _ce.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final EuropeanCallFourierTransform other = (EuropeanCallFourierTransform) obj;
+    return ObjectUtils.equals(_ce, other._ce);
+  }
+
+}

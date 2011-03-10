@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.option.pricing.fourier;
+package com.opengamma.financial.model.volatility.smile.fitting;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -17,21 +17,24 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent1;
+import com.opengamma.financial.model.option.pricing.fourier.FourierPricer1;
+import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent1;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.smile.fitting.HestonFitter;
+import com.opengamma.financial.model.volatility.smile.fitting.HestonFitter1;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
-public class HestonFitterTest {
-
-  protected Logger _logger = LoggerFactory.getLogger(HestonFitterTest.class);
-  protected int _hotspotWarmupCycles = 1;
-  protected int _benchmarkCycles = 0;
+public class HestonFitter1Test {
+  protected Logger _logger = LoggerFactory.getLogger(HestonFitter1Test.class);
+  protected int _hotspotWarmupCycles = 0;
+  protected int _benchmarkCycles = 1;
 
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
@@ -54,10 +57,10 @@ public class HestonFitterTest {
   private static final BlackPriceFunction BLACK_PRICE = new BlackPriceFunction();
 
   static {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
-    final FourierPricer pricer = new FourierPricer();
+    final CharacteristicExponent1 heston = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA, RH0);
+    final FourierPricer1 pricer = new FourierPricer1();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+    final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula();
     final double beta = 0.5;
     final double alpha = SIGMA * Math.pow(FORWARD, 1 - beta);
     final double nu = 0.4;
@@ -68,12 +71,13 @@ public class HestonFitterTest {
     SABR_VOLS = new double[N];
     ERRORS = new double[N];
 
+    final BlackFunctionData data = new BlackFunctionData(FORWARD, 1, SIGMA);
     for (int i = 0; i < N; i++) {
       ERRORS[i] = 0.001; //10bps errors 
       STRIKES[i] = 0.01 + 0.01 * i;
-      final double price = pricer.price(FORWARD, STRIKES[i], 1.0, true, heston, -0.5, 1e-9, SIGMA);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
-      VOLS[i] = blackImpliedVol.getImpliedVolatility(new BlackFunctionData(FORWARD, 1, SIGMA), option, price);
+      final double price = pricer.price(data, option, heston, -0.5, 1e-9, true);
+      VOLS[i] = blackImpliedVol.getImpliedVolatility(data, option, price);
       SABR_VOLS[i] = sabr.getVolatilityFunction(option).evaluate(new SABRFormulaData(FORWARD, alpha, beta, nu, rho));
     }
   }
@@ -110,31 +114,11 @@ public class HestonFitterTest {
     final BitSet fixed = new BitSet();
     final LeastSquareResults results = fitter.solve(FORWARD, T, STRIKES, SABR_VOLS, ERRORS, temp, fixed);
     assertTrue(results.getChiSq() < N * 100);
-
-    //    System.out.println("chiSq: "+results.getChiSq());
-    //    System.out.println("parameters: "+results.getParameters());
-    //  
-    //
-    //    for(int i=0;i<N;i++){
-    //      System.out.println(STRIKES[i]+"\t"+SABR_VOLS[i]);
-    //    }
-    //    System.out.println();
-    //    
-    //    DoubleMatrix1D parms = results.getParameters();
-    //    CharacteristicExponent heston = new HestonCharacteristicExponent(parms.getEntry(0), parms.getEntry(1), parms.getEntry(2), parms.getEntry(3), parms.getEntry(4), T);
-    //    FFTPricer pricer = new FFTPricer();
-    //    double[][] pns = pricer.price(FORWARD, DF, true, heston, 0.01,  0.08, 20, -0.5, 1e-8, SIGMA);
-    //    int n = pns.length;
-    //    for(int i = 0; i < n;i++){
-    //      double vol = BlackImpliedVolFormula.impliedVolNewton(pns[i][1], FORWARD, pns[i][0], DF, T, true);
-    //      System.out.println(pns[i][0]+"\t"+vol);
-    //    }
-    //      
   }
 
   @Test
   public void testExactFitPrices() {
-    final HestonFitter fitter = new HestonFitter();
+    final HestonFitter1 fitter = new HestonFitter1();
     final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
     final double[] pErrors = new double[N];
     for (int i = 0; i < N; i++) {

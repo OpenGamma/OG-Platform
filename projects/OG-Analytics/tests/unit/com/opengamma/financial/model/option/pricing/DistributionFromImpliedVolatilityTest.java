@@ -15,7 +15,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -33,7 +32,7 @@ public class DistributionFromImpliedVolatilityTest {
   private static ProbabilityDistribution<Double> BLACK;
   private static ProbabilityDistribution<Double> BACHELIER;
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final NormalPriceFunction NORMAL_PRICE_FUNCTION = new NormalPriceFunction();
   private static Function1D<Double, Double> FLAT = new Function1D<Double, Double>() {
 

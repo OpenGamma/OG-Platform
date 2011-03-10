@@ -102,7 +102,7 @@ public class SVIFittingTest {
   @Test(expected = IllegalArgumentException.class)
   public void testWrongMaturity() {
     final EuropeanVanillaOption[] options = Arrays.copyOf(OPTIONS, OPTIONS.length);
-    options[5] = new EuropeanVanillaOption(OPTIONS[5].getK(), OPTIONS[5].getT() + 0.05, OPTIONS[5].isCall());
+    options[5] = new EuropeanVanillaOption(OPTIONS[5].getStrike(), OPTIONS[5].getTimeToExpiry() + 0.05, OPTIONS[5].isCall());
     FITTER.getFitResult(options, DATA, BLACK_VOLS, ERRORS, INITIAL_VALUES, FIXED);
   }
 

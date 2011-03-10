@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.pricing.tree;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.definition.GeneralNormalOptionDataBundle;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -19,34 +18,21 @@ import com.opengamma.util.tuple.DoublesPair;
 */
 public class NormalBinomialTreeBuilder<T extends GeneralNormalOptionDataBundle> extends BinomialTreeBuilder<T> {
 
-  // @Override
-  // protected DoublesPair getCentralNodePair(double dt, double sigma, double forward, double centreLevel) {
-  // double sigma2dt = sigma * sigma * dt;
-  // double a = forward;
-  // double b = forward * forward + centreLevel * centreLevel + sigma2dt;
-  // double c =centreLevel * centreLevel * forward;
-  // double root = b * b - 4 * a * c;
-  // Validate.isTrue(root >= 0, "can't find upper lower - root negative");
-  // double upper = (b + Math.sqrt(root)) / 2 / a;
-  // double lower = centreLevel*centreLevel/upper;
-  // return new DoublesPair(lower, upper);
-  // }
-
   @Override
-  protected DoublesPair getCentralNodePair(double dt, double sigma, double forward, double centreLevel) {
-    double sigma2dt = sigma * sigma * dt;
-    double b = 2 * centreLevel;
-    double c = forward * (2 * centreLevel - forward) - sigma2dt;
-    double root = b * b - 4 * c;
+  protected DoublesPair getCentralNodePair(final double dt, final double sigma, final double forward, final double centreLevel) {
+    final double sigma2dt = sigma * sigma * dt;
+    final double b = 2 * centreLevel;
+    final double c = forward * (2 * centreLevel - forward) - sigma2dt;
+    final double root = b * b - 4 * c;
     Validate.isTrue(root >= 0, "can't find upper node - root negative");
-    double upper = (b + Math.sqrt(root)) / 2;
-    double lower = 2 * centreLevel - upper;
+    final double upper = (b + Math.sqrt(root)) / 2;
+    final double lower = 2 * centreLevel - upper;
     return new DoublesPair(lower, upper);
   }
 
   @Override
   protected double getNextHigherNode(final double dt, final double sigma, final double forward, final double lowerNode) {
-    double sigma2dt = sigma * sigma * dt;
+    final double sigma2dt = sigma * sigma * dt;
     Validate.isTrue(forward > lowerNode, "need forward > lowerNode");
     return sigma2dt / (forward - lowerNode) + forward;
   }
@@ -56,7 +42,7 @@ public class NormalBinomialTreeBuilder<T extends GeneralNormalOptionDataBundle> 
     if (forward == 0.0) {
       return 0.0;
     }
-    double sigma2dt = sigma * sigma * dt;
+    final double sigma2dt = sigma * sigma * dt;
     Validate.isTrue(higherNode > forward, "need higherNode > forward");
     double lowerNode = sigma2dt / (forward - higherNode) + forward;
     if (lowerNode < 0.0) {
@@ -67,10 +53,10 @@ public class NormalBinomialTreeBuilder<T extends GeneralNormalOptionDataBundle> 
 
   @Override
   protected double[] getForwards(final double[] spots, final T data, final double t, final double dt) {
-    int n = spots.length;
-    double[] forwards = new double[n];
+    final int n = spots.length;
+    final double[] forwards = new double[n];
     for (int i = 0; i < n; i++) {
-      double drift = data.getLocalDrift(spots[i], t);
+      final double drift = data.getLocalDrift(spots[i], t);
       forwards[i] = spots[i] + drift * dt;
     }
     return forwards;

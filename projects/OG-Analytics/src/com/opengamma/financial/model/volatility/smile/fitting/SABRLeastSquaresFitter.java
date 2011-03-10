@@ -77,12 +77,12 @@ public class SABRLeastSquaresFitter implements LeastSquareSmileFitter<SABRFormul
       fixed.set(0, true);
     }
     final double[] strikes = new double[n];
-    final double maturity = options[0].getT();
+    final double maturity = options[0].getTimeToExpiry();
     final double forward = sabrModelData.getForward();
-    strikes[0] = options[0].getK();
+    strikes[0] = options[0].getStrike();
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(CompareUtils.closeEquals(options[i].getT(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getT());
-      strikes[i] = options[i].getK();
+      Validate.isTrue(CompareUtils.closeEquals(options[i].getTimeToExpiry(), maturity), "All options must have the same maturity " + maturity + "; have one with maturity " + options[i].getTimeToExpiry());
+      strikes[i] = options[i].getStrike();
     }
     final TransformParameters transforms = new TransformParameters(new DoubleMatrix1D(initialValues), TRANSFORMS, fixed);
 

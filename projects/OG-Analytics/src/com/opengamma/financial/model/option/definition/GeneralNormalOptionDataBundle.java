@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -17,7 +18,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
  * data bundle for the SDE df = a(f,t)dt + b(f,t)dw  
  */
 public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
-
   private final DriftSurface _drift;
 
   /**
@@ -32,6 +32,11 @@ public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
     super(discountCurve, 0.0, localVolatility, spot, date);
     Validate.notNull(localDrift, "null localDrift");
     _drift = localDrift;
+  }
+
+  public GeneralNormalOptionDataBundle(final GeneralNormalOptionDataBundle data) {
+    super(data);
+    _drift = data.getDriftSurface();
   }
 
   /**
@@ -50,18 +55,22 @@ public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
     return getVolatility(t, f);
   }
 
+  @Override
   public GeneralNormalOptionDataBundle withInterestRateCurve(final YieldAndDiscountCurve curve) {
     return new GeneralNormalOptionDataBundle(curve, getDriftSurface(), getVolatilitySurface(), getSpot(), getDate());
   }
 
+  @Override
   public GeneralNormalOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
     return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), surface, getSpot(), getDate());
   }
 
+  @Override
   public GeneralNormalOptionDataBundle withDate(final ZonedDateTime date) {
     return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), getSpot(), date);
   }
 
+  @Override
   public GeneralNormalOptionDataBundle withSpot(final double spot) {
     return new GeneralNormalOptionDataBundle(getInterestRateCurve(), getDriftSurface(), getVolatilitySurface(), spot, getDate());
   }
@@ -74,17 +83,17 @@ public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
   /*public static ForwardOptionDataBundle fromNormalSurfaces(final DriftSurface localDrift, final VolatilitySurface localVolatility, double f) {
     
   }*/
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_drift == null) ? 0 : _drift.hashCode());
+    result = prime * result + _drift.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -94,15 +103,8 @@ public class GeneralNormalOptionDataBundle extends StandardOptionDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneralNormalOptionDataBundle other = (GeneralNormalOptionDataBundle) obj;
-    if (_drift == null) {
-      if (other._drift != null) {
-        return false;
-      }
-    } else if (!_drift.equals(other._drift)) {
-      return false;
-    }
-    return true;
+    final GeneralNormalOptionDataBundle other = (GeneralNormalOptionDataBundle) obj;
+    return ObjectUtils.equals(_drift, other._drift);
   }
 
 }

@@ -12,7 +12,6 @@ import org.junit.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 
 /**
  * 
@@ -30,7 +29,7 @@ public class AccuracyTest {
   private static final double EPS = 1e-6;
 
   private static final FFTPricer FFT_PRICER = new FFTPricer();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new VanWijngaardenDekkerBrentSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Test
   public void testVeryShortTime() {
