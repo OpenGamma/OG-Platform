@@ -13,33 +13,33 @@ import org.junit.Test;
 /**
  * 
  */
-public class FixedPaymentTest {
+public class PaymentFixedTest {
 
   private static final double PAYMENT_TIME = 0.67;
   private static final double AMOUNT = 45.6;
   private static final String CURVE_NAME = "vfsmngsdjkflsadfk";
-  private static final FixedPayment PAYMENT = new FixedPayment(PAYMENT_TIME, AMOUNT, CURVE_NAME);
+  private static final PaymentFixed PAYMENT = new PaymentFixed(PAYMENT_TIME, AMOUNT, CURVE_NAME);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
-    new FixedPayment(-1, AMOUNT, CURVE_NAME);
+    new PaymentFixed(-1, AMOUNT, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurveName() {
-    new FixedPayment(PAYMENT_TIME, AMOUNT, null);
+    new PaymentFixed(PAYMENT_TIME, AMOUNT, null);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    FixedPayment other = new FixedPayment(PAYMENT_TIME, AMOUNT, CURVE_NAME);
+    PaymentFixed other = new PaymentFixed(PAYMENT_TIME, AMOUNT, CURVE_NAME);
     assertEquals(other, PAYMENT);
     assertEquals(other.hashCode(), PAYMENT.hashCode());
-    other = new FixedPayment(PAYMENT_TIME - 0.01, AMOUNT, CURVE_NAME);
+    other = new PaymentFixed(PAYMENT_TIME - 0.01, AMOUNT, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new FixedPayment(PAYMENT_TIME, AMOUNT + 0.01, CURVE_NAME);
+    other = new PaymentFixed(PAYMENT_TIME, AMOUNT + 0.01, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new FixedPayment(PAYMENT_TIME, AMOUNT, "hklhkldf");
+    other = new PaymentFixed(PAYMENT_TIME, AMOUNT, "hklhkldf");
     assertFalse(other.equals(PAYMENT));
   }
 

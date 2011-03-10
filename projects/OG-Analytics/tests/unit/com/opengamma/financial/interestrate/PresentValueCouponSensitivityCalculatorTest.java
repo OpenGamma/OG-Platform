@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -166,10 +166,11 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final ForwardLiborAnnuity receiveLegUp = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final ForwardLiborAnnuity receiveLegDown = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final AnnuityCouponIbor payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final AnnuityCouponIbor receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final AnnuityCouponIbor receiveLegUp = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final AnnuityCouponIbor receiveLegDown = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME,
+        ZERO_PC_CURVE_NAME);
 
     final TenorSwap swap = new TenorSwap(payLeg, receiveLeg);
     final TenorSwap swapUp = new TenorSwap(payLeg, receiveLegUp);

@@ -10,6 +10,7 @@
 
 #include "Service/ConnectionPipe.h"
 #include "Service/Settings.h"
+#include <Util/Thread.h>
 
 LOGGING (com.opengamma.language.service.ConnectionPipeTest);
 

@@ -11,6 +11,9 @@
 
 #include "JVM.h"
 #include "Pipes.h"
+#include <Util/Mutex.h>
+#include <Util/Semaphore.h>
+#include <Util/Thread.h>
 
 enum ClientServiceState {
 	STARTING,

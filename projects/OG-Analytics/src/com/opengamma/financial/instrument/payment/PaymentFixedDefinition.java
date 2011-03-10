@@ -15,34 +15,22 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
- * 
+ * Class describing a simple payment of a given amount on a given date.
  */
-public class CouponFixedDefinition extends CouponDefinition {
+public class PaymentFixedDefinition extends PaymentDefinition {
 
-  private final double _rate;
+  /**
+   * The amount of the simple payment.
+   */
   private final double _amount;
 
-  /**
-   * Fixed coupon constructor from a coupon and the fixed rate.
-   * @param coupon Underlying coupon.
-   * @param rate Fixed rate.
-   */
-  public CouponFixedDefinition(CouponDefinition coupon, double rate) {
-    super(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
-    this._rate = rate;
-    this._amount = coupon.getPaymentYearFraction() * coupon.getNotional() * rate;
-  }
-
-  /**
-   * Gets the rate field.
-   * @return the rate
-   */
-  public double getRate() {
-    return _rate;
+  public PaymentFixedDefinition(ZonedDateTime paymentDate, double amount) {
+    super(paymentDate);
+    this._amount = amount;
   }
 
   /**
@@ -60,8 +48,6 @@ public class CouponFixedDefinition extends CouponDefinition {
     long temp;
     temp = Double.doubleToLongBits(_amount);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_rate);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -76,11 +62,8 @@ public class CouponFixedDefinition extends CouponDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixedDefinition other = (CouponFixedDefinition) obj;
+    PaymentFixedDefinition other = (PaymentFixedDefinition) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
     }
     return true;
@@ -96,17 +79,17 @@ public class CouponFixedDefinition extends CouponDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate());
+    return new PaymentFixed(paymentTime, _amount, fundingCurveName);
   }
 
   @Override
   public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return visitor.visitCouponFixed(this, data);
+    return visitor.visitPaymentFixed(this, data);
   }
 
   @Override
   public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return visitor.visitCouponFixed(this);
+    return visitor.visitPaymentFixed(this);
   }
 
 }

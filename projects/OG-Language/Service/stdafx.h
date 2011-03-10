@@ -12,8 +12,6 @@
 #include <Windows.h>
 #include <AclAPI.h>
 #include <Sddl.h>
-#include <tchar.h>
-#include <strsafe.h>
 #ifdef __cplusplus
 #pragma warning(disable:4995) /* suppress #pragma deprecated warnings from standard C++ headers */
 #endif /* ifdef __cplusplus */
@@ -31,17 +29,8 @@
 #include <jni.h>
 
 #include <Util/Fudge.h>
-#ifdef __cplusplus
-#include <Util/AbstractSettings.h>
-#include <Util/BufferedInput.h>
-#include <Util/File.h>
-#include <Util/Library.h>
 #include <Util/Logging.h>
-#include <Util/Mutex.h>
-#include <Util/NamedPipe.h>
-#include <Util/Process.h>
 #include <Util/String.h>
-#include <Util/Thread.h>
-#endif /* ifdef __cplusplus */
+#include <Util/Error.h>
 
 #endif /* ifndef __inc_og_language_service_stdafx_h */

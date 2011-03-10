@@ -9,6 +9,10 @@
 
 // Blocking slots for synchronous calls
 
+#include <Util/Atomic.h>
+#include <Util/Mutex.h>
+#include <Util/Semaphore.h>
+
 class CSynchronousCalls;
 
 class CSynchronousCallSlot {
@@ -16,8 +20,8 @@ private:
 	CSynchronousCalls *m_poOwner;
 	CAtomicPointer<FudgeMsg> m_msg;
 	int m_nIdentifier;
-	CAtomicInt m_oSequence;
 	CSemaphore m_sem;
+	CAtomicInt m_oSequence;
 	friend class CSynchronousCalls;
 	CSynchronousCallSlot (CSynchronousCalls *poOwner, int nIdentifier);
 	~CSynchronousCallSlot ();

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -15,10 +15,11 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -40,9 +41,9 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity, S data);
 
-  T visitFixedCouponAnnuity(FixedCouponAnnuity fixedCouponAnnuity, S data);
+  T visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity, S data);
 
-  T visitForwardLiborAnnuity(ForwardLiborAnnuity forwardLiborAnnuity, S data);
+  T visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity, S data);
 
   T visitSwap(Swap<?, ?> swap, S data);
 
@@ -62,11 +63,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
 
-  T visitFixedPayment(FixedPayment payment, S data);
+  T visitFixedPayment(PaymentFixed payment, S data);
 
-  T visitFixedCouponPayment(FixedCouponPayment payment, S data);
+  T visitFixedCouponPayment(CouponFixed payment, S data);
 
-  T visitForwardLiborPayment(ForwardLiborPayment payment, S data);
+  T visitCouponIbor(CouponIbor payment, S data);
+
+  T visitCouponCMS(CouponCMS payment, S data);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
 
@@ -78,9 +81,9 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity);
 
-  T visitFixedCouponAnnuity(FixedCouponAnnuity fixedCouponAnnuity);
+  T visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity);
 
-  T visitForwardLiborAnnuity(ForwardLiborAnnuity forwardLiborAnnuity);
+  T visitForwardLiborAnnuity(AnnuityCouponIbor forwardLiborAnnuity);
 
   T visitSwap(Swap<?, ?> swap);
 
@@ -100,11 +103,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 
-  T visitFixedPayment(FixedPayment payment);
+  T visitFixedPayment(PaymentFixed payment);
 
-  T visitFixedCouponPayment(FixedCouponPayment payment);
+  T visitFixedCouponPayment(CouponFixed payment);
 
-  T visitForwardLiborPayment(ForwardLiborPayment payment);
+  T visitCouponIbor(CouponIbor payment);
+
+  T visitCouponCMS(CouponCMS payment);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
 

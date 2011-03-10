@@ -12,18 +12,18 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -33,7 +33,7 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * For an instrument, this calculates the sensitivity of  the par rate (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) to points on the yield 
+ * For an instrument, this calculates the sensitivity of the par rate (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) to points on the yield 
  * curve(s) (i.e. dPar/dR at every point the instrument has sensitivity). The return format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds 
  * set of time (corresponding to point of the yield curve) and sensitivity pairs (i.e. dPar/dR at that time). 
  * <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
@@ -118,7 +118,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    final FixedCouponAnnuity unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
+    final AnnuityCouponFixed unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
     final GenericAnnuity<?> recieveAnnuity = swap.getReceiveLeg();
     final double a = PV_CALCULATOR.visit(unitCouponAnnuity, curves);
     final double b = PV_CALCULATOR.visit(recieveAnnuity, curves);
@@ -162,9 +162,9 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
    */
   @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final ForwardLiborAnnuity payLeg = ((ForwardLiborAnnuity) swap.getPayLeg()).withZeroSpread();
-    final ForwardLiborAnnuity receiveLeg = ((ForwardLiborAnnuity) swap.getReceiveLeg()).withZeroSpread();
-    final FixedCouponAnnuity spreadLeg = receiveLeg.withUnitCoupons();
+    final AnnuityCouponIbor payLeg = ((AnnuityCouponIbor) swap.getPayLeg()).withZeroSpread();
+    final AnnuityCouponIbor receiveLeg = ((AnnuityCouponIbor) swap.getReceiveLeg()).withZeroSpread();
+    final AnnuityCouponFixed spreadLeg = receiveLeg.withUnitCoupons();
 
     final double a = PV_CALCULATOR.visit(receiveLeg, curves);
     final double b = PV_CALCULATOR.visit(payLeg, curves);
@@ -212,12 +212,12 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {
-    final GenericAnnuity<FixedCouponPayment> coupons = bond.getUnitCouponAnnuity();
+    final GenericAnnuity<CouponFixed> coupons = bond.getUnitCouponAnnuity();
     final double a = PV_CALCULATOR.visit(coupons, curves);
     final Map<String, List<DoublesPair>> senseA = SENSITIVITY_CALCULATOR.visit(coupons, curves);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
 
-    final FixedPayment principlePaymemt = bond.getPrinciplePayment();
+    final PaymentFixed principlePaymemt = bond.getPrinciplePayment();
     final double df = PV_CALCULATOR.visit(principlePaymemt, curves);
     final double factor = -(1 - df) / a / a;
 
@@ -239,12 +239,12 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
-    final String curveName = payment.getLiborCurveName();
+  public Map<String, List<DoublesPair>> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+    final String curveName = payment.getForwardCurveName();
     final YieldAndDiscountCurve curve = data.getCurve(curveName);
-    final double ta = payment.getLiborFixingTime();
-    final double tb = payment.getLiborMaturityTime();
-    final double delta = payment.getForwardYearFraction();
+    final double ta = payment.getFixingTime();
+    final double tb = payment.getFixingPeriodEndTime();
+    final double delta = payment.getFixingYearFraction();
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);

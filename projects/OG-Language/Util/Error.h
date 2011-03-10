@@ -16,11 +16,13 @@
 #define SetLastError(_expr_) (errno = (_expr_))
 #endif /* ifndef _WIN32 */
 
+#ifdef __cplusplus
 inline bool PosixLastError(int result) {
 	if (result == 0) return true;
 	SetLastError (result);
 	return false;
 }
+#endif /* ifdef __cplusplus */
 
 #ifdef __cplusplus_cli
 #pragma unmanaged

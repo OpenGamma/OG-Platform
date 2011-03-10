@@ -18,16 +18,16 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -173,7 +173,7 @@ public class PresentValueSensitivityCalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, Math.PI, coupon, yearFracs, FIVE_PC_CURVE_NAME);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(paymentTimes, Math.PI, coupon, yearFracs, FIVE_PC_CURVE_NAME);
     final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
     final List<DoublesPair> temp = sense.get(FIVE_PC_CURVE_NAME);
     final Iterator<DoublesPair> iterator = temp.iterator();
@@ -217,8 +217,8 @@ public class PresentValueSensitivityCalculatorTest {
 
     final YieldAndDiscountCurve tempCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
 
-    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final ForwardLiborAnnuity bumpedAnnuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, "Bumped Curve");
+    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final AnnuityCouponIbor bumpedAnnuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, ZERO_PC_CURVE_NAME, "Bumped Curve");
     final double pv = PVC.visit(annuity, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.visit(annuity, CURVES);
 
@@ -249,7 +249,7 @@ public class PresentValueSensitivityCalculatorTest {
 
     final Payment[] payments = new Payment[5];
     for (int i = 0; i < n; i++) {
-      payments[i] = new FixedPayment(times[i], amounts[i], curveNames[i]);
+      payments[i] = new PaymentFixed(times[i], amounts[i], curveNames[i]);
     }
 
     final GenericAnnuity<Payment> annuity = new GenericAnnuity<Payment>(payments);
@@ -279,7 +279,7 @@ public class PresentValueSensitivityCalculatorTest {
   public void testFixedPayment() {
     final double time = 1.23;
     final double amount = 4345.3;
-    final FixedPayment payment = new FixedPayment(time, amount, FIVE_PC_CURVE_NAME);
+    final PaymentFixed payment = new PaymentFixed(time, amount, FIVE_PC_CURVE_NAME);
 
     final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
@@ -300,7 +300,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double coupon = 0.07;
     final double notional = 100;
 
-    final FixedPayment payment = new FixedCouponPayment(time, notional, yearFrac, coupon, ZERO_PC_CURVE_NAME);
+    final PaymentFixed payment = new CouponFixed(time, ZERO_PC_CURVE_NAME, yearFrac, notional, coupon);
 
     final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
 
@@ -324,14 +324,14 @@ public class PresentValueSensitivityCalculatorTest {
     final double spread = 0.04;
     final double notional = 100000000;
 
-    final ForwardLiborPayment payment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final CouponIbor payment = new CouponIbor(time, ZERO_PC_CURVE_NAME, paymentYF, notional, resetTime, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
 
     final double[] nodeTimes = new double[] {resetTime, maturity};
     final double[] yields = new double[] {0.05, 0.05};
 
     final YieldAndDiscountCurve tempCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
 
-    ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, ZERO_PC_CURVE_NAME, "Bumped Curve");
+    CouponIbor bumpedPayment = new CouponIbor(time, ZERO_PC_CURVE_NAME, paymentYF, notional, resetTime, resetTime, maturity, forwardYF, spread, "Bumped Curve");
 
     final double pv = PVC.visit(payment, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);
@@ -352,7 +352,7 @@ public class PresentValueSensitivityCalculatorTest {
       assertEquals(res, pair.getSecond(), notional * 1e-7);
     }
 
-    bumpedPayment = new ForwardLiborPayment(time, notional, resetTime, maturity, paymentYF, forwardYF, spread, "Bumped Curve", FIVE_PC_CURVE_NAME);
+    bumpedPayment = new CouponIbor(time, "Bumped Curve", paymentYF, notional, resetTime, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
 
     temp = sense.get(ZERO_PC_CURVE_NAME);
     final YieldAndDiscountCurve bumpedCurve = new YieldCurve(ConstantDoublesCurve.from(eps));
@@ -375,14 +375,14 @@ public class PresentValueSensitivityCalculatorTest {
     final double forwardYF = 0.5;
     final double spread = 0.04;
 
-    final ForwardLiborPayment payment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final CouponIbor payment = new CouponIbor(time, FIVE_PC_CURVE_NAME, paymentYF, 1.0, resetTime, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
 
     final double[] nodeTimes = new double[] {resetTime, time, maturity};
     final double[] yields = new double[] {0.05, 0.05, 0.05};
 
     final YieldAndDiscountCurve tempCurve = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
 
-    final ForwardLiborPayment bumpedPayment = new ForwardLiborPayment(time, 1.0, resetTime, maturity, paymentYF, forwardYF, spread, "Bumped Curve", "Bumped Curve");
+    final CouponIbor bumpedPayment = new CouponIbor(time, "Bumped Curve", paymentYF, 1.0, resetTime, resetTime, maturity, forwardYF, spread, "Bumped Curve");
 
     final double pv = PVC.visit(payment, CURVES);
     final Map<String, List<DoublesPair>> sense = PVSC.visit(payment, CURVES);

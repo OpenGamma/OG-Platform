@@ -16,16 +16,16 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class PaymentSimpleTest {
+public class PaymentFixedDefinitionTest {
 
   private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 1, 3);
   private static final double AMOUNT = 1000000; //1m
 
-  private static final PaymentSimpleDefinition SIMPLE_PAYMENT = new PaymentSimpleDefinition(PAYMENT_DATE, AMOUNT);
+  private static final PaymentFixedDefinition SIMPLE_PAYMENT = new PaymentFixedDefinition(PAYMENT_DATE, AMOUNT);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPaymentDate() {
-    new PaymentSimpleDefinition(null, AMOUNT);
+    new PaymentFixedDefinition(null, AMOUNT);
   }
 
   @Test

@@ -11,6 +11,8 @@
 #include "Service/Public.h"
 #include "Service/Service.h"
 #include "Service/Settings.h"
+#include <Util/Thread.h>
+#include <Util/NamedPipe.h>
 
 LOGGING (com.opengamma.language.service.ServiceTest);
 

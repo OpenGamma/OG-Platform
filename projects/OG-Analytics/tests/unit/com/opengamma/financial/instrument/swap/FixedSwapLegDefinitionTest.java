@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -125,19 +125,19 @@ public class FixedSwapLegDefinitionTest {
   @Test
   public void testConversion() {
     final String yieldCurveName = "R";
-    final GenericAnnuity<FixedCouponPayment> annuity = DEFINITION.toDerivative(DATE.toLocalDate(), yieldCurveName);
+    final GenericAnnuity<CouponFixed> annuity = DEFINITION.toDerivative(DATE.toLocalDate(), yieldCurveName);
     final int n = annuity.getNumberOfPayments();
     final int offset = 2;
     assertEquals(n, SETTLEMENT_DATES.length - offset);
     for (int i = 0; i < n; i++) {
-      final FixedCouponPayment nthPayment = annuity.getNthPayment(i);
+      final CouponFixed nthPayment = annuity.getNthPayment(i);
       assertEquals(nthPayment.getNotional(), NOTIONAL, 0);
       assertEquals(nthPayment.getFundingCurveName(), yieldCurveName);
       final double paymentTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(DATE, SETTLEMENT_DATES[i + offset]);
       assertEquals(nthPayment.getPaymentTime(), paymentTime, 0);
       final double yearFraction = DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i + offset - 1], SETTLEMENT_DATES[i + offset]);
-      assertEquals(nthPayment.getYearFraction(), yearFraction, 0);
-      assertEquals(nthPayment.getCoupon(), RATE, 0);
+      assertEquals(nthPayment.getPaymentYearFraction(), yearFraction, 0);
+      assertEquals(nthPayment.getFixedRate(), RATE, 0);
     }
   }
 }
