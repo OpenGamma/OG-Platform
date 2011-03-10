@@ -24,13 +24,12 @@ void LoggingInitImpl (const TCHAR *pszLogConfiguration) {
 		bInitialised = true;
 	}
 	if (pszLogConfiguration != NULL) {
-		LOGDEBUG (TEXT ("Initialising logging from ") << pszLogConfiguration);
 		::log4cxx::PropertyConfigurator::configure (pszLogConfiguration);
+		LOGINFO (TEXT ("Logging initialised from ") << pszLogConfiguration);
 	} else {
-		LOGDEBUG (TEXT ("Initialising logging with default settings"));
 		::log4cxx::BasicConfigurator::configure ();
+		LOGINFO (TEXT ("Logging initialised with default settings"));
 	}
-	LOGINFO (TEXT ("Logs initialised"));
 }
 
 void LoggingInit (CAbstractSettings *poSettings) {
