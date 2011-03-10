@@ -12,9 +12,8 @@ import org.apache.commons.lang.Validate;
 /**
  * Class describing a generic coupon.
  */
-public class CouponDefinition extends PaymentDefinition {
+public abstract class CouponDefinition extends PaymentDefinition {
 
-  // TODO: abstract
   /**
    * The start date of the coupon accrual period.
    */
@@ -26,7 +25,7 @@ public class CouponDefinition extends PaymentDefinition {
   /**
    * The accrual factor associated to the coupon accrual period.
    */
-  private final double _accrualFactor;
+  private final double _paymentYearFraction;
   /**
    * The coupon's notional.
    */
@@ -37,16 +36,18 @@ public class CouponDefinition extends PaymentDefinition {
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
-   * @param accrualFactor Accrual factor of the accrual period.
+   * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    */
-  public CouponDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional) {
+  public CouponDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional) {
     super(paymentDate);
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
     Validate.notNull(accrualEndDate, "accrual end date");
+    Validate.isTrue(accrualEndDate.isAfter(accrualStartDate), "end before start");
     this._accrualEndDate = accrualEndDate;
-    this._accrualFactor = accrualFactor;
+    Validate.isTrue(paymentYearFraction >= 0.0, "year fraction < 0");
+    this._paymentYearFraction = paymentYearFraction;
     this._notional = notional;
   }
 
@@ -62,7 +63,7 @@ public class CouponDefinition extends PaymentDefinition {
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
     this._accrualEndDate = paymentDate;
-    this._accrualFactor = accrualFactor;
+    this._paymentYearFraction = accrualFactor;
     this._notional = notional;
   }
 
@@ -86,8 +87,8 @@ public class CouponDefinition extends PaymentDefinition {
    * Gets the accrualFactor field.
    * @return the accrualFactor
    */
-  public double getAccrualFactor() {
-    return _accrualFactor;
+  public double getPaymentYearFraction() {
+    return _paymentYearFraction;
   }
 
   /**

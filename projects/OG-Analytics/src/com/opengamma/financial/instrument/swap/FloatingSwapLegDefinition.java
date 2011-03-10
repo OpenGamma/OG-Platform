@@ -22,8 +22,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
@@ -168,8 +168,8 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
   @Override
   public GenericAnnuity<Payment> toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" + 
-        _settlementDates[_settlementDates.length - 1] + ")"); //TODO
+    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
+    //TODO
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1);
     s_logger.info("Using the first yield curve name as the funding curve name and the second as the libor curve name");
@@ -195,16 +195,16 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
     }
     final Payment[] payments = new Payment[paymentTimes.length];
     if (date.isBefore(_nominalDates[1].toLocalDate())) {
-      payments[0] = new FixedCouponPayment(paymentTimes[0], _notional, yearFractions[0], _initialRate + _spread, fundingCurveName);
+      payments[0] = new CouponFixed(paymentTimes[0], fundingCurveName, yearFractions[0], _notional, _initialRate + _spread);
     } else {
       //TODO need to handle paymentYearFraction differently from forwardYearFraction 
       //TODO copied from original implementation
-      payments[0] = new ForwardLiborPayment(paymentTimes[0], _notional, resetTimes[0], maturityTimes[0], yearFractions[0], yearFractions[0], _spread, fundingCurveName, liborCurveName);
+      payments[0] = new CouponIbor(paymentTimes[0], fundingCurveName, yearFractions[0], _notional, resetTimes[0], resetTimes[0], maturityTimes[0], yearFractions[0], _spread, liborCurveName);
     }
     for (int i = 1; i < payments.length; i++) {
       //TODO need to handle paymentYearFraction differently from forwardYearFraction 
       //TODO copied from original implementation
-      payments[i] = new ForwardLiborPayment(paymentTimes[i], _notional, resetTimes[i], maturityTimes[i], yearFractions[i], yearFractions[i], _spread, fundingCurveName, liborCurveName);
+      payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], _notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], _spread, liborCurveName);
     }
     return new GenericAnnuity<Payment>(payments);
   }

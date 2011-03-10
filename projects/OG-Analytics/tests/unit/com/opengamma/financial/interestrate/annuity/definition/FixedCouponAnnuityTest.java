@@ -10,7 +10,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -21,57 +21,58 @@ public class FixedCouponAnnuityTest {
   private static final double COUPON_RATE = 0.05;
   private static final String CURVE_NAME = "A";
   private static final double[] YEAR_FRACTIONS = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-  private static final FixedCouponPayment[] PAYMENTS;
+  private static final CouponFixed[] PAYMENTS;
   private static final double DIFF = 0.02;
-  private static final FixedCouponPayment[] HIGHER;
+  private static final CouponFixed[] HIGHER;
 
+  //CouponFixed(PAYMENT_TIMES[i], NOTIONAL, YEAR_FRACTIONS[i], COUPON_RATE, CURVE_NAME);
   static {
     final int n = PAYMENT_TIMES.length;
-    PAYMENTS = new FixedCouponPayment[n];
-    HIGHER = new FixedCouponPayment[n];
+    PAYMENTS = new CouponFixed[n];
+    HIGHER = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      PAYMENTS[i] = new FixedCouponPayment(PAYMENT_TIMES[i], NOTIONAL, YEAR_FRACTIONS[i], COUPON_RATE, CURVE_NAME);
-      HIGHER[i] = new FixedCouponPayment(PAYMENT_TIMES[i], NOTIONAL, YEAR_FRACTIONS[i], COUPON_RATE + DIFF, CURVE_NAME);
+      PAYMENTS[i] = new CouponFixed(PAYMENT_TIMES[i], CURVE_NAME, YEAR_FRACTIONS[i], NOTIONAL, COUPON_RATE);
+      HIGHER[i] = new CouponFixed(PAYMENT_TIMES[i], CURVE_NAME, YEAR_FRACTIONS[i], NOTIONAL, COUPON_RATE + DIFF);
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPaymentTimes() {
-    new FixedCouponAnnuity(null, NOTIONAL, COUPON_RATE, CURVE_NAME);
+    new AnnuityCouponFixed(null, NOTIONAL, COUPON_RATE, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyPaymentTimes() {
-    new FixedCouponAnnuity(new double[0], NOTIONAL, COUPON_RATE, CURVE_NAME);
+    new AnnuityCouponFixed(new double[0], NOTIONAL, COUPON_RATE, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullYearFractions() {
-    new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null, CURVE_NAME);
+    new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null, CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyYearFractions() {
-    new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, new double[0], CURVE_NAME);
+    new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, new double[0], CURVE_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCurveName() {
-    new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null);
+    new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongArrayLength() {
-    new FixedCouponAnnuity(new double[] {1, 2, 3}, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME);
+    new AnnuityCouponFixed(new double[] {1, 2, 3}, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME);
   }
 
   @Test
   public void testConstructors() {
-    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(PAYMENTS);
-    assertFalse(annuity.equals(new FixedCouponAnnuity(PAYMENT_TIMES, COUPON_RATE, CURVE_NAME)));
-    assertEquals(new FixedCouponAnnuity(PAYMENT_TIMES, 1, COUPON_RATE, CURVE_NAME), new FixedCouponAnnuity(PAYMENT_TIMES, COUPON_RATE, CURVE_NAME));
-    assertEquals(annuity, new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, CURVE_NAME));
-    assertEquals(annuity, new FixedCouponAnnuity(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME));
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(PAYMENTS);
+    assertFalse(annuity.equals(new AnnuityCouponFixed(PAYMENT_TIMES, COUPON_RATE, CURVE_NAME)));
+    assertEquals(new AnnuityCouponFixed(PAYMENT_TIMES, 1, COUPON_RATE, CURVE_NAME), new AnnuityCouponFixed(PAYMENT_TIMES, COUPON_RATE, CURVE_NAME));
+    assertEquals(annuity, new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, CURVE_NAME));
+    assertEquals(annuity, new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME));
   }
   //
   // @Test

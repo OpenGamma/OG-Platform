@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -42,15 +42,15 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testForwardLiborAnnuity() {
-    ForwardLiborAnnuity a1 = new ForwardLiborAnnuity(new double[] {1, 2}, N1, N2);
-    ForwardLiborAnnuity a2 = a1.withSpread(R2);
+    AnnuityCouponIbor a1 = new AnnuityCouponIbor(new double[] {1, 2}, N1, N2);
+    AnnuityCouponIbor a2 = a1.withSpread(R2);
     assertEquals(VISITOR.visit(a1, R2), a2);
   }
 
   @Test
   public void testFixedCouponAnnuity() {
-    FixedCouponAnnuity c1 = new FixedCouponAnnuity(new double[] {1, 2}, R1, N1);
-    FixedCouponAnnuity c2 = new FixedCouponAnnuity(new double[] {1, 2}, R2, N1);
+    AnnuityCouponFixed c1 = new AnnuityCouponFixed(new double[] {1, 2}, R1, N1);
+    AnnuityCouponFixed c2 = new AnnuityCouponFixed(new double[] {1, 2}, R2, N1);
     assertEquals(VISITOR.visit(c1, R2), c2);
   }
 

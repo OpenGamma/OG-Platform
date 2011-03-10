@@ -88,12 +88,17 @@ public class CouponIborDefinitionTest {
     CouponIborDefinition.from(NOTIONAL, FIXING_DATE, null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testFixingAfterPayment() {
+    new CouponIborDefinition(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX);
+  }
+
   @Test
   public void test() {
     assertEquals(IBOR_COUPON.getPaymentDate(), PAYMENT_DATE);
     assertEquals(IBOR_COUPON.getAccrualStartDate(), ACCRUAL_START_DATE);
     assertEquals(IBOR_COUPON.getAccrualEndDate(), ACCRUAL_END_DATE);
-    assertEquals(IBOR_COUPON.getAccrualFactor(), ACCRUAL_FACTOR, 1E-10);
+    assertEquals(IBOR_COUPON.getPaymentYearFraction(), ACCRUAL_FACTOR, 1E-10);
     assertEquals(IBOR_COUPON.getNotional(), NOTIONAL, 1E-2);
     assertEquals(IBOR_COUPON.getFixingDate(), FIXING_DATE);
     assertEquals(IBOR_COUPON.isFixed(), false);
@@ -103,7 +108,7 @@ public class CouponIborDefinitionTest {
     assertEquals(IBOR_COUPON_2.getPaymentDate(), FIXING_END_DATE);
     assertEquals(IBOR_COUPON_2.getAccrualStartDate(), FIXING_START_DATE);
     assertEquals(IBOR_COUPON_2.getAccrualEndDate(), FIXING_END_DATE);
-    assertEquals(IBOR_COUPON_2.getAccrualFactor(), ACCRUAL_FACTOR_FIXING, 1E-10);
+    assertEquals(IBOR_COUPON_2.getPaymentYearFraction(), ACCRUAL_FACTOR_FIXING, 1E-10);
     assertEquals(IBOR_COUPON_2.getNotional(), NOTIONAL, 1E-2);
     assertEquals(IBOR_COUPON_2.getFixingDate(), FIXING_DATE);
     assertEquals(IBOR_COUPON_2.isFixed(), false);

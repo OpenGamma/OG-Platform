@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * 
@@ -32,6 +36,7 @@ public class CouponFloatingDefinition extends CouponDefinition {
   public CouponFloatingDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate) {
     super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional);
     Validate.notNull(fixingDate, "fixing date");
+    Validate.isTrue(fixingDate.isBefore(paymentDate), "payment date before fixing");
     this._fixingDate = fixingDate;
     this._isFixed = false;
   }
@@ -44,7 +49,7 @@ public class CouponFloatingDefinition extends CouponDefinition {
    */
   public static CouponFloatingDefinition from(CouponDefinition coupon, ZonedDateTime fixingDate) {
     Validate.notNull(coupon, "coupon");
-    return new CouponFloatingDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getAccrualFactor(), coupon.getNotional(), fixingDate);
+    return new CouponFloatingDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate);
   }
 
   /** 
@@ -114,6 +119,22 @@ public class CouponFloatingDefinition extends CouponDefinition {
       return false;
     }
     return true;
+  }
+
+  //TODO: remove when abstract?
+  @Override
+  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+    return null;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return null;
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return null;
   }
 
 }

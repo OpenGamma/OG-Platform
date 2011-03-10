@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate.annuity;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
@@ -36,7 +36,7 @@ public final class YieldSensitivityCalculator {
    * @param pv The present value of the future cash flows. Also know as dirty or full price
    * @return continuously compounded yield (as a fraction) 
    */
-  public double calculateYield(final GenericAnnuity<? extends FixedPayment> annuity, final double pv) {
+  public double calculateYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double pv) {
     Validate.notNull(annuity, "annuity");
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
@@ -57,12 +57,12 @@ public final class YieldSensitivityCalculator {
    * @param yield Continuously compounded constant interest rate 
    * @return Present value (dirty price)
    */
-  public double calculatePriceForYield(final GenericAnnuity<? extends FixedPayment> annuity, final double yield) {
+  public double calculatePriceForYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double yield) {
     Validate.notNull(annuity, "annuity");
     double sum = 0;
 
     final int n = annuity.getNumberOfPayments();
-    FixedPayment temp;
+    PaymentFixed temp;
     for (int i = 0; i < n; i++) {
       temp = annuity.getNthPayment(i);
       sum += temp.getAmount() * Math.exp(-yield * temp.getPaymentTime());
@@ -78,7 +78,7 @@ public final class YieldSensitivityCalculator {
    *@param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n
    */
-  public double calculateNthOrderSensitivity(final GenericAnnuity<? extends FixedPayment> annuity, final double pv, final int order) {
+  public double calculateNthOrderSensitivity(final GenericAnnuity<? extends PaymentFixed> annuity, final double pv, final int order) {
     Validate.notNull(annuity, "annuity");
     final double yield = calculateYield(annuity, pv);
     return calculateNthOrderSensitivityFromYield(annuity, yield, order);
@@ -92,7 +92,7 @@ public final class YieldSensitivityCalculator {
    * @param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n)
    */
-  public double calculateNthOrderSensitivityFromYield(final GenericAnnuity<? extends FixedPayment> annuity, final double yield, final int order) {
+  public double calculateNthOrderSensitivityFromYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double yield, final int order) {
     Validate.notNull(annuity, "annuity");
     Validate.isTrue(order >= 0, "order must be positive");
     double sum = 0;
@@ -100,7 +100,7 @@ public final class YieldSensitivityCalculator {
     double t;
     double tPower;
     final int n = annuity.getNumberOfPayments();
-    FixedPayment temp;
+    PaymentFixed temp;
     for (int i = 0; i < n; i++) {
       temp = annuity.getNthPayment(i);
       t = temp.getPaymentTime();
