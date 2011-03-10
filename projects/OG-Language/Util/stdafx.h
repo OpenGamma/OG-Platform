@@ -32,4 +32,8 @@
 #endif
 #include <assert.h>
 
+// Include these so that cpptask fails if libraries not present
+#include <fudge/fudge.h>
+#include <log4cxx/log4cxx.h>
+
 #endif /* ifndef __inc_og_language_util_stdafx_h */
