@@ -100,6 +100,8 @@ void CAbstractTest::Fail () {
 #endif /* ifdef __cplusplus_cli */
 }
 
+void LoggingInitImpl (const TCHAR *pszLogConfiguration);
+
 void CAbstractTest::InitialiseLogs () {
 	static bool bFirst = true;
 	if (bFirst) {
@@ -111,14 +113,8 @@ void CAbstractTest::InitialiseLogs () {
 	TCHAR szConfigurationFile[MAX_PATH];
 	if (GetEnvironmentVariable (TEXT ("LOG4CXX_CONFIGURATION"), szConfigurationFile, MAX_PATH) != 0) {
 #define pszConfigurationFile szConfigurationFile
-#else
+#else /* ifdef _WIN32 */
 	char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
-	if (pszConfigurationFile) {
-#endif
-		::log4cxx::PropertyConfigurator::configure (pszConfigurationFile);
-		LOGDEBUG (TEXT ("Logging initialised from ") << pszConfigurationFile);
-	} else {
-		::log4cxx::BasicConfigurator::configure ();
-		LOGDEBUG (TEXT ("Logging using default configuration"));
-	}
+#endif /* ifdef _WIN32 */
+	LoggingInitImpl (pszConfigurationFile);
 }

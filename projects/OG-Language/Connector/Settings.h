@@ -26,6 +26,8 @@
 #define SETTINGS_START_TIMEOUT				TEXT ("startTimeout")
 #define SETTINGS_STOP_TIMEOUT				TEXT ("stopTimeout")
 
+#define CSettings CConnectorSettings
+
 class CSettings : public CAbstractSettings {
 private:
 	TCHAR *m_pszDefaultServiceExecutable;

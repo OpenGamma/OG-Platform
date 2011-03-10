@@ -15,8 +15,14 @@
 
 LOGGING (com.opengamma.language.util.Logging);
 
-void LoggingInit (CAbstractSettings *poSettings) {
-	const TCHAR * pszLogConfiguration = poSettings ? poSettings->GetLogConfiguration () : NULL;
+void LoggingInitImpl (const TCHAR *pszLogConfiguration) {
+	static bool bInitialised = false;
+	if (bInitialised) {
+		LOGWARN (TEXT ("Logging already initialised, duplicate call with ") << pszLogConfiguration);
+		return;
+	} else {
+		bInitialised = true;
+	}
 	if (pszLogConfiguration != NULL) {
 		LOGDEBUG (TEXT ("Initialising logging from ") << pszLogConfiguration);
 		::log4cxx::PropertyConfigurator::configure (pszLogConfiguration);
@@ -25,4 +31,8 @@ void LoggingInit (CAbstractSettings *poSettings) {
 		::log4cxx::BasicConfigurator::configure ();
 	}
 	LOGINFO (TEXT ("Logs initialised"));
+}
+
+void LoggingInit (CAbstractSettings *poSettings) {
+	LoggingInitImpl (poSettings ? poSettings->GetLogConfiguration () : NULL);
 }
