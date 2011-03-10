@@ -8,6 +8,9 @@
 
 // Links the static service library as a service executable
 
+#include <Service/Service.h>
+#include <Service/Settings.h>
+
 LOGGING(com.opengamma.language.service.Main);
 
 static CFudgeInitialiser g_oFudgeInitialiser;

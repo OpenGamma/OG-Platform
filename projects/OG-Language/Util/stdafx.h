@@ -13,8 +13,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Psapi.h>
-#include <tchar.h>
-#include <strsafe.h>
 #ifdef __cplusplus
 #pragma warning(disable:4995) /* suppress #pragma deprecated warnings from standard C++ headers */
 #endif /* ifdef __cplusplus */
@@ -33,7 +31,5 @@
 #include <spawn.h>
 #endif
 #include <assert.h>
-
-#include <fudge/fudge.h>
 
 #endif /* ifndef __inc_og_language_util_stdafx_h */

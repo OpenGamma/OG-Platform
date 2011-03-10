@@ -9,6 +9,8 @@
 
 // JVM process/service management
 
+#include <Util/Process.h>
+
 class CClientJVM {
 private:
 	bool m_bFirstConnection;

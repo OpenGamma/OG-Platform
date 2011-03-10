@@ -9,6 +9,8 @@
 // Runtime configuration options
 
 #include "Settings.h"
+#include <Util/File.h>
+#include <Util/Process.h>
 
 LOGGING(com.opengamma.language.service.Settings);
 

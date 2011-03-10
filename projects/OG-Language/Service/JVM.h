@@ -9,6 +9,10 @@
 
 // Start up an embedded JVM, and call methods on the "Main" class
 
+#include <Util/Library.h>
+#include <Util/Mutex.h>
+#include <Util/Thread.h>
+
 class CJVM {
 private:
 	CMutex m_oMutex;

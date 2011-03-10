@@ -7,11 +7,13 @@
 #ifndef __inc_og_language_util_string_h
 #define __inc_og_language_util_string_h
 
-#ifndef _WIN32
-#include <stdarg.h>
-#endif
-
 #include "Unicode.h"
+
+#ifdef _WIN32
+#include <strsafe.h>
+#else /* ifdef _WIN32 */
+#include <stdarg.h>
+#endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
 inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {

@@ -11,6 +11,8 @@
 #include "JVM.h"
 #include "Service.h"
 #include "Settings.h"
+#include <Util/File.h>
+#include <Util/Library.h>
 
 LOGGING(com.opengamma.language.service.JVM);
 
