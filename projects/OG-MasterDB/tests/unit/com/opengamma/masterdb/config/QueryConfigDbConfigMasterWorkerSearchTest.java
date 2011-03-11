@@ -185,7 +185,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assert102(test.getDocuments().get(1));
     assert101(test.getDocuments().get(2));
   }
-
+  
   //-------------------------------------------------------------------------
   @Test
   public void test_toString() {

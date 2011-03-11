@@ -7,12 +7,14 @@ package com.opengamma.master.config.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -46,7 +48,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
    * The default scheme used for each {@link ObejctIdentifier}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
-
+ 
   /**
    * A cache of securities by identifier.
    */
@@ -248,6 +250,15 @@ public class InMemoryConfigMaster implements ConfigMaster {
       throw new DataNotFoundException("Config not found: " + objectId);
     }
     return (ConfigDocument<T>) document;
+  }
+  
+  @Override
+  public List<String> getTypes() {
+    Set<String> types = Sets.newHashSet();
+    for (ConfigDocument<?> doc : _store.values()) {
+      types.add(doc.getValue().getClass().getName());
+    }
+    return new ArrayList<String>(types);
   }
 
 }

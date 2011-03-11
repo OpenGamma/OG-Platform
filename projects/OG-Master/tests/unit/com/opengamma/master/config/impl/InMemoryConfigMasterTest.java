@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
@@ -216,6 +217,15 @@ public class InMemoryConfigMasterTest {
     assertEquals(true, docs.contains(_doc2));
     assertEquals(true, docs.contains(_doc3));
     assertEquals(true, docs.contains(_doc4));
+  }
+  
+  @Test
+  public void test_getTypes() {
+    List<String> types = _testPopulated.getTypes();
+    assertNotNull(types);
+    assertEquals(2, types.size());
+    assertTrue(types.contains(Identifier.class.getName()));
+    assertTrue(types.contains(IdentifierBundle.class.getName()));
   }
 
 }

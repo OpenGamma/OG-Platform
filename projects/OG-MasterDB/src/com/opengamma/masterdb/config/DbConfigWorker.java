@@ -79,6 +79,11 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
       "FROM cfg_config main ";
 
   /**
+   * SQL select types
+   */
+  protected static final String SELECT_TYPES = "SELECT DISTINCT main.config_type AS config_type ";
+  
+  /**
    * @param dbSource
    * @param defaultScheme
    */
@@ -209,7 +214,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
   
 
   @SuppressWarnings("unchecked")
-  public <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
+  protected <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
@@ -318,6 +323,10 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
       doc.setValue(value);
       _documents.add(doc);
     }
+  }
+  
+  protected List<String> getTypes() {
+    return getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);    
   }
   
 }

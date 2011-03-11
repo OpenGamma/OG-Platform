@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.config;
 
+import java.util.List;
+
 import javax.time.TimeSource;
 
 import org.fudgemsg.FudgeContext;
@@ -195,6 +197,11 @@ public class DbConfigMaster implements ConfigMaster {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
+  }
+
+  @Override
+  public List<String> getTypes() {
+    return _worker.getTypes();
   }
    
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.config;
 
+import java.util.List;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -166,5 +168,12 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   void remove(final UniqueIdentifier uniqueId);
+  
+  /**
+   * Get the list of all configuration types in the master
+   * 
+   * @return the collections of configuration types
+   */
+  List<String> getTypes();
 
 }

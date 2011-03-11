@@ -69,7 +69,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
     assertEquals(Identifier.of("A", "B"), test.getValue());
     assertEquals("TestConfig", test.getName());
   }
-
+  
   @Test
   public void test_add_addThenGet() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();

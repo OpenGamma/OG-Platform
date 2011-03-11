@@ -7,7 +7,9 @@ package com.opengamma.masterdb.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.TimeZone;
 
 import org.junit.After;
@@ -114,6 +116,16 @@ public class DbConfigMasterTest extends DBTest {
     ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
     
     _cfgMaster.get(addedBundle.getUniqueId(), Identifier.class);    
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getTypes() {
+    List<String> types = _cfgMaster.getTypes();
+    assertNotNull(types);
+    assertEquals(2, types.size());
+    assertTrue(types.contains(Identifier.class.getName()));
+    assertTrue(types.contains(IdentifierBundle.class.getName()));
   }
   
   //-------------------------------------------------------------------------
