@@ -29,7 +29,7 @@ public class CEVFunctionDataTest {
   public void test() {
     assertEquals(DATA.getDiscountFactor(), DF, 0);
     assertEquals(DATA.getForward(), F, 0);
-    assertEquals(DATA.getBlackVolatility(), SIGMA, 0);
+    assertEquals(DATA.getSimga(), SIGMA, 0);
     assertEquals(DATA.getBeta(), BETA, 0);
     CEVFunctionData other = new CEVFunctionData(F, DF, SIGMA, BETA);
     assertEquals(DATA, other);

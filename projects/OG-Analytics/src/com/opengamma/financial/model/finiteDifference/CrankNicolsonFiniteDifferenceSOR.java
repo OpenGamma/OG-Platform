@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -7,22 +7,14 @@ package com.opengamma.financial.model.finiteDifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.surface.Surface;
 
-/**
- * 
- */
-public class CrankNicolsonFiniteDifference {
+public class CrankNicolsonFiniteDifferenceSOR {
 
-  private static final double THETA = 0.5; // TODO investigate adjusting this (Douglas schemes)
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  private static final double THETA = 0.5;
 
   public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, BoundaryCondition lowerBoundary,
-      BoundaryCondition upperBoundary) {
+      BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
     double dt = tMax / (tSteps);
     double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
@@ -33,6 +25,7 @@ public class CrankNicolsonFiniteDifference {
     double[] x = new double[xSteps + 1];
     double[] q = new double[xSteps + 1];
     double[][] m = new double[xSteps + 1][xSteps + 1];
+    // double[] coefficients = new double[3];
 
     double currentX = lowerBoundary.getLevel();
 
@@ -46,6 +39,7 @@ public class CrankNicolsonFiniteDifference {
     }
 
     double t = 0.0;
+
     for (int i = 0; i < tSteps; i++) {
       t += dt;
 
@@ -93,13 +87,30 @@ public class CrankNicolsonFiniteDifference {
       }
       q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
 
-    
+      // SOR
+      double omega = 1.0;
+      double scale = 1.0;
+      double errorSqr = Double.POSITIVE_INFINITY;
+      while (errorSqr / (scale + 1e-10) > 1e-18) {
+        errorSqr = 0.0;
+        scale = 0.0;
+        for (int j = 0; j <= xSteps; j++) {
+          sum = 0;
+          for (int k = 0; k <= xSteps; k++) {
+            sum += m[j][k] * f[k];
+          }
+          double correction = omega / m[j][j] * (q[j] - sum);
+          if (freeBoundary != null) {
+            correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
+          }
+          errorSqr += correction * correction;
+          f[j] += correction;
+          scale += f[j] * f[j];
+        }
+      }
 
-      DoubleMatrix2D mM = new DoubleMatrix2D(m);
-      DecompositionResult res = DCOMP.evaluate(mM);
-      f = res.solve(q);
     }
-    
+
     double[][] res = new double[2][];
     res[0] = x;
     res[1] = f;

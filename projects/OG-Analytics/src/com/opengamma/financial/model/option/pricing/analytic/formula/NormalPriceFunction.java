@@ -30,7 +30,7 @@ public class NormalPriceFunction implements OptionPriceFunction<BlackFunctionDat
         Validate.notNull(data, "data");
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
-        final double sigma = data.getBlackVolatility();
+        final double sigma = data.getSimga();
         final double sigmaRootT = sigma * Math.sqrt(t);
         final int sign = option.isCall() ? 1 : -1;
         if (sigmaRootT < 1e-16) {

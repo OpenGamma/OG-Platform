@@ -53,7 +53,7 @@ public class BlackPriceFunctionTest {
 
   @Test
   public void testATMPrice() {
-    final double sigmaRootT = ATM_DATA.getBlackVolatility() * Math.sqrt(ATM_CALL.getTimeToExpiry());
+    final double sigmaRootT = ATM_DATA.getSimga() * Math.sqrt(ATM_CALL.getTimeToExpiry());
     assertEquals(DF * F * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1), FUNCTION.getPriceFunction(ATM_CALL).evaluate(ATM_DATA), 1e-15);
   }
 

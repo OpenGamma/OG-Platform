@@ -33,7 +33,7 @@ public class BlackFunctionDataTest {
   public void test() {
     assertEquals(DATA.getDiscountFactor(), DF, 0);
     assertEquals(DATA.getForward(), F, 0);
-    assertEquals(DATA.getBlackVolatility(), SIGMA, 0);
+    assertEquals(DATA.getSimga(), SIGMA, 0);
     BlackFunctionData other = new BlackFunctionData(F, DF, SIGMA);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());

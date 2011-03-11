@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
- * Please see distribution for license.
- */
 package com.opengamma.financial.model.finiteDifference;
 
 import static org.junit.Assert.assertEquals;
@@ -14,23 +9,29 @@ import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.BlackOptionDataBundle;
+import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
+import com.opengamma.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.CEVFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.Expiry;
 
-/**
- * 
- */
-public class CrankNicolsonFiniteDifferenceTest {
-
+public class CrankNicolsonFiniteDifferenceSORTest {
+  
+  
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CEVPriceFunction CEV = new CEVPriceFunction();
 
@@ -60,11 +61,20 @@ public class CrankNicolsonFiniteDifferenceTest {
   private static Surface<Double, Double, Double> BETA_A;
   private static Surface<Double, Double, Double> C;
   private static Surface<Double, Double, Double> ZERO_SURFACE;
+  private static VolatilitySurface VOL_SURFACE;
+  
+  private static Surface<Double, Double, Double> AMERICAN_PAYOFF;
+  
+  
+  
+ 
+  
 
   static {
+    VOL_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(ATM_VOL));
 
     FORWARD = SPOT / YIELD_CURVE.getDiscountFactor(T);
-    OPTION = new EuropeanVanillaOption(FORWARD, T, true);
+    OPTION = new EuropeanVanillaOption(FORWARD, T, false);
     VOL_BETA = ATM_VOL * Math.pow(FORWARD, 1 - BETA);
 
     LOWER = new FixedValueBoundaryCondition(0.0, 0.0);
@@ -138,7 +148,7 @@ public class CrankNicolsonFiniteDifferenceTest {
 
       @Override
       public Double evaluate(Double x) {
-        return Math.max(0, x - FORWARD);
+        return Math.max(0, FORWARD-x);
       }
     };
 
@@ -147,7 +157,16 @@ public class CrankNicolsonFiniteDifferenceTest {
       @Override
       public Double evaluate(Double x) {
         double s = Math.exp(x);
-        return Math.max(0, s - FORWARD);
+        return payoff.evaluate(s);
+      }
+    };
+    
+    final Function<Double, Double> americanPayoff = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        double s = ts[1];
+        return payoff.evaluate(s);
       }
     };
 
@@ -158,6 +177,8 @@ public class CrankNicolsonFiniteDifferenceTest {
     LN_B = FunctionalDoublesSurface.from(ln_b);
 
     C = FunctionalDoublesSurface.from(c);
+    
+    AMERICAN_PAYOFF = FunctionalDoublesSurface.from(americanPayoff);
     
     ZERO_SURFACE = FunctionalDoublesSurface.from(zero);
 
@@ -172,10 +193,10 @@ public class CrankNicolsonFiniteDifferenceTest {
     int timeSteps = 10;
     int priceSteps = 100;
 
-    CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
-    double[][] res = solver.solve(DATA, timeSteps, priceSteps, T, LOWER, UPPER);
+    CrankNicolsonFiniteDifferenceSOR solver = new CrankNicolsonFiniteDifferenceSOR();
+    double[][] res = solver.solve(DATA, timeSteps, priceSteps, T, LOWER, UPPER,null);
     int n = res[0].length;
-    for (int i = 10; i < n - 20; i++) {
+    for (int i = 10; i < n - 25; i++) {
       double spot = res[0][i];
       BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
       double impVol;
@@ -184,7 +205,7 @@ public class CrankNicolsonFiniteDifferenceTest {
       } catch (Exception e) {
         impVol = 0.0;
       }
-     // System.out.println(spot + "\t" + res[1][i] + "\t" + impVol);
+    //  System.out.println(spot + "\t" + res[1][i] + "\t" + impVol);
        assertEquals(ATM_VOL, impVol, 1e-3);
     }
   }
@@ -198,9 +219,9 @@ public class CrankNicolsonFiniteDifferenceTest {
     int timeSteps = 10;
     int priceSteps = 200;
    
-    CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
+    CrankNicolsonFiniteDifferenceSOR solver = new CrankNicolsonFiniteDifferenceSOR();
 
-    double[][] res = solver.solve(LN_DATA, timeSteps, priceSteps, T,  LN_LOWER, LN_UPPER);
+    double[][] res = solver.solve(LN_DATA, timeSteps, priceSteps, T,  LN_LOWER, LN_UPPER,null);
     int n = res[0].length;
     for (int i = 81; i < n - 81; i++) {
       double spot = Math.exp(res[0][i]);
@@ -228,10 +249,10 @@ public class CrankNicolsonFiniteDifferenceTest {
 
    // double modSigma = VOL_BETA * Math.pow(df, BETA - 1);
 
-    CrankNicolsonFiniteDifference solver = new CrankNicolsonFiniteDifference();
-    double[][] res = solver.solve(BETA_DATA, timeSteps, priceSteps, T,  LOWER, UPPER);
+    CrankNicolsonFiniteDifferenceSOR solver = new CrankNicolsonFiniteDifferenceSOR();
+    double[][] res = solver.solve(BETA_DATA, timeSteps, priceSteps, T,  LOWER, UPPER,null);
     int n = res[0].length;
-    for (int i = 10; i < n - 30; i++) {
+    for (int i = 30; i < n - 5; i++) {
       double f = res[0][i]; 
       BlackFunctionData data = new BlackFunctionData(f, df, 0.0);
       double impVol;
@@ -245,9 +266,39 @@ public class CrankNicolsonFiniteDifferenceTest {
       final double cevPrice = CEV.getPriceFunction(OPTION).evaluate(cevData);
       final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, cevPrice);
 
-      //System.out.println(i + "\t" + f  + "\t" + OPTION.getStrike() + "\t" + cevData.getSimga() + "\t" + cevPrice + "\t" + res[1][i] + "\t" + cevVol + "\t" + impVol);
+   //   System.out.println(i + "\t" + f  + "\t" + OPTION.getStrike() + "\t" + cevData.getSimga() + "\t" + cevPrice + "\t" + res[1][i] + "\t" + cevVol + "\t" + impVol);
        assertEquals(cevVol, impVol, 1e-3);
     }
   }
 
+
+ 
+    
+
+  @Test
+  public void testAmericanPrice() {
+    double df = YIELD_CURVE.getDiscountFactor(T);
+    int timeSteps = 10;
+    int priceSteps = 100;
+ 
+    AmericanVanillaOptionDefinition option = new AmericanVanillaOptionDefinition(FORWARD, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)),false);
+    AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model = new BjerksundStenslandModel();
+    Function1D<StandardOptionDataBundle, Double> pFunc = model.getPricingFunction(option);
+    
+        
+    CrankNicolsonFiniteDifferenceSOR solver = new CrankNicolsonFiniteDifferenceSOR();
+    double[][] res = solver.solve(DATA, timeSteps, priceSteps, T,  LOWER, UPPER, AMERICAN_PAYOFF);
+    int n = res[0].length;
+    for (int i = 0; i < n-15 ; i++) {
+      double spot = res[0][i];
+      StandardOptionDataBundle dataBundle = new StandardOptionDataBundle(YIELD_CURVE,RATE,VOL_SURFACE,spot,DATE);
+      Double price = pFunc.evaluate(dataBundle);
+      
+  //    System.out.println(spot + "\t" + res[1][i] + "\t" + price);
+      assertEquals(price, res[1][i], price*1e-1);
+    }
+  }
+
+  
+  
 }

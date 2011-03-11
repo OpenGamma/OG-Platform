@@ -42,7 +42,7 @@ public class FFTPricer1 {
     Validate.notNull(option, "option");
     Validate.isTrue(tol > 0.0, "need tol > 0");
     final double forward = data.getForward();
-    final double limitSigma = data.getBlackVolatility();
+    final double limitSigma = data.getSimga();
     Validate.isTrue(lowestStrike <= forward, "need lowestStrike <= forward");
     Validate.isTrue(highestStrike >= forward, "need highestStrike >= forward");
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
@@ -100,7 +100,7 @@ public class FFTPricer1 {
     Validate.notNull(data, "data");
     Validate.notNull(option, "option");
     Validate.isTrue(tol > 0.0, "need tol > 0");
-    final double limitSigma = data.getBlackVolatility();
+    final double limitSigma = data.getSimga();
     Validate.isTrue(limitSigma > 0.0, "need limitSigma > 0");
     final double t = option.getTimeToExpiry();
     double kMax;

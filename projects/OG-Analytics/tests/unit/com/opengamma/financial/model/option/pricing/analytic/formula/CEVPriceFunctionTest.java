@@ -114,10 +114,32 @@ public class CEVPriceFunctionTest {
       
       // System.out.println(f +"\t"+cevPrice+"\t"+cevVol);
     }
-   
-    
   
   }
 
 
+  @Test
+  public void testDebug(){
+  
+    final double beta = 0.4;
+    final double t = 5.0;
+    final double r = 0.1;
+    final double forward = 163.10;
+    final double k = 164.87;
+   
+   
+    final double volBeta = 4.298;
+    
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+ 
+   
+      final CEVFunctionData cevData = new CEVFunctionData(forward, Math.exp(-r*t), volBeta, beta);
+      double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+      double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+      
+       System.out.println(cevPrice+"\t"+cevVol);
+    
+  
+  }
+  
 }
