@@ -10,6 +10,7 @@ import java.util.BitSet;
 import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -52,21 +53,20 @@ public class SVIPDFTest {
   public void testSABR() {
     final double[] strikes = new double[] {0.02, 0.03, 0.035, 0.0375, 0.04, 0.0425, 0.045, 0.05, 0.06};
     final int n = strikes.length;
-    final double[] vols = new double[n];
+    //    final double[] vols = new double[n];
     final double[] errors = new double[n];
+    final BlackFunctionData[] data = new BlackFunctionData[n];
     final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
     for (int i = 0; i < n; i++) {
       errors[i] = 0.001;
-      vols[i] = SVI.evaluate(strikes[i]);
+      data[i] = new BlackFunctionData(F, 1, SVI.evaluate(strikes[i]));
       options[i] = new EuropeanVanillaOption(strikes[i], T, true);
     }
     final double[] initialValues = new double[] {0.04, 1, 0.2, -0.3};
     final BitSet fixed = new BitSet();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    final SABRFormulaData data = new SABRFormulaData(F, initialValues[0], initialValues[1], initialValues[2], initialValues[3]);
-
-    final SABRLeastSquaresFitter fitter = new SABRLeastSquaresFitter(sabr);
-    final LeastSquareResults result = fitter.solve(options, data, vols, errors, initialValues, fixed, 0, false);
+    final SABRNonLinearLeastSquareFitter fitter = new SABRNonLinearLeastSquareFitter(sabr);
+    final LeastSquareResults result = fitter.getFitResult(options, data, errors, initialValues, fixed);
 
     final double chiSqr = result.getChiSq();
     final DoubleMatrix1D params = result.getParameters();

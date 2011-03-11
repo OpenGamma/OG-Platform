@@ -25,8 +25,8 @@ import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -97,16 +97,16 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
 
-    final ForwardLiborAnnuity pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,
+    final AnnuityCouponIbor pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,
         conventions.getBasisSwapPayFloatingLegSettlementDays());
 
-    final ForwardLiborAnnuity receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate, fundingCurveName, recieveLegCurveName, calendar, marketRate,
+    final AnnuityCouponIbor receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate, fundingCurveName, recieveLegCurveName, calendar, marketRate,
         conventions.getBasisSwapReceiveFloatingLegSettlementDays());
 
     return new TenorSwap(pay, receive);
   }
 
-  public ForwardLiborAnnuity getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  public AnnuityCouponIbor getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
       final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double marketRate, final int settlementDays) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
@@ -122,13 +122,13 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final double[] spreads = new double[paymentTimes.length];
     Arrays.fill(spreads, marketRate);
 
-    final ForwardLiborPayment[] payments = new ForwardLiborPayment[paymentTimes.length];
+    final CouponIbor[] payments = new CouponIbor[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
-      payments[i] = new ForwardLiborPayment(paymentTimes[i], notional, resetTimes[i], maturityTimes[i], yearFractions[i], yearFractions[i], spreads[i], fundingCurveName, liborCurveName);
+      payments[i] = new  CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
     }
 
     //TODO need to handle paymentYearFraction differently from forwardYearFraction 
-    return new ForwardLiborAnnuity(payments);
+    return new AnnuityCouponIbor(payments);
   }
 
 }

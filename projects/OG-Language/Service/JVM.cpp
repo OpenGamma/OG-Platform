@@ -11,6 +11,8 @@
 #include "JVM.h"
 #include "Service.h"
 #include "Settings.h"
+#include <Util/File.h>
+#include <Util/Library.h>
 
 LOGGING(com.opengamma.language.service.JVM);
 
@@ -250,7 +252,7 @@ CJVM *CJVM::Create () {
 #else
 	option[2].optionString = (char*)"-Dservice.ndebug=true";
 #endif
-	// TODO [XLS-187] additional option strings from registry
+	// TODO [PLAT-1116] additional option strings from registry
 	JavaVMInitArgs args;
 	memset (&args, 0, sizeof (args));
 	args.version = JNI_VERSION_1_6;

@@ -64,7 +64,8 @@ public class CouponCMSTest {
   private static final double ACCRUAL_FACTOR = DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
 
-  private static final CouponDefinition COUPON = new CouponDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL);
+  private static final ZonedDateTime FAKE_DATE = DateUtil.getUTCDate(0, 1, 1);
+  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
   private static final CouponFloatingDefinition FLOAT_COUPON = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
 
   private static final CouponCMSDefinition CMS_COUPON = new CouponCMSDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP);
@@ -111,7 +112,7 @@ public class CouponCMSTest {
     assertEquals(CMS_COUPON.getPaymentDate(), COUPON.getPaymentDate());
     assertEquals(CMS_COUPON.getAccrualStartDate(), COUPON.getAccrualStartDate());
     assertEquals(CMS_COUPON.getAccrualEndDate(), COUPON.getAccrualEndDate());
-    assertEquals(CMS_COUPON.getAccrualFactor(), COUPON.getAccrualFactor(), 1E-10);
+    assertEquals(CMS_COUPON.getPaymentYearFraction(), COUPON.getPaymentYearFraction(), 1E-10);
     assertEquals(CMS_COUPON.getNotional(), COUPON.getNotional(), 1E-2);
     assertEquals(CMS_COUPON.getFixingDate(), FIXING_DATE);
     assertEquals(CMS_COUPON.isFixed(), false);
@@ -119,7 +120,7 @@ public class CouponCMSTest {
     assertEquals(CMS_COUPON_2.getPaymentDate(), COUPON.getPaymentDate());
     assertEquals(CMS_COUPON_2.getAccrualStartDate(), COUPON.getAccrualStartDate());
     assertEquals(CMS_COUPON_2.getAccrualEndDate(), COUPON.getAccrualEndDate());
-    assertEquals(CMS_COUPON_2.getAccrualFactor(), COUPON.getAccrualFactor(), 1E-10);
+    assertEquals(CMS_COUPON_2.getPaymentYearFraction(), COUPON.getPaymentYearFraction(), 1E-10);
     assertEquals(CMS_COUPON_2.getNotional(), COUPON.getNotional(), 1E-2);
     assertEquals(CMS_COUPON_2.getFixingDate(), FIXING_DATE);
     assertEquals(CMS_COUPON_2.isFixed(), false);

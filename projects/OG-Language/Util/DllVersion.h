@@ -23,6 +23,7 @@
 	ATTRIBUTE (Comments) \
 	ATTRIBUTE (CompanyName) \
 	ATTRIBUTE (FileDescription) \
+	ATTRIBUTE (FileVersion) \
 	ATTRIBUTE (InternalName) \
 	ATTRIBUTE (LegalCopyright) \
 	ATTRIBUTE (OriginalFilename) \

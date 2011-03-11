@@ -5,12 +5,21 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
 /**
@@ -34,8 +43,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @param fixingDate The coupon fixing date.
    * @param index The coupon Ibor index.
    */
-  public CouponIborDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate, 
-      IborIndex index) {
+  public CouponIborDefinition(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
+      final ZonedDateTime fixingDate, final IborIndex index) {
     super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
     _index = index;
@@ -51,11 +60,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @param index The coupon Ibor index.
    * @return The Ibor coupon.
    */
-  public static CouponIborDefinition from(double notional, ZonedDateTime fixingDate, IborIndex index) {
+  public static CouponIborDefinition from(final double notional, final ZonedDateTime fixingDate, final IborIndex index) {
+    Validate.notNull(fixingDate, "fixing date");
     Validate.notNull(index, "index");
-    ZonedDateTime fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, index.getBusinessDayConvention(), index.getCalendar(), index.getSettlementDays());
-    ZonedDateTime fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
-    double fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(fixindPeriodStartDate, fixindPeriodEndDate);
+    final ZonedDateTime fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, index.getBusinessDayConvention(), index.getCalendar(), index.getSettlementDays());
+    final ZonedDateTime fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
+    final double fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(fixindPeriodStartDate, fixindPeriodEndDate);
     return new CouponIborDefinition(fixindPeriodEndDate, fixindPeriodStartDate, fixindPeriodEndDate, fixingPeriodAccrualFactor, notional, fixingDate, index);
   }
 
@@ -105,7 +115,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -115,7 +125,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborDefinition other = (CouponIborDefinition) obj;
+    final CouponIborDefinition other = (CouponIborDefinition) obj;
     if (!ObjectUtils.equals(_fixindPeriodEndDate, other._fixindPeriodEndDate)) {
       return false;
     }
@@ -129,6 +139,38 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public Payment toDerivative(final LocalDate date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (isFixed()) { // The Ibor coupon has already fixed, it is now a fixed coupon.
+      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
+    }
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
+    //TODO: Definition has no spread and time version has one: to be standardized.
+    return new CouponIbor(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(),
+        fundingCurveName);
+  }
+
+  @Override
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    return visitor.visitCouponIbor(this, data);
+  }
+
+  @Override
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCouponIbor(this);
   }
 
 }

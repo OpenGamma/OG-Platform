@@ -10,6 +10,7 @@
 // Implementation of the IPC connection for incoming requests
 
 #include "Public.h"
+#include <Util/NamedPipe.h>
 
 class CConnectionPipe {
 private:

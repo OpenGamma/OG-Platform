@@ -10,8 +10,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.rootfinding.BracketRoot;
+import com.opengamma.math.rootfinding.RidderSingleRootFinder;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -19,6 +21,7 @@ import com.opengamma.math.function.Function1D;
 public class BlackImpliedVolatilityFormula {
   private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
   private static final int MAX_ITERATIONS = 100;
+  private static final double EPS = 1e-15;
 
   public double getImpliedVolatility(final BlackFunctionData data, final EuropeanVanillaOption option, final double optionPrice) {
     final double discountFactor = data.getDiscountFactor();
@@ -26,7 +29,8 @@ public class BlackImpliedVolatilityFormula {
     final double f = data.getForward();
     final double k = option.getStrike();
     final double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
-    Validate.isTrue(optionPrice >= intrinsicPrice, "option price (" + optionPrice + ") less than intrinsic value (" + intrinsicPrice + ")");
+    Validate.isTrue(optionPrice > intrinsicPrice || CompareUtils.closeEquals(optionPrice, intrinsicPrice, 1e-6), "option price (" + optionPrice + ") less than intrinsic value (" + intrinsicPrice
+        + ")");
 
     if (optionPrice == intrinsicPrice) {
       return 0.0;
@@ -45,7 +49,7 @@ public class BlackImpliedVolatilityFormula {
       change = sigma;
     }
     int count = 0;
-    while (Math.abs(change) > 1e-8) {
+    while (Math.abs(change) > EPS) {
       sigma -= change;
       newData = new BlackFunctionData(f, discountFactor, sigma);
       price = priceFunction.evaluate(newData);
@@ -57,26 +61,21 @@ public class BlackImpliedVolatilityFormula {
         change = sigma;
       }
       if (count++ > MAX_ITERATIONS) {
-        throw new MathException();
-        //        final BracketRoot bracketer = new BracketRoot();
-        //        final VanWijngaardenDekkerBrentSingleRootFinder rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
-        //        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-        //
-        //          @SuppressWarnings({"synthetic-access", "hiding"})
-        //          @Override
-        //          public Double evaluate(final Double sigma) {
-        //            final BlackFunctionData newData = new BlackFunctionData(data.getF(), data.getDf(), sigma);
-        //            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(newData) - optionPrice;
-        //          }
-        //        };
-        //
-        //        final double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);
-        //        final double temp = rootFinder.getRoot(func, range[0], range[1]);
-        //        System.out.println(temp);
-        //        return temp;
+        final BracketRoot bracketer = new BracketRoot();
+        final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(EPS);
+        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+
+          @SuppressWarnings({"synthetic-access", "hiding" })
+          @Override
+          public Double evaluate(final Double sigma) {
+            final BlackFunctionData newData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), sigma);
+            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(newData) - optionPrice;
+          }
+        };
+        final double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);
+        return rootFinder.getRoot(func, range[0], range[1]);
       }
     }
     return sigma;
   }
-
 }

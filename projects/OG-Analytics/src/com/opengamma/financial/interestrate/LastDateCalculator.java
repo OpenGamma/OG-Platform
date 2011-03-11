@@ -7,18 +7,19 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -80,13 +81,13 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitFixedPayment(final FixedPayment payment) {
+  public Double visitFixedPayment(final PaymentFixed payment) {
     return payment.getPaymentTime();
   }
 
   @Override
-  public Double visitForwardLiborPayment(final ForwardLiborPayment payment) {
-    return Math.max(payment.getLiborMaturityTime(), payment.getPaymentTime());
+  public Double visitCouponIbor(final CouponIbor payment) {
+    return Math.max(payment.getFixingPeriodEndTime(), payment.getPaymentTime());
   }
 
   @Override
@@ -107,22 +108,29 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   }
 
   @Override
-  public Double visitFixedCouponAnnuity(final FixedCouponAnnuity annuity) {
+  public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity) {
     return visitGenericAnnuity(annuity);
   }
 
   @Override
-  public Double visitFixedCouponPayment(final FixedCouponPayment payment) {
+  public Double visitFixedCouponPayment(final CouponFixed payment) {
     return visitFixedPayment(payment);
   }
 
   @Override
-  public Double visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity) {
+  public Double visitForwardLiborAnnuity(final AnnuityCouponIbor annuity) {
     return visitGenericAnnuity(annuity);
   }
 
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap) {
     return visitSwap(swap);
+  }
+
+  @Override
+  public Double visitCouponCMS(CouponCMS payment, Object data) {
+    final double swapLastTime = visit(payment.getUnderlyingSwap());
+    final double paymentTime = payment.getPaymentTime();
+    return Math.max(swapLastTime, paymentTime);
   }
 }

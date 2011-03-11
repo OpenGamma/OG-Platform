@@ -17,16 +17,13 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
  * 
  */
 public class HestonFourierPricerTest {
-
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
   private static final double DF = 0.93;
-
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Test
   public void testLowVolOfVol() {
-    final FourierPricer pricer = new FourierPricer();
     final double sigma = 0.36;
 
     final double kappa = 1.0; // mean reversion speed
@@ -35,15 +32,15 @@ public class HestonFourierPricerTest {
     final double omega = 0.001; // vol-of-vol
     final double rho = -0.3; // correlation
 
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, T);
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final FourierPricer pricer = new FourierPricer();
 
     for (int i = 0; i < 21; i++) {
       final double k = 0.2 + 3.0 * i / 20.0;
-      final double price = pricer.price(FORWARD, k * FORWARD, DF, true, heston, -0.5, 1e-6);
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k * FORWARD, T, true);
       final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
+      final double price = pricer.price(data, option, heston, -0.5, 1e-6);
       final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      // System.out.println(k + "\t" + impVol);
       assertEquals(sigma, impVol, 1e-3);
     }
   }
@@ -77,7 +74,7 @@ public class HestonFourierPricerTest {
   }
 
   @Test
-  public void testIntergrad_Heston() {
+  public void testIntegrandHeston() {
 
     final double alpha = 0.75;
 
@@ -87,19 +84,20 @@ public class HestonFourierPricerTest {
     final double omega = 2; // vol-of-vol
     final double rho = -0.8; // correlation
     final double t = 1.0;// / 52.0;
-    // final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
-    // EuropeanPriceIntegrand intergrand = new EuropeanPriceIntegrand(heston, alpha, 1, 2, t, true, 0.5);
-    //
-    // for (int i = 0; i < 201; i++) {
-    // double x = -0. + i * 80. / 200.0;
-    // ComplexNumber res = intergrand.getIntegrand(x);
-    // System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
-    // }
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final EuropeanPriceIntegrand integrand = new EuropeanPriceIntegrand(heston, alpha, true);
+    final BlackFunctionData data = new BlackFunctionData(1, 1, 0.5);
+    //    for (int i = 0; i < 201; i++) {
+    //      final double x = -0. + i * 80. / 200.0;
+    //      final EuropeanVanillaOption option = new EuropeanVanillaOption(2, t, true);
+    //      final ComplexNumber res = intergrand.getIntegrand(x);
+    //      System.out.println(x + "\t" + res.getReal() + "\t" + res.getImaginary());
+    //    }
 
   }
 
   @Test
-  public void testEuropeanCallFT_Heston() {
+  public void testEuropeanCallFTHeston() {
 
     final double alpha = 0.75;
 
@@ -109,8 +107,8 @@ public class HestonFourierPricerTest {
     final double omega = 2; // vol-of-vol
     final double rho = -0.8; // correlation
     final double t = 1 / 52.0;
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, t);
-    final EuropeanCallFT intergrand = new EuropeanCallFT(heston);
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final EuropeanCallFourierTransform integrand = new EuropeanCallFourierTransform(heston);
 
     //        for (int i = 0; i < 201; i++) {
     //          double x = -0. + i * 20. / 200.0;
@@ -121,10 +119,8 @@ public class HestonFourierPricerTest {
   }
 
   @Test
-  public void test_Heston() {
+  public void testHeston() {
     final double alpha = 0.75;
-
-    final FourierPricer pricer = new FourierPricer();
 
     // parameters from the paper Not-so-complex logarithms in the Heston model
     final double kappa = 1.0; // mean reversion speed
@@ -135,15 +131,15 @@ public class HestonFourierPricerTest {
 
     final double t = 1 / 12.0;
 
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho, t);
-
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
+    final FourierPricer pricer = new FourierPricer();
+    final BlackFunctionData data = new BlackFunctionData(1, 1, 0);
     for (int i = 0; i < 11; i++) {
       final double k = 0.5 + 1.0 * i / 10.0;
 
-      final double price = pricer.price(1, k, 1, true, heston, -0.5, 1e-8);
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
-      final BlackFunctionData data = new BlackFunctionData(1, 1, 0);
-      final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+      final double price = pricer.price(data, option, heston, alpha, 1e-8);
+      BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
       //  System.out.println(k + "\t" + impVol);
     }
   }

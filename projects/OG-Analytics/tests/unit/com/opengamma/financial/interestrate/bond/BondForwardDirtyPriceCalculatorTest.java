@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 
@@ -25,9 +25,9 @@ public class BondForwardDirtyPriceCalculatorTest {
   private static final double CLEAN_PRICE = 100;
   private static final double FUNDING_RATE = 0.03;
   private static final String CURVE_NAME = "A";
-  private static final BondForward FORWARD1 = new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.05, CURVE_NAME), 0.5, DIRTY_PRICE - CLEAN_PRICE, 0, new FixedCouponPayment[0]);
-  private static final BondForward FORWARD2 = new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.05, CURVE_NAME), 3.5, DIRTY_PRICE - CLEAN_PRICE, 0, new FixedCouponPayment[] {
-      new FixedCouponPayment(2.5, 1, 0.05, CURVE_NAME), new FixedCouponPayment(1.5, 1, 0.05, CURVE_NAME), new FixedCouponPayment(0.5, 1, 0.05, CURVE_NAME)});
+  private static final BondForward FORWARD1 = new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.05, CURVE_NAME), 0.5, DIRTY_PRICE - CLEAN_PRICE, 0, new CouponFixed[0]);
+  private static final BondForward FORWARD2 = new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.05, CURVE_NAME), 3.5, DIRTY_PRICE - CLEAN_PRICE, 0, new CouponFixed[] {
+      new CouponFixed(2.5, CURVE_NAME, 1, 0.05), new CouponFixed(1.5, CURVE_NAME, 1, 0.05), new CouponFixed(0.5, CURVE_NAME, 1, 0.05)});
   private static final double EPS = 1e-10;
 
   @Test(expected = IllegalArgumentException.class)

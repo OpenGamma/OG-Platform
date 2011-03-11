@@ -14,8 +14,8 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -96,7 +96,7 @@ public class PV01CalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
     doTest(annuity, CURVES);
   }
 
@@ -121,7 +121,8 @@ public class PV01CalculatorTest {
       spreads[i] = spread + 0.001 * i;
     }
 
-    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME,
+        LIBOR_CURVE_NAME);
     doTest(annuity, CURVES);
 
   }
@@ -180,8 +181,8 @@ public class PV01CalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final AnnuityCouponIbor payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final AnnuityCouponIbor receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
     final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
     doTest(swap, CURVES);

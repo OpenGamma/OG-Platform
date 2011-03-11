@@ -12,8 +12,6 @@
 #if defined (_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <tchar.h>
-#include <strsafe.h>
 #ifdef __cplusplus
 #pragma warning(disable:4995) /* suppress #pragma deprecated warnings from standard C++ headers */
 #endif /* ifdef __cplusplus */
@@ -24,6 +22,7 @@
 #endif
 #include <assert.h>
 
+#include <Util/Unicode.h>
 #include <Util/AbstractTest.h>
 
 #endif /* ifndef __inc_og_language_utiltest_stdafx_h */

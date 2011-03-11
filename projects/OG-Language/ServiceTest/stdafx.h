@@ -9,8 +9,6 @@
 
 #if defined (_WIN32)
 #include <Windows.h>
-#include <tchar.h>
-#include <strsafe.h>
 #ifdef __cplusplus
 #pragma warning(disable:4995) /* suppress #pragma deprecated warnings from standard C++ headers */
 #endif /* ifdef __cplusplus */
@@ -23,10 +21,5 @@
 #include <jni.h>
 
 #include <Util/AbstractTest.h>
-#include <Util/Library.h>
-#include <Util/Mutex.h>
-#include <Util/NamedPipe.h>
-#include <Util/Semaphore.h>
-#include <Util/Thread.h>
 
 #endif /* ifndef __inc_og_language_servicetest_stdafx_h */

@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.model.tree;
 
-import java.lang.reflect.Array;
-
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -31,15 +29,5 @@ public class RecombiningBinomialTree<T> extends RecombiningTree<T> {
   protected int getMaxNodesForStep(final int step) {
     return NODES.evaluate(step);
   }
-
-//  @SuppressWarnings("unchecked")
-//  @Override
-//  public T[][] getEmptyNodes(int size) {
-//    Object[][] res = new Object[size+1][];
-//    for (int i = 0; i <= size; i++) {
-//      res[i] = new Object[NODES.evaluate(i)];
-//    }
-//    return (T[][]) res;
-//  }
 
 }

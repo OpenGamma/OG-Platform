@@ -10,15 +10,21 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-/**
- * 
- */
-public class PaymentDefinition {
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.interestrate.payments.Payment;
 
-  private final ZonedDateTime _paymentDate;
+/**
+ * Class describing a generic payment. 
+ */
+public abstract class PaymentDefinition implements FixedIncomeInstrumentDefinition<Payment> {
 
   // TODO: add currency
+  private final ZonedDateTime _paymentDate;
 
+  /**
+   * Constructor from payment date.
+   * @param paymentDate The payment date.
+   */
   public PaymentDefinition(ZonedDateTime paymentDate) {
     Validate.notNull(paymentDate, "payment date");
     this._paymentDate = paymentDate;

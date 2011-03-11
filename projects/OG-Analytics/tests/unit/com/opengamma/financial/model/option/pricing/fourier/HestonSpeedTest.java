@@ -14,12 +14,16 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
  */
 public class HestonSpeedTest {
+  private static Logger s_logger = LoggerFactory.getLogger(HestonSpeedTest.class);
+  private static int WARMUP_CYCLES = 0;
+  private static int BENCHMARK_CYCLES = 1;
 
   private static final double FORWARD = 0.04;
   private static final double T = 2.0;
@@ -32,16 +36,15 @@ public class HestonSpeedTest {
   private static final double OMEGA = 0.25; // vol-of-vol
   private static final double RH0 = -0.3; // correlation
   private static final double MAX_LOG_MONEYNESS = 0.1;
+  private static final BlackFunctionData DATA = new BlackFunctionData(FORWARD, DF, SIGMA);
+
   private static final double EPS = 1e-6;
 
   private static final double ALPHA = -0.5;
 
-  protected Logger _logger = LoggerFactory.getLogger(HestonSpeedTest.class);
-  protected int _hotspotWarmupCycles = 200;
-  protected int _benchmarkCycles = 1000;
-
-  final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0, T);
-  private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(0.01 * EPS, 20);
+  private static final CharacteristicExponent HESTON = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RH0);
+  private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D(1e-8, 20);
+  private static final FourierPricer INTEGRAL_PRICER = new FourierPricer(INTEGRATOR);
   private static final FFTPricer FFT_PRICER = new FFTPricer();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
@@ -49,18 +52,18 @@ public class HestonSpeedTest {
   @Test
   public void testEquals() {
     final int n = 21;
-    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
+    final double[][] fft_strikeNprice = FFT_PRICER.price(DATA, option, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS);
     for (int i = 0; i < n; i++) {
       final double k = fft_strikeNprice[i][0];
       final double fft_price = fft_strikeNprice[i][1];
-      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
-      final double priceWithCorrection = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
+      option = new EuropeanVanillaOption(k, T, true);
+      final double price = INTEGRAL_PRICER.price(DATA, option, HESTON, ALPHA, 0.1 * EPS);
+      final double priceWithCorrection = INTEGRAL_PRICER.price(DATA, option, HESTON, ALPHA, 0.1 * EPS, true);
       assertEquals(price, fft_price, 0.01 * EPS);
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
-      final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
-      final double fft_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, fft_price);
-      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      final double integral_vol_corrected = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, priceWithCorrection);
+      final double fft_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(DATA, option, fft_price);
+      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(DATA, option, price);
+      final double integral_vol_corrected = BLACK_IMPLIED_VOL.getImpliedVolatility(DATA, option, priceWithCorrection);
       assertEquals(fft_vol, integral_vol, EPS);
       assertEquals(fft_vol, integral_vol_corrected, EPS);
     }
@@ -68,12 +71,12 @@ public class HestonSpeedTest {
 
   @Test
   public void testIntegral() {
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+    for (int i = 0; i < WARMUP_CYCLES; i++) {
       priceWithIntegral();
     }
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on integral", _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on integral", BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         priceWithIntegral();
       }
       timer.finished();
@@ -82,12 +85,12 @@ public class HestonSpeedTest {
 
   @Test
   public void testIntegralCorrection() {
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+    for (int i = 0; i < WARMUP_CYCLES; i++) {
       priceWithIntegralCorrection();
     }
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on integral (corrected)", _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on integral (corrected)", BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         priceWithIntegralCorrection();
       }
       timer.finished();
@@ -96,12 +99,12 @@ public class HestonSpeedTest {
 
   @Test
   public void testFFT() {
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+    for (int i = 0; i < WARMUP_CYCLES; i++) {
       priceWithFFT();
     }
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on FFT", _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on FFT", BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         priceWithFFT();
       }
       timer.finished();
@@ -110,25 +113,27 @@ public class HestonSpeedTest {
 
   private void priceWithIntegral() {
     final int n = 7;
-
+    final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, SIGMA);
     for (int i = 0; i < n; i++) {
       final double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
-      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
+      INTEGRAL_PRICER.price(data, option, HESTON, ALPHA, 0.1 * EPS);
     }
   }
 
   private void priceWithIntegralCorrection() {
     final int n = 7;
-
     for (int i = 0; i < n; i++) {
       final double k = FORWARD * Math.exp((i - n / 2) * MAX_LOG_MONEYNESS);
-      final double price = INTEGRAL_PRICER.price(FORWARD, k, DF, true, HESTON, ALPHA, 0.1 * EPS, SIGMA);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
+      INTEGRAL_PRICER.price(DATA, option, HESTON, ALPHA, 0.1 * EPS, true);
     }
   }
 
   private void priceWithFFT() {
     final int n = 7;
-    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS, SIGMA);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
+    FFT_PRICER.price(DATA, option, HESTON, n, MAX_LOG_MONEYNESS, ALPHA, 0.01 * EPS);
   }
 
 }

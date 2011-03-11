@@ -14,6 +14,7 @@
 #ifdef _WIN32
 #define PROCESS_REFERENCE	HANDLE
 #else
+#include <signal.h>
 #define PROCESS_REFERENCE	pid_t
 #endif
 

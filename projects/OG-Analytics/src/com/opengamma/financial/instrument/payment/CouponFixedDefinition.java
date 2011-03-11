@@ -5,6 +5,19 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.Payment;
+
 /**
  * 
  */
@@ -19,9 +32,9 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param rate Fixed rate.
    */
   public CouponFixedDefinition(CouponDefinition coupon, double rate) {
-    super(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getAccrualFactor(), coupon.getNotional());
+    super(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
     this._rate = rate;
-    this._amount = coupon.getAccrualFactor() * coupon.getNotional() * rate;
+    this._amount = coupon.getPaymentYearFraction() * coupon.getNotional() * rate;
   }
 
   /**
@@ -71,6 +84,29 @@ public class CouponFixedDefinition extends CouponDefinition {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate());
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitCouponFixed(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitCouponFixed(this);
   }
 
 }

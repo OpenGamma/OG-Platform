@@ -135,7 +135,6 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
       if (Math.abs(dx) <= _accuracy) {
         return x + dx;
       }
-      System.out.println(x + " " + y);
       x += dx;
       if (x < xLower || x > xUpper) {
         dx = (x4 - x3) / 2;

@@ -10,30 +10,36 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.FunctionUtils;
+import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.Decomposition;
+import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.matrix.OGMatrixAlgebra;
+import com.opengamma.math.matrix.MatrixAlgebraFactory;
 
 /**
  * 
  */
 public class NonLinearLeastSquare {
+  private static final int MAX_ATTEMPTS = 10000;
   private final double _eps;
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
   public NonLinearLeastSquare() {
-    _decomposition = new SVDecompositionCommons();
-    _algebra = new OGMatrixAlgebra();
-    _eps = 1e-8;
+    this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
+  }
+  
+  public NonLinearLeastSquare(Decomposition<?> decomposition, MatrixAlgebra algebra, double eps) {
+    _decomposition = decomposition;
+    _algebra = algebra;
+    _eps = eps;
   }
 
   /**
@@ -79,7 +85,7 @@ public class NonLinearLeastSquare {
    * Use this when the model is in the ParameterizedFunction form and analytic parameter sensitivity is not available but an array of measurements errors is.
    * @param x Set of measurement points 
    * @param y Set of measurement values
-   * @param sigma y Set of measurement errors 
+   * @param sigma Set of measurement errors 
    * @param func The model in ParameterizedFunction form (i.e. takes measurement points and a set of parameters and returns a model value)
    * @param startPos Initial value of the parameters 
    * @return A LeastSquareResults object
@@ -206,13 +212,28 @@ public class NonLinearLeastSquare {
    *  Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
    *  so the measurement points are already known to the function), and  analytic parameter sensitivity is not available 
    * @param observedValues Set of measurement values
+   * @param func The model as a function of its parameters only
+   * @param startPos  Initial value of the parameters 
+   * @return Initial value of the parameters 
+   */
+  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos) {
+    final int n = observedValues.getNumberOfElements();
+    final double[] sigma = new double[n];
+    Arrays.fill(sigma, 1); //emcleod 31-1-2011 arbitrary value for now 
+    final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
+    return solve(observedValues, new DoubleMatrix1D(sigma), func, jac.derivative(func), startPos);
+  }
+
+  /**
+   *  Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
+   *  so the measurement points are already known to the function), and  analytic parameter sensitivity is not available 
+   * @param observedValues Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
    * @param startPos  Initial value of the parameters 
    * @return Initial value of the parameters 
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos) {
-
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.derivative(func), startPos);
   }
@@ -225,7 +246,7 @@ public class NonLinearLeastSquare {
    * @param func The model as a function of its parameters only
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
    * @param startPos  Initial value of the parameters 
-   * @return Initial value of the parameters 
+   * @return value of the fitted parameters 
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos) {
@@ -250,8 +271,7 @@ public class NonLinearLeastSquare {
     oldChiSqr = getChiSqr(error);
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
     final double g0 = _algebra.getNorm2(beta);
-
-    for (int count = 0; count < 1000; count++) {
+    for (int count = 0; count < MAX_ATTEMPTS; count++) {
       DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, lambda);
 
       DecompositionResult decmp;
@@ -260,7 +280,7 @@ public class NonLinearLeastSquare {
         decmp = _decomposition.evaluate(alpha);
         deltaTheta = decmp.solve(beta);
       } catch (final Exception e) {
-        return new LeastSquareResults(oldChiSqr, theta, new DoubleMatrix2D(new double[theta.getNumberOfElements()][theta.getNumberOfElements()]));
+        throw new MathException(e);
       }
 
       final DoubleMatrix1D newTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
@@ -288,7 +308,7 @@ public class NonLinearLeastSquare {
         lambda *= 10;
       }
     }
-    return new LeastSquareResults(oldChiSqr, theta, new DoubleMatrix2D(new double[theta.getNumberOfElements()][theta.getNumberOfElements()]));
+    throw new MathException("Could not converge in " + MAX_ATTEMPTS + " attempts");
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
@@ -331,8 +351,7 @@ public class NonLinearLeastSquare {
     final int n = jacobian.getNumberOfRows();
     final int m = jacobian.getNumberOfColumns();
 
-    final DoubleMatrix2D res = new DoubleMatrix2D(m, m);
-    final double[][] alpha = res.getData();
+    final double[][] alpha = new double[m][m];
 
     for (int i = 0; i < m; i++) {
       double sum = 0.0;
@@ -347,15 +366,10 @@ public class NonLinearLeastSquare {
           sum += jacobian.getEntry(k, i) * jacobian.getEntry(k, j);
         }
         alpha[i][j] = sum;
+        alpha[j][i] = sum;
       }
     }
-    // alpha is symmetric
-    for (int i = 0; i < m; i++) {
-      for (int j = 0; j < i; j++) {
-        alpha[i][j] = alpha[j][i];
-      }
-    }
-    return res;
+    return new DoubleMatrix2D(alpha);
   }
 
 }

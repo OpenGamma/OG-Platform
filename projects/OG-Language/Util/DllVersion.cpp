@@ -11,6 +11,7 @@
 #define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
+#include "String.h"
 
 LOGGING(com.opengamma.language.util.DllVersion);
 

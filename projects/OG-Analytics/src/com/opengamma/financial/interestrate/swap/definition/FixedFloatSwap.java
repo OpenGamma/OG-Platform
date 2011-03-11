@@ -6,23 +6,23 @@
 package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 
 /**
  * 
  */
-public class FixedFloatSwap extends FixedCouponSwap<ForwardLiborPayment> {
+public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
-  public FixedFloatSwap(final GenericAnnuity<FixedCouponPayment> fixedLeg, final GenericAnnuity<ForwardLiborPayment> floatingLeg) {
+  public FixedFloatSwap(final GenericAnnuity<CouponFixed> fixedLeg, final GenericAnnuity<CouponIbor> floatingLeg) {
     super(fixedLeg, floatingLeg);
   }
 
@@ -35,11 +35,11 @@ public class FixedFloatSwap extends FixedCouponSwap<ForwardLiborPayment> {
    * @param liborCurveName Name of curve from which forward rates are calculated
    */
   public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName) {
-    this(new FixedCouponAnnuity(fixedPaymentTimes, couponRate, fundingCurveName), new ForwardLiborAnnuity(floatingPaymentTimes, fundingCurveName, liborCurveName));
+    this(new AnnuityCouponFixed(fixedPaymentTimes, couponRate, fundingCurveName), new AnnuityCouponIbor(floatingPaymentTimes, fundingCurveName, liborCurveName));
   }
 
-  public ForwardLiborAnnuity getFloatingLeg() {
-    return (ForwardLiborAnnuity) getReceiveLeg();
+  public AnnuityCouponIbor getFloatingLeg() {
+    return (AnnuityCouponIbor) getReceiveLeg();
   }
 
   @Override

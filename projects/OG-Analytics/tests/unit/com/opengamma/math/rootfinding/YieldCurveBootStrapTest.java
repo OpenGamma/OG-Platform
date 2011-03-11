@@ -31,8 +31,8 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -355,8 +355,8 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
         final FixedFloatSwap swap = (FixedFloatSwap) SINGLE_CURVE_INSTRUMENTS.get(i);
-        final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
-        final FixedCouponAnnuity newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, swapRates[i]);
+        final AnnuityCouponFixed fixedLeg = swap.getFixedLeg();
+        final AnnuityCouponFixed newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, swapRates[i]);
         final InterestRateDerivative ird = new FixedFloatSwap(newLeg, swap.getFloatingLeg());
         instruments.add(ird);
       }
@@ -456,9 +456,9 @@ public class YieldCurveBootStrapTest {
   }
 
   protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {
-    final ForwardLiborAnnuity floatingLeg = swap.getFloatingLeg();
-    final FixedCouponAnnuity fixedLeg = swap.getFixedLeg();
-    final FixedCouponAnnuity newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, rate);
+    final AnnuityCouponIbor floatingLeg = swap.getFloatingLeg();
+    final AnnuityCouponFixed fixedLeg = swap.getFixedLeg();
+    final AnnuityCouponFixed newLeg = REPLACE_RATE.visitFixedCouponAnnuity(fixedLeg, rate);
     return new FixedFloatSwap(newLeg, floatingLeg);
   }
 
@@ -489,8 +489,8 @@ public class YieldCurveBootStrapTest {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final FixedCouponAnnuity fixedLeg = new FixedCouponAnnuity(fixed, 0.0, fundingCurveName);
-    final ForwardLiborAnnuity floatingLeg = new ForwardLiborAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, 0.0, fundingCurveName);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

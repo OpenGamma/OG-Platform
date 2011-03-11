@@ -6,6 +6,8 @@
 
 package com.opengamma.language.function;
 
+import com.opengamma.language.connector.Function;
+
 /**
  * Pass through adapter to allow filtering of all function messages
  *
@@ -27,6 +29,16 @@ public class FunctionAdapter<T1, T2> implements FunctionVisitor<T1, T2> {
   @Override
   public T1 visitCustom(final Custom message, final T2 data) {
     return getUnderlying().visitCustom(message, data);
+  }
+
+  @Override
+  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
+    return getUnderlying().visitQueryAvailable(message, data);
+  }
+
+  @Override
+  public T1 visitUnexpected(final Function message, final T2 data) {
+    return getUnderlying().visitUnexpected(message, data);
   }
 
 }

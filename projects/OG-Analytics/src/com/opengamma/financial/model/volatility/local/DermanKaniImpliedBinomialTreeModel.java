@@ -37,7 +37,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
 
     final int m1 = RecombiningBinomialTree.NODES.evaluate(_n);
     final int m2 = RecombiningBinomialTree.NODES.evaluate(_n - 1);
-   final double[][] impliedTree = new double[_n + 1][m1]; //TODO this wastes space 
+    final double[][] impliedTree = new double[_n + 1][m1]; //TODO this wastes space 
 
    
     final double[] transitionProbabilities = new double[m2];
@@ -74,7 +74,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
         final double f = impliedTree[i - 1][j] * df2;
         transitionProbabilities[j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
         //TODO emcleod 31-8-10 Need to check that transition probabilities are positive - use adjustment suggested in "The Volatility Smile and its Implied Tree"
-        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]);//TODO need 1/sqrt(dt) here 
+        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]); //TODO need 1/sqrt(dt) here 
       }
       final double[] temp = new double[m1];
       temp[0] = (1 - transitionProbabilities[0]) * arrowDebreu[0] / df1;

@@ -9,6 +9,9 @@
 
 // Manages the pipes used by the service to talk to the JVM
 
+#include <Util/BufferedInput.h>
+#include <Util/NamedPipe.h>
+
 class CClientPipes {
 private:
 	CNamedPipe *m_poOutput;

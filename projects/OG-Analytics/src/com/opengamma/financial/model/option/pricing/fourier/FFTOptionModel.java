@@ -21,29 +21,36 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 
 /**
  * 
  */
 public class FFTOptionModel implements OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(FFTOptionModel.class);
-  private static final int DEFAULT_STRIKES = 1;
+  private static final int DEFAULT_STRIKES = 256;
   private static final double DEFAULT_MAX_DELTA_MONEYNESS = 0.1;
   private static final double DEFAULT_ALPHA = -0.5;
   private static final double DEFAULT_TOLERANCE = 1e-8;
-  private static final FFTPricer1 PRICER = new FFTPricer1();
-  private final CharacteristicExponent1 _characteristicExponent;
+  private static final DoubleQuadraticInterpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
+  private static final FFTPricer PRICER = new FFTPricer();
+  private final CharacteristicExponent _characteristicExponent;
   private final int _nStrikes;
   private final double _maxDeltaMoneyness;
   private final double _alpha;
   private final double _tolerance;
 
-  public FFTOptionModel(final CharacteristicExponent1 characteristicExponent) {
+  //TODO add interpolator as input
+  public FFTOptionModel(final CharacteristicExponent characteristicExponent) {
     this(characteristicExponent, DEFAULT_STRIKES, DEFAULT_MAX_DELTA_MONEYNESS, DEFAULT_ALPHA, DEFAULT_TOLERANCE);
   }
 
-  public FFTOptionModel(final CharacteristicExponent1 characteristicExponent, final int nStrikes, final double maxDeltaMoneyness, final double alpha, final double tolerance) {
+  public FFTOptionModel(final CharacteristicExponent characteristicExponent, final int nStrikes, final double maxDeltaMoneyness, final double alpha, final double tolerance) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
+    Validate.isTrue(nStrikes > 0, "number of strikes must be > 0");
+    Validate.isTrue(maxDeltaMoneyness > 0, "max delta moneyness must be > 0");
+    Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be -1 or 0");
+    Validate.isTrue(tolerance > 0, "tolerance must be > 0");
     _characteristicExponent = characteristicExponent;
     _nStrikes = nStrikes;
     _maxDeltaMoneyness = maxDeltaMoneyness;
@@ -65,9 +72,17 @@ public class FFTOptionModel implements OptionModel<EuropeanVanillaOptionDefiniti
     final ZonedDateTime date = dataBundle.getDate();
     final EuropeanVanillaOption option = EuropeanVanillaOption.fromDefinition(definition, date);
     final BlackFunctionData data = BlackFunctionData.fromDataBundle(dataBundle, definition);
-    final double[][] price = PRICER.price(data, option, _characteristicExponent, _nStrikes, _maxDeltaMoneyness, _alpha, _tolerance);
+    final double[][] prices = PRICER.price(data, option, _characteristicExponent, _nStrikes, _maxDeltaMoneyness, _alpha, _tolerance);
+    final int n = prices.length;
+    final double[] k = new double[n];
+    final double[] price = new double[n];
+    for (int i = 0; i < n; i++) {
+      k[i] = prices[i][0];
+      price[i] = prices[i][1];
+    }
+    final double fairValue = INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundleFromSortedArrays(k, price), definition.getStrike());
     final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.FAIR_PRICE, price[0][1]);
+    result.put(Greek.FAIR_PRICE, fairValue);
     return result;
   }
 

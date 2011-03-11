@@ -7,9 +7,9 @@ package com.opengamma.math.statistics.distribution;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.math.MathException;
 import org.apache.commons.math.special.Gamma;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.special.GammaFunction;
 
 /**
@@ -35,16 +35,6 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     _gammaStart = func.evaluate(_dofOverTwo + _k);
 
   }
-
-  //  private double getPenevAppoxCDF(double x) {
-  //    double mu = _lambdaOverTwo / _dofOverTwo;
-  //    double s = (Math.sqrt(1 + 8 * x * mu / _dofOverTwo) - 1) / 2 / mu;
-  //    double h = (s * Math.log(s) + (1 - s) - 0.5 * (1 - s) * (1 - s)) / (1 - s) / (1 - s);
-  //    double z = Math.signum(s - 1)
-  //        * Math.sqrt(2 * _dofOverTwo * (s - 1) * (s - 1) * (0.5 / s + mu - h / s) - Math.log(1 / s - 2 * h / s / (1 + 2 * mu * s)) + 4 * square(1 + 3 * mu) / 9 / _dofOverTwo / cube(1 + 2 * mu));
-  //
-  //    return (new NormalDistribution(0, 1)).getCDF(z);
-  //  }
 
   private double getFraserApproxCDF(final double x) {
     final double s = Math.sqrt(_lambdaOverTwo * 2.0);
@@ -74,9 +64,8 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     final double logX = Math.log(halfX);
     try {
       regGammaStart = Gamma.regularizedGammaP(_dofOverTwo + _k, halfX);
-    } catch (final MathException ex) {
-      // TODO Auto-generated catch block
-      ex.printStackTrace();
+    } catch (final org.apache.commons.math.MathException ex) {
+      throw new MathException(ex);
     }
 
     double sum = _pStart * regGammaStart;
@@ -88,11 +77,9 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     int i = _k;
 
     // first add terms below _k
-    while (i > 0 && Math.abs(sum - oldSum)/sum > _eps) {
+    while (i > 0 && Math.abs(sum - oldSum) / sum > _eps) {
       i--;
       p *= (i + 1) / _lambdaOverTwo;
-      // temp = (_dofOverTwo + i) * logX - halfX;
-      // regGamma += Math.exp(temp) / gamma;
       temp = (_dofOverTwo + i) * logX - halfX - Gamma.logGamma(_dofOverTwo + i + 1);
       regGamma += Math.exp(temp);
       oldSum = sum;
@@ -105,12 +92,10 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     regGamma = regGammaStart;
     oldSum = Double.NEGATIVE_INFINITY;
     i = _k;
-    while (Math.abs(sum - oldSum) > _eps) {
+    while (Math.abs(sum - oldSum) / sum > _eps) {
       i++;
       p *= _lambdaOverTwo / i;
       gamma *= _dofOverTwo + i - 1;
-      // temp = (_dofOverTwo + i - 1) * logX - halfX;
-      // regGamma -= Math.exp(temp) / gamma;
       temp = (_dofOverTwo + i - 1) * logX - halfX - Gamma.logGamma(_dofOverTwo + i);
       regGamma -= Math.exp(temp);
       oldSum = sum;

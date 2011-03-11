@@ -6,6 +6,8 @@
 
 package com.opengamma.language.procedure;
 
+import com.opengamma.language.connector.Procedure;
+
 /**
  * Pass through adapter for filtering of all incoming procedure messages.
  *
@@ -27,6 +29,16 @@ public class ProcedureAdapter<T1, T2> implements ProcedureVisitor<T1, T2> {
   @Override
   public T1 visitCustom(final Custom message, final T2 data) {
     return getUnderlying().visitCustom(message, data);
+  }
+
+  @Override
+  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
+    return getUnderlying().visitQueryAvailable(message, data);
+  }
+
+  @Override
+  public T1 visitUnexpected(final Procedure message, final T2 data) {
+    return getUnderlying().visitUnexpected(message, data);
   }
 
 }

@@ -9,6 +9,8 @@
 		<taskdef resource="cpptasks.tasks" />
 		<available classname="net.sf.antcontrib.cpptasks.CCTask" property="cpptasks.present" />
 	</target>
+	<property name="jni.base.include.dir" value="/etc/alternatives/java_sdk/include" />
+	<property name="jni.native.include.dir" value="${jni.base.include.dir}/linux" />
 	<target name="cpptask" depends="cpptask-defined" if="cpptasks.present">
 		<cpptasks:cc objdir="${build.dir}"
 			outfile="${build.dir}/stdafx"
@@ -18,6 +20,8 @@
 			<includepath>
 				<pathelement path="${solution.dir}" />
 				<pathelement path="${solution.dir}/lib/include" />
+				<pathelement path="${jni.base.include.dir}" />
+				<pathelement path="${jni.native.include.dir}" />
 			</includepath>
 			<fileset dir="${basedir}">
 				<include name="stdafx.cpp" />
@@ -75,8 +79,11 @@
 	</target>
 	<target name="compile" depends="cpptask,cpptask-none,compile-debug,compile-release" description="--> compile project" />
 
-	<target name="tests-impl">
-		<mkdir	dir="${solution.dir}/TestResults" />
+	<target name="tests-impl-none" unless="cpptask.ok">
+		<echo>Did not run ${ant.project.name}</echo>
+		<echo file="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log">Did not run</echo>
+	</target>
+	<target name="tests-impl" depends="tests-impl-none" if="cpptask.ok">
 		<echo>Running tests - ${ant.project.name}</echo>
 		<exec	executable="./${ant.project.name}"
 			dir="${build.dir}/${cc.configuration}"
@@ -84,17 +91,20 @@
 			output="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log" />
 		<echo>TESTS SUCCESSFUL</echo>
 	</target>
-	<target name="tests-debug" depends="compile-debug" if="cpptask.ok">
+	<target name="tests-debug" depends="compile-debug">
 		<antcall target="tests-impl">
 			<param name="cc.configuration" value="Debug" />
 		</antcall>
 	</target>
-	<target name="tests-release" depends="compile-release" if="cpptask.ok">
+	<target name="tests-release" depends="compile-release">
 		<antcall target="tests-impl">
 			<param name="cc.configuration" value="Release" />
 		</antcall>
 	</target>
-	<target name="tests" depends="cpptask,cpptask-none,tests-debug,tests-release" description="--> run tests in the project" />
+	<target name="tests-prep" depends="cpptask,cpptask-none">
+		<mkdir dir="${solution.dir}/TestResults" />
+	</target>
+	<target name="tests" depends="tests-prep,tests-debug,tests-release" description="--> run tests in the project" />
 
 	<target name="dist-impl">
 		<mkdir dir="${dist.dir}/lib/${cc.configuration}" />

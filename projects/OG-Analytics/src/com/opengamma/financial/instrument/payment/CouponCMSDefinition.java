@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
+import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * Class describing a Constant Maturity Swap coupon.
@@ -47,7 +50,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   public static CouponCMSDefinition from(CouponFloatingDefinition coupon, FixedFloatSwapDefinition underlyingSwap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
-    return new CouponCMSDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getAccrualFactor(), coupon.getNotional(), coupon.getFixingDate(),
+    return new CouponCMSDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingDate(),
         underlyingSwap);
   }
 
@@ -83,6 +86,22 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
       return false;
     }
     return true;
+  }
+
+  //TODO: complete the below methods when the time description of CMS coupon is finished.
+  @Override
+  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+    return null;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return null;
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return null;
   }
 
 }

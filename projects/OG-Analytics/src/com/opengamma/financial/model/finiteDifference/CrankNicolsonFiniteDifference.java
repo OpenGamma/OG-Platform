@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**

@@ -8,6 +8,7 @@ package com.opengamma.financial.model.tree;
 //TODO Have a general n-D lattice (i.e. a tensor) 
 /**
  *
+ * @param <T> Type of the data that the lattice contains
  */
 public interface Lattice3D<T> {
   
@@ -23,7 +24,7 @@ public interface Lattice3D<T> {
    * Get an individual node value
    * @param step Time position in the tree 
    * @param i Position at a given time (step) along the first axis
-   * * @param i Position at a given time (step) along the second axis
+   * @param j Position at a given time (step) along the second axis
    * @return an individual node value
    */
   T getNode(int step, int i, int j);

@@ -12,11 +12,11 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 
 /**
  * 
@@ -80,30 +80,33 @@ public class FixedFloatSwapTest {
     other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
     assertFalse(other.equals(SWAP));
 
-    FixedCouponAnnuity fixed = new FixedCouponAnnuity(FIXED_PAYMENTS, 1.0, COUPON_RATE, FUNDING_CURVE_NAME);
-    ForwardLiborAnnuity floating = new ForwardLiborAnnuity(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    AnnuityCouponFixed fixed = new AnnuityCouponFixed(FIXED_PAYMENTS, 1.0, COUPON_RATE, FUNDING_CURVE_NAME);
+    AnnuityCouponIbor floating = new AnnuityCouponIbor(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     other = new FixedFloatSwap(fixed, floating);
+    assertEquals(other.getFixedLeg(), SWAP.getFixedLeg());
+    assertEquals(other.getFloatingLeg().getNthPayment(0), SWAP.getFloatingLeg().getNthPayment(0));
+    assertEquals(other.getFloatingLeg(), SWAP.getFloatingLeg());
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
   }
 
   @Test
   public void testGetters() {
-    GenericAnnuity<FixedCouponPayment> fixedLeg = SWAP.getFixedLeg();
+    GenericAnnuity<CouponFixed> fixedLeg = SWAP.getFixedLeg();
     assertEquals(fixedLeg.getNumberOfPayments(), FIXED_PAYMENTS.length, 0);
     for (int i = 0; i < FIXED_PAYMENTS.length; i++) {
       assertEquals(fixedLeg.getNthPayment(i).getPaymentTime(), FIXED_PAYMENTS[i], 0);
-      assertEquals(fixedLeg.getNthPayment(i).getCoupon(), COUPON_RATE, 0);
+      assertEquals(fixedLeg.getNthPayment(i).getFixedRate(), COUPON_RATE, 0);
     }
 
-    GenericAnnuity<ForwardLiborPayment> floatLeg = SWAP.getFloatingLeg();
+    GenericAnnuity<CouponIbor> floatLeg = SWAP.getFloatingLeg();
     assertEquals(floatLeg.getNumberOfPayments(), FLOAT_PAYMENTS.length, 0);
     for (int i = 0; i < FLOAT_PAYMENTS.length; i++) {
       assertEquals(floatLeg.getNthPayment(i).getPaymentTime(), FLOAT_PAYMENTS[i], 0);
-      assertEquals(floatLeg.getNthPayment(i).getLiborFixingTime(), INDEX_FIXING[i], 0);
-      assertEquals(floatLeg.getNthPayment(i).getLiborMaturityTime(), INDEX_MATURITY[i], 0);
+      assertEquals(floatLeg.getNthPayment(i).getFixingTime(), INDEX_FIXING[i], 0);
+      assertEquals(floatLeg.getNthPayment(i).getFixingPeriodEndTime(), INDEX_MATURITY[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getPaymentYearFraction(), YEAR_FRACS[i], 0);
-      assertEquals(floatLeg.getNthPayment(i).getForwardYearFraction(), YEAR_FRACS[i], 0);
+      assertEquals(floatLeg.getNthPayment(i).getFixingYearFraction(), YEAR_FRACS[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getSpread(), 0.0, 0);
     }
 

@@ -21,30 +21,30 @@ public class TimeChangeCharacteristicExponentTest {
   private static final double SMALL_ALPHA2 = -6;
   private static final double LARGE_ALPHA1 = 7;
   private static final double LARGE_ALPHA2 = 5;
-  private static final CharacteristicExponent1 BASE = new MyCharacteristicExponent(SMALL_ALPHA1, LARGE_ALPHA1);
-  private static final CharacteristicExponent1 TIME_CHANGE = new MyCharacteristicExponent(SMALL_ALPHA2, LARGE_ALPHA2);
-  private static final TimeChangedCharacteristicExponent1 EXPONENT = new TimeChangedCharacteristicExponent1(BASE, TIME_CHANGE);
+  private static final CharacteristicExponent BASE = new MyCharacteristicExponent(SMALL_ALPHA1, LARGE_ALPHA1);
+  private static final CharacteristicExponent TIME_CHANGE = new MyCharacteristicExponent(SMALL_ALPHA2, LARGE_ALPHA2);
+  private static final TimeChangedCharacteristicExponent EXPONENT = new TimeChangedCharacteristicExponent(BASE, TIME_CHANGE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFirst() {
-    new TimeChangedCharacteristicExponent1(null, TIME_CHANGE);
+    new TimeChangedCharacteristicExponent(null, TIME_CHANGE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecond() {
-    new TimeChangedCharacteristicExponent1(BASE, null);
+    new TimeChangedCharacteristicExponent(BASE, null);
   }
 
   @Test
   public void test() {
     assertEquals(BASE, EXPONENT.getBase());
     assertEquals(TIME_CHANGE, EXPONENT.getTimeChange());
-    TimeChangedCharacteristicExponent1 other = new TimeChangedCharacteristicExponent1(BASE, TIME_CHANGE);
+    TimeChangedCharacteristicExponent other = new TimeChangedCharacteristicExponent(BASE, TIME_CHANGE);
     assertEquals(other, EXPONENT);
     assertEquals(other.hashCode(), EXPONENT.hashCode());
-    other = new TimeChangedCharacteristicExponent1(TIME_CHANGE, TIME_CHANGE);
+    other = new TimeChangedCharacteristicExponent(TIME_CHANGE, TIME_CHANGE);
     assertFalse(other.equals(EXPONENT));
-    other = new TimeChangedCharacteristicExponent1(BASE, BASE);
+    other = new TimeChangedCharacteristicExponent(BASE, BASE);
     assertFalse(other.equals(EXPONENT));
   }
 
@@ -54,7 +54,7 @@ public class TimeChangeCharacteristicExponentTest {
     assertEquals(EXPONENT.getLargestAlpha(), LARGE_ALPHA2, 0);
   }
 
-  private static class MyCharacteristicExponent implements CharacteristicExponent1 {
+  private static class MyCharacteristicExponent implements CharacteristicExponent {
     private final double _small;
     private final double _large;
 

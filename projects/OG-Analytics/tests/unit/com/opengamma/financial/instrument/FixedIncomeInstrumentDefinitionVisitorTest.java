@@ -27,6 +27,9 @@ import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
@@ -158,7 +161,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitFRADefintion(final FRADefinition fra, final T data) {
+    public String visitFRADefinition(final FRADefinition fra, final T data) {
       return "FRA1";
     }
 
@@ -195,6 +198,36 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitTenorSwapDefinition(final TenorSwapDefinition swap) {
       return "TenorSwap2";
+    }
+
+    @Override
+    public String visitPaymentFixed(PaymentFixedDefinition payment, T data) {
+      return "PaymentFixed1";
+    }
+
+    @Override
+    public String visitPaymentFixed(PaymentFixedDefinition payment) {
+      return "PaymentFixed2";
+    }
+
+    @Override
+    public String visitCouponFixed(CouponFixedDefinition payment, T data) {
+      return "CouponFixed1";
+    }
+
+    @Override
+    public String visitCouponFixed(CouponFixedDefinition payment) {
+      return "CouponFixed2";
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIborDefinition payment, T data) {
+      return "CouponIbor1";
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIborDefinition payment) {
+      return "CouponIbor2";
     }
   }
 }
