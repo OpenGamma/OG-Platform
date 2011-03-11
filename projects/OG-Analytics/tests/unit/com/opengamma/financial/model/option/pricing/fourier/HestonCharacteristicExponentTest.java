@@ -19,7 +19,7 @@ public class HestonCharacteristicExponentTest {
   private static final double VOL0 = 0.8;
   private static final double OMEGA = 0.66;
   private static final double RHO = -0.45;
-  private static final HestonCharacteristicExponent1 EXPONENT = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA, RHO);
+  private static final HestonCharacteristicExponent EXPONENT = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
 
   @Test
   public void test() {
@@ -28,18 +28,18 @@ public class HestonCharacteristicExponentTest {
     assertEquals(EXPONENT.getRho(), RHO, 0);
     assertEquals(EXPONENT.getTheta(), THETA, 0);
     assertEquals(EXPONENT.getVol0(), VOL0, 0);
-    HestonCharacteristicExponent1 other = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA, RHO);
+    HestonCharacteristicExponent other = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
     assertEquals(other, EXPONENT);
     assertEquals(other.hashCode(), EXPONENT.hashCode());
-    other = new HestonCharacteristicExponent1(KAPPA + 1, THETA, VOL0, OMEGA, RHO);
+    other = new HestonCharacteristicExponent(KAPPA + 1, THETA, VOL0, OMEGA, RHO);
     assertFalse(other.equals(EXPONENT));
-    other = new HestonCharacteristicExponent1(KAPPA, THETA + 1, VOL0, OMEGA, RHO);
+    other = new HestonCharacteristicExponent(KAPPA, THETA + 1, VOL0, OMEGA, RHO);
     assertFalse(other.equals(EXPONENT));
-    other = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0 + 1, OMEGA, RHO);
+    other = new HestonCharacteristicExponent(KAPPA, THETA, VOL0 + 1, OMEGA, RHO);
     assertFalse(other.equals(EXPONENT));
-    other = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA + 1, RHO);
+    other = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA + 1, RHO);
     assertFalse(other.equals(EXPONENT));
-    other = new HestonCharacteristicExponent1(KAPPA, THETA, VOL0, OMEGA, RHO * 0.5);
+    other = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO * 0.5);
     assertFalse(other.equals(EXPONENT));
   }
 

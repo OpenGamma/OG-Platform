@@ -11,9 +11,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent1;
-import com.opengamma.financial.model.option.pricing.fourier.FFTPricer1;
-import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent1;
+import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
+import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -40,7 +40,7 @@ public class HestonFFTNonLinearLeastSquareFitter extends LeastSquareSmileFitter 
   private static final double DEFAULT_LIMIT_TOLERANCE = 1e-8;
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4);
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL_FORMULA = new BlackImpliedVolatilityFormula();
-  private static final FFTPricer1 FFT_PRICER = new FFTPricer1();
+  private static final FFTPricer FFT_PRICER = new FFTPricer();
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
   private final Interpolator1D<Interpolator1DDataBundle> _interpolator;
@@ -111,7 +111,7 @@ public class HestonFFTNonLinearLeastSquareFitter extends LeastSquareSmileFitter 
         final double vol0 = mp.getEntry(2);
         final double omega = mp.getEntry(3);
         final double rho = mp.getEntry(4);
-        final CharacteristicExponent1 ce = new HestonCharacteristicExponent1(kappa, theta, vol0, omega, rho);
+        final CharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
         final double[][] strikeNPrice = FFT_PRICER.price(blackData, option, ce, lowestStrike, highestStrike, n, _alpha, _limitTolerance);
         final int nStrikes = strikeNPrice.length;
         final double[] k = new double[nStrikes];

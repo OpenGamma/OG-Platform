@@ -32,7 +32,6 @@ import com.opengamma.util.monitor.OperationTimer;
  */
 //TODO nothing in this class works
 public class HestonFitterTest {
-
   protected Logger _logger = LoggerFactory.getLogger(HestonFitterTest.class);
   protected int _hotspotWarmupCycles = 0;
   protected int _benchmarkCycles = 1;
@@ -49,15 +48,18 @@ public class HestonFitterTest {
   private static final double RHO = -0.7; // correlation
 
   private static final int N = 7;
-  private static final double[] STRIKES;
-  private static final double[] VOLS;
-  private static final double[] SABR_VOLS;
   private static final double[] ERRORS;
 
+  private static final EuropeanVanillaOption[] OPTIONS;
+  private static final BlackFunctionData[] BLACK_VOLS;
+  private static final BlackFunctionData[] SABR_VOLS;
   private static final BlackPriceFunction BLACK_PRICE = new BlackPriceFunction();
+  private static final HestonFFTNonLinearLeastSquareFitter FFT_VOLS = new HestonFFTNonLinearLeastSquareFitter();
+  private static final HestonFFTOptionPriceNonLinearLeastSquareFitter FFT_PRICE = new HestonFFTOptionPriceNonLinearLeastSquareFitter();
+  private static final HestonFourierNonLinearLeastSquareFitter FOURIER = new HestonFourierNonLinearLeastSquareFitter();
 
   static {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO, T);
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
     final FourierPricer pricer = new FourierPricer();
     final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
     final BlackImpliedVolatilityFormula blackImpliedVol = new BlackImpliedVolatilityFormula();
@@ -66,81 +68,57 @@ public class HestonFitterTest {
     final double nu = 0.4;
     final double rho = -0.65;
 
-    STRIKES = new double[N];
-    VOLS = new double[N];
-    SABR_VOLS = new double[N];
     ERRORS = new double[N];
-
+    OPTIONS = new EuropeanVanillaOption[N];
+    BLACK_VOLS = new BlackFunctionData[N];
+    SABR_VOLS = new BlackFunctionData[N];
+    final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, SIGMA);
     for (int i = 0; i < N; i++) {
       ERRORS[i] = 0.001; //10bps errors 
-      STRIKES[i] = 0.01 + 0.01 * i;
-      final double price = pricer.price(FORWARD, STRIKES[i], 1.0, true, heston, -0.5, 1e-9, SIGMA);
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
-      VOLS[i] = blackImpliedVol.getImpliedVolatility(new BlackFunctionData(FORWARD, DF, SIGMA), option, price);
-      SABR_VOLS[i] = sabr.getVolatilityFunction(option).evaluate(new SABRFormulaData(FORWARD, alpha, beta, nu, rho));
+      OPTIONS[i] = new EuropeanVanillaOption(0.01 + 0.01 * i, T, true);
+      final double price = pricer.price(data, OPTIONS[i], heston, -0.5, 1e-9, true);
+      BLACK_VOLS[i] = new BlackFunctionData(FORWARD, DF, blackImpliedVol.getImpliedVolatility(data, OPTIONS[i], price));
+      SABR_VOLS[i] = new BlackFunctionData(FORWARD, DF, sabr.getVolatilityFunction(OPTIONS[i]).evaluate(new SABRFormulaData(FORWARD, alpha, beta, nu, rho)));
     }
   }
 
   @Test
-  public void testExactFit() {
-    final HestonFitter fitter = new HestonFitter();
-    final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
-
-    final BitSet fixed = new BitSet();
-    fixed.set(2);
-
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
-      final LeastSquareResults results = fitter.solve(FORWARD, T, STRIKES, VOLS, ERRORS, temp, fixed);
-      assertEquals(0.0, results.getChiSq(), 2e-3);
-    }
-
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on testExactFit", _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
-        final LeastSquareResults results = fitter.solve(FORWARD, T, STRIKES, VOLS, ERRORS, temp, fixed);
-        final DoubleMatrix1D params = results.getParameters();
-        //        assertEquals(params.getEntry(0), KAPPA, 1e-3);
-        //        assertEquals(params.getEntry(1), THETA, 1e-3);
-        //        assertEquals(params.getEntry(2), VOL0, 1e-3);
-        //        assertEquals(params.getEntry(3), OMEGA, 1e-3);
-        //        assertEquals(params.getEntry(4), RHO, 1e-3);
-        //        assertEquals(0.0, results.getChiSq(), 2e-3);
-      }
-      timer.finished();
-    }
-
-  }
-
-  //@Test
   public void testSABRFit() {
-    final HestonFitter fitter = new HestonFitter();
     final double[] temp = new double[] {1.0, 0.1, 0.2, 0.3, -0.5};
-
     final BitSet fixed = new BitSet();
-    final LeastSquareResults results = fitter.solve(FORWARD, T, STRIKES, SABR_VOLS, ERRORS, temp, fixed);
+    LeastSquareResults results = FFT_VOLS.getFitResult(OPTIONS, SABR_VOLS, ERRORS, temp, fixed);
     assertTrue(results.getChiSq() < N * 100);
+    results = FFT_PRICE.getFitResult(OPTIONS, SABR_VOLS, ERRORS, temp, fixed);
+    assertTrue(results.getChiSq() < N * 100);
+    results = FOURIER.getFitResult(OPTIONS, SABR_VOLS, ERRORS, temp, fixed);
+    assertTrue(results.getChiSq() < N * 100);
+    //TODO awful chiSq
   }
 
-  //@Test
-  public void testExactFitPrices() {
-    final HestonFitter fitter = new HestonFitter();
-    final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
+  @Test
+  public void testExactFit() {
+    testExactFit(FFT_VOLS, "FFT vols", ERRORS);
+    testExactFit(FFT_VOLS, "FFT vols", null);
     final double[] pErrors = new double[N];
     for (int i = 0; i < N; i++) {
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], T, true);
-      final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, VOLS[i]);
-      pErrors[i] = ERRORS[i] * BLACK_PRICE.getVegaFunction(option).evaluate(data);
+      pErrors[i] = ERRORS[i] * BLACK_PRICE.getVegaFunction(OPTIONS[i]).evaluate(BLACK_VOLS[i]);
     }
+    testExactFit(FFT_PRICE, "FFT price", pErrors);
+    testExactFit(FOURIER, "Fourier", ERRORS);
+    testExactFit(FOURIER, "Fourier", null);
+  }
 
+  private void testExactFit(final LeastSquareSmileFitter fitter, final String name, final double[] errors) {
+    final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
-      final LeastSquareResults results = fitter.solvePrice(FORWARD, T, STRIKES, VOLS, pErrors, temp, new BitSet());
+      final LeastSquareResults results = fitter.getFitResult(OPTIONS, BLACK_VOLS, errors, temp, new BitSet());
       assertEquals(0.0, results.getChiSq(), 1e+1);
     }
 
     if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on FFT (price)", _benchmarkCycles);
+      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles using {}", _benchmarkCycles, name);
       for (int i = 0; i < _benchmarkCycles; i++) {
-        final LeastSquareResults results = fitter.solvePrice(FORWARD, T, STRIKES, VOLS, pErrors, temp, new BitSet());
+        final LeastSquareResults results = fitter.getFitResult(OPTIONS, BLACK_VOLS, errors, temp, new BitSet());
         final DoubleMatrix1D params = results.getParameters();
         //        assertEquals(params.getEntry(0), KAPPA, 1e-3);
         //        assertEquals(params.getEntry(1), THETA, 1e-3);
@@ -148,32 +126,7 @@ public class HestonFitterTest {
         //        assertEquals(params.getEntry(3), OMEGA, 1e-3);
         //        assertEquals(params.getEntry(4), RHO, 1e-3);
         //        assertEquals(0.0, results.getChiSq(), 1e+1);
-      }
-      timer.finished();
-    }
 
-  }
-
-  //@Test
-  public void testExactFitIntegral() {
-    final HestonFitter fitter = new HestonFitter();
-    final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
-      final LeastSquareResults results = fitter.solveFourierIntegral(FORWARD, T, STRIKES, VOLS, ERRORS, temp, new BitSet());
-      assertEquals(0.0, results.getChiSq(), 1e-3);
-    }
-
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on Fourier", _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
-        final LeastSquareResults results = fitter.solveFourierIntegral(FORWARD, T, STRIKES, VOLS, ERRORS, temp, new BitSet());
-        final DoubleMatrix1D params = results.getParameters();
-        assertEquals(params.getEntry(0), KAPPA, 1e-3);
-        assertEquals(params.getEntry(1), THETA, 1e-3);
-        assertEquals(params.getEntry(2), VOL0, 1e-3);
-        assertEquals(params.getEntry(3), OMEGA, 1e-3);
-        assertEquals(params.getEntry(4), RHO, 1e-3);
-        assertEquals(0.0, results.getChiSq(), 1e-3);
       }
       timer.finished();
     }
