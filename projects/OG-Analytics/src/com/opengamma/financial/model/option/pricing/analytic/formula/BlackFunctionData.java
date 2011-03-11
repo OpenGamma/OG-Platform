@@ -33,7 +33,7 @@ public class BlackFunctionData {
     return _df;
   }
 
-  public double getSimga() {
+  public double getBlackVolatility() {
     return _sigma;
   }
 

@@ -30,7 +30,7 @@ public class CEVPriceFunction implements OptionPriceFunction<CEVFunctionData> {
         Validate.notNull(data, "data");
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
-        final double sigma = data.getSimga();
+        final double sigma = data.getBlackVolatility();
         final double beta = data.getBeta();
         if (beta == 1.0) {
           final Function1D<BlackFunctionData, Double> blackFormula = BLACK_PRICE_FUNCTION.getPriceFunction(option);

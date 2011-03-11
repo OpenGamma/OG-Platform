@@ -29,7 +29,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
-        final double sigma = data.getSimga();
+        final double sigma = data.getBlackVolatility();
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
         final int sign = option.isCall() ? 1 : -1;
@@ -59,7 +59,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
-        final double sigma = data.getSimga();
+        final double sigma = data.getBlackVolatility();
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
         final double rootT = Math.sqrt(t);
