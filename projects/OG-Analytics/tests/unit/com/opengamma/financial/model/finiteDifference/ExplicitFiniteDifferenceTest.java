@@ -24,6 +24,7 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.time.DateUtil;
@@ -37,12 +38,11 @@ public class ExplicitFiniteDifferenceTest {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CEVPriceFunction CEV = new CEVPriceFunction();
 
-  
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
   private static BoundaryCondition LN_LOWER;
   private static BoundaryCondition LN_UPPER;
-  
+
   private static final double SPOT = 100;
   private static final double FORWARD;
   private static final double BETA = 0.4;
@@ -55,13 +55,14 @@ public class ExplicitFiniteDifferenceTest {
   private static final OptionDefinition OPTION;
   private static final ConvectionDiffusionPDEDataBundle DATA;
   private static final ConvectionDiffusionPDEDataBundle LN_DATA;
-  private static final ConvectionDiffusionPDEDataBundle BETA_DATA;
+  private static final ConvectionDiffusionPDEDataBundle CEV_DATA;
   private static Surface<Double, Double, Double> A;
   private static Surface<Double, Double, Double> B;
   private static Surface<Double, Double, Double> LN_A;
   private static Surface<Double, Double, Double> LN_B;
   private static Surface<Double, Double, Double> BETA_A;
   private static Surface<Double, Double, Double> C;
+  private static Surface<Double, Double, Double> ZERO_SURFACE = ConstantDoublesSurface.from(0.0);
 
   static {
 
@@ -70,11 +71,11 @@ public class ExplicitFiniteDifferenceTest {
     OPTION = new EuropeanVanillaOptionDefinition(FORWARD, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
 
     LOWER = new FixedValueBoundaryCondition(0.0, 0.0);
-    UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 *FORWARD);
-    
-    LN_LOWER = new FixedValueBoundaryCondition(0.0,  Math.log(FORWARD/ 100.0));
-    LN_UPPER = new FixedSecondDerivativeBoundaryCondition(0*FORWARD,Math.log(50* FORWARD));
-    
+    UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * FORWARD);
+
+    LN_LOWER = new FixedValueBoundaryCondition(0.0, Math.log(FORWARD / 100.0));
+    LN_UPPER = new FixedSecondDerivativeBoundaryCondition(0 * FORWARD, Math.log(50 * FORWARD));
+
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
@@ -154,7 +155,7 @@ public class ExplicitFiniteDifferenceTest {
 
     DATA = new ConvectionDiffusionPDEDataBundle(A, B, C, payoff);
     LN_DATA = new ConvectionDiffusionPDEDataBundle(LN_A, LN_B, C, lnPayoff);
-    BETA_DATA = new ConvectionDiffusionPDEDataBundle(BETA_A, B, C, payoff);
+    CEV_DATA = new ConvectionDiffusionPDEDataBundle(BETA_A, ZERO_SURFACE, C, payoff);
   }
 
   /**
@@ -169,12 +170,12 @@ public class ExplicitFiniteDifferenceTest {
     double upperBound = 5 * FORWARD;
     ExplicitFiniteDifference solver = new ExplicitFiniteDifference();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    
+
     double[] res = solver.solve(DATA, timeSteps, priceSteps, T, LOWER, UPPER, null);
     int n = res.length;
     for (int i = 20; i < n - 100; i++) {
       double spot = lowerBound + i * (upperBound - lowerBound) / priceSteps;
-      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
+      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
       double impVol;
       try {
         impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
@@ -195,20 +196,20 @@ public class ExplicitFiniteDifferenceTest {
     double upperBound = Math.log(50 * FORWARD);
     ExplicitFiniteDifference solver = new ExplicitFiniteDifference();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-  
+
     double[] res = solver.solve(LN_DATA, timeSteps, priceSteps, T, LN_LOWER, LN_UPPER, null);
     int n = res.length;
-    for (int i = 150; i < n-150; i++) {
+    for (int i = 150; i < n - 150; i++) {
       double spot = Math.exp(lowerBound + i * (upperBound - lowerBound) / priceSteps);
-      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
+      BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
       double impVol;
       try {
         impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
       } catch (Exception e) {
         impVol = 0.0;
       }
-   //   System.out.println(i + "\t" + spot + "\t" + res[i] + "\t" + impVol);
-       assertEquals(ATM_VOL, impVol, 1e-3);
+      // System.out.println(i + "\t" + spot + "\t" + res[i] + "\t" + impVol);
+      assertEquals(ATM_VOL, impVol, 1e-3);
     }
   }
 
@@ -220,29 +221,28 @@ public class ExplicitFiniteDifferenceTest {
     double lowerBound = 0.0;
     double upperBound = 5 * FORWARD;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    double modSigma = VOL_BETA*Math.pow(df, BETA-1);
-    
+    double modSigma = VOL_BETA * Math.pow(df, BETA - 1);
+
     ExplicitFiniteDifference solver = new ExplicitFiniteDifference();
-   
-    double[] res = solver.solve(BETA_DATA, timeSteps, priceSteps, T, LOWER, UPPER, null);
+
+    double[] res = solver.solve(CEV_DATA, timeSteps, priceSteps, T, LOWER, UPPER, null);
     int n = res.length;
-    for (int i = 50; i < n-50; i++) {
-      double spot = lowerBound + i * (upperBound - lowerBound) / priceSteps;
-      BlackFunctionData data = new BlackFunctionData(spot/df, df, 0.0);
+    for (int i = 50; i < n - 150; i++) {
+      double f = lowerBound + i * (upperBound - lowerBound) / priceSteps;
+      BlackFunctionData data = new BlackFunctionData(f, df, 0.0);
       double impVol;
       try {
         impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, res[i]);
       } catch (Exception e) {
         impVol = 0.0;
       }
-      
-      final CEVFunctionData cevData = new CEVFunctionData(spot/df, 1.0, modSigma, BETA);
-      final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
-      final double cevVol =  BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
-      
 
-      System.out.println(i + "\t" + spot + "\t" + res[i] + "\t" + cevVol + "\t" + impVol);
-   //   assertEquals(cevVol, impVol, 1e-3);
+      final CEVFunctionData cevData = new CEVFunctionData(f, df, VOL_BETA, BETA);
+      final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+      final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+
+   //   System.out.println(i + "\t" + f + "\t" + res[i] + "\t" + cevVol + "\t" + impVol);
+       assertEquals(cevVol, impVol, 1e-3);
     }
   }
 
