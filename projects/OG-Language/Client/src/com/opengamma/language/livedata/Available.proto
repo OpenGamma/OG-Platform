@@ -11,7 +11,7 @@ namespace com.opengamma.language.livedata {
    */
   message Available extends connector.LiveData {
   
-    // TODO: repeated field of some description ...
+    optional repeated Definition definition;
   
   }
 

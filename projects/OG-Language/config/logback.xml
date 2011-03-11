@@ -23,6 +23,6 @@
   </root>
   
   <logger name="com.opengamma.transport.jaxrs" level="error" />
-  <logger name="com.opengamma.language.connector" level="debug" />
+  <logger name="com.opengamma.language.function" level="debug" />
 
 </configuration>

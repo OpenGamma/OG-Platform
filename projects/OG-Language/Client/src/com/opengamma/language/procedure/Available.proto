@@ -11,7 +11,7 @@ namespace com.opengamma.language.procedure {
    */
   message Available extends connector.Procedure {
   
-    // TODO: repeated field of some description ...
+    optional repeated Definition definition;
   
   }
 

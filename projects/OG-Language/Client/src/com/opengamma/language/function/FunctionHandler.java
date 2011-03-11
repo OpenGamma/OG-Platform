@@ -6,6 +6,11 @@
 
 package com.opengamma.language.function;
 
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.language.connector.Function;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -19,6 +24,8 @@ import com.opengamma.language.custom.CustomVisitors;
 public class FunctionHandler implements FunctionVisitor<UserMessagePayload, SessionContext>,
     CustomFunctionVisitorRegistry<UserMessagePayload, SessionContext> {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(FunctionHandler.class);
+
   private final CustomVisitors<UserMessagePayload, SessionContext> _customVisitors = new CustomVisitors<UserMessagePayload, SessionContext>();
   
   // CustomFunctionVisitorRegistry
@@ -38,8 +45,19 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
 
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    // TODO:
-    return null;
+    final Set<MetaFunction> definitions = data.getFunctionProvider().getDefinitions();
+    s_logger.info("{} functions available", definitions.size());
+    final Available available = new Available();
+    for (MetaFunction definition : definitions) {
+      Definition logical = data.getGlobalContext().getFunctionDefinitionFilter().createDefinition(definition);
+      if (logical != null) {
+        s_logger.debug("Publishing {}", logical);
+        available.addDefinition(logical);
+      } else {
+        s_logger.debug("Discarding {} after applying filter", definition);
+      }
+    }
+    return available;
   }
 
   @Override

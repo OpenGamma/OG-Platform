@@ -6,6 +6,11 @@
 
 package com.opengamma.language.livedata;
 
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.language.connector.LiveData;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -18,6 +23,8 @@ import com.opengamma.language.custom.CustomVisitors;
  */
 public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, SessionContext>,
     CustomLiveDataVisitorRegistry<UserMessagePayload, SessionContext> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(LiveDataHandler.class);
 
   private final CustomVisitors<UserMessagePayload, SessionContext> _customVisitors = new CustomVisitors<UserMessagePayload, SessionContext>();
 
@@ -38,8 +45,19 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
 
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    // TODO:
-    return null;
+    final Set<MetaLiveData> definitions = data.getLiveDataProvider().getDefinitions();
+    s_logger.info("{} live data available", definitions.size());
+    final Available available = new Available();
+    for (MetaLiveData definition : definitions) {
+      Definition logical = data.getGlobalContext().getLiveDataDefinitionFilter().createDefinition(definition);
+      if (logical != null) {
+        s_logger.debug("Publishing {}", logical);
+        available.addDefinition(logical);
+      } else {
+        s_logger.debug("Discarding {} after applying filter", definition);
+      }
+    }
+    return available;
   }
 
   @Override

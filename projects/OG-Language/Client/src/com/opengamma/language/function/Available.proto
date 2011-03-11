@@ -11,7 +11,7 @@ namespace com.opengamma.language.function {
    */
   message Available extends connector.Function {
   
-    // TODO: repeated field of some description ...
+    optional repeated Definition definition;
   
   }
 
