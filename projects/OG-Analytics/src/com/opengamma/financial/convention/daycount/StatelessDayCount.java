@@ -11,6 +11,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * Base class providing a hash and equality test based on the class.
  */
@@ -27,7 +29,9 @@ import org.apache.commons.lang.Validate;
   protected void testDates(final ZonedDateTime d1, final ZonedDateTime d2) {
     Validate.notNull(d1);
     Validate.notNull(d2);
-    Validate.isTrue(d2.isAfter(d1) || d2.equalInstant(d1), "d2 must be on or after d1: have d1 = " + d1 + " and d2 = " + d2);
+    if (!(d2.isAfter(d1) || d2.equalInstant(d1))) {
+      throw new OpenGammaRuntimeException("d2 must be on or after d1: have d1 = " + d1 + " and d2 = " + d2);
+    }
   }
 
   /**
