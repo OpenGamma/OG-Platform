@@ -44,4 +44,36 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 #endif /* ifdef _UNICODE */
 #endif /* ifndef _WIN32 */
 
+#ifdef _WCHAR_H
+inline wchar_t *AsciiToWideDup (char *pszIn) {
+	int cch = strlen (pszIn);
+	wchar_t *pszOut = new wchar_t[cch + 1];
+#ifdef _WIN32
+	MultiByteToWideChar (CP_ACP, 0, pszIn, cch, pszOut, cch + 1);
+#else
+	wchar_t *psz = pszOut;
+	while (*pszIn) {
+		*(psz++) = *(pszIn++);
+	}
+	*psz = 0;
+#endif /* ifdef _WIN32 */
+	return pszOut;
+}
+
+inline char *WideToAsciiDup (wchar_t *pszIn) {
+	int cch = wcslen (pszIn);
+	char *pszOut = new char[cch + 1];
+#ifdef _WIN32
+	WideCharToMultiByte (CP_ACP, 0, pszIn, cchIn, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
+#else /* ifdef _WIN32 */
+	char *psz = pszOut;
+	while (*pszIn) {
+		*(psz++) = *(pszIn++);
+	}
+	*psz = 0;
+#endif /* ifdef _WIN32 */
+	return pszOut;
+}
+#endif /* ifdef _WCHAR_H */
+
 #endif /* ifndef __inc_og_language_util_string_h */

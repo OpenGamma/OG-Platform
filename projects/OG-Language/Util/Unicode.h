@@ -20,9 +20,9 @@
 #   define TEXT(str)	L##str
 #   define _tcscmp		wcscmp
 #   define _tcsdup		wcsdup
-#   define _tcsicmp	wcscasecmp
+#   define _tcsicmp		wcscasecmp
 #   define _tcslen		wcslen
-#   define _tcsrchr	wcsrchr
+#   define _tcsrchr		wcsrchr
 #   define _tstoi		?
 #  else /* ifdef _UNICODE */
 #   include <string.h>
@@ -30,13 +30,21 @@
 #   define TEXT(str)	str
 #   define _tcscmp		strcmp
 #   define _tcsdup		strdup
-#   define _tcsicmp	strcasecmp
+#   define _tcsicmp		strcasecmp
 #   define _tcslen		strlen
-#   define _tcsrchr	strrchr
+#   define _tcsrchr		strrchr
 #   define _tstoi		atoi
 #  endif /* ifdef _UNICODE */
 #  define _TCHAR_DEFINED
 # endif /* ifmdef _TCHAR_DEFINED */
 #endif /* ifdef _WIN32 */
+
+#ifdef _UNICODE
+# define _tcsAsciiDup	WideToAsciiDup
+# define _tcsWideDup	wcsdup
+#else /* ifdef _UNICODE */
+# define _tcsAsciiDup	strdup
+# define _tcsWideDup	AsciiToWideDup
+#endif /* ifdef _UNICODE */
 
 #endif /* ifndef __inc_og_language_util_unicode_h */
