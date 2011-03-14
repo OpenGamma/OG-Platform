@@ -39,7 +39,8 @@ public class InterpolatedFromCurvesDoublesSurface extends Surface<Double, Double
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, points, curves, interpolator, false);
   }
 
-  public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public static InterpolatedFromCurvesDoublesSurface from(final boolean xzCurves, final Map<Double, Curve<Double, Double>> curves, 
+      final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     return new InterpolatedFromCurvesDoublesSurface(xzCurves, curves, interpolator, false);
   }
 

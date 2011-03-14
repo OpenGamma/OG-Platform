@@ -121,8 +121,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getISOCode()
         + "_CASH_CONVENTION");
-    //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
-    return new CashDefinition(maturityDate, 0, convention);
+    return new CashDefinition(maturityDate, security.getRate(), convention);
   }
 
   @Override
@@ -140,8 +139,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final ZonedDateTime startDate = security.getStartDate().toZonedDateTime();
     final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, security.getEndDate().toZonedDateTime()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency + "_FRA_CONVENTION");
-    //return new FRADefinition(startDate, maturityDate, fraSecurity.getRate(), convention);
-    return new FRADefinition(startDate, maturityDate, 0, convention);
+    return new FRADefinition(startDate, maturityDate, security.getRate(), convention);
   }
 
   @Override

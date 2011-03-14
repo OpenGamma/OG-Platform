@@ -176,9 +176,11 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     accrualTime = accruedInterest / coupon;
     final double timeBetweenCoupons = 1. / _couponsPerYear;
     final double[] paymentTimes = new double[n - position - 1];
-    paymentTimes[0] = index == 0 ? 0 : timeBetweenCoupons - accrualTime;
-    if (CompareUtils.closeEquals(paymentTimes[0], 0, 1e-16) || paymentTimes[0] < 0) {
+    paymentTimes[0] = index == 0 ? 0 : timeBetweenCoupons - accrualTime; //TODO this is where the problems with the coupons comes in
+    if (CompareUtils.closeEquals(paymentTimes[0], 0, 1e-16)) {
       paymentTimes[0] = 0;
+    } else if (paymentTimes[0] < 0) {
+      paymentTimes[0] = timeBetweenCoupons;
     }
     for (int i = 1; i < paymentTimes.length; i++) {
       paymentTimes[i] = paymentTimes[i - 1] + timeBetweenCoupons;
