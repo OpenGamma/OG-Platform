@@ -31,8 +31,8 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
 
   // DON'T CHECK IN WITH =true
   private static final boolean DEBUG_FLAG = false;
-  private static final int DEBUG_MAX_NODES = 2;
-  private static final int DEBUG_MAX_POSITIONS = 2;
+  private static final int DEBUG_MAX_NODES = 1;
+  private static final int DEBUG_MAX_POSITIONS = 1;
 
   /**
    * The unique identifier of the node.

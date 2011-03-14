@@ -66,7 +66,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
 
   protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final OptionSecurity security) {
     // REVIEW 2010-10-28 Andrew -- Do all values produced have a currency? Aren't the derivitive greeks unitless?
-    return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getISOCode()).get());
+    return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get());
   }
 
   @Override
@@ -102,7 +102,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final OptionSecurity security) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY,
-        security.getCurrency().getISOCode()).get());
+        security.getCurrency().getCode()).get());
   }
 
   protected abstract <S extends OptionDefinition, T extends StandardOptionDataBundle> AnalyticOptionModel<S, T> getModel();

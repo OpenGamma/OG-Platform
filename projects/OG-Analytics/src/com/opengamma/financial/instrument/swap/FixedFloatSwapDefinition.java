@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
@@ -68,7 +68,7 @@ public class FixedFloatSwapDefinition implements FixedIncomeInstrumentDefinition
 
   @Override
   public FixedCouponSwap<Payment> toDerivative(final LocalDate date, final String... yieldCurveNames) {
-    final GenericAnnuity<FixedCouponPayment> fixedLeg = _fixedLeg.toDerivative(date, yieldCurveNames);
+    final GenericAnnuity<CouponFixed> fixedLeg = _fixedLeg.toDerivative(date, yieldCurveNames);
     final GenericAnnuity<Payment> floatingLeg = _floatingLeg.toDerivative(date, yieldCurveNames);
     return new FixedCouponSwap<Payment>(fixedLeg, floatingLeg);
   }

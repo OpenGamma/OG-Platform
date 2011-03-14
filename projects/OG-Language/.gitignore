@@ -2,6 +2,7 @@
 /TestResults/
 /Client/tests/classes/
 /Client/tests/output/
+/dist/
 /*/Debug/
 /*/Release/
 /*/DebugWin32/
@@ -15,3 +16,4 @@
 .fudge-proto-gitignore
 MANIFEST.MF
 build.number
+.settings/

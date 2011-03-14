@@ -97,7 +97,6 @@ public class SingleComputationCycle {
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
-  private Set<ComputedValue> _allLiveData;
 
   // Outputs:
   private final InMemoryViewComputationResultModel _resultModel;
@@ -265,7 +264,6 @@ public class SingleComputationCycle {
     
     getSnapshotProvider().snapshot(getValuationTime().toEpochMillisLong());
 
-    _allLiveData = new HashSet<ComputedValue>();
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
     for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
@@ -280,12 +278,13 @@ public class SingleComputationCycle {
       } else {
         ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
         addToAllCaches(dataAsValue);
-        _allLiveData.add(dataAsValue);
+        getResultModel().addLiveData(dataAsValue);
       }
     }
     if (!missingLiveData.isEmpty()) {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
     }
+    
 
     _state = State.INPUTS_PREPARED;
   }
@@ -303,13 +302,6 @@ public class SingleComputationCycle {
     return sb.toString();
   }
   
-  public Set<ComputedValue> getAllLiveData() {
-    if (_allLiveData == null) {
-      throw new IllegalStateException("Call prepareInputs() before calling this method");
-    }
-    return Collections.unmodifiableSet(_allLiveData);
-  }
-
   /**
    * 
    */

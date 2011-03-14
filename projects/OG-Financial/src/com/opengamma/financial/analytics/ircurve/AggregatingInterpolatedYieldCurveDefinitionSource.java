@@ -11,7 +11,7 @@ import java.util.Collection;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 
 /**
  * Aggregates an ordered set of sources into a single source.
@@ -25,7 +25,7 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(final Currency currency, final String name) {
+  public YieldCurveDefinition getDefinition(final CurrencyUnit currency, final String name) {
     for (InterpolatedYieldCurveDefinitionSource source : _sources) {
       YieldCurveDefinition definition = source.getDefinition(currency, name);
       if (definition != null) {
@@ -36,7 +36,7 @@ public class AggregatingInterpolatedYieldCurveDefinitionSource implements Interp
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name, InstantProvider version) {
     version = Instant.of(version);
     for (InterpolatedYieldCurveDefinitionSource source : _sources) {
       YieldCurveDefinition definition = source.getDefinition(currency, name, version);

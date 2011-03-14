@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -202,16 +203,16 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     // Resolved outputs are the inputs with the currency wild-carded - even the function ID will be preserved
     final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
     String currency = null;
-    for (ValueSpecification input : inputs) {
+    for (ValueSpecification input : inputs.keySet()) {
       if (getDefaultCurrencyValueName().equals(input.getValueName())) {
         currency = input.getProperty(ValuePropertyNames.CURRENCY);
       }
     }
-    for (ValueSpecification input : inputs) {
+    for (ValueSpecification input : inputs.keySet()) {
       if (!getDefaultCurrencyValueName().equals(input.getValueName())) {
         final Builder vpb = input.getProperties().copy();
         if (currency != null) {

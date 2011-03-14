@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -99,7 +99,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final double[] repoRates = new double[n];
     final double[] conversionFactors = new double[n];
     final int i = 0;
-    final Currency currency = security.getCurrency();
+    final CurrencyUnit currency = security.getCurrency();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, security.getCurrency());
     final Identifier conventionId = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = conventionSource.getConventionBundle(conventionId);
@@ -111,8 +111,8 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
       final Security sec = executionContext.getSecuritySource().getSecurity(id);
       if (sec instanceof BondSecurity) {
         final BondSecurity bondSec = (BondSecurity) sec;
-        final DayCount daycount = currency.getISOCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : bondSec.getDayCountConvention();
-        final BondConvention bondConvention = new BondConvention(0, daycount, businessDayConvention, calendar, isEOMConvention, (currency.getISOCode() + "_TREASURY_BOND"),
+        final DayCount daycount = currency.getCode().equals("USD") ? DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA") : bondSec.getDayCountConvention();
+        final BondConvention bondConvention = new BondConvention(0, daycount, businessDayConvention, calendar, isEOMConvention, (currency.getCode() + "_TREASURY_BOND"),
             convention.getExDividendDays(), SimpleYieldConvention.US_TREASURY_EQUIVALANT);
         final BondDefinition bondDefinition = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(bondSec, true);
         final Bond bond = bondDefinition.toDerivative(now.toLocalDate(), "dummy");

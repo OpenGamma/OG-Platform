@@ -9,7 +9,7 @@ import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -40,19 +40,19 @@ public class RemoteInterpolatedYieldCurveDefinitionSource implements Interpolate
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name) {
+  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
-    final RestTarget target = getTargetBase().resolveBase(currency.getISOCode()).resolve(name);
+    final RestTarget target = getTargetBase().resolveBase(currency.getCode()).resolve(name);
     return getRestClient().getSingleValue(YieldCurveDefinition.class, target, "definition");
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name, InstantProvider version) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(version, "version");
-    final RestTarget target = getTargetBase().resolveBase(currency.getISOCode()).resolveBase(name).resolve(Long.toString(version.toInstant().toEpochMillisLong()));
+    final RestTarget target = getTargetBase().resolveBase(currency.getCode()).resolveBase(name).resolve(Long.toString(version.toInstant().toEpochMillisLong()));
     return getRestClient().getSingleValue(YieldCurveDefinition.class, target, "definition");
   }
 

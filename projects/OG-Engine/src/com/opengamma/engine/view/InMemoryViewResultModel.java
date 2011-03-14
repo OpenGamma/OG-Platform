@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.Instant;
 
@@ -155,6 +157,15 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   @Override
   public List<ViewResultEntry> getAllResults() {
     return Collections.unmodifiableList(_allResults);
+  }
+
+  @Override
+  public Set<String> getAllOutputValueNames() {
+    Set<String> outputValueNames = new HashSet<String>();
+    for (ViewResultEntry result : getAllResults()) {
+      outputValueNames.add(result.getComputedValue().getSpecification().getValueName());      
+    }
+    return outputValueNames;
   }
   
 }

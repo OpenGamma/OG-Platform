@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -17,8 +17,7 @@ private:
 	OVERLAPPED m_overlapped;
 #define FILE_REFERENCE		HANDLE
 #else
-	CAtomicPointer m_oBlockedThread;
-	unsigned long m_lPreviousTimeout;
+	CAtomicPointer<void*> m_oBlockedThread;
 #define TIMEOUT_IO_DEFAULT	1000
 #define FILE_REFERENCE		int
 #endif
@@ -30,8 +29,8 @@ protected:
 	OVERLAPPED *GetOverlapped () { return &m_overlapped; }
 	bool WaitOnOverlapped (unsigned long timeout);
 #else
-	virtual bool SetTimeout (unsigned long timeout);
-	void CancelTimeout ();
+	bool BeginOverlapped (unsigned long timeout, bool bRead);
+	void EndOverlapped ();
 #endif
 	virtual bool CancelIO ();
 	FILE_REFERENCE GetFile () { return m_file; }
@@ -52,7 +51,7 @@ public:
 // This is perhaps a dump place for this
 #ifndef _WIN32
 #include <apr-1/apr_time.h>
-#define GetTickCount()	apr_time_msec (apr_time_now ())
+#define GetTickCount()	apr_time_as_msec (apr_time_now ())
 #endif
 
 #endif /* ifndef __inc_og_language_util_timeoutio_h */

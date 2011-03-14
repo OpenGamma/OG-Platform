@@ -20,32 +20,39 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Implementation of the paper by Derman and Kani, The Volatility Smile and its Implied Tree (1994)
  */
 public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<OptionDefinition, StandardOptionDataBundle> {
-
+  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
+  private final int _n;
+  
+  public DermanKaniImpliedBinomialTreeModel(int n) {
+    Validate.isTrue(n > 0);
+    _n = n;
+  }
   @Override
   public ImpliedTreeResult getImpliedTrees(final OptionDefinition definition, final StandardOptionDataBundle data) {
     Validate.notNull(definition, "definition");
     Validate.notNull(data, "data");
-    final int n = 5;
-    final int m1 = RecombiningBinomialTree.NODES.evaluate(n);
-    final int m2 = RecombiningBinomialTree.NODES.evaluate(n - 1);
-    final double[][] impliedTree = new double[n + 1][m1];
+
+    final int m1 = RecombiningBinomialTree.NODES.evaluate(_n);
+    final int m2 = RecombiningBinomialTree.NODES.evaluate(_n - 1);
+    final double[][] impliedTree = new double[_n + 1][m1]; //TODO this wastes space 
+
+   
     final double[] transitionProbabilities = new double[m2];
     double[] arrowDebreu = new double[m1];
-    final double[][] localVolatilityTree = new double[n][m2];
-    final double dt = definition.getTimeToExpiry(data.getDate()) / n;
+    final double[][] localVolatilityTree = new double[_n][m2];
+    final double dt = definition.getTimeToExpiry(data.getDate()) / _n;
     double t = 0;
     final double spot = data.getSpot();
     impliedTree[0][0] = spot;
     arrowDebreu[0] = 1;
     int previousNodes = 1;
     final ZonedDateTime date = data.getDate();
-    for (int i = 1; i < n + 1; i++) {
+    for (int i = 1; i < _n + 1; i++) {
       final int nodes = RecombiningBinomialTree.NODES.evaluate(i);
-      final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> crr = new CoxRossRubinsteinBinomialOptionModelDefinition();
-      final BinomialOptionModel<StandardOptionDataBundle> crrModel = new BinomialOptionModel<StandardOptionDataBundle>(crr, i);
+      final BinomialOptionModel<StandardOptionDataBundle> crrModel = new BinomialOptionModel<StandardOptionDataBundle>(CRR, i);
       t += dt;
       final double df1 = Math.exp(dt * data.getInterestRate(t));
       final double df2 = Math.exp(dt * data.getCostOfCarry());
@@ -67,7 +74,7 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
         final double f = impliedTree[i - 1][j] * df2;
         transitionProbabilities[j] = (f - impliedTree[i][j]) / (impliedTree[i][j + 1] - impliedTree[i][j]);
         //TODO emcleod 31-8-10 Need to check that transition probabilities are positive - use adjustment suggested in "The Volatility Smile and its Implied Tree"
-        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]);
+        localVolatilityTree[i - 1][j] = Math.sqrt(transitionProbabilities[j] * (1 - transitionProbabilities[j])) * Math.log(impliedTree[i][j + 1] / impliedTree[i][j]); //TODO need 1/sqrt(dt) here 
       }
       final double[] temp = new double[m1];
       temp[0] = (1 - transitionProbabilities[0]) * arrowDebreu[0] / df1;
@@ -78,12 +85,12 @@ public class DermanKaniImpliedBinomialTreeModel implements ImpliedTreeModel<Opti
       arrowDebreu = temp;
       previousNodes = nodes;
     }
-    final Double[][] impliedTreeResult = new Double[n + 1][m1];
-    final Double[][] localVolResult = new Double[n][m2];
+    final Double[][] impliedTreeResult = new Double[_n + 1][m1];
+    final Double[][] localVolResult = new Double[_n][m2];
     for (int i = 0; i < impliedTree.length; i++) {
       for (int j = 0; j < impliedTree[i].length; j++) {
         impliedTreeResult[i][j] = impliedTree[i][j];
-        if (i < n && j < m2) {
+        if (i < _n && j < m2) {
           localVolResult[i][j] = localVolatilityTree[i][j];
         }
       }

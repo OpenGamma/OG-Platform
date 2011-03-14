@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -90,7 +90,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       searchRequest.setType(HolidayType.valueOf(type));
     }
     if (currencyISO != null) {
-      searchRequest.setCurrency(Currency.getInstance(currencyISO));
+      searchRequest.setCurrency(CurrencyUnit.of(currencyISO));
     }
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {

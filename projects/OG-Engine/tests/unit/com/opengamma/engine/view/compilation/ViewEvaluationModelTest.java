@@ -119,7 +119,7 @@ public class ViewEvaluationModelTest {
       }
       
       @Override
-      public Set<ValueSpecification> getResults (FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         return null;
       }
 

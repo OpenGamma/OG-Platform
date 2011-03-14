@@ -312,7 +312,7 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv late resolving with inputs {}", inputs);
         fail("getResults shouldn't be called on function without wildcard inputs");
         return null;
@@ -349,7 +349,7 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv late resolving with inputs {}");
         getResultsCalled.set(true);
         return super.getResults(context, target, inputs);
@@ -388,10 +388,10 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv1 late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
-        final ValueSpecification input = inputs.iterator().next();
+        final ValueSpecification input = inputs.keySet().iterator().next();
         return Collections.singleton(new ValueSpecification(helper.getRequirement2().getValueName(), helper.getRequirement2().getTargetSpecification(), ValueProperties.with(
             ValuePropertyNames.FUNCTION, getUniqueId()).with("TEST", input.getProperties().getValues("TEST")).get()));
       }
@@ -409,7 +409,7 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv2 late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
         return super.getResults(context, target, inputs);
@@ -461,7 +461,7 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
         getResultsInvoked.incrementAndGet();
@@ -496,10 +496,10 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv late resolving with inputs {}", inputs);
         assertEquals(1, inputs.size());
-        final ValueSpecification input = inputs.iterator().next();
+        final ValueSpecification input = inputs.keySet().iterator().next();
         if (!input.getProperties().getValues("TEST").contains("Bar")) {
           return Collections.emptySet();
         }
@@ -683,8 +683,8 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
-        return Collections.singleton(new ValueSpecification("B", target.toSpecification(), createValueProperties().with(property, inputs.iterator().next().getProperty(property)).get()));
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+        return Collections.singleton(new ValueSpecification("B", target.toSpecification(), createValueProperties().with(property, inputs.keySet().iterator().next().getProperty(property)).get()));
       }
 
       @Override
@@ -717,9 +717,9 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
-        for (ValueSpecification input : inputs) {
+        for (ValueSpecification input : inputs.keySet()) {
           result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(property).get()));
         }
         return result;
@@ -772,9 +772,9 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         String propValue = null;
-        for (ValueSpecification input : inputs) {
+        for (ValueSpecification input : inputs.keySet()) {
           if (propValue == null) {
             propValue = input.getProperty(property);
           } else {
@@ -816,9 +816,9 @@ public class DependencyGraphBuilderTest {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs) {
+      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(inputs.size());
-        for (ValueSpecification input : inputs) {
+        for (ValueSpecification input : inputs.keySet()) {
           result.add(new ValueSpecification(input.getValueName(), input.getTargetSpecification(), input.getProperties().copy().withAny(property).get()));
         }
         return result;

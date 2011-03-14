@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -48,7 +48,7 @@ public class BondSecurityToBondForwardDefinitionConverter {
     Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
     //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-    final Currency currency = security.getCurrency();
+    final CurrencyUnit currency = security.getCurrency();
     final String conventionName = currency + "_BOND_FUTURE_DELIVERABLE_CONVENTION";
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName);
     final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);

@@ -7,18 +7,19 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -129,7 +130,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitFixedPayment(final FixedPayment payment, final YieldCurveBundle curves) {
+  public Double visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
@@ -137,12 +138,12 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle curves) {
+  public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    final YieldAndDiscountCurve liborCurve = curves.getCurve(payment.getLiborCurveName());
-    final double forward = (liborCurve.getDiscountFactor(payment.getLiborFixingTime()) / liborCurve.getDiscountFactor(payment.getLiborMaturityTime()) - 1) / payment.getForwardYearFraction();
+    final YieldAndDiscountCurve liborCurve = curves.getCurve(payment.getForwardCurveName());
+    final double forward = (liborCurve.getDiscountFactor(payment.getFixingTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
@@ -159,23 +160,37 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle curves) {
+  public Double visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
-  public Double visitFixedCouponPayment(final FixedCouponPayment payment, final YieldCurveBundle curves) {
+  public Double visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle curves) {
     return visitFixedPayment(payment, curves);
   }
 
   @Override
-  public Double visitFixedCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle curves) {
+  public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
   }
 
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle curves) {
     return visitFixedCouponSwap(swap, curves);
+  }
+
+  @Override
+  /**
+   * Pricing by discounting (no convexity adjustment).
+   */
+  public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    ParRateCalculator parRate = ParRateCalculator.getInstance();
+    double swapRate = parRate.visitFixedFloatSwap(payment.getUnderlyingSwap(), curves);
+    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
+    double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
+    return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;
   }
 
 }

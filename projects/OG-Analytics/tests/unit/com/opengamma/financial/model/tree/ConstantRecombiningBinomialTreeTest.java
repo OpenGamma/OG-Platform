@@ -27,7 +27,7 @@ public class ConstantRecombiningBinomialTreeTest {
     assertEquals(tree.hashCode(), other.hashCode());
     other = new ConstantRecombiningBinomialTree<Double>(y);
     assertFalse(tree.equals(other));
-    assertArrayEquals(tree.getTree(), new Double[][] {new Double[] {x}});
+    assertArrayEquals(tree.getNodes(), new Double[][] {new Double[] {x}});
     for (int i = 0; i < 100; i++) {
       for (int j = 0; j < i + 1; j++) {
         assertEquals(tree.getNode(i, j), x, 0);

@@ -19,7 +19,7 @@ import javax.time.calendar.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -42,7 +42,7 @@ public class EHCachingMasterHolidaySourceTest {
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_TUESDAY = LocalDate.of(2010, 10, 26);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
-  private static final Currency GBP = Currency.getInstance("GBP");
+  private static final CurrencyUnit GBP = CurrencyUnit.GBP;
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
 

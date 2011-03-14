@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * 
@@ -23,17 +23,17 @@ public class BondForward implements InterestRateDerivative {
   private final double _forwardTime;
   private final double _accruedInterest;
   private final double _accruedInterestAtDelivery;
-  private final FixedCouponPayment[] _expiredCoupons;
+  private final CouponFixed[] _expiredCoupons;
 
   public BondForward(final Bond bond, final double forwardTime, final double accruedInterest, final double accruedInterestAtDelivery) {
-    this(bond, forwardTime, accruedInterest, accruedInterestAtDelivery, new FixedCouponPayment[0]);
+    this(bond, forwardTime, accruedInterest, accruedInterestAtDelivery, new CouponFixed[0]);
   }
 
-  public BondForward(final Bond bond, final double forwardTime, final double accruedInterest, final double accruedInterestAtDelivery, final FixedCouponPayment[] expiredCoupons) {
+  public BondForward(final Bond bond, final double forwardTime, final double accruedInterest, final double accruedInterestAtDelivery, final CouponFixed[] expiredCoupons) {
     Validate.notNull(bond, "bond");
     Validate.isTrue(forwardTime >= 0, "forward Time is negative");
     Validate.noNullElements(expiredCoupons, "expired coupons");
-    final FixedPayment principle = bond.getPrinciplePayment();
+    final PaymentFixed principle = bond.getPrinciplePayment();
     Validate.isTrue(forwardTime < principle.getPaymentTime(), "forward time beyond maturity of bond");
     _bond = bond;
     _forwardTime = forwardTime;
@@ -59,7 +59,7 @@ public class BondForward implements InterestRateDerivative {
   }
 
   //TODO change this name
-  public FixedCouponPayment[] getTimeBetweenExpiredCoupons() {
+  public CouponFixed[] getTimeBetweenExpiredCoupons() {
     return _expiredCoupons;
   }
 

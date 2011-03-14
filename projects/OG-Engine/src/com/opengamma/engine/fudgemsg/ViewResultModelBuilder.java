@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -23,10 +21,9 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.view.InMemoryViewResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
-import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.ViewTargetResultModel;
 
 /**
  * Base operation for {@link ViewDeltaResultModelBuilder} and {@link ViewComputationResultModelBuilder}.
@@ -52,18 +49,8 @@ public abstract class ViewResultModelBuilder {
     return message;
   }
 
-  private static final class ViewTargetResultModelImpl extends com.opengamma.engine.view.ViewTargetResultModelImpl {
-
-    private void putAll(final String configuration, final Collection<ComputedValue> values) {
-      for (ComputedValue value : values) {
-        addValue(configuration, value);
-      }
-    }
-
-  }
-
   @SuppressWarnings("unchecked")
-  protected ViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final String viewName = message.getString(FIELD_VIEWNAME);
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
@@ -87,39 +74,23 @@ public abstract class ViewResultModelBuilder {
         }
       }
     }
-    final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> targetMap = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
-    for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
-      for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
-        ViewTargetResultModelImpl targetResult = targetMap.get(targetSpec);
-        if (targetResult == null) {
-          targetResult = new ViewTargetResultModelImpl();
-          targetMap.put(targetSpec, targetResult);
-        }
-        targetResult.putAll(configurationEntry.getKey(), configurationEntry.getValue().getValues(targetSpec).values());
-      }
-    }
     
-    final List<ViewResultEntry> allResults = new ArrayList<ViewResultEntry>();
+    InMemoryViewResultModel resultModel = constructImpl();
     for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
       for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
-        Map<String, ComputedValue> results = configurationEntry.getValue().getValues(targetSpec);
-        for (ComputedValue value : results.values()) {
-          allResults.add(new ViewResultEntry(configurationEntry.getKey(), value));
+        for (ComputedValue value : configurationEntry.getValue().getValues(targetSpec).values()) {
+          resultModel.addValue(configurationEntry.getKey(), value);
         }
       }
     }
     
-    return constructImpl(context, message, inputDataTimestamp, resultTimestamp, configurationMap,
-        (Map<ComputationTargetSpecification, ViewTargetResultModel>) (Map<ComputationTargetSpecification, ?>) targetMap, viewName, allResults);
+    resultModel.setViewName(viewName);
+    resultModel.setValuationTime(inputDataTimestamp);
+    resultModel.setResultTimestamp(resultTimestamp);
+    
+    return resultModel;
   }
-
-  protected abstract ViewResultModel constructImpl(FudgeDeserializationContext context, 
-      FudgeFieldContainer message, 
-      Instant inputDataTimestamp, 
-      Instant resultTimestamp,
-      Map<String, ViewCalculationResultModel> configurationMap, 
-      Map<ComputationTargetSpecification, ViewTargetResultModel> targetMap, 
-      String viewName,
-      List<ViewResultEntry> allResults);
+  
+  protected abstract InMemoryViewResultModel constructImpl();
 
 }

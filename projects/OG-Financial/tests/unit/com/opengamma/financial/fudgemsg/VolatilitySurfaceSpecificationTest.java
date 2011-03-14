@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
@@ -22,7 +22,7 @@ public class VolatilitySurfaceSpecificationTest extends FinancialTestBase {
   @Test
   public void testCycle() {
     BloombergSwaptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
-    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.getInstance("USD"), instrumentProvider);
+    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", CurrencyUnit.USD, instrumentProvider);
     assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
   }
 }

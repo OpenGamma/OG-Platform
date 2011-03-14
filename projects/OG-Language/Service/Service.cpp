@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,12 +15,10 @@
 
 LOGGING(com.opengamma.language.service.Service);
 
-#define WAIT_HINT				2000
-#define IS_BUSY_TIMEOUT			(WAIT_HINT / 2)
-
 static CMutex g_oMutex;
 static CJVM *g_poJVM = NULL;
 static CConnectionPipe *g_poPipe = NULL;
+static unsigned long g_lBusyTimeout = 0;
 #ifdef _WIN32
 static SERVICE_STATUS_HANDLE g_hServiceStatus = NULL;
 static DWORD g_dwServiceCheckPoint = 0;
@@ -56,7 +54,7 @@ static void _ReportState (DWORD dwStateCode, DWORD dwExitCode, bool bInfo, PCTST
 		sta.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
 		sta.dwCurrentState = dwStateCode;
 		sta.dwWin32ExitCode = dwExitCode;
-		sta.dwWaitHint = WAIT_HINT;
+		sta.dwWaitHint = g_lBusyTimeout * 2;
 		SetServiceStatus (g_hServiceStatus, &sta);
 	}
 }
@@ -133,8 +131,8 @@ static void WINAPI ServiceHandler (DWORD dwAction) {
 #endif /* ifdef _WIN32 */
 
 static void _ServiceStartup (int nReason) {
-#ifdef _WIN32
 	CSettings oSettings;
+#ifdef _WIN32
 	if (nReason == SERVICE_RUN_SCM) {
 		g_hServiceStatus = RegisterServiceCtrlHandler (oSettings.GetServiceName (), ServiceHandler);
 	}
@@ -176,6 +174,7 @@ static void _ServiceStartup (int nReason) {
 		LOGDEBUG (TEXT ("No security descriptor specified"));
 	}
 #endif /* ifdef _WIN32 */
+	g_lBusyTimeout = oSettings.GetBusyTimeout ();
 	_ReportStateStarting ();
 }
 
@@ -192,20 +191,21 @@ void ServiceRun (int nReason) {
 	if (!g_poPipe) {
 		LOGERROR (TEXT ("Couldn't create IPC pipe"));
 	}
-	while (g_poJVM->IsBusy (IS_BUSY_TIMEOUT)) {
+	while (g_poJVM->IsBusy (g_lBusyTimeout)) {
 		_ReportStateStarting ();
 	}
 	if (g_poPipe && g_poJVM->IsRunning ()) {
 		_ReportStateRunning ();
 		do {
 			LOGDEBUG (TEXT ("Waiting for user connection"));
-			PJAVACLIENT_CONNECT pjcc = g_poPipe->ReadMessage ();
-			if (pjcc) {
-				LOGINFO (TEXT ("Connection received from ") << JavaClientGetUserName (pjcc));
-				LOGDEBUG (TEXT ("C++ -> Java = ") << JavaClientGetCPPToJavaPipe (pjcc));
-				LOGDEBUG (TEXT ("Java -> C++ = ") << JavaClientGetJavaToCPPPipe (pjcc));
-				g_poJVM->UserConnection (JavaClientGetUserName (pjcc), JavaClientGetCPPToJavaPipe (pjcc), JavaClientGetJavaToCPPPipe (pjcc));
-				free (pjcc);
+			ClientConnect *pcc = g_poPipe->ReadMessage ();
+			if (pcc) {
+				LOGINFO (TEXT ("Connection received from ") << pcc->_userName);
+				LOGDEBUG (TEXT ("C++ -> Java = ") << pcc->_CPPToJavaPipe);
+				LOGDEBUG (TEXT ("Java -> C++ = ") << pcc->_JavaToCPPPipe);
+				// TODO [PLAT-1117] Use challenge/response to verify the user name
+				g_poJVM->UserConnection (pcc->_userName, pcc->_CPPToJavaPipe, pcc->_JavaToCPPPipe, pcc->_languageID);
+				ClientConnect_free (pcc);
 				if (!g_poJVM->IsStopped ()) {
 					g_poPipe->CancelLazyClose ();
 					if (g_poJVM->IsStopped ()) {
@@ -230,9 +230,9 @@ void ServiceRun (int nReason) {
 				LOGERROR (TEXT ("Shutting down JVM after failing to read from pipe"));
 				g_poJVM->Stop ();
 			}
-		} while (!g_poJVM->IsBusy (IS_BUSY_TIMEOUT) && g_poJVM->IsRunning ());
+		} while (!g_poJVM->IsBusy (g_lBusyTimeout) && g_poJVM->IsRunning ());
 		_ReportStateStopping ();
-		while (g_poJVM->IsBusy (IS_BUSY_TIMEOUT)) {
+		while (g_poJVM->IsBusy (g_lBusyTimeout)) {
 			_ReportStateStopping ();
 		}
 		_ReportStateStopped ();

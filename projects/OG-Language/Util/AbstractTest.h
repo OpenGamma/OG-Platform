@@ -12,16 +12,18 @@
 #include "Logging.h"
 
 class CAbstractTest {
+private:
+	const TCHAR *m_pszName;
 public:
 #ifndef __cplusplus_cli
-	CAbstractTest ();
+	CAbstractTest (const TCHAR *pszName);
 	~CAbstractTest ();
 	virtual void Run () = 0;
 	virtual void BeforeAll () { }
 	virtual void Before () { }
 	virtual void After ();
 	virtual void AfterAll () { }
-	static void Main ();
+	static void Main (int argc, TCHAR **argv);
 #endif /* ifndef __cplusplus_cli */
 	static void InitialiseLogs ();
 	static void Fail ();
@@ -83,9 +85,9 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 #define BEGIN_TESTS(label) \
 	static class C##label : public CAbstractTest { \
 	public: \
-		C##label () : CAbstractTest () { } \
+	C##label () : CAbstractTest (TEXT (#label)) { } \
 		void Run () { \
-			LOGINFO (TEXT ("Beginning tests ") << TEXT (#label));
+			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
 #define TEST(proc) \
 	LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 	Before (); \

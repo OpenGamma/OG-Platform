@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -85,12 +85,12 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return ComputationTargetType.SECURITY;
   }
 
-  protected Currency getCurrencyForTarget(final ComputationTarget target) {
+  protected CurrencyUnit getCurrencyForTarget(final ComputationTarget target) {
     final BondSecurity bond = (BondSecurity) target.getSecurity();
     return bond.getCurrency();
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency, Security security, BondDefinition bond, Object value, LocalDate now,
+  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, CurrencyUnit currency, Security security, BondDefinition bond, Object value, LocalDate now,
       String yieldCurveName);
 
 }

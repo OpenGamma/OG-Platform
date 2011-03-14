@@ -13,16 +13,16 @@ import org.junit.Test;
 
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
  */
 public class BondFutureTest {
   private static final String NAME = "A";
-  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.5, 0, 0, new FixedCouponPayment[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.5, 0, 0, new FixedCouponPayment[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.5, 0, 0, new FixedCouponPayment[0])};
+  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.5, 0, 0, new CouponFixed[0]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.5, 0, 0, new CouponFixed[0]),
+      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.5, 0, 0, new CouponFixed[0])};
   private static final double[] CONVERSION_FACTORS = new double[] {1.23, 3.45, 5.67};
   private static final double PRICE = 130;
 
@@ -62,7 +62,7 @@ public class BondFutureTest {
     assertEquals(future.getPrice(), PRICE, 0);
     other = new BondFuture(DELIVERABLES, CONVERSION_FACTORS, PRICE);
     assertEquals(future, other);
-    other = new BondFuture(new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.054, NAME), 0.5, 0, 0, new FixedCouponPayment[0]), DELIVERABLES[1], DELIVERABLES[2]},
+    other = new BondFuture(new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.054, NAME), 0.5, 0, 0, new CouponFixed[0]), DELIVERABLES[1], DELIVERABLES[2]},
         CONVERSION_FACTORS, PRICE);
     assertFalse(future.equals(other));
     other = new BondFuture(DELIVERABLES, new double[] {1, 2, 3}, PRICE);

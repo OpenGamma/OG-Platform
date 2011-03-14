@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,10 +12,10 @@
 #ifndef _WIN32
 #include <semaphore.h>
 #include <time.h>
+#include "Mutex.h"
 #endif /* ifndef _WIN32 */
 
 #include "Error.h"
-#include "Mutex.h"
 
 #define MAX_SEMAPHORE_COUNT	0x7FFFFFFF
 
@@ -34,8 +34,10 @@ public:
 	CSemaphore (int nInitialValue = 0, int nMaxValue = MAX_SEMAPHORE_COUNT) {
 #ifdef _WIN32
 		m_hSemaphore = CreateSemaphore (NULL, nInitialValue, nMaxValue, NULL);
+		assert (m_hSemaphore);
 #else
 		if (sem_init (&m_semaphore, 0, nInitialValue)) {
+			assert (0);
 			memset (&m_semaphore, 0, sizeof (m_semaphore));
 			m_nMaxValue = 0;
 		} else {
@@ -70,7 +72,7 @@ public:
 		return true;
 #endif
 	}
-	bool Wait (unsigned long timeout) {
+	bool Wait (unsigned long timeout = 0xFFFFFFFF) {
 #ifdef _WIN32
 		switch (WaitForSingleObject (m_hSemaphore, timeout)) {
 		case WAIT_ABANDONED :
@@ -89,7 +91,7 @@ public:
 			struct timespec ts;
 			time (&ts.tv_sec);
 			ts.tv_sec += timeout / 1000;
-			ts.tv_nsec = (timeout % 1000) * 1000000;
+			ts.tv_nsec = (500000000 + ((timeout % 1000) * 1000000)) % 1000000000;
 			return !sem_timedwait (&m_semaphore, &ts);
 		} else {
 			return !sem_wait (&m_semaphore);

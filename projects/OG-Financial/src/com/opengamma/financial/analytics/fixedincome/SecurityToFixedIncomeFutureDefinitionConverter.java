@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.exchange.ExchangeUtils;
@@ -61,6 +62,34 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
   @Override
   public FixedIncomeFutureInstrumentDefinition<?> visitBondFutureSecurity(final BondFutureSecurity security) {
     throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from an BondFutureSecurity");
+//    Validate.notNull(security, "security");
+//    if (_underlyingConverter == null) {
+//      _underlyingConverter = new SecurityToFixedIncomeDefinitionConverter(_holidaySource, _conventionSource, _regionSource);
+//    }
+//    final LocalDate deliveryDateLD = null;//deliveryDate.toLocalDate();
+//    final List<BondFutureDeliverable> deliverableBasket = security.getBasket();
+//    final int n = deliverableBasket.size();
+//    final BondDefinition[] deliverableBonds = new BondDefinition[n];
+//    final double[] conversionFactors = new double[n];
+//    final int i = 0;
+//    for (final BondFutureDeliverable bfd : deliverableBasket) {
+//      final BondSecurity underlyingBond = null;
+//      final LocalDate lastTradeDate = underlyingBond.getLastTradeDate().getExpiry().toLocalDate();
+//      Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
+//      //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
+//      final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
+//      final CurrencyUnit currency = security.getCurrency();
+//      final String conventionName = currency + "_BOND_FUTURE_DELIVERABLE_CONVENTION";
+//      final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName);
+//      final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);
+//      Validate.notNull(conventionBundle, "convention bundle " + conventionName);
+//      final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
+//      final BondDefinition deliverable = (BondDefinition) _underlyingConverter.visitBondSecurity(underlyingBond, conventionBundle);
+//      final BondConvention bondForwardConvention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar,
+//          conventionBundle.isEOMConvention(), conventionName, conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
+//
+//    }
+//    return null;//new BondForwardDefinition(underlyingBond, deliveryDate.toLocalDate(), bondForwardConvention);
   }
 
   @Override
@@ -80,7 +109,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
 
   @Override
   public FixedIncomeFutureInstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    final String currency = security.getCurrency().getISOCode();
+    final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_IRFUTURE"));
     final Exchange exchange = _exchangeSource.getSingleExchange(ExchangeUtils.isoMicExchangeId(security.getTradingExchange()));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, exchange, HolidayType.TRADING);

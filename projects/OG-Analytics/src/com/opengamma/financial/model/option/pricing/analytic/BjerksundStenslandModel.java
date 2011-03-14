@@ -21,7 +21,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * 
+ * Analytical approximation to American option price  
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
@@ -46,6 +46,9 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
         double b = data.getCostOfCarry();
         StandardOptionDataBundle newData = data;
         if (!definition.isCall()) {
+          if(s==0){
+            return k;
+          }
           r -= b;
           b *= -1;
           final double temp = s;

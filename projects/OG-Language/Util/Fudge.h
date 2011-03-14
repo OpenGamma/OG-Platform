@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -25,5 +25,16 @@
 #define FUDGE_STRING_TYPE ASCII
 #endif /* ifdef _UNICODE */
 #define FUDGE_STRING_LENGTH _tcslen
+
+// Force library initialization (C++)
+#ifdef __cplusplus
+class CFudgeInitialiser {
+public:
+	CFudgeInitialiser () {
+		FudgeStatus status = Fudge_init ();
+		assert (status == FUDGE_OK);
+	}
+};
+#endif /* ifdef __cplusplus */
 
 #endif /* ifndef __inc_og_language_util_fudge_h */

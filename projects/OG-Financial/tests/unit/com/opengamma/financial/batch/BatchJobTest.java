@@ -18,7 +18,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -161,7 +161,7 @@ public class BatchJobTest {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
       @Override
-      public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+      public boolean isHoliday(LocalDate dateToCheck, CurrencyUnit currency) {
         return dateToCheck.equals(LocalDate.of(2010, 1, 18));
       }
       @Override
@@ -173,7 +173,7 @@ public class BatchJobTest {
     CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(new DummyBatchDbManager());
     job.setHolidaySource(holidaySource);
-    job.setHolidayCurrency(Currency.getInstance("USD"));
+    job.setHolidayCurrency(CurrencyUnit.USD);
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 

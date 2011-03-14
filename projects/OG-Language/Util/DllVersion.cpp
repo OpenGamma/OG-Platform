@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,18 +11,14 @@
 #define DLLVERSION_NO_ERRORS
 #include "DllVersion.h"
 #include "Logging.h"
+#include "String.h"
 
 LOGGING(com.opengamma.language.util.DllVersion);
 
 CDllVersion::CDllVersion () {
 #ifdef _WIN32
 	m_pData = NULL;
-	HMODULE hModule;
-	if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
-		Init (hModule);
-	} else {
-		LOGWARN (TEXT ("Couldn't lookup host DLL handle, error ") << GetLastError ());
-	}
+	Init (GetCurrentModule ());
 #endif /* ifdef _WIN32 */
 }
 
@@ -37,6 +33,7 @@ CDllVersion::CDllVersion (PCTSTR pszModule) {
 }
 
 void CDllVersion::Init (HMODULE hModule) {
+	assert (hModule);
 	m_pData = NULL;
 	PTSTR pszPath = new TCHAR[MAX_PATH];
 	if (GetModuleFileName (hModule, pszPath, MAX_PATH) != 0) {
@@ -48,6 +45,7 @@ void CDllVersion::Init (HMODULE hModule) {
 }
 
 void CDllVersion::Init (PCTSTR pszModule) {
+	assert (pszModule);
 	DWORD cbVersionInfo = GetFileVersionInfoSize (pszModule, NULL);
 	if (cbVersionInfo != 0) {
 		m_pData = new BYTE[cbVersionInfo];
@@ -70,6 +68,16 @@ CDllVersion::~CDllVersion () {
 	}
 }
 
+HMODULE CDllVersion::GetCurrentModule () {
+	HMODULE hModule;
+	if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (PCTSTR)&_logger, &hModule)) {
+		return hModule;
+	} else {
+		LOGWARN (TEXT ("Couldn't lookup host DLL handle, error ") << GetLastError ());
+		return NULL;
+	}
+}
+
 PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
 	if (m_pData) {
 		TCHAR szValue[128];
@@ -89,5 +97,11 @@ PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
 		return TEXT ("");
 	}
 }
+
+#else /* ifdef _WIN32 */
+
+#define ATTRIBUTE(name) const TCHAR *CDllVersion::s_psz##name = NULL;
+DLLVERSION_ATTRIBUTES
+#undef ATTRIBUTE
 
 #endif /* ifdef _WIN32 */

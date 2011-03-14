@@ -9,6 +9,9 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
+import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
 import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
@@ -45,7 +48,7 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitFloatingSwapLegDefinition(FloatingSwapLegDefinition floatingSwapLeg);
 
-  U visitFRADefintion(FRADefinition fra, T data);
+  U visitFRADefinition(FRADefinition fra, T data);
 
   U visitFRADefinition(FRADefinition fra);
 
@@ -56,4 +59,16 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitTenorSwapDefinition(TenorSwapDefinition swap, T data);
 
   U visitTenorSwapDefinition(TenorSwapDefinition swap);
+
+  U visitPaymentFixed(PaymentFixedDefinition payment, T data);
+
+  U visitPaymentFixed(PaymentFixedDefinition payment);
+
+  U visitCouponFixed(CouponFixedDefinition payment, T data);
+
+  U visitCouponFixed(CouponFixedDefinition payment);
+
+  U visitCouponIbor(CouponIborDefinition payment, T data);
+
+  U visitCouponIbor(CouponIborDefinition payment);
 }

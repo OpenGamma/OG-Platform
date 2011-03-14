@@ -8,14 +8,13 @@ package com.opengamma.math.rootfinding;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
  */
 public abstract class RealSingleRootFinderTestCase {
-  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
+  protected static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
     public Double evaluate(final Double x) {
@@ -23,7 +22,7 @@ public abstract class RealSingleRootFinderTestCase {
     }
 
   };
-  private static final double EPS = 1e-9;
+  protected static final double EPS = 1e-9;
 
   public void testInputs(final RealSingleRootFinder finder) {
     try {
@@ -50,13 +49,13 @@ public abstract class RealSingleRootFinderTestCase {
     try {
       finder.getRoot(F, 10., 100.);
       fail();
-    } catch (final MathException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       finder.getRoot(F, 1.5, 3.5);
       fail();
-    } catch (final MathException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     assertEquals(finder.getRoot(F, 2.5, 3.5), 3, EPS);

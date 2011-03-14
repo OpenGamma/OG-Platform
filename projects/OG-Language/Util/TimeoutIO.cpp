@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -28,9 +28,7 @@ CTimeoutIO::CTimeoutIO (FILE_REFERENCE file) {
 #ifdef _WIN32
 	ZeroMemory (&m_overlapped, sizeof (m_overlapped));
 	m_overlapped.hEvent = CreateEvent (NULL, TRUE, FALSE, NULL);
-#else
-	m_lPreviousTimeout = TIMEOUT_IO_DEFAULT;
-#endif
+#endif /* ifdef _WIN32 */
 }
 
 CTimeoutIO::~CTimeoutIO () {
@@ -38,14 +36,15 @@ CTimeoutIO::~CTimeoutIO () {
 #ifdef _WIN32
 	CloseHandle (m_file);
 	CloseHandle (m_overlapped.hEvent);
-#else
+#else /* ifdef _WIN32 */
 	if (m_file) {
 		close (m_file);
 	}
-#endif
+#endif /* ifdef _WIN32 */
 }
 
 #ifdef _WIN32
+
 bool CTimeoutIO::WaitOnOverlapped (unsigned long timeout) {
 	DWORD dwError = GetLastError ();
 	if (dwError != ERROR_IO_PENDING) {
@@ -96,19 +95,36 @@ waitOnSignal:
 	}
 	return true;
 }
+
 #else /* ifdef _WIN32 */
-bool CTimeoutIO::SetTimeout (unsigned long timeout) {
+
+bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 	m_oBlockedThread.Set (CThread::CurrentRef ());
-	if (m_lPreviousTimeout == timeout) {
+	fd_set fds;
+	FD_ZERO (&fds);
+	FD_SET (m_file, &fds);
+	timeval tv;
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000;
+	int n = select (m_file + 1, bRead ? &fds : NULL, bRead ? NULL : &fds, NULL, &tv);
+	if (n == 1) {
+		assert (FD_ISSET (m_file, &fds));
+		// I/O operation should complete without blocking
+		return true;
+	} else {
+		m_oBlockedThread.Set (NULL);
+		if (n == 0) {
+			// I/O operation shouldn't complete without blocking
+			SetLastError (ETIMEDOUT);
+		}
 		return false;
 	}
-	m_lPreviousTimeout = timeout;
-	return true;
 }
 
-void CTimeoutIO::CancelTimeout () {
+void CTimeoutIO::EndOverlapped () {
 	m_oBlockedThread.Set (NULL);
 }
+
 #endif /* ifdef _WIN32 */
 
 size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) {
@@ -145,9 +161,13 @@ size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) 
 		timeout = IsLazyClosing ();
 	}
 timeoutOperation:
-	SetTimeout (timeout);
-	ssize_t cbBytesRead = read (m_file, pBuffer, cbBuffer);
-	CancelTimeout ();
+	ssize_t cbBytesRead;
+	if (BeginOverlapped (timeout, true)) {
+		cbBytesRead = read (m_file, pBuffer, cbBuffer);
+		EndOverlapped ();
+	} else {
+		cbBytesRead = -1;
+	}
 	if (cbBytesRead < 0) {
 		int ec = GetLastError ();
 		if (ec == EINTR) {
@@ -167,6 +187,10 @@ timeoutOperation:
 		}
 		LOGWARN (TEXT ("Couldn't read from file, error ") << ec);
 		SetLastError (ec);
+		return 0;
+	} else if (cbBytesRead == 0) {
+		LOGWARN (TEXT ("End of stream detected"));
+		SetLastError (ECONNRESET);
 		return 0;
 	}
 	return cbBytesRead;
@@ -207,9 +231,13 @@ size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long ti
 		timeout = IsLazyClosing ();
 	}
 timeoutOperation:
-	SetTimeout (timeout);
-	ssize_t cbWritten = write (m_file, pBuffer, cbBuffer);
-	CancelTimeout ();
+	ssize_t cbWritten;
+	if (BeginOverlapped (timeout, false)) {
+		cbWritten = write (m_file, pBuffer, cbBuffer);
+		EndOverlapped ();
+	} else {
+		cbWritten = -1;
+	}
 	if (cbWritten < 0) {
 		int ec = GetLastError ();
 		if (ec == EINTR) {
@@ -230,6 +258,10 @@ timeoutOperation:
 		LOGWARN (TEXT ("Couldn't write to file, error ") << ec);
 		SetLastError (ec);
 		return 0;
+	} else if (cbWritten == 0) {
+		LOGWARN (TEXT ("No bytes written"));
+		SetLastError (ECONNRESET);
+		return 0;
 	}
 	return cbWritten;
 #endif
@@ -239,7 +271,8 @@ bool CTimeoutIO::Flush () {
 #ifdef _WIN32
 	return FlushFileBuffers (m_file) ? true : false;
 #else
-	return PosixLastError (fsync (m_file));
+	//return fsync (m_file) == 0; // This is not supported for sockets or pipes
+	return true;
 #endif
 }
 

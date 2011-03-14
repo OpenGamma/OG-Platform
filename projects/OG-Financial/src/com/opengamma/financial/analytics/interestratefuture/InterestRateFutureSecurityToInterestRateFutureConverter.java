@@ -33,7 +33,7 @@ public class InterestRateFutureSecurityToInterestRateFutureConverter {
   }
 
   public InterestRateFuture getInterestRateFuture(final InterestRateFutureSecurity security, final String indexCurveName, final double price, final ZonedDateTime now) {
-    final String currency = security.getCurrency().getISOCode();
+    final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_IRFUTURE"));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency()); // TODO: check we've got the right holiday calendar.
 

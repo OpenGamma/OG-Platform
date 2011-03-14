@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import com.opengamma.financial.security.equity.GICSCode;
 
+/**
+ * Test GICSCode Fudge support.
+ */
 public class GICSCodeTest extends FinancialTestBase {
 
   private static final GICSCode s_ref = GICSCode.getInstance(10203040);
@@ -25,7 +28,7 @@ public class GICSCodeTest extends FinancialTestBase {
   @Test
   public void testFromInteger () {
     assertEquals(s_ref, getFudgeContext().getFieldValue(GICSCode.class,
-        new FudgeMsgField(PrimitiveFieldTypes.INT_TYPE, s_ref.getCode(), null, null)));
+        FudgeMsgField.of(PrimitiveFieldTypes.INT_TYPE, s_ref.getCode())));
   }
 
 }

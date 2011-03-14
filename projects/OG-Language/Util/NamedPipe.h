@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,14 +26,15 @@ public:
 	~CNamedPipe ();
 	static CNamedPipe *ClientRead (const TCHAR *pszName);
 	static CNamedPipe *ClientWrite (const TCHAR *pszName);
-	static CNamedPipe *ServerRead (const TCHAR *pszName);
-	static CNamedPipe *ServerWrite (const TCHAR *pszName);
+	static CNamedPipe *ServerRead (const TCHAR *pszName, bool bExclusive);
+	static CNamedPipe *ServerWrite (const TCHAR *pszName, bool bExclusive);
 	const TCHAR *GetName () { return m_pszName; }
 	CNamedPipe *Accept (unsigned long timeout);
 	bool IsServer () { return m_bServer; }
 	bool IsClient () { return !m_bServer; }
 	bool IsReader () { return m_bReader; }
 	bool IsWriter () { return !m_bReader; }
+	static const TCHAR *GetTestPipePrefix ();
 };
 
 #endif /* ifndef __inc_og_language_util_namedpipe_h */

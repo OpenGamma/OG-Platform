@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 
 /**
  * Hold the valid range of X and Y for a surface.  E.g. VolatilitySurfaceDefinition<Tenor, Double> (tenor vs strike, z is volatility), where Tenors go from 1YR..10YR, 
@@ -18,12 +18,12 @@ import com.opengamma.core.common.Currency;
  */
 public class VolatilitySurfaceDefinition<X, Y> {
   private String _name;
-  private Currency _currency;
+  private CurrencyUnit _currency;
   private String _interpolatorName;
   private X[] _xs;
   private Y[] _ys;
     
-  public VolatilitySurfaceDefinition(String name, Currency currency, String interpolatorName, X[] xs, Y[] ys) {
+  public VolatilitySurfaceDefinition(String name, CurrencyUnit currency, String interpolatorName, X[] xs, Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(currency, "Currency");
     Validate.notNull(interpolatorName, "Interpolator Name");
@@ -48,7 +48,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
     return _name;
   }
   
-  public Currency getCurrency() {
+  public CurrencyUnit getCurrency() {
     return _currency;
   }
   

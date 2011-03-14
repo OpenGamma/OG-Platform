@@ -7,6 +7,7 @@ package com.opengamma.math.util.wrapper;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
@@ -18,6 +19,7 @@ import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.optimization.RealPointValuePair;
 
 import com.opengamma.math.MathException;
+import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.FunctionND;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -127,5 +129,21 @@ public final class CommonsMathWrapper {
   public static double[] unwrap(final RealPointValuePair x) {
     Validate.notNull(x);
     return x.getPoint();
+  }
+
+  public static DifferentiableUnivariateRealFunction wrapDifferentiable(final DoubleFunction1D f) {
+    Validate.notNull(f);
+    return new DifferentiableUnivariateRealFunction() {
+
+      @Override
+      public double value(final double x) throws FunctionEvaluationException {
+        return f.evaluate(x);
+      }
+
+      @Override
+      public UnivariateRealFunction derivative() {
+        return wrapUnivariate(f.derivative());
+      }
+    };
   }
 }

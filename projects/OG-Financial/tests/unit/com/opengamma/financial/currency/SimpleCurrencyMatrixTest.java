@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -21,10 +21,10 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class SimpleCurrencyMatrixTest {
   
-  private final Currency currencyUSD = Currency.getInstance ("USD");
-  private final Currency currencyGBP = Currency.getInstance ("GBP");
-  private final Currency currencyEUR = Currency.getInstance ("EUR");
-  private final Currency currencyCHF = Currency.getInstance ("CHF");
+  private final CurrencyUnit currencyUSD = CurrencyUnit.of ("USD");
+  private final CurrencyUnit currencyGBP = CurrencyUnit.of ("GBP");
+  private final CurrencyUnit currencyEUR = CurrencyUnit.of ("EUR");
+  private final CurrencyUnit currencyCHF = CurrencyUnit.of ("CHF");
   
   @Test
   public void testFixedConversion () {

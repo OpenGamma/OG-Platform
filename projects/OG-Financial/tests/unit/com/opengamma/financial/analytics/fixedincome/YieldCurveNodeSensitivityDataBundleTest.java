@@ -10,7 +10,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 
 /**
@@ -21,7 +21,7 @@ public class YieldCurveNodeSensitivityDataBundleTest {
   private static final Object[] LABELS = new Object[] {"1Y", "2Y", "3Y", "4Y"};
   private static final double[] X = new double[] {5, 6, 7, 8};
   private static final DoubleLabelledMatrix1D M = new DoubleLabelledMatrix1D(T, X);
-  private static final Currency CCY = Currency.getInstance("USD");
+  private static final CurrencyUnit CCY = CurrencyUnit.USD;
   private static final String NAME = "SINGLE";
 
   @Test(expected = IllegalArgumentException.class)
@@ -50,7 +50,7 @@ public class YieldCurveNodeSensitivityDataBundleTest {
     assertEquals(data.getYieldCurveName(), NAME);
     other = new YieldCurveNodeSensitivityDataBundle(CCY, new DoubleLabelledMatrix1D(T, LABELS, X), NAME);
     assertFalse(other.equals(data));
-    other = new YieldCurveNodeSensitivityDataBundle(Currency.getInstance("GBP"), M, NAME);
+    other = new YieldCurveNodeSensitivityDataBundle(CurrencyUnit.GBP, M, NAME);
     assertFalse(other.equals(data));
     other = new YieldCurveNodeSensitivityDataBundle(CCY, M, "PPP");
     assertFalse(other.equals(data));

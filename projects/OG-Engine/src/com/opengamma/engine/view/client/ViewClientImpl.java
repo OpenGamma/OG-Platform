@@ -195,7 +195,14 @@ public class ViewClientImpl implements ViewClient {
       _liveComputationResultProvider.setPaused(false);
       _liveDeltaResultProvider.setPaused(false);
       configureViewSubscriptions();
+      
+      // [XLS-197] -- if nothing has been calculated yet, this will be null. Otherwise, it will initialise the latest
+      // result which would not normally happen until the next result arrives. At worst, it will initialise it to the
+      // same value as a tick that is about to be applied now that the result providers have been unpaused.
+      _latestResult.set(_view.getLatestResult());
+      
       _view.addLiveComputationClient(this);
+      
       _state = ViewClientState.STARTED;
     } finally {
       _clientLock.unlock();

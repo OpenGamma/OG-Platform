@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
@@ -52,7 +53,9 @@ public interface CompiledFunctionDefinition {
   /**
    * Obtain all input requirements necessary for the operation of this function at execution time.
    * The target requirement is available to allow property constraints on input requirements to be
-   * specified if necessary.
+   * specified if necessary. It is only valid to call this on a function which has previously
+   * returned {@code true} to {@link #canApplyTo} for the given target, its behavior is otherwise
+   * undefined.
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
@@ -61,10 +64,12 @@ public interface CompiledFunctionDefinition {
    * @return All input requirements to execute this function on the specified target with the specified configuration.
    */
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue);
-  
+
   /**
    * Determine any additional input requirements needed as a result of input and output resolution.
-   * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}.
+   * In general, implementations <b>should not</b> override the implementation in {@link AbstractFunction}. It
+   * is only valid to call this on a function which has previously returned {@code true} to {@link #canApplyTo}
+   * for the given target, its behavior is otherwise undefined.
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
@@ -85,16 +90,17 @@ public interface CompiledFunctionDefinition {
 
   /**
    * Determine which result values can be produced by this function when applied to the
-   * specified target assuming no input constraints.
-   * Should return the <b>maximal</b> set of potential outputs. <b>Actual</b> computed values
-   * will be trimmed.
+   * specified target assuming no input constraints. Should return the <b>maximal</b> set of potential outputs.
+   * <b>Actual</b> computed values will be trimmed. It is only valid to call this on a function which has
+   * previously returned {@code true} to {@link #canApplyTo} for the given target, its behavior is otherwise
+   * undefined.
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
    * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
-  
+
   /**
    * Determine which result values can be produced by this function when applied to the
    * specified target given the resolved inputs. Should return the <b>maximal</b> set of potential outputs.
@@ -102,14 +108,16 @@ public interface CompiledFunctionDefinition {
    * will return the same value as {@link #getResults (FunctionCompilationContext, ComputationTarget)}. If
    * a function specified both its outputs and inputs using a wildcard, with the outputs depending on the
    * inputs, it should override this to implement that dependency. If it is not possible to generate any
-   * results using the inputs given, an empty set must be returned.
+   * results using the inputs given, an empty set must be returned. It is only valid to call this on a
+   * function which has previously returned {@code true} to {@link #canApplyTo} for the given target, its
+   * behavior is otherwise undefined.
    * 
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target The target for which calculation is desired.
-   * @param inputs The resolved inputs to the function.
+   * @param inputs The resolved inputs to the function, mapped to the originally requested requirements
    * @return All results <b>possible</b> to be computed by this function for this target with these parameters.
    */
-  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueSpecification> inputs);
+  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs);
 
   /**
    * Returns an invocation handle to the compiled function. If the function is not available at this node,

@@ -373,7 +373,7 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
         bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setTradingExchange(secMasterSession.getOrCreateExchangeBean(security.getTradingExchange(), null));
         bean.setSettlementExchange(secMasterSession.getOrCreateExchangeBean(security.getSettlementExchange(), null));
-        bean.setCurrency1(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
+        bean.setCurrency1(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
         return bean;
       }
       
@@ -435,8 +435,8 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
       @Override
       public FutureSecurityBean visitFXFutureSecurity(FXFutureSecurity security) {
         final FutureSecurityBean bean = createFutureBean(security);
-        bean.setCurrency2(secMasterSession.getOrCreateCurrencyBean(security.getNumerator().getISOCode()));
-        bean.setCurrency3(secMasterSession.getOrCreateCurrencyBean(security.getDenominator().getISOCode()));
+        bean.setCurrency2(secMasterSession.getOrCreateCurrencyBean(security.getNumerator().getCode()));
+        bean.setCurrency3(secMasterSession.getOrCreateCurrencyBean(security.getDenominator().getCode()));
         bean.setUnitNumber(security.getMultiplicationFactor());
         return bean;
       }
