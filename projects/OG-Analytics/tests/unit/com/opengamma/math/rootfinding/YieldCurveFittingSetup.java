@@ -26,8 +26,8 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -273,8 +273,8 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
-    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
+    final AnnuityCouponIbor payLeg = new AnnuityCouponIbor(paymentTimes, 1.0, fundCurveName, fundCurveName);
+    final AnnuityCouponIbor receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
     return new TenorSwap(payLeg, receiveLeg);
   }
 
@@ -307,9 +307,9 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final FixedCouponAnnuity fixedLeg = new FixedCouponAnnuity(fixed, rate, fundingCurveName);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, rate, fundingCurveName);
 
-    final ForwardLiborAnnuity floatingLeg = new ForwardLiborAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

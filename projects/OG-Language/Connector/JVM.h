@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,8 @@
 #define __inc_og_language_connector_jvm_h
 
 // JVM process/service management
+
+#include <Util/Process.h>
 
 class CClientJVM {
 private:

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -118,7 +118,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 		SECURITY_DESCRIPTOR sd;
 		SECURITY_ATTRIBUTES sa;
 		InitializeSecurityDescriptor (&sd, SECURITY_DESCRIPTOR_REVISION);
-		// TODO [XLS-182] Get a SDDL from the registry for the DACL (and pass it into this library)
+		// TODO [PLAT-1119] Get a SDDL from the registry for the DACL (and pass it into this library)
 		SetSecurityDescriptorDacl (&sd, TRUE, NULL, FALSE);
 		ZeroMemory (&sa, sizeof (sa));
 		sa.nLength = sizeof (sa);

@@ -44,12 +44,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(Configuration)$(Platform)\</IntDir>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(INCLUDE)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)build\$(Configuration)$(Platform)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(Configuration)$(Platform)\</IntDir>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;$(INCLUDE)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -61,8 +63,11 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,18 +83,26 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;psapi.lib;log4cxx.lib;libfudgec.lib;util.lib;connector.lib;service.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DllVersionInfo.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AlertTest.cpp" />
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="ConnectorTest.cpp" />
+    <ClCompile Include="FunctionsTest.cpp" />
     <ClCompile Include="JVMTest.cpp" />
+    <ClCompile Include="LiveDataTest.cpp" />
     <ClCompile Include="PipesTest.cpp" />
+    <ClCompile Include="ProceduresTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -99,6 +112,9 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConnectorTest.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

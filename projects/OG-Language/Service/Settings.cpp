@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,6 +9,8 @@
 // Runtime configuration options
 
 #include "Settings.h"
+#include <Util/File.h>
+#include <Util/Process.h>
 
 LOGGING(com.opengamma.language.service.Settings);
 
@@ -41,7 +43,7 @@ CSettings::~CSettings () {
 	}
 }
 
-// TODO [XLS-171] Defer the scanning for defaults
+// TODO [PLAT-1118] Defer the scanning for defaults
 
 #ifdef _WIN32
 static BOOL _IsValidLibrary (PCTSTR pszLibrary) {

@@ -7,26 +7,26 @@ package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 
 /**
  * 
  */
-public class FloatingRateNote extends Swap<FixedPayment, ForwardLiborPayment> {
+public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
 
-  public FloatingRateNote(final GenericAnnuity<ForwardLiborPayment> forwardLiborAnnuity) {
+  public FloatingRateNote(final GenericAnnuity<CouponIbor> forwardLiborAnnuity) {
     super(setUpFixedLeg(forwardLiborAnnuity), forwardLiborAnnuity);
   }
 
-  private static GenericAnnuity<FixedPayment> setUpFixedLeg(final GenericAnnuity<ForwardLiborPayment> annuity) {
+  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIbor> annuity) {
     final String curveName = annuity.getNthPayment(0).getFundingCurveName();
     final double notional = annuity.getNthPayment(0).getNotional();
-    final FixedPayment[] fixedPayments = new FixedPayment[2];
-    fixedPayments[0] = new FixedPayment(0, notional, curveName);
-    fixedPayments[1] = new FixedPayment(annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
+    final PaymentFixed[] fixedPayments = new PaymentFixed[2];
+    fixedPayments[0] = new PaymentFixed(0, notional, curveName);
+    fixedPayments[1] = new PaymentFixed(annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
 
-    return new GenericAnnuity<FixedPayment>(fixedPayments);
+    return new GenericAnnuity<PaymentFixed>(fixedPayments);
   }
 
   @Override

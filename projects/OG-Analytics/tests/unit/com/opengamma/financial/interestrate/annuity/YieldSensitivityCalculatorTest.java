@@ -9,9 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.YieldSensitivityCalculator;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -41,21 +40,22 @@ public class YieldSensitivityCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    YSC.calculateNthOrderSensitivity(new GenericAnnuity<FixedCouponPayment>(new FixedCouponPayment[] {new FixedCouponPayment(2, 2, 0.4, "A")}), 1, -1);
+    YSC.calculateNthOrderSensitivity(new GenericAnnuity<CouponFixed>(new CouponFixed[] {new CouponFixed(2, "A", 2, 0.4)}), 1, -1);
   }
 
   @Test
   public void testSinglePaymentYield() {
     final int n = 10;
     final double pv = 0.875;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
+    //    final PaymentFixed[] payments = new PaymentFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new FixedCouponPayment((i + 1) * tau, tau, 0.0, "");
+      payments[i] = new CouponFixed((i + 1) * tau, "", tau, 0.0);
     }
-    payments[n - 1] = new FixedCouponPayment(n * tau, tau, 2.0, "");
+    payments[n - 1] = new CouponFixed(n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<FixedCouponPayment> annuity = new GenericAnnuity<FixedCouponPayment>(payments);
+    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
     final double yield = YieldSensitivityCalculator.getInstance().calculateYield(annuity, pv);
     assertEquals(Math.log(2.0 * tau / pv) / 10.0 / tau, yield, 1e-8);
   }
@@ -64,14 +64,14 @@ public class YieldSensitivityCalculatorTest {
   public void testSinglePaymentSensitivity() {
     final int n = 10;
     final double pv = 0.78945;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new FixedCouponPayment((i + 1) * tau, tau, 0.0, "");
+      payments[i] = new CouponFixed((i + 1) * tau, "", tau, 0.0);
     }
-    payments[n - 1] = new FixedCouponPayment(n * tau, tau, 2.0, "");
+    payments[n - 1] = new CouponFixed(n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<FixedCouponPayment> annuity = new GenericAnnuity<FixedCouponPayment>(payments);
+    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
 
     for (int order = 1; order < 5; order++) {
       final double sense = YieldSensitivityCalculator.getInstance().calculateNthOrderSensitivity(annuity, pv, order);
@@ -83,14 +83,14 @@ public class YieldSensitivityCalculatorTest {
   public void testSinglePaymentSensitivityFromYield() {
     final int n = 10;
     final double yield = 0.06;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new FixedCouponPayment((i + 1) * tau, tau, 0.0, "");
+      payments[i] = new CouponFixed((i + 1) * tau, "", tau, 0.0);
     }
-    payments[n - 1] = new FixedCouponPayment(n * tau, tau, 2.0, "");
+    payments[n - 1] = new CouponFixed(n * tau, "", tau, 2.0);
 
-    final GenericAnnuity<FixedCouponPayment> annuity = new GenericAnnuity<FixedCouponPayment>(payments);
+    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(payments);
 
     final double pv = YieldSensitivityCalculator.getInstance().calculatePriceForYield(annuity, yield);
     for (int order = 1; order < 5; order++) {

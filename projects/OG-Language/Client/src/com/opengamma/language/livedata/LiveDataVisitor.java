@@ -6,6 +6,8 @@
 
 package com.opengamma.language.livedata;
 
+import com.opengamma.language.connector.LiveData;
+
 /**
  * Defines a visitor interface for incoming live-data messages.
  *
@@ -15,5 +17,9 @@ package com.opengamma.language.livedata;
 public interface LiveDataVisitor<T1, T2> {
 
   T1 visitCustom(Custom message, T2 data);
+
+  T1 visitQueryAvailable(QueryAvailable message, T2 data);
+
+  T1 visitUnexpected(LiveData message, T2 data);
 
 }

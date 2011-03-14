@@ -7,11 +7,13 @@
 #ifndef __inc_og_language_util_string_h
 #define __inc_og_language_util_string_h
 
-#ifndef _WIN32
-#include <stdarg.h>
-#endif
-
 #include "Unicode.h"
+
+#ifdef _WIN32
+#include <strsafe.h>
+#else /* ifdef _WIN32 */
+#include <stdarg.h>
+#endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
 inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {
@@ -23,6 +25,7 @@ inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFor
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
+#ifdef _WCHAR_H
 inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
@@ -33,11 +36,12 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
+#endif /* ifdef _WCHAR_H */
 #ifdef _UNICODE
 #define StringCbPrintf StringCbPrintfW
-#else
+#else /* ifdef _UNICODE */
 #define StringCbPrintf StringCbPrintfA
-#endif
-#endif /* ifdef _WIN32 */
+#endif /* ifdef _UNICODE */
+#endif /* ifndef _WIN32 */
 
 #endif /* ifndef __inc_og_language_util_string_h */

@@ -95,14 +95,22 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     for (ValueRequirement requirement : valueRequirements) {
       LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecuritySource());
       liveDataSpecs.add(liveDataSpec);
-      Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
-      if (requirementsForSpec == null) {
-        requirementsForSpec = new HashSet<ValueRequirement>();
-        _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
-      }
-      requirementsForSpec.add(requirement);
+      registerLiveDataSpec(requirement, liveDataSpec);
     }
     _liveDataClient.subscribe(user, liveDataSpecs, this);
+  }
+
+  /**
+   * @param requirement
+   * @param liveDataSpec
+   */
+  protected void registerLiveDataSpec(ValueRequirement requirement, LiveDataSpecification liveDataSpec) {
+    Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
+    if (requirementsForSpec == null) {
+      requirementsForSpec = new HashSet<ValueRequirement>();
+      _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
+    }
+    requirementsForSpec.add(requirement);
   }
   
   // Protected for unit testing.
@@ -135,11 +143,12 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
     if (valueRequirements == null) {
       s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
+      s_logger.debug("Current pending subscriptions: {}", _liveDataSpec2ValueRequirements);
       return;
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
       _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
-      s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
+      s_logger.info("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
       super.subscriptionSucceeded(valueRequirements);
     } else {
       s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
@@ -151,7 +160,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   public void subscriptionStopped(
       LiveDataSpecification fullyQualifiedSpecification) {
     // This shouldn't really happen because there's no removeSubscription() method on this class...
-    s_logger.warn("Subscription stopped " + fullyQualifiedSpecification);    
+    s_logger.warn("Subscription stopped " + fullyQualifiedSpecification);
   }
 
   @Override

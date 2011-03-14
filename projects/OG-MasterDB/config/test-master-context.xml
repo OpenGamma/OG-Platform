@@ -63,6 +63,11 @@
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbExg" />
   </bean>
+  
+  <bean id="hsqldbDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbSnp" />
+  </bean>
 
   <bean id="hsqldbDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
     <constructor-arg ref="hsqldbDbSource" />
@@ -112,6 +117,11 @@
   <bean id="postgresDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbExg" />
+  </bean>
+  
+  <bean id="postgresDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbSnp" />
   </bean>
 
   <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">

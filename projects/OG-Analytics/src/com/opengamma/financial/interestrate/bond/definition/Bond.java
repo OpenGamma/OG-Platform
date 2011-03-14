@@ -11,8 +11,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * 
@@ -20,8 +20,8 @@ import com.opengamma.financial.interestrate.payments.FixedPayment;
 // TODO Because of the way that accrued interest is calculated (i.e. Julian days, so that whole numbers of days are used), we need extra fields that can contain the accrued interest
 // up to the time today (fractions of a day) as well as the "official" accrued interest.
 public class Bond implements InterestRateDerivative {
-  private final GenericAnnuity<FixedCouponPayment> _coupons;
-  private final FixedPayment _principle;
+  private final GenericAnnuity<CouponFixed> _coupons;
+  private final PaymentFixed _principle;
   private final double _accruedInterest;
 
   public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
@@ -30,13 +30,13 @@ public class Bond implements InterestRateDerivative {
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
     double yearFraction;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
       yearFraction = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
-      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, couponRate, yieldCurveName);
+      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFraction, couponRate);
     }
-    _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
-    _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = 0.0;
   }
 
@@ -46,12 +46,12 @@ public class Bond implements InterestRateDerivative {
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFraction, couponRate, yieldCurveName);
+      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFraction, couponRate);
     }
-    _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
-    _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = accruedInterest;
   }
 
@@ -66,12 +66,12 @@ public class Bond implements InterestRateDerivative {
     final int n = paymentTimes.length;
     Validate.isTrue(coupons.length == n, "Must have a payment for each payment time");
     Validate.isTrue(yearFractions.length == n, "Must have a payment for each payment time");
-    final FixedCouponPayment[] payments = new FixedCouponPayment[n];
+    final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = new FixedCouponPayment(paymentTimes[i], yearFractions[i], coupons[i], yieldCurveName);
+      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFractions[i], coupons[i]);
     }
-    _principle = new FixedPayment(paymentTimes[n - 1], 1.0, yieldCurveName);
-    _coupons = new GenericAnnuity<FixedCouponPayment>(payments);
+    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = accruedInterest;
   }
 
@@ -79,21 +79,21 @@ public class Bond implements InterestRateDerivative {
    * Full set of payments - coupons and principle 
    * @return the annuity
    */
-  public GenericAnnuity<FixedPayment> getAnnuity() {
+  public GenericAnnuity<PaymentFixed> getAnnuity() {
     final int n = _coupons.getNumberOfPayments();
-    final FixedPayment[] temp = new FixedPayment[n + 1];
+    final PaymentFixed[] temp = new PaymentFixed[n + 1];
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i);
     }
     temp[n] = _principle;
-    return new GenericAnnuity<FixedPayment>(temp);
+    return new GenericAnnuity<PaymentFixed>(temp);
   }
 
   /**
    * 
    * @return The final return of principle payment
    */
-  public FixedPayment getPrinciplePayment() {
+  public PaymentFixed getPrinciplePayment() {
     return _principle;
   }
 
@@ -101,7 +101,7 @@ public class Bond implements InterestRateDerivative {
    * 
    * @return Coupons only Payments (i.e. excluding the principle payment)
    */
-  public GenericAnnuity<FixedCouponPayment> getCouponAnnuity() {
+  public GenericAnnuity<CouponFixed> getCouponAnnuity() {
     return _coupons;
   }
 
@@ -109,13 +109,13 @@ public class Bond implements InterestRateDerivative {
    * 
    * @return Coupons only Payments (i.e. excluding the principle payment) where the coupon is set to 1
    */
-  public GenericAnnuity<FixedCouponPayment> getUnitCouponAnnuity() {
+  public GenericAnnuity<CouponFixed> getUnitCouponAnnuity() {
     final int n = _coupons.getNumberOfPayments();
-    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
+    final CouponFixed[] temp = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
       temp[i] = _coupons.getNthPayment(i).withUnitCoupon();
     }
-    return new GenericAnnuity<FixedCouponPayment>(temp);
+    return new GenericAnnuity<CouponFixed>(temp);
   }
 
   @Override

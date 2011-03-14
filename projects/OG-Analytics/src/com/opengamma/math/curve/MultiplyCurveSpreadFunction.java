@@ -49,6 +49,7 @@ public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
+  @Override
   public String getOperationName() {
     return NAME;
   }

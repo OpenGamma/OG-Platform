@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,8 +13,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Psapi.h>
-#include <tchar.h>
-#include <strsafe.h>
 #ifdef __cplusplus
 #pragma warning(disable:4995) /* suppress #pragma deprecated warnings from standard C++ headers */
 #endif /* ifdef __cplusplus */
@@ -34,6 +32,8 @@
 #endif
 #include <assert.h>
 
+// Include these so that cpptask fails if libraries not present
 #include <fudge/fudge.h>
+#include <log4cxx/log4cxx.h>
 
 #endif /* ifndef __inc_og_language_util_stdafx_h */

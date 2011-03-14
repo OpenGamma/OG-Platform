@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,7 +7,7 @@
 #ifndef __inc_og_language_util_dllversioninfo_h
 #define __inc_og_language_util_dllversioninfo_h
 
-#include "../version.h"
+#include <version.h>
 
 #ifndef DllVersion_Comments
 #define DllVersion_Comments			""
