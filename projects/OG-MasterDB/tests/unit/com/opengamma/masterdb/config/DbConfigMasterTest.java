@@ -120,16 +120,6 @@ public class DbConfigMasterTest extends DBTest {
   
   //-------------------------------------------------------------------------
   @Test
-  public void test_getTypes() {
-    List<String> types = _cfgMaster.getTypes();
-    assertNotNull(types);
-    assertEquals(2, types.size());
-    assertTrue(types.contains(Identifier.class.getName()));
-    assertTrue(types.contains(IdentifierBundle.class.getName()));
-  }
-  
-  //-------------------------------------------------------------------------
-  @Test
   public void test_toString() {
     assertEquals("DbConfigMaster[DbCfg]", _cfgMaster.toString());
   }
