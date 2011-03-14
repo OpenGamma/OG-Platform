@@ -111,10 +111,9 @@ void CAbstractTest::InitialiseLogs () {
 	}
 #ifdef _WIN32
 	TCHAR szConfigurationFile[MAX_PATH];
-	if (GetEnvironmentVariable (TEXT ("LOG4CXX_CONFIGURATION"), szConfigurationFile, MAX_PATH) != 0) {
-#define pszConfigurationFile szConfigurationFile
+	const TCHAR *pszConfigurationFile = (GetEnvironmentVariable (TEXT ("LOG4CXX_CONFIGURATION"), szConfigurationFile, MAX_PATH) != 0) ? szConfigurationFile : NULL;
 #else /* ifdef _WIN32 */
-	char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
+	const char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
 #endif /* ifdef _WIN32 */
 	LoggingInitImpl (pszConfigurationFile);
 }

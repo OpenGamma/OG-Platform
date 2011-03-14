@@ -46,13 +46,15 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
     final Set<MetaLiveData> definitions = data.getLiveDataProvider().getDefinitions();
+    final LiveDataRepository repository = data.getLiveDataRepository();
     s_logger.info("{} live data available", definitions.size());
     final Available available = new Available();
     for (MetaLiveData definition : definitions) {
       Definition logical = data.getGlobalContext().getLiveDataDefinitionFilter().createDefinition(definition);
       if (logical != null) {
-        s_logger.debug("Publishing {}", logical);
-        available.addDefinition(logical);
+        final int identifier = repository.add(definition);
+        s_logger.debug("Publishing {} as {}", logical, identifier);
+        available.addLiveData(new Available.Entry(identifier, logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }

@@ -19,6 +19,13 @@ namespace com.opengamma.language.definition {
     required string name;
     
     /**
+     * Brief (1 paragraph) description of the entity. The description should be language
+     * agnostic and generic (unless the object is only published to a specific language
+     * binding).
+     */
+    optional string description;
+    
+    /**
      * Alternative names for the entity, obeying syntactic rules of the bound language.
      */
     optional repeated string alias;

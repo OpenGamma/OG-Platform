@@ -46,13 +46,15 @@ public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, Se
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
     final Set<MetaProcedure> definitions = data.getProcedureProvider().getDefinitions();
-    s_logger.info("{} procedure available", definitions.size());
+    final ProcedureRepository repository = data.getProcedureRepository();
+    s_logger.info("{} procedures available", definitions.size());
     final Available available = new Available();
     for (MetaProcedure definition : definitions) {
       Definition logical = data.getGlobalContext().getProcedureDefinitionFilter().createDefinition(definition);
       if (logical != null) {
-        s_logger.debug("Publishing {}", logical);
-        available.addDefinition(logical);
+        final int identifier = repository.add(definition);
+        s_logger.debug("Publishing {} as {}", logical, identifier);
+        available.addProcedure(new Available.Entry(identifier, logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }

@@ -101,6 +101,7 @@
     <ClCompile Include="FunctionsTest.cpp" />
     <ClCompile Include="JVMTest.cpp" />
     <ClCompile Include="LiveDataTest.cpp" />
+    <ClCompile Include="OverlappedTest.cpp" />
     <ClCompile Include="PipesTest.cpp" />
     <ClCompile Include="ProceduresTest.cpp" />
     <ClCompile Include="SettingsTest.cpp" />

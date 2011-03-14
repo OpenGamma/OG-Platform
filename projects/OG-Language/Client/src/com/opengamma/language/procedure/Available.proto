@@ -11,8 +11,13 @@ namespace com.opengamma.language.procedure {
    */
   message Available extends connector.Procedure {
   
-    optional repeated Definition definition;
+    message Entry {
+      required integer identifier;
+      required Definition definition;
+    }
   
+    optional repeated Entry procedure;
+    
   }
 
 }

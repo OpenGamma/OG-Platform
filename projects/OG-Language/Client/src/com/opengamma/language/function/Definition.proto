@@ -11,7 +11,9 @@ namespace com.opengamma.language.function {
    */
   message Definition extends definition.Definition {
   
-    // TODO: ... parameters, return type etc 
+    repeated definition.Parameter parameter;
+    
+    // TODO: ... type information, return type etc 
   
   }
 

@@ -44,15 +44,17 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
   }
 
   @Override
-  public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    final Set<MetaFunction> definitions = data.getFunctionProvider().getDefinitions();
+  public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext context) {
+    final Set<MetaFunction> definitions = context.getFunctionProvider().getDefinitions();
+    final FunctionRepository repository = context.getFunctionRepository();
     s_logger.info("{} functions available", definitions.size());
     final Available available = new Available();
     for (MetaFunction definition : definitions) {
-      Definition logical = data.getGlobalContext().getFunctionDefinitionFilter().createDefinition(definition);
+      Definition logical = context.getGlobalContext().getFunctionDefinitionFilter().createDefinition(definition);
       if (logical != null) {
-        s_logger.debug("Publishing {}", logical);
-        available.addDefinition(logical);
+        final int identifier = repository.add(definition);
+        s_logger.debug("Publishing {} as {}", logical, identifier);
+        available.addFunction(new Available.Entry(identifier, logical));
       } else {
         s_logger.debug("Discarding {} after applying filter", definition);
       }

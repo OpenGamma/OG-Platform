@@ -11,7 +11,12 @@ namespace com.opengamma.language.function {
    */
   message Available extends connector.Function {
   
-    optional repeated Definition definition;
+    message Entry {
+      required integer identifier;
+      required Definition definition;
+    }
+  
+    optional repeated Entry function;
   
   }
 

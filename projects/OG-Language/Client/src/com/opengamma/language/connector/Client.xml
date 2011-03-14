@@ -96,7 +96,7 @@
       <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
         <property name="liveData">
           <list>
-            <!-- TODO: debug live data -->
+            <bean class="com.opengamma.language.debug.DebugLiveDataRandom" />
           </list>
         </property>
       </bean>
@@ -109,7 +109,7 @@
       <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
         <property name="procedures">
           <list>
-            <!-- TODO: debug procedures -->
+            <bean class="com.opengamma.language.debug.DebugProcedureIncrement" />
           </list>
         </property>
       </bean>

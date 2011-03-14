@@ -8,9 +8,13 @@ package com.opengamma.language.context;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.language.connector.MessageSender;
+import com.opengamma.language.definition.DefinitionRepository;
 import com.opengamma.language.function.AggregatingFunctionProvider;
+import com.opengamma.language.function.FunctionRepository;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
+import com.opengamma.language.livedata.LiveDataRepository;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
+import com.opengamma.language.procedure.ProcedureRepository;
 
 /**
  * An information context specific to a given client instance. The external client process may
@@ -28,14 +32,32 @@ public abstract class SessionContext extends AbstractContext {
    * The {@link MessageSender} for posting asynchronously to the client.
    */
   protected static final String MESSAGE_SENDER = "messageSender";
+  /**
+   * The repository of published functions.
+   */
+  protected static final String FUNCTION_REPOSITORY = "functionRepository";
+  /**
+   * The repository of published live data.
+   */
+  protected static final String LIVEDATA_REPOSITORY = "liveDataRepository";
+  /**
+   * The repository of published procedures.
+   */
+  protected static final String PROCEDURE_REPOSITORY = "procedureRepository";
 
   private final UserContext _userContext;
 
   /* package */SessionContext(final UserContext userContext) {
     _userContext = userContext;
+    // Providers
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.nonCachingInstance());
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.nonCachingInstance());
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.nonCachingInstance());
+    // Repositories
+    final DefinitionRepository<?> repo = new DefinitionRepository<Object>();
+    setValue(FUNCTION_REPOSITORY, new FunctionRepository(repo));
+    setValue(LIVEDATA_REPOSITORY, new LiveDataRepository(repo));
+    setValue(PROCEDURE_REPOSITORY, new ProcedureRepository(repo));
   }
 
   public GlobalContext getGlobalContext() {
@@ -63,6 +85,18 @@ public abstract class SessionContext extends AbstractContext {
 
   public boolean isDebug() {
     return getValue(DEBUG) != null;
+  }
+
+  public FunctionRepository getFunctionRepository() {
+    return getValue(FUNCTION_REPOSITORY);
+  }
+
+  public LiveDataRepository getLiveDataRepository() {
+    return getValue(LIVEDATA_REPOSITORY);
+  }
+
+  public ProcedureRepository getProcedureRepository() {
+    return getValue(PROCEDURE_REPOSITORY);
   }
 
 }
