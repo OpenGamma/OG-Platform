@@ -104,9 +104,10 @@ public class BatchJobRunner {
     if (line.hasOption("springXml")) {
       springContextFile = line.getOptionValue("springXml");
     } else {
-      ConfigSearchRequest request = new ConfigSearchRequest();
+      ConfigSearchRequest<BatchJobParameters> request = new ConfigSearchRequest<BatchJobParameters>();
+      request.setType(BatchJobParameters.class);
       request.setName(configName);
-      ConfigSearchResult<BatchJobParameters> searchResult = configMaster.typed(BatchJobParameters.class).search(request);
+      ConfigSearchResult<BatchJobParameters> searchResult = configMaster.search(request);
       if (searchResult.getValues().size() != 1) {
         throw new IllegalStateException("No unique document with name " + configName + " found - search result was: " + searchResult.getValues());      
       }

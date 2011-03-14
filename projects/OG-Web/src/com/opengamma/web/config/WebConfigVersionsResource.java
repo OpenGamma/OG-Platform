@@ -22,30 +22,29 @@ import com.opengamma.master.config.ConfigHistoryResult;
 
 /**
  * RESTful resource for all versions of an config.
- * @param <T>  the config element type
  */
-@Path("/configs/{type}/{configId}/versions")
+@Path("/configs/{configId}/versions")
 @Produces(MediaType.TEXT_HTML)
-public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResource<T> {
+public class WebConfigVersionsResource extends AbstractWebConfigResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebConfigTypeVersionsResource(final AbstractWebConfigTypeResource<T> parent) {
+  public WebConfigVersionsResource(final AbstractWebConfigResource parent) {
     super(parent);
   }
 
   //-------------------------------------------------------------------------
   @GET
   public String get() {
-    ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId());
-    ConfigHistoryResult<T> result = data().getConfigTypeMaster().history(request);
+    ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);
+    ConfigHistoryResult<?> result = data().getConfigMaster().history(request);
     
     FlexiBean out = createRootData();
     out.put("versionsResult", result);
     out.put("versions", result.getValues());
-    return getFreemarker().build("configs/configtypeversions.ftl", out);
+    return getFreemarker().build("configs/configversions.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -55,7 +54,7 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ConfigDocument<T> doc = data().getConfig();
+    ConfigDocument<?> doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getValue());
     out.put("deleted", !doc.isLatest());
@@ -64,17 +63,17 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
 
   //-------------------------------------------------------------------------
   @Path("{versionId}")
-  public WebConfigTypeVersionResource<T> findVersion(@PathParam("versionId") String idStr) {
+  public WebConfigVersionResource findVersion(@PathParam("versionId") String idStr) {
     data().setUriVersionId(idStr);
-    ConfigDocument<T> doc = data().getConfig();
+    ConfigDocument<?> doc = data().getConfig();
     UniqueIdentifier combined = doc.getUniqueId().withVersion(idStr);
     if (doc.getUniqueId().equals(combined) == false) {
-      ConfigDocument<T> versioned = data().getConfigTypeMaster().get(combined);
+      ConfigDocument<?> versioned = data().getConfigMaster().get(combined);
       data().setVersioned(versioned);
     } else {
       data().setVersioned(doc);
     }
-    return new WebConfigTypeVersionResource<T>(this);
+    return new WebConfigVersionResource(this);
   }
 
   //-------------------------------------------------------------------------
@@ -83,10 +82,9 @@ public class WebConfigTypeVersionsResource<T> extends AbstractWebConfigTypeResou
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData<?> data) {
-    String typeStr = data.getTypeMap().inverse().get(data.getType());
+  public static URI uri(final WebConfigData data) {
     String configId = data.getBestConfigUriId(null);
-    return data.getUriInfo().getBaseUriBuilder().path(WebConfigTypeVersionsResource.class).build(typeStr, configId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebConfigVersionsResource.class).build(configId);
   }
 
 }

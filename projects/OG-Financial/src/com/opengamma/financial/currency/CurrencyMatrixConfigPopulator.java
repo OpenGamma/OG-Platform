@@ -14,7 +14,6 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.master.config.ConfigTypeMaster;
 
 /**
  * Loads a default currency matrix into the configuration database.
@@ -28,8 +27,10 @@ public class CurrencyMatrixConfigPopulator {
   }
 
   public static ConfigMaster populateCurrencyMatrixConfigMaster(ConfigMaster cfgMaster) {
-    ConfigTypeMaster<CurrencyMatrix> currencyMatrixMaster = cfgMaster.typed(CurrencyMatrix.class);
-    populateCurrencyMatrixConfigMaster(currencyMatrixMaster);
+    ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>();
+    doc.setName("BloombergLiveData");
+    doc.setValue(createBloombergConversionMatrix());
+    ConfigMasterUtils.storeByName(cfgMaster, doc);
     return cfgMaster;
   }
 
@@ -51,14 +52,7 @@ public class CurrencyMatrixConfigPopulator {
     dumpMatrix(matrix);
     return matrix;
   }
-
-  public static void populateCurrencyMatrixConfigMaster(ConfigTypeMaster<CurrencyMatrix> configMaster) {
-    ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>();
-    doc.setName("BloombergLiveData");
-    doc.setValue(createBloombergConversionMatrix());
-    ConfigMasterUtils.storeByName(configMaster, doc);
-  }
-
+  
   public static void dumpMatrix(final CurrencyMatrix matrix) {
     StringBuilder sb = new StringBuilder();
     sb.append('\n');

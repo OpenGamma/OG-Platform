@@ -43,10 +43,9 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * RESTful resource for a configuration document.
  * 
- * @param <T>  the config element type
  */
-@Path("/configs/{type}/{configId}")
-public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
+@Path("/configs/{configId}")
+public class WebConfigResource extends AbstractWebConfigResource {
 
   /**
    * The Fudge context.
@@ -57,7 +56,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebConfigTypeResource(final AbstractWebConfigTypeResource<T> parent) {
+  public WebConfigResource(final AbstractWebConfigResource parent) {
     super(parent);
   }
 
@@ -66,7 +65,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   @Produces(MediaType.TEXT_HTML)
   public String get() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("configs/configtype.ftl", out);
+    return getFreemarker().build("configs/config.ftl", out);
   }
 
   @PUT
@@ -89,7 +88,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
-      String html = getFreemarker().build("configs/configtype-update.ftl", out);
+      String html = getFreemarker().build("configs/config-update.ftl", out);
       return Response.ok(html).build();
     }
     
@@ -119,14 +118,14 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   }
 
   private URI updateConfig(String name) {
-    ConfigDocument<T> oldDoc = data().getConfig();
-    ConfigDocument<T> doc = new ConfigDocument<T>();
+    ConfigDocument<?> oldDoc = data().getConfig();
+    ConfigDocument doc = new ConfigDocument();
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
     doc.setValue(oldDoc.getValue());
-    doc = data().getConfigTypeMaster().update(doc);
+    doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
-    URI uri = WebConfigTypeResource.uri(data());
+    URI uri = WebConfigResource.uri(data());
     return uri;
   }
   
@@ -139,7 +138,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
       return Response.status(Status.FORBIDDEN).entity(get()).build();
     }
     
-    data().getConfigTypeMaster().remove(doc.getUniqueId());
+    data().getConfigMaster().remove(doc.getUniqueId());
     URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
   }
@@ -149,7 +148,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
   public Response deleteJSON() {
     ConfigDocument<?> doc = data().getConfig();
     if (doc.isLatest()) {
-      data().getConfigTypeMaster().remove(doc.getUniqueId());
+      data().getConfigMaster().remove(doc.getUniqueId());
     }
     return Response.ok().build();
   }
@@ -192,8 +191,8 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
 
   //-------------------------------------------------------------------------
   @Path("versions")
-  public WebConfigTypeVersionsResource<T> findVersions() {
-    return new WebConfigTypeVersionsResource<T>(this);
+  public WebConfigVersionsResource findVersions() {
+    return new WebConfigVersionsResource(this);
   }
 
   //-------------------------------------------------------------------------
@@ -202,7 +201,7 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData<?> data) {
+  public static URI uri(final WebConfigData data) {
     return uri(data, null);
   }
 
@@ -212,10 +211,9 @@ public class WebConfigTypeResource<T> extends AbstractWebConfigTypeResource<T> {
    * @param overrideConfigId  the override config id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData<?> data, final UniqueIdentifier overrideConfigId) {
-    String typeStr = data.getTypeMap().inverse().get(data.getType());
+  public static URI uri(final WebConfigData data, final UniqueIdentifier overrideConfigId) {
     String configId = data.getBestConfigUriId(overrideConfigId);
-    return data.getUriInfo().getBaseUriBuilder().path(WebConfigTypeResource.class).build(typeStr, configId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebConfigResource.class).build(configId);
   }
 
 }

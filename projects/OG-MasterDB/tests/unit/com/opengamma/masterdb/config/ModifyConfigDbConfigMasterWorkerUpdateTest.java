@@ -27,12 +27,12 @@ import com.opengamma.master.config.ConfigHistoryResult;
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerUpdateTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerUpdateTest.class);
 
-  public ModifyConfigDbConfigTypeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -77,13 +77,13 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> base = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> base = _cfgMaster.get(uid, Identifier.class);
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
     input.setUniqueId(uid);
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> updated = _cfgMaster.update(input);
+    ConfigDocument<Identifier> updated = (ConfigDocument<Identifier>) _cfgMaster.update(input);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
@@ -91,7 +91,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     assertEquals(null, updated.getCorrectionToInstant());
     assertEquals(input.getValue(), updated.getValue());
     
-    ConfigDocument<Identifier> old = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> old = _cfgMaster.get(uid, Identifier.class);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(now, old.getVersionToInstant());  // old version ended
@@ -99,20 +99,22 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getValue(), old.getValue());
     
-    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getUniqueId(), null, now);
+    ConfigHistoryRequest<Identifier> search = new ConfigHistoryRequest<Identifier>(base.getUniqueId(), null, now);
+    search.setType(Identifier.class);
+    
     ConfigHistoryResult<Identifier> searchResult = _cfgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }
 
   @Test
   public void test_update_rollback() {
-    DbConfigTypeMaster<Identifier> w = new DbConfigTypeMaster<Identifier>(Identifier.class, _cfgMaster.getDbSource()) {
+    DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbSource(), _cfgMaster.getIdentifierScheme()) {
       @Override
       protected String sqlInsertConfig() {
         return "INSERT";  // bad sql
       }
     };
-    final ConfigDocument<Identifier> base = _cfgMaster.get(UniqueIdentifier.of("DbCfg", "101", "0"));
+    final ConfigDocument<Identifier> base = _cfgMaster.get(UniqueIdentifier.of("DbCfg", "101", "0"), Identifier.class);
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
     input.setUniqueId(uid);
@@ -124,7 +126,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerUpdateTest extends AbstractDbCo
     } catch (BadSqlGrammarException ex) {
       // expected
     }
-    final ConfigDocument<Identifier> test = _cfgMaster.get(UniqueIdentifier.of("DbCfg", "101", "0"));
+    final ConfigDocument<Identifier> test = _cfgMaster.get(UniqueIdentifier.of("DbCfg", "101", "0"), Identifier.class);
     
     assertEquals(base, test);
   }

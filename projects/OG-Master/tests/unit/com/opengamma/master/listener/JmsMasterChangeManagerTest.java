@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.impl.InMemoryConfigTypeMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.tuple.Pair;
 
@@ -35,7 +35,7 @@ public class JmsMasterChangeManagerTest {
   private JmsTemplate _jmsTemplate;
   private TestMasterChangeClient _testListener;
   private JmsMasterChangeManager _changeManager;
-  private InMemoryConfigTypeMaster<Identifier> _configMaster;
+  private InMemoryConfigMaster _configMaster;
   private String _topic;
   private DefaultMessageListenerContainer _container;
 
@@ -65,7 +65,7 @@ public class JmsMasterChangeManagerTest {
     _container.setMessageListener(_changeManager);
     
     // create a config master
-    _configMaster = new InMemoryConfigTypeMaster<Identifier>(_changeManager);
+    _configMaster = new InMemoryConfigMaster(_changeManager);
   }
 
   @After
@@ -85,7 +85,7 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
@@ -102,7 +102,7 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier uniqueId = added.getUniqueId();
     assertNotNull(uniqueId);
     
@@ -121,11 +121,11 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier oldItem = added.getUniqueId();
     assertNotNull(oldItem);
     
-    ConfigDocument<Identifier> updated = _configMaster.update(added);
+    ConfigDocument<?> updated = _configMaster.update(added);
     UniqueIdentifier newItem = updated.getUniqueId();
     assertNotNull(newItem);
     
@@ -151,11 +151,11 @@ public class JmsMasterChangeManagerTest {
     
     // add, update and remove doc in config master
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
-    ConfigDocument<Identifier> updated = _configMaster.update(added);
+    ConfigDocument<?> updated = _configMaster.update(added);
     UniqueIdentifier updatedItem = updated.getUniqueId();
     
     UniqueIdentifier removedItem = addedItem;

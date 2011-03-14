@@ -49,13 +49,13 @@ public class MockConfigSource extends MasterConfigSource {
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public <T> List<T> search(Class<T> clazz, ConfigSearchRequest request) {
-    ArgumentChecker.notNull(clazz, "clazz");
+  public <T> List<T> search(ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getType(), "request.type");
     Pattern matchName = RegexUtils.wildcardsToPattern(request.getName());
     List<T> result = new ArrayList<T>();
     for (ConfigDocument<?> doc : _configs.values()) {
-      if (matchName.matcher(doc.getName()).matches() && clazz.isInstance(doc.getValue())) {
+      if (matchName.matcher(doc.getName()).matches() && request.getType().isInstance(doc.getValue())) {
         result.add((T) doc.getValue());
       }
     }

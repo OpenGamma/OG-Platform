@@ -24,12 +24,12 @@ import com.opengamma.master.config.ConfigDocument;
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerAddTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerAddTest.class);
 
-  public ModifyConfigDbConfigTypeMasterWorkerAddTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -69,7 +69,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     assertEquals(Identifier.of("A", "B"), test.getValue());
     assertEquals("TestConfig", test.getName());
   }
-
+  
   @Test
   public void test_add_addThenGet() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
@@ -77,7 +77,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerAddTest extends AbstractDbConfi
     doc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> added = _cfgMaster.add(doc);
     
-    ConfigDocument<Identifier> test = _cfgMaster.get(added.getUniqueId());
+    ConfigDocument<Identifier> test = _cfgMaster.get(added.getUniqueId(), Identifier.class);
     assertEquals(added, test);
   }
 

@@ -20,17 +20,16 @@ import com.opengamma.master.config.ConfigDocument;
 
 /**
  * RESTful resource for a version of a config.
- * @param <T>  the config element type
  */
-@Path("/configs/{type}/{configId}/versions/{versionId}")
+@Path("/configs/{configId}/versions/{versionId}")
 @Produces(MediaType.TEXT_HTML)
-public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResource<T> {
+public class WebConfigVersionResource extends AbstractWebConfigResource {
 
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebConfigTypeVersionResource(final AbstractWebConfigTypeResource<T> parent) {
+  public WebConfigVersionResource(final AbstractWebConfigResource parent) {
     super(parent);
   }
 
@@ -38,7 +37,7 @@ public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResour
   @GET
   public String get() {
     FlexiBean out = createRootData();
-    return getFreemarker().build("configs/configtypeversion.ftl", out);
+    return getFreemarker().build("configs/configversion.ftl", out);
   }
 
   //-------------------------------------------------------------------------
@@ -48,8 +47,8 @@ public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResour
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
-    ConfigDocument<T> latestDoc = data().getConfig();
-    ConfigDocument<T> versionedConfig = data().getVersioned();
+    ConfigDocument<?> latestDoc = data().getConfig();
+    ConfigDocument<?> versionedConfig = data().getVersioned();
     out.put("latestConfigDoc", latestDoc);
     out.put("latestConfig", latestDoc.getValue());
     out.put("configDoc", versionedConfig);
@@ -64,7 +63,7 @@ public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResour
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData<?> data) {
+  public static URI uri(final WebConfigData data) {
     return uri(data, null);
   }
 
@@ -74,11 +73,10 @@ public class WebConfigTypeVersionResource<T> extends AbstractWebConfigTypeResour
    * @param overrideVersionId  the override version id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebConfigData<?> data, final UniqueIdentifier overrideVersionId) {
-    String typeStr = data.getTypeMap().inverse().get(data.getType());
+  public static URI uri(final WebConfigData data, final UniqueIdentifier overrideVersionId) {
     String configId = data.getBestConfigUriId(null);
     String versionId = StringUtils.defaultString(overrideVersionId != null ? overrideVersionId.getVersion() : data.getUriVersionId());
-    return data.getUriInfo().getBaseUriBuilder().path(WebConfigTypeVersionResource.class).build(typeStr, configId, versionId);
+    return data.getUriInfo().getBaseUriBuilder().path(WebConfigVersionResource.class).build(configId, versionId);
   }
 
 }

@@ -23,14 +23,14 @@ import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 
 /**
- * Tests ModifyConfigDbConfigTypeMasterWorker.
+ * Tests ModifyConfigDbConfigMasterWorker.
  */
-public class ModifyConfigDbConfigTypeMasterWorkerCorrectTest extends AbstractDbConfigTypeMasterWorkerTest {
+public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfigMasterWorkerTest {
   // superclass sets up dummy database
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigTypeMasterWorkerCorrectTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerCorrectTest.class);
 
-  public ModifyConfigDbConfigTypeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
+  public ModifyConfigDbConfigMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -72,13 +72,13 @@ public class ModifyConfigDbConfigTypeMasterWorkerCorrectTest extends AbstractDbC
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
-    ConfigDocument<Identifier> base = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> base = _cfgMaster.get(uid, Identifier.class);
     ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
     input.setUniqueId(uid);
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> corrected = _cfgMaster.correct(input);
+    ConfigDocument<Identifier> corrected = (ConfigDocument<Identifier>) _cfgMaster.correct(input);
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());
@@ -86,7 +86,7 @@ public class ModifyConfigDbConfigTypeMasterWorkerCorrectTest extends AbstractDbC
     assertEquals(null, corrected.getCorrectionToInstant());
     assertEquals(input.getValue(), corrected.getValue());
     
-    ConfigDocument<Identifier> old = _cfgMaster.get(uid);
+    ConfigDocument<Identifier> old = _cfgMaster.get(uid, Identifier.class);
     assertEquals(base.getUniqueId(), old.getUniqueId());
     assertEquals(base.getVersionFromInstant(), old.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), old.getVersionToInstant());
@@ -94,7 +94,9 @@ public class ModifyConfigDbConfigTypeMasterWorkerCorrectTest extends AbstractDbC
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getValue(), old.getValue());
     
-    ConfigHistoryRequest search = new ConfigHistoryRequest(base.getUniqueId(), now, null);
+    ConfigHistoryRequest<Identifier> search = new ConfigHistoryRequest<Identifier>(base.getUniqueId(), now, null);
+    search.setType(Identifier.class);
+    
     ConfigHistoryResult<Identifier> searchResult = _cfgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
   }

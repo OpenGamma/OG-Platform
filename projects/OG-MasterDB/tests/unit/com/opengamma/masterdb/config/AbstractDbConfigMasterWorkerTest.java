@@ -31,6 +31,7 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -41,18 +42,22 @@ import com.opengamma.util.test.DBTest;
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
 @Ignore
-public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
+public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigTypeMasterWorkerTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  protected DbConfigTypeMaster<Identifier> _cfgMaster;
+  protected DbConfigMaster _cfgMaster;
   protected Instant _version1aInstant;
   protected Instant _version1bInstant;
   protected Instant _version1cInstant;
   protected Instant _version2Instant;
   protected int _totalConfigs;
+  protected int _totalIdentifiers;
+  protected int _totalIdentifierBundles;
+ 
 
-  public AbstractDbConfigTypeMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -62,25 +67,22 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
-    DbConfigMaster master = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
-    _cfgMaster = (DbConfigTypeMaster<Identifier>) master.typed(Identifier.class);
-    
-//    id bigint not null,
-//    oid bigint not null,
-//    ver_from_instant timestamp not null,
-//    ver_to_instant timestamp not null,
-//    name varchar(255) not null,
-//    config_type varchar(255) not null,
-//    config blob not null,
+    _cfgMaster = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
+  
     Instant now = Instant.now();
     _cfgMaster.setTimeSource(TimeSource.fixed(now));
     _version1aInstant = now.minusSeconds(102);
     _version1bInstant = now.minusSeconds(101);
     _version1cInstant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
-    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
-    FudgeMsgEnvelope env = fudgeContext.toFudgeMsg(Identifier.of("A", "B"));
-    byte[] bytes = fudgeContext.toByteArray(env.getMessage());
+    addIdentifiers();
+    addIdentifierBundles();
+    _totalConfigs = 6;
+  }
+
+  private void addIdentifiers() {
+    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(Identifier.of("A", "B"));
+    byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
     String cls = Identifier.class.getName();
     LobHandler lobHandler = new DefaultLobHandler();
     final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
@@ -96,9 +98,30 @@ public abstract class AbstractDbConfigTypeMasterWorkerTest extends DBTest {
     template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig202", cls,
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
-    _totalConfigs = 3;
+    _totalIdentifiers = 3;
   }
-
+  
+  private void addIdentifierBundles() {
+    FudgeMsgEnvelope env = s_fudgeContext.toFudgeMsg(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F")));
+    byte[] bytes = s_fudgeContext.toByteArray(env.getMessage());
+    String cls = IdentifierBundle.class.getName();
+    LobHandler lobHandler = new DefaultLobHandler();
+    final SimpleJdbcTemplate template = _cfgMaster.getDbSource().getJdbcTemplate();
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
+        301, 301, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1aInstant), MAX_SQL_TIMESTAMP, "TestConfig301", cls,
+        new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
+        302, 302, toSqlTimestamp(_version1bInstant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1bInstant), MAX_SQL_TIMESTAMP, "TestConfig302", cls,
+        new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
+        401, 401, toSqlTimestamp(_version1cInstant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1cInstant), MAX_SQL_TIMESTAMP, "TestConfig401", cls,
+        new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
+    template.update("INSERT INTO cfg_config VALUES (?,?,?,?,?, ?,?,?,?)",
+        402, 401, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, "TestConfig402", cls,
+        new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
+    _totalIdentifierBundles = 3;
+  }
+  
   @After
   public void tearDown() throws Exception {
     _cfgMaster = null;

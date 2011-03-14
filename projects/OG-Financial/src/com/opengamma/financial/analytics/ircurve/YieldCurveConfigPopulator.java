@@ -14,7 +14,6 @@ import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
-import com.opengamma.master.config.ConfigTypeMaster;
 
 /**
  * Populates the yield curve configuration.
@@ -27,10 +26,8 @@ public class YieldCurveConfigPopulator {
   }
   
   public static ConfigMaster populateCurveConfigMaster(ConfigMaster cfgMaster) {
-    ConfigTypeMaster<YieldCurveDefinition> curveDefinitionMaster = cfgMaster.typed(YieldCurveDefinition.class);
-    populateCurveDefinitionConfigMaster(curveDefinitionMaster);
-    ConfigTypeMaster<CurveSpecificationBuilderConfiguration> curveSpecificationBuilderConfigMaster = cfgMaster.typed(CurveSpecificationBuilderConfiguration.class);
-    populateCurveSpecificationBuilderConfigMaster(curveSpecificationBuilderConfigMaster);
+    populateCurveDefinitionConfigMaster(cfgMaster);
+    populateCurveSpecificationBuilderConfigMaster(cfgMaster);
     return cfgMaster;
   }
   
@@ -44,7 +41,7 @@ public class YieldCurveConfigPopulator {
     }
   }
 
-  public static void populateCurveDefinitionConfigMaster(ConfigTypeMaster<YieldCurveDefinition> configMaster) {
+  public static void populateCurveDefinitionConfigMaster(ConfigMaster configMaster) {
     Map<String, Map<CurrencyUnit, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildStandardCurveDefintions();
     for (Map.Entry<String, Map<CurrencyUnit, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
       String curveName = entry.getKey();
@@ -85,7 +82,7 @@ public class YieldCurveConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, singleUSD);
   }
 
-  public static void populateCurveSpecificationBuilderConfigMaster(ConfigTypeMaster<CurveSpecificationBuilderConfiguration> configMaster) {
+  public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster configMaster) {
     Map<CurrencyUnit, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
     for (Map.Entry<CurrencyUnit, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
       ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
