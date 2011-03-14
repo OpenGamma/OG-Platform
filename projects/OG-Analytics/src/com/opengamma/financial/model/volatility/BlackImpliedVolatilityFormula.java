@@ -65,11 +65,11 @@ public class BlackImpliedVolatilityFormula {
         final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(EPS);
         final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
-          @SuppressWarnings({"synthetic-access", "hiding" })
+          @SuppressWarnings({"synthetic-access" })
           @Override
-          public Double evaluate(final Double sigma) {
-            final BlackFunctionData newData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), sigma);
-            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(newData) - optionPrice;
+          public Double evaluate(final Double volatility) {
+            final BlackFunctionData myData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), volatility);
+            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(myData) - optionPrice;
           }
         };
         final double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);

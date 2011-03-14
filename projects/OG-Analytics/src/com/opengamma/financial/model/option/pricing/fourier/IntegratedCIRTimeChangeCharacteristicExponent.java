@@ -35,6 +35,7 @@ public class IntegratedCIRTimeChangeCharacteristicExponent implements Characteri
   @Override
   public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
     return new Function1D<ComplexNumber, ComplexNumber>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public ComplexNumber evaluate(final ComplexNumber u) {
 

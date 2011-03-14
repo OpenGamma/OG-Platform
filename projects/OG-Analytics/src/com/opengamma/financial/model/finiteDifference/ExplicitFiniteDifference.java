@@ -8,40 +8,40 @@ package com.opengamma.financial.model.finiteDifference;
 import com.opengamma.math.surface.Surface;
 
 /**
- * Explicit solver for the PDE $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2}$ + b(t,x) \frac{\partial f}{\partial x} + (t,x)V = 0$
+ * Explicit solver for the PDE {@latex.inline $\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2}$ + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)V = 0$}
  */
 public class ExplicitFiniteDifference {
 
-  public double[] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
+  public double[] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
 
-    double dt = tMax / (tSteps);
-    double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
-    double nu1 = dt / dx / dx;
-    double nu2 = dt / dx;
+    final double dt = tMax / (tSteps);
+    final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
+    final double nu1 = dt / dx / dx;
+    final double nu2 = dt / dx;
 
     double[] f = new double[xSteps + 1];
-    double[] x = new double[xSteps + 1];
+    final double[] x = new double[xSteps + 1];
 
     double currentX = lowerBoundary.getLevel();
 
     for (int j = 0; j <= xSteps; j++) {
       currentX = lowerBoundary.getLevel() + j * dx;
       x[j] = currentX;
-      double value = pdeData.getInitialValue(currentX);
+      final double value = pdeData.getInitialValue(currentX);
       f[j] = value;
     }
 
     double t = 0.0;
     for (int i = 0; i < tSteps; i++) {
-      double[] fNew = new double[xSteps + 1];
+      final double[] fNew = new double[xSteps + 1];
       for (int j = 1; j < xSteps; j++) {
-        double a = pdeData.getA(t, x[j]);
-        double b = pdeData.getB(t, x[j]);
-        double c = pdeData.getC(t, x[j]);
-        double aa = -nu1 * a + 0.5 * nu2 * b;
-        double bb = 2 * nu1 * a - dt * c + 1;
-        double cc = -nu1 * a - 0.5 * nu2 * b;
+        final double a = pdeData.getA(t, x[j]);
+        final double b = pdeData.getB(t, x[j]);
+        final double c = pdeData.getC(t, x[j]);
+        final double aa = -nu1 * a + 0.5 * nu2 * b;
+        final double bb = 2 * nu1 * a - dt * c + 1;
+        final double cc = -nu1 * a - 0.5 * nu2 * b;
         fNew[j] = aa * f[j - 1] + bb * f[j] + cc * f[j + 1];
       }
 

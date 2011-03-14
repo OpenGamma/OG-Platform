@@ -9,22 +9,25 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.surface.Surface;
 
+/**
+ * 
+ */
 public class CrankNicolsonFiniteDifferenceSOR {
 
   private static final double THETA = 0.5;
 
-  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, BoundaryCondition lowerBoundary,
-      BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
+  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
-    double dt = tMax / (tSteps);
-    double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
-    double nu1 = dt / dx / dx;
-    double nu2 = dt / dx;
+    final double dt = tMax / (tSteps);
+    final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
+    final double nu1 = dt / dx / dx;
+    final double nu2 = dt / dx;
 
-    double[] f = new double[xSteps + 1];
-    double[] x = new double[xSteps + 1];
-    double[] q = new double[xSteps + 1];
-    double[][] m = new double[xSteps + 1][xSteps + 1];
+    final double[] f = new double[xSteps + 1];
+    final double[] x = new double[xSteps + 1];
+    final double[] q = new double[xSteps + 1];
+    final double[][] m = new double[xSteps + 1][xSteps + 1];
     // double[] coefficients = new double[3];
 
     double currentX = lowerBoundary.getLevel();
@@ -34,7 +37,7 @@ public class CrankNicolsonFiniteDifferenceSOR {
     for (int j = 0; j <= xSteps; j++) {
       currentX = lowerBoundary.getLevel() + j * dx;
       x[j] = currentX;
-      double value = pdeData.getInitialValue(currentX);
+      final double value = pdeData.getInitialValue(currentX);
       f[j] = value;
     }
 
@@ -88,7 +91,7 @@ public class CrankNicolsonFiniteDifferenceSOR {
       q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
 
       // SOR
-      double omega = 1.0;
+      final double omega = 1.0;
       double scale = 1.0;
       double errorSqr = Double.POSITIVE_INFINITY;
       while (errorSqr / (scale + 1e-10) > 1e-18) {
@@ -111,7 +114,7 @@ public class CrankNicolsonFiniteDifferenceSOR {
 
     }
 
-    double[][] res = new double[2][];
+    final double[][] res = new double[2][];
     res[0] = x;
     res[1] = f;
 

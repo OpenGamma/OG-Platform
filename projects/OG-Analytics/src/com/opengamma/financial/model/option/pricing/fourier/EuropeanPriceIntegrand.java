@@ -46,6 +46,7 @@ public class EuropeanPriceIntegrand {
 
       @Override
       public Double evaluate(final Double x) {
+        @SuppressWarnings("synthetic-access")
         final ComplexNumber res = getIntegrand(x, characteristicFunction, gaussianFunction, k);
         return res.getReal();
       }
