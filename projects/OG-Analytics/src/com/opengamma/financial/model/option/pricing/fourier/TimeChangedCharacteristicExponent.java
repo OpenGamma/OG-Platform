@@ -15,12 +15,34 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * This characteristic exponent converts a Levy process from calendar time to business time (where time moves at a stochastic rate relative to
+ * calendar time). This has the effect of introducing stochastic changes to the model parameters of the original Levy process.
+ * <p>
+ * If the time-changed Levy process is {@latex.inline $X_{Y_t}$}, with {@latex.inline $Y_t$} the business time, the characteristic function is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * \\phi(u, t) &=& E\\left[e^{iuX_{Y_t}}\\right]\\\\ 
+ * &=& E\\left[e^{Y_t\\psi_X(u)}\\right]\\\\
+ * &=& E\\left[e^{i(-i\\psi_X(u))Y_t}\\right]\\\\
+ * &=& \\phi_{Y_t}(-i\\psi_X(u), t)
+ * \\end{eqnarray*}
+ * }
+ * where {@latex.inline $\\psi_X(u)$} is the cumulant characteristic function of the Levy process. The drift correction then becomes
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * \\omega(t) = -\\frac{\\ln(\\phi(-i, t))}{t}
+ * \\end{eqnarray*}
+ * }
  */
 public class TimeChangedCharacteristicExponent implements CharacteristicExponent {
   private final CharacteristicExponent _base;
   private final CharacteristicExponent _timeChange;
 
+  /**
+   * 
+   * @param base The base characteristic exponent, not null
+   * @param timeChange The function to time change, not null
+   */
   public TimeChangedCharacteristicExponent(final CharacteristicExponent base, final CharacteristicExponent timeChange) {
     Validate.notNull(base, "base");
     Validate.notNull(timeChange, "timeChange");
