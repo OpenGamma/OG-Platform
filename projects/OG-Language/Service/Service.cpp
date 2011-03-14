@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -198,14 +198,14 @@ void ServiceRun (int nReason) {
 		_ReportStateRunning ();
 		do {
 			LOGDEBUG (TEXT ("Waiting for user connection"));
-			PJAVACLIENT_CONNECT pjcc = g_poPipe->ReadMessage ();
-			if (pjcc) {
-				LOGINFO (TEXT ("Connection received from ") << JavaClientGetUserName (pjcc));
-				LOGDEBUG (TEXT ("C++ -> Java = ") << JavaClientGetCPPToJavaPipe (pjcc));
-				LOGDEBUG (TEXT ("Java -> C++ = ") << JavaClientGetJavaToCPPPipe (pjcc));
-				// TODO [XLS-181] Use challenge/response to verify the user name
-				g_poJVM->UserConnection (JavaClientGetUserName (pjcc), JavaClientGetCPPToJavaPipe (pjcc), JavaClientGetJavaToCPPPipe (pjcc));
-				free (pjcc);
+			ClientConnect *pcc = g_poPipe->ReadMessage ();
+			if (pcc) {
+				LOGINFO (TEXT ("Connection received from ") << pcc->_userName);
+				LOGDEBUG (TEXT ("C++ -> Java = ") << pcc->_CPPToJavaPipe);
+				LOGDEBUG (TEXT ("Java -> C++ = ") << pcc->_JavaToCPPPipe);
+				// TODO [PLAT-1117] Use challenge/response to verify the user name
+				g_poJVM->UserConnection (pcc->_userName, pcc->_CPPToJavaPipe, pcc->_JavaToCPPPipe, pcc->_languageID);
+				ClientConnect_free (pcc);
 				if (!g_poJVM->IsStopped ()) {
 					g_poPipe->CancelLazyClose ();
 					if (g_poJVM->IsStopped ()) {

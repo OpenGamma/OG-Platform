@@ -20,15 +20,15 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 
 /**
  * 
  */
-public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<GenericAnnuity<FixedCouponPayment>> {
+public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<GenericAnnuity<CouponFixed>> {
   private static final Logger s_logger = LoggerFactory.getLogger(FixedSwapLegDefinition.class);
   private final ZonedDateTime _effectiveDate;
   private final ZonedDateTime[] _nominalDates;
@@ -124,7 +124,7 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
   }
 
   @Override
-  public GenericAnnuity<FixedCouponPayment> toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public GenericAnnuity<CouponFixed> toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" 
         + _settlementDates[_settlementDates.length - 1] + ")"); //TODO
@@ -139,7 +139,7 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
-    return new FixedCouponAnnuity(paymentTimes, _notional, _rate, yearFractions, yieldCurveNames[0]);
+    return new AnnuityCouponFixed(paymentTimes, _notional, _rate, yearFractions, yieldCurveNames[0]);
   }
 
   @Override

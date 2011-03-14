@@ -9,10 +9,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
@@ -21,8 +21,8 @@ import edu.emory.mathcs.backport.java.util.Collections;
  */
 public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableUniqueIdentifiable {
 
-  private final ConcurrentHashMap<CurrencyUnit, ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue>> _values = new ConcurrentHashMap<CurrencyUnit, ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue>>();
-  private final ConcurrentHashMap<CurrencyUnit, AtomicInteger> _targets = new ConcurrentHashMap<CurrencyUnit, AtomicInteger>();
+  private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();
+  private final ConcurrentHashMap<Currency, AtomicInteger> _targets = new ConcurrentHashMap<Currency, AtomicInteger>();
 
   private UniqueIdentifier _uniqueId;
 
@@ -44,23 +44,23 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
 
   @SuppressWarnings("unchecked")
   @Override
-  public Set<CurrencyUnit> getSourceCurrencies() {
+  public Set<Currency> getSourceCurrencies() {
     return Collections.unmodifiableSet(_values.keySet());
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Set<CurrencyUnit> getTargetCurrencies() {
+  public Set<Currency> getTargetCurrencies() {
     return Collections.unmodifiableSet(_targets.keySet());
   }
 
   @Override
-  public CurrencyMatrixValue getConversion(final CurrencyUnit source, final CurrencyUnit target) {
+  public CurrencyMatrixValue getConversion(final Currency source, final Currency target) {
     if (source.equals(target)) {
       // This shouldn't happen in sensible code
       return CurrencyMatrixValue.of(1.0);
     }
-    ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue> conversions = _values.get(source);
+    ConcurrentHashMap<Currency, CurrencyMatrixValue> conversions = _values.get(source);
     if (conversions == null) {
       return null;
     } else {
@@ -70,14 +70,14 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
 
   // Helper methods for sub-classes
 
-  protected void addConversion(final CurrencyUnit source, final CurrencyUnit target, final CurrencyMatrixValue rate) {
+  protected void addConversion(final Currency source, final Currency target, final CurrencyMatrixValue rate) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(rate, "rate");
-    ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue> conversions = _values.get(source);
+    ConcurrentHashMap<Currency, CurrencyMatrixValue> conversions = _values.get(source);
     if (conversions == null) {
-      conversions = new ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue>();
-      final ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue> newConversions = _values.putIfAbsent(source, conversions);
+      conversions = new ConcurrentHashMap<Currency, CurrencyMatrixValue>();
+      final ConcurrentHashMap<Currency, CurrencyMatrixValue> newConversions = _values.putIfAbsent(source, conversions);
       if (newConversions != null) {
         conversions = newConversions;
       }
@@ -112,10 +112,10 @@ public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableU
     }
   }
 
-  protected CurrencyMatrixValue removeConversion(final CurrencyUnit source, final CurrencyUnit target) {
+  protected CurrencyMatrixValue removeConversion(final Currency source, final Currency target) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
-    ConcurrentHashMap<CurrencyUnit, CurrencyMatrixValue> conversions = _values.get(source);
+    ConcurrentHashMap<Currency, CurrencyMatrixValue> conversions = _values.get(source);
     if (conversions == null) {
       // Nothing from that source
       return null;

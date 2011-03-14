@@ -11,12 +11,12 @@ import com.opengamma.math.number.ComplexNumber;
 /**
  * 
  */
-public abstract class CharacteristicExponent extends Function1D<ComplexNumber, ComplexNumber> {
+public interface CharacteristicExponent {
 
-  public abstract double getTime();
+  Function1D<ComplexNumber, ComplexNumber> getFunction(double t);
 
-  public abstract double getLargestAlpha();
+  double getLargestAlpha();
 
-  public abstract double getSmallestAlpha();
+  double getSmallestAlpha();
 
 }

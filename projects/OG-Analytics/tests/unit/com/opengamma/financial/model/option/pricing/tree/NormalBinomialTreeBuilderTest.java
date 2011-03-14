@@ -27,7 +27,6 @@ import com.opengamma.financial.model.volatility.surface.DriftSurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
-import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -48,7 +47,7 @@ public class NormalBinomialTreeBuilderTest {
   private static final OptionDefinition OPTION;
   private static final BinomialTreeBuilder<GeneralNormalOptionDataBundle> BUILDER = new NormalBinomialTreeBuilder<GeneralNormalOptionDataBundle>();
   private static final DriftSurface DRIFTLESS;
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula(new RidderSingleRootFinder());
+  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CEVPriceFunction CEV_PRICE = new CEVPriceFunction();
 
   static {

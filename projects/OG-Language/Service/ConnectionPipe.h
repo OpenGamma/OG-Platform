@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@
 // Implementation of the IPC connection for incoming requests
 
 #include "Public.h"
+#include <Util/NamedPipe.h>
 
 class CConnectionPipe {
 private:
@@ -19,7 +20,7 @@ private:
 public:
 	~CConnectionPipe ();
 	static CConnectionPipe *Create (const TCHAR *pszSuffix = NULL);
-	PJAVACLIENT_CONNECT ReadMessage ();
+	ClientConnect *ReadMessage ();
 	const TCHAR *GetName () { return m_poPipe->GetName (); }
 	bool Close () { return m_poPipe->Close (); }
 	bool LazyClose (unsigned long dwTimeout = 0);

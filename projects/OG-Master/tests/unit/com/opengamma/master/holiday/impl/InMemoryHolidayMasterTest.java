@@ -15,12 +15,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test InMemoryHolidayMaster.
@@ -28,7 +28,7 @@ import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 public class InMemoryHolidayMasterTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
-  private static final CurrencyUnit GBP = CurrencyUnit.GBP;
+  private static final Currency GBP = Currency.GBP;
 
   private InMemoryHolidayMaster master;
   private HolidayDocument addedDoc;

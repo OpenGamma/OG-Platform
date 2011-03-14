@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -38,9 +38,9 @@ public final class BondForwardDirtyPriceCalculator extends BondForwardCalculator
     Validate.isTrue(fundingRate > 0, "funding rate is positive");
     final double bondDirtyPrice = bondCleanPrice + bondForward.getAccruedInterest();
     final double repoPeriod = bondForward.getForwardTime();
-    final FixedCouponPayment[] expiredCoupons = bondForward.getTimeBetweenExpiredCoupons();
+    final CouponFixed[] expiredCoupons = bondForward.getTimeBetweenExpiredCoupons();
     double valueOfExpiredCoupons = 0;
-    for (final FixedCouponPayment payment : expiredCoupons) {
+    for (final CouponFixed payment : expiredCoupons) {
       valueOfExpiredCoupons += payment.getAmount() * (1 + fundingRate * payment.getPaymentTime());
     }
     return bondDirtyPrice * (1 + fundingRate * repoPeriod) - valueOfExpiredCoupons;

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -41,6 +40,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.money.Currency;
 
 /**
  * A holiday master implementation using a database for persistence.
@@ -367,7 +367,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         holiday.setExchangeKey(Identifier.of(exchangeScheme, exchangeValue));
       }
       if (currencyISO != null) {
-        holiday.setCurrency(CurrencyUnit.of(currencyISO));
+        holiday.setCurrency(Currency.of(currencyISO));
       }
       HolidayDocument doc = new HolidayDocument(holiday);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));

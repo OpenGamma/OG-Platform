@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -17,12 +18,14 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Utility to calculate schedules.
@@ -160,6 +163,48 @@ public final class ScheduleCalculator {
     Validate.notNull(convention);
     Validate.notNull(calendar);
     return getAdjustedDateSchedule(new ZonedDateTime[] {date}, convention, calendar, settlementDays)[0];
+  }
+
+  /**
+   * Compute the end date of a period from the start date, the tenor and the conventions.
+   * @param startDate The period start date.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param endOfMonth True if end-of-month rule applies, false if it does not.
+   * @param tenor The period tenor.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Tenor tenor) {
+    Validate.notNull(startDate);
+    Validate.notNull(convention);
+    Validate.notNull(calendar);
+    Validate.notNull(tenor);
+    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    // Adjusted to month-end: when start date is last calendar date of the month, the end date is the last business date of the month.
+    // Month-end-rule applies only to year and month periods, not days or weeks.
+    if ((tenor.getPeriod().getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
+      BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
+      return preceding.adjustDate(calendar, endDate.with(DateAdjusters.lastDayOfMonth()));
+    }
+    return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
+
+  }
+
+  /**
+   * Compute the end date of a period from the start date, the tenor and the conventions without end-of-month convention.
+   * @param startDate The period start date.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param tenor The period tenor.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Tenor tenor) {
+    Validate.notNull(startDate);
+    Validate.notNull(convention);
+    Validate.notNull(calendar);
+    Validate.notNull(tenor);
+    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {

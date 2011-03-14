@@ -1,3 +1,21 @@
 <project name="Service">
 	<import file="${basedir}/../build-cpp.xml" />
+
+	<path id="lib.path.id">
+		<fileset dir="${solution.dir}/lib/jar">
+			<exclude name="org.apache.ant/ant/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="proto-c" description="--> generates the C/C++ header files for the Fudge messages" unless="proto.c.disabled">
+		<java classname="org.fudgemsg.proto.CommandLine" classpathref="lib.path.id" fork="true">
+			<arg value="-d${basedir}" />
+			<arg value="-lC" />
+			<arg value="-Xinclude=stdafx.h" />
+			<arg value="ClientConnect.proto" />
+		</java>
+	</target>
+
+	<target name="compile" depends="proto-c,build-cpp-impl.compile" />
+
 </project>

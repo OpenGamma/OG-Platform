@@ -37,7 +37,11 @@
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbCfg" />
   </bean>
-
+<!--  
+  <bean id="hsqldbDbGenericConfigMaster" class="com.opengamma.masterdb.config.DbGenericConfigMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+  </bean>
+-->  
   <bean id="hsqldbDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbPrt" />
@@ -58,6 +62,11 @@
   <bean id="hsqldbDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="hsqldbDbSource" />
     <property name="identifierScheme" value="DbExg" />
+  </bean>
+  
+  <bean id="hsqldbDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="hsqldbDbSource" />
+    <property name="identifierScheme" value="DbSnp" />
   </bean>
 
   <bean id="hsqldbDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
@@ -83,7 +92,11 @@
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbCfg" />
   </bean>
-
+  <!--
+  <bean id="postgresDbGenericConfigMaster" class="com.opengamma.masterdb.config.DbGenericConfigMaster">
+    <constructor-arg ref="postgresDbSource" />
+  </bean>
+  -->
   <bean id="postgresDbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbPrt" />
@@ -104,6 +117,11 @@
   <bean id="postgresDbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
     <constructor-arg ref="postgresDbSource" />
     <property name="identifierScheme" value="DbExg" />
+  </bean>
+  
+  <bean id="postgresDbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="postgresDbSource" />
+    <property name="identifierScheme" value="DbSnp" />
   </bean>
 
   <bean id="postgresDbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">

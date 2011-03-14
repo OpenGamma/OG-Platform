@@ -5,22 +5,22 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
+import java.util.BitSet;
+
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.TrigonometricFunctionUtils;
-import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
  */
 public class SABRSurfaceFittingTest {
+  private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(new SABRHaganVolatilityFunction());
 
   @Test
   public void doIt() {
@@ -46,8 +46,7 @@ public class SABRSurfaceFittingTest {
     final double[] nu = new double[n];
     final double[] rho = new double[n];
 
-    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.3, 0.9, 0.3, 0.0});
-    final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+    final double[] start = new double[] {0.3, 0.9, 0.3, 0.0};
 
     for (int i = 0; i < n; i++) {
       int m = 0;
@@ -56,19 +55,20 @@ public class SABRSurfaceFittingTest {
           m++;
         }
       }
-      final double[] strikes = new double[m];
+      final EuropeanVanillaOption[] options = new EuropeanVanillaOption[m];
+      final BlackFunctionData[] data = new BlackFunctionData[m];
       final double[] errors = new double[m];
-      final double[] truckVols = new double[m];
       int p = 0;
       for (int j = 0; j < vols[i].length; j++) {
         if (vols[i][j] > 0.0) {
-          strikes[p] = forwards[i] * Math.exp(atmVols[i] * Math.sqrt(maturities[i]) * moneynessSigma[j]);
-          truckVols[p] = vols[i][j];
+          options[p] = new EuropeanVanillaOption(forwards[i] * Math.exp(atmVols[i] * Math.sqrt(maturities[i]) * moneynessSigma[j]), maturities[i], true);
+          data[p] = new BlackFunctionData(forwards[i], 1, vols[i][j]);
           errors[p] = 0.001;
           p++;
         }
       }
-      final DoubleMatrix1D params = fitSABR(forwards[i], maturities[i], new DoubleMatrix1D(strikes), new DoubleMatrix1D(truckVols), new DoubleMatrix1D(errors), start, false);
+      final LeastSquareResults result = FITTER.getFitResult(options, data, errors, start, new BitSet(4));
+      final DoubleMatrix1D params = result.getParameters();
       alpha[i] = params.getEntry(0);
       beta[i] = params.getEntry(1);
       nu[i] = params.getEntry(2);
@@ -88,45 +88,4 @@ public class SABRSurfaceFittingTest {
     }
 
   }
-
-  private DoubleMatrix1D fitSABR(final double forward, final double t, final DoubleMatrix1D strikes, final DoubleMatrix1D vols, final DoubleMatrix1D errors, final DoubleMatrix1D start,
-      final boolean fixedBeta) {
-
-    final ParameterizedFunction<Double, DoubleMatrix1D, Double> func = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
-      private final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double x, final DoubleMatrix1D transformedParameters) {
-        final DoubleMatrix1D parameters = inverseTransformParameters(transformedParameters);
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(x, t, true);
-        final SABRFormulaData data = new SABRFormulaData(forward, parameters.getEntry(0), parameters.getEntry(1), parameters.getEntry(2), parameters.getEntry(3));
-        return sabr.getVolatilityFunction(option).evaluate(data);
-      }
-    };
-
-    final NonLinearLeastSquare solver = new NonLinearLeastSquare();
-
-    final LeastSquareResults lsRes = solver.solve(strikes, vols, errors, func, transformParameters(start));
-    return inverseTransformParameters(lsRes.getParameters());
-  }
-
-  private static DoubleMatrix1D transformParameters(final DoubleMatrix1D x) {
-    final double[] y = new double[4];
-    y[0] = Math.log(x.getEntry(0));
-    y[1] = Math.log(x.getEntry(1));
-    y[2] = Math.log(x.getEntry(2));
-    y[3] = TrigonometricFunctionUtils.atanh(x.getEntry(3));
-    return new DoubleMatrix1D(y);
-  }
-
-  private static DoubleMatrix1D inverseTransformParameters(final DoubleMatrix1D y) {
-    final double[] x = new double[4];
-    x[0] = Math.exp(y.getEntry(0));
-    x[1] = Math.exp(y.getEntry(1));
-    x[2] = Math.exp(y.getEntry(2));
-    x[3] = TrigonometricFunctionUtils.tanh(y.getEntry(3));
-    return new DoubleMatrix1D(x);
-  }
-
 }

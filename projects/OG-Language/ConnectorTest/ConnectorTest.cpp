@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,12 +8,13 @@
 
 // Test the functions and objects in Connector/Connector.cpp
 
-#include "Connector/Public.h"
+#include "Connector/Connector.h"
 #define FUDGE_NO_NAMESPACE
 #include "Connector/com_opengamma_language_connector_Test.h"
 
 LOGGING (com.opengamma.language.connector.ConnectorTest);
 
+#define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
 #define TIMEOUT_CALL		3000
 #ifdef TIMEOUT_ASYNC
@@ -77,10 +78,11 @@ public:
 		return bResult;
 	}
 	bool Disconnected () {
+		LOGDEBUG (TEXT ("messages=") << m_nMessages << TEXT (", disconnects=") << m_nDisconnects);
 		if (m_nMessages > 0) {
 			return m_nDisconnects == 1;
 		} else {
-			return true;
+			return m_nDisconnects == 0;
 		}
 	}
 };
@@ -90,7 +92,7 @@ static fudge_i32 g_nonce;
 static CTestMessageCallback *g_poCallback;
 
 static void StartConnector () {
-	g_poConnector = CConnector::Start ();
+	g_poConnector = CConnector::Start (TEST_LANGUAGE);
 	ASSERT (g_poConnector);
 	ASSERT (g_poConnector->WaitForStartup (TIMEOUT_STARTUP));
 	g_poCallback = new CTestMessageCallback ();
@@ -102,6 +104,11 @@ static void StopConnector () {
 	ASSERT (g_poConnector->Stop ());
 	CConnector::Release (g_poConnector);
 	g_poConnector = NULL;
+	int n;
+	for (n = 0; !g_poCallback->Disconnected () && (n < 10); n++) {
+		LOGDEBUG (TEXT ("Waiting for disconnect to propogate"));
+		CThread::Sleep (TIMEOUT_CALL / 10);
+	}
 	ASSERT (g_poCallback->Disconnected ());
 	CConnector::CCallback::Release (g_poCallback);
 }
@@ -127,11 +134,11 @@ static void StartStop () {
 	// No-op; the fun is in the StartConnector and StopConnector methods
 }
 
-static void SyncCall () {
+static void SyncCall (int nTimeoutFactor = 1) {
 	FudgeMsg msgToSend;
 	FudgeMsg msgReceived;
 	CreateTestMessage (&msgToSend, ECHO_REQUEST);
-	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, TIMEOUT_CALL));
+	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, nTimeoutFactor * TIMEOUT_CALL));
 	ASSERT (msgReceived);
 	CheckTestResponse (msgReceived, ECHO_RESPONSE);
 	FudgeMsg_release (msgReceived);
@@ -175,7 +182,6 @@ static void AsyncCallWithAsyncCallback () {
 	// Check explicit callback unregistration
 	ASSERT (!g_poCallback->Disconnected ());
 	ASSERT (g_poConnector->RemoveCallback (g_poCallback));
-	ASSERT (g_poCallback->Disconnected ());
 }
 
 static void JVMCrash () {
@@ -183,13 +189,13 @@ static void JVMCrash () {
 	FudgeMsg msgReceived;
 	CreateTestMessage (&msgToSend, CRASH_REQUEST);
 	unsigned long tStart = GetTickCount ();
-	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, 3 * TIMEOUT_CALL));
+	ASSERT (!g_poConnector->Call (msgToSend, &msgReceived, 2 * TIMEOUT_CALL));
 	unsigned long tEnd = GetTickCount ();
 	// If all is good, the JVM will have crashed quickly and the call was aborted before the timeout
-	ASSERT (tEnd - tStart < 2 * TIMEOUT_CALL);
+	ASSERT (tEnd - tStart < TIMEOUT_CALL);
 	FudgeMsg_release (msgToSend);
 	// And now it should be operational again
-	SyncCall ();
+	SyncCall (3);
 }
 
 static void JVMHang () {
@@ -197,13 +203,13 @@ static void JVMHang () {
 	FudgeMsg msgReceived;
 	CreateTestMessage (&msgToSend, PAUSE_REQUEST);
 	unsigned long tStart = GetTickCount ();
-	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, 3 * TIMEOUT_CALL));
+	ASSERT (!g_poConnector->Call (msgToSend, &msgReceived, 4 * TIMEOUT_CALL));
 	unsigned long tEnd = GetTickCount ();
 	// If all is good, the JVM will have stopped beating and we aborted the call before the timeout
-	ASSERT (tEnd - tStart < 2 * TIMEOUT_CALL);
+	ASSERT (tEnd - tStart < 3 * TIMEOUT_CALL);
 	FudgeMsg_release (msgToSend);
 	// And now it should be operational again
-	SyncCall ();
+	SyncCall (4);
 }
 
 BEGIN_TESTS (ConnectorTest)

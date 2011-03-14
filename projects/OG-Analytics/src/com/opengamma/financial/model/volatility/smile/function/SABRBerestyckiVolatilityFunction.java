@@ -21,8 +21,8 @@ public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvi
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
       @Override

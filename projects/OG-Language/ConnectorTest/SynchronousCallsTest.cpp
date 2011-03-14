@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,16 @@
 
 // Test the functions and objects in Connector/SynchronousCalls.cpp
 
+#ifdef _M_CEE
+#ifdef _UNICODE
+#define GetMessage	GetMessageW
+#else
+#define GetMessage	GetMessageA
+#endif /* ifdef _UNICODE */
+#endif /* ifdef _M_CEE */
+
 #include "Connector/SynchronousCalls.h"
+#include <Util/Thread.h>
 
 LOGGING (com.opengamma.language.connector.SynchronousCallsTest);
 

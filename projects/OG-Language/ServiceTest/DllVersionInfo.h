@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,4 +14,4 @@
 #define DllVersion_OriginalFilename "ServiceTest"
 #endif
 
-#endif /* ifndef __inc_og_language_service_dllversioninfo_h */
+#endif /* ifndef __inc_og_language_servicetest_dllversioninfo_h */

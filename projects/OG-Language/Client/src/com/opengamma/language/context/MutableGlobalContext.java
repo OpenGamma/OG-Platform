@@ -5,6 +5,8 @@
  */
 package com.opengamma.language.context;
 
+import java.util.Properties;
+
 /**
  * A mutable version of {@link GlobalContext}.
  */
@@ -16,6 +18,10 @@ public class MutableGlobalContext extends GlobalContext {
   @Override
   public void setValue(final String key, final Object value) {
     super.setValue(key, value);
+  }
+
+  public void setSystemSettings(final Properties properties) {
+    setValue(SYSTEM_SETTINGS, properties);
   }
 
 }

@@ -6,6 +6,7 @@
 
 package com.opengamma.language.livedata;
 
+import com.opengamma.language.connector.LiveData;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.custom.CustomLiveDataVisitor;
@@ -33,6 +34,17 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
   @Override
   public UserMessagePayload visitCustom(final Custom message, final SessionContext data) {
     return _customVisitors.visit(message, data);
+  }
+
+  @Override
+  public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
+    // TODO:
+    return null;
+  }
+
+  @Override
+  public UserMessagePayload visitUnexpected(final LiveData message, final SessionContext data) {
+    throw new IllegalStateException("Message " + message + " should not have been sent by client");
   }
 
 }

@@ -40,7 +40,8 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     this(nominalDates, settlementDates, couponRate, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear, final BondConvention convention) {
+  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear, 
+      final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
     Validate.notEmpty(nominalDates, "nominal dates");
@@ -61,7 +62,8 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     this(nominalDates, settlementDates, coupons, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear, final BondConvention convention) {
+  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear, 
+      final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
     Validate.notEmpty(nominalDates, "nominal dates");

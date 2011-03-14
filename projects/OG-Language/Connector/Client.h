@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,6 +11,9 @@
 
 #include "JVM.h"
 #include "Pipes.h"
+#include <Util/Mutex.h>
+#include <Util/Semaphore.h>
+#include <Util/Thread.h>
 
 enum ClientServiceState {
 	STARTING,
@@ -41,6 +44,7 @@ public:
 private:
 	class CRunnerThread;
 	// Attributes
+	TCHAR *m_pszLanguageID;
 	CAtomicInt m_oRefCount;
 	CMutex m_oStateMutex;
 	CMutex m_oStopMutex;
@@ -56,10 +60,10 @@ private:
 	unsigned long m_lSendTimeout;
 	unsigned long m_lShortTimeout;
 	// Private constructor - stops stack allocation
-	CClientService ();
+	CClientService (const TCHAR *pszLanguageID);
 	~CClientService ();
 	// Thread runner callbacks
-	bool ClosePipes ();
+	void ClosePipes ();
 	bool ConnectPipes ();
 	bool CreatePipes ();
 	bool DispatchAndRelease (FudgeMsgEnvelope env);
@@ -74,7 +78,7 @@ private:
 	bool StopJVM ();
 public:
 	// Creation
-	static CClientService *Create () { return new CClientService (); }
+	static CClientService *Create (const TCHAR *pszLanguageID) { return new CClientService (pszLanguageID); }
 	void Retain () { m_oRefCount.IncrementAndGet (); }
 	static void Release (CClientService *poClientService) { if (!poClientService->m_oRefCount.DecrementAndGet ()) delete poClientService; }
 	// Control

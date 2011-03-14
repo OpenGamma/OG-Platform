@@ -10,7 +10,6 @@ import java.util.Collections;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
@@ -23,6 +22,7 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * A {@code HolidaySource} implemented using an underlying {@code HolidayMaster}.
@@ -60,7 +60,7 @@ public class MasterHolidaySource extends AbstractMasterSource<HolidayDocument, H
   }
 
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final CurrencyUnit currency) {
+  public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
     HolidaySearchRequest request = new HolidaySearchRequest(currency);
     request.setVersionCorrection(getVersionCorrection());
     return isHoliday(request, dateToCheck);

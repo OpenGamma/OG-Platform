@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -38,6 +37,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.Expiry;
 
@@ -81,7 +81,7 @@ public class DbSecurityMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_equity() throws Exception {
-    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", CurrencyUnit.GBP);
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
     sec.setGicsCode(GICSCode.getInstance(2));
     sec.setShortName("OG");
@@ -99,7 +99,7 @@ public class DbSecurityMasterTest extends DBTest {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
     DateTimeWithZone dtwz = new DateTimeWithZone(zdt, zdt.getZone().getID());
     GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
-        CurrencyUnit.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         dtwz, dtwz, dtwz, 129d, 1324d, 12d, 1d, 2d, 3d);
     SecurityDocument addDoc = new SecurityDocument(sec);

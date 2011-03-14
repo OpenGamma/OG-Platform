@@ -4,6 +4,15 @@
       <conf name="core"/>
       <conf name="opengamma" extends="core"/>
     </configurations>
+    <publications>
+      <!-- JAR files -->
+      <artifact name="og-language-client" conf="core" type="jar" ext="jar" />
+      <!-- Header files -->
+      <artifact name="og-language-include" conf="core" type="include" ext="zip" />
+      <!-- Binary files -->
+      <artifact name="og-language-lib" conf="core" type="lib" ext="zip" />
+      <artifact name="og-language-bin" conf="core" type="bin" ext="zip" />
+    </publications>
     <dependencies>
       <dependency name="og-financial" rev="latest.integration" conf="opengamma->*" />
       <!-- Pull windows binaries for Visual Studio build, posix user can install the libraries more easily -->

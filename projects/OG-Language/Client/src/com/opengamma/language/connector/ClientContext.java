@@ -12,11 +12,12 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Represents constant state held by most clients.
  */
-public class ClientContext {
+public final class ClientContext {
 
   private final FudgeContext _fudgeContext;
   private final ScheduledExecutorService _scheduler;
@@ -27,9 +28,13 @@ public class ClientContext {
   private final FudgeMsgEnvelope _heartbeatMessage;
   private final UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
 
-  /* package */ClientContext(final FudgeContext fudgeContext, final ScheduledExecutorService scheduler,
+  public ClientContext(final FudgeContext fudgeContext, final ScheduledExecutorService scheduler,
       final ClientExecutor executor, final int messageTimeout, final int heartbeatTimeout,
       final int terminationTimeout, final UserMessagePayloadVisitor<UserMessagePayload, SessionContext> messageHandler) {
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(scheduler, "scheduler");
+    ArgumentChecker.notNull(executor, "executor");
+    ArgumentChecker.notNull(messageHandler, "messageHandler");
     _fudgeContext = fudgeContext;
     _scheduler = scheduler;
     _executor = executor;

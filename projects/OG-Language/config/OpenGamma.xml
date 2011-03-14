@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    A language bound implementation should provide its own OpenGamma.xml & OpenGamma.properties in the classpath
+    which describe how to connect to the local OpenGamma infrastructure, and define language specific
+    extensions.
+  -->
+  
+  <import resource="classpath:/com/opengamma/language/connector/Client.xml" />
+  
+  <!--
+    TODO: working extension example
+    
+    The obvious extension points are marked in the main Client.xml. These beans can be referenced by ID and
+    tweaked by other beans prior to context start-up (e.g. at "afterPropertiesSet", but NOT at "start"). For
+    example:
+    
+    <bean class="my.package.MyCustomMessagesHandler">
+      <property name="customMessageRegistry" ref="clientMessageHandler" />
+    </bean>
+    
+    and in code:
+    
+    public void setCustomMessageRegistry (final CustomMessageVisitorRegistry registry) {
+      registry.register (MessageClass1.class, myMessageClass1Handler);
+      registry.register (MessageClass2.class, myMessageClass2Handler);
+      //...
+    }
+  -->
+
+  <!--
+    TODO: scan the ext/ folder for language extension .xml files rather than require them go in here
+  -->
+  
+</beans>

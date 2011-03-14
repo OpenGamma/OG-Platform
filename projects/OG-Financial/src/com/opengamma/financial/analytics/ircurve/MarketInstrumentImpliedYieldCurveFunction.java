@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -90,6 +89,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -98,7 +98,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
-  private final CurrencyUnit _currency;
+  private final Currency _currency;
   private final String _fundingCurveDefinitionName;
   private final String _forwardCurveDefinitionName;
   private YieldCurveDefinition _fundingCurveDefinition;
@@ -107,6 +107,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private ValueSpecification _fundingCurveResult;
   private ValueSpecification _forwardCurveResult;
   private ValueSpecification _jacobianResult;
+  private ValueSpecification _fundingCurveSpecResult;
+  private ValueSpecification _forwardCurveSpecResult;
   private Set<ValueSpecification> _results;
   private static final LastDateCalculator LAST_DATE_CALCULATOR = LastDateCalculator.getInstance();
 
@@ -115,14 +117,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
-    this(CurrencyUnit.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
+    this(Currency.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String curveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName) {
     this(currency, curveDefinitionName, curveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(fundingCurveDefinitionName, "funding curve name");
     Validate.notNull(forwardCurveDefinitionName, "forward curve name");
@@ -156,7 +158,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _forwardCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, currencySpec, createValueProperties().with(ValuePropertyNames.CURVE, _forwardCurveDefinitionName).get());
     _jacobianResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, currencySpec, createValueProperties().with(YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         _forwardCurveDefinitionName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveDefinitionName).get());
-    _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult);
+    _fundingCurveSpecResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, currencySpec, createValueProperties().with(ValuePropertyNames.CURVE,_fundingCurveDefinitionName).get());
+    _forwardCurveSpecResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, currencySpec, createValueProperties().with(ValuePropertyNames.CURVE,_forwardCurveDefinitionName).get());
+    _results = Sets.newHashSet(_fundingCurveResult, _forwardCurveResult, _jacobianResult, _fundingCurveSpecResult, _forwardCurveSpecResult);
   }
 
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification, final FunctionCompilationContext context) {
@@ -342,8 +346,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-        return Sets
-            .newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
+        return Sets.newHashSet(
+            new ComputedValue(_fundingCurveResult, fundingCurve), 
+            new ComputedValue(_forwardCurveResult, forwardCurve),
+            new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
+            new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), 
+            new ComputedValue(_forwardCurveSpecResult, _forwardCurveSpecification));
       }
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder.resolveToSecurity(_fundingCurveSpecification, buildMarketDataMap(inputs));
@@ -472,7 +480,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final YieldAndDiscountCurve fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, fundingInterpolator));
       final YieldAndDiscountCurve forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, forwardInterpolator));
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-      return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()));
+      return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(_forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
+    		  new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), new ComputedValue(_forwardCurveSpecResult, _forwardCurveSpecification));
 
     }
 

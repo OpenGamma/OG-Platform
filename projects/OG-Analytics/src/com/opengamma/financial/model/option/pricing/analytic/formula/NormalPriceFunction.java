@@ -20,17 +20,17 @@ public class NormalPriceFunction implements OptionPriceFunction<BlackFunctionDat
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getK();
-    final double t = option.getT();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public final Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
-        final double f = data.getF();
-        final double discountFactor = data.getDf();
-        final double sigma = data.getSigma();
+        final double f = data.getForward();
+        final double discountFactor = data.getDiscountFactor();
+        final double sigma = data.getBlackVolatility();
         final double sigmaRootT = sigma * Math.sqrt(t);
         final int sign = option.isCall() ? 1 : -1;
         if (sigmaRootT < 1e-16) {

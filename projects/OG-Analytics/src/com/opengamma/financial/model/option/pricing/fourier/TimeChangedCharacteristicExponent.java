@@ -7,30 +7,39 @@ package com.opengamma.financial.model.option.pricing.fourier;
 
 import static com.opengamma.math.number.ComplexNumber.MINUS_I;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.ComplexMathUtils;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
  */
-public class TimeChangedCharacteristicExponent extends CharacteristicExponent {
+public class TimeChangedCharacteristicExponent implements CharacteristicExponent {
   private final CharacteristicExponent _base;
   private final CharacteristicExponent _timeChange;
 
   public TimeChangedCharacteristicExponent(final CharacteristicExponent base, final CharacteristicExponent timeChange) {
     Validate.notNull(base, "base");
     Validate.notNull(timeChange, "timeChange");
-    Validate.isTrue(base.getTime() == 1.0, "base Characteristic Exponent must be evaulated at t = 1.0");
     _base = base;
     _timeChange = timeChange;
   }
 
   @Override
-  public ComplexNumber evaluate(final ComplexNumber u) {
-    final ComplexNumber z = ComplexMathUtils.multiply(MINUS_I, _base.evaluate(u));
-    return _timeChange.evaluate(z);
+  public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
+    final Function1D<ComplexNumber, ComplexNumber> baseFunction = _base.getFunction(1);
+    final Function1D<ComplexNumber, ComplexNumber> timeChangeFunction = _timeChange.getFunction(t);
+
+    return new Function1D<ComplexNumber, ComplexNumber>() {
+      @Override
+      public ComplexNumber evaluate(final ComplexNumber u) {
+        final ComplexNumber z = ComplexMathUtils.multiply(MINUS_I, baseFunction.evaluate(u));
+        return timeChangeFunction.evaluate(z);
+      }
+    };
   }
 
   @Override
@@ -43,9 +52,47 @@ public class TimeChangedCharacteristicExponent extends CharacteristicExponent {
     return Math.max(_base.getSmallestAlpha(), _timeChange.getSmallestAlpha());
   }
 
+  /**
+   * Gets the base field.
+   * @return the base
+   */
+  public CharacteristicExponent getBase() {
+    return _base;
+  }
+
+  /**
+   * Gets the timeChange field.
+   * @return the timeChange
+   */
+  public CharacteristicExponent getTimeChange() {
+    return _timeChange;
+  }
+
   @Override
-  public double getTime() {
-    return _timeChange.getTime();
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _base.hashCode();
+    result = prime * result + _timeChange.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final TimeChangedCharacteristicExponent other = (TimeChangedCharacteristicExponent) obj;
+    if (!ObjectUtils.equals(_base, other._base)) {
+      return false;
+    }
+    return ObjectUtils.equals(_timeChange, other._timeChange);
   }
 
 }

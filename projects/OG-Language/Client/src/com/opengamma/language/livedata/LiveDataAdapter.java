@@ -6,6 +6,8 @@
 
 package com.opengamma.language.livedata;
 
+import com.opengamma.language.connector.LiveData;
+
 /**
  * Pass through adapter to allow filtering of all incoming live-data messages.
  *
@@ -27,6 +29,16 @@ public class LiveDataAdapter<T1, T2> implements LiveDataVisitor<T1, T2> {
   @Override
   public T1 visitCustom(final Custom message, final T2 data) {
     return getUnderlying().visitCustom(message, data);
+  }
+
+  @Override
+  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
+    return getUnderlying().visitQueryAvailable(message, data);
+  }
+
+  @Override
+  public T1 visitUnexpected(final LiveData message, final T2 data) {
+    return getUnderlying().visitUnexpected(message, data);
   }
 
 }

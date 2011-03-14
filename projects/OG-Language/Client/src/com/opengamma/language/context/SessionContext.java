@@ -17,6 +17,11 @@ import com.opengamma.language.connector.MessageSender;
  */
 public abstract class SessionContext extends AbstractContext {
 
+  /**
+   * 
+   */
+  protected static final String DEBUG = "debug";
+
   private final UserContext _userContext;
 
   /* package */SessionContext(final UserContext userContext) {
@@ -43,5 +48,9 @@ public abstract class SessionContext extends AbstractContext {
   // Standard context members
 
   public abstract MessageSender getMessageSender();
+
+  public boolean isDebug() {
+    return getValue(DEBUG) != null;
+  }
 
 }

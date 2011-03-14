@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,7 @@
 
 #ifndef __cplusplus_cli
 int main (int argc, char **argv) {
-	CAbstractTest::Main ();
+	CAbstractTest::Main (argc, argv);
 	return 0;
 }
 #endif /* ifndef __cplusplus_cli */

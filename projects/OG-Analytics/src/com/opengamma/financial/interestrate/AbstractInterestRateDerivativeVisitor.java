@@ -7,8 +7,8 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -17,10 +17,11 @@ import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -58,12 +59,12 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedCouponAnnuity(final FixedCouponAnnuity fixedCouponAnnuity, final S data) {
+  public T visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponAnnuity()");
   }
 
   @Override
-  public T visitForwardLiborAnnuity(final ForwardLiborAnnuity forwardLiborAnnuity, final S data) {
+  public T visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
   }
 
@@ -108,13 +109,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedCouponPayment(final FixedCouponPayment payment, final S data) {
+  public T visitFixedCouponPayment(final CouponFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
   }
 
   @Override
-  public T visitForwardLiborPayment(final ForwardLiborPayment payment, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborPayment()");
+  public T visitCouponIbor(final CouponIbor payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponCMS(final CouponCMS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
   }
 
   @Override
@@ -138,7 +144,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedPayment(final FixedPayment payment, final S data) {
+  public T visitFixedPayment(final PaymentFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
 
@@ -153,12 +159,12 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedCouponAnnuity(final FixedCouponAnnuity fixedCouponAnnuity) {
+  public T visitFixedCouponAnnuity(final AnnuityCouponFixed fixedCouponAnnuity) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponAnnuity()");
   }
 
   @Override
-  public T visitForwardLiborAnnuity(final ForwardLiborAnnuity forwardLiborAnnuity) {
+  public T visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborAnnuity()");
   }
 
@@ -203,13 +209,18 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedCouponPayment(final FixedCouponPayment payment) {
+  public T visitFixedCouponPayment(final CouponFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
   }
 
   @Override
-  public T visitForwardLiborPayment(final ForwardLiborPayment payment) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardLiborPayment()");
+  public T visitCouponIbor(final CouponIbor payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponCMS(final CouponCMS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
   }
 
   @Override
@@ -233,7 +244,7 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
-  public T visitFixedPayment(final FixedPayment payment) {
+  public T visitFixedPayment(final PaymentFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
 

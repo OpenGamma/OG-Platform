@@ -11,7 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -39,10 +39,10 @@ public final class BondFutureImpliedRepoRateCalculator extends BondFutureCalcula
     final double[] cleanPrices = basketData.getCleanPrices();
     for (int i = 0; i < n; i++) {
       final double deliveryDate = deliverableBonds[i].getForwardTime();
-      final GenericAnnuity<FixedCouponPayment> coupons = deliverableBonds[i].getBond().getCouponAnnuity();
+      final GenericAnnuity<CouponFixed> coupons = deliverableBonds[i].getBond().getCouponAnnuity();
       double sum1 = 0.0;
       double sum2 = 0.0;
-      for (final FixedCouponPayment payments : coupons.getPayments()) {
+      for (final CouponFixed payments : coupons.getPayments()) {
         final double ti = payments.getPaymentTime();
         if (ti > deliveryDate) {
           break;

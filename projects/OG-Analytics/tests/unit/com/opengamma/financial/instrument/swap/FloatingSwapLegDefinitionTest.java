@@ -22,8 +22,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.time.DateUtil;
 
@@ -164,51 +164,51 @@ public class FloatingSwapLegDefinitionTest {
     GenericAnnuity<Payment> payments = DEFINITION.toDerivative(DATE.toLocalDate(), names);
     final int n = 2;
     assertEquals(payments.getNumberOfPayments(), NOMINAL_DATES.length - n);
-    assertTrue(payments.getNthPayment(0) instanceof ForwardLiborPayment);
-    ForwardLiborPayment payment = (ForwardLiborPayment) payments.getNthPayment(0);
+    assertTrue(payments.getNthPayment(0) instanceof CouponIbor);
+    CouponIbor payment = (CouponIbor) payments.getNthPayment(0);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     assertEquals(payment.getPaymentTime(), actAct.getDayCountFraction(DATE, SETTLEMENT_DATES[n]), 0);
     assertEquals(payment.getNotional(), NOTIONAL, 0);
-    assertEquals(payment.getLiborFixingTime(), actAct.getDayCountFraction(DATE, RESET_DATES[n]), 0);
-    assertEquals(payment.getLiborMaturityTime(), actAct.getDayCountFraction(DATE, MATURITY_DATES[n]), 0);
+    assertEquals(payment.getFixingTime(), actAct.getDayCountFraction(DATE, RESET_DATES[n]), 0);
+    assertEquals(payment.getFixingPeriodEndTime(), actAct.getDayCountFraction(DATE, MATURITY_DATES[n]), 0);
     assertEquals(payment.getPaymentYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[n - 1], SETTLEMENT_DATES[n]), 0);
-    assertEquals(payment.getForwardYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[n - 1], SETTLEMENT_DATES[n]), 0);
+    assertEquals(payment.getFixingYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[n - 1], SETTLEMENT_DATES[n]), 0);
     assertEquals(payment.getSpread(), SPREAD, 0);
     assertEquals(payment.getFundingCurveName(), names[0]);
-    assertEquals(payment.getLiborCurveName(), names[1]);
+    assertEquals(payment.getForwardCurveName(), names[1]);
     for (int i = n + 1; i < NOMINAL_DATES.length; i++) {
-      assertTrue(payments.getNthPayment(i - n) instanceof ForwardLiborPayment);
-      payment = (ForwardLiborPayment) payments.getNthPayment(i - n);
+      assertTrue(payments.getNthPayment(i - n) instanceof CouponIbor);
+      payment = (CouponIbor) payments.getNthPayment(i - n);
       assertEquals(payment.getPaymentTime(), actAct.getDayCountFraction(DATE, SETTLEMENT_DATES[i]), 0);
       assertEquals(payment.getNotional(), NOTIONAL, 0);
-      assertEquals(payment.getLiborFixingTime(), actAct.getDayCountFraction(DATE, RESET_DATES[i]), 0);
-      assertEquals(payment.getLiborMaturityTime(), actAct.getDayCountFraction(DATE, MATURITY_DATES[i]), 0);
+      assertEquals(payment.getFixingTime(), actAct.getDayCountFraction(DATE, RESET_DATES[i]), 0);
+      assertEquals(payment.getFixingPeriodEndTime(), actAct.getDayCountFraction(DATE, MATURITY_DATES[i]), 0);
       assertEquals(payment.getPaymentYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i - 1], SETTLEMENT_DATES[i]), 0);
-      assertEquals(payment.getForwardYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i - 1], SETTLEMENT_DATES[i]), 0);
+      assertEquals(payment.getFixingYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i - 1], SETTLEMENT_DATES[i]), 0);
       assertEquals(payment.getSpread(), SPREAD, 0);
       assertEquals(payment.getFundingCurveName(), names[0]);
-      assertEquals(payment.getLiborCurveName(), names[1]);
+      assertEquals(payment.getForwardCurveName(), names[1]);
     }
     payments = DEFINITION.toDerivative(EFFECTIVE_DATE.toLocalDate(), names);
     assertEquals(payments.getNumberOfPayments(), NOMINAL_DATES.length - 1);
-    assertTrue(payments.getNthPayment(0) instanceof FixedCouponPayment);
-    final FixedCouponPayment firstPayment = (FixedCouponPayment) payments.getNthPayment(0);
+    assertTrue(payments.getNthPayment(0) instanceof CouponFixed);
+    final CouponFixed firstPayment = (CouponFixed) payments.getNthPayment(0);
     assertEquals(firstPayment.getPaymentTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, SETTLEMENT_DATES[1]), 0);
-    assertEquals(firstPayment.getCoupon(), RATE + SPREAD, 0);
+    assertEquals(firstPayment.getFixedRate(), RATE + SPREAD, 0);
     assertEquals(firstPayment.getNotional(), NOTIONAL, 0);
     assertEquals(firstPayment.getFundingCurveName(), names[0]);
     for (int i = 1; i < payments.getNumberOfPayments(); i++) {
-      assertTrue(payments.getNthPayment(i) instanceof ForwardLiborPayment);
-      payment = (ForwardLiborPayment) payments.getNthPayment(i);
+      assertTrue(payments.getNthPayment(i) instanceof CouponIbor);
+      payment = (CouponIbor) payments.getNthPayment(i);
       assertEquals(payment.getPaymentTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, SETTLEMENT_DATES[i + 1]), 0);
       assertEquals(payment.getNotional(), NOTIONAL, 0);
-      assertEquals(payment.getLiborFixingTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, RESET_DATES[i + 1]), 0);
-      assertEquals(payment.getLiborMaturityTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, MATURITY_DATES[i + 1]), 0);
+      assertEquals(payment.getFixingTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, RESET_DATES[i + 1]), 0);
+      assertEquals(payment.getFixingPeriodEndTime(), actAct.getDayCountFraction(EFFECTIVE_DATE, MATURITY_DATES[i + 1]), 0);
       assertEquals(payment.getPaymentYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i], SETTLEMENT_DATES[i + 1]), 0);
-      assertEquals(payment.getForwardYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i], SETTLEMENT_DATES[i + 1]), 0);
+      assertEquals(payment.getFixingYearFraction(), DAY_COUNT.getDayCountFraction(SETTLEMENT_DATES[i], SETTLEMENT_DATES[i + 1]), 0);
       assertEquals(payment.getSpread(), SPREAD, 0);
       assertEquals(payment.getFundingCurveName(), names[0]);
-      assertEquals(payment.getLiborCurveName(), names[1]);
+      assertEquals(payment.getForwardCurveName(), names[1]);
     }
   }
 }

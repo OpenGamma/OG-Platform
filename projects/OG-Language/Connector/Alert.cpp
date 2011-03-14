@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,6 +13,7 @@
 #ifdef _WIN32
 #include <Util/DllVersion.h>
 #endif /* ifdef _WIN32 */
+#include <Util/Mutex.h>
 
 LOGGING (com.opengamma.language.connector.Alert);
 

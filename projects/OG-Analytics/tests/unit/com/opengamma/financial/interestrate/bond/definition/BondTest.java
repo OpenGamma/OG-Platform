@@ -13,8 +13,8 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
  * 
@@ -28,9 +28,9 @@ public class BondTest {
   private static final double[] YEAR_FRACTIONS;
   private static final double[] PAYMENTS;
   private static final Bond BOND = new Bond(TIMES, COUPON, BOND_CURVE);
-  private static final GenericAnnuity<FixedPayment> ANNUITY;
-  private static final GenericAnnuity<FixedCouponPayment> COUPON_ANNUITY;
-  private static GenericAnnuity<FixedCouponPayment> UNIT_ANNUITY;
+  private static final GenericAnnuity<PaymentFixed> ANNUITY;
+  private static final GenericAnnuity<CouponFixed> COUPON_ANNUITY;
+  private static GenericAnnuity<CouponFixed> UNIT_ANNUITY;
 
   static {
     final int n = TIMES.length;
@@ -39,21 +39,21 @@ public class BondTest {
     YEAR_FRACTIONS = new double[n];
     Arrays.fill(COUPONS, COUPON);
     Arrays.fill(YEAR_FRACTIONS, YEAR_FRACTION);
-    final FixedPayment[] fixedPayments = new FixedPayment[n + 1];
-    final FixedCouponPayment[] couponPayments = new FixedCouponPayment[n];
-    final FixedCouponPayment[] unit = new FixedCouponPayment[n];
-    FixedCouponPayment payment;
+    final PaymentFixed[] fixedPayments = new PaymentFixed[n + 1];
+    final CouponFixed[] couponPayments = new CouponFixed[n];
+    final CouponFixed[] unit = new CouponFixed[n];
+    CouponFixed payment;
     for (int i = 0; i < n; i++) {
       PAYMENTS[i] = COUPON * YEAR_FRACTIONS[i] + (i == (n - 1) ? 1.0 : 0.0);
-      payment = new FixedCouponPayment(TIMES[i], YEAR_FRACTIONS[i], COUPON, BOND_CURVE);
+      payment = new CouponFixed(TIMES[i], BOND_CURVE, YEAR_FRACTIONS[i], COUPON);
       fixedPayments[i] = payment;
       couponPayments[i] = payment;
-      unit[i] = new FixedCouponPayment(TIMES[i], YEAR_FRACTIONS[i], 1, BOND_CURVE);
+      unit[i] = new CouponFixed(TIMES[i], BOND_CURVE, YEAR_FRACTIONS[i], 1);
     }
-    fixedPayments[n] = new FixedPayment(TIMES[n - 1], 1, BOND_CURVE);
-    ANNUITY = new GenericAnnuity<FixedPayment>(fixedPayments);
-    COUPON_ANNUITY = new GenericAnnuity<FixedCouponPayment>(couponPayments);
-    UNIT_ANNUITY = new GenericAnnuity<FixedCouponPayment>(unit);
+    fixedPayments[n] = new PaymentFixed(TIMES[n - 1], 1, BOND_CURVE);
+    ANNUITY = new GenericAnnuity<PaymentFixed>(fixedPayments);
+    COUPON_ANNUITY = new GenericAnnuity<CouponFixed>(couponPayments);
+    UNIT_ANNUITY = new GenericAnnuity<CouponFixed>(unit);
   }
 
   @Test(expected = IllegalArgumentException.class)
