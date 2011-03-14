@@ -18,7 +18,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -27,6 +26,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -64,7 +64,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
     context.objectToFudgeMsg(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
 
-    CurrencyUnit defaultCurrency = viewDefinition.getDefaultCurrency();
+    Currency defaultCurrency = viewDefinition.getDefaultCurrency();
     if (defaultCurrency != null) {
       message.add(CURRENCY_FIELD, null, defaultCurrency.getCode());
     }
@@ -122,7 +122,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
     if (message.hasField(CURRENCY_FIELD)) {
       String isoCode = message.getString(CURRENCY_FIELD);
-      viewDefinition.setDefaultCurrency(CurrencyUnit.of(isoCode));
+      viewDefinition.setDefaultCurrency(Currency.of(isoCode));
     }
 
     if (message.hasField(MIN_DELTA_CALC_PERIOD_FIELD)) {

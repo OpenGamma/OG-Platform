@@ -17,9 +17,9 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -55,7 +55,7 @@ public class InterpolatedYieldCurveDefinitionSourceResource {
   @GET
   @Path("{currency}/{name}")
   public FudgeMsgEnvelope getDefinition(@PathParam("currency") String currencyISO, @PathParam("name") String name) {
-    final CurrencyUnit currency = CurrencyUnit.of(currencyISO);
+    final Currency currency = Currency.of(currencyISO);
     final YieldCurveDefinition definition = getUnderlying().getDefinition(currency, name);
     return definitionToMsgEnvelope(definition);
   }
@@ -63,7 +63,7 @@ public class InterpolatedYieldCurveDefinitionSourceResource {
   @GET
   @Path("{currency}/{name}/{version}")
   public FudgeMsgEnvelope getDefinition(@PathParam("currency") String currencyISO, @PathParam("name") String name, @PathParam("version") long versionMillis) {
-    final CurrencyUnit currency = CurrencyUnit.of(currencyISO);
+    final Currency currency = Currency.of(currencyISO);
     final Instant version = Instant.ofEpochMillis(versionMillis);
     final YieldCurveDefinition definition = getUnderlying().getDefinition(currency, name, version);
     return definitionToMsgEnvelope(definition);

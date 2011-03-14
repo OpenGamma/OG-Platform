@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -23,6 +22,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.money.Currency;
 
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
@@ -209,7 +209,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.USD);
+    request.setCurrency(Currency.USD);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -218,7 +218,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_oneMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.EUR);
+    request.setCurrency(Currency.EUR);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -228,7 +228,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_twoMatches() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.GBP);
+    request.setCurrency(Currency.GBP);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());

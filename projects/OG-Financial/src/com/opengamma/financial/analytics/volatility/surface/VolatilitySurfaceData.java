@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.CurrencyUnit;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -21,13 +21,13 @@ public class VolatilitySurfaceData<X, Y> {
 
   private String _definitionName;
   private String _specificationName;
-  private CurrencyUnit _currency;
+  private Currency _currency;
   private String _interpolatorName;
   private Map<Pair<X, Y>, Double> _values;
   private X[] _xs;
   private Y[] _ys;;
 
-  public VolatilitySurfaceData(String definitionName, String specificationName, CurrencyUnit currency, String interpolatorName, 
+  public VolatilitySurfaceData(String definitionName, String specificationName, Currency currency, String interpolatorName, 
                                X[] xs, Y[] ys, Map<Pair<X, Y>, Double> values) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(specificationName, "Specification Name");
@@ -69,7 +69,7 @@ public class VolatilitySurfaceData<X, Y> {
     return _specificationName;
   }
   
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
   

@@ -14,7 +14,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.region.RegionSource;
@@ -44,6 +43,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -138,7 +138,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
           final InterestRateLeg receiveLeg = (InterestRateLeg) swap.getReceiveLeg();
           if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg)
               || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
-            final CurrencyUnit payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+            final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
             return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency());
           }
         }
@@ -155,7 +155,7 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(context, desiredValue);
-    final CurrencyUnit currency = getCurrency(target);
+    final Currency currency = getCurrency(target);
     if (curveNames.getFirst().equals(curveNames.getSecond())) {
       return Collections.singleton(YieldCurveFunction.getCurveRequirement(currency, curveNames.getFirst(), null, null));
     }
@@ -189,13 +189,13 @@ public class ParRateParallelCurveShiftFixedFloatSwapFunction extends AbstractFun
     return "ParRateParallelCurveSensitivityFixedFloatSwapFunction";
   }
 
-  private CurrencyUnit getCurrency(final Security security) {
+  private Currency getCurrency(final Security security) {
     final SwapSecurity swap = (SwapSecurity) security;
     final InterestRateLeg leg = (InterestRateLeg) swap.getPayLeg();
     return ((InterestRateNotional) leg.getNotional()).getCurrency();
   }
 
-  private CurrencyUnit getCurrency(final ComputationTarget target) {
+  private Currency getCurrency(final ComputationTarget target) {
     return getCurrency(target.getPosition().getSecurity());
   }
 }

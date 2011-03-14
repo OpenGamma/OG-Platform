@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
@@ -32,6 +31,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * The manageable implementation of a region.
@@ -149,9 +149,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * Gets the currency.
    * @return the value of the property
    */
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     String code = _identifiers.getIdentifier(RegionUtils.ISO_CURRENCY_ALPHA3);
-    return (code != null ? CurrencyUnit.of(code) : null);
+    return (code != null ? Currency.of(code) : null);
   }
 
   /**
@@ -159,7 +159,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * 
    * @param currency  the currency to set, null to remove any currency
    */
-  public void setCurrency(CurrencyUnit currency) {
+  public void setCurrency(Currency currency) {
     setIdentifiers(getIdentifiers().withoutScheme(RegionUtils.ISO_CURRENCY_ALPHA3));
     if (currency != null) {
       addIdentifier(RegionUtils.currencyRegionId(currency));

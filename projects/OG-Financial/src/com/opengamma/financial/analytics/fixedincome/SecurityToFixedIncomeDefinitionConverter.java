@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
@@ -58,6 +57,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -79,7 +79,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
 
   @Override
   public FixedIncomeInstrumentDefinition<?> visitBondSecurity(final BondSecurity security) {
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
@@ -117,7 +117,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
     final Identifier regionId = security.getRegion().getIdentityKey();
     final Calendar calendar = getCalendar(regionId);
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode()
         + "_CASH_CONVENTION");
