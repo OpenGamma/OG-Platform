@@ -14,7 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -32,6 +31,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -47,7 +47,7 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtil.getUTCDate(2008, 3, 31);
   private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2008, 9, 30);
   private static final double COUPON = 4.0;
-  private static final BondSecurity BOND = new GovernmentBondSecurity("US", "Government", "US", "Treasury", CurrencyUnit.USD,
+  private static final BondSecurity BOND = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.USD,
       YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(LAST_TRADE_DATE), "", COUPON,
       SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(FIRST_ACCRUAL_DATE),
       new DateTimeWithZone(SETTLEMENT_DATE), new DateTimeWithZone(FIRST_COUPON_DATE), 100, 100000000, 5000, 1000, 100, 100);
@@ -92,7 +92,7 @@ public class BondSecurityToBondDefinitionConverterTest {
   private static class MyHolidaySource implements HolidaySource {
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final CurrencyUnit currency) {
+    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 

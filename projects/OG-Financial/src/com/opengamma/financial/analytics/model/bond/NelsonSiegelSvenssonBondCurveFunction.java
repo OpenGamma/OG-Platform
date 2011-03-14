@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -57,6 +56,7 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -77,16 +77,16 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
     FIXED_PARAMETERS.set(0);
   }
 
-  private final CurrencyUnit _currency;
+  private final Currency _currency;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
 
   public NelsonSiegelSvenssonBondCurveFunction(final String currencyName) {
     Validate.notNull(currencyName, "currency name");
-    _currency = CurrencyUnit.of(currencyName);
+    _currency = Currency.of(currencyName);
   }
 
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
 

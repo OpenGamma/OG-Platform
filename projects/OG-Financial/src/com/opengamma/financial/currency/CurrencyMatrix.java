@@ -7,8 +7,8 @@ package com.opengamma.financial.currency;
 
 import java.util.Set;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
 
 /**
  * Represents a currency conversion matrix.
@@ -20,14 +20,14 @@ public interface CurrencyMatrix extends UniqueIdentifiable {
    * 
    * @return the set of source currencies, not {@code null}
    */
-  Set<CurrencyUnit> getSourceCurrencies();
+  Set<Currency> getSourceCurrencies();
 
   /**
    * Returns the set of "target" currencies defined in this matrix.
    * 
    * @return the set of target currencies, not {@code null}
    */
-  Set<CurrencyUnit> getTargetCurrencies();
+  Set<Currency> getTargetCurrencies();
 
   /**
    * Returns the conversion value for a source to a target currency. The conversion value is:
@@ -40,6 +40,6 @@ public interface CurrencyMatrix extends UniqueIdentifiable {
    * @param target the target currency, not {@code null}
    * @return the matrix value
    */
-  CurrencyMatrixValue getConversion(CurrencyUnit source, CurrencyUnit target);
+  CurrencyMatrixValue getConversion(Currency source, Currency target);
 
 }

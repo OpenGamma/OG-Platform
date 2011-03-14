@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -90,6 +89,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -98,7 +98,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
-  private final CurrencyUnit _currency;
+  private final Currency _currency;
   private final String _fundingCurveDefinitionName;
   private final String _forwardCurveDefinitionName;
   private YieldCurveDefinition _fundingCurveDefinition;
@@ -117,14 +117,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
-    this(CurrencyUnit.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
+    this(Currency.of(currency), fundingCurveDefinitionName, forwardCurveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String curveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String curveDefinitionName) {
     this(currency, curveDefinitionName, curveDefinitionName);
   }
 
-  public MarketInstrumentImpliedYieldCurveFunction(final CurrencyUnit currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
+  public MarketInstrumentImpliedYieldCurveFunction(final Currency currency, final String fundingCurveDefinitionName, final String forwardCurveDefinitionName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(fundingCurveDefinitionName, "funding curve name");
     Validate.notNull(forwardCurveDefinitionName, "forward curve name");

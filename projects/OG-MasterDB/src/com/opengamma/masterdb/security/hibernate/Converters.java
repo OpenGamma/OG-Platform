@@ -11,7 +11,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -20,6 +19,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,11 +30,11 @@ public final class Converters {
   private Converters() {
   }
 
-  public static CurrencyUnit currencyBeanToCurrency(CurrencyBean currencyBean) {
+  public static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
     if (currencyBean == null) {
       return null;
     }
-    return CurrencyUnit.of(currencyBean.getName());
+    return Currency.of(currencyBean.getName());
   }
 
   public static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {

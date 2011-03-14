@@ -12,31 +12,31 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 
 public class CurrencyMatrixTest extends FinancialTestBase {
 
   private static void assertMatrixEqual(final CurrencyMatrix expected, final CurrencyMatrix actual) {
-    final Collection<CurrencyUnit> expectedSourceCurrencies = expected.getSourceCurrencies();
-    final Collection<CurrencyUnit> expectedTargetCurrencies = expected.getTargetCurrencies();
-    final Collection<CurrencyUnit> actualSourceCurrencies = actual.getSourceCurrencies();
-    final Collection<CurrencyUnit> actualTargetCurrencies = actual.getTargetCurrencies();
+    final Collection<Currency> expectedSourceCurrencies = expected.getSourceCurrencies();
+    final Collection<Currency> expectedTargetCurrencies = expected.getTargetCurrencies();
+    final Collection<Currency> actualSourceCurrencies = actual.getSourceCurrencies();
+    final Collection<Currency> actualTargetCurrencies = actual.getTargetCurrencies();
     assertEquals(expectedSourceCurrencies.size(), actualSourceCurrencies.size());
-    for (CurrencyUnit source : actualSourceCurrencies) {
+    for (Currency source : actualSourceCurrencies) {
       assertEquals(true, expectedSourceCurrencies.contains(source));
     }
     assertEquals(expectedTargetCurrencies.size(), actualTargetCurrencies.size());
-    for (CurrencyUnit target : actualTargetCurrencies) {
+    for (Currency target : actualTargetCurrencies) {
       assertEquals(true, expectedTargetCurrencies.contains(target));
     }
-    for (CurrencyUnit source : expectedSourceCurrencies) {
-      for (CurrencyUnit target : expectedTargetCurrencies) {
+    for (Currency source : expectedSourceCurrencies) {
+      for (Currency target : expectedTargetCurrencies) {
         assertEquals(expected.getConversion(source, target), actual.getConversion(source, target));
       }
     }
@@ -51,10 +51,10 @@ public class CurrencyMatrixTest extends FinancialTestBase {
   @Test
   public void testSymmetricalMatrix() {
     final SimpleCurrencyMatrix simple = new SimpleCurrencyMatrix();
-    simple.setLiveData(CurrencyUnit.USD, CurrencyUnit.GBP, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
-    simple.setFixedConversion(CurrencyUnit.GBP, CurrencyUnit.EUR, 0.9);
-    simple.setCrossConversion(CurrencyUnit.USD, CurrencyUnit.EUR, CurrencyUnit.GBP);
-    simple.setFixedConversion(CurrencyUnit.EUR, CurrencyUnit.CHF, 10.0);
+    simple.setLiveData(Currency.USD, Currency.GBP, UniqueIdentifier.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
+    simple.setFixedConversion(Currency.GBP, Currency.EUR, 0.9);
+    simple.setCrossConversion(Currency.USD, Currency.EUR, Currency.GBP);
+    simple.setFixedConversion(Currency.EUR, Currency.CHF, 10.0);
     assertMatrixEqual(simple, cycleGenericObject(CurrencyMatrix.class, simple));
   }
 
@@ -65,7 +65,7 @@ public class CurrencyMatrixTest extends FinancialTestBase {
         case 1:
           return CurrencyMatrixValue.of(r.nextDouble());
         case 2:
-          return CurrencyMatrixValue.of(CurrencyUnit.of("AA" + (char) ('A' + r.nextInt(('Z' - 'A') + 1))));
+          return CurrencyMatrixValue.of(Currency.of("AA" + (char) ('A' + r.nextInt(('Z' - 'A') + 1))));
         case 3:
           return CurrencyMatrixValue.of(UniqueIdentifier.of("Test", "" + r.nextLong()));
       }
@@ -75,9 +75,9 @@ public class CurrencyMatrixTest extends FinancialTestBase {
     public RandomMatrix() {
       final Random r = new Random();
       for (char source = 'A'; source < 'Z'; source++) {
-        final CurrencyUnit sourceCurrency = CurrencyUnit.of("AA" + source);
+        final Currency sourceCurrency = Currency.of("AA" + source);
         for (char target = (char) (source + 1); target <= 'Z'; target++) {
-          final CurrencyUnit targetCurrency = CurrencyUnit.of("AA" + target);
+          final Currency targetCurrency = Currency.of("AA" + target);
           CurrencyMatrixValue value = randomValue(r);
           if (value != null) {
             addConversion(sourceCurrency, targetCurrency, value);

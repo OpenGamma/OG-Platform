@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.util.money.Currency;
 
 /**
  * This class should be removed, it is here just to ease integration with existing tests.
@@ -32,7 +32,7 @@ public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInte
    * @param name  the name, not null
    * @param definition  the definition, not null
    */
-  public void addDefinition(CurrencyUnit currency, String name, YieldCurveDefinition definition) {
+  public void addDefinition(Currency currency, String name, YieldCurveDefinition definition) {
     MasterConfigSource configSource = (MasterConfigSource) getConfigSource();
     ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>();
     doc.setName(name + "_" + currency.getCode());

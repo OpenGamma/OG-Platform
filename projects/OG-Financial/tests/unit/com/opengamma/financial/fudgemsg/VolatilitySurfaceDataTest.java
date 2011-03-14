@@ -13,9 +13,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -36,7 +36,7 @@ public class VolatilitySurfaceDataTest extends FinancialTestBase {
         values.put(Pair.of(tenorX, tenorY), Math.random());
       }
     }
-    VolatilitySurfaceData<Tenor, Tenor> def = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", CurrencyUnit.USD, Interpolator1DFactory.NATURAL_CUBIC_SPLINE, oneToTenYears, oneToTenYears, values);
+    VolatilitySurfaceData<Tenor, Tenor> def = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", Currency.USD, Interpolator1DFactory.NATURAL_CUBIC_SPLINE, oneToTenYears, oneToTenYears, values);
     assertEquals(def, cycleObject(VolatilitySurfaceData.class, def));
   }
 }

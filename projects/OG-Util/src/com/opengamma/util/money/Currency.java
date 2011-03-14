@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.common;
+package com.opengamma.util.money;
 
 import java.io.Serializable;
-import java.util.Currency;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,14 +23,14 @@ import com.opengamma.util.PublicAPI;
  * This class represents a unit of currency such as the British Pound, Euro or US Dollar.
  */
 @PublicAPI
-public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiable, Comparable<CurrencyUnit>, Serializable {
+public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, Comparable<Currency>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
   /**
    * A cache of instances.
    */
-  private static final ConcurrentMap<String, CurrencyUnit> s_instanceMap = new ConcurrentHashMap<String, CurrencyUnit>();
+  private static final ConcurrentMap<String, Currency> s_instanceMap = new ConcurrentHashMap<String, Currency>();
   /**
    * A scheme for the unique identifier.
    */
@@ -40,31 +39,31 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
   /**
    * The currency 'USD' - United States Dollar.
    */
-  public static final CurrencyUnit USD = of("USD");
+  public static final Currency USD = of("USD");
   /**
    * The currency 'EUR' - Euro.
    */
-  public static final CurrencyUnit EUR = of("EUR");
+  public static final Currency EUR = of("EUR");
   /**
    * The currency 'JPY' - Japanese Yen.
    */
-  public static final CurrencyUnit JPY = of("JPY");
+  public static final Currency JPY = of("JPY");
   /**
    * The currency 'GBP' - British pound.
    */
-  public static final CurrencyUnit GBP = of("GBP");
+  public static final Currency GBP = of("GBP");
   /**
    * The currency 'EUR' - Swiss Franc.
    */
-  public static final CurrencyUnit CHF = of("CHF");
+  public static final Currency CHF = of("CHF");
   /**
    * The currency 'AUD' - Australian Dollar.
    */
-  public static final CurrencyUnit AUD = of("AUD");
+  public static final Currency AUD = of("AUD");
   /**
    * The currency 'CAD' - Canadian Dollar.
    */
-  public static final CurrencyUnit CAD = of("CAD");
+  public static final Currency CAD = of("CAD");
 
   /**
    * The currency code, not null.
@@ -80,7 +79,7 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * @param currency  the currency, not null
    * @return the singleton instance, never null
    */
-  public static CurrencyUnit of(Currency currency) {
+  public static Currency of(java.util.Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
     return of(currency.getCurrencyCode());
   }
@@ -96,12 +95,12 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * @return the singleton instance, never null
    * @throws IllegalArgumentException if the currency code is not three letters
    */
-  public static CurrencyUnit of(String currencyCode) {
+  public static Currency of(String currencyCode) {
     ArgumentChecker.notNull(currencyCode, "currencyCode");
     if (currencyCode.matches("[A-Z][A-Z][A-Z]") == false) {
       throw new IllegalArgumentException("Invalid currency code: " + currencyCode);
     }
-    s_instanceMap.putIfAbsent(currencyCode, new CurrencyUnit(currencyCode));
+    s_instanceMap.putIfAbsent(currencyCode, new Currency(currencyCode));
     return s_instanceMap.get(currencyCode);
   }
 
@@ -115,7 +114,7 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * @return the singleton instance, never null
    * @throws IllegalArgumentException if the currency code is not three letters
    */
-  public static CurrencyUnit parse(String currencyCode) {
+  public static Currency parse(String currencyCode) {
     ArgumentChecker.notNull(currencyCode, "currencyCode");
     return of(currencyCode.toUpperCase(Locale.ENGLISH));
   }
@@ -126,7 +125,7 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * 
    * @param currencyCode  the three letter currency code, not null
    */
-  private CurrencyUnit(String currencyCode) {
+  private Currency(String currencyCode) {
     _code = currencyCode;
   }
 
@@ -183,8 +182,8 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * @return the JDK currency instance, never null
    * @throws IllegalArgumentException if no matching currency exists in the JDK
    */
-  public Currency toCurrency() {
-    return Currency.getInstance(_code);
+  public java.util.Currency toCurrency() {
+    return java.util.Currency.getInstance(_code);
   }
 
   //-----------------------------------------------------------------------
@@ -195,7 +194,7 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
    * @return negative if earlier alphabetically, 0 if equal, positive if greater alphabetically
    */
   @Override
-  public int compareTo(CurrencyUnit other) {
+  public int compareTo(Currency other) {
     return _code.compareTo(other._code);
   }
 
@@ -212,8 +211,8 @@ public final class CurrencyUnit implements ObjectIdentifiable, UniqueIdentifiabl
     if (obj == this) {
       return true;
     }
-    if (obj instanceof CurrencyUnit) {
-      return _code.equals(((CurrencyUnit) obj)._code);
+    if (obj instanceof Currency) {
+      return _code.equals(((Currency) obj)._code);
     }
     return false;
   }

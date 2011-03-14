@@ -9,12 +9,12 @@ import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class RemoteInterpolatedYieldCurveDefinitionSource implements Interpolate
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     final RestTarget target = getTargetBase().resolveBase(currency.getCode()).resolve(name);
@@ -48,7 +48,7 @@ public class RemoteInterpolatedYieldCurveDefinitionSource implements Interpolate
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(version, "version");

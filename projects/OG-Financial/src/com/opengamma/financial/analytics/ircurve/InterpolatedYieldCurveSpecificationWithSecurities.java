@@ -18,9 +18,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -28,12 +28,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InterpolatedYieldCurveSpecificationWithSecurities implements Serializable {
   private final LocalDate _curveDate;
-  private final CurrencyUnit _currency;
+  private final Currency _currency;
   private final String _name;
   private final Interpolator1D<?> _interpolator;
   private final Set<FixedIncomeStripWithSecurity> _strips = new HashSet<FixedIncomeStripWithSecurity>();
   
-  public InterpolatedYieldCurveSpecificationWithSecurities(LocalDate curveDate, String name, CurrencyUnit currency,  Interpolator1D<?> interpolator, 
+  public InterpolatedYieldCurveSpecificationWithSecurities(LocalDate curveDate, String name, Currency currency,  Interpolator1D<?> interpolator, 
       Collection<FixedIncomeStripWithSecurity> resolvedStrips) {
     Validate.notNull(curveDate, "CurveDate");
     Validate.notNull(currency, "Currency");
@@ -64,7 +64,7 @@ public class InterpolatedYieldCurveSpecificationWithSecurities implements Serial
   /**
    * @return the currency
    */
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
 
