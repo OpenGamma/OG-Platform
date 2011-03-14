@@ -20,18 +20,18 @@ import com.opengamma.math.number.ComplexNumber;
  * <p>
  * If the time-changed Levy process is {@latex.inline $X_{Y_t}$}, with {@latex.inline $Y_t$} the business time, the characteristic function is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * \\phi(u, t) &=& E\\left[e^{iuX_{Y_t}}\\right]\\\\ 
- * &=& E\\left[e^{Y_t\\psi_X(u)}\\right]\\\\
- * &=& E\\left[e^{i(-i\\psi_X(u))Y_t}\\right]\\\\
- * &=& \\phi_{Y_t}(-i\\psi_X(u), t)
- * \\end{eqnarray*}
+ * \\begin{align*}
+ * \\phi(u, t) &= E\\left[e^{iuX_{Y_t}}\\right]\\\\ 
+ * &= E\\left[e^{Y_t\\psi_X(u)}\\right]\\\\
+ * &= E\\left[e^{i(-i\\psi_X(u))Y_t}\\right]\\\\
+ * &= \\phi_{Y_t}(-i\\psi_X(u), t)
+ * \\end{align*}
  * }
  * where {@latex.inline $\\psi_X(u)$} is the cumulant characteristic function of the Levy process. The drift correction then becomes
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
+ * \\begin{align*}
  * \\omega(t) = -\\frac{\\ln(\\phi(-i, t))}{t}
- * \\end{eqnarray*}
+ * \\end{align*}
  * }
  */
 public class TimeChangedCharacteristicExponent implements CharacteristicExponent {
@@ -41,7 +41,7 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
   /**
    * 
    * @param base The base characteristic exponent, not null
-   * @param timeChange The function to time change, not null
+   * @param timeChange The characteristic exponent to time change, not null
    */
   public TimeChangedCharacteristicExponent(final CharacteristicExponent base, final CharacteristicExponent timeChange) {
     Validate.notNull(base, "base");
@@ -64,11 +64,19 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
     };
   }
 
+  /**
+   * 
+   * @return the smaller {@latex.inline $alpha_{max}$} of the base characteristic exponent and the time-changed characteristic exponent
+   */
   @Override
   public double getLargestAlpha() {
     return Math.min(_base.getLargestAlpha(), _timeChange.getLargestAlpha());
   }
 
+  /**
+   * 
+   * @return the larger {@latex.inline $alpha_{min}$} of the base characteristic exponent and the time-changed characteristic exponent
+   */
   @Override
   public double getSmallestAlpha() {
     return Math.max(_base.getSmallestAlpha(), _timeChange.getSmallestAlpha());

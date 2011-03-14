@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -36,7 +37,7 @@ public abstract class DayCountTestCase {
     getDayCount().getDayCountFraction(D1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = OpenGammaRuntimeException.class)
   public void testWrongOrder() {
     getDayCount().getDayCountFraction(D2, D1);
   }
