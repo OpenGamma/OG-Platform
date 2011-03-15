@@ -6,11 +6,17 @@
 
 package com.opengamma.language.debug;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtil;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -58,19 +64,17 @@ public class DebugFunctionIncrement implements PublishedFunction {
 
   @Override
   public MetaFunction getMetaFunction() {
-    final MetaFunction metaFunction = new MetaFunction("DebugFunctionIncrement", new FunctionInvoker() {
-
+    final List<MetaParameter> args = Arrays.asList(new MetaParameter("x", JavaTypeInfo.builder(Data.class).get()));
+    final FunctionInvoker invoker = new AbstractFunctionInvoker() {
       @Override
-      public Data invoke(SessionContext sessionContext, Data[] parameters) {
+      public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         if (parameters.length != 1) {
           throw new IllegalArgumentException("Wrong number of parameters");
         }
-        return execute(parameters[0]);
+        return execute((Data) parameters[0]);
       }
-
-    });
-    // TODO: change to a MetaFunctionBuilder (like in Excel)
-    return metaFunction;
+    };
+    return new MetaFunction("DebugFunctionIncrement", args, invoker);
   }
 
 }

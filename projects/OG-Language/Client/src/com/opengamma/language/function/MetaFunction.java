@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
+import com.opengamma.language.definition.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,17 +35,20 @@ public class MetaFunction extends Definition {
 
   private final FunctionInvoker _invoker;
 
-  public MetaFunction(final String name, final FunctionInvoker invoker) {
+  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker) {
     super(name);
     ArgumentChecker.notNull(invoker, "invoker");
     _invoker = invoker;
+    setParameter(parameters);
+  }
+
+  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker, final int returnCount) {
+    this (name, parameters, invoker);
+    setReturnCount(returnCount);
   }
 
   public FunctionInvoker getInvoker() {
     return _invoker;
   }
-
-  // TODO: details of parameters wrt Java type system
-  // TODO: details of return wrt Java type system
 
 }

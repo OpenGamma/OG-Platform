@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
+
+import com.opengamma.language.definition.Parameter;
 
 /**
  * A full description of a live data element, including invocation details. 
@@ -29,12 +32,11 @@ public class MetaLiveData extends Definition {
     throw new NotSerializableException();
   }
 
-  public MetaLiveData(final String name) {
+  public MetaLiveData(final String name, final List<? extends Parameter> parameters) {
     super(name);
+    setParameter(parameters);
   }
 
   // TODO: invocation details
-  // TODO: details of parameters wrt Java type system
-  // TODO: details of type wrt Java type system
 
 }

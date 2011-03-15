@@ -11,9 +11,7 @@ namespace com.opengamma.language.function {
    */
   message Definition extends definition.Definition {
   
-    repeated definition.Parameter parameter;
-    
-    // TODO: ... type information, return type etc 
+    required integer returnCount[default = 1]; 
   
   }
 

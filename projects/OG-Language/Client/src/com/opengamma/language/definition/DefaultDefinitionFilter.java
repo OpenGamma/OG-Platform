@@ -46,33 +46,27 @@ public class DefaultDefinitionFilter<WireDefinition extends Definition, MetaDefi
   }
 
   /**
-   * Creates the logical definition from a full meta definition. The name, aliases and category will have already
-   * been filtered, so these should be used instead of the values from the meta definition.
+   * Applied to the logical definition after construction. Return {@code null} to fail the construction.
    * 
-   * @param name the filtered name, not {@code null}
-   * @param aliases the filtered aliases, {@code null} for none
-   * @param category the filtered category, {@code null} for none
-   * @param definition the full definition as originally provided
-   * @return the logical definition to send to a client
+   * @param logicalDefinition the logical definition created (this can either be modified, or a substitute value returned)
+   * @param fullDefinition the full definition as originally passed to {@link #createDefinition}
+   * @return the logical definition to send to a client (may be the {@code logicalDefinition} parameter)
    */
-  @SuppressWarnings("unchecked")
-  protected WireDefinition createDefinition(final String name, final Collection<String> aliases, final String category,
-      final MetaDefinition definition) {
-    final WireDefinition result = (WireDefinition) definition.clone();
-    result.setName(name);
-    result.setAlias(aliases);
-    result.setCategory(category);
-    return result;
+  protected WireDefinition updateDefinition(final WireDefinition logicalDefinition, final MetaDefinition fullDefinition) {
+    return logicalDefinition;
   }
 
   // DefinitionFilter
 
+  @SuppressWarnings("unchecked")
   @Override
   public final WireDefinition createDefinition(final MetaDefinition definition) {
     final String name = getIdentifierFilter().convertName(definition.getName());
     if (name == null) {
       return null;
     }
+    final WireDefinition result = (WireDefinition) definition.clone();
+    result.setName(name);
     final List<String> originalAliases = definition.getAlias();
     Collection<String> aliases = null;
     if (originalAliases != null) {
@@ -88,7 +82,9 @@ public class DefaultDefinitionFilter<WireDefinition extends Definition, MetaDefi
               i--;
             }
           }
-          aliases.add(newAlias);
+          if (newAlias != null) {
+            aliases.add(newAlias);
+          }
         } else {
           if (aliases != null) {
             aliases.add(originalAlias);
@@ -96,9 +92,17 @@ public class DefaultDefinitionFilter<WireDefinition extends Definition, MetaDefi
         }
         i++;
       }
+      if (aliases != null) {
+        // Aliases are different
+        result.setAlias(aliases);
+      }
     }
-    final String category = getCategoryFilter().convertCategory(definition.getCategory());
-    return createDefinition(name, aliases, category, definition);
+    result.setCategory(getCategoryFilter().convertCategory(definition.getCategory()));
+    for (Parameter parameter : result.getParameter()) {
+      final String newName = getIdentifierFilter().convertParameter(name, parameter.getName());
+      parameter.setName(newName);
+    }
+    return updateDefinition(result, definition);
   }
 
 }

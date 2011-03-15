@@ -24,7 +24,15 @@ protected:
 	virtual void Init () { }
 	virtual void Done () { }
 	virtual void _Done () { }
+	virtual bool SendOk () { return true; }
+public:
+	CRequestBuilder (CConnector *poConnector);
+    virtual ~CRequestBuilder ();
+    static long GetDefaultTimeout ();
+    CConnector *GetConnector () { m_poConnector->Retain (); return m_poConnector; }
 #define REQUESTBUILDER_REQUEST(_objtype_) \
+protected: \
+	_objtype_ m_request; \
 	bool Send (_objtype_ *obj) { \
 		if (!obj) return false; \
 		FudgeMsg msg; \
@@ -32,12 +40,12 @@ protected:
 		bool bResult = SendMsg (msg); \
 		FudgeMsg_release (msg); \
 		return bResult; \
-	}
-public:
-	CRequestBuilder (CConnector *poConnector);
-	virtual ~CRequestBuilder ();
-	virtual bool Send () = 0;
-	static long GetDefaultTimeout ();
+	} \
+	void Init () { \
+		memset (&m_request, 0, sizeof (m_request)); \
+	} \
+public: \
+	bool Send () { return SendOk () ? Send (&m_request) : false; }
 #define REQUESTBUILDER_RESPONSE(_objtype_) \
 protected: \
 	void _Done () { \

@@ -12,14 +12,7 @@
 #include "com_opengamma_language_livedata_QueryAvailable.h"
 
 REQUESTBUILDER_BEGIN(CLiveDataQueryAvailable)
-protected:
 	REQUESTBUILDER_REQUEST (com_opengamma_language_livedata_QueryAvailable)
-public:
-	bool Send () {
-		com_opengamma_language_livedata_QueryAvailable query;
-		memset (&query, 0, sizeof (query));
-		return Send (&query);
-	}
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_livedata_Available)
 REQUESTBUILDER_END
 

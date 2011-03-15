@@ -43,8 +43,18 @@ static void QueryAvailable () {
 	}
 }
 
+static void InvokeInvalid () {
+	CFunctionInvoke invoke (g_poConnector);
+	invoke.SetInvocationId (99);
+	ASSERT (invoke.Send ());
+	com_opengamma_language_function_Result *pResult = invoke.Recv (CRequestBuilder::GetDefaultTimeout ());
+	ASSERT (pResult);
+	ASSERT (!pResult->fudgeCountResult);
+}
+
 BEGIN_TESTS(FunctionsTest)
 	TEST (QueryAvailable)
+	TEST (InvokeInvalid)
 	BEFORE_TEST (StartConnector)
 	AFTER_TEST (StopConnector)
 END_TESTS

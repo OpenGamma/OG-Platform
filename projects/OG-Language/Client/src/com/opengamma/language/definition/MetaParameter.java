@@ -4,20 +4,17 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.language.procedure;
+package com.opengamma.language.definition;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
-
-import com.opengamma.language.definition.Parameter;
 
 /**
- * A full description of a procedure, including invocation details. 
+ * A full description of a parameter including Java type system data. 
  */
-public class MetaProcedure extends Definition {
+public class MetaParameter extends Parameter {
 
   /**
    * Class is not serializable
@@ -32,16 +29,15 @@ public class MetaProcedure extends Definition {
     throw new NotSerializableException();
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters) {
-    super(name);
-    setParameter(parameters);
+  private final JavaTypeInfo _javaTypeInfo;
+
+  public MetaParameter(final String name, final JavaTypeInfo javaTypeInfo) {
+    super(name, !javaTypeInfo.isAllowNull() && !javaTypeInfo.isDefaultValue());
+    _javaTypeInfo = javaTypeInfo;
   }
 
-  public MetaProcedure(final String name, final List<? extends Parameter> parameters, final int returnCount) {
-    this(name, parameters);
-    setReturnCount(returnCount);
+  public JavaTypeInfo getJavaTypeInfo() {
+    return _javaTypeInfo;
   }
-
-  // TODO: invocation details
 
 }

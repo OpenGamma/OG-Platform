@@ -6,11 +6,16 @@
 
 package com.opengamma.language.debug;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtil;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -52,13 +57,14 @@ public class DebugFunctionLiteral implements PublishedFunction {
 
   @Override
   public MetaFunction getMetaFunction() {
-    final MetaFunction metaFunction = new MetaFunction(getName(), new FunctionInvoker() {
+    final List<MetaParameter> args = Collections.emptyList();
+    final FunctionInvoker invoker = new AbstractFunctionInvoker() {
       @Override
-      public Data invoke(SessionContext sessionContext, Data[] parameters) {
+      public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         return getLiteral();
       }
-    });
-    return metaFunction;
+    };
+    return new MetaFunction(getName(), args, invoker);
   }
 
 }

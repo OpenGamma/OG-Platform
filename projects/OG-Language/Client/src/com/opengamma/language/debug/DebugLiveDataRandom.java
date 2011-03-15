@@ -6,10 +6,12 @@
 
 package com.opengamma.language.debug;
 
+import java.util.Collections;
 import java.util.Random;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
+import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.livedata.MetaLiveData;
 import com.opengamma.language.livedata.PublishedLiveData;
 
@@ -26,9 +28,8 @@ public class DebugLiveDataRandom implements PublishedLiveData {
 
   @Override
   public MetaLiveData getMetaLiveData() {
-    final MetaLiveData metaLiveData = new MetaLiveData("DebugLiveDataRandom");
     // TODO: invocation
-    return metaLiveData;
+    return new MetaLiveData("DebugLiveDataRandom", Collections.<MetaParameter> emptyList());
   }
 
 }

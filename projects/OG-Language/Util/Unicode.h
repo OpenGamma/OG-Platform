@@ -41,10 +41,14 @@
 
 #ifdef _UNICODE
 # define _tcsAsciiDup	WideToAsciiDup
+# define Ascii_tcsDup	AsciiToWideDup
 # define _tcsWideDup	wcsdup
+# define Wide_tcsDup	wcsdup
 #else /* ifdef _UNICODE */
 # define _tcsAsciiDup	strdup
+# define Ascii_tcsDup	strdup
 # define _tcsWideDup	AsciiToWideDup
+# define Wide_tcsDup	WideToAsciiDup
 #endif /* ifdef _UNICODE */
 
 #endif /* ifndef __inc_og_language_util_unicode_h */

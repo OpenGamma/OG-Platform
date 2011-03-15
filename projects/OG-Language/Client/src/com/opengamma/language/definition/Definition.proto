@@ -35,6 +35,11 @@ namespace com.opengamma.language.definition {
      * the bound language, and may be overridden or ignored based on local client settings.
      */
     optional string category;
+    
+    /**
+     * Definition parameters (e.g. for invocation, or general access).
+     */
+    optional repeated Parameter parameter;
   
   }
 

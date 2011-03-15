@@ -6,6 +6,8 @@
 
 package com.opengamma.language.function;
 
+import java.util.List;
+
 import com.opengamma.language.Data;
 import com.opengamma.language.context.SessionContext;
 
@@ -14,6 +16,10 @@ import com.opengamma.language.context.SessionContext;
  */
 public interface FunctionInvoker {
 
-  Data invoke(SessionContext sessionContext, Data[] parameters);
+  Result invoke(SessionContext sessionContext, List<Data> parameterValue);
+
+  // TODO: note that implementations of a FunctionInvoker will typically take the
+  // MetaParameter list and JavaTypeInfo of the return type so that a conversion
+  // chain and default parameter supply can be built
 
 }

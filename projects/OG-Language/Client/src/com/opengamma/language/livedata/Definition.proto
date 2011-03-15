@@ -11,7 +11,7 @@ namespace com.opengamma.language.livedata {
    */
   message Definition extends definition.Definition {
   
-    // TODO: ... parameters, type etc 
+    // TODO: ... type etc 
   
   }
 

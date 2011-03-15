@@ -11,16 +11,25 @@ package com.opengamma.language.definition;
  */
 public class DefaultIdentifierFilter implements IdentifierFilter {
 
+  protected String convertIdentifier(final String identifier) {
+    return identifier;
+  }
+
   // IdentifierFilter
 
   @Override
   public String convertName(final String identifier) {
-    return identifier;
+    return convertIdentifier(identifier);
   }
 
   @Override
   public String convertAlias(final String identifier, final String alias) {
-    return convertName(alias);
+    return convertIdentifier(alias);
+  }
+
+  @Override
+  public String convertParameter(final String entityIdentifier, final String parameterIdentifier) {
+    return convertIdentifier(parameterIdentifier);
   }
 
 }

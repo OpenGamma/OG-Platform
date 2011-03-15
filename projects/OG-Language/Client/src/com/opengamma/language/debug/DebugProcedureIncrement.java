@@ -6,10 +6,12 @@
 
 package com.opengamma.language.debug;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
+import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.procedure.MetaProcedure;
 import com.opengamma.language.procedure.PublishedProcedure;
 
@@ -26,9 +28,8 @@ public class DebugProcedureIncrement implements PublishedProcedure {
 
   @Override
   public MetaProcedure getMetaProcedure() {
-    final MetaProcedure metaProcedure = new MetaProcedure("DebugProcedureIncrement");
     // TODO: invocation
-    return metaProcedure;
+    return new MetaProcedure("DebugProcedureIncrement", Collections.<MetaParameter> emptyList(), 1);
   }
 
 }
