@@ -67,6 +67,13 @@ public class WebConfigResource extends AbstractWebConfigResource {
     FlexiBean out = createRootData();
     return getFreemarker().build("configs/config.ftl", out);
   }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("configs/jsonconfig.ftl", out);
+  }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
