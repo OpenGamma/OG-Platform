@@ -108,11 +108,6 @@ public class TrigonometricFunctionUtilsTest {
     assertEquals(z1.getImaginary(), z2.getImaginary(), EPS);
   }
 
-  private void assertComplexEquals(final double x, final ComplexNumber z) {
-    assertEquals(z.getImaginary(), 0, EPS);
-    assertEquals(z.getReal(), x, EPS);
-  }
-
   private void assertComplexEquals(final ComplexNumber z, final double x) {
     assertEquals(z.getImaginary(), 0, EPS);
     assertEquals(z.getReal(), x, EPS);

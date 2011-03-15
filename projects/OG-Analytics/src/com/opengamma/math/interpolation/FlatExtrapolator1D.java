@@ -14,6 +14,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * @param <T>
  */
 public class FlatExtrapolator1D<T extends Interpolator1DDataBundle> extends Interpolator1D<T> {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public T getDataBundle(final double[] x, final double[] y) {

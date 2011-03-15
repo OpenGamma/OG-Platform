@@ -9,6 +9,7 @@ package com.opengamma.math.number;
  * 
  */
 public class ComplexNumber extends Number {
+  private static final long serialVersionUID = 1L;
   /** Defining <it>i</it>*/
   public static final ComplexNumber I = new ComplexNumber(0, 1);
   /** Defining <it>-i</it>*/

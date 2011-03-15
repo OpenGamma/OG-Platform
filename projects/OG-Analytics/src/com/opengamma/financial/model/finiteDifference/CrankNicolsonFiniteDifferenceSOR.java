@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -9,6 +9,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.surface.Surface;
 
+/**
+ * 
+ */
 public class CrankNicolsonFiniteDifferenceSOR {
 
   private static final double THETA = 0.5;

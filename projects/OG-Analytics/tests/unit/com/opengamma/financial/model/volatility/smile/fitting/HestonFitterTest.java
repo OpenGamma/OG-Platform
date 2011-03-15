@@ -107,7 +107,9 @@ public class HestonFitterTest {
     testExactFit(FOURIER, "Fourier", ERRORS);
     testExactFit(FOURIER, "Fourier", null);
   }
-
+  
+  //FIXME: tests don't pass at all
+  @SuppressWarnings("unused")
   private void testExactFit(final LeastSquareSmileFitter fitter, final String name, final double[] errors) {
     final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
     for (int i = 0; i < _hotspotWarmupCycles; i++) {

@@ -46,7 +46,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
         double b = data.getCostOfCarry();
         StandardOptionDataBundle newData = data;
         if (!definition.isCall()) {
-          if(s==0){
+          if (s == 0) {
             return k;
           }
           r -= b;
