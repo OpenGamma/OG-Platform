@@ -8,7 +8,7 @@ package com.opengamma.math.curve;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link SpreadDoublesCurve}. Only parallel shifts are supported.
  */
 public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDoublesCurve> {
   private static final CurveSpreadFunction SPREAD_FUNCTION = new AddCurveSpreadFunction();
@@ -33,21 +33,51 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
     return SpreadDoublesCurve.from(curves, SPREAD_FUNCTION, newName);
   }
 
+  /**
+   * @param curve The curve
+   * @param x The <i>x</i>-value of the shift
+   * @param shift The shift
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double x, final double shift) {
     throw new UnsupportedOperationException();
   }
-
+  
+  /**
+   * @param curve The curve
+   * @param x The <i>x</i>-value of the shift
+   * @param shift The shift
+   * @param newName The name of the new curve
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double x, final double shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param curve The curve
+   * @param x The <i>x</i>-values of the shifts
+   * @param y The shifts
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double[] x, final double[] y) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param curve The curve
+   * @param x The <i>x</i>-values of the shifts
+   * @param y The shifts
+   * @param newName The name of the new curve
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double[] x, final double[] y, final String newName) {
     throw new UnsupportedOperationException();

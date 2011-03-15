@@ -24,9 +24,8 @@ public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
   private static final String NAME = "*";
 
   /**
-   * @param curves An array of curves
+   * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and multiply each in turn
-   * @throws IllegalArgumentException If the array of curves is null or empty
    */
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {

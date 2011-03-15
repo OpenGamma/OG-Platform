@@ -66,10 +66,10 @@ public class ConstantDoublesCurveTest {
     final double[] x = new double[] {0, 1, 2};
     final double[] y = new double[] {Y1, Y1, Y1};
     final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    DoublesCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    DoublesCurve other = CURVE.toNodalDoublesCurve(x);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
-    other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);
+    other = CURVE.toInterpolatedDoublesCurve(x, interpolator);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
   }

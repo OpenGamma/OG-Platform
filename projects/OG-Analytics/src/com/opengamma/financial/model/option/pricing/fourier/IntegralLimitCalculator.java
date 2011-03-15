@@ -20,7 +20,7 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
  * The upper limit is found by determining the root of the function:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
- * f(x) = \\ln\\left\\left|\\phi(x - i(1 + \\alpha))\\right|(\\right)
+ * f(x) = \\ln\\left(\\left|\\phi(x - i(1 + \\alpha))\\right|\\right)
  * \\end{align*}
  * }
  * where {@latex.inline $\\alpha$} is the contour (which is parallel to the real axis and shifted down by {@latex.inline $1 + \\alpha$}) over which to 
