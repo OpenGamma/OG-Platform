@@ -17,13 +17,13 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.marketdatasnapshot.FXVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -60,13 +60,13 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * The yield curves in this snapshot
    */
   @PropertyDefinition
-  private Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> _yieldCurves;
+  private Map<Pair<String, Currency>, YieldCurveSnapshot> _yieldCurves;
 
   /**
    * The FX volatility surfaces in this snapshot
    */
   @PropertyDefinition
-  private Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot> _fxVolatilitySurfaces;
+  private Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot> _fxVolatilitySurfaces;
   
 
   /**
@@ -84,8 +84,8 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * @param fxVolatilitySurfaces the FX volatility surfaces
    */
   public ManageableMarketDataSnapshot(String name, Map<UniqueIdentifier, ValueSnapshot> values,
-      Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> yieldCurves,
-      Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot> fxVolatilitySurfaces) {
+      Map<Pair<String, Currency>, YieldCurveSnapshot> yieldCurves,
+      Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot> fxVolatilitySurfaces) {
     super();
     _name = name;
     _values = values;
@@ -140,10 +140,10 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
         setValues((Map<UniqueIdentifier, ValueSnapshot>) newValue);
         return;
       case 119589713:  // yieldCurves
-        setYieldCurves((Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot>) newValue);
+        setYieldCurves((Map<Pair<String, Currency>, YieldCurveSnapshot>) newValue);
         return;
       case -791071459:  // fxVolatilitySurfaces
-        setFxVolatilitySurfaces((Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot>) newValue);
+        setFxVolatilitySurfaces((Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -241,7 +241,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Gets the yield curves in this snapshot
    * @return the value of the property
    */
-  public Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> getYieldCurves() {
+  public Map<Pair<String, Currency>, YieldCurveSnapshot> getYieldCurves() {
     return _yieldCurves;
   }
 
@@ -249,7 +249,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Sets the yield curves in this snapshot
    * @param yieldCurves  the new value of the property
    */
-  public void setYieldCurves(Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot> yieldCurves) {
+  public void setYieldCurves(Map<Pair<String, Currency>, YieldCurveSnapshot> yieldCurves) {
     this._yieldCurves = yieldCurves;
   }
 
@@ -257,7 +257,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Gets the the {@code yieldCurves} property.
    * @return the property, not null
    */
-  public final Property<Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot>> yieldCurves() {
+  public final Property<Map<Pair<String, Currency>, YieldCurveSnapshot>> yieldCurves() {
     return metaBean().yieldCurves().createProperty(this);
   }
 
@@ -266,7 +266,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Gets the FX volatility surfaces in this snapshot
    * @return the value of the property
    */
-  public Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot> getFxVolatilitySurfaces() {
+  public Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot> getFxVolatilitySurfaces() {
     return _fxVolatilitySurfaces;
   }
 
@@ -274,7 +274,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Sets the FX volatility surfaces in this snapshot
    * @param fxVolatilitySurfaces  the new value of the property
    */
-  public void setFxVolatilitySurfaces(Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot> fxVolatilitySurfaces) {
+  public void setFxVolatilitySurfaces(Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot> fxVolatilitySurfaces) {
     this._fxVolatilitySurfaces = fxVolatilitySurfaces;
   }
 
@@ -282,7 +282,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
    * Gets the the {@code fxVolatilitySurfaces} property.
    * @return the property, not null
    */
-  public final Property<Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot>> fxVolatilitySurfaces() {
+  public final Property<Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot>> fxVolatilitySurfaces() {
     return metaBean().fxVolatilitySurfaces().createProperty(this);
   }
 
@@ -313,12 +313,12 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
      * The meta-property for the {@code yieldCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot>> _yieldCurves = DirectMetaProperty.ofReadWrite(this, "yieldCurves", (Class) Map.class);
+    private final MetaProperty<Map<Pair<String, Currency>, YieldCurveSnapshot>> _yieldCurves = DirectMetaProperty.ofReadWrite(this, "yieldCurves", (Class) Map.class);
     /**
      * The meta-property for the {@code fxVolatilitySurfaces} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot>> _fxVolatilitySurfaces = DirectMetaProperty.ofReadWrite(this, "fxVolatilitySurfaces", (Class) Map.class);
+    private final MetaProperty<Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot>> _fxVolatilitySurfaces = DirectMetaProperty.ofReadWrite(this, "fxVolatilitySurfaces", (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -379,7 +379,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
      * The meta-property for the {@code yieldCurves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Pair<String, CurrencyUnit>, YieldCurveSnapshot>> yieldCurves() {
+    public final MetaProperty<Map<Pair<String, Currency>, YieldCurveSnapshot>> yieldCurves() {
       return _yieldCurves;
     }
 
@@ -387,7 +387,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements MarketDa
      * The meta-property for the {@code fxVolatilitySurfaces} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Triple<String, CurrencyUnit, CurrencyUnit>, FXVolatilitySurfaceSnapshot>> fxVolatilitySurfaces() {
+    public final MetaProperty<Map<Triple<String, Currency, Currency>, FXVolatilitySurfaceSnapshot>> fxVolatilitySurfaces() {
       return _fxVolatilitySurfaces;
     }
 

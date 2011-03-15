@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -58,6 +57,7 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -99,7 +99,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final double[] repoRates = new double[n];
     final double[] conversionFactors = new double[n];
     final int i = 0;
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, security.getCurrency());
     final Identifier conventionId = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_COUPON_DATE_CONVENTION");
     final ConventionBundle convention = conventionSource.getConventionBundle(conventionId);

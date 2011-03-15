@@ -25,7 +25,6 @@ import org.fudgemsg.FudgeMsgFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -40,6 +39,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -71,7 +71,7 @@ public class RESTMethodTest {
     sec2.setIdentifiers(IdentifierBundle.of(secId2));
     securitySource.addSecurity(sec2);
     
-    BondSecurity bondSec = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", CurrencyUnit.USD,
+    BondSecurity bondSec = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC)), "", 200,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
         new DateTimeWithZone(LocalDateTime.of(2011, 2, 1, 12, 0)), new DateTimeWithZone(LocalDateTime.of(2011, 2, 1, 12, 0)),

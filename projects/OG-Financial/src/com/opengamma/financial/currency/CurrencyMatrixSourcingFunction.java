@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -30,6 +29,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -53,10 +53,10 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     _currencyMatrixName = currencyMatrixName;
   }
 
-  private static Pair<CurrencyUnit, CurrencyUnit> parse(final UniqueIdentifier uniqueId) {
+  private static Pair<Currency, Currency> parse(final UniqueIdentifier uniqueId) {
     final int underscore = uniqueId.getValue().indexOf('_');
-    final CurrencyUnit source = CurrencyUnit.of(uniqueId.getValue().substring(0, underscore));
-    final CurrencyUnit target = CurrencyUnit.of(uniqueId.getValue().substring(underscore + 1));
+    final Currency source = Currency.of(uniqueId.getValue().substring(0, underscore));
+    final Currency target = Currency.of(uniqueId.getValue().substring(underscore + 1));
     return Pair.of(source, target);
   }
 
@@ -103,7 +103,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> rates = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desiredValue : desiredValues) {
-      final Pair<CurrencyUnit, CurrencyUnit> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
+      final Pair<Currency, Currency> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
       rates.add(new ComputedValue(createValueSpecification(desiredValue.getTargetSpecification()), getConversionRate(inputs, currencies.getFirst(), currencies.getSecond())));
     }
     return rates;
@@ -126,7 +126,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     return getConversionRequirements(parse(target.getUniqueId())) != null;
   }
 
-  private boolean getConversionRequirements(final Set<ValueRequirement> requirements, final Set<Pair<CurrencyUnit, CurrencyUnit>> visited, final Pair<CurrencyUnit, CurrencyUnit> currencies) {
+  private boolean getConversionRequirements(final Set<ValueRequirement> requirements, final Set<Pair<Currency, Currency>> visited, final Pair<Currency, Currency> currencies) {
     if (!visited.add(currencies)) {
       // Gone round in a loop if we've already seen this pair
       throw new IllegalStateException();
@@ -159,18 +159,18 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
     }
   }
 
-  private Set<ValueRequirement> getConversionRequirements(final Pair<CurrencyUnit, CurrencyUnit> currencies) {
+  private Set<ValueRequirement> getConversionRequirements(final Pair<Currency, Currency> currencies) {
     if (getCurrencyMatrix() == null) {
       return null;
     }
     final HashSet<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (!getConversionRequirements(requirements, new HashSet<Pair<CurrencyUnit, CurrencyUnit>>(), currencies)) {
+    if (!getConversionRequirements(requirements, new HashSet<Pair<Currency, Currency>>(), currencies)) {
       return null;
     }
     return requirements;
   }
 
-  private double getConversionRate(final FunctionInputs inputs, final CurrencyUnit source, final CurrencyUnit target) {
+  private double getConversionRate(final FunctionInputs inputs, final Currency source, final Currency target) {
     final CurrencyMatrixValue value = getCurrencyMatrix().getConversion(source, target);
     Double rate = value.accept(new CurrencyMatrixValueVisitor<Double>() {
 
@@ -204,7 +204,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Pair<CurrencyUnit, CurrencyUnit> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
+    final Pair<Currency, Currency> currencies = parse(desiredValue.getTargetSpecification().getUniqueId());
     return getConversionRequirements(currencies);
   }
 

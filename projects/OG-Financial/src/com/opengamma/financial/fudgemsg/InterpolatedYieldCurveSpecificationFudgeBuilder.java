@@ -18,11 +18,11 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.id.Identifier;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.util.money.Currency;
 
 /**
  * Builder for converting InterpolatedYieldCurveSpecification instances to/from Fudge messages.
@@ -48,7 +48,7 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
   public InterpolatedYieldCurveSpecification buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     LocalDate curveDate = context.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
     String name = message.getString("name");
-    CurrencyUnit currency = context.fieldValueToObject(CurrencyUnit.class, message.getByName("currency"));
+    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     Identifier region = context.fieldValueToObject(Identifier.class, message.getByName("region"));
     Interpolator1D<?> interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName("interpolator"));
     List<FudgeField> resolvedStripFields = message.getAllByName("resolvedStrips");

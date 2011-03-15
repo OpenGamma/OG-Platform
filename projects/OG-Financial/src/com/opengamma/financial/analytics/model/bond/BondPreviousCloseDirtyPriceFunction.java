@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -30,6 +29,7 @@ import com.opengamma.financial.interestrate.bond.BondCalculator;
 import com.opengamma.financial.interestrate.bond.BondCalculatorFactory;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -43,7 +43,7 @@ public class BondPreviousCloseDirtyPriceFunction extends BondFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final CurrencyUnit currency, final Security security, final BondDefinition bondDefinition, final Object value,
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final Currency currency, final Security security, final BondDefinition bondDefinition, final Object value,
       final LocalDate now, final String yieldCurveName) {
     final double cleanPrice = (Double) value;
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DIRTY_PRICE, security), getUniqueId());

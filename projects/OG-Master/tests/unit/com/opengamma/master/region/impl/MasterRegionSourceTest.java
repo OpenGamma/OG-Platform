@@ -17,7 +17,6 @@ import javax.time.calendar.TimeZone;
 import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.Region;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -29,13 +28,14 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test MasterRegionSource.
  */
 public class MasterRegionSourceTest {
 
-  private static final CurrencyUnit GBP = CurrencyUnit.GBP;
+  private static final Currency GBP = Currency.GBP;
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
