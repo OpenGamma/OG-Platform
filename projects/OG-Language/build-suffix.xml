@@ -163,15 +163,18 @@
 		<!-- TODO -->
 	</target>
 
-	<target name="clean" description="--> clean the project">
+	<target name="clean" depends="clean-lib,clean-dist,clean-build" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
-		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
-		<delete includeemptydirs="true" failonerror="false" dir="${dist.dir}" />
-		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
 	</target>
 
 	<target name="clean-lib" description="--> clean the library path" unless="clean.lib.disabled">
 		<delete includeemptydirs="true" failonerror="false" dir="${lib.dir}" />
+	</target>
+	<target name="clean-dist" description="--> clean the distribution folder">
+		<delete includeemptydirs="true" failonerror="false" dir="${dist.dir}" />
+	</target>
+	<target name="clean-build" description="--> clean the build folder">
+		<delete includeemptydirs="true" failonerror="false" dir="${build.dir}" />
 	</target>
 
 	<target name="clean-src" description="--> clean the auto-generated source code files">
