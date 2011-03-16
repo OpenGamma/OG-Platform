@@ -18,15 +18,15 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a generic annuity (or leg).
+ * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency.
  * @param <P> The payment type 
  *
  */
 public class AnnuityDefinition<P extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<GenericAnnuity<? extends Payment>> {
 
-  //TODO: all the payments should have the same currency: implements the currency and validate the currency?
   /** 
    * The list of payments or coupons.
    */
@@ -38,12 +38,16 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
 
   /**
    * Constructor from an array of payments.
-   * @param payments The payments
+   * @param payments The payments. All of them should have the same currency.
    * @param isPayer The payer/receiver flag.
    */
   public AnnuityDefinition(final P[] payments, boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0);
+    Currency currency0 = payments[0].getCurrency();
+    for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
+      Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
+    }
     _payments = payments;
     _isPayer = isPayer;
   }
@@ -63,6 +67,14 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
    */
   public P getNthPayment(final int n) {
     return _payments[n];
+  }
+
+  /**
+   * Return the currency of the annuity. 
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _payments[0].getCurrency();
   }
 
   /**

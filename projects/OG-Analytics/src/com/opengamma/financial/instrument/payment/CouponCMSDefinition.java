@@ -21,6 +21,7 @@ import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Constant Maturity Swap coupon.
@@ -29,8 +30,25 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
 
   //TODO: add a CMS index (history, ...)
   //TODO: change to a swap skeleton?
-  //TODO: change to ZZZ
   private final ZZZSwapFixedIborDefinition _underlyingSwap;
+
+  /**
+   * Constructor of a CMS coupon from all the details.
+   * @param currency The payment currency.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
+   */
+  public CouponCMSDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
+      ZonedDateTime fixingDate, ZZZSwapFixedIborDefinition underlyingSwap) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    Validate.notNull(underlyingSwap, "underlying swap");
+    _underlyingSwap = underlyingSwap;
+  }
 
   /**
    * Constructor of a CMS coupon from all the details.
@@ -41,12 +59,12 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
+   * @return The CMS coupon.
    */
-  public CouponCMSDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
+  public static CouponCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
       ZZZSwapFixedIborDefinition underlyingSwap) {
-    super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(underlyingSwap, "underlying swap");
-    _underlyingSwap = underlyingSwap;
+    return new CouponCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap);
   }
 
   /**
@@ -58,8 +76,8 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   public static CouponCMSDefinition from(CouponFloatingDefinition coupon, ZZZSwapFixedIborDefinition underlyingSwap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
-    return new CouponCMSDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingDate(),
-        underlyingSwap);
+    return new CouponCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+        coupon.getFixingDate(), underlyingSwap);
   }
 
   /**

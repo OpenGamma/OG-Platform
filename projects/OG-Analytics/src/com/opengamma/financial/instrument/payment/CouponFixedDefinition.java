@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a fixed payment coupon.
@@ -33,6 +34,7 @@ public class CouponFixedDefinition extends CouponDefinition {
 
   /**
    * Constructor from all the coupon details.
+   * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
@@ -40,8 +42,8 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param notional Coupon notional.
    * @param rate Fixed rate.
    */
-  public CouponFixedDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional, double rate) {
-    super(paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
+  public CouponFixedDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional, double rate) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     _rate = rate;
     _amount = notional * rate * paymentYearFraction;
   }
@@ -52,7 +54,7 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param rate Fixed rate.
    */
   public CouponFixedDefinition(CouponDefinition coupon, double rate) {
-    super(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
+    super(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
     this._rate = rate;
     this._amount = coupon.getNotional() * rate * coupon.getPaymentYearFraction();
   }

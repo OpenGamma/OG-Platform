@@ -7,7 +7,10 @@ package com.opengamma.financial.instrument.payment;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a caplet/floorlet on CMS rate.
@@ -25,6 +28,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
 
   /**
    * Constructor from all the cap/floor details.
+   * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
@@ -35,11 +39,30 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
-  public CapFloorCMSDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
-      ZZZSwapFixedIborDefinition underlyingSwap, double strike, boolean isCap) {
-    super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap);
+  public CapFloorCMSDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
+      ZonedDateTime fixingDate, ZZZSwapFixedIborDefinition underlyingSwap, double strike, boolean isCap) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap);
     _strike = strike;
     _isCap = isCap;
+  }
+
+  /**
+   * Builder from all the cap/floor details.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param underlyingSwap The underlying swap.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The CMS cap/floor.
+   */
+  public CapFloorCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
+      ZZZSwapFixedIborDefinition underlyingSwap, double strike, boolean isCap) {
+    Validate.notNull(underlyingSwap, "underlying swap");
+    return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, strike, isCap);
   }
 
   /**

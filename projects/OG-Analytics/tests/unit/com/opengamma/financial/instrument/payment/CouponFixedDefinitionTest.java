@@ -18,13 +18,14 @@ import org.junit.Test;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class CouponFixedDefinitionTest {
-
+  private static final Currency CUR = Currency.USD;
   private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 5);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 4, 5);
@@ -35,7 +36,7 @@ public class CouponFixedDefinitionTest {
 
   private static final ZonedDateTime FAKE_DATE = DateUtil.getUTCDate(0, 1, 1);
 
-  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
+  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
   private static final CouponFixedDefinition FIXED_COUPON = new CouponFixedDefinition(COUPON, RATE);
 
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 12, 27); //For conversion to derivative

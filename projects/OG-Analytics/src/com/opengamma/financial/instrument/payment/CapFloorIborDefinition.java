@@ -18,6 +18,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a cap/floor on Ibor.
@@ -35,6 +36,27 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
 
   /**
    * Constructor from all the cap/floor details.
+   * @param currency The payment currency.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param index The coupon Ibor index. The index currency should be the same as the payment currency.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   */
+  public CapFloorIborDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
+      ZonedDateTime fixingDate, IborIndex index, double strike, boolean isCap) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
+    Validate.isTrue(currency == index.getCurrency(), "payment currency should be same as the index currency");
+    _strike = strike;
+    _isCap = isCap;
+  }
+
+  /**
+   * Builder from all the cap/floor details.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
@@ -44,12 +66,12 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param index The coupon Ibor index.
    * @param strike The strike
    * @param isCap The cap/floor flag.
+   * @return The cap/floor.
    */
-  public CapFloorIborDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
+  public static CapFloorIborDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
       IborIndex index, double strike, boolean isCap) {
-    super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
-    _strike = strike;
-    _isCap = isCap;
+    Validate.notNull(index, "index");
+    return new CapFloorIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, strike, isCap);
   }
 
   /**
@@ -61,8 +83,8 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    */
   public static CapFloorIborDefinition from(CouponIborDefinition couponIbor, double strike, boolean isCap) {
     Validate.notNull(couponIbor, "coupon Ibor");
-    return new CapFloorIborDefinition(couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(), couponIbor.getNotional(),
-        couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap);
+    return new CapFloorIborDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(),
+        couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap);
   }
 
   /**

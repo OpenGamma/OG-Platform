@@ -21,6 +21,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Ibor-like floating coupon.
@@ -28,7 +29,7 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
-   * Ibor-like index on which the coupon fixes.
+   * Ibor-like index on which the coupon fixes. The index currency should be th same as the index currency.
    */
   private final IborIndex _index;
   /**
@@ -45,7 +46,30 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   private final double _fixingPeriodAccrualFactor;
 
   /**
-   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index.
+   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
+   * 
+   * @param currency The payment currency.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param accrualFactor Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param index The coupon Ibor index. Should of the same currency as the payment.
+   */
+  public CouponIborDefinition(Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final IborIndex index) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    Validate.notNull(index, "index");
+    _index = index;
+    _fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getBusinessDayConvention(), _index.getCalendar(), _index.getSettlementDays());
+    _fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixindPeriodStartDate, _fixindPeriodEndDate);
+  }
+
+  /**
+   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
    * 
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -54,15 +78,12 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    * @param index The coupon Ibor index.
+   * @return The Ibor coupon.
    */
-  public CouponIborDefinition(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
+  public static CouponIborDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor, final double notional,
       final ZonedDateTime fixingDate, final IborIndex index) {
-    super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
-    _index = index;
-    _fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getBusinessDayConvention(), _index.getCalendar(), _index.getSettlementDays());
-    _fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
-    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixindPeriodStartDate, _fixindPeriodEndDate);
+    return new CouponIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
   }
 
   /**
@@ -78,7 +99,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final ZonedDateTime fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, index.getBusinessDayConvention(), index.getCalendar(), index.getSettlementDays());
     final ZonedDateTime fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
     final double fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(fixindPeriodStartDate, fixindPeriodEndDate);
-    return new CouponIborDefinition(fixindPeriodEndDate, fixindPeriodStartDate, fixindPeriodEndDate, fixingPeriodAccrualFactor, notional, fixingDate, index);
+    return new CouponIborDefinition(index.getCurrency(), fixindPeriodEndDate, fixindPeriodStartDate, fixindPeriodEndDate, fixingPeriodAccrualFactor, notional, fixingDate, index);
   }
 
   /**
@@ -91,7 +112,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   public static CouponIborDefinition from(CouponDefinition coupon, ZonedDateTime fixingDate, IborIndex index) {
     Validate.notNull(fixingDate, "fixing date");
     Validate.notNull(index, "index");
-    return new CouponIborDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index);
+    return new CouponIborDefinition(index.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+        fixingDate, index);
   }
 
   /**

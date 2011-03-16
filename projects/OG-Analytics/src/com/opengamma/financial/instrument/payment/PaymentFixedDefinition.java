@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a simple payment of a given amount on a given date.
@@ -27,8 +28,14 @@ public class PaymentFixedDefinition extends PaymentDefinition {
    */
   private final double _amount;
 
-  public PaymentFixedDefinition(ZonedDateTime paymentDate, double amount) {
-    super(paymentDate);
+  /**
+   * Constructor from payment details.
+   * @param currency The payment currency.
+   * @param paymentDate The payment date.
+   * @param amount The payment amount.
+   */
+  public PaymentFixedDefinition(Currency currency, ZonedDateTime paymentDate, double amount) {
+    super(currency, paymentDate);
     this._amount = amount;
   }
 

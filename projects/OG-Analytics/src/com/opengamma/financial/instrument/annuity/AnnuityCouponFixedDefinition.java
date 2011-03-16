@@ -19,6 +19,7 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -49,8 +50,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param isPayer The payer flag.
    * @return The fixed annuity.
    */
-  public static AnnuityCouponFixedDefinition from(ZonedDateTime settlementDate, Tenor tenor, PeriodFrequency frequency, Calendar calendar, DayCount dayCount, BusinessDayConvention bisinessDay,
-      boolean isEOM, double notional, double fixedRate, boolean isPayer) {
+  public static AnnuityCouponFixedDefinition from(Currency currency, ZonedDateTime settlementDate, Tenor tenor, PeriodFrequency frequency, Calendar calendar, DayCount dayCount,
+      BusinessDayConvention bisinessDay, boolean isEOM, double notional, double fixedRate, boolean isPayer) {
 
     ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, bisinessDay, calendar, isEOM, tenor);
     ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, frequency);
@@ -58,9 +59,9 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
 
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons, isPayer);

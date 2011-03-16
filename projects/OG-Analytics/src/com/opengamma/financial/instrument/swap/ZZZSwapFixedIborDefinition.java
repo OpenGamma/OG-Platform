@@ -7,6 +7,8 @@ package com.opengamma.financial.instrument.swap;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -15,9 +17,10 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a fixed for ibor-like payments swap.
+ * Class describing a fixed for ibor-like payments swap. Both legs are in the same currency.
  */
 public class ZZZSwapFixedIborDefinition extends ZZZSwapDefinition<CouponFixedDefinition, CouponIborDefinition> {
 
@@ -28,6 +31,7 @@ public class ZZZSwapFixedIborDefinition extends ZZZSwapDefinition<CouponFixedDef
    */
   public ZZZSwapFixedIborDefinition(AnnuityCouponFixedDefinition fixedLeg, AnnuityCouponIborDefinition iborLeg) {
     super(fixedLeg, iborLeg);
+    Validate.isTrue(fixedLeg.getCurrency() == iborLeg.getCurrency(), "legs should have the same currency");
   }
 
   /**
@@ -44,6 +48,14 @@ public class ZZZSwapFixedIborDefinition extends ZZZSwapDefinition<CouponFixedDef
    */
   public AnnuityCouponIborDefinition getIborLeg() {
     return (AnnuityCouponIborDefinition) getSecondLeg();
+  }
+
+  /**
+   * Return the currency of the swap. 
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return getFixedLeg().getCurrency();
   }
 
   @SuppressWarnings("unchecked")
