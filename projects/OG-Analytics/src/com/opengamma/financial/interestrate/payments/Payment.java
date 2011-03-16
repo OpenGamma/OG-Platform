@@ -46,6 +46,19 @@ public abstract class Payment implements InterestRateDerivative {
     return _fundingCurveName;
   }
 
+  /**
+   * Check if the payment is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
+   * @return The check.
+   */
+  public boolean isIborOrFixed() {
+    return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
+  }
+
+  @Override
+  public String toString() {
+    return "\n Payment time = " + _paymentTime + ", Funding curve = " + _fundingCurveName;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

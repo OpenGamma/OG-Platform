@@ -60,12 +60,14 @@ public class ScheduleCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFrequency1() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), null);
+    PeriodFrequency nullfrequency = null;
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), nullfrequency);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFrequency2() {
-    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), null);
+    PeriodFrequency nullfrequency = null;
+    ScheduleCalculator.getUnadjustedDateSchedule(DateUtil.getUTCDate(2010, 6, 1), DateUtil.getUTCDate(2010, 7, 1), DateUtil.getUTCDate(2010, 8, 1), nullfrequency);
   }
 
   @Test(expected = IllegalArgumentException.class)

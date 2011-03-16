@@ -24,6 +24,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -335,7 +336,7 @@ public class PresentValueCalculatorTest {
       }
       floatPaymentTimes[i] = (i + 1) * 0.25 + settleTime;
     }
-    FixedFloatSwap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, discountCurve, forwardCurve);
+    FixedCouponSwap<? extends Payment> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, discountCurve, forwardCurve);
     // CMS coupon
     double notional = 10000000.0; //10m
     double paymentYearFraction = 0.51;

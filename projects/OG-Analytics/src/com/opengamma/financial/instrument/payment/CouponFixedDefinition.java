@@ -16,15 +16,37 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a fixed payment coupon.
  */
 public class CouponFixedDefinition extends CouponDefinition {
 
+  /**
+   * The fixed rate of the fixed coupon.
+   */
   private final double _rate;
+  /**
+   * The amount to be paid by the fixed coupon (=getNotional() * _rate * getPaymentYearFraction())
+   */
   private final double _amount;
+
+  /**
+   * Constructor from all the coupon details.
+   * @param currency The payment currency.
+   * @param paymentDate Coupon payment date.
+   * @param accrualStartDate Start date of the accrual period.
+   * @param accrualEndDate End date of the accrual period.
+   * @param paymentYearFraction Accrual factor of the accrual period.
+   * @param notional Coupon notional.
+   * @param rate Fixed rate.
+   */
+  public CouponFixedDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional, double rate) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
+    _rate = rate;
+    _amount = notional * rate * paymentYearFraction;
+  }
 
   /**
    * Fixed coupon constructor from a coupon and the fixed rate.
@@ -32,9 +54,9 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param rate Fixed rate.
    */
   public CouponFixedDefinition(CouponDefinition coupon, double rate) {
-    super(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
+    super(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
     this._rate = rate;
-    this._amount = coupon.getPaymentYearFraction() * coupon.getNotional() * rate;
+    this._amount = coupon.getNotional() * rate * coupon.getPaymentYearFraction();
   }
 
   /**
@@ -51,6 +73,11 @@ public class CouponFixedDefinition extends CouponDefinition {
    */
   public double getAmount() {
     return _amount;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + ", Rate = " + _rate + ", Amount = " + _amount;
   }
 
   @Override
@@ -87,11 +114,11 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+  public CouponFixed toDerivative(LocalDate date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date"); // Required: reference date <= payment date
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);

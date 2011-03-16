@@ -20,6 +20,9 @@ public class CouponIbor extends CouponFloating {
   private final double _spread;
   private final String _forwardCurveName;
 
+  //TODO: Should the spread be in CouponIbor or in a more generic coupon?
+  //TODO: Should the index be stored at the CouponIbor level?
+
   /**
    * Constructor from all details.
    * @param paymentTime Time (in years) up to the payment.
