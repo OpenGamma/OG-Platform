@@ -22,11 +22,14 @@ public class HeavisideFunctionTest {
     F.evaluate((Double) null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testZero() {
+    F.evaluate(0.);
+  }
   @Test
   public void test() {
     assertEquals(F.evaluate(-2.), 0, 0);
     assertEquals(F.evaluate(-1e-15), 0, 0);
-    assertEquals(F.evaluate(0.), 1, 0);
     assertEquals(F.evaluate(1e-15), 1, 0);
     assertEquals(F.evaluate(2.), 1, 0);
   }
