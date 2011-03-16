@@ -1,22 +1,18 @@
 <ivy-module version="2.0">
     <info organisation="com.opengamma" module="og-language" status="integration"/>
-    <configurations>
-      <conf name="core"/>
-      <conf name="opengamma" extends="core"/>
-    </configurations>
     <publications>
       <!-- JAR files -->
-      <artifact name="og-language-client" conf="core" type="jar" ext="jar" />
+      <artifact name="og-language-client" type="jar" ext="jar" />
       <!-- Header files -->
-      <artifact name="og-language-include" conf="core" type="include" ext="zip" />
+      <artifact name="og-language-include" type="include" ext="zip" />
       <!-- Binary files -->
-      <artifact name="og-language-lib" conf="core" type="lib" ext="zip" />
-      <artifact name="og-language-bin" conf="core" type="bin" ext="zip" />
+      <artifact name="og-language-lib" type="lib" ext="zip" />
+      <artifact name="og-language-bin" type="bin" ext="zip" />
     </publications>
     <dependencies>
-      <dependency name="og-financial" rev="latest.integration" conf="opengamma->*" />
+      <dependency name="og-financial" rev="latest.integration" />
       <!-- Pull windows binaries for Visual Studio build, posix user can install the libraries more easily -->
-      <dependency org="org.fudgemsg" name="fudge-c" rev="0.2" conf="opengamma->Windows" />
-      <dependency org="org.apache" name="log4cxx" rev="0.10.0" conf="opengamma->Windows" />
+      <dependency org="org.fudgemsg" name="fudge-c" rev="0.2" conf="*->Windows" />
+      <dependency org="org.apache" name="log4cxx" rev="0.10.0" conf="*->Windows" />
     </dependencies>
 </ivy-module>
