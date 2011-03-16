@@ -22,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * Neville's algorithm.
  */
 public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+  private static final long serialVersionUID = 1L;
   private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
   private final int _offset;

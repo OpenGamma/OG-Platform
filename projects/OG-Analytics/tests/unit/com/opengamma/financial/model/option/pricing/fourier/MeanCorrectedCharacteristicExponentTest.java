@@ -19,21 +19,21 @@ import com.opengamma.math.number.ComplexNumber;
 public class MeanCorrectedCharacteristicExponentTest {
   private static final double SMALL_ALPHA = 1;
   private static final double LARGE_ALPHA = 5;
-  private static final CharacteristicExponent1 BASE = new MyCharacteristicExponent(SMALL_ALPHA, LARGE_ALPHA);
-  private static final MeanCorrectedCharacteristicExponent1 EXPONENT = new MeanCorrectedCharacteristicExponent1(BASE);
+  private static final CharacteristicExponent BASE = new MyCharacteristicExponent(SMALL_ALPHA, LARGE_ALPHA);
+  private static final MeanCorrectedCharacteristicExponent EXPONENT = new MeanCorrectedCharacteristicExponent(BASE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFirst() {
-    new MeanCorrectedCharacteristicExponent1(null);
+    new MeanCorrectedCharacteristicExponent(null);
   }
 
   @Test
   public void test() {
     assertEquals(BASE, EXPONENT.getBase());
-    MeanCorrectedCharacteristicExponent1 other = new MeanCorrectedCharacteristicExponent1(BASE);
+    MeanCorrectedCharacteristicExponent other = new MeanCorrectedCharacteristicExponent(BASE);
     assertEquals(other, EXPONENT);
     assertEquals(other.hashCode(), EXPONENT.hashCode());
-    other = new MeanCorrectedCharacteristicExponent1(new MyCharacteristicExponent(SMALL_ALPHA, LARGE_ALPHA));
+    other = new MeanCorrectedCharacteristicExponent(new MyCharacteristicExponent(SMALL_ALPHA, LARGE_ALPHA));
     assertFalse(other.equals(EXPONENT));
   }
 
@@ -43,7 +43,7 @@ public class MeanCorrectedCharacteristicExponentTest {
     assertEquals(EXPONENT.getLargestAlpha(), LARGE_ALPHA, 0);
   }
 
-  private static class MyCharacteristicExponent implements CharacteristicExponent1 {
+  private static class MyCharacteristicExponent implements CharacteristicExponent {
     private final double _small;
     private final double _large;
 

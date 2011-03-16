@@ -41,11 +41,14 @@ public class FourierOptionModelTest {
   private static final EuropeanVanillaOptionDefinition OTM_CALL = new EuropeanVanillaOptionDefinition(101, EXPIRY, true);
   private static final EuropeanVanillaOptionDefinition ITM_PUT = new EuropeanVanillaOptionDefinition(101, EXPIRY, false);
   private static final EuropeanVanillaOptionDefinition OTM_PUT = new EuropeanVanillaOptionDefinition(99, EXPIRY, false);
-  private static final CharacteristicExponent1 GAUSSIAN = new GaussianCharacteristicExponent1(BLACK_VOL * BLACK_VOL / 2, BLACK_VOL);
+  private static final CharacteristicExponent GAUSSIAN = new GaussianCharacteristicExponent(BLACK_VOL * BLACK_VOL / 2, BLACK_VOL);
   private static final StandardOptionDataBundle BSM_DATA = new StandardOptionDataBundle(YIELD_CURVE, R, VOLATILITY_SURFACE, Math.exp(-R * T) * FORWARD, DATE);
   private static final BlackOptionDataBundle BLACK_DATA = new BlackOptionDataBundle(FORWARD, YIELD_CURVE, VOLATILITY_SURFACE, DATE);
+  private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D();
   private static final OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> FOURIER_MODEL1 = new FourierOptionModel(GAUSSIAN);
   private static final OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> FOURIER_MODEL2 = new FourierOptionModel(GAUSSIAN, true);
+  private static final OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> FOURIER_MODEL3 = new FourierOptionModel(GAUSSIAN, INTEGRATOR);
+  private static final OptionModel<EuropeanVanillaOptionDefinition, BlackOptionDataBundle> FOURIER_MODEL4 = new FourierOptionModel(GAUSSIAN, INTEGRATOR, true);
   private static final OptionModel<OptionDefinition, StandardOptionDataBundle> BSM_MODEL = new BlackScholesMertonModel();
   private static final double EPS = 1e-3;
 
@@ -137,36 +140,59 @@ public class FourierOptionModelTest {
   @Test
   public void testPricing() {
     GreekResultCollection fourierPrice = FOURIER_MODEL1.getGreeks(ITM_CALL, BLACK_DATA, GREEKS);
-    GreekResultCollection bsmPrice = BSM_MODEL.getGreeks(ITM_CALL, BSM_DATA, GREEKS);
+    double bsmPrice = BSM_MODEL.getGreeks(ITM_CALL, BSM_DATA, GREEKS).get(Greek.FAIR_PRICE);
     assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
-    fourierPrice = FOURIER_MODEL1.getGreeks(OTM_CALL, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(OTM_CALL, BSM_DATA, GREEKS);
-    assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
-    fourierPrice = FOURIER_MODEL1.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(OTM_PUT, BSM_DATA, GREEKS);
-    assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
-    fourierPrice = FOURIER_MODEL1.getGreeks(ITM_PUT, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(ITM_PUT, BSM_DATA, GREEKS);
-    assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
     fourierPrice = FOURIER_MODEL2.getGreeks(ITM_CALL, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(ITM_CALL, BSM_DATA, GREEKS);
     assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL3.getGreeks(ITM_CALL, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL4.getGreeks(ITM_CALL, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+
+    fourierPrice = FOURIER_MODEL1.getGreeks(OTM_CALL, BLACK_DATA, GREEKS);
+    bsmPrice = BSM_MODEL.getGreeks(OTM_CALL, BSM_DATA, GREEKS).get(Greek.FAIR_PRICE);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
     fourierPrice = FOURIER_MODEL2.getGreeks(OTM_CALL, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(OTM_CALL, BSM_DATA, GREEKS);
     assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
-    fourierPrice = FOURIER_MODEL2.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(OTM_PUT, BSM_DATA, GREEKS);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL3.getGreeks(OTM_CALL, BLACK_DATA, GREEKS);
     assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL4.getGreeks(OTM_CALL, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+
+    fourierPrice = FOURIER_MODEL1.getGreeks(ITM_PUT, BLACK_DATA, GREEKS);
+    bsmPrice = BSM_MODEL.getGreeks(ITM_PUT, BSM_DATA, GREEKS).get(Greek.FAIR_PRICE);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
     fourierPrice = FOURIER_MODEL2.getGreeks(ITM_PUT, BLACK_DATA, GREEKS);
-    bsmPrice = BSM_MODEL.getGreeks(ITM_PUT, BSM_DATA, GREEKS);
     assertEquals(fourierPrice.size(), 1);
-    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice.get(Greek.FAIR_PRICE), EPS);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL3.getGreeks(ITM_PUT, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL4.getGreeks(ITM_PUT, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+
+    fourierPrice = FOURIER_MODEL1.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
+    bsmPrice = BSM_MODEL.getGreeks(OTM_PUT, BSM_DATA, GREEKS).get(Greek.FAIR_PRICE);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL2.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL3.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
+    fourierPrice = FOURIER_MODEL4.getGreeks(OTM_PUT, BLACK_DATA, GREEKS);
+    assertEquals(fourierPrice.size(), 1);
+    assertEquals(fourierPrice.get(Greek.FAIR_PRICE), bsmPrice, EPS);
   }
 }

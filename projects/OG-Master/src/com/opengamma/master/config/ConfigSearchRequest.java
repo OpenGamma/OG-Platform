@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
 
@@ -27,21 +28,39 @@ import com.opengamma.util.RegexUtils;
  * This class provides the ability to page the results and to search
  * as at a specific version and correction instant.
  * See {@link ConfigHistoryRequest} for more details on how history works.
+ * 
+ * @param <T>  the configuration element type
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigSearchRequest extends AbstractSearchRequest {
+public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
   /**
    * The name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
   private String _name;
+  
+  /**
+   * The class of the configuration.
+   */
+  @PropertyDefinition
+  private Class<T> _type;
 
   /**
    * Creates an instance.
    */
   public ConfigSearchRequest() {
+  }
+  
+  /**
+   * Creates an instance with a configuration type.
+   * 
+   * @param type the configuration type, not null
+   */
+  public ConfigSearchRequest(Class<T> type) {
+    ArgumentChecker.notNull(type, "type");
+    _type = type;
   }
 
   //-------------------------------------------------------------------------
@@ -54,6 +73,9 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
     if (getName() != null && RegexUtils.wildcardMatch(getName(), document.getName()) == false) {
       return false;
     }
+    if (getType() != null) {
+      return getType().isInstance(document.getValue());
+    }
     return true;
   }
 
@@ -61,14 +83,17 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigSearchRequest}.
+   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  public static ConfigSearchRequest.Meta meta() {
+  @SuppressWarnings("unchecked")
+  public static <R> ConfigSearchRequest.Meta<R> meta() {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ConfigSearchRequest.Meta metaBean() {
+  public ConfigSearchRequest.Meta<T> metaBean() {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
 
@@ -77,15 +102,21 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
     switch (propertyName.hashCode()) {
       case 3373707:  // name
         return getName();
+      case 3575610:  // type
+        return getType();
     }
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
       case 3373707:  // name
         setName((String) newValue);
+        return;
+      case 3575610:  // type
+        setType((Class<T>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -118,18 +149,49 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the class of the configuration.
+   * @return the value of the property
+   */
+  public Class<T> getType() {
+    return _type;
+  }
+
+  /**
+   * Sets the class of the configuration.
+   * @param type  the new value of the property
+   */
+  public void setType(Class<T> type) {
+    this._type = type;
+  }
+
+  /**
+   * Gets the the {@code type} property.
+   * @return the property, not null
+   */
+  public final Property<Class<T>> type() {
+    return metaBean().type().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ConfigSearchRequest}.
    */
-  public static class Meta extends AbstractSearchRequest.Meta {
+  public static class Meta<T> extends AbstractSearchRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    /**
+     * The meta-property for the {@code type} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(this, "type", (Class) Class.class);
     /**
      * The meta-properties.
      */
@@ -139,17 +201,19 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("name", _name);
+      temp.put("type", _type);
       _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ConfigSearchRequest createBean() {
-      return new ConfigSearchRequest();
+    public ConfigSearchRequest<T> createBean() {
+      return new ConfigSearchRequest<T>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ConfigSearchRequest> beanType() {
-      return ConfigSearchRequest.class;
+    public Class<? extends ConfigSearchRequest<T>> beanType() {
+      return (Class) ConfigSearchRequest.class;
     }
 
     @Override
@@ -164,6 +228,14 @@ public class ConfigSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code type} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Class<T>> type() {
+      return _type;
     }
 
   }

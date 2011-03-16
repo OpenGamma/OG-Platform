@@ -82,6 +82,8 @@ public class SABRFittingTest {
     assertEquals(0.0, results.getChiSq(), eps);
   }
 
+  //FIXME: test doesn't pass at all
+  @SuppressWarnings("unused")
   @Test
   public void testExactFitCG() {
     final BitSet fixed = new BitSet();
@@ -150,6 +152,8 @@ public class SABRFittingTest {
     assertEquals(NU, res[2], 1e-2);
   }
 
+  //FIXME: tests don't pass at all
+  @SuppressWarnings("unused")
   @Test
   public void testNoisyFitCG() {
     final BitSet fixed = new BitSet();

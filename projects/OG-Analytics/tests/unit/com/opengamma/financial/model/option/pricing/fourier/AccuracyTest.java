@@ -17,18 +17,15 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
  * 
  */
 public class AccuracyTest {
-
   private static final double FORWARD = 0.04;
-
   private static final double DF = 0.96;
   private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
   private static final int N_STRIKES = 21;
-
+  private static final BlackFunctionData DATA = new BlackFunctionData(FORWARD, DF, SIGMA);
   private static final double ALPHA = -0.5;
   private static final double EPS = 1e-6;
 
-  private static final FFTPricer FFT_PRICER = new FFTPricer();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   @Test
@@ -57,24 +54,24 @@ public class AccuracyTest {
   }
 
   private void testEquals(final double t, final double integralTol, final double fftTol) {
-
-    final CharacteristicExponent ce = new GaussianCharacteristicExponent(MU, SIGMA, t);
+    final CharacteristicExponent ce = new GaussianCharacteristicExponent(MU, SIGMA);
 
     final double maxLogMoneyness = 6.0 / N_STRIKES * SIGMA * Math.sqrt(t);
-    final FourierPricer integralPricer = new FourierPricer(integralTol, 20);
+    final FourierPricer integralPricer = new FourierPricer();
+    final FFTPricer fftPricer = new FFTPricer();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(100, t, true);
 
-    final double[][] fft_strikeNprice = FFT_PRICER.price(FORWARD, DF, true, ce, N_STRIKES, maxLogMoneyness, ALPHA, fftTol, SIGMA);
+    final double[][] fftStrikeNprice = fftPricer.price(DATA, option, ce, N_STRIKES, maxLogMoneyness, ALPHA, fftTol);
     final BlackFunctionData data = new BlackFunctionData(FORWARD, DF, 0);
     for (int i = 0; i < N_STRIKES; i++) {
-      final double k = fft_strikeNprice[i][0];
-      final double fft_price = fft_strikeNprice[i][1];
-      final double integral_price = integralPricer.price(FORWARD, k, DF, true, ce, ALPHA, 0.1 * integralTol);
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-      final double fft_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, fft_price);
-      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, integral_price);
-
+      final double k = fftStrikeNprice[i][0];
+      final double fftPrice = fftStrikeNprice[i][1];
+      final EuropeanVanillaOption o = new EuropeanVanillaOption(k, t, true);
+      final double integralPrice = integralPricer.price(data, o, ce, ALPHA, 0.1 * integralTol, false);
+      final double fftVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, fftPrice);
+      final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, integralPrice);
       assertEquals(SIGMA, integral_vol, EPS);
-      assertEquals(SIGMA, fft_vol, EPS);
+      assertEquals(SIGMA, fftVol, EPS);
 
     }
   }

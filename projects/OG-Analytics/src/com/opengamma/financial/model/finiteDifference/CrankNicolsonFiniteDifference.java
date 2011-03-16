@@ -17,14 +17,14 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public class CrankNicolsonFiniteDifference {
 
+  private static final double THETA = 0.5; // TODO investigate adjusting this (Douglas schemes)
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
 
-  private static final double THETA = 0.5;
-
-  public double[] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final double xMin, final double xMax) {
+  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary) {
     Validate.notNull(pdeData, "pde data");
     double dt = tMax / (tSteps);
-    double dx = (xMax - xMin) / (xSteps);
+    double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
     double nu1 = dt / dx / dx;
     double nu2 = dt / dx;
 
@@ -33,12 +33,12 @@ public class CrankNicolsonFiniteDifference {
     double[] q = new double[xSteps + 1];
     double[][] m = new double[xSteps + 1][xSteps + 1];
 
-    double currentX = xMin;
+    double currentX = lowerBoundary.getLevel();
 
     double a, b, c, aa, bb, cc;
 
     for (int j = 0; j <= xSteps; j++) {
-      currentX = xMin + j * dx;
+      currentX = lowerBoundary.getLevel() + j * dx;
       x[j] = currentX;
       double value = pdeData.getInitialValue(currentX);
       f[j] = value;
@@ -46,20 +46,21 @@ public class CrankNicolsonFiniteDifference {
 
     double t = 0.0;
     for (int i = 0; i < tSteps; i++) {
+      t += dt;
 
       for (int j = 1; j < xSteps; j++) {
-        a = pdeData.getA(t, x[j]);
-        b = pdeData.getB(t, x[j]);
-        c = pdeData.getC(t, x[j]);
+        a = pdeData.getA(t - dt, x[j]);
+        b = pdeData.getB(t - dt, x[j]);
+        c = pdeData.getC(t - dt, x[j]);
         aa = THETA * (-nu1 * a + 0.5 * nu2 * b);
         bb = 1 + THETA * (2 * nu1 * a - dt * c);
         cc = THETA * (-nu1 * a - 0.5 * nu2 * b);
         q[j] = aa * f[j - 1] + bb * f[j] + cc * f[j + 1];
 
         // TODO could store these
-        a = pdeData.getA(t + dt, x[j]);
-        b = pdeData.getB(t + dt, x[j]);
-        c = pdeData.getC(t + dt, x[j]);
+        a = pdeData.getA(t, x[j]);
+        b = pdeData.getB(t, x[j]);
+        c = pdeData.getC(t, x[j]);
         aa = (-nu1 * a + 0.5 * nu2 * b);
         bb = (2 * nu1 * a - dt * c);
         cc = (-nu1 * a - 0.5 * nu2 * b);
@@ -68,23 +69,41 @@ public class CrankNicolsonFiniteDifference {
         m[j][j + 1] = (THETA - 1) * cc;
       }
 
-      // make fNew[0] = f[0];
-      q[0] = f[0];
-      q[xSteps] = 0.0;
-      m[0][0] = 1.0; // make fNew[0] = f[0];
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, t);
+      for (int k = 0; k < temp.length; k++) {
+        m[0][k] = temp[k];
+      }
+      temp = upperBoundary.getLeftMatrixCondition(pdeData, t);
+      for (int k = 0; k < temp.length; k++) {
+        m[xSteps][xSteps - k] = temp[k];
+      }
 
-      // zero second derivative condition
-      m[xSteps][xSteps - 2] = 1;
-      m[xSteps][xSteps - 1] = -2;
-      m[xSteps][xSteps] = 1;
-     // q[xSteps] += Math.exp(x[xSteps]);
-      
+      temp = lowerBoundary.getRightMatrixCondition(pdeData, t);
+      double sum = 0;
+      for (int k = 0; k < temp.length; k++) {
+        sum += temp[k] * f[k];
+      }
+      q[0] = sum + lowerBoundary.getConstant(pdeData, t);
+
+      temp = upperBoundary.getRightMatrixCondition(pdeData, t);
+      sum = 0;
+      for (int k = 0; k < temp.length; k++) {
+        sum += temp[k] * f[xSteps - k];
+      }
+      q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
+
+    
+
       DoubleMatrix2D mM = new DoubleMatrix2D(m);
       DecompositionResult res = DCOMP.evaluate(mM);
       f = res.solve(q);
     }
+    
+    double[][] res = new double[2][];
+    res[0] = x;
+    res[1] = f;
 
-    return f;
+    return res;
 
   }
 

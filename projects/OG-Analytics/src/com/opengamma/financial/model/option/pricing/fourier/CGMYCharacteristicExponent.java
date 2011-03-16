@@ -14,93 +14,168 @@ import static com.opengamma.math.number.ComplexNumber.ZERO;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * This class represents the characteristic function of the Carr-Madan-Geman-Yor (CGMY) process. This process is a pure jump process (i.e.
+ * there is no Brownian component).
+ * <p>
+ * The characteristic function is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\phi(u; C, G, M, Y) = \\exp\\left(C \\Gamma(-Y)\\left[(M - iu)^Y - M^Y + (G + iu)^Y - G^Y\\right]\\right)
+ * \\end{align*}
+ * }
  */
-public class CGMYCharacteristicExponent extends CharacteristicExponent {
+public class CGMYCharacteristicExponent implements CharacteristicExponent {
+  private static final GammaFunction GAMMA_FUNCTION = new GammaFunction();
   private final double _c;
   private final double _g;
   private final double _m;
   private final double _y;
-  private final double _t;
-  private final double _r1;
-  private final double _r2;
-  private final double _r3;
-  private final ComplexNumber _complexR3;
+  private final double _minAlpha;
+  private final double _maxAlpha;
 
-  public CGMYCharacteristicExponent(final double c, final double g, final double m, final double y, final double t) {
+  /**
+   * The parameters for the CGMY process
+   * @param c C, > 0
+   * @param g G, > 0
+   * @param m M, > 1
+   * @param y Y, < 2
+   */
+  public CGMYCharacteristicExponent(final double c, final double g, final double m, final double y) {
     Validate.isTrue(c > 0, "C > 0");
     Validate.isTrue(g > 0, "G > 0");
     Validate.isTrue(m > 1, "M > 1");
     Validate.isTrue(y < 2, "Y < 2");
-    Validate.isTrue(t > 0, "t > 0");
-
     _c = c;
     _g = g;
     _m = m;
     _y = y;
-    _t = t;
-
-    _r1 = Math.pow(m, y) + Math.pow(g, y);
-    _r2 = t * c * (new GammaFunction()).evaluate(-y);
-    _r3 = _r2 * (Math.pow(m - 1, y) + Math.pow(g + 1, y) - _r1);
-    _complexR3 = new ComplexNumber(_r3);
+    _minAlpha = -(_g + 1.0);
+    _maxAlpha = _m - 1.0;
   }
 
   @Override
-  public ComplexNumber evaluate(final ComplexNumber x) {
+  public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
+    final double r1 = Math.pow(_m, _y) + Math.pow(_g, _y);
+    final double r2 = t * _c * GAMMA_FUNCTION.evaluate(-_y);
+    final double r3 = r2 * (Math.pow(_m - 1, _y) + Math.pow(_g + 1, _y) - r1);
+    final ComplexNumber complexR3 = new ComplexNumber(r3);
 
-    //that u = 0 gives zero is true for any characteristic function
-    if (x.getReal() == 0.0) {
-      if (x.getImaginary() == 0.0) {
-        return ZERO;
+    return new Function1D<ComplexNumber, ComplexNumber>() {
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public ComplexNumber evaluate(final ComplexNumber u) {
+        if (u.getReal() == 0.0) {
+          if (u.getImaginary() == 0.0) {
+            return ZERO;
+          }
+          if (u.getImaginary() == -1.0) {
+            return complexR3;
+          }
+        }
+        final ComplexNumber iu = multiply(I, u);
+        final ComplexNumber c1 = pow(subtract(_m, iu), _y);
+        final ComplexNumber c2 = pow(add(_g, iu), _y);
+        final ComplexNumber c3 = add(c1, c2);
+        final ComplexNumber c4 = subtract(c3, r1);
+        final ComplexNumber res = multiply(r2, c4);
+        return res;
       }
-      if (x.getImaginary() == -1.0) {
-        return _complexR3;
-      }
-    }
-
-    final ComplexNumber ix = multiply(I, x);
-    final ComplexNumber c1 = pow(subtract(_m, ix), _y);
-    final ComplexNumber c2 = pow(add(_g, ix), _y);
-    final ComplexNumber c3 = add(c1, c2);
-    final ComplexNumber c4 = subtract(c3, _r1);
-    final ComplexNumber res = multiply(_r2, c4);
-    return res;
+    };
   }
 
+  /**
+   * Gets C
+   * @return C
+   */
   public double getC() {
     return _c;
   }
 
+  /**
+   * Gets G
+   * @return G
+   */
   public double getG() {
     return _g;
   }
 
+  /**
+   * Gets M
+   * @return M
+   */
   public double getM() {
     return _m;
   }
 
+  /**
+   * Gets Y
+   * @return Y
+   */
   public double getY() {
     return _y;
   }
 
-  @Override
-  public double getTime() {
-    return _t;
-  }
-
+  /**
+   * 
+   * @return {@latex.inline $M - 1$}
+   */
   @Override
   public double getLargestAlpha() {
-    return _m - 1.0;
+    return _maxAlpha;
+  }
+
+  /**
+   * 
+   * @return {@latex.inline $-G - 1$}
+   */
+  @Override
+  public double getSmallestAlpha() {
+    return _minAlpha;
   }
 
   @Override
-  public double getSmallestAlpha() {
-    return -(_g + 1.0);
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_c);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_g);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_m);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_y);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CGMYCharacteristicExponent other = (CGMYCharacteristicExponent) obj;
+    if (Double.doubleToLongBits(_c) != Double.doubleToLongBits(other._c)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_g) != Double.doubleToLongBits(other._g)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_m) != Double.doubleToLongBits(other._m)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_y) == Double.doubleToLongBits(other._y);
   }
 
 }

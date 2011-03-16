@@ -9,7 +9,7 @@ namespace com.opengamma.financial.security.cash {
   message CashSecurity extends FinancialSecurity {
   
     required string securityType [default="Cash"];
-    required com.opengamma.core.common.CurrencyUnit currency;
+    required com.opengamma.util.money.Currency currency;
     required id.Identifier region;
     required DateTimeWithZone maturity;
     required double rate;

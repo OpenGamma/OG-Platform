@@ -24,7 +24,6 @@ public class BasisFunctionGeneratorTest {
   private static final Boolean PRINT = false;
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
   private static final BasisFunctionGenerator GENERATOR = new BasisFunctionGenerator();
-  private static final Function1D<Double, Double> BASIS_FUNCTION;
   private static final double[] KNOTS;
 
   static {
@@ -34,41 +33,26 @@ public class BasisFunctionGeneratorTest {
       KNOTS[i] = 0 + i * 1.0;
     }
 
-    BASIS_FUNCTION = GENERATOR.generate(KNOTS, 3, 3);
   }
-
-  // @Test
-  // public void test() {
-  // double x, y;
-  // for (int i = 0; i < 101; i++) {
-  // x = 0. + 10. * i / 100.0;
-  // y = BASIS_FUNCTION.evaluate(x);
-  // System.out.println(x + "\t" + y);
-  // }
-  // }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullKnots() {
-    @SuppressWarnings("unused")
-    final Function1D<Double, Double> func = GENERATOR.generate(null, 2, 4);
+    GENERATOR.generate(null, 2, 4);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegDegree() {
-    @SuppressWarnings("unused")
-    final Function1D<Double, Double> func = GENERATOR.generate(KNOTS, -1, 4);
+    GENERATOR.generate(KNOTS, -1, 4);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFunctionIndexOutOfRange1() {
-    @SuppressWarnings("unused")
-    final Function1D<Double, Double> func = GENERATOR.generate(KNOTS, 2, -1);
+    GENERATOR.generate(KNOTS, 2, -1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFunctionIndexOutOfRange2() {
-    @SuppressWarnings("unused")
-    final Function1D<Double, Double> func = GENERATOR.generate(KNOTS, 5, KNOTS.length - 5);
+    GENERATOR.generate(KNOTS, 5, KNOTS.length - 5);
   }
 
   @Test
@@ -138,6 +122,7 @@ public class BasisFunctionGeneratorTest {
 
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void testSet() {
     java.util.List<Function1D<Double, Double>> functions = GENERATOR.generateSet(-3, 5, 17, 3);
@@ -146,7 +131,7 @@ public class BasisFunctionGeneratorTest {
     for (int i = 0; i < n; i++) {
       w[i] = 1 + 0.1 * NORMAL.nextRandom();
     }
-    Function1D<Double, Double> fun = new BasisFunctionAggregation(functions, w);
+    Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
 
     for (int i = 0; i < 101; i++) {
       double x = -3 + i * 8.0 / 100.0;
@@ -155,6 +140,7 @@ public class BasisFunctionGeneratorTest {
     }
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void testSet2() {
 
@@ -168,7 +154,7 @@ public class BasisFunctionGeneratorTest {
     for (int i = 0; i < n; i++) {
       w[i] = 1 + 0.1 * NORMAL.nextRandom();
     }
-    Function1D<Double, Double> fun = new BasisFunctionAggregation(functions, w);
+    Function1D<Double, Double> fun = new BasisFunctionAggregation<Double>(functions, w);
 
     for (int i = 0; i < 100; i++) {
       double x = -1 + i * 6 / 100.0;

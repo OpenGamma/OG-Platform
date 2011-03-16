@@ -20,10 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -66,7 +66,7 @@ public class DbHolidayMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_example() throws Exception {
-    ManageableHoliday hol = new ManageableHoliday(CurrencyUnit.GBP, Arrays.asList(LocalDate.of(2010, 2, 3)));
+    ManageableHoliday hol = new ManageableHoliday(Currency.GBP, Arrays.asList(LocalDate.of(2010, 2, 3)));
     HolidayDocument addDoc = new HolidayDocument(hol);
     HolidayDocument added = _holMaster.add(addDoc);
     

@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.Instant;
 
-import com.opengamma.core.common.CurrencyUnit;
+import com.opengamma.util.money.Currency;
 
 /**
  * A source of volatility surface specifications.
@@ -23,7 +23,7 @@ public interface VolatilitySurfaceSpecificationSource {
    * @param name  the name, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceSpecification getSpecification(CurrencyUnit currency, String name);
+  VolatilitySurfaceSpecification getSpecification(Currency currency, String name);
 
   /**
    * Gets a volatility surface specification for a currency, name and version.
@@ -32,6 +32,6 @@ public interface VolatilitySurfaceSpecificationSource {
    * @param version  the version instant, not null
    * @return the definition, null if not found
    */
-  VolatilitySurfaceSpecification getSpecification(CurrencyUnit currency, String name, Instant version);
+  VolatilitySurfaceSpecification getSpecification(Currency currency, String name, Instant version);
 
 }

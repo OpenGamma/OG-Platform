@@ -32,47 +32,47 @@ public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefi
   private static final double DEFAULT_ALPHA = -0.5;
   private static final double DEFAULT_LIMIT_TOLERANCE = 1e-8;
   private static final boolean DEFAULT_USE_VARIANCE_REDUCTION = false;
-  private final CharacteristicExponent1 _characteristicExponent;
-  private final FourierPricer1 _pricer;
+  private final CharacteristicExponent _characteristicExponent;
+  private final FourierPricer _pricer;
   private final boolean _useVarianceReduction;
   private final double _limitTolerance;
   private final double _alpha;
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent) {
     this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
   }
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final boolean useVarianceReduction) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final boolean useVarianceReduction) {
     this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
   }
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
     this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
   }
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final boolean useVarianceReduction) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final boolean useVarianceReduction) {
     this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
   }
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final double alpha, final double limitTolerance, final boolean useVarianceReduction) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final double alpha, final double limitTolerance, final boolean useVarianceReduction) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
     Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be equal to -1 or 0");
     Validate.isTrue(limitTolerance > 0, "limit tolerance > 0");
     _characteristicExponent = characteristicExponent;
-    _pricer = new FourierPricer1();
+    _pricer = new FourierPricer();
     _alpha = alpha;
     _limitTolerance = limitTolerance;
     _useVarianceReduction = useVarianceReduction;
   }
 
-  public FourierOptionModel(final CharacteristicExponent1 characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final double alpha,
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final double alpha,
       final double limitTolerance, final boolean useVarianceReduction) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
     Validate.notNull(integrator, "integrator");
     Validate.isTrue(alpha != 0 && alpha != -1, "alpha cannot be equal to -1 or 0");
     Validate.isTrue(limitTolerance > 0, "limit tolerance > 0");
     _characteristicExponent = characteristicExponent;
-    _pricer = new FourierPricer1(integrator);
+    _pricer = new FourierPricer(integrator);
     _alpha = alpha;
     _limitTolerance = limitTolerance;
     _useVarianceReduction = useVarianceReduction;

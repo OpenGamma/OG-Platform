@@ -13,7 +13,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -42,6 +41,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -140,7 +140,7 @@ public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
     return ComputationTargetType.POSITION;
   }
 
-  private CurrencyUnit getCurrency(final ComputationTarget target) {
+  private Currency getCurrency(final ComputationTarget target) {
     final BondSecurity bond = (BondSecurity) target.getPosition().getSecurity();
     return bond.getCurrency();
   }

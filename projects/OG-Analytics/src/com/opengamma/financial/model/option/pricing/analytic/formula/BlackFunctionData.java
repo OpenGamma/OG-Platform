@@ -14,31 +14,27 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
  * 
  */
 public class BlackFunctionData {
-  private final double _forward;
-  private final double _discountFactor;
-  private final double _blackVolatility;
+  private final double _f;
+  private final double _df;
+  private final double _sigma;
 
-  public BlackFunctionData(final double forward, final double discountFactor) {
-    this(forward, discountFactor, 0);
-  }
-
-  public BlackFunctionData(final double forward, final double discountFactor, final double blackVolatility) {
-    Validate.isTrue(discountFactor <= 1 && discountFactor > 0, "discount factor must be <= 1 and > 0");
-    _forward = forward;
-    _discountFactor = discountFactor;
-    _blackVolatility = blackVolatility;
+  public BlackFunctionData(final double f, final double df, final double sigma) {
+    Validate.isTrue(df <= 1 && df > 0, "discount factor must be <= 1 and > 0");
+    _f = f;
+    _df = df;
+    _sigma = sigma;
   }
 
   public double getForward() {
-    return _forward;
+    return _f;
   }
 
   public double getDiscountFactor() {
-    return _discountFactor;
+    return _df;
   }
 
   public double getBlackVolatility() {
-    return _blackVolatility;
+    return _sigma;
   }
 
   public static BlackFunctionData fromDataBundle(final BlackOptionDataBundle bundle, final EuropeanVanillaOptionDefinition definition) {
@@ -54,11 +50,11 @@ public class BlackFunctionData {
     final int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_discountFactor);
+    temp = Double.doubleToLongBits(_df);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_forward);
+    temp = Double.doubleToLongBits(_f);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_blackVolatility);
+    temp = Double.doubleToLongBits(_sigma);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -75,13 +71,13 @@ public class BlackFunctionData {
       return false;
     }
     final BlackFunctionData other = (BlackFunctionData) obj;
-    if (Double.doubleToLongBits(_discountFactor) != Double.doubleToLongBits(other._discountFactor)) {
+    if (Double.doubleToLongBits(_df) != Double.doubleToLongBits(other._df)) {
       return false;
     }
-    if (Double.doubleToLongBits(_forward) != Double.doubleToLongBits(other._forward)) {
+    if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f)) {
       return false;
     }
-    return Double.doubleToLongBits(_blackVolatility) == Double.doubleToLongBits(other._blackVolatility);
+    return Double.doubleToLongBits(_sigma) == Double.doubleToLongBits(other._sigma);
   }
 
 }

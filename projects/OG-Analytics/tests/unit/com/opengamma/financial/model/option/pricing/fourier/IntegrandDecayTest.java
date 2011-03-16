@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import com.opengamma.math.ComplexMathUtils;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
  */
 public class IntegrandDecayTest {
-
-  private static final double MU = 0.07;
   private static final double SIGMA = 0.2;
   private static final double T = 1 / 52.0;
 
@@ -27,41 +29,41 @@ public class IntegrandDecayTest {
 
   private static final double ALPHA = -0.5;
 
-  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA, T);
-  private static final EuropeanCallFT PSI = new EuropeanCallFT(CEF);
+  private static final CharacteristicExponent CEF = new GaussianCharacteristicExponent(-0.5 * SIGMA * SIGMA, SIGMA);
+  private static final EuropeanCallFourierTransform PSI = new EuropeanCallFourierTransform(CEF);
 
   @Test
   public void test() {
     ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));
-    final double mod0 = ComplexMathUtils.mod(PSI.evaluate(z));
-    for (int i = 0; i < 101; i++) {
+    final Function1D<ComplexNumber, ComplexNumber> f = PSI.getFunction(T);
+    final double mod0 = ComplexMathUtils.mod(f.evaluate(z));
+    double previous = 0;
+    for (int i = 1; i < 101; i++) {
       final double x = 0.0 + 100.0 * i / 100;
       z = new ComplexNumber(x, -(1 + ALPHA));
-      final ComplexNumber u = PSI.evaluate(z);
+      final ComplexNumber u = f.evaluate(z);
+      assertEquals(u.getImaginary(), 0, 1e-16);
       final double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
+      assertTrue(res < previous);
+      previous = res;
     }
   }
 
   @Test
   public void testHeston() {
-    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO, T);
-    final EuropeanCallFT psi = new EuropeanCallFT(heston);
-
+    final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, VOL0, OMEGA, RHO);
+    final EuropeanCallFourierTransform psi = new EuropeanCallFourierTransform(heston);
+    final Function1D<ComplexNumber, ComplexNumber> f = psi.getFunction(T);
     ComplexNumber z = new ComplexNumber(0.0, -(1 + ALPHA));
-    final double mod0 = ComplexMathUtils.mod(psi.evaluate(z));
-    for (int i = 0; i < 101; i++) {
+    final double mod0 = ComplexMathUtils.mod(f.evaluate(z));
+    double previous = 0;
+    for (int i = 1; i < 101; i++) {
       final double x = 0.0 + 100.0 * i / 100;
       z = new ComplexNumber(x, -(1 + ALPHA));
-      final ComplexNumber u = psi.evaluate(z);
+      final ComplexNumber u = f.evaluate(z);
       final double res = Math.log10(ComplexMathUtils.mod(u) / mod0);
-      //System.out.println(x + "\t" + res);
-    }
-
-    final IntegralLimitCalculator cal = new IntegralLimitCalculator();
-
-    double x = 0;
-    for (int i = 0; i < 1000; i++) {
-      x = cal.solve(psi, ALPHA, 1e-6);
+      assertTrue(res < previous);
+      previous = res;
     }
   }
 

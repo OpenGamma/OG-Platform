@@ -238,10 +238,10 @@ public class PresentValueCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final AnnuityCouponIbor payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final AnnuityCouponIbor receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
 
-    final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     final double pv = PVC.visit(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
   }

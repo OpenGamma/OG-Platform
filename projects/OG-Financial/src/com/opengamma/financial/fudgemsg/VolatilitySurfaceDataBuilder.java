@@ -21,8 +21,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -58,7 +58,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
 
   @Override
   public VolatilitySurfaceData<?, ?> buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    CurrencyUnit currency = context.fieldValueToObject(CurrencyUnit.class, message.getByName("currency"));
+    Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     String definitionName = message.getString("definitionName");
     String specificationName = message.getString("specificationName");
     String interpolatorName = message.getString("interpolatorName");

@@ -33,19 +33,19 @@ public class FFTOptionModel implements OptionModel<EuropeanVanillaOptionDefiniti
   private static final double DEFAULT_ALPHA = -0.5;
   private static final double DEFAULT_TOLERANCE = 1e-8;
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
-  private static final FFTPricer1 PRICER = new FFTPricer1();
-  private final CharacteristicExponent1 _characteristicExponent;
+  private static final FFTPricer PRICER = new FFTPricer();
+  private final CharacteristicExponent _characteristicExponent;
   private final int _nStrikes;
   private final double _maxDeltaMoneyness;
   private final double _alpha;
   private final double _tolerance;
 
   //TODO add interpolator as input
-  public FFTOptionModel(final CharacteristicExponent1 characteristicExponent) {
+  public FFTOptionModel(final CharacteristicExponent characteristicExponent) {
     this(characteristicExponent, DEFAULT_STRIKES, DEFAULT_MAX_DELTA_MONEYNESS, DEFAULT_ALPHA, DEFAULT_TOLERANCE);
   }
 
-  public FFTOptionModel(final CharacteristicExponent1 characteristicExponent, final int nStrikes, final double maxDeltaMoneyness, final double alpha, final double tolerance) {
+  public FFTOptionModel(final CharacteristicExponent characteristicExponent, final int nStrikes, final double maxDeltaMoneyness, final double alpha, final double tolerance) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
     Validate.isTrue(nStrikes > 0, "number of strikes must be > 0");
     Validate.isTrue(maxDeltaMoneyness > 0, "max delta moneyness must be > 0");

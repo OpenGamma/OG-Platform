@@ -16,6 +16,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 //TODO add different interpolators for different time ranges
 //TODO could have different extrapolators for different times
 public class CombinedInterpolatorExtrapolator<T extends Interpolator1DDataBundle> extends Interpolator1D<T> {
+  private static final long serialVersionUID = 1L;
   private final Interpolator1D<T> _interpolator;
   private final Interpolator1D<T> _leftExtrapolator;
   private final Interpolator1D<T> _rightExtrapolator;

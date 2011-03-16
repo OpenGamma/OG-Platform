@@ -11,9 +11,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent1;
-import com.opengamma.financial.model.option.pricing.fourier.FourierPricer1;
-import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent1;
+import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
+import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
+import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -40,7 +40,7 @@ public class HestonFourierNonLinearLeastSquareFitter extends LeastSquareSmileFit
   private static final double DEFAULT_LIMIT_TOLERANCE = 1e-8;
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-4);
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL_FORMULA = new BlackImpliedVolatilityFormula();
-  private static final FourierPricer1 FOURIER_PRICER = new FourierPricer1();
+  private static final FourierPricer FOURIER_PRICER = new FourierPricer();
   private static final int N_PARAMETERS = 5;
   private static final ParameterLimitsTransform[] TRANSFORMS;
   private final double _alpha;
@@ -105,7 +105,7 @@ public class HestonFourierNonLinearLeastSquareFitter extends LeastSquareSmileFit
         final double vol0 = mp.getEntry(2);
         final double omega = mp.getEntry(3);
         final double rho = mp.getEntry(4);
-        final CharacteristicExponent1 ce = new HestonCharacteristicExponent1(kappa, theta, vol0, omega, rho);
+        final CharacteristicExponent ce = new HestonCharacteristicExponent(kappa, theta, vol0, omega, rho);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
         final double price = FOURIER_PRICER.priceFromVol(blackData, option, ce, _alpha, _limitTolerance, true);
         final double vol = BLACK_IMPLIED_VOL_FORMULA.getImpliedVolatility(blackData, option, price);
