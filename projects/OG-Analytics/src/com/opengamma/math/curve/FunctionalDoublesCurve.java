@@ -13,7 +13,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * A curve that is defined by a function (i.e. <it>y = f(x)</it>, where <it>f(x)</it> is supplied)
+ * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
  */
 public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
@@ -94,9 +94,9 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param x An array of <it>x</it> values
+   * @param x An array of <i>x</i> values
    * @param interpolator An interpolator
-   * @return An interpolated curve with values <it>(x, f(x))</it>
+   * @return An interpolated curve with values <i>(x, f(x))</i>
    */
   public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     Validate.notNull(x, "x");
@@ -112,7 +112,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
   /**
    * 
    * @param x An array of x values
-   * @return A nodal curve with values <it>(x, f(x))</it>
+   * @return A nodal curve with values <i>(x, f(x))</i>
    */
   public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
     Validate.notNull(x, "x");

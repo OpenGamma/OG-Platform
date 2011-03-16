@@ -11,17 +11,14 @@ package com.opengamma.math.function;
  * multi-dimensional (but not multi-type), as can the function value. The return
  * type of the function is not necessarily the same as that of the inputs.
  * 
- * @param <S>
- *          Type of the arguments
- * @param <T>
- *          Return type of function
+ * @param <S> Type of the arguments
+ * @param <T> Return type of the function
  */
 public interface Function<S, T> {
 
   /**
    * 
-   * @param x
-   *          The list of inputs into the function
+   * @param x The list of inputs into the function, not null and no null elements
    * @return The value of the function
    */
   T evaluate(S... x);
