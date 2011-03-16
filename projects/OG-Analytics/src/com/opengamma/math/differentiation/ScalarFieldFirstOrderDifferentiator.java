@@ -38,7 +38,7 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
    * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. In most situations, 
    * {@link FiniteDifferenceType#CENTRAL} is preferable. Not null
    * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise. 
-   * Use around 10<sup>5</sup> times the domain size. 
+   * Use around 10<sup>-5</sup> times the domain size. 
    */
   public ScalarFieldFirstOrderDifferentiator(final FiniteDifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
