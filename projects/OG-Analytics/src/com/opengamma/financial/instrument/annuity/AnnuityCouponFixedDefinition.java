@@ -38,6 +38,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
 
   /**
    * Annuity builder from the conventions and common characteristics.
+   * @param currency The annuity currency.
    * @param settlementDate The settlement date.
    * @param tenor The tenor.
    * @param frequency The payment frequency.
