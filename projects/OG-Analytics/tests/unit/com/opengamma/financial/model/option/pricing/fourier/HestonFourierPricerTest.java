@@ -45,6 +45,7 @@ public class HestonFourierPricerTest {
     }
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void testHestonCE() {
 
@@ -73,6 +74,7 @@ public class HestonFourierPricerTest {
     // }
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void testIntegrandHeston() {
 
@@ -96,6 +98,7 @@ public class HestonFourierPricerTest {
 
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void testEuropeanCallFTHeston() {
 

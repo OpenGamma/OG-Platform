@@ -21,7 +21,6 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
@@ -36,6 +35,7 @@ import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.RegexUtils;
+import com.opengamma.util.money.Currency;
 
 /**
  * Request for searching for regions.
@@ -201,7 +201,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    * 
    * @param currency  the currency to search for, not null
    */
-  public void addCurrency(CurrencyUnit currency) {
+  public void addCurrency(Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
     addRegionKey(RegionUtils.currencyRegionId(currency));
   }

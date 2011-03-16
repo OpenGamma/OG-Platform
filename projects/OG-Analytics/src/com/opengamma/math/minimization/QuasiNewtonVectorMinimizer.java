@@ -102,7 +102,7 @@ public class QuasiNewtonVectorMinimizer implements VectorMinimizerWithGradient {
     return data.getX();
   }
 
-  private DoubleMatrix2D getInitializedMatrix(@SuppressWarnings("unused") final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
+  private DoubleMatrix2D getInitializedMatrix(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
     return DoubleMatrixUtils.getIdentityMatrix2D(startPosition.getNumberOfElements());
   }
 

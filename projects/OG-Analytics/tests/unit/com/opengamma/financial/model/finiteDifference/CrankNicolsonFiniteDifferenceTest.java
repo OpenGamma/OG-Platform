@@ -7,8 +7,6 @@ package com.opengamma.financial.model.finiteDifference;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
@@ -24,7 +22,6 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -48,7 +45,6 @@ public class CrankNicolsonFiniteDifferenceTest {
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   private static final double VOL_BETA;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
   private static final ConvectionDiffusionPDEDataBundle DATA;
   private static final ConvectionDiffusionPDEDataBundle LN_DATA;

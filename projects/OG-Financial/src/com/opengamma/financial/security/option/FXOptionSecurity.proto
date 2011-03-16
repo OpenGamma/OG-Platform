@@ -11,8 +11,8 @@ namespace com.opengamma.financial.security.option {
     required string securityType [default = "FX_OPTION"];
     
     required string counterparty;
-    required com.opengamma.core.common.CurrencyUnit putCurrency;
-    required com.opengamma.core.common.CurrencyUnit callCurrency; 
+    required com.opengamma.util.money.Currency putCurrency;
+    required com.opengamma.util.money.Currency callCurrency; 
    
     binding Java {
       body "public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitFXOptionSecurity (this); }";

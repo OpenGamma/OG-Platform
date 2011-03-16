@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
@@ -28,10 +30,20 @@ import com.opengamma.util.monitor.OperationTimer;
  * 
  */
 public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(YieldCurveFittingTest.class);
+  private static final int WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
 
-  public YieldCurveFittingTest() {
-    _hotspotWarmupCycles = 0;
-    _benchmarkCycles = 1;
+  protected Logger getLogger() {
+    return LOGGER;
+  }
+  
+  protected int getWarmupCycles() {
+    return WARMUP_CYCLES;
+  }
+  
+  protected int getBenchmarkCycles() {
+    return BENCHMARK_CYCLES;
   }
 
   protected YieldCurveFittingTestDataBundle getOverSpecifiedSetup() {
@@ -60,12 +72,12 @@ public class YieldCurveFittingTest extends YieldCurveFittingFromSwapsTest {
   }
 
   public void doHotSpot(final YieldCurveFittingTestDataBundle data, final String name) {
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+    for (int i = 0; i < WARMUP_CYCLES; i++) {
       doTest(data);
     }
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on " + name, _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
+    if (BENCHMARK_CYCLES > 0) {
+      final OperationTimer timer = new OperationTimer(LOGGER, "processing {} cycles on " + name, BENCHMARK_CYCLES);
+      for (int i = 0; i < BENCHMARK_CYCLES; i++) {
         doTest(data);
       }
       timer.finished();

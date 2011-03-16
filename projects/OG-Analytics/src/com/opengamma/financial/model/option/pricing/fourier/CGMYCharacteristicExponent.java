@@ -19,7 +19,15 @@ import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * This class represents the characteristic function of the Carr-Madan-Geman-Yor (CGMY) process. This process is a pure jump process (i.e.
+ * there is no Brownian component).
+ * <p>
+ * The characteristic function is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\phi(u; C, G, M, Y) = \\exp\\left(C \\Gamma(-Y)\\left[(M - iu)^Y - M^Y + (G + iu)^Y - G^Y\\right]\\right)
+ * \\end{align*}
+ * }
  */
 public class CGMYCharacteristicExponent implements CharacteristicExponent {
   private static final GammaFunction GAMMA_FUNCTION = new GammaFunction();
@@ -30,6 +38,13 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
   private final double _minAlpha;
   private final double _maxAlpha;
 
+  /**
+   * The parameters for the CGMY process
+   * @param c C, > 0
+   * @param g G, > 0
+   * @param m M, > 1
+   * @param y Y, < 2
+   */
   public CGMYCharacteristicExponent(final double c, final double g, final double m, final double y) {
     Validate.isTrue(c > 0, "C > 0");
     Validate.isTrue(g > 0, "G > 0");
@@ -73,27 +88,51 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
     };
   }
 
+  /**
+   * Gets C
+   * @return C
+   */
   public double getC() {
     return _c;
   }
 
+  /**
+   * Gets G
+   * @return G
+   */
   public double getG() {
     return _g;
   }
 
+  /**
+   * Gets M
+   * @return M
+   */
   public double getM() {
     return _m;
   }
 
+  /**
+   * Gets Y
+   * @return Y
+   */
   public double getY() {
     return _y;
   }
 
+  /**
+   * 
+   * @return {@latex.inline $M - 1$}
+   */
   @Override
   public double getLargestAlpha() {
     return _maxAlpha;
   }
 
+  /**
+   * 
+   * @return {@latex.inline $-G - 1$}
+   */
   @Override
   public double getSmallestAlpha() {
     return _minAlpha;

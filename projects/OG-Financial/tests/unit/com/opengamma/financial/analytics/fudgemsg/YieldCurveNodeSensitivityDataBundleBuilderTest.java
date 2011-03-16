@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class YieldCurveNodeSensitivityDataBundleBuilderTest extends AnalyticsTes
     final Object[] labels = new Object[] {"1y", "2y", "3y", "4y", "5y"};
     final double[] values = new double[] {0.1, 0.2, 0.3, 0.4, 0.5};
     final DoubleLabelledMatrix1D m = new DoubleLabelledMatrix1D(keys, labels, values);
-    final CurrencyUnit ccy = CurrencyUnit.USD;
+    final Currency ccy = Currency.USD;
     final String curveName = "S";
     final YieldCurveNodeSensitivityDataBundle d1 = new YieldCurveNodeSensitivityDataBundle(ccy, m, curveName);
     final YieldCurveNodeSensitivityDataBundle d2 = cycleObject(YieldCurveNodeSensitivityDataBundle.class, d1);

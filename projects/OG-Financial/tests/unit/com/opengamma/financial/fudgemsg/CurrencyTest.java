@@ -11,29 +11,29 @@ import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test CurrencyUnit Fudge support.
  */
 public class CurrencyTest extends FinancialTestBase {
 
-  private static final CurrencyUnit s_ref = CurrencyUnit.USD;
+  private static final Currency s_ref = Currency.USD;
 
   @Test
   public void testCycle() {
-    assertEquals(s_ref, cycleObject(CurrencyUnit.class, s_ref));
+    assertEquals(s_ref, cycleObject(Currency.class, s_ref));
   }
 
   @Test
   public void testFromString() {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(CurrencyUnit.class,
+    assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
         FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getCode())));
   }
 
   @Test
   public void testFromUniqueIdentifier() {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(CurrencyUnit.class,
+    assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
         FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getUniqueId().toString())));
   }
 

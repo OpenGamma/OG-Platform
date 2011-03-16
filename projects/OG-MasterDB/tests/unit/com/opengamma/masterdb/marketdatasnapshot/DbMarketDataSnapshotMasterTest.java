@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.marketdatasnapshot.FXVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
@@ -20,6 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
@@ -65,8 +65,8 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     marketDataSnapshot.setName("Test");
     
     HashMap<UniqueIdentifier,ValueSnapshot> values = new HashMap<UniqueIdentifier,ValueSnapshot>();
-    HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot>();
-    HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot>();
+    HashMap<Triple<String, Currency,Currency>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, Currency,Currency>,FXVolatilitySurfaceSnapshot>();
+    HashMap<Pair<String,Currency>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,Currency>,YieldCurveSnapshot>();
     
     marketDataSnapshot.setValues(values);
     marketDataSnapshot.setFxVolatilitySurfaces(fxVolSurfaces);
@@ -86,8 +86,8 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     marketDataSnapshot.setName("Test");
     
     HashMap<UniqueIdentifier,ValueSnapshot> values = new HashMap<UniqueIdentifier,ValueSnapshot>();
-    HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, CurrencyUnit,CurrencyUnit>,FXVolatilitySurfaceSnapshot>();
-    HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,CurrencyUnit>,YieldCurveSnapshot>();
+    HashMap<Triple<String, Currency,Currency>,FXVolatilitySurfaceSnapshot> fxVolSurfaces = new HashMap<Triple<String, Currency,Currency>,FXVolatilitySurfaceSnapshot>();
+    HashMap<Pair<String,Currency>,YieldCurveSnapshot> yieldCurves = new HashMap<Pair<String,Currency>,YieldCurveSnapshot>();
     
     
     UniqueIdentifier identA = UniqueIdentifier.parse("XXX::AAA");

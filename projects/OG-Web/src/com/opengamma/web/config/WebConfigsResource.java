@@ -24,7 +24,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
@@ -54,7 +53,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(
@@ -63,6 +61,12 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
+    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("configs/configs.ftl", out);
+  }
+
+  @SuppressWarnings("unchecked")
+  private FlexiBean search(int page, int pageSize, String name, String type, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -84,7 +88,19 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("configs/configs.ftl", out);
+    return out;
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   //-------------------------------------------------------------------------

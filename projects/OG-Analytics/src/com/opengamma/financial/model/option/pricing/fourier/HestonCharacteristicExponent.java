@@ -20,7 +20,27 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * The Heston stochastic volatility model is defined as:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * dS_t &= \\mu S_t dt + \\sqrt{V_t}S_t dW_S(t)\\\\
+ * dV_t &= \\kappa(\\theta - V_0)dt + \\omega\\sqrt{V_t} dW_V(t)\\\\
+ * \\text{with}\\\\
+ * dW_S(t) dW_V(t) = \\rho dt
+ * \\end{align*}
+ * }
+ * This class represents the characteristic function of the Heston model:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\phi(u) &= e^{C(t, u) + D(t, u)V_0 + iu\\ln F}\\\\
+ * \\text{where}\\\\
+ * C(t, u) &= \\frac{\\kappa\\theta}{\\omega^2} \\left((\\kappa - \\rho \\omega ui + d(u))t - 2\\ln\\left(\\frac{c(u)e^{d(u)t} - 1}{c(u) - 1}\\right) \\right)\\\\
+ * D(t, u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\omega^2}\\left(\\frac{e^{d(u)t} - 1}{c(u)e^{d(u)t} - 1}\\right)\\\\ 
+ * c(u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\kappa - \\rho \\omega ui - d(u)}\\\\
+ * \\text{and}\\\\
+ * d(u) &= \\sqrt{(\\rho \\omega ui - \\kappa)^2 + iu\\omega^2 + \\omega^2 u^2}
+ * \\end{align*}
+ * }
  */
 public class HestonCharacteristicExponent implements CharacteristicExponent {
   private final double _kappa;
@@ -33,11 +53,11 @@ public class HestonCharacteristicExponent implements CharacteristicExponent {
 
   /**
    * 
-   * @param kappa mean reverting speed 
-   * @param theta mean reverting level 
-   * @param vol0 starting value of vol
-   * @param omega vol-of-vol
-   * @param rho correlation 
+   * @param kappa mean-reverting speed 
+   * @param theta mean-reverting level 
+   * @param vol0 starting value of volatility
+   * @param omega volatility-of-volatility
+   * @param rho correlation between the spot process and the volatility process
    */
   //TODO check value of rho?
   public HestonCharacteristicExponent(final double kappa, final double theta, final double vol0, final double omega, final double rho) {
@@ -121,51 +141,76 @@ public class HestonCharacteristicExponent implements CharacteristicExponent {
     return multiply(1, sqrt(c4));
   }
 
+  /**
+   * The maximum allowable value of {@latex.inline $alpha$} which is given by
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{align*}
+   * t &= \\omega - 2 \\kappa \\rho \\\\
+   * \\rho^* &= 1 - \\rho^2\\\\
+   * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
+   * \\alpha_{max} &= \\frac{t + r}{\\omega(\\rho^* - 1)}
+   * \\end{align*}
+   * }
+   * 
+   * @return {@latex.inline $alpha_{max}$}
+   */
   @Override
   public double getLargestAlpha() {
     return _alphaMax;
   }
 
+  /** The maximum allowable value of {@latex.inline $alpha$} which is given by
+  * {@latex.ilb %preamble{\\usepackage{amsmath}}
+  * \\begin{align*}
+  * t &= \\omega - 2 \\kappa \\rho \\\\
+  * \\rho^* &= 1 - \\rho^2\\\\
+  * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
+  * \\alpha_{min} &= \\frac{t - r}{\\omega(\\rho^* - 1)}
+  * \\end{align*}
+  * }
+  * 
+  * @return {@latex.inline $alpha_{min}$}
+  */
   @Override
   public double getSmallestAlpha() {
     return _alphaMin;
   }
 
   /**
-   * Gets the kappa field.
-   * @return the kappa
+   * Gets the mean-reverting speed.
+   * @return kappa
    */
   public double getKappa() {
     return _kappa;
   }
 
   /**
-   * Gets the theta field.
-   * @return the theta
+   * Gets the mean-reverting level.
+   * @return theta
    */
   public double getTheta() {
     return _theta;
   }
 
   /**
-   * Gets the vol0 field.
-   * @return the vol0
+   * Gets the initial volatility
+   * @return initial volatility
    */
   public double getVol0() {
     return _vol0;
   }
 
   /**
-   * Gets the omega field.
-   * @return the omega
+   * Gets the volatility-of-volatility.
+   * @return omega
    */
   public double getOmega() {
     return _omega;
   }
 
   /**
-   * Gets the rho field.
-   * @return the rho
+   * Gets the correlation.
+   * @return rho
    */
   public double getRho() {
     return _rho;

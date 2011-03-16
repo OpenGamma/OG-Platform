@@ -13,7 +13,6 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -24,6 +23,7 @@ import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.listener.MasterChangedType;
 import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -36,7 +36,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
    */
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
-  private final Map<Pair<CurrencyUnit, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<CurrencyUnit, String>, TreeMap<Instant, YieldCurveDefinition>>();
+  private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
   private final MasterChangeManager _changeManager = new BasicMasterChangeManager();  // TODO
 
   private String _identifierScheme;
@@ -64,7 +64,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
    * @return the definition, null if not found
    */
   @Override
-  public synchronized YieldCurveDefinition getDefinition(CurrencyUnit currency, String name) {
+  public synchronized YieldCurveDefinition getDefinition(Currency currency, String name) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     final TreeMap<Instant, YieldCurveDefinition> definitions = _definitions.get(Pair.of(currency, name));
@@ -91,7 +91,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
    * @return the definition, null if not found
    */
   @Override
-  public YieldCurveDefinition getDefinition(CurrencyUnit currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
     throw new UnsupportedOperationException();
   }
 
@@ -108,9 +108,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized YieldCurveDefinitionDocument add(YieldCurveDefinitionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
-    final CurrencyUnit currency = document.getYieldCurveDefinition().getCurrency();
+    final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final Pair<CurrencyUnit, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pair.of(currency, name);
     if (_definitions.containsKey(key)) {
       throw new IllegalArgumentException("Duplicate definition");
     }
@@ -128,9 +128,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
-    final CurrencyUnit currency = document.getYieldCurveDefinition().getCurrency();
+    final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
-    final Pair<CurrencyUnit, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pair.of(currency, name);
     TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getCode());
     Instant now = Instant.now();
@@ -177,9 +177,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     final String name = uid.getValue().substring(0, i);
     final String iso = uid.getValue().substring(i + 1);
-    final CurrencyUnit currency;
+    final Currency currency;
     try {
-      currency = CurrencyUnit.of(iso);
+      currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
     }
@@ -207,9 +207,9 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     final String name = objectId.getValue().substring(0, i);
     final String iso = objectId.getValue().substring(i + 1);
-    final CurrencyUnit currency;
+    final Currency currency;
     try {
-      currency = CurrencyUnit.of(iso);
+      currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + objectId.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
     }
@@ -239,13 +239,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     }
     final String name = uid.getValue().substring(0, i);
     final String iso = uid.getValue().substring(i + 1);
-    final CurrencyUnit currency;
+    final Currency currency;
     try {
-      currency = CurrencyUnit.of(iso);
+      currency = Currency.of(iso);
     } catch (IllegalArgumentException e) {
       throw new DataNotFoundException("Identifier '" + uid.getValue() + "' not valid for '" + getIdentifierScheme() + "'", e);
     }
-    final Pair<CurrencyUnit, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pair.of(currency, name);
     if (_sourceVersionCorrection.getVersionAsOf() != null) {
       final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
       if (value == null) {
@@ -270,13 +270,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
   public synchronized YieldCurveDefinitionDocument update(YieldCurveDefinitionDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
-    final CurrencyUnit currency = document.getYieldCurveDefinition().getCurrency();
+    final Currency currency = document.getYieldCurveDefinition().getCurrency();
     final String name = document.getYieldCurveDefinition().getName();
     final UniqueIdentifier uid = UniqueIdentifier.of(getIdentifierScheme(), name + "_" + currency.getCode());
     if (!uid.equals(document.getUniqueId())) {
       throw new IllegalArgumentException("Invalid unique identifier");
     }
-    final Pair<CurrencyUnit, String> key = Pair.of(currency, name);
+    final Pair<Currency, String> key = Pair.of(currency, name);
     final TreeMap<Instant, YieldCurveDefinition> value = _definitions.get(key);
     if (value == null) {
       throw new DataNotFoundException("UID '" + uid + "' not found");

@@ -29,6 +29,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
@@ -314,7 +315,9 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
       ConfigDocument<Object> doc = new ConfigDocument<Object>();
-      doc.setUniqueId(createUniqueIdentifier(docOid, docId));
+      UniqueIdentifier uniqueIdentifier = createUniqueIdentifier(docOid, docId);
+      doc.setUniqueId(uniqueIdentifier);
+      UniqueIdentifiables.setInto(value, uniqueIdentifier);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

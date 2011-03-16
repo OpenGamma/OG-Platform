@@ -1,7 +1,15 @@
+/**
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.finiteDifference;
 
 import com.opengamma.math.cube.Cube;
 
+/**
+ * 
+ */
 public class ExplicitFiniteDifference2D {
 
   public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, BoundaryCondition xLowerBoundary,

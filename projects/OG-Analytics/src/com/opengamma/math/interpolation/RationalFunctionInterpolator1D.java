@@ -15,6 +15,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+  private static final long serialVersionUID = 1L;
   private final int _degree;
 
   public RationalFunctionInterpolator1D(final int degree) {
