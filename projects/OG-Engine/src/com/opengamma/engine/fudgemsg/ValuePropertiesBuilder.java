@@ -34,6 +34,7 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
 
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final ValueProperties object) {
+    //TODO handle NearlyInfiniteValueProperties
     final MutableFudgeFieldContainer message = context.newMessage();
     if (!object.isEmpty()) {
       if (object.getProperties().isEmpty()) {
