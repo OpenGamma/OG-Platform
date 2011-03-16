@@ -86,6 +86,15 @@ public class CouponFloatingDefinition extends CouponDefinition {
   }
 
   @Override
+  public String toString() {
+    String result = super.toString() + ", Fixing date = " + _fixingDate + ", is fixed: " + _isFixed;
+    if (_isFixed) {
+      result += ", Fixed rate = " + _fixedRate;
+    }
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

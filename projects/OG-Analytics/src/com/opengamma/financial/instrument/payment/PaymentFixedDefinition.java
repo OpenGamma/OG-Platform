@@ -15,7 +15,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
@@ -70,7 +69,12 @@ public class PaymentFixedDefinition extends PaymentDefinition {
   }
 
   @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+  public String toString() {
+    return super.toString() + "Amount = " + _amount;
+  }
+
+  @Override
+  public PaymentFixed toDerivative(LocalDate date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");

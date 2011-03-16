@@ -282,7 +282,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     Validate.notNull(data);
     Validate.notNull(payment);
     ParRateCalculator parRateCal = ParRateCalculator.getInstance();
-    double swapRate = parRateCal.visitFixedFloatSwap(payment.getUnderlyingSwap(), data);
+    double swapRate = parRateCal.visitFixedCouponSwap(payment.getUnderlyingSwap(), data);
     String fundingCurveName = payment.getFundingCurveName();
     final YieldAndDiscountCurve fundingCurve = data.getCurve(fundingCurveName);
     double paymentTime = payment.getPaymentTime();

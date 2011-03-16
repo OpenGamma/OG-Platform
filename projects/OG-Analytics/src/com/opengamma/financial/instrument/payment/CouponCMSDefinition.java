@@ -6,23 +6,31 @@
 package com.opengamma.financial.instrument.payment;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
+import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
 /**
  * Class describing a Constant Maturity Swap coupon.
  */
 public class CouponCMSDefinition extends CouponFloatingDefinition {
 
-  //TODO: change to a swap skeleton?
   //TODO: add a CMS index (history, ...)
-  private final FixedFloatSwapDefinition _underlyingSwap;
+  //TODO: change to a swap skeleton?
+  //TODO: change to ZZZ
+  private final ZZZSwapFixedIborDefinition _underlyingSwap;
 
   /**
    * Constructor of a CMS coupon from all the details.
@@ -35,7 +43,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
    */
   public CouponCMSDefinition(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
-      FixedFloatSwapDefinition underlyingSwap) {
+      ZZZSwapFixedIborDefinition underlyingSwap) {
     super(paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(underlyingSwap, "underlying swap");
     _underlyingSwap = underlyingSwap;
@@ -47,7 +55,7 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
    * @return The constructed CMS coupon.
    */
-  public static CouponCMSDefinition from(CouponFloatingDefinition coupon, FixedFloatSwapDefinition underlyingSwap) {
+  public static CouponCMSDefinition from(CouponFloatingDefinition coupon, ZZZSwapFixedIborDefinition underlyingSwap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
     return new CouponCMSDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingDate(),
@@ -58,8 +66,13 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
    * Gets the underlyingSwap field.
    * @return the underlyingSwap
    */
-  public FixedFloatSwapDefinition getUnderlyingSwap() {
+  public ZZZSwapFixedIborDefinition getUnderlyingSwap() {
     return _underlyingSwap;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + ", Swap = " + _underlyingSwap.toString();
   }
 
   @Override
@@ -88,20 +101,35 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     return true;
   }
 
-  //TODO: complete the below methods when the time description of CMS coupon is finished.
   @Override
   public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
-    return null;
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
+      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
+    } else { // CMS is not fixed yet, all the details are required.
+      final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+      FixedCouponSwap<Payment> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+      //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
+      //TODO: Definition has no spread and time version has one: to be standardized.
+      return new CouponCMS(paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap);
+    }
   }
 
   @Override
   public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return null;
+    return visitor.visitCouponCMS(this, data);
   }
 
   @Override
   public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    return visitor.visitCouponCMS(this);
   }
 
 }

@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -27,9 +27,21 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
  */
 public class CouponIborDefinition extends CouponFloatingDefinition {
 
+  /**
+   * Ibor-like index on which the coupon fixes.
+   */
   private final IborIndex _index;
+  /**
+   * The start date of the fixing period.
+   */
   private final ZonedDateTime _fixindPeriodStartDate;
+  /**
+   * The end date of the fixing period.
+   */
   private final ZonedDateTime _fixindPeriodEndDate;
+  /**
+   * The year fraction associated to the fixing period in the Index day count convention.
+   */
   private final double _fixingPeriodAccrualFactor;
 
   /**
@@ -70,6 +82,19 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   }
 
   /**
+   * Builder of Ibor-like coupon from an underlying coupon, the fixing date and the index. The fixing period dates are deduced from the index and the fixing date.
+   * @param coupon Underlying coupon.
+   * @param fixingDate The coupon fixing date.
+   * @param index The coupon Ibor index.
+   * @return The Ibor coupon.
+   */
+  public static CouponIborDefinition from(CouponDefinition coupon, ZonedDateTime fixingDate, IborIndex index) {
+    Validate.notNull(fixingDate, "fixing date");
+    Validate.notNull(index, "index");
+    return new CouponIborDefinition(coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index);
+  }
+
+  /**
    * Gets the index field.
    * @return the index
    */
@@ -99,6 +124,11 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    */
   public double getFixingPeriodAccrualFactor() {
     return _fixingPeriodAccrualFactor;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + ", Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override
@@ -145,10 +175,11 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
     Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
+    final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The Ibor coupon has already fixed, it is now a fixed coupon.
@@ -159,7 +190,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
       //TODO: Definition has no spread and time version has one: to be standardized.
       return new CouponIbor(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(),
-          fundingCurveName);
+          forwardCurveName);
     }
   }
 

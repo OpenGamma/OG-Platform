@@ -13,50 +13,31 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
  * 
  */
 public class PaymentFixed extends Payment {
-  //  private final double _time;
-  //  private final String _fundingCurveName;
   private final double _amount;
 
   public PaymentFixed(final double paymentTime, final double paymentAmount, final String fundingCurve) {
     super(paymentTime, fundingCurve);
     Validate.notNull(fundingCurve);
-    //    _time = paymentTime;
     _amount = paymentAmount;
-    //    _fundingCurveName = fundingCurve;
   }
-
-  //  @Override
-  //  public String getFundingCurveName() {
-  //    return _fundingCurveName;
-  //  }
 
   public double getAmount() {
     return _amount;
   }
-
-  //  @Override
-  //  public double getPaymentTime() {
-  //    return _time;
-  //  }
-
-  //  @Override
-  //  public int hashCode() {
-  //    final int prime = 31;
-  //    int result = 1;
-  //    long temp;
-  //    temp = Double.doubleToLongBits(_amount);
-  //    result = prime * result + (int) (temp ^ (temp >>> 32));
-  //    result = prime * result + _fundingCurveName.hashCode();
-  //    temp = Double.doubleToLongBits();
-  //    result = prime * result + (int) (temp ^ (temp >>> 32));
-  //    return result;
-  //  }
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFixedPayment(this, data);
   }
 
+  @Override
+  public String toString() {
+    return super.toString() + ", amount = " + _amount;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -67,6 +48,9 @@ public class PaymentFixed extends Payment {
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

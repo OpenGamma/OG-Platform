@@ -142,7 +142,10 @@ public class IborIndex {
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
-    if (!ObjectUtils.equals(_endOfMonth, other._endOfMonth)) {
+    if (_endOfMonth != other._endOfMonth) {
+      return false;
+    }
+    if (_settlementDays != other._settlementDays) {
       return false;
     }
     if (!ObjectUtils.equals(_tenor, other._tenor)) {

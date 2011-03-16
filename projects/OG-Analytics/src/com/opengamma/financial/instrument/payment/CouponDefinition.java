@@ -7,6 +7,7 @@ package com.opengamma.financial.instrument.payment;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 /**
@@ -97,6 +98,58 @@ public abstract class CouponDefinition extends PaymentDefinition {
    */
   public double getNotional() {
     return _notional;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + ", Coupon period = [" + _accrualStartDate.toString() + " - " + _accrualEndDate.toString() + " - " + _paymentYearFraction + "], Notional = " + _notional;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _accrualEndDate.hashCode();
+    result = prime * result + _accrualStartDate.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_notional);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_paymentYearFraction);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CouponDefinition other = (CouponDefinition) obj;
+    if (!ObjectUtils.equals(_accrualEndDate, other._accrualEndDate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_accrualStartDate, other._accrualStartDate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_paymentYearFraction) != Double.doubleToLongBits(other._paymentYearFraction)) {
+      return false;
+    }
+    return true;
   }
 
 }
