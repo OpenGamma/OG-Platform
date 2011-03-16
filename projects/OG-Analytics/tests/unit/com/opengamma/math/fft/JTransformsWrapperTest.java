@@ -193,10 +193,10 @@ public class JTransformsWrapperTest {
       realTransform[i] = transform[i].getReal();
       assertComplexEquals(transform[i], transformFull[i]);
     }
-    final ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DReal(realTransform, true);
-    for (final ComplexNumber element : inverse) {
+    //final ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DReal(realTransform, true);
+    //for (final ComplexNumber element : inverse) {
       // TODO fix test assertEquals(inverse[i].getReal(), A[i], EPS);
-    }
+    //}
   }
 
   // @Test

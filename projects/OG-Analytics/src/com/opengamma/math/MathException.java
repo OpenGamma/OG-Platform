@@ -9,6 +9,7 @@ package com.opengamma.math;
  * 
  */
 public class MathException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public MathException() {
     super();

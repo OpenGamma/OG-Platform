@@ -8,8 +8,8 @@ package com.opengamma.math.curve;
 import com.opengamma.math.function.Function;
 
 /**
- * Given an array of curves, returns a function {@link Function} that will apply the spread operation to 
- * each of the curves for the input value.
+ * Given an array of curves, returns a function {@link Function} that will apply a spread operation to 
+ * each of the curves.
  */
 public interface CurveSpreadFunction extends Function<Curve<Double, Double>, Function<Double, Double>> {
 

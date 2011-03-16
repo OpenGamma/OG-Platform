@@ -15,6 +15,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DCubicSplineDataBundle
  * 
  */
 public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolator1DCubicSplineDataBundle> {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public Double interpolate(final Interpolator1DCubicSplineDataBundle data, final Double value) {

@@ -19,6 +19,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * / (x<sub>2</sub> - x<sub>1</sub>)</i>
  */
 public class LinearInterpolator1D extends Interpolator1D<Interpolator1DDataBundle> {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle model, final Double value) {

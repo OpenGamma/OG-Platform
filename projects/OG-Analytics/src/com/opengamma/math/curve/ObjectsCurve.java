@@ -19,16 +19,25 @@ import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+/**
+ * Parent class for a family of curves that can have any time of data on the <i>x</i> and <i>y</i> axes, provided that the <i>x</i> data is {@link Comparable}. 
+ * It is possible to construct a curve using either unsorted (in <i>x</i>) data or sorted (ascending in <i>x</i>). Note that if the constructor 
+ * is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
  * @param <T> The type of the x data
  * @param <U> The type of the y data
  */
-public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curve<T, U> {
+public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, U> {
   private final int _n;
   private final T[] _xData;
   private final U[] _yData;
 
-  public ObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted) {
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
+  public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -47,8 +56,13 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  /**
+   * 
+   * @param data A map of <i>x-y</i> data, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final Map<T, U> data, final boolean isSorted) {
+  public ObjectsCurve(final Map<T, U> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
     Validate.noNullElements(data.keySet(), "x values");
@@ -62,8 +76,13 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  /**
+   * 
+   * @param data A set of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
+  public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
     _n = data.size();
@@ -82,8 +101,14 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  /**
+   * 
+   * @param xData A list of <i>x</i> data points, assumed to be sorted ascending, not null
+   * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
+  public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -96,7 +121,14 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
-  public ObjectObjectCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
+  public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     _n = xData.length;
@@ -109,8 +141,14 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  /**
+   * 
+   * @param data A map of <i>x-y</i> data, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final Map<T, U> data, final boolean isSorted, final String name) {
+  public ObjectsCurve(final Map<T, U> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
     Validate.noNullElements(data.keySet(), "x values");
@@ -125,8 +163,14 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
 
   }
 
+  /**
+   * 
+   * @param data A set of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
+  public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
     _n = data.size();
@@ -146,8 +190,15 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     }
   }
 
+  /**
+   * 
+   * @param xData A list of <i>x</i> data, not null
+   * @param yData A list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   @SuppressWarnings("unchecked")
-  public ObjectObjectCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
+  public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
     Validate.notNull(yData, "y data");
@@ -195,7 +246,7 @@ public abstract class ObjectObjectCurve<T extends Comparable<T>, U> extends Curv
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ObjectObjectCurve<?, ?> other = (ObjectObjectCurve<?, ?>) obj;
+    final ObjectsCurve<?, ?> other = (ObjectsCurve<?, ?>) obj;
     return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
   }
 

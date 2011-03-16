@@ -110,6 +110,7 @@ public class CEVPriceFunctionTest {
       double f = 350.0 + 1.0*i;
       final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, volBeta, beta);
       double cevPrice =CEV.getPriceFunction(option).evaluate(cevData);
+      @SuppressWarnings("unused")
       double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
       
       // System.out.println(f +"\t"+cevPrice+"\t"+cevVol);

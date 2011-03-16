@@ -299,6 +299,7 @@ public class FFTPricerTest {
     for (int i = 0; i < 101; i++) {
       final double x = -10.0 + 20.0 * i / 100;
       final ComplexNumber z = new ComplexNumber(x, -1.5);
+      @SuppressWarnings("unused")
       final ComplexNumber u = callFT.evaluate(z);
       //System.out.println(x + "\t" + u.getReal() + "\t" + u.getImaginary());
     }

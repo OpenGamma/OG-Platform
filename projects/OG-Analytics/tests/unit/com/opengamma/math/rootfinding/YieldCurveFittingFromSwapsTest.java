@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -48,13 +49,20 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
+  private static final Logger LOGGER = LoggerFactory.getLogger(YieldCurveFittingFromSwapsTest.class);
+  private static final int WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
 
-  public YieldCurveFittingFromSwapsTest() {
-    _logger = LoggerFactory.getLogger(YieldCurveFittingFromSwapsTest.class);
-
-    _hotspotWarmupCycles = 0;
-    _benchmarkCycles = 1;
-
+  protected Logger getLogger() {
+    return LOGGER;
+  }
+  
+  protected int getWarmupCycles() {
+    return WARMUP_CYCLES;
+  }
+  
+  protected int getBenchmarkCycles() {
+    return BENCHMARK_CYCLES;
   }
 
   @Before

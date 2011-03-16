@@ -12,8 +12,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- * This is the form given in Obloj, Fine-Tune Your Simle (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
- * @see SABRFormulaBerestycki   
+ * This is the form given in Obloj, Fine-Tune Your Smile (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
+ * {@link SABRBerestyckiVolatilityFunction}   
  */
 public class SABRHaganAlternativeVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
