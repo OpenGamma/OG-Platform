@@ -129,6 +129,12 @@
     <ClInclude Include="com_opengamma_language_procedure_Definition.h">
       <Filter>Header Files\Fudge</Filter>
     </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Invoke.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Result.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -225,6 +231,12 @@
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_definition_Parameter.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Invoke.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Result.c">
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
   </ItemGroup>

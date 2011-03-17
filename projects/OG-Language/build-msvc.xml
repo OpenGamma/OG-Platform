@@ -43,7 +43,7 @@
 	<target name="run-mstest">
 		<mkdir dir="${tests.results.dir}" />
 		<delete file="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
-		<exec executable="mstest" failonerror="false">
+		<exec executable="mstest" failonerror="true">
 			<arg value="/testcontainer:${build.dir}\${msbuild.config}${msbuild.platform}\${ant.project.name}.dll" />
 			<arg value="/resultsfile:${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
 			<arg value="/detail:stdout" />

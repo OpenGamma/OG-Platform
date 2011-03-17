@@ -20,8 +20,8 @@ LOGGING (com.opengamma.language.connector.OverlappedTest);
 #define RETRIES				10
 
 static CConnector *g_poConnector;
-static int g_tOverlappedQuery = 0;
-static int g_tInlineQuery = 0;
+static double g_tOverlappedQuery = 0;
+static double g_tInlineQuery = 0;
 
 static void StartConnector () {
 	g_poConnector = CConnector::Start (TEST_LANGUAGE);
