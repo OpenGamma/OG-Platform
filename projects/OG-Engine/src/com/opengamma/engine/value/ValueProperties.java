@@ -215,7 +215,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * A value properties implementation holding a set of properties.
    */
-  private static final class ValuePropertiesImpl extends ValueProperties {
+  public static final class ValuePropertiesImpl extends ValueProperties {
     /**
      * The properties.
      */
@@ -455,11 +455,21 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * A value properties implementation representing a nearly infinite property set.
    */
-  private static final class NearlyInfinitePropertiesImpl extends ValueProperties {
+  public static final class NearlyInfinitePropertiesImpl extends ValueProperties {
     /**
      * The set of properties not included.
      */
     private final Set<String> _without;
+
+    
+    
+    /**
+     * Gets the properties not included
+     * @return the properties not included
+     */
+    public Set<String> getWithout() {
+      return _without;
+    }
 
     /**
      * Creates an instance.
@@ -597,8 +607,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
   /**
    * A value properties implementation representing an infinite property set.
    */
-  private static final class InfinitePropertiesImpl extends ValueProperties {
+  public static final class InfinitePropertiesImpl extends ValueProperties {
 
+    /**
+     * Creates an instance.
+     */
+    private InfinitePropertiesImpl() {
+    }
+    
     @Override
     public ValueProperties compose(final ValueProperties properties) {
       // Composition yields the infinite set

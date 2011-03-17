@@ -23,6 +23,11 @@ public class ValuePropertiesBuilderTest extends AbstractBuilderTestCase {
   public void testAllProperties() {
     assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.all());
   }
+  
+  @Test
+  public void testNearlyAllProperties() {//PLAT-1126
+    assertEncodeDecodeCycle(ValueProperties.class, ValueProperties.all().withoutAny("SomeProp"));
+  }
 
   @Test
   public void testValues() {
