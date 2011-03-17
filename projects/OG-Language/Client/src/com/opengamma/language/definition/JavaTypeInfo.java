@@ -41,9 +41,7 @@ public final class JavaTypeInfo {
         throw new IllegalStateException();
       }
       if (defaultValue == null) {
-        if (!_allowNull) {
-          throw new IllegalArgumentException();
-        }
+        _allowNull = true;
       } else {
         if (!_rawClass.isAssignableFrom(defaultValue.getClass())) {
           throw new IllegalArgumentException();
