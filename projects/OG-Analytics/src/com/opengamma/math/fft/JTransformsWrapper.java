@@ -16,19 +16,28 @@ import com.opengamma.math.number.ComplexNumber;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 
 /**
- * Wrapper class for 1D FFTs.
+ * Class wrapping the 1D FFT methods of the JTransforms library.
  */
 public class JTransformsWrapper {
   // TODO this needs to be changed
   private static final Map<Integer, DoubleFFT_1D> CACHE_1D = new HashMap<Integer, DoubleFFT_1D>();
 
   /**
-   * The forward discrete Fourier transform (DFT). <b>Note:</b> In this definition -i appears in the exponential rather than the normal i. <br/>
-   * If z is a array of N complex values sampled at intervals of Delta from a function h(t), then the transform H(f) = int^{infty}_{-infty} exp(-i*2*pi*f*t)h(t)dt is sampled at N points at intervals
-   * of 1/(N*Delta). The first N/2+1 values  (i = 0 to N/2) are f = i/(N*Delta), while the values i = N/2 to N - 1 are f = (i-N)/(N*Delta) (i.e. the negative frequencies with 
-   *  H(1/(2*Delta)) = H(-1/(2*Delta))).
+   * The forward discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $-i$} appears in the exponential rather than {@latex.inline $i$}. 
+   * <p>
+   * If {@latex.inline $z$} is an array of {@latex.inline $N$} complex values sampled at intervals {@latex.inline $\\Delta$} from a function {@latex.inline $h(t)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $H(f) = \\int^{\\infty}_{-\\infty} e^{-2i\\pi f t} h(t) dt$
+   * }
+   * is sampled at {@latex.inline $N$} points at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}. 
+   * <p>
+   * The first {@latex.inline $\\frac{N}{2} + 1$} 
+   * values ({@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2}$}) are {@latex.inline $f = \\frac{i}{N\\Delta}$}, while the values 
+   * {@latex.inline $i = \\frac{N}{2}$} to {@latex.inline $N - 1$} are {@latex.inline $f = \\frac{i-N}{N \\Delta}$} (i.e. negative frequencies with 
+   * {@latex.inline $H(\\frac{1}{2 \\Delta}) = H(\\frac{-1}{2 \\Delta})$}).
    * @param z Array of N complex values
-   * @return  Array of N complex values 
+   * @return The Fourier transform of the array
    */
   public static ComplexNumber[] transform1DComplex(final ComplexNumber[] z) {
     Validate.notNull(z, "array of complex number");
@@ -44,13 +53,21 @@ public class JTransformsWrapper {
   }
 
   /**
-   * The backward discrete Fourier transform (DFT). <b>Note:</b> In this definition i appears in the exponential rather than the normal -i. <br/>
-   * If z is a array of N complex values sampled at intervals of delta from a function H(f), then the transform h(t) = int^{infty}_{-infty} exp(i*2*pi*f*t)H(f)df is sampled at N points at intervals
-   * of 1/(N*delta). The first N/2+1 values  (i = 0 to N/2) are t = i/(N*delta), while the values i = N/2 to N - 1 are t = (i-N)/(N*delta) (i.e. the negative times with 
-   *  h(1/(2*delta)) = h(-1/(2*delta))).
+   * The inverse (backward) discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $i$} appears in the exponential rather than {@latex.inline $-i$}.
+   * <p>
+   * If {@latex.inline $z$} is a array of {@latex.inline $N$} complex values sampled at intervals {@latex.inline $\\Delta$} from a function {@latex.inline $H(f)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $h(t) = \\int^{\\infty}_{-\\infty} e^{2i\\pi f t} H(f) df$
+   * }
+   * is sampled at {@latex.inline $N$} at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}. 
+   * <p>
+   * The first {@latex.inline $\\frac{N}{2} + 1$} values ({@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2}$}) are {@latex.inline $t = \\frac{i}{N\\Delta}$}, while the values 
+   * {@latex.inline $i = \\frac{N}{2}$} to {@latex.inline $N - 1$} are {@latex.inline $t = \\frac{i-N}{N\\Delta}$} (i.e. negative times with 
+   * {@latex.inline $h(\\frac{1}{2\\Delta}) = h(\\frac{-1}{2\\Delta})$}).
    * @param z Array of N complex values
-   * @param scale Scale the output by 1/N 
-   * @return  Array of N complex values 
+   * @param scale Scale the output by {@latex.inline $\\frac{1}{N}$} 
+   * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] inverseTransform1DComplex(final ComplexNumber[] z, final boolean scale) {
     Validate.notNull(z, "array of complex number");
@@ -66,12 +83,23 @@ public class JTransformsWrapper {
   }
 
   /**
-   * The forward discrete Fourier transform (DFT). <b>Note:</b> In this definition -i appears in the exponential rather than the normal i. <br/>
-   * If h is a array of N real values sampled at intervals of Delta from a function h(t), then the transform H(f) = int^{infty}_{-infty} exp(-i*2*pi*f*t)h(t)dt is sampled at N points at intervals
-   * of 1/(N*Delta). The first N/2+1 values  (i = 0 to N/2) are f = i/(N*Delta), while the values i = N/2 to N - 1 are f = (i-N)/(N*Delta) (i.e. the negative frequencies with 
-   *  H(1/(2*Delta)) = H(-1/(2*Delta))). Since h(t) is real, H(f) = H(-f)*, so the second half of the array (negative values of f) are superfluous  
+   * The forward discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $-i$} appears in the exponential rather than {@latex.inline $i$}. 
+   * <p>
+   * If {@latex.inline $z$} is an array of {@latex.inline $N$} complex values sampled at intervals {@latex.inline $\\Delta$} from a function {@latex.inline $h(t)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $H(f) = \\int^{\\infty}_{-\\infty} e^{-2i\\pi f t} h(t) dt$
+   * }
+   * is sampled at {@latex.inline $N$} points at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}. 
+   * <p>
+   * The first {@latex.inline $\\frac{N}{2} + 1$} 
+   * values ({@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2}$}) are {@latex.inline $f = \\frac{i}{N\\Delta}$}, while the values 
+   * {@latex.inline $i = \\frac{N}{2}$} to {@latex.inline $N - 1$} are {@latex.inline $f = \\frac{i-N}{N\\Delta}$} (i.e. negative frequencies with 
+   * {@latex.inline $H(\\frac{1}{2\\Delta}) = H(\\frac{-1}{2\\Delta})$}).
+   * <p>
+   * As {@latex.inline $h(t)$} is real, {@latex.inline $H(f) = H(-f)^*$}, so the second half of the array (negative values of f) are superfluous.
    * @param h Array of N real values
-   * @return  Array of N complex values 
+   * @return The Fourier transform of the array
    */
   public static ComplexNumber[] fullTransform1DReal(final double[] h) {
     Validate.notNull(h, "array of doubles");
@@ -88,13 +116,23 @@ public class JTransformsWrapper {
   }
 
   /**
-   * The backward discrete Fourier transform (DFT). <b>Note:</b> In this definition i appears in the exponential rather than the normal -i. <br/>
-   * If x is a array of N real values sampled at intervals of delta from a function H(f), then the transform h(t) = int^{infty}_{-infty} exp(i*2*pi*f*t)H(f)df is sampled at N points at intervals
-   * of 1/(N*delta). The first N/2+1 values  (i = 0 to N/2) are t = i/(N*delta), while the values i = N/2 to N - 1 are t = (i-N)/(N*delta) (i.e. the negative times with 
-   *  h(1/(2*delta)) = h(-1/(2*delta))). Since H(f) is real, h(t) = h(-t)*, so the second half of the array (negative values of t) are superfluous  
+   * The inverse (backward) discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $i$} appears in the exponential rather than {@latex.inline $-i$}.
+   * <p>
+   * If {@latex.inline $z$} is a array of {@latex.inline $N$} complex values sampled at intervals {@latex.inline $\\Delta$} from a function {@latex.inline $H(f)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $h(t) = \\int^{\\infty}_{-\\infty} e^{2i\\pi f t} H(f) df$
+   * }
+   * is sampled at {@latex.inline $N$} at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}. 
+   * <p>
+   * The first {@latex.inline $\\frac{N}{2} + 1$} values ({@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2}$}) are {@latex.inline $t = \\frac{i}{N\\Delta}$}, while the values 
+   * {@latex.inline $i = \\frac{N}{2}$} to {@latex.inline $N - 1$} are {@latex.inline $t = \\frac{i-N}{N\\Delta}$} (i.e. negative times with 
+   * {@latex.inline $h(\\frac{1}{2\\Delta}) = h(\\frac{-1}{2\\Delta})$}).
+   * <p> 
+   * As {@latex.inline $H(f)$} is real, {@latex.inline $h(t) = h(-t)^*$}, so the second half of the array (negative values of t) are superfluous. 
    * @param x Array of N real values
-   * @param scale Scale the output by 1/N 
-   * @return  Array of N complex values 
+   * @param scale Scale the output by {@latex.inline $\\frac{1}{N}$} 
+   * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] fullInverseTransform1DReal(final double[] x, final boolean scale) {
     Validate.notNull(x, "array of doubles");
@@ -111,11 +149,19 @@ public class JTransformsWrapper {
   }
 
   /**
-   * The forward discrete Fourier transform (DFT). <b>Note:</b> In this definition -i appears in the exponential rather than the normal i. 
-   * If h is a array of N real values sampled at intervals of Delta from a function h(t), then the transform H(f) = int^{infty}_{-infty} exp(-i*2*pi*f*t)h(t)dt is sampled at N/2 points at intervals
-   * of 1/(N*Delta); f = i/(N*Delta) for i = 0 to N/2-1. Since h(t) is real, H(f) = H(-f)*, so the negative values of f, which would be in N/2 to N-1 of the return array are suppressed 
-   * @param h Array of N real values
-   * @return  Array of N/2 complex values 
+   * The forward discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $-i$} appears in the exponential rather than {@latex.inline $i$}. 
+   * If {@latex.inline $h$} is a array of {@latex.inline $N$} real values sampled at intervals of {@latex.inline $\\Delta$} from a function {@latex.inline $h(t)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $H(f) = \\int^{\\infty}_{-\\infty} e^{-2i\\pi f t} h(t) dt$
+   * }
+   * is sampled at {@latex.inline $\\frac{N}{2}$} points at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}, with {@latex.inline $f = \\frac{i}{N\\Delta}$} for 
+   * {@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2} - 1$}. 
+   * <p> 
+   * As {@latex.inline $h(t)$} is real, {@latex.inline $H(f) = F(-f)^*$}, so the negative values of f, which would be in {@latex.inline $\\frac{N}{2}$} to {@latex.inline $N - 1$}
+   * of the return array, are suppressed.
+   * @param h Array of {@latex.inline $N$} real values
+   * @return The Fourier transform of the array
    */
   public static ComplexNumber[] transform1DReal(final double[] h) {
     Validate.notNull(h, "array of doubles");
@@ -132,12 +178,21 @@ public class JTransformsWrapper {
   }
 
   /**
-   * The backward discrete Fourier transform (DFT). <b>Note:</b> In this definition i appears in the exponential rather than the normal -i. <br/>
-   * If x is a array of N real values sampled at intervals of delta from a function H(f), then the transform h(t) = int^{infty}_{-infty} exp(i*2*pi*f*t)H(f)df is sampled at N/2 points at intervals
-   * of 1/(N*delta); t = i/(N*delta) for i = 0 to N/2-1. Since H(f) is real, h(t) = h(-t)*, so the negative values of t, which would be in N/2 to N-1 of the return array are suppressed 
-   * @param x Array of N real values
-   * @param scale Scale the output by 1/N 
-   * @return  Array of N complex values 
+   * The backward discrete Fourier transform. <b>Note:</b> In this definition {@latex.inline $i$} appears in the exponential rather than {@latex.inline $-i$}. 
+   * <p>
+   * If {@latex.inline $x$} is a array of {@latex.inline $N$} real values sampled at intervals of {@latex.inline $\\Delta$} from a function {@latex.inline $H(f)$}, 
+   * then the transform 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}} 
+   * $h(t) = \\int^{\\infty}_{-\\infty} e^{2i\\pi f t} H(f) df$
+   * } 
+   * is sampled at {@latex.inline $\\frac{N}{2}$} points at intervals of {@latex.inline $\\frac{1}{N\\Delta}$}; {@latex.inline $t = \\frac{i}{N\\Delta}$} for
+   * {@latex.inline $i = 0$} to {@latex.inline $\\frac{N}{2} - 1$}.
+   * <p> 
+   * As {@latex.inline $H(f)$} is real, {@latex.inline $h(t) = h(-t)^*$}, so the negative values of t, which would be in {@latex.inline $\\frac{N}{2}$} to {@latex.inline $N - 1$}
+   * of the return array, are suppressed. 
+   * @param x Array of {@latex.inline $N$} real values
+   * @param scale Scale the output by {@latex.inline $\\frac{1}{N}$}
+   * @return The inverse Fourier transform of the array
    */
   public static ComplexNumber[] inverseTransform1DReal(final double[] x, final boolean scale) {
     Validate.notNull(x, "array of doubles");

@@ -47,6 +47,18 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   /**
+   * Check if the payments of an annuity is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
+   * @return The check.
+   */
+  public boolean isIborOrFixed() {
+    boolean result = true;
+    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
+      result = (result & _payments[looppayment].isIborOrFixed());
+    }
+    return result;
+  }
+
+  /**
    * Gets the payments field.
    * @return the payments
    */

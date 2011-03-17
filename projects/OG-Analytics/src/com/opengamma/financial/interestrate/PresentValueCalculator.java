@@ -187,7 +187,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(curves);
     Validate.notNull(payment);
     ParRateCalculator parRate = ParRateCalculator.getInstance();
-    double swapRate = parRate.visitFixedFloatSwap(payment.getUnderlyingSwap(), curves);
+    double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;

@@ -62,6 +62,10 @@ public final class ScheduleCalculator {
     return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
   }
 
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Period period) {
+    return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, period);
+  }
+
   /**
    * Calculates the unadjusted date schedule.
    * 
@@ -93,6 +97,30 @@ public final class ScheduleCalculator {
       throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
     }
     final Period period = periodFrequency.getPeriod();
+    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
+    date = date.plus(period);
+    while (isWithinSwapLifetime(date, maturityDate)) { // REVIEW: could speed this up by working out how many periods between start and end date?
+      dates.add(date);
+      date = date.plus(period);
+    }
+    return dates.toArray(EMPTY_ARRAY);
+  }
+
+  //TODO: add doc
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Period period) {
+    Validate.notNull(effectiveDate);
+    Validate.notNull(accrualDate);
+    Validate.notNull(maturityDate);
+    Validate.notNull(period);
+    if (effectiveDate.isAfter(maturityDate)) {
+      throw new IllegalArgumentException("Effective date was after maturity");
+    }
+    if (accrualDate.isAfter(maturityDate)) {
+      throw new IllegalArgumentException("Accrual date was after maturity");
+    }
+
+    // TODO what if there's no valid date between accrual date and maturity date?
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = effectiveDate; // TODO this is only correct if effective date = accrual date
     date = date.plus(period);

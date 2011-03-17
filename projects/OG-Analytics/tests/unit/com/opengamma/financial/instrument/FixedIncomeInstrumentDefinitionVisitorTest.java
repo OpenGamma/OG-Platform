@@ -27,6 +27,7 @@ import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -228,6 +229,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponIbor(CouponIborDefinition payment) {
       return "CouponIbor2";
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment, T data) {
+      return "CouponCMS1";
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment) {
+      return "CouponCMS2";
     }
   }
 }

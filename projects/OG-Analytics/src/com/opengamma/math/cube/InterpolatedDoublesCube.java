@@ -15,30 +15,82 @@ import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * A cube that is defined by a set of nodal points <i>(x, y, z, value)</i> and an interpolator to return values for <i>(x, y, z)</i> when they are
+ * not nodal points.
  */
 public class InterpolatedDoublesCube extends DoublesCube {
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @return An interpolated cube with automatically-generated name
+   */
   public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @return An interpolated cube with automatically-generated name
+   */
   public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
+  /**
+   * @param xData A list containing <i>x</i> data, not null 
+   * @param yData A list containing <i>y</i> data, not null, must be the same length as the <i>x</i> list
+   * @param zData A list containing <i>z</i> data, not null, must be the same length as the <i>x</i> list
+   * @param values A list containing <i>value</i> data, not null, must be the same length as the <i>x</i> list
+   * @param interpolator The interpolator, not null
+   * @return An interpolated cube with automatically-generated name
+   */
   public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator);
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   * @return An interpolated cube 
+   */  
   public static InterpolatedDoublesCube from(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   * @return An interpolated cube 
+   */ 
   public static InterpolatedDoublesCube from(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
   }
 
+  /**
+   * @param xData A list containing <i>x</i> data, not null 
+   * @param yData A list containing <i>y</i> data, not null, must be the same length as the <i>x</i> list
+   * @param zData A list containing <i>z</i> data, not null, must be the same length as the <i>x</i> list
+   * @param values A list containing <i>value</i> data, not null, must be the same length as the <i>x</i> list
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   * @return An interpolated cube 
+   */ 
   public static InterpolatedDoublesCube from(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator,
       String name) {
     return new InterpolatedDoublesCube(xData, yData, zData, values, interpolator, name);
@@ -48,6 +100,13 @@ public class InterpolatedDoublesCube extends DoublesCube {
   private final InterpolatorND _interpolator;
   private InterpolatorNDDataBundle _dataBundle;
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   */
   public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
@@ -55,6 +114,13 @@ public class InterpolatedDoublesCube extends DoublesCube {
     init();
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   */
   public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
@@ -62,6 +128,13 @@ public class InterpolatedDoublesCube extends DoublesCube {
     init();
   }
 
+  /**
+   * @param xData A list containing <i>x</i> data, not null 
+   * @param yData A list containing <i>y</i> data, not null, must be the same length as the <i>x</i> list
+   * @param zData A list containing <i>z</i> data, not null, must be the same length as the <i>x</i> list
+   * @param values A list containing <i>value</i> data, not null, must be the same length as the <i>x</i> list
+   * @param interpolator The interpolator, not null
+   */
   public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator) {
     super(xData, yData, zData, values);
     Validate.notNull(interpolator, "interpolator");
@@ -69,6 +142,14 @@ public class InterpolatedDoublesCube extends DoublesCube {
     init();
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   */  
   public InterpolatedDoublesCube(double[] xData, double[] yData, double[] zData, double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");
@@ -76,6 +157,14 @@ public class InterpolatedDoublesCube extends DoublesCube {
     init();
   }
 
+  /**
+   * @param xData An array containing <i>x</i> data, not null 
+   * @param yData An array containing <i>y</i> data, not null, must be the same length as the <i>x</i> array
+   * @param zData An array containing <i>z</i> data, not null, must be the same length as the <i>x</i> array
+   * @param values An array containing <i>value</i> data, not null, must be the same length as the <i>x</i> array
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   */ 
   public InterpolatedDoublesCube(Double[] xData, Double[] yData, Double[] zData, Double[] values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");
@@ -83,6 +172,14 @@ public class InterpolatedDoublesCube extends DoublesCube {
     init();
   }
 
+  /**
+   * @param xData A list containing <i>x</i> data, not null 
+   * @param yData A list containing <i>y</i> data, not null, must be the same length as the <i>x</i> list
+   * @param zData A list containing <i>z</i> data, not null, must be the same length as the <i>x</i> list
+   * @param values A list containing <i>value</i> data, not null, must be the same length as the <i>x</i> list
+   * @param interpolator The interpolator, not null
+   * @param name The name of the cube
+   */ 
   public InterpolatedDoublesCube(List<Double> xData, List<Double> yData, List<Double> zData, List<Double> values, InterpolatorND<? extends InterpolatorNDDataBundle> interpolator, String name) {
     super(xData, yData, zData, values, name);
     Validate.notNull(interpolator, "interpolator");

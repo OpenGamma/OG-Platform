@@ -1,17 +1,25 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 
 /**
  * Class describing a Constant Maturity Swap coupon.
  */
 public class CouponCMS extends CouponFloating {
 
-  private final FixedFloatSwap _underlyingSwap;
+  /**
+   * Swap underlying the CMS definition. The rate and notional are not used. The swap should be of vanilla type.
+   */
+  private final FixedCouponSwap<? extends Payment> _underlyingSwap;
 
   /**
    * Constructor from floating coupon details and underlying swap.
@@ -19,11 +27,12 @@ public class CouponCMS extends CouponFloating {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
-   * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
+   * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
    */
-  public CouponCMS(double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedFloatSwap underlyingSwap) {
+  public CouponCMS(double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap) {
     super(paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap, "underlying swap");
+    Validate.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
     _underlyingSwap = underlyingSwap;
   }
 
@@ -33,7 +42,7 @@ public class CouponCMS extends CouponFloating {
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
    * @return The CMS coupon.
    */
-  public static CouponCMS from(CouponFloating coupon, FixedFloatSwap underlyingSwap) {
+  public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
     return new CouponCMS(coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap);
@@ -43,7 +52,7 @@ public class CouponCMS extends CouponFloating {
    * Gets the _underlyingSwap field.
    * @return the _underlyingSwap
    */
-  public FixedFloatSwap getUnderlyingSwap() {
+  public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
     return _underlyingSwap;
   }
 

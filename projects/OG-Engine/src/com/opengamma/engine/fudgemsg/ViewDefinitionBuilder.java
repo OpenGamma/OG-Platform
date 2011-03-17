@@ -47,6 +47,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
   private static final String SECURITY_TYPE_FIELD = "securityType";
   private static final String PORTFOLIO_REQUIREMENT_FIELD = "portfolioRequirement";
+  private static final String PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD = "requiredOutput";
+  private static final String PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD = "constraints";
+  
   private static final String SPECIFIC_REQUIREMENT_FIELD = "specificRequirement";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
@@ -59,6 +62,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     // - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
     // both at once.
     MutableFudgeFieldContainer message = context.newMessage();
+    
+    FudgeSerializationContext.addClassHeader(message, viewDefinition.getClass());
+    
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
@@ -90,8 +96,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         MutableFudgeFieldContainer securityTypeRequirementsMsg = context.newMessage();
         securityTypeRequirementsMsg.add(SECURITY_TYPE_FIELD, securityTypeRequirements.getKey());
         for (Pair<String, ValueProperties> requirement : securityTypeRequirements.getValue()) {
-          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, requirement.getFirst());
-          // TODO put the value constraints into the message if they're specified
+          MutableFudgeFieldContainer reqMsg = context.newMessage();
+          reqMsg.add(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD, requirement.getFirst());
+          context.objectToFudgeMsg(reqMsg, PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD, null, requirement.getSecond());
+          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, reqMsg);
         }
         calcConfigMsg.add(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, securityTypeRequirementsMsg);
       }
@@ -146,8 +154,11 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         String securityType = securityTypeRequirementsMsg.getString(SECURITY_TYPE_FIELD);
         Set<Pair<String, ValueProperties>> requirements = new HashSet<Pair<String, ValueProperties>>();
         for (FudgeField requirement : securityTypeRequirementsMsg.getAllByName(PORTFOLIO_REQUIREMENT_FIELD)) {
-          // TODO fetch the value constraints from the message
-          requirements.add(Pair.of((String) requirement.getValue(), ValueProperties.none()));
+          FudgeFieldContainer reqMsg = (FudgeFieldContainer) requirement.getValue();
+
+          String requiredOutput = reqMsg.getString(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD);
+          ValueProperties constraints = (ValueProperties) context.fieldValueToObject(ValueProperties.class, reqMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
+          requirements.add(Pair.of(requiredOutput, constraints));
         }
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }
