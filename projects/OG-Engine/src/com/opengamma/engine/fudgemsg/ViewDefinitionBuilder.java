@@ -62,6 +62,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     // - There's a cycle of references between ViewDefinition and ViewCalculationConfiguration, so we have to handle
     // both at once.
     MutableFudgeFieldContainer message = context.newMessage();
+    
+    FudgeSerializationContext.addClassHeader(message, viewDefinition.getClass());
+    
     message.add(NAME_FIELD, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
