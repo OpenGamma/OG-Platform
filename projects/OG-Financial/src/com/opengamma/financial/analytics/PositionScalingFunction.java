@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -25,6 +24,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.util.money.Currency;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
@@ -92,7 +92,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
     } else if (value instanceof YieldCurveNodeSensitivityDataBundle) {
       final YieldCurveNodeSensitivityDataBundle nodeSensitivities = (YieldCurveNodeSensitivityDataBundle) value;
       final double quantity = target.getPosition().getQuantity().doubleValue();
-      final CurrencyUnit ccy = nodeSensitivities.getCurrency();
+      final Currency ccy = nodeSensitivities.getCurrency();
       final String name = nodeSensitivities.getYieldCurveName();
       final DoubleLabelledMatrix1D m = nodeSensitivities.getLabelledMatrix();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);

@@ -8,14 +8,9 @@ package com.opengamma.util.timeseries;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import org.junit.Ignore;
-
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class LocalDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<LocalDate> {
   @Override
   public LocalDate[] testTimes() {

@@ -1,0 +1,14 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+ 
+/**
+ * Introduce the Currency element as a Fudge-Proto identifier.
+ */
+namespace com.opengamma.util.money {
+
+  extern typedef Currency = string;
+
+}

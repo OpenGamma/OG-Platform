@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import com.opengamma.core.common.CurrencyUnit;
+import com.opengamma.util.money.Currency;
 
 /**
  * Specification for a volatility surface - contains all available points on the surface.
@@ -13,9 +13,9 @@ import com.opengamma.core.common.CurrencyUnit;
 public class VolatilitySurfaceSpecification {
   private SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private String _name;
-  private CurrencyUnit _currency;
+  private Currency _currency;
 
-  public VolatilitySurfaceSpecification(String name, CurrencyUnit currency, SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
+  public VolatilitySurfaceSpecification(String name, Currency currency, SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     _name = name;
     _currency = currency;
     _surfaceInstrumentProvider = surfaceInstrumentProvider;
@@ -29,7 +29,7 @@ public class VolatilitySurfaceSpecification {
     return _name;
   }
   
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
   

@@ -13,9 +13,13 @@ import javax.time.InstantProvider;
 
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -39,11 +43,19 @@ import com.opengamma.util.PublicSPI;
  * This may continue, with multiple corrections allowed for each version.
  * <p>
  * Versions and corrections are represented by instants in the search.
+ * 
+ * @param <T>  the configuration element type
  */
 @PublicSPI
 @BeanDefinition
-public class ConfigHistoryRequest extends AbstractHistoryRequest {
+public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
 
+  /**
+   * The class of the configuration.
+   */
+  @PropertyDefinition
+  private Class<T> _type;
+  
   /**
    * Creates an instance.
    * The object identifier must be added before searching.
@@ -57,9 +69,12 @@ public class ConfigHistoryRequest extends AbstractHistoryRequest {
    * This will retrieve all versions and corrections unless the relevant fields are set.
    * 
    * @param objectId  the object identifier, not null
+   * @param type the type of the configuration, not null
    */
-  public ConfigHistoryRequest(final ObjectIdentifiable objectId) {
+  public ConfigHistoryRequest(final ObjectIdentifiable objectId, Class<T> type) {
     super(objectId);
+    ArgumentChecker.notNull(type, "type");
+    _type = type;
   }
 
   /**
@@ -77,41 +92,81 @@ public class ConfigHistoryRequest extends AbstractHistoryRequest {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigHistoryRequest}.
+   * @param <R>  the bean's generic type
    * @return the meta-bean, not null
    */
-  public static ConfigHistoryRequest.Meta meta() {
+  @SuppressWarnings("unchecked")
+  public static <R> ConfigHistoryRequest.Meta<R> meta() {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ConfigHistoryRequest.Meta metaBean() {
+  public ConfigHistoryRequest.Meta<T> metaBean() {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
 
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case 3575610:  // type
+        return getType();
     }
     return super.propertyGet(propertyName);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case 3575610:  // type
+        setType((Class<T>) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue);
   }
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the class of the configuration.
+   * @return the value of the property
+   */
+  public Class<T> getType() {
+    return _type;
+  }
+
+  /**
+   * Sets the class of the configuration.
+   * @param type  the new value of the property
+   */
+  public void setType(Class<T> type) {
+    this._type = type;
+  }
+
+  /**
+   * Gets the the {@code type} property.
+   * @return the property, not null
+   */
+  public final Property<Class<T>> type() {
+    return metaBean().type().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ConfigHistoryRequest}.
    */
-  public static class Meta extends AbstractHistoryRequest.Meta {
+  public static class Meta<T> extends AbstractHistoryRequest.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code type} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(this, "type", (Class) Class.class);
     /**
      * The meta-properties.
      */
@@ -120,17 +175,19 @@ public class ConfigHistoryRequest extends AbstractHistoryRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("type", _type);
       _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ConfigHistoryRequest createBean() {
-      return new ConfigHistoryRequest();
+    public ConfigHistoryRequest<T> createBean() {
+      return new ConfigHistoryRequest<T>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ConfigHistoryRequest> beanType() {
-      return ConfigHistoryRequest.class;
+    public Class<? extends ConfigHistoryRequest<T>> beanType() {
+      return (Class) ConfigHistoryRequest.class;
     }
 
     @Override
@@ -139,6 +196,14 @@ public class ConfigHistoryRequest extends AbstractHistoryRequest {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code type} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Class<T>> type() {
+      return _type;
+    }
+
   }
 
   ///CLOVER:ON

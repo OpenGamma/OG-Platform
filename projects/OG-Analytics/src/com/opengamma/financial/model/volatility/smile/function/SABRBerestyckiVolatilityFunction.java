@@ -12,8 +12,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- *  This is the form given in Obloj (2008), "<it>Fine-Tune Your Smile</it>", and supposedly corresponds to that given in Berestycki (2004), 
- *  "<it>Computing the implied volatility in stochastic volatility models</it>". However, appears to be the same as Hagan's.
+ *  This is the form given in Obloj (2008), "<i>Fine-Tune Your Smile</i>", and supposedly corresponds to that given in Berestycki (2004), 
+ *  "<i>Computing the implied volatility in stochastic volatility models</i>". However, appears to be the same as Hagan's.
  */
 public class SABRBerestyckiVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;

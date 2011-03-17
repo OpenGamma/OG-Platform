@@ -23,7 +23,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
   private final LocalDate _forwardDate;
   private final BondConvention _convention;
   private final double _accruedInterestAtDelivery;
-  private static final FixedCouponPayment[] EMPTY_ARRAY = new FixedCouponPayment[0];
+  private static final CouponFixed[] EMPTY_ARRAY = new CouponFixed[0];
 
   public BondForwardDefinition(final BondDefinition underlyingBond, final LocalDate forwardDate, final BondConvention convention) {
     Validate.notNull(underlyingBond, "underlying bond");
@@ -105,7 +105,7 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
     final double timeToExpiry = repoDaycount.getDayCountFraction(settlementDate.atMidnight().atZone(TimeZone.UTC), _forwardDate.atMidnight().atZone(TimeZone.UTC));
     final LocalDate[] schedule = _underlyingBond.getSettlementDates();
     final double[] coupons = _underlyingBond.getCoupons();
-    final List<FixedCouponPayment> expiredCoupons = new ArrayList<FixedCouponPayment>();
+    final List<CouponFixed> expiredCoupons = new ArrayList<CouponFixed>();
     int i = 0;
     final double timeBetweenPeriods = 1. / _underlyingBond.getCouponsPerYear();
     final double notional = _underlyingBond.getNotional();
@@ -118,7 +118,7 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
         }
         couponDateWithZone = couponDate.atMidnight().atZone(TimeZone.UTC);
         final double period = repoDaycount.getDayCountFraction(couponDateWithZone, dateWithZone);
-        expiredCoupons.add(new FixedCouponPayment(period, notional, timeBetweenPeriods, coupons[i], yieldCurveNames[0]));
+        expiredCoupons.add(new CouponFixed(period, yieldCurveNames[0], timeBetweenPeriods, notional, coupons[i]));
       }
       i++;
     }

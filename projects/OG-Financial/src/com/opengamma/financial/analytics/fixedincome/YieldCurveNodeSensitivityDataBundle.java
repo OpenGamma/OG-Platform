@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.fixedincome;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -17,10 +17,10 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 //TODO is this needed?
 public class YieldCurveNodeSensitivityDataBundle {
   private final DoubleLabelledMatrix1D _labelledMatrix;
-  private final CurrencyUnit _currency;
+  private final Currency _currency;
   private final String _yieldCurveName;
 
-  public YieldCurveNodeSensitivityDataBundle(final CurrencyUnit currency, final DoubleLabelledMatrix1D labelledMatrix, final String yieldCurveName) {
+  public YieldCurveNodeSensitivityDataBundle(final Currency currency, final DoubleLabelledMatrix1D labelledMatrix, final String yieldCurveName) {
     Validate.notNull(labelledMatrix, "labelled matrix array");
     Validate.notNull(currency, "currency");
     Validate.notNull(yieldCurveName, "yield curve name array");
@@ -29,7 +29,7 @@ public class YieldCurveNodeSensitivityDataBundle {
     _yieldCurveName = yieldCurveName;
   }
 
-  public CurrencyUnit getCurrency() {
+  public Currency getCurrency() {
     return _currency;
   }
 

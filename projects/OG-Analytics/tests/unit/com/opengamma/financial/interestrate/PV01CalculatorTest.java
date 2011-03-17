@@ -14,12 +14,14 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -96,7 +98,7 @@ public class PV01CalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    final FixedCouponAnnuity annuity = new FixedCouponAnnuity(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
     doTest(annuity, CURVES);
   }
 
@@ -121,7 +123,8 @@ public class PV01CalculatorTest {
       spreads[i] = spread + 0.001 * i;
     }
 
-    final ForwardLiborAnnuity annuity = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME,
+        LIBOR_CURVE_NAME);
     doTest(annuity, CURVES);
 
   }
@@ -180,10 +183,10 @@ public class PV01CalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
 
-    final Swap<?, ?> swap = new TenorSwap(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     doTest(swap, CURVES);
   }
 
@@ -234,10 +237,6 @@ public class PV01CalculatorTest {
       _b = b;
       _c = c;
       _d = d;
-    }
-
-    public YieldAndDiscountCurve withParallelShift(final Double shift) {
-      return new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(_a, _b, _c, _d + shift)));
     }
 
     @Override

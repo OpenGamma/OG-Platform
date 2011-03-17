@@ -20,20 +20,21 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class EuropeanCallFourierTransform {
-  private final CharacteristicExponent1 _ce;
+  private final CharacteristicExponent _ce;
 
-  public EuropeanCallFourierTransform(final CharacteristicExponent1 ce) {
+  public EuropeanCallFourierTransform(final CharacteristicExponent ce) {
     Validate.notNull(ce, "characteristic exponent");
-    _ce = new MeanCorrectedCharacteristicExponent1(ce);
+    _ce = new MeanCorrectedCharacteristicExponent(ce);
   }
 
   public Function1D<ComplexNumber, ComplexNumber> getFunction(final double t) {
+    final Function1D<ComplexNumber, ComplexNumber> function = _ce.getFunction(t);
     return new Function1D<ComplexNumber, ComplexNumber>() {
 
       @Override
       public ComplexNumber evaluate(final ComplexNumber z) {
         @SuppressWarnings("synthetic-access")
-        final ComplexNumber num = exp(_ce.getFunction(t).evaluate(z));
+        final ComplexNumber num = exp(function.evaluate(z));
         final ComplexNumber denom = multiply(z, add(z, ComplexNumber.I));
         final ComplexNumber res = multiply(-1.0, divide(num, denom));
         return res;
@@ -45,7 +46,7 @@ public class EuropeanCallFourierTransform {
    * Gets the _ce field.
    * @return the _ce
    */
-  public CharacteristicExponent1 getCharacteristicExponent() {
+  public CharacteristicExponent getCharacteristicExponent() {
     return _ce;
   }
 

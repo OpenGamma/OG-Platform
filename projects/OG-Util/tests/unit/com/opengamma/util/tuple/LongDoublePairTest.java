@@ -5,17 +5,17 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test LongDoublePair.
  */
+@Test
 public class LongDoublePairTest {
 
-  @Test
   public void test_LongDoublePair_of() {
     LongDoublePair test = LongDoublePair.of(1L, 2.5d);
     assertEquals(Long.valueOf(1L), test.getFirst());
@@ -28,7 +28,6 @@ public class LongDoublePairTest {
     assertEquals(2.5d, test.getDoubleValue(), 1E-10);
   }
 
-  @Test
   public void testConstructionGets() {
     LongDoublePair test = new LongDoublePair(1L, 2.0d);
     assertEquals(Long.valueOf(1L), test.getFirst());
@@ -42,26 +41,25 @@ public class LongDoublePairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue() {
     LongDoublePair pair = new LongDoublePair(2L, -0.3d);
     pair.setValue(Double.valueOf(1.2d));
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_null() {
     LongDoublePair pair = new LongDoublePair(2L, -0.3d);
     pair.setValue(null);
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_primitives() {
     LongDoublePair pair = new LongDoublePair(2L, -0.3d);
     pair.setValue(1.2d);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void compareTo() {
     LongDoublePair ab = Pair.of(1L, 1.7d);
     LongDoublePair ac = Pair.of(1L, 1.9d);
@@ -80,7 +78,6 @@ public class LongDoublePairTest {
     assertTrue(ba.compareTo(ba) == 0);
   }
 
-  @Test
   public void testEquals() {
     LongDoublePair a = new LongDoublePair(1L, 2.0);
     LongDoublePair b = new LongDoublePair(1L, 3.0);
@@ -107,7 +104,6 @@ public class LongDoublePairTest {
     assertEquals(true, d.equals(d));
   }
 
-  @Test
   public void testEquals_toObjectVersion() {
     LongDoublePair a = Pair.of(1L, 1.7d);
     Pair<Long, Double> b = Pair.of(Long.valueOf(1L), Double.valueOf(1.7d));
@@ -115,7 +111,6 @@ public class LongDoublePairTest {
     assertEquals(true, b.equals(a));
   }
 
-  @Test
   public void testEquals_toObjectVersion_null() {
     Pair<Long, Double> a = Pair.of(null, Double.valueOf(1.9d));
     LongDoublePair b = Pair.of(1L, 1.7d);
@@ -125,14 +120,12 @@ public class LongDoublePairTest {
     assertEquals(true, b.equals(b));
   }
 
-  @Test
   public void testHashCode() {
     LongDoublePair a = Pair.of(1L, 1.7d);
     Pair<Long, Double> b = Pair.of(Long.valueOf(1L), Double.valueOf(1.7d));
     assertEquals(b.hashCode(), a.hashCode());
   }
 
-  @Test
   public void testHashCode_value() {
     LongDoublePair a = new LongDoublePair(1L, 2.0);
     assertEquals(a.hashCode(), a.hashCode());

@@ -10,20 +10,21 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Class representing a polynomial that has real coefficients and takes a real argument. The function is defined as:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * p(x) = a_0 + a_1 x + a_2 x^2 + \\ldots + a_{n-1} x^{n-1}
+ * \\end{align*}
+ * }
  */
 public class RealPolynomialFunction1D extends DoubleFunction1D {
   private final double[] _coefficients;
 
   /**
-   * 
-   * @param coefficients
-   *          An array of coefficients <i>a<sub>i</sub></i> specifying a
-   *          polynomial, with <br/>
-   *          <i>y = a<sub>0</sub> + a<sub>1</sub>x + ... + a<sub>n
-   *          -1</sub>x<sup>n - 1</sup></i><br/>
-   *          If a coefficient is zero, the value in the array must be zero; a
-   *          null value will throw an exception.
+   * The array of coefficients for a polynomial
+   * {@latex.inline $p(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1}$}
+   * is {@latex.inline $\\{a_0, a_1, a_2, ..., a_{n-1}\\}$}.
+   * @param coefficients The array of coefficients, not null or empty
    */
   public RealPolynomialFunction1D(final double[] coefficients) {
     Validate.notNull(coefficients);
@@ -42,6 +43,10 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
     return y;
   }
 
+  /**
+   * Returns a function representing the exact derivative of this polynomial (which is itself a polynomial).
+   * @return A function that calculates the derivative of this polynomial
+   */
   @Override
   public DoubleFunction1D derivative() {
     final int n = _coefficients.length;
@@ -52,6 +57,9 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
     return new RealPolynomialFunction1D(coefficients);
   }
 
+  /**
+   * @return The coefficients of this polynomial
+   */
   public double[] getCoefficients() {
     return _coefficients;
   }

@@ -5,8 +5,6 @@
  */
 package com.opengamma.web.config;
 
-import java.util.Map;
-
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
@@ -19,33 +17,42 @@ import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful config resources.
+ * 
  */
 public abstract class AbstractWebConfigResource extends AbstractWebResource {
 
   /**
    * The backing bean.
    */
-  private final WebConfigData<?> _data;
+  private final WebConfigData _data;
 
   /**
    * Creates the resource.
    * @param configMaster  the config master, not null
-   * @param typeMap  the map of valid types, not null
    */
-  @SuppressWarnings("rawtypes")
-  protected AbstractWebConfigResource(final ConfigMaster configMaster, final Map<String, String> typeMap) {
+  protected AbstractWebConfigResource(final ConfigMaster configMaster) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _data = new WebConfigData();
     data().setConfigMaster(configMaster);
-    for (String key : typeMap.keySet()) {
+    for (String type : configMaster.getTypes()) {
       try {
-        data().getTypeMap().put(key, getClass().getClassLoader().loadClass(typeMap.get(key)));
+        Class<?> typeClazz = getClass().getClassLoader().loadClass(type);
+        data().getTypeMap().put(typeClazz.getSimpleName(), typeClazz);
       } catch (ClassNotFoundException ex) {
         throw new RuntimeException(ex);
       }
     }
   }
 
+  /**
+   * Creates the resource.
+   * @param parent  the parent resource, not null
+   */
+  protected AbstractWebConfigResource(final AbstractWebConfigResource parent) {
+    super(parent);
+    _data = parent._data;
+  }
+  
   /**
    * Setter used to inject the URIInfo.
    * This is a roundabout approach, because Spring and JSR-311 injection clash.
@@ -74,7 +81,7 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
    * Gets the backing bean.
    * @return the backing bean, not null
    */
-  protected WebConfigData<?> data() {
+  protected WebConfigData data() {
     return _data;
   }
 

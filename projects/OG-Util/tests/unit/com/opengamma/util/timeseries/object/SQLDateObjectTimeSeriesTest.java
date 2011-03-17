@@ -5,17 +5,12 @@
  */
 package com.opengamma.util.timeseries.object;
 
-import java.util.Calendar;
 import java.sql.Date;
-
-import org.junit.Ignore;
+import java.util.Calendar;
 
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class SQLDateObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<Date> {
   @Override
   public Date[] testTimes() {

@@ -17,13 +17,13 @@ public class WebConfigUris {
   /**
    * The data.
    */
-  private final WebConfigData<?> _data;
+  private final WebConfigData _data;
 
   /**
    * Creates an instance.
    * @param data  the web data, not null
    */
-  public WebConfigUris(WebConfigData<?> data) {
+  public WebConfigUris(WebConfigData data) {
     _data = data;
   }
 
@@ -40,25 +40,8 @@ public class WebConfigUris {
    * Gets the URI.
    * @return the URI
    */
-  public URI configTypes() {
-    return WebConfigTypesResource.uri(_data);
-  }
-
-  /**
-   * Gets the URI.
-   * @param typeStr  the element type, may be null
-   * @return the URI
-   */
-  public URI configTypes(final String typeStr) {
-    return WebConfigTypesResource.uri(_data, typeStr);
-  }
-
-  /**
-   * Gets the URI.
-   * @return the URI
-   */
-  public URI configType() {
-    return WebConfigTypeResource.uri(_data);
+  public URI config() {
+    return WebConfigResource.uri(_data);
   }
 
   /**
@@ -66,24 +49,24 @@ public class WebConfigUris {
    * @param configId  the config id, not null
    * @return the URI
    */
-  public URI configType(final UniqueIdentifier configId) {
-    return WebConfigTypeResource.uri(_data, configId);
+  public URI config(final UniqueIdentifier configId) {
+    return WebConfigResource.uri(_data, configId);
   }
 
   /**
    * Gets the URI.
    * @return the URI
    */
-  public URI configTypeVersions() {
-    return WebConfigTypeVersionsResource.uri(_data);
+  public URI configVersions() {
+    return WebConfigVersionsResource.uri(_data);
   }
 
   /**
    * Gets the URI.
    * @return the URI
    */
-  public URI configTypeVersion() {
-    return WebConfigTypeVersionResource.uri(_data);
+  public URI configVersion() {
+    return WebConfigVersionResource.uri(_data);
   }
 
   /**
@@ -91,8 +74,8 @@ public class WebConfigUris {
    * @param configId  the config id, not null
    * @return the URI
    */
-  public URI configTypeVersion(final UniqueIdentifier configId) {
-    return WebConfigTypeVersionResource.uri(_data, configId);
+  public URI configVersion(final UniqueIdentifier configId) {
+    return WebConfigVersionResource.uri(_data, configId);
   }
 
 }

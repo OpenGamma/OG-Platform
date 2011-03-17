@@ -24,11 +24,11 @@ import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -121,7 +121,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     if (n >= paymentTimes.length) {
       //all payments are in the past - return a dummy annuity with zero notional a one payment (of zero) at zero and zero spread 
       //TODO may want to handle this case differently 
-      return new GenericAnnuity<Payment>(new Payment[] {new FixedPayment(0, 0, fundingCurveName)});
+      return new GenericAnnuity<Payment>(new Payment[] {new PaymentFixed(0, 0, fundingCurveName)});
     }
 
     if (n > 0) {
@@ -136,9 +136,9 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Payment[] payments = new Payment[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
       if (resetTimes[i] < 0.0) {
-        payments[i] = new FixedCouponPayment(paymentTimes[i], notional, yearFractions[i], initialRate, fundingCurveName);
+        payments[i] = new CouponFixed(paymentTimes[i], fundingCurveName, yearFractions[i], notional, initialRate);
       } else {
-        payments[i] = new ForwardLiborPayment(paymentTimes[i], notional, resetTimes[i], maturityTimes[i], yearFractions[i], yearFractions[i], spreads[i], fundingCurveName, liborCurveName);
+        payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
       }
     }
 
@@ -146,7 +146,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     return new GenericAnnuity<Payment>(payments);
   }
 
-  public FixedCouponAnnuity getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,
+  public AnnuityCouponFixed getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,
       final String fundingCurveName, final Calendar calendar) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar, 0); //TODO are settlement days really 0 for swaps?    
@@ -155,13 +155,13 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final int n = ScheduleCalculator.numberOfNegativeValues(paymentTimes);
     if (n >= paymentTimes.length) {
-      return new FixedCouponAnnuity(new double[] {0.0}, 0.0, 0.0, fundingCurveName);
+      return new AnnuityCouponFixed(new double[] {0.0}, 0.0, 0.0, fundingCurveName);
     }
     if (n > 0) {
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
-    return new FixedCouponAnnuity(paymentTimes, notional, marketRate, yearFractions, fundingCurveName);
+    return new AnnuityCouponFixed(paymentTimes, notional, marketRate, yearFractions, fundingCurveName);
   }
 
 }

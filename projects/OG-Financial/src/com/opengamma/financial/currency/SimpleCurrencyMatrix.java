@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.currency;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * A simple, mutable, {@link CurrencyMatrix}. When conversion entries are added, the reciprocal
@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
 
   @Override
-  protected void addConversion(final CurrencyUnit source, final CurrencyUnit target, final CurrencyMatrixValue rate) {
+  protected void addConversion(final Currency source, final Currency target, final CurrencyMatrixValue rate) {
     super.addConversion(source, target, rate);
     super.addConversion(target, source, rate.getReciprocal());
   }
@@ -29,7 +29,7 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
    * @param target the target currency
    * @param rate the number of units of source currency per unit of target currency
    */
-  public void setFixedConversion(final CurrencyUnit source, final CurrencyUnit target, final double rate) {
+  public void setFixedConversion(final Currency source, final Currency target, final double rate) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notZero(0, 0, "rate");
@@ -52,7 +52,7 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
    * @param target the target currency
    * @param cross the intermediate currency
    */
-  public void setCrossConversion(final CurrencyUnit source, final CurrencyUnit target, final CurrencyUnit cross) {
+  public void setCrossConversion(final Currency source, final Currency target, final Currency cross) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(target, "cross");
@@ -78,7 +78,7 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
    * @param target  the target currency
    * @param uniqueId  the unique identifier of the external data
    */
-  public void setLiveData(final CurrencyUnit source, final CurrencyUnit target, final UniqueIdentifier uniqueId) {
+  public void setLiveData(final Currency source, final Currency target, final UniqueIdentifier uniqueId) {
     ArgumentChecker.notNull(source, "source");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(uniqueId, "uniqueId");

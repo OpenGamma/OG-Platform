@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -34,6 +33,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -110,7 +110,7 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
     final InterestRateLeg payLeg = (InterestRateLeg) swap.getPayLeg();
     final InterestRateLeg receiveLeg = (InterestRateLeg) swap.getReceiveLeg();
     if ((payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) || (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg)) {
-      final CurrencyUnit payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+      final Currency payLegCurrency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
       return payLegCurrency.equals(((InterestRateNotional) receiveLeg.getNotional()).getCurrency());
     } else {
       return false;
@@ -124,13 +124,13 @@ public abstract class FixedFloatSwapFunction extends AbstractFunction.NonCompile
 
   protected abstract Set<ComputedValue> getComputedValues(FunctionInputs inputs, Security security, Swap<?, ?> swap, YieldCurveBundle bundle, String forwardCurveName, String fundingCurveName);
 
-  protected CurrencyUnit getCurrencyForTarget(final Security targetSecurity) {
+  protected Currency getCurrencyForTarget(final Security targetSecurity) {
     final SwapSecurity swap = (SwapSecurity) targetSecurity;
     final InterestRateLeg leg = (InterestRateLeg) swap.getPayLeg();
     return ((InterestRateNotional) leg.getNotional()).getCurrency();
   }
 
-  protected CurrencyUnit getCurrencyForTarget(final ComputationTarget target) {
+  protected Currency getCurrencyForTarget(final ComputationTarget target) {
     return getCurrencyForTarget(target.getSecurity());
   }
 

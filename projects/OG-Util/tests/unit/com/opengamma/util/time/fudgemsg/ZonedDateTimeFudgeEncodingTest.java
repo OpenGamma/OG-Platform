@@ -5,8 +5,8 @@
  */
 package com.opengamma.util.time.fudgemsg;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
@@ -15,21 +15,20 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
-
 /**
- * 
+ * Test ZonedDateTime Fudge.
  */
+@Test
 public class ZonedDateTimeFudgeEncodingTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ZonedDateTimeFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   
-  @Test
   public void test() {
     ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC);
     testFudgeMessage(zdtUTC);

@@ -10,7 +10,8 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link NodalDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original curve, then the curve cannot be shifted.
  */
 public class NodalCurveShiftFunction implements CurveShiftFunction<NodalDoublesCurve> {
 

@@ -5,16 +5,13 @@
  */
 package com.opengamma.financial.view;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigTypeMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,30 +20,27 @@ import com.opengamma.util.ArgumentChecker;
 public class ConfigDbOverrideWatchSetProvider implements WatchSetProvider {
 
   private final String _configScheme;
-  private final Map<ConfigTypeMaster<?>, String> _mastersToSchemes;
+  private final ConfigMaster _configMaster;
+  private final Set<String> _schemes;
 
-  // REVIEW 2011-01-06 Andrew -- How can the config document be retrieved with just a UID? The config type is stored in the database
-
-  public ConfigDbOverrideWatchSetProvider(final String configScheme, final ConfigMaster configMaster, final Map<Class<?>, String> classesToSchemes) {
+  public ConfigDbOverrideWatchSetProvider(final String configScheme, final ConfigMaster configMaster, final Set<String> schemes) {
     ArgumentChecker.notNull(configScheme, "configScheme");
     ArgumentChecker.notNull(configMaster, "configMaster");
-    ArgumentChecker.notNull(classesToSchemes, "classesToSchemes");
+    ArgumentChecker.notNull(schemes, "schemes");
     _configScheme = configScheme;
-    _mastersToSchemes = new HashMap<ConfigTypeMaster<?>, String>();
-    for (Map.Entry<Class<?>, String> classToScheme : classesToSchemes.entrySet()) {
-      _mastersToSchemes.put(configMaster.typed(classToScheme.getKey()), classToScheme.getValue());
-    }
+    _configMaster = configMaster;
+    _schemes = new HashSet<String>(schemes);
   }
 
   @Override
   public Set<UniqueIdentifier> getAdditionalWatchSet(final Set<UniqueIdentifier> watchSet) {
     final Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
-    for (Map.Entry<ConfigTypeMaster<?>, String> masterToScheme : _mastersToSchemes.entrySet()) {
+    for (String scheme : _schemes) {
       for (UniqueIdentifier watch : watchSet) {
         if (_configScheme.equals(watch.getScheme())) {
           try {
-            final ConfigDocument<?> doc = masterToScheme.getKey().get(watch);
-            result.add(UniqueIdentifier.of(masterToScheme.getValue(), doc.getName()));
+            final ConfigDocument<?> doc = _configMaster.get(watch);
+            result.add(UniqueIdentifier.of(scheme, doc.getName()));
           } catch (DataNotFoundException ex) {
             // ignore
           }

@@ -6,8 +6,6 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -21,17 +19,12 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 public class FourierPricer {
-  private static Logger s_logger = LoggerFactory.getLogger(FourierPricer.class);
-  private final Integrator1D<Double, Function1D<Double, Double>, Double> _integrator;
-  private static final IntegralLimitCalculator s_limitCal = new IntegralLimitCalculator();
+  private static final IntegralLimitCalculator LIMIT_CALCULATOR = new IntegralLimitCalculator();
   private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
+  private final Integrator1D<Double, Function1D<Double, Double>, Double> _integrator;
 
   public FourierPricer() {
-    _integrator = new RungeKuttaIntegrator1D();
-  }
-
-  public FourierPricer(final double tol, final int minSteps) {
-    _integrator = new RungeKuttaIntegrator1D(tol, minSteps);
+    this(new RungeKuttaIntegrator1D());
   }
 
   public FourierPricer(final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
@@ -39,54 +32,65 @@ public class FourierPricer {
     _integrator = integrator;
   }
 
-  public double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol) {
-
-    if (alpha >= ce.getLargestAlpha() || alpha <= ce.getSmallestAlpha()) {
-      s_logger.warn("The value of alpha is not valid for the Characteristic Exponent and will most likely lead to mispricing. Choose a value between " + ce.getSmallestAlpha() + " and "
-          + ce.getLargestAlpha());
-    }
-
-    final Function1D<Double, Double> func = new EuropeanPriceIntegrand(ce, alpha, forward, strike, false, 0.0);
-
-    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
-    final double xMax = s_limitCal.solve(psi, alpha, tol);
-
-    final double integral = Math.exp(-alpha * Math.log(strike / forward)) * _integrator.integrate(func, 0.0, xMax) / Math.PI;
-
-    double res = discountFactor * forward * integral;
-
-    if (isCall) {
-      if (alpha > 0.0) {
-        res = discountFactor * forward * integral;
-      } else if (alpha < -1.0) {
-        res = discountFactor * (forward * (1 + integral) - strike);
-      } else {
-        res = discountFactor * forward * (integral + 1);
-      }
-    } else {
-      if (alpha > 0.0) {
-        res = discountFactor * (forward * (integral - 1) + strike);
-      } else if (alpha < -1.0) {
-        res = discountFactor * forward * integral;
-      } else {
-        res = discountFactor * (forward * integral + strike);
-      }
-    }
-    return res;
-
+  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance) {
+    return price(data, option, ce, alpha, limitTolerance, false);
   }
 
-  public double price(final double forward, final double strike, final double discountFactor, final boolean isCall, final CharacteristicExponent ce, final double alpha, final double tol,
-      final double blackVol) {
-
-    final Function1D<Double, Double> func = new EuropeanPriceIntegrand(ce, alpha, forward, strike, true, blackVol);
-
-    final Function1D<ComplexNumber, ComplexNumber> psi = new EuropeanCallFT(ce);
-    final double xMax = s_limitCal.solve(psi, alpha, tol);
-
+  public double price(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance,
+      final boolean useVarianceReduction) {
+    Validate.notNull(data, "data");
+    Validate.notNull(option, "option");
+    Validate.notNull(ce, "characteristic exponent");
+    Validate.isTrue(limitTolerance > 0, "limit tolerance must be > 0");
+    Validate.isTrue(alpha <= ce.getLargestAlpha() && alpha >= ce.getSmallestAlpha(),
+        "The value of alpha is not valid for the Characteristic Exponent and will most likely lead to mispricing. Choose a value between " + ce.getSmallestAlpha() + " and " + ce.getLargestAlpha());
+    final EuropeanPriceIntegrand integrand = new EuropeanPriceIntegrand(ce, alpha, useVarianceReduction);
+    final EuropeanCallFourierTransform psi = new EuropeanCallFourierTransform(ce);
+    final double strike = option.getStrike();
+    final double t = option.getTimeToExpiry();
+    final boolean isCall = option.isCall();
+    final double forward = data.getForward();
+    final double discountFactor = data.getDiscountFactor();
+    final Function1D<ComplexNumber, ComplexNumber> characteristicFunction = psi.getFunction(t);
+    final double xMax = LIMIT_CALCULATOR.solve(characteristicFunction, alpha, limitTolerance);
+    final Function1D<Double, Double> func = integrand.getFunction(data, option);
     final double integral = Math.exp(-alpha * Math.log(strike / forward)) * _integrator.integrate(func, 0.0, xMax) / Math.PI;
-    final BlackFunctionData data = new BlackFunctionData(forward, discountFactor, blackVol);
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, ce.getTime(), isCall);
+    if (useVarianceReduction) {
+      final double black = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
+      final double diff = discountFactor * forward * integral;
+      return diff + black;
+    }
+    if (isCall) {
+      if (alpha > 0.0) {
+        return discountFactor * forward * integral;
+      } else if (alpha < -1.0) {
+        return discountFactor * (forward * (1 + integral) - strike);
+      } else {
+        return discountFactor * forward * (integral + 1);
+      }
+    }
+    if (alpha > 0.0) {
+      return discountFactor * (forward * (integral - 1) + strike);
+    } else if (alpha < -1.0) {
+      return discountFactor * forward * integral;
+    }
+    return discountFactor * (forward * integral + strike);
+  }
+
+  public double priceFromVol(final BlackFunctionData data, final EuropeanVanillaOption option, final CharacteristicExponent ce, final double alpha, final double limitTolerance,
+      final boolean useVarianceReduction) {
+    final double forward = data.getForward();
+    final double discountFactor = data.getDiscountFactor();
+    final double t = option.getTimeToExpiry();
+    final double strike = option.getStrike();
+
+    final EuropeanPriceIntegrand integrand = new EuropeanPriceIntegrand(ce, alpha, useVarianceReduction);
+    final EuropeanCallFourierTransform callFourierTransform = new EuropeanCallFourierTransform(ce);
+
+    final Function1D<ComplexNumber, ComplexNumber> psi = callFourierTransform.getFunction(t);
+    final double xMax = LIMIT_CALCULATOR.solve(psi, alpha, limitTolerance);
+
+    final double integral = Math.exp(-alpha * Math.log(strike / forward)) * _integrator.integrate(integrand.getFunction(data, option), 0.0, xMax) / Math.PI;
     final double black = BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
     final double diff = discountFactor * forward * integral;
 

@@ -5,6 +5,9 @@
  */
 package com.opengamma.util.test;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
@@ -13,18 +16,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import static org.junit.Assert.*;
 
 import org.hibernate.mapping.Table;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
- * 
+ * Test DBTool.
  */
+@Test
 public class DBToolTest {
 
   private static final String TEST_TABLE = "db_tool_unit_test_table";
@@ -34,7 +36,7 @@ public class DBToolTest {
   private String _user;
   private String _password;
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     Properties props = new Properties();
     File file = new File("tests.properties");
@@ -48,7 +50,6 @@ public class DBToolTest {
     _tool.initialize();
   }
 
-  @Test
   public void testDrop() throws Exception {
 
     _tool.createTestSchema();
@@ -64,7 +65,6 @@ public class DBToolTest {
     }
   }
 
-  @Test
   public void testClear() throws Exception {
 
     _tool.createTestSchema();

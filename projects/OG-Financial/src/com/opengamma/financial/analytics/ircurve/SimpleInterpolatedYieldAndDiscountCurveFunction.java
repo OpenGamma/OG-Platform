@@ -23,7 +23,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -54,6 +53,7 @@ import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -73,12 +73,12 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private final CurrencyUnit _curveCurrency;
+  private final Currency _curveCurrency;
   private final String _curveName;
   private final boolean _isYieldCurve;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
 
-  public SimpleInterpolatedYieldAndDiscountCurveFunction(final CurrencyUnit currency, final String name, final boolean isYieldCurve) {
+  public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(name, "Name");
     _definition = null;
@@ -90,7 +90,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
     _results = null;
   }
 
-  public CurrencyUnit getCurveCurrency() {
+  public Currency getCurveCurrency() {
     return _curveCurrency;
   }
 

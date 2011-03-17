@@ -5,21 +5,21 @@
  */
 package com.opengamma.util.rest;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test WebApplicationException.
  */
+@Test
 public class WebApplicationExceptionTest {
 
-  @Test
   public void test_mapping() {
     WebApplicationException ex = new WebApplicationException(Status.CONFLICT.getStatusCode());
     Response test = new WebApplicationExceptionMapper().toResponse(ex);

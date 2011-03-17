@@ -7,14 +7,14 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -91,11 +91,11 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
    */
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    return PVC.visit(((ForwardLiborAnnuity) swap.getReceiveLeg()).withUnitCoupons(), curves);
+    return PVC.visit(((AnnuityCouponIbor) swap.getReceiveLeg()).withUnitCoupons(), curves);
   }
 
   @Override
-  public Double visitFixedPayment(final FixedPayment payment, final YieldCurveBundle data) {
+  public Double visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle data) {
     return 0.0;
   }
 

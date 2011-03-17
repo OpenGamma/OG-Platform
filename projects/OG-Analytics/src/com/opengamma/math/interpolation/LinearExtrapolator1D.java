@@ -14,6 +14,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * @param <T>
  */
 public class LinearExtrapolator1D<T extends Interpolator1DDataBundle> extends Interpolator1D<T> {
+  private static final long serialVersionUID = 1L;
   private static final double EPS = 1e-8;
   private final Interpolator1D<T> _interpolator;
 

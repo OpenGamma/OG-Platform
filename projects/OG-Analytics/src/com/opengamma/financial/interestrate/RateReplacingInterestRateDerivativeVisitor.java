@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
@@ -32,16 +32,16 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public Bond visitBond(final Bond bond, final Double rate) {
-    final FixedCouponPayment[] payments = bond.getCouponAnnuity().getPayments();
+    final CouponFixed[] payments = bond.getCouponAnnuity().getPayments();
     final int n = payments.length;
     final double[] times = new double[n];
     final double[] coupons = new double[n];
     final double[] yearFrac = new double[n];
     for (int i = 0; i < n; i++) {
-      final FixedCouponPayment temp = payments[i];
+      final CouponFixed temp = payments[i];
       times[i] = temp.getPaymentTime();
       coupons[i] = rate;
-      yearFrac[i] = temp.getYearFraction();
+      yearFrac[i] = temp.getPaymentYearFraction();
     }
     return new Bond(times, coupons, yearFrac, bond.getAccruedInterest(), payments[0].getFundingCurveName());
   }
@@ -52,24 +52,24 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   }
 
   @Override
-  public FixedCouponAnnuity visitFixedCouponAnnuity(final FixedCouponAnnuity annuity, final Double rate) {
-    final FixedCouponPayment[] payments = annuity.getPayments();
+  public AnnuityCouponFixed visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final Double rate) {
+    final CouponFixed[] payments = annuity.getPayments();
     final int n = payments.length;
-    final FixedCouponPayment[] temp = new FixedCouponPayment[n];
+    final CouponFixed[] temp = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      temp[i] = (FixedCouponPayment) visit(payments[i], rate);
+      temp[i] = (CouponFixed) visit(payments[i], rate);
     }
-    return new FixedCouponAnnuity(temp);
+    return new AnnuityCouponFixed(temp);
   }
 
   @Override
-  public FixedCouponPayment visitFixedCouponPayment(final FixedCouponPayment payment, final Double rate) {
-    return new FixedCouponPayment(payment.getPaymentTime(), payment.getNotional(), payment.getYearFraction(), rate, payment.getFundingCurveName());
+  public CouponFixed visitFixedCouponPayment(final CouponFixed payment, final Double rate) {
+    return new CouponFixed(payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate);
   }
 
   // TODO is this really correct?
   @Override
-  public ForwardLiborAnnuity visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity, final Double rate) {
+  public AnnuityCouponIbor visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final Double rate) {
     return annuity.withSpread(rate);
   }
 
@@ -87,7 +87,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public TenorSwap<? extends Payment> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Double rate) {
-    return new TenorSwap<ForwardLiborPayment>((ForwardLiborAnnuity) swap.getPayLeg(), visitForwardLiborAnnuity((ForwardLiborAnnuity) swap.getReceiveLeg(), rate));
+    return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getPayLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getReceiveLeg(), rate));
   }
 
   @Override

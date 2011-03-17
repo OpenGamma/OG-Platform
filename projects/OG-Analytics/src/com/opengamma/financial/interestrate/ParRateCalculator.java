@@ -7,16 +7,16 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -96,9 +96,9 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    */
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    final double pvRecieve = PVC.visit(swap.getReceiveLeg(), curves);
+    final double pvReceive = PVC.visit(swap.getReceiveLeg(), curves);
     final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
-    return pvRecieve / pvFixed;
+    return pvReceive / pvFixed;
   }
 
   /**
@@ -110,8 +110,8 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
    */
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final ForwardLiborAnnuity pay = (ForwardLiborAnnuity) swap.getPayLeg();
-    final ForwardLiborAnnuity receive = (ForwardLiborAnnuity) swap.getReceiveLeg();
+    final AnnuityCouponIbor pay = (AnnuityCouponIbor) swap.getPayLeg();
+    final AnnuityCouponIbor receive = (AnnuityCouponIbor) swap.getReceiveLeg();
     final double pvPay = PVC.visit(pay.withZeroSpread(), curves);
     final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
     final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
@@ -123,8 +123,8 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
 
   @Override
   public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    final GenericAnnuity<FixedPayment> pay = frn.getPayLeg();
-    final ForwardLiborAnnuity receive = (ForwardLiborAnnuity) frn.getReceiveLeg();
+    final GenericAnnuity<PaymentFixed> pay = frn.getPayLeg();
+    final AnnuityCouponIbor receive = (AnnuityCouponIbor) frn.getReceiveLeg();
     final double pvPay = PVC.visit(pay, curves);
     final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
     final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
@@ -149,9 +149,9 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   @Override
-  public Double visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
-    final YieldAndDiscountCurve curve = data.getCurve(payment.getLiborCurveName());
-    return (curve.getDiscountFactor(payment.getLiborFixingTime()) / curve.getDiscountFactor(payment.getLiborMaturityTime()) - 1.0) / payment.getForwardYearFraction();
+  public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+    final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
+    return (curve.getDiscountFactor(payment.getFixingTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
   }
 
   @Override

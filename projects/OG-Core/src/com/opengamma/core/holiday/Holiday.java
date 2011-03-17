@@ -9,11 +9,11 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * A set of holidays when some form of market activity does not occur.
@@ -58,7 +58,7 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return a currency, if this is a CURRENCY holiday, null otherwise
    */
-  CurrencyUnit getCurrency();
+  Currency getCurrency();
 
   /**
    * The list of dates on which the holiday occurs.

@@ -17,7 +17,7 @@ public class IntegralLimitCalculatorTest {
   };
   private static final double ALPHA = -0.5;
   private static final double TOL = 1e-8;
-  private static final IntegralLimitCalculator1 CALCULATOR = new IntegralLimitCalculator1();
+  private static final IntegralLimitCalculator CALCULATOR = new IntegralLimitCalculator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPsi() {

@@ -15,8 +15,9 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function;
 
 /**
- * Class defining a spread curve. The spread curve is in the same hierarchy as the other curves, so a spread curve could be defined on
- * another spread curve.
+ * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation (see {@link CurveSpreadFunction}) on two or more curves. 
+ * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be 
+ * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.  
  */
 public class SpreadDoublesCurve extends Curve<Double, Double> {
   private final CurveSpreadFunction _spreadFunction;
@@ -24,10 +25,10 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   private final Curve<Double, Double>[] _curves;
 
   /**
-   * Takes an array of curves that are to be operated on by the spread function and the spread function. The name of the spread
-   * curve is automatically-generated
-   * @param curves The curves 
-   * @param spreadFunction The spread function
+   * Takes an array of curves that are to be operated on by the spread function. The name of the spread
+   * curve is automatically generated.
+   * @param curves The curves, not null
+   * @param spreadFunction The spread function, not null
    * @return The spread curve
    */
   public static SpreadDoublesCurve from(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
@@ -35,9 +36,9 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   }
 
   /**
-   * Takes an array of curves that are to be operated on by the spread function and the spread function.
-   * @param curves The curves 
-   * @param spreadFunction The spread function
+   * Takes an array of curves that are to be operated on by the spread function.
+   * @param curves The curves, not null
+   * @param spreadFunction The spread function, not null
    * @param name The name of the curve
    * @return The spread curve
    */
@@ -46,9 +47,8 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   }
 
   /**
-   * The name of the curve is generated automatically.
-   * @param curves The curves
-   * @param spreadFunction The spread function
+   * @param curves The curves, not null, contains more than one curve
+   * @param spreadFunction The spread function, not null
    */
   public SpreadDoublesCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction) {
     super();
@@ -62,8 +62,8 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param curves The curves
-   * @param spreadFunction The spread function
+   * @param curves The curves, not null, contains more than one curve
+   * @param spreadFunction The spread function, not null
    * @param name The name of the curve
    */
   public SpreadDoublesCurve(final Curve<Double, Double>[] curves, final CurveSpreadFunction spreadFunction, final String name) {
@@ -77,7 +77,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   }
 
   /**
-   * Returns a set of the unique names of the curves that were used to construct this curve. If a constituent curve is a spread curve,
+   * Returns a set of the <b>unique</b> names of the curves that were used to construct this curve. If a constituent curve is a spread curve,
    * then all of its underlyings are included.
    * @return The set of underlying names
    */
@@ -94,7 +94,7 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
   }
 
   /**
-   * Returns a string that represents the mathematical form of this curve
+   * Returns a string that represents the mathematical form of this curve. For example, <i>D = (A + (B / C))</i>
    * @return The long name of this curve
    */
   public String getLongName() {

@@ -93,7 +93,7 @@ public class WebHomeResource extends AbstractWebResource {
     timeseriesData.setUriInfo(uriInfo);
     out.put("timeseriesUris", new WebTimeSeriesUris(timeseriesData));
     
-    WebConfigData<?> configData = new WebConfigData<Object>();
+    WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);
     out.put("configUris", new WebConfigUris(configData));
     

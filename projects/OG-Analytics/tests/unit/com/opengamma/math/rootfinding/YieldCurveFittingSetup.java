@@ -26,12 +26,14 @@ import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -53,17 +55,22 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public abstract class YieldCurveFittingSetup {
-  // CSOFF
+  /** Random number generator */
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
 
+  /** Accuracy */
   protected static final double EPS = 1e-8;
+  /** Number of steps */
   protected static final int STEPS = 100;
 
-  protected Logger _logger = null;
-  protected int _hotspotWarmupCycles;
-  protected int _benchmarkCycles;
-
+  protected abstract Logger getLogger();
+  
+  protected abstract int getWarmupCycles();
+  
+  protected abstract int getBenchmarkCycles();
+  
   protected YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InterestRateDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
       final List<double[]> curvesKnots, final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
       final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
@@ -87,7 +94,8 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
+      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -109,16 +117,14 @@ public abstract class YieldCurveFittingSetup {
   }
 
   public void doHotSpot(final NewtonVectorRootFinder rootFinder, final YieldCurveFittingTestDataBundle data, final String name) {
-    for (int i = 0; i < _hotspotWarmupCycles; i++) {
+    for (int i = 0; i < getWarmupCycles(); i++) {
       doTestForCurveFinding(rootFinder, data);
 
     }
-    if (_benchmarkCycles > 0) {
-      final OperationTimer timer = new OperationTimer(_logger, "processing {} cycles on " + name, _benchmarkCycles);
-      for (int i = 0; i < _benchmarkCycles; i++) {
-
+    if (getBenchmarkCycles() > 0) {
+      final OperationTimer timer = new OperationTimer(getLogger(), "processing {} cycles on " + name, getBenchmarkCycles());
+      for (int i = 0; i < getBenchmarkCycles(); i++) {
         doTestForCurveFinding(rootFinder, data);
-
       }
       timer.finished();
     }
@@ -257,7 +263,7 @@ public abstract class YieldCurveFittingSetup {
     return makeSwap(index, fundCurveName, liborCurveName, rate);
   }
 
-  protected static TenorSwap makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate) {
+  protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate) {
 
     final int index = (int) Math.round(4 * time);
     final double[] paymentTimes = new double[index];
@@ -273,17 +279,18 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final ForwardLiborAnnuity payLeg = new ForwardLiborAnnuity(paymentTimes, 1.0, fundCurveName, fundCurveName);
-    final ForwardLiborAnnuity receiveLeg = new ForwardLiborAnnuity(paymentTimes, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
-    return new TenorSwap(payLeg, receiveLeg);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, 1.0, fundCurveName, fundCurveName);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
+    return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
   }
 
   /**
    * 
-   * @param payments
-   * @param fundingCurveName
-   * @param liborCurveName
-   * @return
+   * @param payments number of payments
+   * @param fundingCurveName funding curve name
+   * @param liborCurveName libor curve name
+   * @param rate interest rate
+   * @return A fixed-float swap
    */
   protected static FixedFloatSwap makeSwap(final int payments, final String fundingCurveName, final String liborCurveName, final double rate) {
 
@@ -307,9 +314,9 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final FixedCouponAnnuity fixedLeg = new FixedCouponAnnuity(fixed, rate, fundingCurveName);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, rate, fundingCurveName);
 
-    final ForwardLiborAnnuity floatingLeg = new ForwardLiborAnnuity(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

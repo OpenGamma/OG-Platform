@@ -11,7 +11,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class BondForwardTest {
   private static final double FORWARD_DATE = 0.12;
   private static final double ACCRUED_INTEREST = 0.2;
   private static final double ACCRUED_INTEREST_AT_DELIVERY = 0.3;
-  private static final FixedCouponPayment[] PAYMENTS = new FixedCouponPayment[] {new FixedCouponPayment(0.5, 0.5, 0.03, YIELD_CURVE_NAME)};
+  private static final CouponFixed[] PAYMENTS = new CouponFixed[] {new CouponFixed(0.5, YIELD_CURVE_NAME, 0.5, 0.03)};
   private static final BondForward FORWARD = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
 
   @Test(expected = IllegalArgumentException.class)
@@ -44,7 +44,7 @@ public class BondForwardTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullExpiredCoupon() {
-    new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new FixedCouponPayment[] {null});
+    new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new CouponFixed[] {null});
   }
 
   @Test
@@ -64,9 +64,9 @@ public class BondForwardTest {
     assertFalse(other.equals(FORWARD));
     other = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY + 0.1, PAYMENTS);
     assertFalse(other.equals(FORWARD));
-    other = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new FixedCouponPayment[0]);
+    other = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new CouponFixed[0]);
     assertFalse(other.equals(FORWARD));
-    final BondForward forward = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new FixedCouponPayment[0]);
+    final BondForward forward = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new CouponFixed[0]);
     assertEquals(other, forward);
     assertEquals(forward.hashCode(), forward.hashCode());
   }

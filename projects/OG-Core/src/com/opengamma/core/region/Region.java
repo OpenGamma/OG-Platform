@@ -11,11 +11,11 @@ import javax.time.calendar.TimeZone;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * A region of the world.
@@ -83,7 +83,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the currency, null if not applicable
    */
-  CurrencyUnit getCurrency();
+  Currency getCurrency();
 
   /**
    * Gets the time-zone.

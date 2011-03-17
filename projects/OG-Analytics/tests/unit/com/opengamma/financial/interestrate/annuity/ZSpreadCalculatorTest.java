@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -28,19 +28,19 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ZSpreadCalculatorTest {
   private static final ZSpreadCalculator CALCULATOR = ZSpreadCalculator.getInstance();
-  private static final GenericAnnuity<FixedCouponPayment> PAYMENTS;
+  private static final GenericAnnuity<CouponFixed> PAYMENTS;
   private static final YieldCurveBundle CURVES;
   private static final String CURVE_NAME = "A";
   private static final double YIELD = 0.04;
 
   static {
     final int n = 5;
-    final FixedCouponPayment[] rateAtYield = new FixedCouponPayment[n];
+    final CouponFixed[] rateAtYield = new CouponFixed[n];
     CURVES = new YieldCurveBundle(new String[] {CURVE_NAME}, new YieldCurve[] {new YieldCurve(ConstantDoublesCurve.from(YIELD))});
     for (int i = 0; i < n; i++) {
-      rateAtYield[i] = new FixedCouponPayment(0.5 * (i + 1), 0.5, YIELD, CURVE_NAME);
+      rateAtYield[i] = new CouponFixed(0.5 * (i + 1), CURVE_NAME, 0.5, YIELD);
     }
-    PAYMENTS = new GenericAnnuity<FixedCouponPayment>(rateAtYield);
+    PAYMENTS = new GenericAnnuity<CouponFixed>(rateAtYield);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -10,18 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.financial.interestrate.annuity.definition.FixedCouponAnnuity;
-import com.opengamma.financial.interestrate.annuity.definition.ForwardLiborAnnuity;
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
-import com.opengamma.financial.interestrate.payments.FixedCouponPayment;
-import com.opengamma.financial.interestrate.payments.FixedPayment;
-import com.opengamma.financial.interestrate.payments.ForwardLiborPayment;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
@@ -132,23 +135,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     final Map<String, List<DoublesPair>> senseR = visit(swap.getReceiveLeg(), curves);
     final Map<String, List<DoublesPair>> senseP = visit(swap.getPayLeg(), curves);
 
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : curves.getAllNames()) {
-      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      if (senseR.containsKey(name)) {
-        for (final DoublesPair pair : senseR.get(name)) {
-          temp.add(pair);
-        }
-      }
-      if (senseP.containsKey(name)) {
-        for (final DoublesPair pair : senseP.get(name)) {
-          final DoublesPair newPair = new DoublesPair(pair.getFirst(), -pair.getSecond());
-          temp.add(newPair);
-        }
-      }
-      result.put(name, temp);
-    }
-    return result;
+    return addSensitivity(curves, senseR, senseP);
   }
 
   @Override
@@ -185,7 +172,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitFixedPayment(final FixedPayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle data) {
     final String curveName = payment.getFundingCurveName();
     final YieldAndDiscountCurve curve = data.getCurve(curveName);
     final double t = payment.getPaymentTime();
@@ -199,19 +186,19 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitForwardLiborPayment(final ForwardLiborPayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final String fundingCurveName = payment.getFundingCurveName();
-    final String liborCurveName = payment.getLiborCurveName();
+    final String liborCurveName = payment.getForwardCurveName();
     final YieldAndDiscountCurve fundCurve = data.getCurve(fundingCurveName);
     final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
 
     final double tPay = payment.getPaymentTime();
-    final double ta = payment.getLiborFixingTime();
-    final double tb = payment.getLiborMaturityTime();
+    final double ta = payment.getFixingTime();
+    final double tb = payment.getFixingPeriodEndTime();
     final double dfPay = fundCurve.getDiscountFactor(tPay);
     final double dfa = liborCurve.getDiscountFactor(ta);
     final double dfb = liborCurve.getDiscountFactor(tb);
-    final double forward = (dfa / dfb - 1) / payment.getForwardYearFraction();
+    final double forward = (dfa / dfb - 1) / payment.getFixingYearFraction();
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
@@ -226,7 +213,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
       temp = new ArrayList<DoublesPair>();
     }
 
-    final double ratio = notional * dfPay * dfa / dfb * payment.getPaymentYearFraction() / payment.getForwardYearFraction();
+    final double ratio = notional * dfPay * dfa / dfb * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
     s = new DoublesPair(ta, -ta * ratio);
     temp.add(s);
     s = new DoublesPair(tb, tb * ratio);
@@ -271,23 +258,103 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitFixedCouponAnnuity(final FixedCouponAnnuity annuity, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle data) {
     return visitGenericAnnuity(annuity, data);
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitFixedCouponPayment(final FixedCouponPayment payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle data) {
     return visitFixedPayment(payment, data);
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitForwardLiborAnnuity(final ForwardLiborAnnuity annuity, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final YieldCurveBundle data) {
     return visitGenericAnnuity(annuity, data);
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponCMS(CouponCMS payment, YieldCurveBundle data) {
+    Validate.notNull(data);
+    Validate.notNull(payment);
+    ParRateCalculator parRateCal = ParRateCalculator.getInstance();
+    double swapRate = parRateCal.visitFixedCouponSwap(payment.getUnderlyingSwap(), data);
+    String fundingCurveName = payment.getFundingCurveName();
+    final YieldAndDiscountCurve fundingCurve = data.getCurve(fundingCurveName);
+    double paymentTime = payment.getPaymentTime();
+    double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
+    ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
+    Map<String, List<DoublesPair>> swapRateSens = parRateSensCal.visit(payment.getUnderlyingSwap(), data);
+    Map<String, List<DoublesPair>> payDFSens = discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime);
+    Map<String, List<DoublesPair>> result = swapRateSens;
+    result = multiplySensitivity(result, paymentDiscountFactor);
+    result = addSensitivity(data, result, multiplySensitivity(payDFSens, swapRate));
+    return multiplySensitivity(result, payment.getNotional() * payment.getPaymentYearFraction());
+  }
+
+  /**
+   * Add two maps representing sensitivities into one.
+   * @param curves List of curves.
+   * @param sense1 First sensitivity.
+   * @param sense2 Second sensitivity.
+   * @return The total sensitivity.
+   */
+  private static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sense1, final Map<String, List<DoublesPair>> sense2) {
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (final String name : curves.getAllNames()) {
+      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+      if (sense1.containsKey(name)) {
+        for (final DoublesPair pair : sense1.get(name)) {
+          temp.add(pair);
+        }
+      }
+      if (sense2.containsKey(name)) {
+        for (final DoublesPair pair : sense2.get(name)) {
+          final DoublesPair newPair = new DoublesPair(pair.getFirst(), -pair.getSecond());
+          temp.add(newPair);
+        }
+      }
+      result.put(name, temp);
+    }
+    return result;
+  }
+
+  /**
+   * Multiply a sensitivity by a common factor.
+   * @param sensi The original sensitivity.
+   * @param factor The multiplicative factor.
+   * @return The multiplied sensitivity.
+   */
+  private static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensi, double factor) {
+    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (final String name : sensi.keySet()) {
+      final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
+      for (final DoublesPair pair : sensi.get(name)) {
+        curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
+      }
+      result.put(name, curveSensi);
+    }
+    return result;
+  }
+
+  /**
+   * Compute the sensitivity of the discount factor at a given time.
+   * @param curveName The curve name associated to the discount factor.
+   * @param curve The curve from which the discount factor should be computed.
+   * @param time The time
+   * @return The sensitivity.
+   */
+  private static Map<String, List<DoublesPair>> discountFactorSensitivity(String curveName, YieldAndDiscountCurve curve, double time) {
+    final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
+    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    list.add(s);
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    result.put(curveName, list);
+    return result;
   }
 
 }

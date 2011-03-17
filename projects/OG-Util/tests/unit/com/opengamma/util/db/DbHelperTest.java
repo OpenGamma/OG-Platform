@@ -5,19 +5,19 @@
  */
 package com.opengamma.util.db;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test DbUtils.
  */
+@Test
 public class DbHelperTest {
 
   protected DbHelper _helper = new MockDbHelper();
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_isWildcard() {
     assertEquals(true, _helper.isWildcard("a*"));
     assertEquals(true, _helper.isWildcard("a?"));
@@ -32,7 +32,6 @@ public class DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlWildcardOperator() {
     assertEquals("LIKE", _helper.sqlWildcardOperator("a*"));
     assertEquals("LIKE", _helper.sqlWildcardOperator("a?"));
@@ -47,7 +46,6 @@ public class DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlWildcardAdjustValue() {
     assertEquals("a%", _helper.sqlWildcardAdjustValue("a*"));
     assertEquals("a_", _helper.sqlWildcardAdjustValue("a?"));
@@ -65,7 +63,6 @@ public class DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlWildcardQuery() {
     assertEquals("AND col LIKE :arg ", _helper.sqlWildcardQuery("AND col ", ":arg", "a*"));
     assertEquals("AND col LIKE :arg ", _helper.sqlWildcardQuery("AND col ", ":arg", "a?"));
@@ -80,7 +77,6 @@ public class DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlApplyPaging_noPaging() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo ",
@@ -90,14 +86,12 @@ public class DbHelperTest {
         _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", PagingRequest.ALL));
   }
 
-  @Test
   public void test_sqlApplyPaging_limit() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo FETCH FIRST 20 ROWS ONLY ",
         _helper.sqlApplyPaging("SELECT foo FROM bar WHERE TRUE ", "ORDER BY foo ", new PagingRequest(1, 20)));
   }
 
-  @Test
   public void test_sqlApplyPaging_offsetLimit() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo OFFSET 40 ROWS FETCH NEXT 20 ROWS ONLY ",

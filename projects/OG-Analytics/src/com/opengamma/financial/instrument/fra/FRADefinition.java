@@ -136,7 +136,7 @@ public class FRADefinition implements FixedIncomeInstrumentDefinition<ForwardRat
 
   @Override
   public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return visitor.visitFRADefintion(this, data);
+    return visitor.visitFRADefinition(this, data);
   }
 
   @Override

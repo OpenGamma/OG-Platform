@@ -5,10 +5,10 @@
  */
 package com.opengamma.transport.socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +19,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.FudgeConnection;
@@ -31,6 +31,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the SocketFudgeConnection and ServerSocketFudgeConnectionReceiver classes
  */
+@Test
 public class SocketFudgeConnectionConduitTest {
   
   private final AtomicInteger _uid = new AtomicInteger();
@@ -41,7 +42,6 @@ public class SocketFudgeConnectionConduitTest {
     return message;
   }
 
-  @Test
   public void simpleTest() throws Exception {
     final FudgeFieldContainer testMessage1 = createMessage();
     final FudgeFieldContainer testMessage2 = createMessage();
@@ -72,7 +72,6 @@ public class SocketFudgeConnectionConduitTest {
     server.stop();
   }
   
-  @Test
   public void messageReceiverTest() throws Exception {
     final FudgeFieldContainer testMessage1 = createMessage();
     final FudgeFieldContainer testMessage2 = createMessage();
@@ -156,7 +155,6 @@ public class SocketFudgeConnectionConduitTest {
 
   }
 
-  @Test
   public void parallelIOTest() throws Exception {
     final MessageReadWrite serverThread = new MessageReadWrite();
     // receiver will attach the serverThread to the connection and start the thread
@@ -244,7 +242,6 @@ public class SocketFudgeConnectionConduitTest {
     return result;
   }
 
-  @Test
   public void parallelSendTest_single_single() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     final int[] result = parallelSendTest(null, null, concurrencyMax);
@@ -255,7 +252,6 @@ public class SocketFudgeConnectionConduitTest {
     assertEquals(2, result[3]);
   }
 
-  @Test
   public void parallelSendTest_multi_single() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     final int[] result = parallelSendTest(Executors.newCachedThreadPool(), null, concurrencyMax);
@@ -272,7 +268,6 @@ public class SocketFudgeConnectionConduitTest {
     assertEquals(2, result[3]);
   }
 
-  @Test
   public void parallelSendTest_single_multi() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     final int[] result = parallelSendTest(null, Executors.newCachedThreadPool(), concurrencyMax);
@@ -283,7 +278,6 @@ public class SocketFudgeConnectionConduitTest {
     assertEquals(2, result[3]);
   }
 
-  @Test
   public void parallelSendTest_multi_multi() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     final int[] result = parallelSendTest(Executors.newCachedThreadPool(), Executors.newCachedThreadPool(), concurrencyMax);

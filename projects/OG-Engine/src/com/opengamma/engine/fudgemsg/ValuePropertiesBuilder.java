@@ -25,20 +25,45 @@ import org.fudgemsg.types.StringFieldType;
 import com.opengamma.engine.value.ValueProperties;
 
 /**
- * Fudge message builder for {@link ValueProperties}. Format is one field per property, named after the property.
- * If the property is a wild-card, an indicator is used. If the property has a single value, a string is used. If
- * the property has multiple values, a sub-message containing unnamed fields with the string values is used.
+ * Fudge message builder for {@link ValueProperties}.
+ * 
+ *  For finite properties there is a field named with:
+ *    Format is one field per property, named after the property.
+ *    If the property is a wild-card, an indicator is used. If the property has a single value, a string is used. If
+ *      the property has multiple values, a sub-message containing unnamed fields with the string values is used.
+ *  For infinite properties there is a field named without:
+ *    Format is one field per property, named after the property.
+ * 
+ * See {@link NearlyInfiniteValuePropertiesBuilder} for an exception to this builder
  */
 @GenericFudgeBuilderFor(ValueProperties.class)
 public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
 
+  private static final String WITH_FIELD = "with";
+  private static final String WITHOUT_FIELD = "without";
+
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final ValueProperties object) {
     final MutableFudgeFieldContainer message = context.newMessage();
+
     if (!object.isEmpty()) {
       if (object.getProperties().isEmpty()) {
-        message.add(null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+        //Infinite or NearlyInfinite
+
+        MutableFudgeFieldContainer withoutMessage = context.newMessage();
+        message.add(WITHOUT_FIELD, withoutMessage);
+
+        if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(object)) {
+          ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) (object);
+          for (String without : nearlyInifite.getWithout()) {
+            withoutMessage.add((String) null, without);
+          }
+        }
+
       } else {
+        MutableFudgeFieldContainer withMessage = context.newMessage();
+        message.add(WITH_FIELD, withMessage);
+
         for (String propertyName : object.getProperties()) {
           final Set<String> propertyValues = object.getValues(propertyName);
           final boolean optional = object.isOptional(propertyName);
@@ -50,11 +75,11 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
             for (String propertyValue : propertyValues) {
               subMessage.add(null, null, StringFieldType.INSTANCE, propertyValue);
             }
-            message.add(propertyName, null, FudgeMsgFieldType.INSTANCE, subMessage);
+            withMessage.add(propertyName, null, FudgeMsgFieldType.INSTANCE, subMessage);
           } else if (propertyValues.isEmpty()) {
-            message.add(propertyName, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+            withMessage.add(propertyName, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
           } else {
-            message.add(propertyName, null, StringFieldType.INSTANCE, propertyValues.iterator().next());
+            withMessage.add(propertyName, null, StringFieldType.INSTANCE, propertyValues.iterator().next());
           }
         }
       }
@@ -68,15 +93,21 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
       return ValueProperties.none();
     }
     final ValueProperties.Builder builder = ValueProperties.builder();
-    for (FudgeField field : message) {
-      final String propertyName = field.getName();
-      if (propertyName == null) {
-        if (field.getType().getTypeId() == FudgeTypeDictionary.INDICATOR_TYPE_ID) {
-          return ValueProperties.all();
-        }
-        // Shouldn't happen
-        continue;
+
+    FudgeFieldContainer withoutMessage = message.getMessage(WITHOUT_FIELD);
+    if (withoutMessage != null) {
+      //Infinite or NearlyInfinite
+      ValueProperties ret = ValueProperties.all();
+      for (FudgeField fudgeField : withoutMessage) {
+        ret = ret.withoutAny((String) fudgeField.getValue());
       }
+      return ret;
+    }
+
+    FudgeFieldContainer withMessage = message.getMessage(WITH_FIELD);
+    for (FudgeField field : withMessage) {
+      final String propertyName = field.getName();
+      
       switch (field.getType().getTypeId()) {
         case FudgeTypeDictionary.INDICATOR_TYPE_ID:
           builder.withAny(propertyName);
