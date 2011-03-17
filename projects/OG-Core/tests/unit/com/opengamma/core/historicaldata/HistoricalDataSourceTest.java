@@ -5,9 +5,9 @@
  */
 package com.opengamma.core.historicaldata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,7 +16,6 @@ import java.util.Set;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test HistoricalDataSource.
  */
+@Test
 public class HistoricalDataSourceTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalDataSourceTest.class);
@@ -44,7 +44,7 @@ public class HistoricalDataSourceTest {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
 
-  public LocalDateDoubleTimeSeries randomTimeSeries() {
+  private LocalDateDoubleTimeSeries randomTimeSeries() {
     MutableLocalDateDoubleTimeSeries dts = new ListLocalDateDoubleTimeSeries();
     LocalDate start = LocalDate.of(2000, 1, 2);
     LocalDate end = start.plusYears(10);
@@ -58,7 +58,7 @@ public class HistoricalDataSourceTest {
     return dts;
   }
 
-  public int random(int maxBoundExclusive) {
+  private int random(int maxBoundExclusive) {
     return (int) (Math.floor(Math.random() * maxBoundExclusive));
   }
 
@@ -75,7 +75,7 @@ public class HistoricalDataSourceTest {
   // now put in a test as it gets near the limit.
   private String makeUniqueRandomId() {
     if (_usedIds.size() > 26 * 26 * 90) {
-      fail("tried to create too many ids");
+      Assert.fail("tried to create too many ids");
     }
     String id;
     do {
@@ -135,12 +135,10 @@ public class HistoricalDataSourceTest {
     return Pair.of((HistoricalDataSource) inMemoryHistoricalDataProvider, map.keySet());
   }
 
-  @Test
   public void testInMemoryProvider() {
     buildAndTestInMemoryProvider();
   }
 
-  @Test
   public void testEHCachingHistoricalDataProvider() {
     Pair<HistoricalDataSource, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalDataSource inMemoryHistoricalDataProvider = providerAndDsids.getFirst();

@@ -1,5 +1,7 @@
 <project name="og-core" default="compile">
 	<property file="build.properties" />
 
+    <target name="tests" depends="testng-batch" description="--> run unit tests and generate report"/>
+    
 	<import file="${common.dir}/common.xml" />
 </project>
