@@ -8,14 +8,9 @@ package com.opengamma.util.timeseries;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Ignore;
-
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class DateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Date> {
   @Override
   public Date[] testTimes() {

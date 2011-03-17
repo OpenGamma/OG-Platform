@@ -5,12 +5,12 @@
  */
 package com.opengamma.transport.socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,11 +21,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeSize;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 
+/**
+ * Test.
+ */
+@Test
 public class MessageBatchingWriterTest {
 
   private static final class DelayingOutputStream extends OutputStream {
@@ -56,13 +60,12 @@ public class MessageBatchingWriterTest {
   private DelayingOutputStream _out;
   private MessageBatchingWriter _writer;
 
-  @Before
+  @BeforeMethod
   public void init() throws IOException {
     _out = new DelayingOutputStream();
     _writer = new MessageBatchingWriter(FudgeContext.GLOBAL_DEFAULT, _out);
   }
 
-  @Test
   public void sequentialWritesNoBatching() {
     final int count = 10;
     for (int i = 0; i < count; i++) {
@@ -74,7 +77,6 @@ public class MessageBatchingWriterTest {
     assertEquals(count * FudgeSize.calculateMessageEnvelopeSize(FudgeContext.EMPTY_MESSAGE), _out._writes.get(Thread.currentThread()).intValue());
   }
 
-  @Test
   public void concurrentWritesWithBatching() throws InterruptedException {
     final Thread[] threads = new Thread[6];
     for (int i = 0; i < threads.length; i++) {

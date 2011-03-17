@@ -10,9 +10,12 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
+@Test
 public class MapLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeSeriesTest {
 
   @Override

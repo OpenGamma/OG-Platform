@@ -5,20 +5,20 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test ObjectsPair.
  */
+@Test
 public class ObjectsPairTest {
 
-  @Test
   public void test_Pair_Of_String_String() {
     ObjectsPair<String, String> test = Pair.of("A", "B");
     assertEquals("A", test.getFirst());
@@ -27,7 +27,6 @@ public class ObjectsPairTest {
     assertEquals("B", test.getValue());
   }
 
-  @Test
   public void test_Pair_Of_Double_double() {
     ObjectsPair<Double,Double> test = Pair.of(Double.valueOf(1.5), -0.3d);
     assertEquals(Double.valueOf(1.5d), test.getFirst());
@@ -36,7 +35,6 @@ public class ObjectsPairTest {
     assertEquals(Double.valueOf(-0.3d), test.getValue());
   }
 
-  @Test
   public void test_Pair_Of_double_Double() {
     ObjectsPair<Double,Double> test = Pair.of(1.5d, Double.valueOf(-0.3d));
     assertEquals(Double.valueOf(1.5d), test.getFirst());
@@ -46,7 +44,6 @@ public class ObjectsPairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_ObjectsPair_Of_String_String() {
     ObjectsPair<String, String> test = ObjectsPair.of("A", "B");
     assertEquals("A", test.getFirst());
@@ -56,7 +53,6 @@ public class ObjectsPairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void testPair_Object_Object() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", "B");
     assertEquals("A", test.getFirst());
@@ -65,7 +61,6 @@ public class ObjectsPairTest {
     assertEquals("B", test.getValue());
   }
 
-  @Test
   public void testPair_Object_null() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", null);
     assertEquals("A", test.getFirst());
@@ -74,7 +69,6 @@ public class ObjectsPairTest {
     assertEquals(null, test.getValue());
   }
 
-  @Test
   public void testPair_null_Object() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, "B");
     assertEquals(null, test.getFirst());
@@ -83,7 +77,6 @@ public class ObjectsPairTest {
     assertEquals("B", test.getValue());
   }
 
-  @Test
   public void testPair_null_null() {
     ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, null);
     assertEquals(null, test.getFirst());
@@ -93,20 +86,19 @@ public class ObjectsPairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue() {
     ObjectsPair<String,String> pair = new ObjectsPair<String, String>("A", "B");
     pair.setValue("C");
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_null() {
     ObjectsPair<String,String> pair = new ObjectsPair<String, String>("A", "B");
     pair.setValue(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toList() {
     Pair<String, String> ab = Pair.of("A", "B");
     List<String> test = ab.toList();
@@ -115,7 +107,6 @@ public class ObjectsPairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_compareTo() {
     ObjectsPair<String, String> ab = Pair.of("A", "B");
     ObjectsPair<String, String> ac = Pair.of("A", "C");
@@ -134,7 +125,6 @@ public class ObjectsPairTest {
     assertTrue(ba.compareTo(ba) == 0);
   }
 
-  @Test
   public void test_compareTo_withNull() {
     ObjectsPair<String, String> nn = Pair.of(null, null);
     ObjectsPair<String, String> na = Pair.of(null, "A");
@@ -162,7 +152,6 @@ public class ObjectsPairTest {
     assertTrue(aa.compareTo(aa) == 0);
   }
 
-  @Test
   public void test_equals() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(1, "Goodbye");
@@ -189,7 +178,6 @@ public class ObjectsPairTest {
     assertTrue(d.equals(d));
   }
 
-  @Test
   public void test_equals_withNull() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
@@ -216,7 +204,6 @@ public class ObjectsPairTest {
     assertTrue(d.equals(d));
   }
 
-  @Test
   public void test_equals_other() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     
@@ -224,7 +211,6 @@ public class ObjectsPairTest {
     assertFalse(a.equals(null));
   }
 
-  @Test
   public void test_hashCode() {
     ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
     ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
@@ -242,7 +228,6 @@ public class ObjectsPairTest {
     // can't test for different hash codes as they might not be different
   }
 
-  @Test
   public void test_toString() {
     Pair<String, String> test = Pair.of("A", "B");
     assertEquals("[A, B]", test.toString());

@@ -5,14 +5,16 @@
  */
 package com.opengamma.util.timeseries;
 
-
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
+@Test
 public class ArrayLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeSeriesTest {
 
   @Override

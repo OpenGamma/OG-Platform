@@ -5,14 +5,14 @@
  */
 package com.opengamma.transport.jaxrs;
 
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.mockito.Mockito;
 
 import com.sun.jersey.api.representation.Form;
@@ -21,9 +21,9 @@ import com.sun.jersey.spi.container.ContainerRequest;
 /**
  * Test HttpMethodFilter.
  */
+@Test
 public class HttpMethodFilterTest {
 
-  @Test
   public void test_filter_noActionOnGet() {
     ContainerRequest mock = Mockito.mock(ContainerRequest.class);
     when(mock.getMethod()).thenReturn("GET");
@@ -36,7 +36,6 @@ public class HttpMethodFilterTest {
     verifyNoMoreInteractions(mock);
   }
 
-  @Test
   public void test_filter_noActionOnPostNoForm() {
     ContainerRequest mock = Mockito.mock(ContainerRequest.class);
     when(mock.getMethod()).thenReturn("POST");
@@ -51,7 +50,6 @@ public class HttpMethodFilterTest {
     verifyNoMoreInteractions(mock);
   }
 
-  @Test
   public void test_filter_noActionOnPostFormPut() {
     ContainerRequest mock = Mockito.mock(ContainerRequest.class);
     when(mock.getMethod()).thenReturn("POST");
@@ -69,7 +67,6 @@ public class HttpMethodFilterTest {
     verifyNoMoreInteractions(mock);
   }
 
-  @Test
   public void test_filter_noActionOnPostFormDelete() {
     ContainerRequest mock = Mockito.mock(ContainerRequest.class);
     when(mock.getMethod()).thenReturn("POST");
@@ -87,7 +84,6 @@ public class HttpMethodFilterTest {
     verifyNoMoreInteractions(mock);
   }
 
-  @Test
   public void test_filter_noActionOnPostFormNoMatch() {
     ContainerRequest mock = Mockito.mock(ContainerRequest.class);
     when(mock.getMethod()).thenReturn("POST");

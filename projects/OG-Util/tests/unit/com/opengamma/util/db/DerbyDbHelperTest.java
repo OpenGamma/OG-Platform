@@ -5,13 +5,14 @@
  */
 package com.opengamma.util.db;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test DerbyDbHelper.
  */
+@Test
 public class DerbyDbHelperTest extends DbHelperTest {
 
   public DerbyDbHelperTest() {
@@ -19,23 +20,19 @@ public class DerbyDbHelperTest extends DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getJDBCDriver() {
     assertEquals(org.apache.derby.jdbc.EmbeddedDriver.class, _helper.getJDBCDriverClass());
   }
 
-  @Test
   public void test_getHibernateDialect() {
     assertEquals(org.hibernate.dialect.DerbyDialect.class, _helper.getHibernateDialect().getClass());
   }
 
-  @Test
   public void test_getName() {
     assertEquals("Derby", _helper.getName());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlNextSequenceValueSelect() {
     assertEquals("SELECT NEXT VALUE FOR MySeq FROM sysibm.sysdummy1", _helper.sqlNextSequenceValueSelect("MySeq"));
   }
