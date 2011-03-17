@@ -6,29 +6,28 @@
 package com.opengamma.util.timeseries;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgFormatter;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
-@Ignore
+@Test
 public abstract class DoubleTimeSeriesTest<E> {
   
   @SuppressWarnings("unused")
@@ -43,7 +42,6 @@ public abstract class DoubleTimeSeriesTest<E> {
   public abstract E[] testTimes();
   public abstract E[] testTimes2();
   
-  @Test
   public void testArrayConstructor() {
     DoubleTimeSeries<E> dts = createTimeSeries(emptyTimes(), new double[0]);
     assertEquals(0, dts.size());
@@ -57,7 +55,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     }
   }
   
-  @Test
   public void testListConstructor() {
     DoubleTimeSeries<E> dts = createTimeSeries(new ArrayList<E>(), new ArrayList<Double>());
     assertEquals(0, dts.size());
@@ -77,7 +74,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     }
   }
   
-  @Test
   public void testTimeSeriesConstructor() {
     DoubleTimeSeries<E> dts = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts2 = createTimeSeries(dts);
@@ -105,7 +101,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     return createTimeSeries(times, values);
   }
   
-  @Test
   public void testHead() {
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
     DoubleTimeSeries<E> head5 = (DoubleTimeSeries<E>) dts.head(5);
@@ -119,7 +114,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(createEmptyTimeSeries().head(0), createEmptyTimeSeries());
   }
   
-  @Test
   public void testTail() {
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
     DoubleTimeSeries<E> tail5 = (DoubleTimeSeries<E>) dts.tail(5);
@@ -133,7 +127,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(createEmptyTimeSeries().tail(0), createEmptyTimeSeries());
   }
   
-  @Test
   public void testSize() {
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
     assertEquals(6, dts.size());
@@ -141,7 +134,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(0, emptyTS.size());
   }
 
-  @Test
   public void testIsEmpty() {
     DoubleTimeSeries<E> empty = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -149,7 +141,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertFalse(dts.isEmpty());
   }
 
-  @Test
   public void testGetLatestInstant() {
     DoubleTimeSeries<E> empty = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -163,7 +154,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test
   public void testGetLatestValue() {
     DoubleTimeSeries<E> empty = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -176,7 +166,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test
   public void testGetEarliestInstant() {
     DoubleTimeSeries<E> empty = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -190,7 +179,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();    
   }
 
-  @Test
   public void testGetEarliestValue() {
     DoubleTimeSeries<E> empty = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -203,7 +191,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test
   public void testValuesIterator() {
     Iterator<Double> emptyValuesIter = createEmptyTimeSeries().valuesIterator();
     Iterator<Double> dtsValuesIter = createStandardTimeSeries().valuesIterator();
@@ -225,7 +212,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test
   public void testTimeIterator() {    
     Iterator<E> emptyTimesIter = createEmptyTimeSeries().timeIterator();
     Iterator<E> dtsTimesIter = createStandardTimeSeries().timeIterator();
@@ -248,7 +234,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test
   public void testIterator() {
     Iterator<Entry<E, Double>> emptyIter = createEmptyTimeSeries().iterator();
     Iterator<Entry<E, Double>> dtsIter = createStandardTimeSeries().iterator();
@@ -273,7 +258,7 @@ public abstract class DoubleTimeSeriesTest<E> {
     fail();
   }
 
-  @Test(expected = IndexOutOfBoundsException.class)
+  @Test(expectedExceptions = IndexOutOfBoundsException.class)
   public void testGetDataPoint() {
     DoubleTimeSeries<E> emptyTS = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -288,7 +273,6 @@ public abstract class DoubleTimeSeriesTest<E> {
   }
 
   @SuppressWarnings("cast")
-  @Test
   public void testSubSeriesInstantProviderInstantProvider() {
     DoubleTimeSeries<E> emptyTS = createEmptyTimeSeries();
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
@@ -310,13 +294,11 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 
-  @Test
   public void testHashCode() {
     assertEquals(createStandardTimeSeries().hashCode(), createStandardTimeSeries().hashCode());
     assertEquals(createEmptyTimeSeries().hashCode(), createEmptyTimeSeries().hashCode());
   }
 
-  @Test
   public void testEquals() {
     assertEquals(createStandardTimeSeries(), createStandardTimeSeries());
     assertFalse(createStandardTimeSeries().equals(createEmptyTimeSeries()));
@@ -345,7 +327,6 @@ public abstract class DoubleTimeSeriesTest<E> {
 //    assertEquals(createStandardTimeSeries(), createStandardTimeSeries().toMutableZonedDateTimeDoubleTimeSeries());
   }
   
-  @Test
   public void testOperators() {
     DoubleTimeSeries<E> dts = createStandardTimeSeries();
     DoubleTimeSeries<E> dts2 = createStandardTimeSeries2();
@@ -403,7 +384,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts3.getValueAt(1), noIntersecOp.getValueAt(7));
   }
   
-  @Test
   public void testScalarOperators() {
     assertOperationSuccessful(createStandardTimeSeries().add(10.0), new double[] {11.0, 12.0, 13.0, 14.0, 15.0, 16.0});
     assertOperationSuccessful(createStandardTimeSeries().subtract(1.0), new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0});
@@ -415,7 +395,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertOperationSuccessful(createStandardTimeSeries().average(2.0), new double[] {1.5, 2.0, 2.5, 3.0, 3.5, 4.0});
   }
   
-  @Test
   public void testFudgeSerialization() {
     FudgeFieldContainer msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(createStandardTimeSeries()).getMessage();
     FudgeMsgFormatter.outputToSystemOut(msg);

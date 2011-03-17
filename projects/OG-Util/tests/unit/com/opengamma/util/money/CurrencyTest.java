@@ -5,16 +5,16 @@
  */
 package com.opengamma.util.money;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -22,12 +22,12 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test CurrencyUnit.
  */
+@Test
 public class CurrencyTest {
 
   //-----------------------------------------------------------------------
   // constants
   //-----------------------------------------------------------------------
-  @Test
   public void test_constants() {
       assertEquals(Currency.USD, Currency.of("USD"));
       assertEquals(Currency.EUR, Currency.of("EUR"));
@@ -41,14 +41,13 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // of(Currency)
   //-----------------------------------------------------------------------
-  @Test
   public void test_of_Currency() {
       Currency test = Currency.of(java.util.Currency.getInstance("GBP"));
       assertEquals("GBP", test.getCode());
       assertSame(Currency.GBP, test);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_Currency_nullCurrency() {
       Currency.of((java.util.Currency) null);
   }
@@ -56,21 +55,19 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // of(String)
   //-----------------------------------------------------------------------
-  @Test
   public void test_of_String() {
       Currency test = Currency.of("SEK");
       assertEquals("SEK", test.getCode());
       assertSame(Currency.of("SEK"), test);
   }
 
-  @Test
   public void test_of_String_unknownCurrencyCreated() {
     Currency test = Currency.of("AAA");
     assertEquals("AAA", test.getCode());
     assertSame(Currency.of("AAA"), test);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_lowerCase() {
       try {
           Currency.of("gbp");
@@ -80,22 +77,22 @@ public class CurrencyTest {
       }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_empty() {
       Currency.of("");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_tooShort() {
       Currency.of("AB");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_tooLong() {
       Currency.of("ABCD");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_nullString() {
       Currency.of((String) null);
   }
@@ -103,43 +100,40 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // parse(String)
   //-----------------------------------------------------------------------
-  @Test
   public void test_parse_String() {
       Currency test = Currency.parse("GBP");
       assertEquals("GBP", test.getCode());
       assertSame(Currency.GBP, test);
   }
 
-  @Test
   public void test_parse_String_unknownCurrencyCreated() {
     Currency test = Currency.parse("AAA");
     assertEquals("AAA", test.getCode());
     assertSame(Currency.of("AAA"), test);
   }
 
-  @Test
   public void test_parse_String_lowerCase() {
     Currency test = Currency.parse("gbp");
     assertEquals("GBP", test.getCode());
     assertSame(Currency.GBP, test);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_String_empty() {
       Currency.parse("");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_String_tooShort() {
       Currency.parse("AB");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_String_tooLong() {
       Currency.parse("ABCD");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_String_nullString() {
       Currency.parse((String) null);
   }
@@ -147,7 +141,6 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // Serialisation
   //-----------------------------------------------------------------------
-  @Test
   public void test_serialization_GBP() throws Exception {
       Currency cu = Currency.of("GBP");
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -159,7 +152,6 @@ public class CurrencyTest {
       assertSame(input, cu);
   }
 
-  @Test
   public void test_serialization_AAB() throws Exception {
     Currency cu = Currency.of("AAB");
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -174,7 +166,6 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // gets
   //-----------------------------------------------------------------------
-  @Test
   public void test_gets() {
       Currency test = Currency.of("GBP");
       assertEquals("GBP", test.getCode());
@@ -186,7 +177,6 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // compareTo()
   //-----------------------------------------------------------------------
-  @Test
   public void test_compareTo() {
       Currency a = Currency.EUR;
       Currency b = Currency.GBP;
@@ -205,7 +195,7 @@ public class CurrencyTest {
       assertTrue(c.compareTo(b) > 0);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expectedExceptions = NullPointerException.class)
   public void test_compareTo_null() {
       Currency.EUR.compareTo(null);
   }
@@ -213,7 +203,6 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // equals() hashCode()
   //-----------------------------------------------------------------------
-  @Test
   public void test_equals_hashCode() {
       Currency a = Currency.GBP;
       Currency b = Currency.of("GBP");
@@ -230,7 +219,6 @@ public class CurrencyTest {
       assertEquals(b.equals(c), false);
   }
 
-  @Test
   public void test_equals_false() {
       Currency a = Currency.GBP;
       assertEquals(a.equals(null), false);
@@ -241,7 +229,6 @@ public class CurrencyTest {
   //-----------------------------------------------------------------------
   // toString()
   //-----------------------------------------------------------------------
-  @Test
   public void test_toString() {
       Currency test = Currency.GBP;
       assertEquals(test.toString(), "GBP");

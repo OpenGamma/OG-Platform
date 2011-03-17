@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.fudgemsg.BuilderTestProxyFactory.BuilderTestProxy;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
@@ -27,12 +28,13 @@ public abstract class AbstractBuilderTestCase {
   private FudgeContext _context;
   private FudgeSerializationContext _serialization;
   private FudgeDeserializationContext _deserialization;
-  
+  private BuilderTestProxy _proxy;
   @Before
   public void createContexts () {
     _context = OpenGammaFudgeContext.getInstance ();
     _serialization = new FudgeSerializationContext (_context);
     _deserialization = new FudgeDeserializationContext (_context);
+    _proxy = new BuilderTestProxyFactory().getProxy();
   }
   
   protected FudgeContext getFudgeContext () {
@@ -51,7 +53,12 @@ public abstract class AbstractBuilderTestCase {
     getLogger ().debug ("cycle object {} of class {}", object, clazz);
     final FudgeFieldContainer message = getFudgeSerializationContext ().objectToFudgeMsg(object);
     getLogger ().debug ("message {}", message);
-    final T cycled = getFudgeDeserializationContext ().fudgeMsgToObject(clazz, message);
+    
+    
+    final FudgeFieldContainer proxiedMessage = _proxy.proxy(message);
+    getLogger ().debug ("message after proxy {}", proxiedMessage);
+    
+    final T cycled = getFudgeDeserializationContext ().fudgeMsgToObject(clazz, proxiedMessage);
     getLogger ().debug ("created object {}", cycled);
     return cycled;
   }

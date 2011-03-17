@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.List;
 
@@ -15,16 +15,14 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Tests the various Fudge-specific conduit forms.
- *
- * @author kirk
  */
+@Test
 public class FudgeConduitTest {
 
-  @Test
   public void oneWayTest() {
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
@@ -48,7 +46,6 @@ public class FudgeConduitTest {
     assertEquals(new Integer(99), receivedMsg.getInt("Number Problems"));
   }
   
-  @Test
   public void requestResponseTest() {
     FudgeContext context = new FudgeContext();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {

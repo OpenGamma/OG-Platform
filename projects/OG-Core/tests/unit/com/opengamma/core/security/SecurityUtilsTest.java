@@ -5,18 +5,16 @@
  */
 package com.opengamma.core.security;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.id.Identifier;
 
 /**
  * Test SecurityUtils.
  */
+@Test
 public class SecurityUtilsTest {
 
-  @Test
   public void test_constants() {
     assertEquals("ISIN", SecurityUtils.ISIN.getName());
     assertEquals("CUSIP", SecurityUtils.CUSIP.getName());
@@ -27,7 +25,6 @@ public class SecurityUtilsTest {
     assertEquals("RIC", SecurityUtils.RIC.getName());
   }
 
-  @Test
   public void test_identifiers() {
     assertEquals(Identifier.of("ISIN", "A"), SecurityUtils.isinSecurityId("A"));
     assertEquals(Identifier.of("CUSIP", "A"), SecurityUtils.cusipSecurityId("A"));
@@ -38,37 +35,37 @@ public class SecurityUtilsTest {
     assertEquals(Identifier.of("RIC", "A"), SecurityUtils.ricSecurityId("A"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_isin_null() {
     SecurityUtils.isinSecurityId(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_cusip_null() {
     SecurityUtils.cusipSecurityId(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_sedol1_null() {
     SecurityUtils.sedol1SecurityId(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_bloombergBuid_null() {
     SecurityUtils.bloombergBuidSecurityId(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_bloombergTicker_null() {
     SecurityUtils.bloombergTickerSecurityId(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_bloombergTCM_null() {
     SecurityUtils.bloombergTCMSecurityId(null, null, null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_ric_null() {
     SecurityUtils.ricSecurityId(null);
   }

@@ -5,27 +5,25 @@
  */
 package com.opengamma.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
+ * Test VersionUtils.
  */
-public class VersionUtilTest {
+@Test
+public class VersionUtilsTest {
   
-  @Test
   public void validPropertyFile() {
     assertEquals("FIN-507", VersionUtils.getVersion("VersionUtilTest-1"));
   }
   
-  @Test
   public void invalidPropertyFile() {
     checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-2"));
   }
   
-  @Test
   public void noPropertyFile() {
     checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-3"));
   }

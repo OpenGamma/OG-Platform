@@ -5,23 +5,21 @@
  */
 package com.opengamma.transport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
- *
- * @author kirk
+ * Test InMemoryBatchMessageDispatcher.
  */
+@Test
 public class InMemoryBatchMessageDispatcherTest {
   
-  @Test
   public void testBaseUsage() throws Exception {
     InMemoryBatchMessageDispatcher dispatcher = new InMemoryBatchMessageDispatcher();
     final List<Integer> batchSizes = Collections.synchronizedList(new ArrayList<Integer>());
@@ -53,7 +51,7 @@ public class InMemoryBatchMessageDispatcherTest {
     dispatcher.stop();
   }
   
-  public static void assertBatchSize(List<Integer> batchSizes, Integer batchSize) throws InterruptedException {
+  private static void assertBatchSize(List<Integer> batchSizes, Integer batchSize) throws InterruptedException {
     long startTime = System.currentTimeMillis();
     while(batchSizes.isEmpty()) {
       Thread.sleep(100);

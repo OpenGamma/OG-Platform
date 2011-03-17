@@ -5,16 +5,15 @@
  */
 package com.opengamma.util.time;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
- * 
- * @author emcleod
+ * Test TenorUtil.
  */
+@Test
 public class TenorUtilTest {
 
-  @Test
   public void test() {
   }
+
 }

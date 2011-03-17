@@ -5,19 +5,19 @@
  */
 package com.opengamma.util.monitor;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * Test OperationTimer.
  */
+@Test
 public class OperationTimerTest {
   private static final Logger s_logger = LoggerFactory.getLogger(OperationTimerTest.class);
   
-  @Test
   public void simpleTest() throws InterruptedException {
     OperationTimer timer = new OperationTimer(s_logger, "Testing");
     Thread.sleep(100);

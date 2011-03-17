@@ -5,20 +5,20 @@
  */
 package com.opengamma.util.db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test Paging.
  */
+@Test
 public final class PagingTest {
 
-  @Test
   public void test_factory_of_Collection_empty() {
     Paging test = Paging.of(Arrays.asList());
     assertEquals(1, test.getPage());
@@ -26,7 +26,6 @@ public final class PagingTest {
     assertEquals(0, test.getTotalItems());
   }
 
-  @Test
   public void test_factory_of_Collection_sizeTwo() {
     Paging test = Paging.of(Arrays.asList("Hello", "There"));
     assertEquals(1, test.getPage());
@@ -35,7 +34,6 @@ public final class PagingTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_factory_of_Collection_PagingRequest_empty() {
     PagingRequest request = new PagingRequest(1, 20);
     Paging test = Paging.of(Arrays.asList(), request);
@@ -44,7 +42,6 @@ public final class PagingTest {
     assertEquals(0, test.getTotalItems());
   }
 
-  @Test
   public void test_factory_of_Collection_PagingRequest_sizeTwo() {
     PagingRequest request = new PagingRequest(1, 20);
     Paging test = Paging.of(Arrays.asList("Hello", "There"), request);
@@ -54,7 +51,6 @@ public final class PagingTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_constructor_3ints() {
     Paging test = new Paging(1, 20, 32);
     assertEquals(1, test.getPage());
@@ -62,7 +58,6 @@ public final class PagingTest {
     assertEquals(32, test.getTotalItems());
   }
 
-  @Test
   public void test_constructor_3ints_empty() {
     Paging test = new Paging(1, 20, 0);
     assertEquals(1, test.getPage());
@@ -70,33 +65,32 @@ public final class PagingTest {
     assertEquals(0, test.getTotalItems());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3ints_page0() {
     new Paging(0, 20, 32);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3ints_pageNegative() {
     new Paging(-1, 20, 32);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3ints_pagingSize0() {
     new Paging(1, 0, 32);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3ints_pagingSizeNegative() {
     new Paging(1, -1, 32);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3ints_totalItemsNegative() {
     new Paging(1, 20, -1);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_constructor_PagingRequest_int() {
     Paging test = new Paging(new PagingRequest(1, 20), 32);
     assertEquals(1, test.getPage());
@@ -104,18 +98,17 @@ public final class PagingTest {
     assertEquals(32, test.getTotalItems());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_PagingRequest_int_totalItemsNegative() {
     new Paging(new PagingRequest(1, 20), -1);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_PagingRequest_int_null() {
     new Paging(null, 0);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getItems_page1() {
     Paging test = new Paging(1, 20, 52);
     assertEquals(1, test.getFirstItem());
@@ -124,7 +117,6 @@ public final class PagingTest {
     assertEquals(20, test.getLastItemIndex());
   }
 
-  @Test
   public void test_getItems_page2() {
     Paging test = new Paging(2, 20, 52);
     assertEquals(21, test.getFirstItem());
@@ -133,7 +125,6 @@ public final class PagingTest {
     assertEquals(40, test.getLastItemIndex());
   }
 
-  @Test
   public void test_getItems_page3() {
     Paging test = new Paging(3, 20, 52);
     assertEquals(41, test.getFirstItem());
@@ -142,14 +133,12 @@ public final class PagingTest {
     assertEquals(52, test.getLastItemIndex());
   }
 
-  @Test
   public void test_getTotalPages() {
     assertEquals(2, new Paging(1, 20, 39).getTotalPages());
     assertEquals(2, new Paging(1, 20, 40).getTotalPages());
     assertEquals(3, new Paging(1, 20, 41).getTotalPages());
   }
   
-  @Test
   public void test_isLastPage() {
     assertTrue(new Paging(2, 20, 39).isLastPage());
     assertTrue(new Paging(2, 20, 40).isLastPage());
@@ -158,7 +147,6 @@ public final class PagingTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals_equal() {
     Paging test1 = new Paging(1, 20, 52);
     Paging test2 = new Paging(1, 20, 52);
@@ -168,7 +156,6 @@ public final class PagingTest {
     assertEquals(true, test2.equals(test2));
   }
 
-  @Test
   public void test_equals_notEqualPage() {
     Paging test1 = new Paging(1, 20, 52);
     Paging test2 = new Paging(2, 20, 52);
@@ -176,7 +163,6 @@ public final class PagingTest {
     assertEquals(false, test2.equals(test1));
   }
 
-  @Test
   public void test_equals_notEqualPagingSize() {
     Paging test1 = new Paging(1, 20, 52);
     Paging test2 = new Paging(1, 30, 52);
@@ -184,7 +170,6 @@ public final class PagingTest {
     assertEquals(false, test2.equals(test1));
   }
 
-  @Test
   public void test_equals_notEqualTotalItems() {
     Paging test1 = new Paging(1, 20, 52);
     Paging test2 = new Paging(1, 20, 12);
@@ -193,7 +178,6 @@ public final class PagingTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_hashCode_equal() {
     Paging test1 = new Paging(1, 20, 52);
     Paging test2 = new Paging(1, 20, 52);
@@ -201,7 +185,6 @@ public final class PagingTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toString() {
     Paging test = new Paging(1, 20, 52);
     assertEquals("Paging[page=1, pagingSize=20, totalItems=52]", test.toString());

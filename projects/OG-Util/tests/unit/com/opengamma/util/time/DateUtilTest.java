@@ -5,8 +5,8 @@
  */
 package com.opengamma.util.time;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
@@ -15,17 +15,15 @@ import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
- * 
- * @author emcleod
+ * Test DateUtil.
  */
+@Test
 public class DateUtilTest {
   private static final double EPS = 1e-9;
 
-  @Test
   public void testDifferenceInYears() {
     final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
@@ -58,7 +56,6 @@ public class DateUtilTest {
     assertEquals(DateUtil.getDifferenceInYears(startDate, endDate, leapYearDays), 1, EPS);
   }
 
-  @Test
   public void testDateOffsetWithYearFraction() {
     final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.of(LocalDate.of(2002, 1, 1), LocalTime.of(6, 0), TimeZone.UTC);
@@ -94,7 +91,6 @@ public class DateUtilTest {
     assertEquals(DateUtil.getDateOffsetWithYearFraction(startDate, 1, daysPerYear), endDate);
   }
 
-  @Test
   public void testUTCDate() {
     final int year = 2009;
     final int month = 9;
@@ -117,12 +113,10 @@ public class DateUtilTest {
     assertEquals(date.getZone(), TimeZone.UTC);
   }
 
-  @Test
   public void testDateInTimeZone() {
     // TODO don't know how to create time zones
   }
 
-  @Test
   public void testExactDaysBetween() {
     // TODO don't know how to create time zones
     // final ZonedDateTime startDate = DateUtil.getDateInTimeZone(2000, 1, 1, 0,
@@ -143,7 +137,6 @@ public class DateUtilTest {
     // }
   }
 
-  @Test
   public void testDaysBetween() {
     final ZonedDateTime startDate = DateUtil.getUTCDate(2008, 1, 1);
     final ZonedDateTime endDate = DateUtil.getUTCDate(2009, 1, 1);
@@ -154,7 +147,6 @@ public class DateUtilTest {
     assertEquals(DateUtil.getDaysBetween(startDate, endDate), 366);
   }
   
-  @Test
   public void testPrintYYYYMMDD() {
     final int year = 2009;
     final int month = 9;
@@ -169,7 +161,6 @@ public class DateUtilTest {
     }
   }
   
-  @Test
   public void testPrintMMDD() {
     LocalDate test = LocalDate.of(2010, 1, 1);
     assertEquals("01-01", DateUtil.printMMDD(test));
@@ -182,7 +173,6 @@ public class DateUtilTest {
     
   }
   
-  @Test
   public void testPreviousWeekDay() {
     LocalDate sun = LocalDate.of(2009, 11, 8);
     LocalDate sat = LocalDate.of(2009, 11, 7);
@@ -202,7 +192,6 @@ public class DateUtilTest {
     assertEquals(lastFri, DateUtil.previousWeekDay(mon));
   }
   
-  @Test
   public void testNextWeekDay() {
     LocalDate sun = LocalDate.of(2009, 11, 8);
     LocalDate sat = LocalDate.of(2009, 11, 7);
@@ -222,7 +211,6 @@ public class DateUtilTest {
     assertEquals(tue, DateUtil.nextWeekDay(mon));
   }
 
-  @Test
   public void testToLocalDate() {
     LocalDate D20100328 = LocalDate.of(2010, MonthOfYear.MARCH, 28);
     LocalDate localDate = DateUtil.toLocalDate(20100328);

@@ -5,13 +5,14 @@
  */
 package com.opengamma.util.db;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test PostgreSQLDbHelper.
  */
+@Test
 public class PostgreSQLDbHelperTest extends DbHelperTest {
 
   public PostgreSQLDbHelperTest() {
@@ -19,28 +20,23 @@ public class PostgreSQLDbHelperTest extends DbHelperTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getJDBCDriver() {
     assertEquals(org.postgresql.Driver.class, _helper.getJDBCDriverClass());
   }
 
-  @Test
   public void test_getHibernateDialect() {
     assertEquals(org.hibernate.dialect.PostgreSQLDialect.class, _helper.getHibernateDialect().getClass());
   }
 
-  @Test
   public void test_getName() {
     assertEquals("PostgreSQL", _helper.getName());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_sqlNextSequenceValueSelect() {
     assertEquals("SELECT nextval('MySeq')", _helper.sqlNextSequenceValueSelect("MySeq"));
   }
 
-  @Test
   public void test_sqlNextSequenceValueInline() {
     assertEquals("nextval('MySeq')", _helper.sqlNextSequenceValueInline("MySeq"));
   }

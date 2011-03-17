@@ -5,16 +5,16 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test FirstThenSecondDoublesPairComparator.
  */
+@Test
 public class FirstThenSecondDoublesPairComparatorTest {
 
-  @Test
   public void testSingleton() {
     DoublesPair a = Pair.of(1.0, 1.0);
     DoublesPair b = Pair.of(1.0, 2.0);
@@ -25,7 +25,6 @@ public class FirstThenSecondDoublesPairComparatorTest {
     assertTrue(FirstThenSecondDoublesPairComparator.INSTANCE.compare(b, b) == 0);
   }
 
-  @Test
   public void testCompare() {
     final DoublesPair first = Pair.of(1.0, 3.0);
     final DoublesPair second = Pair.of(1.0, 5.0);

@@ -5,16 +5,14 @@
  */
 package com.opengamma.core.position.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
@@ -27,12 +25,12 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test PositionImpl.
  */
+@Test
 public class PositionImplTest {
   
   private static final Counterparty COUNTERPARTY = new CounterpartyImpl(Identifier.of("CPARTY", "C100"));
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
 
-  @Test
   public void test_construction_BigDecimal_Identifier() {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(null, test.getUniqueId());
@@ -42,18 +40,17 @@ public class PositionImplTest {
     assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_BigDecimal_Identifier_nullBigDecimal() {
     new PositionImpl(null, Identifier.of("A", "B"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_BigDecimal_Identifier_nullIdentifier() {
     new PositionImpl(BigDecimal.ONE, (Identifier) null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_construction_BigDecimal_IdentifierBundle() {
     PositionImpl test = new PositionImpl(BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(null, test.getUniqueId());
@@ -63,18 +60,17 @@ public class PositionImplTest {
     assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_BigDecimal_IdentifierBundle_nullBigDecimal() {
     new PositionImpl(null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_BigDecimal_IdentifierBundle_nullIdentifier() {
     new PositionImpl(BigDecimal.ONE, (IdentifierBundle) null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
@@ -84,23 +80,22 @@ public class PositionImplTest {
     assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, Identifier.of("A", "B"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Identifier_nullIdentifier() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (Identifier) null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, IdentifierBundle.of(Identifier.of("A", "B")));
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueId());
@@ -110,23 +105,22 @@ public class PositionImplTest {
     assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_IdentifierBundle_nullIdentifierBundle() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (IdentifierBundle) null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Security() {
     MockSecurity sec = new MockSecurity("A");
     sec.setIdentifiers(IdentifierBundle.of(Identifier.of("A", "B")));
@@ -138,58 +132,54 @@ public class PositionImplTest {
     assertEquals(true, test.toString().startsWith("Position[B::C, 1"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullUniqueIdentifier() {
     new PositionImpl(null, BigDecimal.ONE, Identifier.of("A", "B"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullBigDecimal() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), null, IdentifierBundle.of(Identifier.of("A", "B")));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_construction_UniqueIdentifier_BigDecimal_Security_nullSecurity() {
     new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, (Security) null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setUniqueId() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setUniqueId(UniqueIdentifier.of("B", "D"));
     assertEquals(UniqueIdentifier.of("B", "D"), test.getUniqueId());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setUniqueId_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setUniqueId(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setQuantity() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setQuantity(BigDecimal.ZERO);
     assertSame(BigDecimal.ZERO, test.getQuantity());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setQuantity_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setQuantity(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setSecurityKey() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setSecurityKey(IdentifierBundle.EMPTY);
     assertSame(IdentifierBundle.EMPTY, test.getSecurityKey());
   }
 
-  @Test
   public void test_setSecurityKey_nullAllowed() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setSecurityKey(null);
@@ -197,7 +187,6 @@ public class PositionImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setSecurity() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     Security sec = new MockSecurity("");
@@ -205,7 +194,6 @@ public class PositionImplTest {
     assertSame(sec, test.getSecurity());
   }
 
-  @Test
   public void test_setSecurity_nullAllowed() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setSecurity(null);
@@ -213,7 +201,6 @@ public class PositionImplTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test
   public void test_addTrade() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertTrue(testPosition.getTrades().isEmpty());
@@ -227,14 +214,13 @@ public class PositionImplTest {
     assertTrue(testPosition.getTrades().containsAll(Lists.newArrayList(testTrade1, testTrade2)));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_addTrade_null() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.addTrade(null);
   }
   
   //-------------------------------------------------------------------------
-  @Test
   public void test_removeTrade() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     assertTrue(testPosition.getTrades().isEmpty());
@@ -253,7 +239,6 @@ public class PositionImplTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test
   public void test_getTrades_readOnly() {
     PositionImpl testPosition = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     TradeImpl testTrade = new TradeImpl(testPosition.getUniqueId(), Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());

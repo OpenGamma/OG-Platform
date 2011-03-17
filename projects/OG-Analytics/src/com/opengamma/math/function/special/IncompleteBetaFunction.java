@@ -5,11 +5,11 @@
  */
 package com.opengamma.math.function.special;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.special.Beta;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -18,9 +18,9 @@ import com.opengamma.util.ArgumentChecker;
  * \\begin{equation*}
  * I_x(a, b)=\\frac{B_x(a, b)}{B(a, b)}\\int_0^x t^{a-1}(1-t)^{b-1}dt
  * \\end{equation*}}
- * where {latex.inline $a, b > 0$}.
+ * where {@latex.inline $a, b > 0$}.
  * <p>
- * This class uses the Commons Math library implementation of the Beta function <a href="http://commons.apache.org/math/api-2.1/index.html">
+ * This class uses the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Beta.html">Commons Math library implementation</a> of the Beta function.
  * 
  */
 public class IncompleteBetaFunction extends Function1D<Double, Double> {
@@ -30,41 +30,26 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
   private final int _maxIter;
 
   /**
-   * 
-   * @param a a
-   * @param b b
-   * @throws IllegalArgumentException If {@latex.inline $a \\leq 0$} or {@latex.inline $b \\leq 0$}
+   * Uses the default values for the accuracy (10<sup>-12</sup>) and number of iterations (10000).
+   * @param a a, {@latex.inline $a > 0$}
+   * @param b b, {@latex.inline $b > 0$}
    */
   public IncompleteBetaFunction(final double a, final double b) {
-    ArgumentChecker.notNegativeOrZero(a, "a");
-    ArgumentChecker.notNegativeOrZero(b, "b");
-    _a = a;
-    _b = b;
-    _maxIter = 10000;
-    _eps = 1e-12;
+    this(a, b, 1e-12, 10000);
   }
 
   /**
    * 
-   * @param a a
-   * @param b b
-   * @param eps epsilon
-   * @param maxIter maximum number of iterations
-   * @throws IllegalArgumentException If: 
-   * <ul>
-   * <li>{@latex.inline $a \\leq 0$}; 
-   * <li>{@latex.inline $b \\leq 0$}; 
-   * <li>eps{@latex.inline $ < 0$};
-   * <li> maxIter{@latex.inline $ < 1$}
-   * </ul>
+   * @param a a, {@latex.inline $a > 0$}
+   * @param b b, {@latex.inline $b > 0$}
+   * @param eps Approximation accuracy, {@latex.inline $\\epsilon \\geq 0$}
+   * @param maxIter Maximum number of iterations, {@latex.inline iter $\\geq 1$}
    */
   public IncompleteBetaFunction(final double a, final double b, final double eps, final int maxIter) {
-    ArgumentChecker.notNegativeOrZero(a, "a");
-    ArgumentChecker.notNegativeOrZero(b, "b");
-    ArgumentChecker.notNegative(eps, "eps");
-    if (maxIter < 1) {
-      throw new IllegalArgumentException("Maximum number of iterations must be greater than zero");
-    }
+    Validate.isTrue(a > 0, "a must be > 0");
+    Validate.isTrue(b > 0, "b must be > 0");
+    Validate.isTrue(eps >= 0, "eps must not be negative");
+    Validate.isTrue(maxIter >= 1, "maximum number of iterations must be greater than zero");
     _a = a;
     _b = b;
     _eps = eps;
@@ -78,9 +63,7 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
    */
   @Override
   public Double evaluate(final Double x) {
-    if (!ArgumentChecker.isInRangeInclusive(0, 1, x)) {
-      throw new IllegalArgumentException("x must be in the range 0 to 1");
-    }
+    Validate.isTrue(x >= 0 && x <= 1, "x must be in the range 0 to 1");
     try {
       return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);
     } catch (final org.apache.commons.math.MathException e) {

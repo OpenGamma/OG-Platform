@@ -5,11 +5,11 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.MagnitudePairComparator;
 import com.opengamma.util.tuple.Pair;
@@ -17,9 +17,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test MagnitudePairComparator.
  */
+@Test
 public class MagnitudePairComparatorTest {
 
-  @Test
   public void testCompare_differentQuadrants() {
     final Pair<Double, Double> first = Pair.of(2.0, 3.0);
     final Pair<Double, Double> second = Pair.of(3.0, 2.0);

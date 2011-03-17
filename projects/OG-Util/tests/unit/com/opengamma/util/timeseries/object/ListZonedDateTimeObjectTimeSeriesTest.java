@@ -12,10 +12,13 @@ import java.util.List;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeObjectTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeObjectTimeSeries;
 
+@Test
 public class ListZonedDateTimeObjectTimeSeriesTest extends ZonedDateTimeObjectTimeSeriesTest {
   @Override
   public ZonedDateTimeObjectTimeSeries<BigDecimal> createEmptyTimeSeries() {
