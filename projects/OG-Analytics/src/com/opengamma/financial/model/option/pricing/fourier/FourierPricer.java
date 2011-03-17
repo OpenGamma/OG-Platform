@@ -21,13 +21,13 @@ import com.opengamma.math.number.ComplexNumber;
 public class FourierPricer {
   private static final IntegralLimitCalculator LIMIT_CALCULATOR = new IntegralLimitCalculator();
   private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
-  private final Integrator1D<Double, Function1D<Double, Double>, Double> _integrator;
+  private final Integrator1D<Double, Double> _integrator;
 
   public FourierPricer() {
     this(new RungeKuttaIntegrator1D());
   }
 
-  public FourierPricer(final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
+  public FourierPricer(final Integrator1D<Double, Double> integrator) {
     Validate.notNull(integrator, "null integrator");
     _integrator = integrator;
   }

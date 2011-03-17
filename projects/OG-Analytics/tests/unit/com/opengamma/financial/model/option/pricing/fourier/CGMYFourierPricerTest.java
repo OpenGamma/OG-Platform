@@ -42,7 +42,7 @@ public class CGMYFourierPricerTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, T, true);
       final double price = pricer.price(data, option, CGMY_CE, -0.5, 1e-6);
       final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-      System.out.println(k + "\t" + impVol);
+      //System.out.println(k + "\t" + impVol);
     }
   }
 

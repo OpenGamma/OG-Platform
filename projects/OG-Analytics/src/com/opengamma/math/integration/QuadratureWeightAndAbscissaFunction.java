@@ -7,10 +7,9 @@ package com.opengamma.math.integration;
 
 /**
  * 
- * @param <S>
- * @param <T>
  */
-public interface GeneratingFunction<S, T> {
+public interface QuadratureWeightAndAbscissaFunction {
 
-  T generate(int n, S... parameters);
+  GaussianQuadratureFunction generate(int n, Double... parameters);
+
 }
