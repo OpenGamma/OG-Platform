@@ -132,6 +132,7 @@ public class CEVPriceFunctionTest {
 
     final CEVFunctionData cevData = new CEVFunctionData(forward, Math.exp(-r * t), volBeta, beta);
     final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+    @SuppressWarnings("unused")
     final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
 
     //System.out.println(cevPrice+"\t"+cevVol);
