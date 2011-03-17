@@ -1,3 +1,14 @@
 <project name="Util">
 	<import file="${basedir}/../build-cpp.xml" />
+
+	<target name="dist" depends="build-cpp.dist">
+		<mkdir dir="${dist.dir}/build/${ant.project.name}" />
+		<copy todir="${dist.dir}/build/${ant.project.name}">
+			<fileset dir="${basedir}">
+				<include name="OpenGamma.ico" />
+				<include name="OpenGamma.rc" />
+			</fileset>
+		</copy>
+	</target>
+
 </project>

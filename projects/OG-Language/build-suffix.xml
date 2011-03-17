@@ -7,12 +7,13 @@
 		<path refid="javatest.build.path" />
 	</path>
 
-	<macrodef name="unpack-include">
+	<macrodef name="unpack-zip">
 		<attribute name="org" />
 		<attribute name="name" />
+		<attribute name="type" />
 		<sequential>
-			<unzip dest="${lib.dir}/include" overwrite="false">
-				<fileset dir="${lib.dir}/include/@{org}/@{name}">
+			<unzip dest="${lib.dir}/@{type}" overwrite="false">
+				<fileset dir="${lib.dir}/@{type}/@{org}/@{name}">
 					<include name="*.zip" />
 				</fileset>
 			</unzip>
@@ -78,15 +79,15 @@
 	</macrodef>
 	<condition property="is.windows" value="true"><os family="windows" /></condition>
 	<target name="unpack-resolve-impl-posix" unless="is.windows">
-		<mkdir dir="${lib.dir}/Debug" />
-		<mkdir dir="${lib.dir}/Release" />
+		<mkdir dir="${lib.dir}/lib/Debug" />
+		<mkdir dir="${lib.dir}/lib/Release" />
 	</target>
 	<target name="unpack-resolve-impl-windows" if="is.windows">
 		<unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
-		<unpack-include org="org.fudgemsg" name="fudge-c" />
+		<unpack-zip org="org.fudgemsg" name="fudge-c" type="include" />
 		<unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />
 		<unpack-dll org="org.apache" name="log4cxx" file="log4cxx" />
-		<unpack-include org="org.apache" name="log4cxx" />
+		<unpack-zip org="org.apache" name="log4cxx" type="include" />
 		<unpack-lib org="org.apache" name="log4cxx" file="log4cxx" />
 		<unpack-dll org="org.apache" name="apr" file="apr" />
 		<unpack-dll org="org.apache" name="apr-util" file="aprutil" />

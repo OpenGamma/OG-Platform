@@ -12,6 +12,8 @@
       <!-- Binary files -->
       <artifact name="og-language-lib" conf="core" type="lib" ext="zip" />
       <artifact name="og-language-bin" conf="core" type="bin" ext="zip" />
+      <!-- Build system -->
+      <artifact name="og-language-build" conf="core" type="source" ext="zip" />
     </publications>
     <dependencies>
       <dependency name="og-financial" rev="latest.integration" conf="opengamma->*" />
