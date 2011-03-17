@@ -105,6 +105,10 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
     }
 
     FudgeFieldContainer withMessage = message.getMessage(WITH_FIELD);
+    if (withMessage == null)
+    {
+      return ValueProperties.none();
+    }
     for (FudgeField field : withMessage) {
       final String propertyName = field.getName();
       
