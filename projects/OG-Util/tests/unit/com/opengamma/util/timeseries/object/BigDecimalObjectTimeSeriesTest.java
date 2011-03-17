@@ -7,14 +7,9 @@ package com.opengamma.util.timeseries.object;
 
 import java.math.BigDecimal;
 
-import org.junit.Ignore;
-
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class BigDecimalObjectTimeSeriesTest<DATE_TYPE> extends ObjectTimeSeriesTest<DATE_TYPE, BigDecimal> {
   @Override
   public BigDecimal[] testValues() {

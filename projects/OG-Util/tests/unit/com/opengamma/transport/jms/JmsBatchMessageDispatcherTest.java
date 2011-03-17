@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport.jms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,20 +15,18 @@ import java.util.List;
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.transport.BatchByteArrayMessageReceiver;
 import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
- * 
- *
- * @author kirk
+ * Test.
  */
+@Test
 public class JmsBatchMessageDispatcherTest {
 
-  @Test
   public void queueOperation() throws InterruptedException {
     String queueName = "JmsBatchMessageDispatcherTest-queueOperation-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtil.createTestConnectionFactory());
@@ -79,7 +77,7 @@ public class JmsBatchMessageDispatcherTest {
     dispatcher.stop();
   }
   
-  public static void assertBatchSize(List<Integer> batchSizes, int totalSize) throws InterruptedException {
+  private static void assertBatchSize(List<Integer> batchSizes, int totalSize) throws InterruptedException {
     int actualTotal = 0;
     long startTime = System.currentTimeMillis();
     while(actualTotal < totalSize) {

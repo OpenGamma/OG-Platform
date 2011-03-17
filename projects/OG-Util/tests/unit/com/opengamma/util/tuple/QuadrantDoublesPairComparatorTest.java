@@ -5,18 +5,18 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test QuadrantDoublesPairComparator.
  */
+@Test
 public class QuadrantDoublesPairComparatorTest {
 
-  @Test
   public void testCompare_differentQuadrants() {
     final DoublesPair first = Pair.of(0.0, 0.0);
     final DoublesPair second = Pair.of(-0.1, 0.0);
@@ -46,7 +46,6 @@ public class QuadrantDoublesPairComparatorTest {
     assertTrue(test.compare(fourth, fourth) == 0);
   }
 
-  @Test
   public void testCompare_sameQuadrant() {
     final DoublesPair first = Pair.of(0.0, 0.0);
     final DoublesPair second = Pair.of(1.0, 0.0);

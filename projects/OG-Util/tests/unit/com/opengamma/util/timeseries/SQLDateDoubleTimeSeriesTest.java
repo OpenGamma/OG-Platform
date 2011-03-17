@@ -5,17 +5,12 @@
  */
 package com.opengamma.util.timeseries;
 
-import java.util.Calendar;
 import java.sql.Date;
-
-import org.junit.Ignore;
+import java.util.Calendar;
 
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class SQLDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest<Date> {
   @Override
   public Date[] testTimes() {

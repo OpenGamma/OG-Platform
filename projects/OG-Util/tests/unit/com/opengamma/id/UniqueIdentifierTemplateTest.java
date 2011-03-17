@@ -5,23 +5,23 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Tests {@link UniqueIdentifierTemplate}. The use of '/' at the end of the prefix is purely to aid readability here;
  * no assumptions are made about the format of the prefix.
  */
+@Test
 public class UniqueIdentifierTemplateTest {
   
   private UniqueIdentifier uid(String scheme, String value) {
     return UniqueIdentifier.of(scheme, value);
   }
   
-  @Test
   public void testSchemeAndValuePrefixTemplate() {
     final String scheme = "testScheme";
     UniqueIdentifierTemplate template = new UniqueIdentifierTemplate(scheme, "testPrefix/");
@@ -32,7 +32,6 @@ public class UniqueIdentifierTemplateTest {
     assertEquals("someValueContent", template.extractValueContent(generated));
   }
   
-  @Test
   public void testSchemeOnlyTemplate() {
     final String scheme = "testScheme";
     UniqueIdentifierTemplate template = new UniqueIdentifierTemplate(scheme);
@@ -42,7 +41,6 @@ public class UniqueIdentifierTemplateTest {
     assertEquals("someValueContent", template.extractValueContent(generated));
   }
   
-  @Test
   public void testConforms() {
     final String scheme = "scheme";
     UniqueIdentifierTemplate template = new UniqueIdentifierTemplate(scheme, "prefix/");
@@ -53,7 +51,6 @@ public class UniqueIdentifierTemplateTest {
     assertFalse(template.conforms(uid("anotherScheme", "prefix/content")));
   }
   
-  @Test
   public void testExtractValueContent() {
     final String scheme = "scheme";
     UniqueIdentifierTemplate template = new UniqueIdentifierTemplate(scheme, "prefix/");

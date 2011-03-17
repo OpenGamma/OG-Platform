@@ -5,9 +5,9 @@
  */
 package com.opengamma.transport.socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
@@ -17,15 +17,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 
 /**
- * 
+ * Test.
  */
+@Test
 public class SocketFudgeMessageConduitTest {
-  @Test
   public void simpleTest() throws Exception {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ServerSocketFudgeMessageReceiver socketReceiver = new ServerSocketFudgeMessageReceiver(collectingReceiver, FudgeContext.GLOBAL_DEFAULT);
@@ -100,14 +100,12 @@ public class SocketFudgeMessageConduitTest {
     assertNotNull (receiver.waitForMessage(2000));
   }
 
-  @Test
   public void parallelSendTest_single() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     parallelSendTest(null, concurrencyMax);
     assertEquals(1, concurrencyMax.get());
   }
 
-  @Test
   public void parallelSendTest_multi() throws Exception {
     final AtomicInteger concurrencyMax = new AtomicInteger(0);
     parallelSendTest(Executors.newCachedThreadPool(), concurrencyMax);

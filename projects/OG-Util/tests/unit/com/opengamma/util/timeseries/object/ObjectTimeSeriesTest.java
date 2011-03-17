@@ -6,26 +6,25 @@
 package com.opengamma.util.timeseries.object;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 
-@Ignore
+@Test
 public abstract class ObjectTimeSeriesTest<E, T> {
   
   @SuppressWarnings("unused")
@@ -43,7 +42,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
   public abstract T[] emptyValues();
   public abstract T[] testValues();
   
-  @Test
   public void testArrayConstructor() {
     ObjectTimeSeries<E, T> dts = createTimeSeries(emptyTimes(), emptyValues());
     assertEquals(0, dts.size());
@@ -57,7 +55,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     }
   }
   
-  @Test
   public void testListConstructor() {
     ObjectTimeSeries<E, T> dts = createTimeSeries(new ArrayList<E>(), new ArrayList<T>());
     assertEquals(0, dts.size());
@@ -77,7 +74,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     }
   }
   
-  @Test
   public void testTimeSeriesConstructor() {
     ObjectTimeSeries<E, T> dts = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts2 = createTimeSeries(dts);
@@ -105,7 +101,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     return createTimeSeries(times, values);
   }
   
-  @Test
   public void testHead() {
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
     ObjectTimeSeries<E, T> head5 = (ObjectTimeSeries<E, T>) dts.head(5);
@@ -119,7 +114,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     assertEquals(createEmptyTimeSeries().head(0), createEmptyTimeSeries());
   }
   
-  @Test
   public void testTail() {
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
     ObjectTimeSeries<E, T> tail5 = (ObjectTimeSeries<E, T>) dts.tail(5);
@@ -133,7 +127,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     assertEquals(createEmptyTimeSeries().tail(0), createEmptyTimeSeries());
   }
   
-  @Test
   public void testSize() {
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
     assertEquals(6, dts.size());
@@ -141,7 +134,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     assertEquals(0, emptyTS.size());
   }
 
-  @Test
   public void testIsEmpty() {
     ObjectTimeSeries<E, T> empty = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -149,7 +141,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     assertFalse(dts.isEmpty());
   }
 
-  @Test
   public void testGetLatestInstant() {
     ObjectTimeSeries<E, T> empty = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -163,7 +154,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test
   public void testGetLatestValue() {
     ObjectTimeSeries<E, T> empty = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -177,7 +167,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test
   public void testGetEarliestInstant() {
     ObjectTimeSeries<E, T> empty = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -191,7 +180,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();    
   }
 
-  @Test
   public void testGetEarliestValue() {
     ObjectTimeSeries<E, T> empty = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -205,7 +193,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test
   public void testValuesIterator() {
     Iterator<T> emptyValuesIter = createEmptyTimeSeries().valuesIterator();
     Iterator<T> dtsValuesIter = createStandardTimeSeries().valuesIterator();
@@ -228,7 +215,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test
   public void testTimeIterator() {    
     Iterator<E> emptyTimesIter = createEmptyTimeSeries().timeIterator();
     Iterator<E> dtsTimesIter = createStandardTimeSeries().timeIterator();
@@ -251,7 +237,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test
   public void testIterator() {
     Iterator<Entry<E, T>> emptyIter = createEmptyTimeSeries().iterator();
     Iterator<Entry<E, T>> dtsIter = createStandardTimeSeries().iterator();
@@ -277,7 +262,7 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     fail();
   }
 
-  @Test(expected = IndexOutOfBoundsException.class)
+  @Test(expectedExceptions = IndexOutOfBoundsException.class)
   public void testGetDataPoint() {
     ObjectTimeSeries<E, T> emptyTS = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -293,7 +278,6 @@ public abstract class ObjectTimeSeriesTest<E, T> {
   }
 
   @SuppressWarnings("cast")
-  @Test
   public void testSubSeriesInstantProviderInstantProvider() {
     ObjectTimeSeries<E, T> emptyTS = createEmptyTimeSeries();
     ObjectTimeSeries<E, T> dts = createStandardTimeSeries();
@@ -314,13 +298,11 @@ public abstract class ObjectTimeSeriesTest<E, T> {
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 
-  @Test
   public void testHashCode() {
     assertEquals(createStandardTimeSeries().hashCode(), createStandardTimeSeries().hashCode());
     assertEquals(createEmptyTimeSeries().hashCode(), createEmptyTimeSeries().hashCode());
   }
 
-  @Test
   public void testEquals() {
     assertEquals(createStandardTimeSeries(), createStandardTimeSeries());
     assertFalse(createStandardTimeSeries().equals(createEmptyTimeSeries()));
