@@ -14,9 +14,8 @@
 #include <time.h>
 #include <string.h>
 #include "Mutex.h"
-#endif /* ifndef _WIN32 */
-
 #include "Error.h"
+#endif /* ifndef _WIN32 */
 
 #define MAX_SEMAPHORE_COUNT	0x7FFFFFFF
 
@@ -82,7 +81,7 @@ public:
 		case WAIT_OBJECT_0 :
 			return true;
 		case WAIT_TIMEOUT :
-			SetLastError (ETIMEDOUT);
+			SetLastError (ERROR_TIMEOUT);
 			return false;
 		default :
 			return false;

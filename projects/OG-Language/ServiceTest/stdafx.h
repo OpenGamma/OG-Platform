@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_servicetest_stdafx_h
-#define __inc_og_language_servicetest_stdafx_h
+#ifndef STDAFX_H
+#define STDAFX_H
 
 #if defined (_WIN32)
 #include <Windows.h>
@@ -22,4 +22,4 @@
 
 #include <Util/AbstractTest.h>
 
-#endif /* ifndef __inc_og_language_servicetest_stdafx_h */
+#endif /* ifndef STDAFX_H */

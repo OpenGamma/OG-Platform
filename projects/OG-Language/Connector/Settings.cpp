@@ -14,6 +14,7 @@
 #endif /* ifdef _WIN32 */
 #include <Util/File.h>
 #include <Util/Process.h>
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.Settings);
 

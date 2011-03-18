@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_connector_stdafx_h
-#define __inc_og_language_connector_stdafx_h
+#ifndef STDAFX_H
+#define STDAFX_H
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -25,4 +25,4 @@
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
 
-#endif /* ifndef __inc_og_language_connector_stdafx_h */
+#endif /* ifdef STDAFX_H */

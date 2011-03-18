@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_utiltest_stdafx_h
-#define __inc_og_language_utiltest_stdafx_h
+#ifndef STDAFX_H
+#define STDAFX_H
 
 // Common include file for all source code in UtilTest
 
@@ -25,4 +25,4 @@
 #include <Util/Unicode.h>
 #include <Util/AbstractTest.h>
 
-#endif /* ifndef __inc_og_language_utiltest_stdafx_h */
+#endif /* ifndef STDAFX_H */
