@@ -5,16 +5,15 @@
  */
 package com.opengamma.master.listener;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.List;
 
 import javax.jms.ConnectionFactory;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
@@ -29,6 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test JmsMasterChangeManager.
  */
+@Test
 public class JmsMasterChangeManagerTest {
 
   private static final long WAIT_TIMEOUT = 30000;
@@ -39,7 +39,7 @@ public class JmsMasterChangeManagerTest {
   private String _topic;
   private DefaultMessageListenerContainer _container;
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
@@ -68,7 +68,7 @@ public class JmsMasterChangeManagerTest {
     _configMaster = new InMemoryConfigMaster(_changeManager);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     if (_container != null) {
       _container.stop();
@@ -76,7 +76,6 @@ public class JmsMasterChangeManagerTest {
     }
   }
 
-  @Test
   public void testAdded() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -93,7 +92,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(addedItem, _testListener.getAddedItem());
   }
 
-  @Test
   public void testRemoved() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -112,7 +110,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(removedItem, _testListener.getRemovedItem());
   }
 
-  @Test
   public void testUpdated() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -133,7 +130,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(Pair.of(oldItem, newItem), _testListener.getUpdatedItem());
   }
 
-  @Test
   public void testMultipleListeners() throws Exception {
     //setup multiple master change listener
     List<TestMasterChangeClient> clients = Lists.newArrayList();

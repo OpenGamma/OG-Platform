@@ -5,7 +5,8 @@
  */
 package com.opengamma.master.security.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,8 +15,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 
 import javax.time.Instant;
-
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
@@ -32,6 +31,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 /**
  * Test MasterSecuritySource.
  */
+@Test
 public class MasterSecuritySourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
@@ -41,18 +41,17 @@ public class MasterSecuritySourceTest {
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
     new MasterSecuritySource(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterSecuritySource(null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getSecurity_noOverride_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
@@ -65,7 +64,6 @@ public class MasterSecuritySourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getSecurity_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
@@ -78,7 +76,6 @@ public class MasterSecuritySourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getSecurity_notFound() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     
@@ -91,7 +88,6 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getSecuritiesByIdentifierBundle() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
@@ -112,7 +108,6 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getSecurity_Identifier() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
