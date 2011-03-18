@@ -5,8 +5,10 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,9 +17,6 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 
 import javax.time.calendar.LocalDate;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
@@ -34,6 +33,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test EHCachingHolidaySource
  */
+@Test
 public class EHCachingMasterHolidaySourceTest {
 
   private HolidayMaster _underlyingHolidayMaster = null;
@@ -46,7 +46,7 @@ public class EHCachingMasterHolidaySourceTest {
   private static final Identifier ID = Identifier.of("C", "D");
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(ID);
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     EHCacheUtils.clearAll();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
@@ -54,8 +54,6 @@ public class EHCachingMasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  
-  @Test
   public void isHoliday_dateAndCurrency() {
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
     
@@ -73,7 +71,6 @@ public class EHCachingMasterHolidaySourceTest {
     verify(_underlyingHolidayMaster, times(1)).search(request);
   }
 
-  @Test
   public void isHoliday_dateTypeAndBundle() {
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, BUNDLE);
     
@@ -91,7 +88,6 @@ public class EHCachingMasterHolidaySourceTest {
     verify(_underlyingHolidayMaster, times(1)).search(request);
   }
   
-  @Test
   public void isHoliday_dateTypeAndIdentifier() {
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, IdentifierBundle.of(ID));
     

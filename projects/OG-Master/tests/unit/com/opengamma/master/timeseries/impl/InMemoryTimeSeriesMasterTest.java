@@ -6,13 +6,14 @@
 package com.opengamma.master.timeseries.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +23,6 @@ import java.util.Random;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecurityUtils;
@@ -46,8 +43,8 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Abstract in memory test.
  */
-@Ignore("Abstract class")
-abstract public class InMemoryTimeSeriesMasterTest<T> {
+@Test
+public abstract class InMemoryTimeSeriesMasterTest<T> {
   
   private static final int TS_DATASET_SIZE = 1;
 
@@ -81,12 +78,11 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     return _tsMaster;
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     _tsMaster = createTimeSeriesMaster();
   }
   
-  @Test
   public void getAllIdentifiers() throws Exception {
     
     List<IdentifierBundleWithDates> allIdentifiers = _tsMaster.getAllIdentifiers();
@@ -126,7 +122,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     
   }
   
-  @Test
   public void searchByIdentifierBundle() throws Exception {
     List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
@@ -160,7 +155,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     return searchResult;
   }
   
-  @Test
   public void searchByIdentifierValue() throws Exception {
     List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
@@ -186,7 +180,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void searchByFieldProviderSource() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -200,7 +193,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void searchByUID() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -213,7 +205,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void addTimeSeries() throws Exception {
     addAndTestTimeSeries();    
   }
@@ -254,7 +245,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
   }
 
   
-  @Test
   public void addDuplicateTimeSeries() throws Exception {
     IdentifierBundle identifiers = IdentifierBundle.of(Identifier.of("sa", "ida"), Identifier.of("sb", "idb"));
     DoubleTimeSeries<T> timeSeries = makeRandomTimeSeries(DEFAULT_START, 7);
@@ -287,13 +277,12 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     otherDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
     try {
       _tsMaster.addTimeSeries(otherDoc);
-      fail();
+      Assert.fail();
     } catch (IllegalArgumentException ex) {
       //do nothing
     }
   }
   
-  @Test
   public void updateTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -316,45 +305,41 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void removeTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
       _tsMaster.removeTimeSeries(tsDoc.getUniqueId());
       try {
         _tsMaster.getTimeSeries(tsDoc.getUniqueId());
-        fail();
+        Assert.fail();
       } catch(DataNotFoundException ex) {
         //do nothing
       }
     }
   }
   
-  @Test
   public void getUnknownUID() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     try {
       TimeSeriesDocument<T> tsDoc = tsList.get(0);
       String scheme = tsDoc.getUniqueId().getScheme();
       _tsMaster.getTimeSeries(UniqueIdentifier.of(scheme, String.valueOf(Long.MIN_VALUE)));
-      fail();
+      Assert.fail();
     } catch(DataNotFoundException ex) {
       //do nothing
     }
   }
   
-  @Test 
   public void getInvalidUID() throws Exception {
     addAndTestTimeSeries();
     try {
       _tsMaster.getTimeSeries(UniqueIdentifier.of("INVALID", "unknown"));
-      fail();
+      Assert.fail();
     } catch(IllegalArgumentException ex) {
       //do nothing
     }
   }
   
-  @Test
   public void resolveIdentifier() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -385,13 +370,12 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     try {
       IdentifierBundle identifiers = null;
       _tsMaster.resolveIdentifier(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-      fail();
+      Assert.fail();
     } catch (IllegalArgumentException ex) {
       //do nothing
     }
   }
   
-  @Test
   public void getHistoricalTimeSeriesWithoutDataProvider() throws Exception {
     Map<String, DoubleTimeSeries<T>> expectedTSMap = new HashMap<String, DoubleTimeSeries<T>>();
     
@@ -444,7 +428,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
         
   }
     
-  @Test
   public void appendTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -463,7 +446,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void searchNotAvailableTimeSeries() throws Exception {
     addAndTestTimeSeries();
     IdentifierBundle bundle = IdentifierBundle.of(Identifier.of("BLOOMBERG_TICKER", "AAPL US Equity"), Identifier.of("BUID", "X-12345678"));
@@ -473,7 +455,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     assertTrue(searchResult.getDocuments().isEmpty());
   }
   
-  @Test
   public void searchMetaData() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     List<TimeSeriesDocument<T>> closeDataFields = new ArrayList<TimeSeriesDocument<T>>();
@@ -536,7 +517,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void searchMetaDataWithDates() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     //return all timeseries meta data with dates without loading timeseries data points
@@ -553,7 +533,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test
   public void addDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -594,7 +573,7 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     }
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void addDataPointWithoutTSID() throws Exception {
     DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
     dataPointDocument.setDate(convert(LocalDate.of(2000, 1, 2)));
@@ -603,7 +582,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
   }
   
   
-  @Test
   public void updateDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDoc : tsList) {
@@ -641,7 +619,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     
   }
   
-  @Test
   public void removeDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDocument : tsList) {
@@ -664,8 +641,7 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
       assertEquals(deletedTS, updatedDoc.getTimeSeries());
     }
   }
-  
-  @Test
+
   public void removeDataPoints() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<T> tsDocument : tsList) {
@@ -698,17 +674,17 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     assertEquals(expectedDoc.getObservationTime(), actualDoc.getObservationTime());
   }
   
-  public DoubleTimeSeries<T> makeRandomTimeSeries(int numDays) {
+  protected DoubleTimeSeries<T> makeRandomTimeSeries(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
     return makeRandomTimeSeries(previousWeekDay, numDays);
   }
   
-  public static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(int numDays) {
+  protected static MapLocalDateDoubleTimeSeries makeRandomTimeSeriesStatic(int numDays) {
     LocalDate previousWeekDay = DateUtil.previousWeekDay();
     return RandomTimeSeriesGenerator.makeRandomTimeSeries(previousWeekDay, numDays);
   }
   
-  public DoubleTimeSeries<T> makeRandomTimeSeries(LocalDate start, int numDays) {
+  protected DoubleTimeSeries<T> makeRandomTimeSeries(LocalDate start, int numDays) {
     MapLocalDateDoubleTimeSeries tsMap = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, numDays);
     return getTimeSeries(tsMap);
   }
@@ -717,7 +693,6 @@ abstract public class InMemoryTimeSeriesMasterTest<T> {
     return (day.getDayOfWeek() != DayOfWeek.SATURDAY && day.getDayOfWeek() != DayOfWeek.SUNDAY);
   }
   
-  @Test
   public void identifiersWithDates() throws Exception {
     addAndTestTimeSeries();
     

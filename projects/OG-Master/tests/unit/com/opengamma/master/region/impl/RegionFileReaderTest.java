@@ -5,23 +5,22 @@
  */
 package com.opengamma.master.region.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.impl.InMemoryRegionMaster;
-import com.opengamma.master.region.impl.RegionFileReader;
 
 /**
  * Test RegionFileReader.
  */
+@Test
 public class RegionFileReaderTest {
 
   private static RegionMaster _regionMaster;
@@ -32,14 +31,12 @@ public class RegionFileReaderTest {
     RegionFileReader.createPopulated(_regionMaster);
   }
 
-  @Test
   public void test_search_regionType() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setClassification(RegionClassification.INDEPENDENT_STATE);
     assertEquals(193, _regionMaster.search(request).getDocuments().size());
   }
 
-  @Test
   public void test_search_all() {
     RegionSearchRequest request = new RegionSearchRequest();
     int all = _regionMaster.search(request).getDocuments().size();
@@ -48,7 +45,6 @@ public class RegionFileReaderTest {
     assertEquals(279, all - municipalities);
   }
 
-  @Test
   public void test_search_name() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setName("United Kingdom");
@@ -66,7 +62,6 @@ public class RegionFileReaderTest {
     assertEquals(doc, gotDoc);
   }
 
-  @Test
   public void test_search_unknownName() {
     RegionSearchRequest searchReq = new RegionSearchRequest();
     searchReq.setName("Unknown");
