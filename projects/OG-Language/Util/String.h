@@ -22,7 +22,7 @@
 #endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
-inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {
+static inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
 	int result;
@@ -32,7 +32,7 @@ inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFor
 	return 0;
 }
 #ifdef WCHAR_AVAILABLE
-inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
+static inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
 	int result;
@@ -51,7 +51,7 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 #endif /* ifndef _WIN32 */
 
 #ifdef WCHAR_AVAILABLE
-inline wchar_t *AsciiToWideDup (const char *pszIn) {
+static inline wchar_t *AsciiToWideDup (const char *pszIn) {
 	int cch = strlen (pszIn);
 	wchar_t *pszOut = (wchar_t*)malloc (sizeof (wchar_t) * (cch + 1));
 #ifdef _WIN32
@@ -66,7 +66,7 @@ inline wchar_t *AsciiToWideDup (const char *pszIn) {
 	return pszOut;
 }
 
-inline char *WideToAsciiDup (const wchar_t *pszIn) {
+static inline char *WideToAsciiDup (const wchar_t *pszIn) {
 	int cch = wcslen (pszIn);
 	char *pszOut = (char*)malloc (sizeof (char) * (cch + 1));
 #ifdef _WIN32
