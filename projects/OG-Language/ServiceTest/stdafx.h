@@ -21,5 +21,6 @@
 #include <jni.h>
 
 #include <Util/AbstractTest.h>
+#include <Util/Fudge.h>
 
 #endif /* ifndef STDAFX_H */

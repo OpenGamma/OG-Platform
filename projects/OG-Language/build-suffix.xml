@@ -28,22 +28,22 @@
 		<attribute name="win32" default="" />
 		<attribute name="x64" default="" />
 		<sequential>
-			<copy tofile="${lib.dir}/DebugWin32/@{file}@{win32}@{debug}.dll" overwrite="false">
+			<copy tofile="${lib.dir}/dll/DebugWin32/@{file}@{win32}@{debug}.dll" overwrite="false">
 				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
 					<include name="@{name}-DebugWin32-*.dll" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/ReleaseWin32/@{file}@{win32}@{release}.dll" overwrite="false">
+			<copy tofile="${lib.dir}/dll/ReleaseWin32/@{file}@{win32}@{release}.dll" overwrite="false">
 				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
 					<include name="@{name}-ReleaseWin32-*.dll" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/Debugx64/@{file}@{x64}@{debug}.dll" overwrite="false">
+			<copy tofile="${lib.dir}/dll/Debugx64/@{file}@{x64}@{debug}.dll" overwrite="false">
 				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
 					<include name="@{name}-Debugx64-*.dll" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/Releasex64/@{file}@{x64}@{release}.dll" overwrite="false">
+			<copy tofile="${lib.dir}/dll/Releasex64/@{file}@{x64}@{release}.dll" overwrite="false">
 				<fileset dir="${lib.dir}/dll/@{org}/@{name}">
 					<include name="@{name}-Releasex64-*.dll" />
 				</fileset>
@@ -55,22 +55,22 @@
 		<attribute name="name" />
 		<attribute name="file" />
 		<sequential>
-			<copy tofile="${lib.dir}/DebugWin32/@{file}.lib" overwrite="false">
+			<copy tofile="${lib.dir}/lib/DebugWin32/@{file}.lib" overwrite="false">
 				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
 					<include name="@{name}-DebugWin32-*.lib" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/ReleaseWin32/@{file}.lib" overwrite="false">
+			<copy tofile="${lib.dir}/lib/ReleaseWin32/@{file}.lib" overwrite="false">
 				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
 					<include name="@{name}-ReleaseWin32-*.lib" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/Debugx64/@{file}.lib" overwrite="false">
+			<copy tofile="${lib.dir}/lib/Debugx64/@{file}.lib" overwrite="false">
 				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
 					<include name="@{name}-Debugx64-*.lib" />
 				</fileset>
 			</copy>
-			<copy tofile="${lib.dir}/Releasex64/@{file}.lib" overwrite="false">
+			<copy tofile="${lib.dir}/lib/Releasex64/@{file}.lib" overwrite="false">
 				<fileset dir="${lib.dir}/lib/@{org}/@{name}">
 					<include name="@{name}-Releasex64-*.lib" />
 				</fileset>
