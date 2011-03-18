@@ -11,8 +11,14 @@
 
 #ifdef _WIN32
 #include <strsafe.h>
+#ifdef _INC_WCHAR
+#define WCHAR_AVAILABLE
+#endif /* ifdef _INC_WCHAR */
 #else /* ifdef _WIN32 */
 #include <stdarg.h>
+#ifdef _WCHAR_H
+#define WCHAR_AVAILABLE
+#endif /* ifdef _WCHAR_H */
 #endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
@@ -25,7 +31,7 @@ inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFor
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
-#ifdef _WCHAR_H
+#ifdef WCHAR_AVAILABLE
 inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
@@ -36,7 +42,7 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
-#endif /* ifdef _WCHAR_H */
+#endif /* ifdef WCHAR_AVAILABLE */
 #ifdef _UNICODE
 #define StringCbPrintf StringCbPrintfW
 #else /* ifdef _UNICODE */
@@ -44,7 +50,7 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 #endif /* ifdef _UNICODE */
 #endif /* ifndef _WIN32 */
 
-#ifdef _WCHAR_H
+#ifdef WCHAR_AVAILABLE
 inline wchar_t *AsciiToWideDup (char *pszIn) {
 	int cch = strlen (pszIn);
 	wchar_t *pszOut = new wchar_t[cch + 1];
@@ -64,7 +70,7 @@ inline char *WideToAsciiDup (wchar_t *pszIn) {
 	int cch = wcslen (pszIn);
 	char *pszOut = new char[cch + 1];
 #ifdef _WIN32
-	WideCharToMultiByte (CP_ACP, 0, pszIn, cchIn, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
+	WideCharToMultiByte (CP_ACP, 0, pszIn, cch, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
 #else /* ifdef _WIN32 */
 	char *psz = pszOut;
 	while (*pszIn) {
@@ -74,6 +80,8 @@ inline char *WideToAsciiDup (wchar_t *pszIn) {
 #endif /* ifdef _WIN32 */
 	return pszOut;
 }
-#endif /* ifdef _WCHAR_H */
+#endif /* ifdef WCHAR_AVAILABLE */
+
+#undef WCHAR_AVAILABLE
 
 #endif /* ifndef __inc_og_language_util_string_h */
