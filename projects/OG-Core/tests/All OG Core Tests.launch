@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/OG Core"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=OG Core"/>
-<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
-<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
-<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<launchConfiguration type="org.testng.eclipse.launchconfig">
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG Core"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
+<mapEntry key="com.opengamma.core.historicaldata.HistoricalDataSourceTest" value=""/>
+<mapEntry key="com.opengamma.core.position.impl.PortfolioImplTest" value=""/>
+<mapEntry key="com.opengamma.core.position.impl.PortfolioNodeImplTest" value=""/>
+<mapEntry key="com.opengamma.core.position.impl.PositionImplTest" value=""/>
+<mapEntry key="com.opengamma.core.position.impl.TradeImplTest" value=""/>
+<mapEntry key="com.opengamma.core.security.SecurityUtilsTest" value=""/>
+</mapAttribute>
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
+<listEntry value="com.opengamma.core.historicaldata.HistoricalDataSourceTest"/>
+<listEntry value="com.opengamma.core.position.impl.PortfolioImplTest"/>
+<listEntry value="com.opengamma.core.position.impl.PortfolioNodeImplTest"/>
+<listEntry value="com.opengamma.core.position.impl.TradeImplTest"/>
+<listEntry value="com.opengamma.core.position.impl.PositionImplTest"/>
+<listEntry value="com.opengamma.core.security.SecurityUtilsTest"/>
+</listAttribute>
+<listAttribute key="org.testng.eclipse.GROUP_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
+<stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
+<listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST"/>
+<mapAttribute key="org.testng.eclipse.PARAMETERS"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="1"/>
 </launchConfiguration>
