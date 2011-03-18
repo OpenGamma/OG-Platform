@@ -164,8 +164,9 @@
 		<!-- TODO -->
 	</target>
 
-	<target name="clean" depends="clean-lib,clean-dist,clean-build,clean-tests" description="--> clean the project">
+	<target name="clean" depends="clean-lib,clean-dist,clean-tests" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
+		<antcall target="clean-build" />
 	</target>
 
 	<target name="clean-lib" description="--> clean the library path" unless="clean.lib.disabled">
