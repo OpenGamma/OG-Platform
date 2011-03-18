@@ -26,7 +26,7 @@ import com.opengamma.math.function.Function1D;
  * \\delta = -\\frac{f(x)}{f'(x)}
  * \\end{align*}
  * }
- * when {@latex.inline $f(x + \\delta) = 0$.
+ * when {@latex.inline $f(x + \\delta) = 0$}.
  * <p>
  * There are several well-known problems with Newton's method, in particular when the range of values given includes a local
  * maximum or minimum. In this situation, the next iterative step can shoot off to {@latex.inline $\\pm\\infty$}. This implementation

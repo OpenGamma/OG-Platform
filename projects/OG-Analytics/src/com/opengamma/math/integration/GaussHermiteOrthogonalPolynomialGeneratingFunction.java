@@ -6,8 +6,6 @@
 package com.opengamma.math.integration;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.special.OrthonormalHermitePolynomialFunction;
@@ -15,22 +13,25 @@ import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.util.tuple.Pair;
 
 /**
+ * Class that generates weights and abscissas for Gauss-Hermite orthogonal polynomials. Orthonormal Hermite
+ * polynomials {@latex.inline $H_N$} are used to generate the weights (see {@link com.opengamma.math.function.special.OrthonormalHermitePolynomialFunction})
+ * using the formula:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * w_i = \\frac{2}{(H_N'(x_i))^2}
+ * \\end{align*}
+ * } 
  * 
  */
 public class GaussHermiteOrthogonalPolynomialGeneratingFunction implements QuadratureWeightAndAbscissaFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(GaussHermiteOrthogonalPolynomialGeneratingFunction.class);
   private static final OrthonormalHermitePolynomialFunction HERMITE = new OrthonormalHermitePolynomialFunction();
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-12);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
-    if (parameters != null) {
-      s_logger.info("Limits for this integration method are +/-infinity; ignoring bounds");
-    }
-    return generate(n);
-  }
-
-  private GaussianQuadratureFunction generate(final int n) {
+  public GaussianQuadratureData generate(final int n) {
     Validate.isTrue(n > 0);
     final double[] x = new double[n];
     final double[] w = new double[n];
@@ -49,7 +50,7 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction implements Quadr
       w[i] = 2. / (dp * dp);
       w[n - 1 - i] = w[i];
     }
-    return new GaussianQuadratureFunction(x, w);
+    return new GaussianQuadratureData(x, w);
   }
 
   private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {

@@ -6,13 +6,11 @@
 package com.opengamma.math.integration;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.function.special.JacobiPolynomialFunction;
-import com.opengamma.math.function.special.NaturalLogGammaFunction;
 import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.util.tuple.Pair;
 
@@ -20,10 +18,9 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements QuadratureWeightAndAbscissaFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(GaussJacobiOrthogonalPolynomialGeneratingFunction.class);
   private static final JacobiPolynomialFunction JACOBI = new JacobiPolynomialFunction();
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-12);
-  private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
+  private static final Function1D<Double, Double> GAMMA_FUNCTION = new GammaFunction();
   private final double _alpha;
   private final double _beta;
 
@@ -34,14 +31,7 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements Quadra
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
-    if (parameters != null) {
-      s_logger.info("Limits for this integration method are -1 and 1; ignoring bounds");
-    }
-    return generate(n);
-  }
-
-  private GaussianQuadratureFunction generate(final int n) {
+  public GaussianQuadratureData generate(final int n) {
     Validate.isTrue(n > 0, "n > 0");
     final double alphaBeta = _alpha + _beta;
     double alphaBeta2 = 2 + alphaBeta;
@@ -58,10 +48,10 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements Quadra
       root = getInitialRootGuess(root, i, n, x);
       root = ROOT_FINDER.getRoot(function, derivative, root);
       x[i] = root;
-      w[i] = Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n) - LOG_GAMMA_FUNCTION.evaluate(n + 1.) - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
-          * alphaBeta2 * Math.pow(2, alphaBeta) / (derivative.evaluate(root) * previous.evaluate(root));
+      w[i] = GAMMA_FUNCTION.evaluate(_alpha + n) * GAMMA_FUNCTION.evaluate(_beta + n) / GAMMA_FUNCTION.evaluate(n + 1.) / GAMMA_FUNCTION.evaluate(n + alphaBeta + 1) * alphaBeta2
+          * Math.pow(2, alphaBeta) / (derivative.evaluate(root) * previous.evaluate(root));
     }
-    return new GaussianQuadratureFunction(x, w);
+    return new GaussianQuadratureData(x, w);
   }
 
   private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {

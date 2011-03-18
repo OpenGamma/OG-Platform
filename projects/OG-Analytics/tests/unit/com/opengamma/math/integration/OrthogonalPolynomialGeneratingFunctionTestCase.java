@@ -19,10 +19,10 @@ public abstract class OrthogonalPolynomialGeneratingFunctionTestCase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFunction() {
-    getFunction().generate(-1, 0., 1.);
+    getFunction().generate(-1);
   }
 
-  public void testResults(final GaussianQuadratureFunction f, final double[] x, final double[] w) {
+  public void testResults(final GaussianQuadratureData f, final double[] x, final double[] w) {
     final double[] x1 = f.getAbscissas();
     final double[] w1 = f.getWeights();
     for (int i = 0; i < x.length; i++) {
