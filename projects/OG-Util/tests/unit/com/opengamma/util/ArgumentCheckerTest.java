@@ -479,7 +479,6 @@ public class ArgumentCheckerTest {
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class) 
   public void test_notZero_double_negative() {
     try {
       ArgumentChecker.notZero(-1d, 0.1d, "name");
