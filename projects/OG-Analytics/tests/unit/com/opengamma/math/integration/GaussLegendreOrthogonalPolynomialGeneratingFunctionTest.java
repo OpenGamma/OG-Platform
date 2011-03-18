@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -26,15 +26,29 @@ public class GaussLegendreOrthogonalPolynomialGeneratingFunctionTest extends Ort
   private static final double[] W5 =
       new double[] {(322 - 13 * Math.sqrt(70)) / 900., (322 + 13 * Math.sqrt(70)) / 900., 128. / 225, (322 + 13 * Math.sqrt(70)) / 900.,
           (322 - 13 * Math.sqrt(70)) / 900.};
-  private static final GeneratingFunction<Double, GaussianQuadratureFunction> F = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
+  private static final QuadratureWeightAndAbscissaFunction F = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
   private static final Double[] PARAMS = new Double[] {-1., 1.};
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullParameters() {
+    getFunction().generate(3, (Double[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyParameters() {
+    getFunction().generate(3, new Double[0]);
+  }
 
   @Test
   public void test() {
-    testInputs(F, PARAMS);
     testResults(F.generate(2, PARAMS), X2, W2);
     testResults(F.generate(3, PARAMS), X3, W3);
     testResults(F.generate(4, PARAMS), X4, W4);
     testResults(F.generate(5, PARAMS), X5, W5);
+  }
+
+  @Override
+  protected QuadratureWeightAndAbscissaFunction getFunction() {
+    return F;
   }
 }

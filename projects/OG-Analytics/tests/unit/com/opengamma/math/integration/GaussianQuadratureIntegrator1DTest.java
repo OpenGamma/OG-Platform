@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -39,22 +39,14 @@ public class GaussianQuadratureIntegrator1DTest {
     }
 
   };
-  private static final Function1D<Double, Double> DF3 = new Function1D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x) {
-      return Math.cos(x);
-    }
-
-  };
-  private static final double EPS = 1e-3;
+  private static final double EPS = 1e-6;
 
   @Test
   public void testGaussLegendre() {
     double upper = 1;
     double lower = -1;
-    final OrthogonalPolynomialGeneratingFunction generator = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
+    final QuadratureWeightAndAbscissaFunction generator = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
+    final Integrator1D<Double, Double> integrator = new GaussianQuadratureIntegrator1D(6, generator);
     assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
     lower = -0.56;
     upper = 1.4;
@@ -63,26 +55,35 @@ public class GaussianQuadratureIntegrator1DTest {
 
   @Test
   public void testGaussLaguerre() {
-    final OrthogonalPolynomialGeneratingFunction generator = new GaussLaguerreOrthogonalPolynomialGeneratingFunction();
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
+    final QuadratureWeightAndAbscissaFunction generator = new GaussLaguerreOrthogonalPolynomialGeneratingFunction();
+    final Integrator1D<Double, Double> integrator = new GaussianQuadratureIntegrator1D(16, generator);
     assertEquals(1. / 3, integrator.integrate(DF2, 0., 1.), EPS);
     assertEquals(1. / 3, integrator.integrate(DF2, -1000., 1000.), EPS);
+  }
+
+  @Test
+  public void testRungeKutta() {
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D();
+    final double lower = -1;
+    final double upper = 1;
+    assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
   }
 
   @Test
   public void testGaussJacobi() {
     final double upper = 1;
     final double lower = -1;
-    final OrthogonalPolynomialGeneratingFunction generator = new GaussJacobiOrthogonalPolynomialGeneratingFunction(0, 0);
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
+    final QuadratureWeightAndAbscissaFunction generator = new GaussJacobiOrthogonalPolynomialGeneratingFunction(0, 0);
+    final Integrator1D<Double, Double> integrator = new GaussianQuadratureIntegrator1D(7, generator);
     assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
   }
 
-  @Test
-  public void testGaussHermite() {
-    final OrthogonalPolynomialGeneratingFunction generator = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
-    final double result = Math.sqrt(Math.PI) * Math.exp(-0.25);
-    assertEquals(result, integrator.integrate(DF3, 0., 1.), EPS);
-  }
+  //  @Test
+  //  public void testGaussHermite() {
+  //    final double upper = 1;
+  //    final double lower = -1;
+  //    final QuadratureWeightAndAbscissaFunction generator = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
+  //    final Integrator1D<Double, Double> integrator = new GaussianQuadratureIntegrator1D(10, generator);
+  //    assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
+  //  }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -13,11 +13,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
+public class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Double> {
   private final int _n;
-  private final OrthogonalPolynomialGeneratingFunction _generator;
+  private final QuadratureWeightAndAbscissaFunction _generator;
 
-  public GaussianQuadratureIntegrator1D(final int n, final OrthogonalPolynomialGeneratingFunction generator) {
+  public GaussianQuadratureIntegrator1D(final int n, final QuadratureWeightAndAbscissaFunction generator) {
     ArgumentChecker.notNegativeOrZero(n, "number of divisions");
     Validate.notNull(generator, "generating function");
     _n = n;
@@ -30,11 +30,12 @@ public class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Functio
     Validate.notNull(lower);
     Validate.notNull(upper);
     final GaussianQuadratureFunction quadrature = _generator.generate(_n, new Double[] {lower, upper});
-    final double[] ordinals = quadrature.evaluate(function);
+    final double[] abscissas = quadrature.getAbscissas();
+    final int n = abscissas.length;
     final double[] weights = quadrature.getWeights();
     double sum = 0;
-    for (int i = 0; i < ordinals.length; i++) {
-      sum += ordinals[i] * weights[i];
+    for (int i = 0; i < n; i++) {
+      sum += function.evaluate(abscissas[i]) * weights[i];
     }
     return sum;
   }

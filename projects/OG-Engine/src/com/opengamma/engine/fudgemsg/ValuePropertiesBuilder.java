@@ -105,16 +105,13 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
     }
 
     FudgeFieldContainer withMessage = message.getMessage(WITH_FIELD);
+    if (withMessage == null)
+    {
+      return ValueProperties.none();
+    }
     for (FudgeField field : withMessage) {
       final String propertyName = field.getName();
-      if (propertyName == null) {
-        if (field.getType().getTypeId() == FudgeTypeDictionary.INDICATOR_TYPE_ID) {
-          //Infinitie or NearlyInfinite, but NearlyInfinite has it's own builder
-          return ValueProperties.all();
-        }
-        // Shouldn't happen
-        continue;
-      }
+      
       switch (field.getType().getTypeId()) {
         case FudgeTypeDictionary.INDICATOR_TYPE_ID:
           builder.withAny(propertyName);

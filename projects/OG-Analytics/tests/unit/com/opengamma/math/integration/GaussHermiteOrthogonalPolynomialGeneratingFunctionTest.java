@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -22,12 +22,16 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends Orth
       new double[] {-Math.sqrt((3 + Math.sqrt(6)) / 2.), -Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 - Math.sqrt(6)) / 2.),
           Math.sqrt((3 + Math.sqrt(6)) / 2.)};
   private static final double[] W4 = new double[] {SQRT_PI / DENOM2, SQRT_PI / DENOM1, SQRT_PI / DENOM1, SQRT_PI / DENOM2};
-  private static final GeneratingFunction<Double, GaussianQuadratureFunction> F = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
+  private static final QuadratureWeightAndAbscissaFunction F = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
   private static final Double[] PARAMS = new Double[] {-1., 1.};
+
+  @Override
+  protected QuadratureWeightAndAbscissaFunction getFunction() {
+    return F;
+  }
 
   @Test
   public void test() {
-    testInputsFixedLimits(F, PARAMS);
     testResults(F.generate(2, PARAMS), X2, W2);
     testResults(F.generate(3, PARAMS), X3, W3);
     testResults(F.generate(4, PARAMS), X4, W4);
