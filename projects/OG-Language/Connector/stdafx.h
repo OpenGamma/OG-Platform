@@ -24,5 +24,6 @@
 
 #include <Util/Fudge.h>
 #include <Util/Logging.h>
+#include <Util/String.h>
 
 #endif /* ifdef STDAFX_H */

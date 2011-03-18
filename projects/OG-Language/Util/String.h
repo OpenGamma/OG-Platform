@@ -51,9 +51,9 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 #endif /* ifndef _WIN32 */
 
 #ifdef WCHAR_AVAILABLE
-inline wchar_t *AsciiToWideDup (char *pszIn) {
+inline wchar_t *AsciiToWideDup (const char *pszIn) {
 	int cch = strlen (pszIn);
-	wchar_t *pszOut = new wchar_t[cch + 1];
+	wchar_t *pszOut = (wchar_t*)malloc (sizeof (wchar_t) * (cch + 1));
 #ifdef _WIN32
 	MultiByteToWideChar (CP_ACP, 0, pszIn, cch, pszOut, cch + 1);
 #else
@@ -66,9 +66,9 @@ inline wchar_t *AsciiToWideDup (char *pszIn) {
 	return pszOut;
 }
 
-inline char *WideToAsciiDup (wchar_t *pszIn) {
+inline char *WideToAsciiDup (const wchar_t *pszIn) {
 	int cch = wcslen (pszIn);
-	char *pszOut = new char[cch + 1];
+	char *pszOut = (char*)malloc (sizeof (char) * (cch + 1));
 #ifdef _WIN32
 	WideCharToMultiByte (CP_ACP, 0, pszIn, cch, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
 #else /* ifdef _WIN32 */
