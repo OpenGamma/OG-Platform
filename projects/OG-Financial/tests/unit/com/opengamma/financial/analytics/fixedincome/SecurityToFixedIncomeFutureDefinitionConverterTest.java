@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.fixedincome;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
+import org.junit.Test;
+
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.Holiday;
