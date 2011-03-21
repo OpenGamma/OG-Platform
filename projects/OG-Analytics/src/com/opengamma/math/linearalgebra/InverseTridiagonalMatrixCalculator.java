@@ -12,21 +12,24 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * Direct inversion of a tridiagonal matrix using the formula from
+ * Direct inversion of a tridiagonal matrix using the method from
  * "R. Usmani, Inversion of a tridiagonal Jacobi matrix, Linear Algebra Appl. 212/213 (1994) 413-414."
  */
-public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, DoubleMatrix2D> {
+public class InverseTridiagonalMatrixCalculator extends Function1D<TridiagonalMatrix, DoubleMatrix2D> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public DoubleMatrix2D evaluate(TridiagonalMatrix x) {
+  public DoubleMatrix2D evaluate(final TridiagonalMatrix x) {
     Validate.notNull(x);
-    double[] a = x.getDiagonal();
-    double[] b = x.getUpperSubDiagonal();
-    double[] c = x.getLowerSubDiagonal();
-    int n = a.length;
+    final double[] a = x.getDiagonal();
+    final double[] b = x.getUpperSubDiagonal();
+    final double[] c = x.getLowerSubDiagonal();
+    final int n = a.length;
     int i, j, k;
-    double[] theta = new double[n + 1];
-    double[] phi = new double[n];
+    final double[] theta = new double[n + 1];
+    final double[] phi = new double[n];
 
     theta[0] = 1.0;
     theta[1] = a[0];
@@ -45,7 +48,7 @@ public class TridiagonalMatrixInvertor extends Function1D<TridiagonalMatrix, Dou
     }
 
     double product;
-    double[][] res = new double[n][n];
+    final double[][] res = new double[n][n];
 
     for (j = 0; j < n; j++) {
       for (i = 0; i <= j; i++) {
