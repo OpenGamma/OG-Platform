@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite" parallel="false">
+  <test name="Test" preserve-order="false">
+    <classes>
+      <class name="com.opengamma.security.auditlog.DistributedAuditLoggerTest"/>
+      <class name="com.opengamma.security.auditlog.DuplicateFilteringAuditLoggerTest"/>
+      <class name="com.opengamma.security.auditlog.HibernateAuditLoggerTest"/>
+      <class name="com.opengamma.security.user.HibernateUserManagerTest"/>
+      <class name="com.opengamma.security.user.PathMatcherTest"/>
+      <class name="com.opengamma.security.user.UserTest"/>
+    </classes>
+  </test>
+</suite>
