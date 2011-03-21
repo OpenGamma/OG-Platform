@@ -53,6 +53,8 @@
 			<includepath>
 				<pathelement path="${solution.dir}" />
 				<pathelement path="${lib.dir}/include" />
+				<pathelement path="${jni.base.include.dir}" />
+				<pathelement path="${jni.native.include.dir}" />
 			</includepath>
 			<fileset dir="${basedir}">
 				<include name="*.c" />
