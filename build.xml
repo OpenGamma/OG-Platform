@@ -81,8 +81,6 @@
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="*/build.xml" />
-				<!-- [DVI-168] OG-RStats disabled until it actually works! -->
-				<exclude name="OG-RStats/**" />
 			</fileset>
 		</ivy:buildlist>
 	</target>
