@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import org.testng.annotations.Test;
+import org.testng.AssertJUnit;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,10 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -32,7 +30,6 @@ import com.opengamma.security.user.UserManager;
 
 /**
  * 
- *
  */
 public class UserEntitlementCheckerTest {
   
@@ -103,20 +100,20 @@ public class UserEntitlementCheckerTest {
     
     UserPrincipal john = new UserPrincipal("john", "127.0.0.1");
     
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
-    Assert.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
     
     // non-existent user
     UserPrincipal mike = new UserPrincipal("mike", "127.0.0.1");
-    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
-    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
     
     // bogus spec
-    Assert.assertFalse(userEntitlementChecker.isEntitled(john, 
+    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, 
         new LiveDataSpecification(
             StandardRules.getOpenGammaRuleSetId(), 
             Identifier.of("RIC", "bar"))));

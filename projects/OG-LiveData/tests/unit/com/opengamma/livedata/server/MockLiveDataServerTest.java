@@ -5,17 +5,15 @@
  */
 package com.opengamma.livedata.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -37,7 +35,7 @@ public class MockLiveDataServerTest {
   private IdentificationScheme _domain;
   private MockLiveDataServer _server;
   
-  @Before
+  @BeforeMethod
   public void setUp() {
     _domain = IdentificationScheme.of("test");
     _server = new MockLiveDataServer(_domain);

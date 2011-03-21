@@ -5,10 +5,12 @@
  */
 package com.opengamma.livedata.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +18,6 @@ import java.util.Map;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -35,8 +33,6 @@ import com.opengamma.livedata.test.LiveDataClientTestUtils;
 
 /**
  * 
- *
- * @author pietari
  */
 public class DistributedLiveDataClientTest {
   
@@ -49,7 +45,7 @@ public class DistributedLiveDataClientTest {
   
   private MutableFudgeFieldContainer[] _testMsgs; 
   
-  @Before
+  @BeforeMethod
   public void initialize() {
     MutableFudgeFieldContainer testMsg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     testMsg1.add("LAST", 9.86);
@@ -70,7 +66,7 @@ public class DistributedLiveDataClientTest {
     _client = LiveDataClientTestUtils.getInMemoryConduitClient(_server);
   }
   
-  @After
+  @AfterMethod
   public void closeClient() {
     _client.close();
   }
@@ -119,7 +115,7 @@ public class DistributedLiveDataClientTest {
       } else if (response.getRequestedSpecification().equals(spec2)) {
         assertEquals(_testMsgs[1], response.getSnapshot().getFields());
       } else {
-        fail("Response for non-existent spec received");
+        Assert.fail("Response for non-existent spec received");
       }
     }
   }
@@ -177,7 +173,7 @@ public class DistributedLiveDataClientTest {
       } else if (update.getSpecification().equals(spec2)) {
         assertEquals(_testMsgs[1], update.getFields());
       } else {
-        fail("Response for non-existent spec received");
+        Assert.fail("Response for non-existent spec received");
       }
     }
   }
