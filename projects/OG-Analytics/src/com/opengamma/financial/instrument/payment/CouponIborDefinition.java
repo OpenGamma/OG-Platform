@@ -150,7 +150,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   @Override
   public String toString() {
-    return super.toString() + ", Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
+    return super.toString() + " *Ibor coupon* Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override

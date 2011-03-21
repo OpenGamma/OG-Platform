@@ -27,7 +27,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -132,8 +131,8 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> senseR = visit(swap.getReceiveLeg(), curves);
-    final Map<String, List<DoublesPair>> senseP = visit(swap.getPayLeg(), curves);
+    final Map<String, List<DoublesPair>> senseR = visit(swap.getSecondLeg(), curves);
+    final Map<String, List<DoublesPair>> senseP = visit(swap.getFirstLeg(), curves);
 
     return addSensitivity(curves, senseR, senseP);
   }
@@ -148,10 +147,10 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     return visitSwap(swap, curves);
   }
 
-  @Override
-  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    return visitSwap(frn, curves);
-  }
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    return visitSwap(frn, curves);
+  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
@@ -314,7 +313,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
       }
       if (sense2.containsKey(name)) {
         for (final DoublesPair pair : sense2.get(name)) {
-          final DoublesPair newPair = new DoublesPair(pair.getFirst(), -pair.getSecond());
+          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
           temp.add(newPair);
         }
       }

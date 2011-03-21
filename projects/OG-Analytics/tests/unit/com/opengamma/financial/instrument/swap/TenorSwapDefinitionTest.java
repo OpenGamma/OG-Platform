@@ -51,7 +51,7 @@ public class TenorSwapDefinitionTest {
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
   private static final double SPREAD = 0.01;
-  private static final FloatingSwapLegDefinition PAY_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, 0,
+  private static final FloatingSwapLegDefinition PAY_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE, 0,
       CONVENTION);
   private static final FloatingSwapLegDefinition RECEIVE_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE,
       SPREAD, CONVENTION);
@@ -79,8 +79,8 @@ public class TenorSwapDefinitionTest {
 
   @Test
   public void test() {
-    assertEquals(SWAP.getPayLeg(), PAY_DEFINITION);
-    assertEquals(SWAP.getReceiveLeg(), RECEIVE_DEFINITION);
+    assertEquals(SWAP.getFirstLeg(), PAY_DEFINITION);
+    assertEquals(SWAP.getSecondLeg(), RECEIVE_DEFINITION);
     TenorSwapDefinition other = new TenorSwapDefinition(PAY_DEFINITION, RECEIVE_DEFINITION);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
@@ -95,7 +95,7 @@ public class TenorSwapDefinitionTest {
   public void testConversion() {
     final String[] names = new String[] {"e", "r", "c"};
     final TenorSwap<Payment> swap = SWAP.toDerivative(DATE, names);
-    assertEquals(swap.getPayLeg(), PAY_DEFINITION.toDerivative(DATE, names[0], names[1]));
-    assertEquals(swap.getReceiveLeg(), RECEIVE_DEFINITION.toDerivative(DATE, names[0], names[2]));
+    assertEquals(swap.getFirstLeg(), PAY_DEFINITION.toDerivative(DATE, names[0], names[1]));
+    assertEquals(swap.getSecondLeg(), RECEIVE_DEFINITION.toDerivative(DATE, names[0], names[2]));
   }
 }

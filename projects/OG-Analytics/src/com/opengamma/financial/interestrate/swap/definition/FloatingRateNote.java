@@ -7,9 +7,10 @@ package com.opengamma.financial.interestrate.swap.definition;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
+//TODO: rewrite the FRN from scratch.
 /**
  * 
  */
@@ -31,12 +32,12 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
 
   @Override
   public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitFloatingRateNote(this, data);
+    return null; //visitor.visitFloatingRateNote(this, data);
   }
 
   @Override
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
-    return visitor.visitFloatingRateNote(this);
+    return null; //visitor.visitFloatingRateNote(this);
   }
 
 }

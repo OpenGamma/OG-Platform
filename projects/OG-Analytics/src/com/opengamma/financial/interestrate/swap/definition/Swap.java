@@ -14,27 +14,28 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
- * 
- * @param <P> The type of the payments in the payLeg
- * @param <R> The type of the payments in the receiveLeg
+ * Class describing a generic swap with two legs. One should be payer and the other receiver.
+ * @param <P1> The type of the payments in the payLeg
+ * @param <P2> The type of the payments in the receiveLeg
  */
-public class Swap<P extends Payment, R extends Payment> implements InterestRateDerivative {
-  private final GenericAnnuity<P> _payLeg;
-  private final GenericAnnuity<R> _receiveLeg;
+public class Swap<P1 extends Payment, P2 extends Payment> implements InterestRateDerivative {
+  private final GenericAnnuity<P1> _firstLeg;
+  private final GenericAnnuity<P2> _secondLeg;
 
-  public Swap(final GenericAnnuity<P> payLeg, final GenericAnnuity<R> receiveLeg) {
-    Validate.notNull(payLeg);
-    Validate.notNull(receiveLeg);
-    _payLeg = payLeg;
-    _receiveLeg = receiveLeg;
+  public Swap(final GenericAnnuity<P1> firstLeg, final GenericAnnuity<P2> secondLeg) {
+    Validate.notNull(firstLeg);
+    Validate.notNull(secondLeg);
+    Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
+    _firstLeg = firstLeg;
+    _secondLeg = secondLeg;
   }
 
-  public GenericAnnuity<P> getPayLeg() {
-    return _payLeg;
+  public GenericAnnuity<P1> getFirstLeg() {
+    return _firstLeg;
   }
 
-  public GenericAnnuity<R> getReceiveLeg() {
-    return _receiveLeg;
+  public GenericAnnuity<P2> getSecondLeg() {
+    return _secondLeg;
   }
 
   @Override
@@ -51,8 +52,8 @@ public class Swap<P extends Payment, R extends Payment> implements InterestRateD
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _payLeg.hashCode();
-    result = prime * result + _receiveLeg.hashCode();
+    result = prime * result + _firstLeg.hashCode();
+    result = prime * result + _secondLeg.hashCode();
     return result;
   }
 
@@ -68,7 +69,7 @@ public class Swap<P extends Payment, R extends Payment> implements InterestRateD
       return false;
     }
     final Swap<?, ?> other = (Swap<?, ?>) obj;
-    return ObjectUtils.equals(this._payLeg, other._payLeg) && ObjectUtils.equals(this._receiveLeg, other._receiveLeg);
+    return ObjectUtils.equals(this._firstLeg, other._firstLeg) && ObjectUtils.equals(this._secondLeg, other._secondLeg);
 
   }
 }

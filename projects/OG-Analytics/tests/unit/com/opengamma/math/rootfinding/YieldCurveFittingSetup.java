@@ -66,11 +66,11 @@ public abstract class YieldCurveFittingSetup {
   protected static final int STEPS = 100;
 
   protected abstract Logger getLogger();
-  
+
   protected abstract int getWarmupCycles();
-  
+
   protected abstract int getBenchmarkCycles();
-  
+
   protected YieldCurveFittingTestDataBundle getYieldCurveFittingTestDataBundle(final List<InterestRateDerivative> instruments, final YieldCurveBundle knownCurves, final List<String> curveNames,
       final List<double[]> curvesKnots, final Interpolator1D<? extends Interpolator1DDataBundle> extrapolator,
       final Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle> extrapolatorWithSense, final InterestRateDerivativeVisitor<YieldCurveBundle, Double> marketValueCalculator,
@@ -94,8 +94,8 @@ public abstract class YieldCurveFittingSetup {
 
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators =
-      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+    final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
+        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -279,8 +279,9 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, 1.0, fundCurveName, fundCurveName);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, 1.0, fundCurveName, fundCurveName, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, 
+        yearFracs, spreads, 1.0, fundCurveName, liborCurveName, false);
     return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
   }
 
@@ -314,9 +315,9 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, rate, fundingCurveName);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, rate, fundingCurveName, true);
 
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

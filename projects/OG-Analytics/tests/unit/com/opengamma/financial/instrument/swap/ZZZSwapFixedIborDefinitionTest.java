@@ -60,28 +60,29 @@ public class ZZZSwapFixedIborDefinitionTest {
 
   @Test
   public void test() {
+    double sign = FIXED_IS_PAYER ? -1.0 : 1.0;
     // Fixed leg
     CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];
     couponsFixed[0] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[0], SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0], FIXED_DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0]),
-        NOTIONAL, RATE);
+        sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < FIXED_PAYMENT_DATES.length; loopcpn++) {
       couponsFixed[loopcpn] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[loopcpn], FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn], FIXED_DAY_COUNT.getDayCountFraction(
-          FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
+          FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed, FIXED_IS_PAYER);
+    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
     // Ibor leg
     CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, IBOR_PAYMENT_DATES[0], SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0]),
-        NOTIONAL, 0.0);
+        -sign * NOTIONAL, 0.0);
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
     couponsIbor[0] = CouponIborDefinition.from(coupon, fixingDate, INDEX);
     for (int loopcpn = 1; loopcpn < IBOR_PAYMENT_DATES.length; loopcpn++) {
       coupon = new CouponFixedDefinition(CUR, IBOR_PAYMENT_DATES[loopcpn], IBOR_PAYMENT_DATES[loopcpn - 1], IBOR_PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(IBOR_PAYMENT_DATES[loopcpn - 1],
-          IBOR_PAYMENT_DATES[loopcpn]), NOTIONAL, 0.0);
+          IBOR_PAYMENT_DATES[loopcpn]), -sign * NOTIONAL, 0.0);
       fixingDate = ScheduleCalculator.getAdjustedDate(IBOR_PAYMENT_DATES[loopcpn - 1], BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
       couponsIbor[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor, !FIXED_IS_PAYER);
+    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
     //Swap
     ZZZSwapFixedIborDefinition swap = new ZZZSwapFixedIborDefinition(fixedAnnuity, iborAnnuity);
     assertEquals(swap.getFixedLeg(), fixedAnnuity);
@@ -104,7 +105,7 @@ public class ZZZSwapFixedIborDefinitionTest {
       fixingDate = ScheduleCalculator.getAdjustedDate(IBOR_PAYMENT_DATES[loopcpn - 1], BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
       couponsIbor[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor, !FIXED_IS_PAYER);
+    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
 
     new ZZZSwapFixedIborDefinition(null, iborAnnuity);
   }
@@ -119,7 +120,7 @@ public class ZZZSwapFixedIborDefinitionTest {
       couponsFixed[loopcpn] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[loopcpn], FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn], FIXED_DAY_COUNT.getDayCountFraction(
           FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed, FIXED_IS_PAYER);
+    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
 
     new ZZZSwapFixedIborDefinition(fixedAnnuity, null);
   }

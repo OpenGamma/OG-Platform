@@ -73,10 +73,10 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedFloatSwap()");
   }
 
-  @Override
-  public T visitFloatingRateNote(final FloatingRateNote frn, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
-  }
+  //  @Override
+  //  public T visitFloatingRateNote(final FloatingRateNote frn, final S data) {
+  //    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
+  //  }
 
   @Override
   public T visitTenorSwap(final TenorSwap<? extends Payment> tenorSwap, final S data) {

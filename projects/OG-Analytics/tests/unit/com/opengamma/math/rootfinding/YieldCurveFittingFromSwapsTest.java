@@ -53,14 +53,17 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
+  @Override
   protected Logger getLogger() {
     return LOGGER;
   }
-  
+
+  @Override
   protected int getWarmupCycles() {
     return WARMUP_CYCLES;
   }
-  
+
+  @Override
   protected int getBenchmarkCycles() {
     return BENCHMARK_CYCLES;
   }
@@ -220,7 +223,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       InterestRateDerivative instrument;
       final double[] marketValue = new double[n];
       for (int i = 0; i < n; i++) {
-        instrument = makeSwap(curveKnots[i], curveName, curveName, 0.0);
+        instrument = makeSwap(curveKnots[i], curveName, curveName, 1.0);
         instrument = REPLACE_RATE.visit(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
         instruments.add(instrument);
         marketValue[i] = data.getMarketValueCalculator().visit(instrument, curveBundle);
@@ -335,7 +338,7 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       curve2 = curveNames.get(1);
     }
     for (int i = 0; i < n; i++) {
-      instrument = makeSwap(swapMaturities[i], curve1, curve2, 0);
+      instrument = makeSwap(swapMaturities[i], curve1, curve2, 1.0);
       instrument = REPLACE_RATE.visitFixedFloatSwap(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
       instruments.add(instrument);
       // if the calculator is Present Value this should be zero (by definition of what par-rate is)
