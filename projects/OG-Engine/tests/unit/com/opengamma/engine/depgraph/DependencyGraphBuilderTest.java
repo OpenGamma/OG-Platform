@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.depgraph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +49,11 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
+@Test
 public class DependencyGraphBuilderTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderTest.class);
 
-  @Test
   public void singleOutputSingleFunctionNode() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
@@ -95,7 +94,6 @@ public class DependencyGraphBuilderTest {
    * When you have multiple requirements eminating from the same function,
    * should only have a single node using that function. 
    */
-  @Test
   public void multipleOutputsSingleFunctionNode() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction function = helper.addFunctionProducing1and2();
@@ -117,7 +115,7 @@ public class DependencyGraphBuilderTest {
     assertTrue(node.getInputNodes().isEmpty());
   }
 
-  @Test(expected = UnsatisfiableDependencyGraphException.class)
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void unsatisfiableDependency() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing1and2();
@@ -128,7 +126,6 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(Collections.singleton(anotherReq));
   }
 
-  @Test
   public void doubleLevelNoLiveData() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
@@ -161,12 +158,11 @@ public class DependencyGraphBuilderTest {
         assertTrue(node.getInputValues().isEmpty());
         assertTrue(node.getInputNodes().isEmpty());
       } else {
-        fail("Unexpected function definition");
+        Assert.fail("Unexpected function definition");
       }
     }
   }
 
-  @Test
   public void doubleLevelLiveData() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     MockFunction fn1 = helper.addFunctionRequiring2Producing1();
@@ -202,7 +198,7 @@ public class DependencyGraphBuilderTest {
         assertTrue(node.getInputValues().isEmpty());
         assertTrue(node.getInputNodes().isEmpty());
       } else {
-        fail("Unexpected function definition");
+        Assert.fail("Unexpected function definition");
       }
     }
   }
@@ -213,17 +209,16 @@ public class DependencyGraphBuilderTest {
     final Map<MockFunction, DependencyNode> result = new HashMap<MockFunction, DependencyNode>();
     for (DependencyNode node : nodes) {
       if (!functionList.remove(node.getFunction().getFunction())) {
-        fail(node.toString() + " not in expected functions");
+        Assert.fail(node.toString() + " not in expected functions");
       }
       result.put((MockFunction) node.getFunction().getFunction(), node);
     }
     if (!functionList.isEmpty()) {
-      fail(functionList.toString());
+      Assert.fail(functionList.toString());
     }
     return result;
   }
 
-  @Test
   public void testFunctionByName1() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn = helper.addFunctionProducing2();
@@ -245,7 +240,6 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn, fnBeta);
   }
 
-  @Test
   public void testFunctionByName2() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
@@ -267,7 +261,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fnBeta);
   }
 
-  @Test(expected = UnsatisfiableDependencyGraphException.class)
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void testFunctionByNameMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
@@ -276,7 +270,6 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Beta());
   }
 
-  @Test
   public void testFunctionWithProperty() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
@@ -290,7 +283,7 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn1, fn2b);
   }
 
-  @Test(expected = UnsatisfiableDependencyGraphException.class)
+  @Test(expectedExceptions = UnsatisfiableDependencyGraphException.class)
   public void testFunctionWithPropertyMissing() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue1Foo());
@@ -300,7 +293,6 @@ public class DependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Bar());
   }
 
-  @Test
   public void testFunctionWithStaticConversion() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
@@ -314,7 +306,7 @@ public class DependencyGraphBuilderTest {
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
         s_logger.debug("fnConv late resolving with inputs {}", inputs);
-        fail("getResults shouldn't be called on function without wildcard inputs");
+        Assert.fail("getResults shouldn't be called on function without wildcard inputs");
         return null;
       }
 
@@ -335,7 +327,6 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn1, fn2, fnConv);
   }
 
-  @Test
   public void testFunctionWithDynamicConversionSingle() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
@@ -375,7 +366,6 @@ public class DependencyGraphBuilderTest {
     assertTrue(getResultsCalled.get());
   }
 
-  @Test
   public void testFunctionWithDynamicConversionTwoLevel() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
@@ -448,7 +438,6 @@ public class DependencyGraphBuilderTest {
     assertTrue(nodes.get(fnConv2).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Bar"));
   }
 
-  @Test
   public void testFunctionWithDynamicConversionDouble() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1 = helper.addFunctionProducing(helper.getValue1Foo());
@@ -483,7 +472,6 @@ public class DependencyGraphBuilderTest {
     assertEquals(2, getResultsInvoked.get());
   }
 
-  @Test
   public void testBacktrackCleanup() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn2Foo = helper.addFunctionProducing(helper.getValue2Foo());
@@ -529,7 +517,6 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv);
   }
 
-  @Test
   public void testOutputBasedRequirements() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing(helper.getValue2Foo());
@@ -556,7 +543,6 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv);
   }
 
-  @Test
   public void testAdditionalRequirements() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
@@ -589,7 +575,6 @@ public class DependencyGraphBuilderTest {
     assertGraphContains(graph, fn2Bar, fnConv, fn1Foo);
   }
 
-  @Test
   public void testAdditionalRequirementBacktracking() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final MockFunction fn1Foo = helper.addFunctionProducing(helper.getValue1Foo());
@@ -651,7 +636,6 @@ public class DependencyGraphBuilderTest {
 
   };
 
-  @Test
   public void testTwoLevelConversion() {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     final ComputationTarget target1 = new ComputationTarget(UniqueIdentifier.of("Target", "1"));

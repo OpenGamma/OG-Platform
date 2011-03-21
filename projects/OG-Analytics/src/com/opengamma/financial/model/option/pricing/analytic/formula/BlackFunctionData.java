@@ -19,7 +19,7 @@ public class BlackFunctionData {
   private final double _sigma;
 
   public BlackFunctionData(final double f, final double df, final double sigma) {
-    Validate.isTrue(df <= 1 && df > 0, "discount factor must be <= 1 and > 0");
+    //    Validate.isTrue(df <= 1 && df > 0, "discount factor must be <= 1 and > 0");
     _f = f;
     _df = df;
     _sigma = sigma;

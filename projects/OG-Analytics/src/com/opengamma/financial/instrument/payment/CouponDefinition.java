@@ -109,6 +109,11 @@ public abstract class CouponDefinition extends PaymentDefinition {
     return super.toString() + ", Coupon period = [" + _accrualStartDate.toString() + " - " + _accrualEndDate.toString() + " - " + _paymentYearFraction + "], Notional = " + _notional;
   }
 
+  @Override
+  public double getReferenceAmount() {
+    return _notional;
+  }
+
   /* (non-Javadoc)
    * @see java.lang.Object#hashCode()
    */

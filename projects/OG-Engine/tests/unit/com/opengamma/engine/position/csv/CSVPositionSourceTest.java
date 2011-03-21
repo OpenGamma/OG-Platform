@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.position.csv;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -27,21 +25,19 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test CSVPositionSource.
  */
+@Test
 public class CSVPositionSourceTest {
 
   private static UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
 
-  @Test
   public void parseLineEmpty() {
     assertNull(CSVPositionSource.parseLine(new String[] {""}, UID));
   }
 
-  @Test
   public void parseLineTooShort() {
     assertNull(CSVPositionSource.parseLine(new String[] {"foo", "bar"}, UID));
   }
 
-  @Test
   public void parseLineOneIdentifier() {
     Position position = CSVPositionSource.parseLine(new String[] {"98.4", "KIRK", "MY-ID"}, UID);
     assertNotNull(position);
@@ -61,7 +57,6 @@ public class CSVPositionSourceTest {
     assertEquals("MY-ID", id.getValue());
   }
 
-  @Test
   public void parseLineThreeIdentifiers() {
     Position position = CSVPositionSource.parseLine(new String[] {"98.4", "Domain1", "Value1", "Domain2", "Value2", "Domain3", "Value3"}, UID);
     assertNotNull(position);
@@ -114,7 +109,6 @@ public class CSVPositionSourceTest {
     FileUtils.deleteDirectory(new File(portfolioDirName));
   }
 
-  @Test
   public void testLoadPortfolios() throws IOException {
     String portfolioDirName = createTempTestPortfolioDirectory();
     CSVPositionSource pm = new CSVPositionSource(portfolioDirName);
@@ -143,7 +137,7 @@ public class CSVPositionSourceTest {
     cleanUpTestPortfolios(portfolioDirName);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonexistentPortfolioDirectory() {
     new CSVPositionSource(new File(getTempPortfolioDirectory()));
   }

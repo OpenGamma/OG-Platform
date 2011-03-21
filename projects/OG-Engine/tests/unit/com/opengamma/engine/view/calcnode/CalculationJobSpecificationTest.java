@@ -5,25 +5,23 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * 
  */
+@Test
 public class CalculationJobSpecificationTest {
   
-  @Test
   public void testHashCode() {
     CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
     CalculationJobSpecification spec2 = new CalculationJobSpecification("view", "config", 1L, 1L);
@@ -40,7 +38,6 @@ public class CalculationJobSpecificationTest {
     assertFalse(spec1.hashCode() == spec2.hashCode());
   }
 
-  @Test
   public void testEquals() {
     CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
     assertTrue(spec1.equals(spec1));
@@ -59,7 +56,6 @@ public class CalculationJobSpecificationTest {
     assertFalse(spec1.equals(spec2));
   }
   
-  @Test
   public void fudgeEncoding() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
     CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);

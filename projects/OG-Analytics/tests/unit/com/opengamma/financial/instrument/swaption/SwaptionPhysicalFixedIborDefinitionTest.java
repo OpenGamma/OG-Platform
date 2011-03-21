@@ -22,10 +22,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Tenor;
 
-public class SwaptionFixedIborDefinitionTest {
+public class SwaptionPhysicalFixedIborDefinitionTest {
 
   private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2011, 3, 28);
-  private static final boolean IS_CASH = false;
+  private static final boolean IS_LONG = true;
   //Swap 2Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -50,23 +50,24 @@ public class SwaptionFixedIborDefinitionTest {
 
   private static final ZZZSwapFixedIborDefinition SWAP = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
 
-  private static final SwaptionFixedIborDefinition SWAPTION = new SwaptionFixedIborDefinition(EXPIRY_DATE, SWAP, IS_CASH);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullExpiryDate() {
-    new SwaptionFixedIborDefinition(null, SWAP, IS_CASH);
+    SwaptionPhysicalFixedIborDefinition.from(null, SWAP, IS_LONG);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSwap() {
-    new SwaptionFixedIborDefinition(EXPIRY_DATE, null, IS_CASH);
+    SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, null, IS_LONG);
   }
 
   @Test
   public void testGetter() {
-    assertEquals(SWAPTION.getExpiryDate(), EXPIRY_DATE);
+    assertEquals(SWAPTION.getExpiry().getExpiry(), EXPIRY_DATE);
     assertEquals(SWAPTION.getUnderlyingSwap(), SWAP);
-    assertEquals(SWAPTION.isCash(), IS_CASH);
+    assertEquals(SWAPTION.isLong(), IS_LONG);
+    assertEquals(SWAPTION.isCall(), SWAP.getFixedLeg().isPayer());
   }
 
 }

@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import org.fudgemsg.FudgeContext;
@@ -17,8 +17,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -30,6 +28,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * Test ValueRequirement.
  */
+@Test
 public class ValueRequirementTest {
 
   private static final UniqueIdentifier USD = UniqueIdentifier.of("currency", "USD");  
@@ -37,51 +36,48 @@ public class ValueRequirementTest {
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
-  @Test
   public void test_constructor_Position() {
     ValueRequirement test = new ValueRequirement("DATA", SPEC);
     assertEquals("DATA", test.getValueName());
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_nullValue() {
     new ValueRequirement(null, SPEC);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_nullSpec() {
     new ValueRequirement("DATA", null);
   }
 
-  @Test
   public void test_constructor_TypeUniqueIdentifier_Position() {
     ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.POSITION, POSITION.getUniqueId());
     assertEquals("DATA", test.getValueName());
     assertEquals(SPEC, test.getTargetSpecification());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullValue() {
     new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueId());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_TypeUniqueIdentifier_nullType() {
     new ValueRequirement("DATA", null, POSITION.getUniqueId());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_TypeIdentifier_nullValue() {
     new ValueRequirement(null, ComputationTargetType.PRIMITIVE, USD);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_TypeIdentifier_nullType() {
     new ValueRequirement("DATA", null, USD);
   }
 
-  @Test
   public void test_constructor_Object_Position() {
     ValueRequirement test = new ValueRequirement("DATA", POSITION);
     assertEquals("DATA", test.getValueName());
@@ -89,7 +85,6 @@ public class ValueRequirementTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals() {
     ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     assertTrue(req1.equals(req1));
@@ -110,7 +105,6 @@ public class ValueRequirementTest {
     assertFalse(req1.equals(req2));
   }
 
-  @Test
   public void test_hashCode() {
     ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
@@ -126,7 +120,6 @@ public class ValueRequirementTest {
     assertFalse(req1.hashCode() == req2.hashCode());
   }
 
-  @Test
   public void test_toString() {
     ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     String toString = valueReq.toString();
@@ -137,7 +130,6 @@ public class ValueRequirementTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_fudgeEncoding() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);

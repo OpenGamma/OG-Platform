@@ -5,18 +5,16 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.Instant;
-
-import org.junit.Test;
 
 /**
  * 
  */
+@Test
 public class ViewDeltaResultModelImplTest {
   
-  @Test
   public void test() {
     InMemoryViewDeltaResultModel model = new InMemoryViewDeltaResultModel();
     ViewComputationResultModelImplTest.checkModel(model);

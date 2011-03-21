@@ -15,10 +15,9 @@ public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefin
   /**
    * Constructor from a list of fixed coupons.
    * @param payments The fixed coupons.
-   * @param isPayer The payer/receiver flag.
    */
-  public AnnuityCouponCMSDefinition(final CouponCMSDefinition[] payments, boolean isPayer) {
-    super(payments, isPayer);
+  public AnnuityCouponCMSDefinition(final CouponCMSDefinition[] payments) {
+    super(payments);
   }
 
 }

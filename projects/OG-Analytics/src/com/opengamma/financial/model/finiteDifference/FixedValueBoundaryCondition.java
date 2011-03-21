@@ -9,28 +9,28 @@ package com.opengamma.financial.model.finiteDifference;
  * 
  */
 public class FixedValueBoundaryCondition implements BoundaryCondition {
-  
+
   private final double _fixedValue;
-  private final double  _level;
-  
+  private final double _level;
+
   public FixedValueBoundaryCondition(final double fixedValue, final double level) {
     _fixedValue = fixedValue;
     _level = level;
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, final double t) {
+  public double getConstant(final PDEDataBundle data, final double t) {
     return _fixedValue;
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data,  final double t) {
-    return new double[]{1.0};
-   
+  public double[] getLeftMatrixCondition(final PDEDataBundle data, final double t) {
+    return new double[] {1.0};
+
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data,  final double t) {
+  public double[] getRightMatrixCondition(final PDEDataBundle data, final double t) {
     return new double[0];
   }
 

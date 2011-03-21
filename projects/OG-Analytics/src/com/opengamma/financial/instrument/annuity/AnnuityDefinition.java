@@ -21,35 +21,40 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency.
+ * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency. All the payments have the same reference amount sign and the 
+ * reference amount are non-zero. 
  * @param <P> The payment type 
  *
  */
 public class AnnuityDefinition<P extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<GenericAnnuity<? extends Payment>> {
 
   /** 
-   * The list of payments or coupons.
+   * The list of payments or coupons. All payments have the same currency. All payments have the same sign or are 0.
    */
   private final P[] _payments;
   /**
-   * Flag indicating if the annuity is payer (true) or receiver (false).
+   * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount; 
+   * if all amounts don't have the same sign, the flag can be incorrect.
    */
   private final boolean _isPayer;
 
   /**
    * Constructor from an array of payments.
    * @param payments The payments. All of them should have the same currency.
-   * @param isPayer The payer/receiver flag.
    */
-  public AnnuityDefinition(final P[] payments, boolean isPayer) {
+  public AnnuityDefinition(final P[] payments) {
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0);
+    double amount = payments[0].getReferenceAmount();
     Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
+      //      Validate.isTrue(payments[loopcpn - 1].getReferenceAmount() * payments[loopcpn].getReferenceAmount() >= 0, "payments should all have the same sign");
+      amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
     }
+    //    Validate.isTrue(amount != 0, "at least one payment should be non-zero");
     _payments = payments;
-    _isPayer = isPayer;
+    _isPayer = (amount < 0);
   }
 
   /**

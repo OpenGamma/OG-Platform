@@ -43,22 +43,26 @@ public class InterestRateDerivativeVisitorTest {
   private static final Bond BOND = new Bond(new double[] {1}, 0, CURVE_NAME);
   private static final BondForward BOND_FORWARD = new BondForward(BOND, .5, 0, 0);
   private static final BondFuture BOND_FUTURE = new BondFuture(new BondForward[] {BOND_FORWARD}, new double[] {1}, 131);
-  private static final AnnuityCouponIbor FLOAT_LEG = new AnnuityCouponIbor(new double[] {1}, CURVE_NAME, CURVE_NAME);
-  private static final AnnuityCouponFixed FIXED_LEG = new AnnuityCouponFixed(new double[] {1}, 0.0, CURVE_NAME);
+  private static final AnnuityCouponIbor FLOAT_LEG = new AnnuityCouponIbor(new double[] {1}, CURVE_NAME, CURVE_NAME, false);
+  private static final AnnuityCouponIbor FLOAT_LEG_2 = new AnnuityCouponIbor(new double[] {1}, CURVE_NAME, CURVE_NAME, true);
+  private static final AnnuityCouponFixed FIXED_LEG = new AnnuityCouponFixed(new double[] {1}, 0.0, CURVE_NAME, true);
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
-  private static final TenorSwap<CouponIbor> TENOR_SWAP = new TenorSwap<CouponIbor>(FLOAT_LEG, FLOAT_LEG);
-  private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
+  private static final TenorSwap<CouponIbor> TENOR_SWAP = new TenorSwap<CouponIbor>(FLOAT_LEG, FLOAT_LEG_2);
+  //  private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
   private static final PaymentFixed FIXED_PAYMENT = new PaymentFixed(1, 1, CURVE_NAME);
   private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
+  private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(1, -1, CURVE_NAME);
+  private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
   //  (1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
   private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
+  private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
   private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
-  private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(new double[] {1}, 0.05, CURVE_NAME);
-  private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME);
+  private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(new double[] {1}, 0.05, CURVE_NAME, true);
+  private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME, true);
   private static final CouponFixed FCP = new CouponFixed(1, CURVE_NAME, 1, 0.04);
   private static final ContinuouslyMonitoredAverageRatePayment CM = new ContinuouslyMonitoredAverageRatePayment(3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
   //(3, CURVE_NAME, 1, 2, 1, 1, 0, 1, CURVE_NAME);
-  private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA);
+  private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA_2);
   private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
 
     @Override
@@ -101,10 +105,10 @@ public class InterestRateDerivativeVisitorTest {
       return visit(swap, anything);
     }
 
-    @Override
-    public Class<?> visitFloatingRateNote(final FloatingRateNote frn, final Object anything) {
-      return visit(frn, anything);
-    }
+    //    @Override
+    //    public Class<?> visitFloatingRateNote(final FloatingRateNote frn, final Object anything) {
+    //      return visit(frn, anything);
+    //    }
 
     @Override
     public Class<?> visitFixedPayment(final PaymentFixed payment, final Object anything) {
@@ -275,7 +279,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLOAT_LEG.accept(VISITOR, curves), AnnuityCouponIbor.class);
     assertEquals(SWAP.accept(VISITOR, curves), FixedFloatSwap.class);
     assertEquals(TENOR_SWAP.accept(VISITOR, curves), TenorSwap.class);
-    assertEquals(FRN.accept(VISITOR, curves), FloatingRateNote.class);
+    //    assertEquals(FRN.accept(VISITOR, curves), FloatingRateNote.class);
     assertEquals(FIXED_PAYMENT.accept(VISITOR, curves), PaymentFixed.class);
     assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), CouponIbor.class);
     assertEquals(FCA.accept(VISITOR, curves), AnnuityCouponFixed.class);
@@ -295,7 +299,7 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FLOAT_LEG.accept(VISITOR), AnnuityCouponIbor.class);
     assertEquals(SWAP.accept(VISITOR), FixedFloatSwap.class);
     assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
-    assertEquals(FRN.accept(VISITOR), FloatingRateNote.class);
+    //    assertEquals(FRN.accept(VISITOR), FloatingRateNote.class);
     assertEquals(FIXED_PAYMENT.accept(VISITOR), PaymentFixed.class);
     assertEquals(LIBOR_PAYMENT.accept(VISITOR), CouponIbor.class);
     assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
@@ -407,15 +411,15 @@ public class InterestRateDerivativeVisitorTest {
     ABSTRACT_VISITOR.visit(TENOR_SWAP);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testFRN1() {
-    ABSTRACT_VISITOR.visit(FRN, CURVE_NAME);
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testFRN2() {
-    ABSTRACT_VISITOR.visit(FRN);
-  }
+  //  @Test(expected = UnsupportedOperationException.class)
+  //  public void testFRN1() {
+  //    ABSTRACT_VISITOR.visit(FRN, CURVE_NAME);
+  //  }
+  //
+  //  @Test(expected = UnsupportedOperationException.class)
+  //  public void testFRN2() {
+  //    ABSTRACT_VISITOR.visit(FRN);
+  //  }
 
   @Test(expected = UnsupportedOperationException.class)
   public void testFixedPayment1() {

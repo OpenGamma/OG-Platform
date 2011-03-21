@@ -52,8 +52,8 @@ public class FixedFloatSwapDefinitionTest {
   private static final double RATE = 0.05;
   private static final FixedSwapLegDefinition FIXED_DEFINITION = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   private static final double SPREAD = 0.01;
-  private static final FloatingSwapLegDefinition FLOAT_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD,
-      CONVENTION);
+  private static final FloatingSwapLegDefinition FLOAT_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE,
+      SPREAD, CONVENTION);
   private static final FixedFloatSwapDefinition SWAP = new FixedFloatSwapDefinition(FIXED_DEFINITION, FLOAT_DEFINITION);
 
   @Test(expected = IllegalArgumentException.class)
@@ -85,6 +85,6 @@ public class FixedFloatSwapDefinitionTest {
     final String[] names = new String[] {"e", "r"};
     final FixedCouponSwap<Payment> swap = SWAP.toDerivative(DATE, names);
     assertEquals(swap.getFixedLeg(), FIXED_DEFINITION.toDerivative(DATE, names));
-    assertEquals(swap.getReceiveLeg(), FLOAT_DEFINITION.toDerivative(DATE, names));
+    assertEquals(swap.getSecondLeg(), FLOAT_DEFINITION.toDerivative(DATE, names));
   }
 }

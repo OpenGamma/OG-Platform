@@ -5,13 +5,12 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.BeforeMethod;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,8 @@ public abstract class AbstractBuilderTestCase {
   private FudgeSerializationContext _serialization;
   private FudgeDeserializationContext _deserialization;
   private BuilderTestProxy _proxy;
-  @Before
+
+  @BeforeMethod
   public void createContexts () {
     _context = OpenGammaFudgeContext.getInstance ();
     _serialization = new FudgeSerializationContext (_context);

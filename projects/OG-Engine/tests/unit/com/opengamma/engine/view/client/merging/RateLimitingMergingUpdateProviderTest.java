@@ -5,21 +5,21 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import org.junit.Test;
-
 import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
  */
+@Test
 public class RateLimitingMergingUpdateProviderTest {
 
   @Test
@@ -77,7 +77,7 @@ public class RateLimitingMergingUpdateProviderTest {
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     provider.setMinimumUpdatePeriodMillis(period);
-    testUpdateRate(provider, testListener, period);
+    assertUpdateRate(provider, testListener, period);
 
     // If the provider is paused then all updates should be merged regardless of the time elapsed or the rate
     provider.setPaused(true);
@@ -91,10 +91,10 @@ public class RateLimitingMergingUpdateProviderTest {
     assertEquals(1, testListener.consumeResults().size());
 
     // Once unpaused, everything should be back to normal
-    testUpdateRate(provider, testListener, period);
+    assertUpdateRate(provider, testListener, period);
   }
 
-  private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
+  private void assertUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     testListener.resetShortestDelay();
     for (int i = 0; i < 100; i++) {
       Thread.sleep(10);

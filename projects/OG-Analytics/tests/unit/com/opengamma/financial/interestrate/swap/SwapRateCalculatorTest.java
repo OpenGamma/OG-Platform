@@ -37,7 +37,7 @@ public class SwapRateCalculatorTest {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(t1, forward, new LinearInterpolator1D()));
-    SWAP = new FixedFloatSwap(t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME);
+    SWAP = new FixedFloatSwap(t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
   }
 
   @Test(expected = IllegalArgumentException.class)
