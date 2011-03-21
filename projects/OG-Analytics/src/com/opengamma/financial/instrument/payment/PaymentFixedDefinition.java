@@ -103,4 +103,9 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     return visitor.visitPaymentFixed(this);
   }
 
+  @Override
+  public double getReferenceAmount() {
+    return _amount;
+  }
+
 }

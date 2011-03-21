@@ -53,12 +53,13 @@ public class AnnuityCouponFixedDefinitionTest {
   public void test() {
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), NOTIONAL, RATE);
+    double sign = IS_PAYER ? -1.0 : 1.0;
+    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
-          PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
+          PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, IS_PAYER);
+    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
 
     assertEquals(fixedAnnuity.isPayer(), IS_PAYER);
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
@@ -68,36 +69,39 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPayments() {
-    new AnnuityCouponFixedDefinition(null, IS_PAYER);
+    new AnnuityCouponFixedDefinition(null);
   }
 
   @Test
   public void testEqualHash() {
+    double sign = IS_PAYER ? -1.0 : 1.0;
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
-    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), NOTIONAL, RATE);
+    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
-          PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
+          PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, IS_PAYER);
+    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
     AnnuityCouponFixedDefinition fixedAnnuity2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
         IS_PAYER);
     assertEquals(fixedAnnuity, fixedAnnuity2);
     assertEquals(fixedAnnuity.hashCode(), fixedAnnuity2.hashCode());
-    AnnuityCouponFixedDefinition modifiedFixedAnnuity = new AnnuityCouponFixedDefinition(coupons, !IS_PAYER);
+    AnnuityCouponFixedDefinition modifiedFixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, !IS_PAYER);
     assertFalse(fixedAnnuity.equals(modifiedFixedAnnuity));
   }
 
   @Test
   public void testToDerivative() {
+    double sign = IS_PAYER ? -1.0 : 1.0;
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), NOTIONAL, RATE);
+    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
-          PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
+          PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, IS_PAYER);
+    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
 
     //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     //    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);

@@ -22,7 +22,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -85,9 +84,9 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final double pvPay = visit(swap.getPayLeg(), curves);
-    final double pvReceive = visit(swap.getReceiveLeg(), curves);
-    return pvReceive - pvPay;
+    final double pvFirst = visit(swap.getFirstLeg(), curves);
+    final double pvSecond = visit(swap.getSecondLeg(), curves);
+    return pvSecond + pvFirst;
   }
 
   @Override
@@ -104,12 +103,12 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     return visitSwap(swap, curves);
   }
 
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(frn);
-    return visitSwap(frn, curves);
-  }
+  //  @Override
+  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    Validate.notNull(curves);
+  //    Validate.notNull(frn);
+  //    return visitSwap(frn, curves);
+  //  }
 
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {

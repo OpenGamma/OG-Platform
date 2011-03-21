@@ -112,9 +112,9 @@ public class ParRateCalculatorTest {
       floatPaymentTimes[i] = (i + 1) * 0.25;
     }
 
-    Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, 0.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     final double rate = PRC.visit(swap, CURVES);
-    swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, rate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }
 
@@ -133,8 +133,8 @@ public class ParRateCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, true);
+    GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
 
     Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     final double rate = PRC.visit(swap, CURVES);
@@ -142,7 +142,7 @@ public class ParRateCalculatorTest {
     for (int i = 0; i < n; i++) {
       spreads[i] = rate;
     }
-    receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, false);
     swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     assertEquals(0.0, PVC.visit(swap, CURVES), 1e-12);
   }

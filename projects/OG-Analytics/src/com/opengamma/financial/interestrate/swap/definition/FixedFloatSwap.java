@@ -33,13 +33,14 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
+   * @param isPayer TODO
    */
-  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName) {
-    this(new AnnuityCouponFixed(fixedPaymentTimes, couponRate, fundingCurveName), new AnnuityCouponIbor(floatingPaymentTimes, fundingCurveName, liborCurveName));
+  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName, boolean isPayer) {
+    this(new AnnuityCouponFixed(fixedPaymentTimes, couponRate, fundingCurveName, isPayer), new AnnuityCouponIbor(floatingPaymentTimes, fundingCurveName, liborCurveName, !isPayer));
   }
 
   public AnnuityCouponIbor getFloatingLeg() {
-    return (AnnuityCouponIbor) getReceiveLeg();
+    return (AnnuityCouponIbor) getSecondLeg();
   }
 
   @Override

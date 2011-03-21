@@ -30,10 +30,9 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   /**
    * Constructor from a list of fixed coupons.
    * @param payments The fixed coupons.
-   * @param isPayer The payer/receiver flag.
    */
-  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments, boolean isPayer) {
-    super(payments, isPayer);
+  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments) {
+    super(payments);
   }
 
   /**
@@ -54,18 +53,19 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   public static AnnuityCouponFixedDefinition from(Currency currency, ZonedDateTime settlementDate, Tenor tenor, PeriodFrequency frequency, Calendar calendar, DayCount dayCount,
       BusinessDayConvention bisinessDay, boolean isEOM, double notional, double fixedRate, boolean isPayer) {
 
+    double sign = isPayer ? -1.0 : 1.0;
     ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, bisinessDay, calendar, isEOM, tenor);
     ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, frequency);
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, bisinessDay, calendar);
 
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), notional, fixedRate);
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
-          paymentDates[loopcpn]), notional, fixedRate);
+          paymentDates[loopcpn]), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons, isPayer);
+    return new AnnuityCouponFixedDefinition(coupons);
 
   }
 

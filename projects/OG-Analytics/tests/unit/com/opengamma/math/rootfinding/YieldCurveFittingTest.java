@@ -50,14 +50,17 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
+  @Override
   protected Logger getLogger() {
     return LOGGER;
   }
-  
+
+  @Override
   protected int getWarmupCycles() {
     return WARMUP_CYCLES;
   }
-  
+
+  @Override
   protected int getBenchmarkCycles() {
     return BENCHMARK_CYCLES;
   }

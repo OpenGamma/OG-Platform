@@ -131,7 +131,7 @@ public class FixedSwapLegDefinitionTest {
     assertEquals(n, SETTLEMENT_DATES.length - offset);
     for (int i = 0; i < n; i++) {
       final CouponFixed nthPayment = annuity.getNthPayment(i);
-      assertEquals(nthPayment.getNotional(), NOTIONAL, 0);
+      assertEquals(NOTIONAL, nthPayment.getNotional(), 0);
       assertEquals(nthPayment.getFundingCurveName(), yieldCurveName);
       final double paymentTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(DATE, SETTLEMENT_DATES[i + offset]);
       assertEquals(nthPayment.getPaymentTime(), paymentTime, 0);

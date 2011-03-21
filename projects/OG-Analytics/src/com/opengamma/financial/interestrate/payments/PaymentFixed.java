@@ -74,4 +74,9 @@ public class PaymentFixed extends Payment {
     return visitor.visitFixedPayment(this);
   }
 
+  @Override
+  public double getReferenceAmount() {
+    return _amount;
+  }
+
 }

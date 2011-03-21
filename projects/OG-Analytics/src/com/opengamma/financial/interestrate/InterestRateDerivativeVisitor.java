@@ -51,7 +51,7 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedFloatSwap(FixedFloatSwap swap, S data);
 
-  T visitFloatingRateNote(FloatingRateNote frn, S data);
+  //  T visitFloatingRateNote(FloatingRateNote frn, S data);
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 

@@ -9,7 +9,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * Base class for a bunch of matrix decomposition (e.g. SVD, LU etc)
+ * Base class for matrix decompositions (e.g. SVD, LU etc).
  * @param <S> The type of the decomposition result
  */
 

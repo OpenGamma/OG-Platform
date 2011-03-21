@@ -27,7 +27,7 @@ public class FixedCouponSwap<R extends Payment> extends Swap<CouponFixed, R> {
   }
 
   public AnnuityCouponFixed getFixedLeg() {
-    return (AnnuityCouponFixed) getPayLeg();
+    return (AnnuityCouponFixed) getFirstLeg();
   }
 
   /**
@@ -35,7 +35,7 @@ public class FixedCouponSwap<R extends Payment> extends Swap<CouponFixed, R> {
    * @return The check.
    */
   public boolean isIborOrFixed() {
-    return getReceiveLeg().isIborOrFixed();
+    return getSecondLeg().isIborOrFixed();
   }
 
   @Override

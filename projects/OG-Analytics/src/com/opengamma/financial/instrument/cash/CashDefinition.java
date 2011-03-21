@@ -99,7 +99,7 @@ public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final DayCount dayCount = _convention.getDayCount();
-    final double tradeTime = dayCount.getDayCountFraction(zonedDate, ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC));
+    final double tradeTime = dayCount.getDayCountFraction(zonedDate, zonedStartDate);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double paymentTime = actAct.getDayCountFraction(zonedDate, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
@@ -109,7 +109,7 @@ public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
   // TODO this only works for following
   // TODO this code needs to be extracted out - it will be used in many FI definitions
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
-    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
+    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(0)); //TODO is this right? was causing problems for O/N
     for (int i = 0; i < settlementDays; i++) {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }

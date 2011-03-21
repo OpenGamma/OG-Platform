@@ -15,8 +15,8 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class TridiagonalMatrixInvertorTest {
-  private static final TridiagonalMatrixInvertor INVERTOR = new TridiagonalMatrixInvertor();
+public class InverseTridiagonalMatrixCalculatorTest {
+  private static final InverseTridiagonalMatrixCalculator CALCULATOR = new InverseTridiagonalMatrixCalculator();
   private static final double[] A = new double[] {1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0, 1.0, 2.4, -0.4, 3.14};
   private static final double[] B = new double[] {1.56, 0.33, 0.42, -0.23, 0.276, 4.76, 1.0, 2.4, -0.4, 0.2355};
   private static final double[] C = new double[] {0.56, 0.63, -0.42, -0.23, 0.76, 1.76, 1.0, 2.4, -0.4, 2.4234};
@@ -27,7 +27,7 @@ public class TridiagonalMatrixInvertorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
-    INVERTOR.evaluate((TridiagonalMatrix) null);
+    CALCULATOR.evaluate((TridiagonalMatrix) null);
   }
 
   @Test
@@ -41,7 +41,7 @@ public class TridiagonalMatrixInvertorTest {
     for (i = 0; i < n; i++) {
       a[i] = 1.0;
     }
-    final DoubleMatrix2D res = INVERTOR.evaluate(new TridiagonalMatrix(a, b, c));
+    final DoubleMatrix2D res = CALCULATOR.evaluate(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
         assertEquals((i == j ? 1.0 : 0.0), res.getEntry(i, j), EPS);
@@ -52,7 +52,7 @@ public class TridiagonalMatrixInvertorTest {
 
   @Test
   public void testInvert() {
-    final DoubleMatrix2D res = INVERTOR.evaluate(MATRIX);
+    final DoubleMatrix2D res = CALCULATOR.evaluate(MATRIX);
     final DoubleMatrix2D idet = (DoubleMatrix2D) OG_ALGEBRA.multiply(TRI, res);
 
     final int n = idet.getNumberOfRows();

@@ -13,28 +13,27 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class ValueBoundaryCondition implements BoundaryCondition {
-  
-  private Function1D<Double, Double> _timeValue;
-  private double _level;
-  
-  public ValueBoundaryCondition(final Function1D<Double, Double> timeValue, double level) {
+  private final Function1D<Double, Double> _timeValue;
+  private final double _level;
+
+  public ValueBoundaryCondition(final Function1D<Double, Double> timeValue, final double level) {
     Validate.notNull(timeValue, "null timeValue");
     _timeValue = timeValue;
     _level = level;
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, double t) {
+  public double getConstant(final PDEDataBundle data, final double t) {
     return _timeValue.evaluate(t);
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, double t) {
-    return new double[]{1.0};
+  public double[] getLeftMatrixCondition(final PDEDataBundle data, final double t) {
+    return new double[] {1.0};
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, double t) {
+  public double[] getRightMatrixCondition(final PDEDataBundle data, final double t) {
     return new double[0];
   }
 
