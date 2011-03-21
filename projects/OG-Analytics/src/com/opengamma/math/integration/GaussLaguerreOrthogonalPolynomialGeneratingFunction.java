@@ -6,8 +6,6 @@
 package com.opengamma.math.integration;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
@@ -20,7 +18,6 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class GaussLaguerreOrthogonalPolynomialGeneratingFunction implements QuadratureWeightAndAbscissaFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
   private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-10);
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
@@ -35,14 +32,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction implements Quad
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
-    if (parameters != null) {
-      s_logger.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
-    }
-    return generate(n);
-  }
-
-  public GaussianQuadratureFunction generate(final int n) {
+  public GaussianQuadratureData generate(final int n) {
     Validate.isTrue(n > 0);
     final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LAGUERRE.getPolynomialsAndFirstDerivative(n, _alpha);
     final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
@@ -57,7 +47,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction implements Quad
       x[i] = root;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (derivative.evaluate(root) * n * p1.evaluate(root));
     }
-    return new GaussianQuadratureFunction(x, w);
+    return new GaussianQuadratureData(x, w);
   }
 
   private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {

@@ -18,12 +18,9 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends Orth
   private static final double[] W2 = new double[] {SQRT_PI / 2., SQRT_PI / 2.};
   private static final double[] X3 = new double[] {-Math.sqrt(6) / 2., 0, Math.sqrt(6) / 2.};
   private static final double[] W3 = new double[] {SQRT_PI / 6., 2 * SQRT_PI / 3., SQRT_PI / 6.};
-  private static final double[] X4 =
-      new double[] {-Math.sqrt((3 + Math.sqrt(6)) / 2.), -Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 - Math.sqrt(6)) / 2.),
-          Math.sqrt((3 + Math.sqrt(6)) / 2.)};
+  private static final double[] X4 = new double[] {-Math.sqrt((3 + Math.sqrt(6)) / 2.), -Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 + Math.sqrt(6)) / 2.)};
   private static final double[] W4 = new double[] {SQRT_PI / DENOM2, SQRT_PI / DENOM1, SQRT_PI / DENOM1, SQRT_PI / DENOM2};
   private static final QuadratureWeightAndAbscissaFunction F = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
-  private static final Double[] PARAMS = new Double[] {-1., 1.};
 
   @Override
   protected QuadratureWeightAndAbscissaFunction getFunction() {
@@ -32,8 +29,8 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends Orth
 
   @Test
   public void test() {
-    testResults(F.generate(2, PARAMS), X2, W2);
-    testResults(F.generate(3, PARAMS), X3, W3);
-    testResults(F.generate(4, PARAMS), X4, W4);
+    testResults(F.generate(2), X2, W2);
+    testResults(F.generate(3), X3, W3);
+    testResults(F.generate(4), X4, W4);
   }
 }

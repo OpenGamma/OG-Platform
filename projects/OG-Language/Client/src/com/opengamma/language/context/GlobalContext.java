@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,6 +9,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import com.opengamma.language.function.AggregatingFunctionProvider;
+import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
+import com.opengamma.language.function.FunctionDefinitionFilter;
+import com.opengamma.language.livedata.AggregatingLiveDataProvider;
+import com.opengamma.language.livedata.DefaultLiveDataDefinitionFilter;
+import com.opengamma.language.livedata.LiveDataDefinitionFilter;
+import com.opengamma.language.procedure.AggregatingProcedureProvider;
+import com.opengamma.language.procedure.DefaultProcedureDefinitionFilter;
+import com.opengamma.language.procedure.ProcedureDefinitionFilter;
+
 /**
  * A global information context shared by all client instances. This corresponds to the
  * OpenGamma installation the language integration framework is connecting to.
@@ -16,13 +26,32 @@ import java.util.Properties;
 public abstract class GlobalContext extends AbstractContext {
 
   /**
-   * 
+   * Name under which the system settings (OpenGamma.properties) are bound. 
    */
-  protected static final String SYSTEM_SETTINGS = "system.settings";
+  protected static final String SYSTEM_SETTINGS = "systemSettings";
+
+  /**
+   * Name under which the function definition filter is bound.
+   */
+  protected static final String FUNCTION_DEFINITION_FILTER = "functionDefinitionFilter";
+  /**
+   * Name under which the live data definition filter is bound.
+   */
+  protected static final String LIVEDATA_DEFINITION_FILTER = "liveDataDefinitionFilter";
+  /**
+   * Name under which the procedure definition filter is bound.
+   */
+  protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
   /* package */GlobalContext() {
+    setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
+    setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
+    setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
+    setValue(FUNCTION_DEFINITION_FILTER, new DefaultFunctionDefinitionFilter());
+    setValue(LIVEDATA_DEFINITION_FILTER, new DefaultLiveDataDefinitionFilter());
+    setValue(PROCEDURE_DEFINITION_FILTER, new DefaultProcedureDefinitionFilter());
   }
 
   /**
@@ -78,6 +107,18 @@ public abstract class GlobalContext extends AbstractContext {
 
   public Properties getSystemSettings() {
     return getValue(SYSTEM_SETTINGS);
+  }
+
+  public FunctionDefinitionFilter getFunctionDefinitionFilter() {
+    return getValue(FUNCTION_DEFINITION_FILTER);
+  }
+
+  public LiveDataDefinitionFilter getLiveDataDefinitionFilter() {
+    return getValue(LIVEDATA_DEFINITION_FILTER);
+  }
+
+  public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
+    return getValue(PROCEDURE_DEFINITION_FILTER);
   }
 
 }

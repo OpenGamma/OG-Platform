@@ -10,13 +10,17 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Class holding the results of calculations of weights and abscissas by {@link QuadratureWeightAndAbscissaFunction}. 
  */
-public class GaussianQuadratureFunction {
+public class GaussianQuadratureData {
   private final double[] _weights;
   private final double[] _abscissas;
 
-  public GaussianQuadratureFunction(final double[] abscissas, final double[] weights) {
+  /**
+   * @param abscissas An array containing the abscissas, not null
+   * @param weights An array containing the weights, not null, must be the same length as the abscissa array
+   */
+  public GaussianQuadratureData(final double[] abscissas, final double[] weights) {
     Validate.notNull(abscissas, "abscissas");
     Validate.notNull(weights, "weights");
     Validate.isTrue(abscissas.length == weights.length, "Abscissa and weight arrays must be the same length");
@@ -24,10 +28,16 @@ public class GaussianQuadratureFunction {
     _abscissas = abscissas;
   }
 
+  /**
+   * @return The weights
+   */
   public double[] getWeights() {
     return _weights;
   }
 
+  /**
+   * @return The abscissas
+   */
   public double[] getAbscissas() {
     return _abscissas;
   }
@@ -52,7 +62,7 @@ public class GaussianQuadratureFunction {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GaussianQuadratureFunction other = (GaussianQuadratureFunction) obj;
+    final GaussianQuadratureData other = (GaussianQuadratureData) obj;
     if (!Arrays.equals(_abscissas, other._abscissas)) {
       return false;
     }

@@ -10,6 +10,8 @@
 
 #include "Pipes.h"
 #include "Settings.h"
+#include <Util/String.h>
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.Pipes);
 

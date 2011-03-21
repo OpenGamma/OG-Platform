@@ -22,7 +22,9 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  * three points {@latex.inline $x_1$}, {@latex.inline $x_2$} and {@latex.inline $x_3$} are equally spaced on
  * the abscissa with {@latex.inline $x_2 - x_1 = h$} then
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
  * \\int^{x_3} _{x_1} f(x)dx \\approx \\frac{1}{3}h(f(x_1) + 4f(x_2) + f(x_3))
+ * \\end{align*}
  * }
  * <p> 
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/integration/SimpsonIntegrator.html">Commons Math library implementation</a> 
