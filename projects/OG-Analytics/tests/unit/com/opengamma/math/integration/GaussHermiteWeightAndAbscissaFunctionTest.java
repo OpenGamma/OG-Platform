@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  * 
  */
-public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTestCase {
+public class GaussHermiteWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final double SQRT_PI = Math.sqrt(Math.PI);
   private static final double DENOM1 = 4 * (3 - Math.sqrt(6));
   private static final double DENOM2 = 4 * (3 + Math.sqrt(6));
@@ -20,7 +20,7 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends Orth
   private static final double[] W3 = new double[] {SQRT_PI / 6., 2 * SQRT_PI / 3., SQRT_PI / 6.};
   private static final double[] X4 = new double[] {-Math.sqrt((3 + Math.sqrt(6)) / 2.), -Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 - Math.sqrt(6)) / 2.), Math.sqrt((3 + Math.sqrt(6)) / 2.)};
   private static final double[] W4 = new double[] {SQRT_PI / DENOM2, SQRT_PI / DENOM1, SQRT_PI / DENOM1, SQRT_PI / DENOM2};
-  private static final QuadratureWeightAndAbscissaFunction F = new GaussHermiteOrthogonalPolynomialGeneratingFunction();
+  private static final QuadratureWeightAndAbscissaFunction F = new GaussHermiteWeightAndAbscissaFunction();
 
   @Override
   protected QuadratureWeightAndAbscissaFunction getFunction() {

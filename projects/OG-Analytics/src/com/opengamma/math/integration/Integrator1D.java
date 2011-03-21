@@ -20,6 +20,10 @@ import com.opengamma.math.function.Function1D;
 public abstract class Integrator1D<T, U> implements Integrator<T, U, Function1D<U, T>> {
   private static final Logger s_logger = LoggerFactory.getLogger(Integrator1D.class);
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public T integrate(final Function1D<U, T> f, final U[] lower, final U[] upper) {
     Validate.notNull(f, "function was null");
     Validate.notNull(lower, "lower bound array was null");

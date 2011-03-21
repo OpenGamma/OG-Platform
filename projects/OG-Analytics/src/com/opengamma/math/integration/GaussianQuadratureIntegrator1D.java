@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -11,18 +11,20 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Class that performs integration using Gaussian quadrature. If a function {@latex.inline $f(x)$} can be written as
+ * Class that performs integration using Gaussian quadrature.
+ * <p>
+ * If a function {@latex.inline $f(x)$} can be written as
  * {@latex.inline $f(x) = W(x)g(x)$}, where {@latex.inline $g(x)$} is approximately polynomial, then for suitably
  * chosen weights {@latex.inline $w_i$} and points {@latex.inline $x_i$}, the integral can be approximated as:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * \\int_{-1}^1 f(x)dx 
- * &=\\int{-1}^1 W(x)g(x)dx
+ * &=\\int_{-1}^1 W(x)g(x)dx\\\\
  * &\\approx \\sum_{\\i=1}^{n} w_i f(x_i)
  * \\end{align*}
  * } 
  * The evaluation points, weights and valid limits of integration depend on the type of orthogonal polynomials that are used 
- * ({@link com.opengamma.math.function.special.OrthogonalPolynomialFunctionGenerator}).
+ * (see {@link com.opengamma.math.function.special.OrthogonalPolynomialFunctionGenerator} and {@link GaussLaguerreWeightAndAbscissaFunction}).
  * 
  */
 public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Double> {
@@ -66,13 +68,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
   public abstract Double[] getLimits();
 
   /**
-   * Returns a function that is valid for the both type of quadrature and the limits of integration. 
-   * <p>
-   * For example, in the case of Gauss-Laguerre quadrature, the function to be integrated must
-   * be of the form {@latex.inline $e^{-x} g(x)$; this method returns a function that changes any input function into this form.
-   * <p>
-   * Gauss-Legendre quadrature is only valid for the range {@latex.inline $[-1, 1]$}. However, the function to be integrated can be normalized
-   * in such a way as to allow any values for the lower and upper limits.
+   * Returns a function that is valid for both the type of quadrature and the limits of integration. 
    * @param function The function to be integrated, not null
    * @param lower The lower integration limit, not null
    * @param upper The upper integration limit, not null

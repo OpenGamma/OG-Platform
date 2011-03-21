@@ -9,33 +9,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Factory class for 1-D integrators that do not take arguments.
  */
 public final class RealFunctionIntegrator1DFactory {
   // TODO add more integration types
-  /**
-   * 
-   */
+  /** Romberg integrator name */
   public static final String ROMBERG = "Romberg";
-  /**
-   * 
-   */
+  /** {@link RombergIntegrator1D} */
   public static final RombergIntegrator1D ROMBERG_INSTANCE = new RombergIntegrator1D();
-  /**
-   * 
-   */
+  /** Simpson integrator name */
   public static final String SIMPSON = "Simpson";
-  /**
-   * 
-   */
+  /** {@link SimpsonIntegrator1D} */
   public static final SimpsonIntegrator1D SIMPSON_INSTANCE = new SimpsonIntegrator1D();
-  /**
-   * 
-   */
+  /** Extended trapezoid integrator name */
   public static final String EXTENDED_TRAPEZOID = "ExtendedTrapezoid";
-  /**
-   * 
-   */
+  /** {@link ExtendedTrapezoidIntegrator1D} */
   public static final ExtendedTrapezoidIntegrator1D EXTENDED_TRAPEZOID_INSTANCE = new ExtendedTrapezoidIntegrator1D();
 
   private static final Map<String, Integrator1D<Double, Double>> s_staticInstances;
@@ -55,9 +43,14 @@ public final class RealFunctionIntegrator1DFactory {
   }
 
   private RealFunctionIntegrator1DFactory() {
-
   }
 
+  /**
+   * Given a name, returns an instance of that integrator 
+   * @param integratorName The name of the integrator
+   * @return The integrator 
+   * @throws IllegalArgumentException If the integrator name is null or there is no integrator for that name
+   */
   public static Integrator1D<Double, Double> getIntegrator(final String integratorName) {
     final Integrator1D<Double, Double> integrator = s_staticInstances.get(integratorName);
     if (integrator != null) {
@@ -66,6 +59,11 @@ public final class RealFunctionIntegrator1DFactory {
     throw new IllegalArgumentException("Integrator " + integratorName + " not handled");
   }
 
+  /**
+   * Given an integrator, returns its name 
+   * @param integrator The integrator
+   * @return The name of that integrator
+   */
   public static String getIntegratorName(final Integrator1D<Double, Double> integrator) {
     if (integrator == null) {
       return null;
