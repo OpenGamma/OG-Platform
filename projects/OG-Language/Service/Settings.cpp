@@ -17,11 +17,15 @@ LOGGING(com.opengamma.language.service.Settings);
 #define DEFAULT_CONNECTION_TIMEOUT	3000	/* 3s default */
 #define DEFAULT_BUSY_TIMEOUT		2000	/* 2s default */
 #define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
+#ifndef DEFAULT_JVM_LIBRARY
 #ifdef _WIN32
-#define DEFAULT_JVM_LIBRARY			TEXT ("jvm.dll")
-#else
-#define DEFAULT_JVM_LIBRARY			TEXT ("jvm.so")
-#endif
+#define DEFAULT_JVM_LIBRARY			jvm.dll
+#else /* ifdef _WIN32 */
+#define DEFAULT_JVM_LIBRARY			jvm.so
+#endif /* ifdef _WIN32 */
+#endif /* ifndef DEFAULT_JVM_LIBRARY */
+#define _DEFAULT_JVM_LIBRARY_STR(v)	#v
+#define DEFAULT_JVM_LIBRARY_STR		_DEFAULT_JVM_LIBRARY_STR(DEFAULT_JVM_LIBRARY)
 #define DEFAULT_LOG_CONFIGURATION	NULL
 #ifdef _WIN32
 #define DEFAULT_SDDL				NULL
@@ -163,7 +167,7 @@ const TCHAR *CSettings::GetJvmLibrary () {
 #endif
 		if (m_pszDefaultJvmLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
-			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
+			m_pszDefaultJvmLibrary = _tcsdup (TEXT (DEFAULT_JVM_LIBRARY_STR));
 		}
 	}
 	return GetJvmLibrary (m_pszDefaultJvmLibrary);
