@@ -13,6 +13,7 @@
 #ifdef _WIN32
 #include <Util/DllVersion.h>
 #endif
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.JVM);
 

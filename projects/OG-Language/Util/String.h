@@ -11,12 +11,18 @@
 
 #ifdef _WIN32
 #include <strsafe.h>
+#ifdef _INC_WCHAR
+#define WCHAR_AVAILABLE
+#endif /* ifdef _INC_WCHAR */
 #else /* ifdef _WIN32 */
 #include <stdarg.h>
+#ifdef _WCHAR_H
+#define WCHAR_AVAILABLE
+#endif /* ifdef _WCHAR_H */
 #endif /* ifdef _WIN32 */
 
 #ifndef _WIN32
-inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {
+static inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
 	int result;
@@ -25,8 +31,8 @@ inline int StringCbPrintfA (char *pszBuffer, size_t cbBuffer, const char *pszFor
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
-#ifdef _WCHAR_H
-inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
+#ifdef WCHAR_AVAILABLE
+static inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *pszFormat, ...) {
 	va_list args;
 	va_start (args, pszFormat);
 	int result;
@@ -36,12 +42,46 @@ inline int StringCbPrintfW (wchar_t *pszBuffer, size_t cbBuffer, const wchar_t *
 	if ((size_t)result > cbBuffer) return -1;
 	return 0;
 }
-#endif /* ifdef _WCHAR_H */
+#endif /* ifdef WCHAR_AVAILABLE */
 #ifdef _UNICODE
 #define StringCbPrintf StringCbPrintfW
 #else /* ifdef _UNICODE */
 #define StringCbPrintf StringCbPrintfA
 #endif /* ifdef _UNICODE */
 #endif /* ifndef _WIN32 */
+
+#ifdef WCHAR_AVAILABLE
+static inline wchar_t *AsciiToWideDup (const char *pszIn) {
+	int cch = strlen (pszIn);
+	wchar_t *pszOut = (wchar_t*)malloc (sizeof (wchar_t) * (cch + 1));
+#ifdef _WIN32
+	MultiByteToWideChar (CP_ACP, 0, pszIn, cch, pszOut, cch + 1);
+#else
+	wchar_t *psz = pszOut;
+	while (*pszIn) {
+		*(psz++) = *(pszIn++);
+	}
+	*psz = 0;
+#endif /* ifdef _WIN32 */
+	return pszOut;
+}
+
+static inline char *WideToAsciiDup (const wchar_t *pszIn) {
+	int cch = wcslen (pszIn);
+	char *pszOut = (char*)malloc (sizeof (char) * (cch + 1));
+#ifdef _WIN32
+	WideCharToMultiByte (CP_ACP, 0, pszIn, cch, pszOut, sizeof (char)  * (cch + 1), NULL, NULL);
+#else /* ifdef _WIN32 */
+	char *psz = pszOut;
+	while (*pszIn) {
+		*(psz++) = *(pszIn++);
+	}
+	*psz = 0;
+#endif /* ifdef _WIN32 */
+	return pszOut;
+}
+#endif /* ifdef WCHAR_AVAILABLE */
+
+#undef WCHAR_AVAILABLE
 
 #endif /* ifndef __inc_og_language_util_string_h */

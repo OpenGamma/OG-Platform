@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_util_stdafx_h
-#define __inc_og_language_util_stdafx_h
+#ifndef STDAFX_H
+#define STDAFX_H
 
 // Common include file for all source code in Util
 
@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <spawn.h>
+#include <sys/stat.h>
 #endif
 #include <assert.h>
 
@@ -36,4 +37,4 @@
 #include <fudge/fudge.h>
 #include <log4cxx/log4cxx.h>
 
-#endif /* ifndef __inc_og_language_util_stdafx_h */
+#endif /* ifndef STDAFX_H */
