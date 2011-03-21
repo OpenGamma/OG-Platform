@@ -5,13 +5,15 @@
  */
 package com.opengamma.util.timeseries;
 
-
 import java.sql.Date;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 
+@Test
 public class ArraySQLDateDoubleTimeSeriesTest extends SQLDateDoubleTimeSeriesTest {
 
   @Override

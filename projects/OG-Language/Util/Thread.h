@@ -20,7 +20,6 @@
 #endif
 
 #include "Atomic.h"
-#include "Error.h"
 
 class IRunnable {
 public:
@@ -105,7 +104,7 @@ public:
 		case WAIT_OBJECT_0 :
 			return true;
 		case WAIT_TIMEOUT :
-			SetLastError (ETIMEDOUT);
+			SetLastError (ERROR_TIMEOUT);
 			return false;
 		default :
 			return false;

@@ -19,17 +19,40 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * The Cox-Ingersoll-Ross process is a mean-reverting positive process, with SDE
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * dy_t = \\kappa(\\theta - y_t)dt + \\lambda\\sqrt{y_t}dW_t
+ * \\end{align*}
+ * }
+ * and characteristic exponent
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\psi(u, t; \\kappa, \\theta, \\lambda) &= \\frac{2\\kappa\\theta}{\\lambda^2}\\left[ 
+ * \\frac{\\kappa t}{2} - \\ln\\left(\\cosh\\left(\\frac{\\gamma t}{2}\\right) + \\frac{\\kappa}{\\gamma}\\sinh\\left(\\frac{\\gamma t}{2}\\right)\\right)
+ * + \\frac{2iu}{\\kappa + \\gamma \\coth\\left(\\frac{\\gamma t}{2}\\right)}\\right]\\\\
+ * \\text{where}\\\\
+ * \\gamma &= \\sqrt{\\kappa^2 - 2 \\lambda^2 iu}
+ * \\end{align*}
+ * }
  */
 public class IntegratedCIRTimeChangeCharacteristicExponent implements CharacteristicExponent {
   private final double _kappa;
   private final double _theta;
   private final double _lambda;
+  private final double _alphaMax;
 
+  /**
+   * 
+   * @param kappa The mean-reverting speed
+   * @param theta The mean 
+   * @param lambda The volatility
+   */
   public IntegratedCIRTimeChangeCharacteristicExponent(final double kappa, final double theta, final double lambda) {
     _kappa = kappa;
     _theta = theta;
     _lambda = lambda;
+    _alphaMax = _kappa * _kappa / 2 / _lambda / _lambda;
   }
 
   @Override
@@ -70,35 +93,43 @@ public class IntegratedCIRTimeChangeCharacteristicExponent implements Characteri
     return log(temp);
   }
 
+  /**
+   * 
+   * @return {@latex.inline $\\frac{\\kappa^2}{2\\lambda^2}$}
+   */
   @Override
   public double getLargestAlpha() {
-    return _kappa * _kappa / 2 / _lambda / _lambda;
+    return _alphaMax;
   }
 
+  /**
+   * 
+   * @return {@latex.inline $-\\infty$}
+   */
   @Override
   public double getSmallestAlpha() {
     return Double.NEGATIVE_INFINITY;
   }
 
   /**
-   * Gets the kappa field.
-   * @return the kappa
+   * Gets the mean-reverting speed.
+   * @return kappa
    */
   public double getKappa() {
     return _kappa;
   }
 
   /**
-   * Gets the theta field.
-   * @return the theta
+   * Gets the mean.
+   * @return theta
    */
   public double getTheta() {
     return _theta;
   }
 
   /**
-   * Gets the lambda field.
-   * @return the lambda
+   * Gets the volatility.
+   * @return lambda
    */
   public double getLambda() {
     return _lambda;

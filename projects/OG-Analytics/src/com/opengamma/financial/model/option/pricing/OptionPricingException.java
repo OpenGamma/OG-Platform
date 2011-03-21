@@ -9,6 +9,7 @@ package com.opengamma.financial.model.option.pricing;
  * 
  */
 public class OptionPricingException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public OptionPricingException() {
     super();

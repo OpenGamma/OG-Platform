@@ -28,7 +28,9 @@ public abstract class AbstractUserContextEventHandler implements UserContextEven
     initContextImpl(context);
   }
 
-  protected abstract void initContextImpl(MutableUserContext context);
+  protected void initContextImpl(MutableUserContext context) {
+    // No-op if not implemented
+  }
 
   @Override
   public final void doneContext(final MutableUserContext context) {
@@ -36,6 +38,8 @@ public abstract class AbstractUserContextEventHandler implements UserContextEven
     getPrevious().doneContext(context);
   }
 
-  protected abstract void doneContextImpl(MutableUserContext context);
+  protected void doneContextImpl(MutableUserContext context) {
+    // No-op if not implemented
+  }
 
 }

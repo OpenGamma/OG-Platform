@@ -26,8 +26,11 @@ public final class ConfigMasterUtils {
    * @param document  the document to store, not null
    * @return the updated result, not null
    */
-  public static <T> ConfigDocument<T> storeByName(final ConfigTypeMaster<T> master, final ConfigDocument<T> document) {
-    ConfigSearchRequest searchRequest = new ConfigSearchRequest();
+  @SuppressWarnings("unchecked")
+  public static <T> ConfigDocument<T> storeByName(final ConfigMaster master, final ConfigDocument<T> document) {
+    
+    ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>();
+    searchRequest.setType((Class<T>) document.getValue().getClass());
     searchRequest.setName(document.getName());
     ConfigSearchResult<T> searchResult = master.search(searchRequest);
     for (ConfigDocument<T> existingDoc : searchResult.getDocuments()) {

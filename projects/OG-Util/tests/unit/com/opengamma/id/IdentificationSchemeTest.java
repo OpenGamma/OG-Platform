@@ -5,14 +5,15 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test IdentificationScheme.
  */
+@Test
 public class IdentificationSchemeTest {
 
   public void test_factory() {
@@ -24,17 +25,16 @@ public class IdentificationSchemeTest {
     assertSame(IdentificationScheme.of("ISO"), IdentificationScheme.of("ISO"));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_null() {
     IdentificationScheme.of(null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_emptyName() {
     IdentificationScheme.of("");
   }
 
-  @Test
   public void test_compareTo() {
     IdentificationScheme d1 = IdentificationScheme.of("d1");
     IdentificationScheme d2 = IdentificationScheme.of("d2");
@@ -46,7 +46,6 @@ public class IdentificationSchemeTest {
     assertEquals(d2.compareTo(d2) == 0, true);
   }
 
-  @Test
   public void test_equals() {
     IdentificationScheme d1a = IdentificationScheme.of("d1");
     IdentificationScheme d1b = IdentificationScheme.of("d1");
@@ -68,7 +67,6 @@ public class IdentificationSchemeTest {
     assertEquals(d1b.equals(null), false);
   }
 
-  @Test
   public void test_hashCode() {
     IdentificationScheme d1a = IdentificationScheme.of("d1");
     IdentificationScheme d1b = IdentificationScheme.of("d1");
@@ -76,7 +74,6 @@ public class IdentificationSchemeTest {
     assertEquals(d1a.hashCode(), d1b.hashCode());
   }
 
-  @Test
   public void test_toString() {
     IdentificationScheme test = IdentificationScheme.of("Scheme");
     assertEquals("Scheme", test.toString());

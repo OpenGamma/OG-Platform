@@ -8,9 +8,7 @@ package com.opengamma.util.rest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -18,21 +16,14 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 /**
  * Test DataNotFoundExceptionMapper.
  */
-@RunWith(Parameterized.class)
+@Test
 public class DataNotFoundExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
-  /**
-   * @param mediaType
-   */
-  public DataNotFoundExceptionMapperTest(MediaType mediaType) {
-    super(mediaType);
-  }
-
-  @Test
-  public void test_mapping() throws Exception {
+  @Test(dataProvider="mediaTypes")
+  public void test_mapping(MediaType mediaType) throws Exception {
     DataNotFoundException ex = new DataNotFoundException("Test message");
     DataNotFoundExceptionMapper mapper = new DataNotFoundExceptionMapper();
-    init(mapper);
+    init(mapper, mediaType);
     
     Response test = mapper.toResponse(ex);
     testResult(test, Status.NOT_FOUND, ex);

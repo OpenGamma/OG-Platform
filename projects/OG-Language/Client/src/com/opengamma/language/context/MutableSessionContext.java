@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,6 +8,9 @@ package com.opengamma.language.context;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.language.connector.MessageSender;
+import com.opengamma.language.function.AggregatingFunctionProvider;
+import com.opengamma.language.livedata.AggregatingLiveDataProvider;
+import com.opengamma.language.procedure.AggregatingProcedureProvider;
 
 /**
  * A mutable version of {@link SessionContext}.
@@ -15,7 +18,6 @@ import com.opengamma.language.connector.MessageSender;
 public class MutableSessionContext extends SessionContext {
 
   private final SessionContextEventHandler _eventHandler;
-  private MessageSender _messageSender;
   private boolean _initialized;
 
   /* package */MutableSessionContext(final UserContext userContext, final SessionContextEventHandler eventHandler) {
@@ -56,15 +58,27 @@ public class MutableSessionContext extends SessionContext {
     getUserContext().removeSessionContext(this);
   }
 
-  // Standard context members
+  // Definition providers
 
   @Override
-  public MessageSender getMessageSender() {
-    return _messageSender;
+  public AggregatingFunctionProvider getFunctionProvider() {
+    return getFunctionProviderImpl();
   }
 
+  @Override
+  public AggregatingLiveDataProvider getLiveDataProvider() {
+    return getLiveDataProviderImpl();
+  }
+
+  @Override
+  public AggregatingProcedureProvider getProcedureProvider() {
+    return getProcedureProviderImpl();
+  }
+
+  // Standard context members
+
   public void setMessageSender(final MessageSender messageSender) {
-    _messageSender = messageSender;
+    setValue(MESSAGE_SENDER, messageSender);
   }
 
   public void setDebug() {

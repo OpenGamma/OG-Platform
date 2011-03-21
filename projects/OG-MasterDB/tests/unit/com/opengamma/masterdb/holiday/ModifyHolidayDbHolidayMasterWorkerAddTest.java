@@ -19,12 +19,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.util.money.Currency;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -56,7 +56,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_add_currency() {
     Instant now = Instant.now(_holMaster.getTimeSource());
     
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     String name = doc.getName();
     HolidayDocument test = _holMaster.add(doc);
@@ -174,7 +174,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_addThenGet() {
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
     HolidayDocument added = _holMaster.add(doc);
     

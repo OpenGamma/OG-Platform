@@ -78,6 +78,7 @@ public class SVDecompositionColtResultTest {
   }
 
   private static class MySingularValueDecomposition extends SingularValueDecomposition {
+    private static final long serialVersionUID = 1L;
 
     public MySingularValueDecomposition() {
       super(DoubleFactory2D.dense.make(new double[][] {new double[] {1}, new double[] {1}}));

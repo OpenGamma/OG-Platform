@@ -16,13 +16,13 @@ public class KroneckerDeltaFunctionTest {
   private static final KroneckerDeltaFunction F = new KroneckerDeltaFunction();
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNull() {
-    F.evaluate((Integer[]) null);
+  public void testNull1() {
+    F.evaluate(null, 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testLargeArray() {
-    F.evaluate(1, 2, 3);
+  public void testNull2() {
+    F.evaluate(1, null);
   }
 
   @Test

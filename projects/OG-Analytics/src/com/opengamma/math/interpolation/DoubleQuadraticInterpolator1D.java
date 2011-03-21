@@ -15,6 +15,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBu
  * 
  */
 public class DoubleQuadraticInterpolator1D extends Interpolator1D<Interpolator1DDoubleQuadraticDataBundle> {
+  private static final long serialVersionUID = 1L;
 
   @Override
   public Double interpolate(final Interpolator1DDoubleQuadraticDataBundle data, final Double value) {

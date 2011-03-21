@@ -1,31 +1,16 @@
 package com.opengamma.financial.model.finiteDifference;
 
-import static org.junit.Assert.assertEquals;
-
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.cube.Cube;
 import com.opengamma.math.cube.FunctionalDoublesCube;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
-import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Expiry;
 
 public class ExplicitFiniteDifference2DTest {
   
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
+  //private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
 
   private static BoundaryCondition A_LOWER;
   private static BoundaryCondition A_UPPER;
@@ -37,14 +22,14 @@ public class ExplicitFiniteDifference2DTest {
   
   private static final double T = 1.0;
   private static final double RATE = 0.0;
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  //private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double VOL_A = 0.20;
   private static final double VOL_B = 0.30;
   private static final double RHO = 0.50;
   
 
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final OptionDefinition OPTION;
+  //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  //private static final OptionDefinition OPTION;
   private static final ConvectionDiffusion2DPDEDataBundle DATA;
   
   private static Cube<Double, Double, Double, Double> A;
@@ -62,7 +47,7 @@ public class ExplicitFiniteDifference2DTest {
     B_UPPER = new FixedValueBoundaryCondition(0.0, 5*SPOT_B);
     
 
-    OPTION = new EuropeanVanillaOptionDefinition(1.0, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
+    //OPTION = new EuropeanVanillaOptionDefinition(1.0, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -88,7 +73,6 @@ public class ExplicitFiniteDifference2DTest {
       @Override
       public Double evaluate(final Double... txy) {
         Validate.isTrue(txy.length == 3);
-        double x = txy[1];
         return -RATE;
       }
     };
@@ -144,13 +128,13 @@ public class ExplicitFiniteDifference2DTest {
   
   @Test
   public void testBlackScholesEquation() {
-    double df = YIELD_CURVE.getDiscountFactor(T);
+    //double df = YIELD_CURVE.getDiscountFactor(T);
     int timeSteps = 100;
     int xSteps = 10;
     int ySteps = 10;
     
     ExplicitFiniteDifference2D solver = new ExplicitFiniteDifference2D();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(1.0, T, true);
+    //final EuropeanVanillaOption option = new EuropeanVanillaOption(1.0, T, true);
 
     double[][] res = solver.solve(DATA,timeSteps,xSteps,ySteps,T,A_LOWER, A_UPPER, B_LOWER, B_UPPER, null);
     

@@ -1,0 +1,18 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.function {
+
+  /**
+   * Defines a function.
+   */
+  message Definition extends definition.Definition {
+  
+    required integer returnCount[default = 1]; 
+  
+  }
+
+}

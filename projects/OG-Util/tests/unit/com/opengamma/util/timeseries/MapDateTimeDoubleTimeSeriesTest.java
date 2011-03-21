@@ -9,9 +9,12 @@ package com.opengamma.util.timeseries;
 import java.util.Date;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MapDateTimeDoubleTimeSeries;
 
+@Test
 public class MapDateTimeDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override

@@ -12,7 +12,8 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts an {@link InterpolatedDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original curve, they are added (with shift) to the nodal points of the new curve. 
  */
 public class InterpolatedCurveShiftFunction implements CurveShiftFunction<InterpolatedDoublesCurve> {
 

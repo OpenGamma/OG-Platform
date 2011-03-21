@@ -1,0 +1,54 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+package com.opengamma.language.function;
+
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+
+import com.opengamma.language.definition.Parameter;
+import com.opengamma.util.ArgumentChecker;
+
+/**
+ * A full description of a function, including invocation details. 
+ */
+public class MetaFunction extends Definition {
+
+  /**
+   * Class is not serializable
+   */
+  private static final long serialVersionUID = 0L;
+
+  private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+    throw new NotSerializableException();
+  }
+
+  private void writeObject(ObjectOutputStream ois) throws IOException {
+    throw new NotSerializableException();
+  }
+
+  private final FunctionInvoker _invoker;
+
+  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker) {
+    super(name);
+    ArgumentChecker.notNull(invoker, "invoker");
+    _invoker = invoker;
+    setParameter(parameters);
+  }
+
+  public MetaFunction(final String name, final List<? extends Parameter> parameters, final FunctionInvoker invoker, final int returnCount) {
+    this (name, parameters, invoker);
+    setReturnCount(returnCount);
+  }
+
+  public FunctionInvoker getInvoker() {
+    return _invoker;
+  }
+
+}

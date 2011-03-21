@@ -5,16 +5,15 @@
  */
 package com.opengamma.master.listener;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.List;
 
 import javax.jms.ConnectionFactory;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
@@ -22,24 +21,25 @@ import com.google.common.collect.Lists;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.impl.InMemoryConfigTypeMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test JmsMasterChangeManager.
  */
+@Test
 public class JmsMasterChangeManagerTest {
 
   private static final long WAIT_TIMEOUT = 30000;
   private JmsTemplate _jmsTemplate;
   private TestMasterChangeClient _testListener;
   private JmsMasterChangeManager _changeManager;
-  private InMemoryConfigTypeMaster<Identifier> _configMaster;
+  private InMemoryConfigMaster _configMaster;
   private String _topic;
   private DefaultMessageListenerContainer _container;
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
@@ -65,10 +65,10 @@ public class JmsMasterChangeManagerTest {
     _container.setMessageListener(_changeManager);
     
     // create a config master
-    _configMaster = new InMemoryConfigTypeMaster<Identifier>(_changeManager);
+    _configMaster = new InMemoryConfigMaster(_changeManager);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     if (_container != null) {
       _container.stop();
@@ -76,7 +76,6 @@ public class JmsMasterChangeManagerTest {
     }
   }
 
-  @Test
   public void testAdded() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -85,7 +84,7 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
@@ -93,7 +92,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(addedItem, _testListener.getAddedItem());
   }
 
-  @Test
   public void testRemoved() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -102,7 +100,7 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier uniqueId = added.getUniqueId();
     assertNotNull(uniqueId);
     
@@ -112,7 +110,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(removedItem, _testListener.getRemovedItem());
   }
 
-  @Test
   public void testUpdated() throws Exception {
     _container.afterPropertiesSet();
     _container.start();
@@ -121,11 +118,11 @@ public class JmsMasterChangeManagerTest {
     }
     
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier oldItem = added.getUniqueId();
     assertNotNull(oldItem);
     
-    ConfigDocument<Identifier> updated = _configMaster.update(added);
+    ConfigDocument<?> updated = _configMaster.update(added);
     UniqueIdentifier newItem = updated.getUniqueId();
     assertNotNull(newItem);
     
@@ -133,7 +130,6 @@ public class JmsMasterChangeManagerTest {
     assertEquals(Pair.of(oldItem, newItem), _testListener.getUpdatedItem());
   }
 
-  @Test
   public void testMultipleListeners() throws Exception {
     //setup multiple master change listener
     List<TestMasterChangeClient> clients = Lists.newArrayList();
@@ -151,11 +147,11 @@ public class JmsMasterChangeManagerTest {
     
     // add, update and remove doc in config master
     final ConfigDocument<Identifier> doc = createTestDocument();
-    ConfigDocument<Identifier> added = _configMaster.add(doc);
+    ConfigDocument<?> added = _configMaster.add(doc);
     UniqueIdentifier addedItem = added.getUniqueId();
     assertNotNull(addedItem);
     
-    ConfigDocument<Identifier> updated = _configMaster.update(added);
+    ConfigDocument<?> updated = _configMaster.update(added);
     UniqueIdentifier updatedItem = updated.getUniqueId();
     
     UniqueIdentifier removedItem = addedItem;

@@ -15,12 +15,29 @@ import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 
 /**
+ * A calculator to determine the upper limit of the Fourier integral for a characteristic function {@latex.inline $\\phi$}.
+ * <p>
+ * The upper limit is found by determining the root of the function:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * f(x) = \\ln\\left(\\left|\\phi(x - i(1 + \\alpha))\\right|\\right)
+ * \\end{align*}
+ * }
+ * where {@latex.inline $\\alpha$} is the contour (which is parallel to the real axis and shifted down by {@latex.inline $1 + \\alpha$}) over which to 
+ * integrate.
  * 
  */
 public class IntegralLimitCalculator {
   private static BracketRoot s_bracketRoot = new BracketRoot();
   private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder(1e-1);
 
+  /**
+   * 
+   * @param psi The characteristic function, not null
+   * @param alpha The value of {@latex.inline $\\alpha$}, not 0 or -1
+   * @param tol The tolerance for the root
+   * @return The root 
+   */
   public double solve(final Function1D<ComplexNumber, ComplexNumber> psi, final double alpha, final double tol) {
     Validate.notNull(psi, "psi null");
     Validate.isTrue(alpha != 0.0 && alpha != -1.0, "alpha cannot be -1 or 0");

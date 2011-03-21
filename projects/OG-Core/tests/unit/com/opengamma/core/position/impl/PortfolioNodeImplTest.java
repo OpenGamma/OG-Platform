@@ -5,15 +5,13 @@
  */
 package com.opengamma.core.position.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
@@ -24,9 +22,9 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test PortfolioNodeImpl.
  */
+@Test
 public class PortfolioNodeImplTest {
 
-  @Test
   public void test_construction() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     assertEquals(null, test.getUniqueId());
@@ -38,7 +36,6 @@ public class PortfolioNodeImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_construction_String() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
     assertEquals(UniqueIdentifier.of("A", "B"), test.getUniqueId());
@@ -49,7 +46,6 @@ public class PortfolioNodeImplTest {
     assertEquals("PortfolioNode[A::B, 0 child-nodes, 0 positions]", test.toString());
   }
 
-  @Test
   public void test_construction_String_null() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), null);
     assertEquals(UniqueIdentifier.of("A", "B"), test.getUniqueId());
@@ -61,42 +57,39 @@ public class PortfolioNodeImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setUniqueId() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setUniqueId(UniqueIdentifier.of("Scheme2", "Id2"));
     assertEquals(UniqueIdentifier.of("Scheme2", "Id2"), test.getUniqueId());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setUniqueId_null() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setUniqueId(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_setName() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setName("Name2");
     assertEquals("Name2", test.getName());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_setName_null() {
     PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
     test.setName(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions=UnsupportedOperationException.class)
   public void test_getChildNodes_immutable() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
     test.getChildNodes().add(child);
   }
 
-  @Test
   public void test_addChildNode() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
@@ -108,7 +101,6 @@ public class PortfolioNodeImplTest {
     assertEquals(1, test.size());
   }
 
-  @Test
   public void test_addChildNodes() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child0 = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child0"), "child0");
@@ -123,7 +115,6 @@ public class PortfolioNodeImplTest {
     assertEquals(2, test.size());
   }
 
-  @Test
   public void test_removeChildNode_match() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
@@ -134,7 +125,6 @@ public class PortfolioNodeImplTest {
     assertEquals(0, test.getChildNodes().size());
   }
 
-  @Test
   public void test_removeChildNode_noMatch() {
     PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
@@ -148,14 +138,13 @@ public class PortfolioNodeImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions=UnsupportedOperationException.class)
   public void test_getPositions_immutable() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
     test.getPositions().add(child);
   }
 
-  @Test
   public void test_addPosition() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
@@ -166,7 +155,6 @@ public class PortfolioNodeImplTest {
     assertEquals(1, test.size());
   }
 
-  @Test
   public void test_addPositions() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PositionImpl child0 = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
@@ -179,7 +167,6 @@ public class PortfolioNodeImplTest {
     assertEquals(2, test.size());
   }
 
-  @Test
   public void test_removePosition_match() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
@@ -189,7 +176,6 @@ public class PortfolioNodeImplTest {
     assertEquals(0, test.getPositions().size());
   }
 
-  @Test
   public void test_removePosition_noMatch() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PositionImpl child = new PositionImpl(BigDecimal.ONE, Identifier.of("K", "V"));
@@ -202,7 +188,6 @@ public class PortfolioNodeImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_size() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
     PortfolioNodeImpl child1 = new PortfolioNodeImpl();
@@ -215,7 +200,6 @@ public class PortfolioNodeImplTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getNode_Identifier() {
     PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
     PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
@@ -233,7 +217,6 @@ public class PortfolioNodeImplTest {
     assertEquals(null, root.getNode(UniqueIdentifier.of("NotFound", "A")));
   }
 
-  @Test
   public void test_getPosition_Identifier() {
     PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
     PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");

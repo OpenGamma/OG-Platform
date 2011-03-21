@@ -10,7 +10,7 @@ namespace com.opengamma.financial.security.fra {
 
     required string securityType [default = "FRA"];
     
-    required com.opengamma.core.common.CurrencyUnit currency;
+    required com.opengamma.util.money.Currency currency;
     required id.Identifier region;
     required DateTimeWithZone startDate;
     required DateTimeWithZone endDate;

@@ -7,14 +7,14 @@ package com.opengamma.id;
 
 import junit.framework.Assert;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Unit tests for {@link IdentifierBundleMapper}
  */
+@Test
 public class IdentifierBundleMapperTest {
 
-  @Test
   public void testIdentifierBundleMapper() {
     Identifier idA1 = Identifier.of("TEST_SCHEME_A", "1");
     Identifier idB1 = Identifier.of("TEST_SCHEME_B", "1");

@@ -17,7 +17,9 @@ import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Parent class for a family of curves that have real <i>x</i> and <i>y</i> values. It is possible to construct a curve using either unsorted (in <i>x</i>) data
+ * or sorted (ascending in <i>x</i>). Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give 
+ * unpredictable results.
  */
 // TODO test for distinctness of nodes?
 public abstract class DoublesCurve extends Curve<Double, Double> {
@@ -27,6 +29,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   private Double[] _xDataObject;
   private Double[] _yDataObject;
 
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
@@ -40,6 +48,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
@@ -59,6 +73,11 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A map of <i>x-y</i> data, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final Map<Double, Double> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -77,6 +96,11 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data An array of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final DoublesPair[] data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -93,6 +117,11 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A set of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -110,6 +139,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param xData A list of <i>x</i> data points, assumed to be sorted ascending, not null
+   * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
@@ -129,6 +164,11 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A list of <i>x-y</i> data points, assumed to be sorted ascending, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   */
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -146,6 +186,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -159,6 +206,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -178,6 +232,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A map of <i>x-y</i> data, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -196,6 +256,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data An array of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -212,6 +278,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A set of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -229,6 +301,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param xData A list of <i>x</i> data, not null
+   * @param yData A list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -248,6 +327,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
   }
 
+  /**
+   * 
+   * @param data A list of <i>x-y</i> pairs, not null
+   * @param isSorted Is the <i>x</i>-data sorted
+   * @param name The name of the curve
+   */
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -276,7 +361,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
     return _xDataObject;
   }
-
+  
   @Override
   public Double[] getYData() {
     if (_yDataObject != null) {
@@ -289,10 +374,18 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     return _yDataObject;
   }
 
+  /**
+   * Returns the <i>x</i> data points as a primitive array
+   * @return The <i>x</i> data
+   */
   public double[] getXDataAsPrimitive() {
     return _xData;
   }
-
+  
+  /**
+   * Returns the <i>y</i> data points as a primitive array
+   * @return The <i>y</i> data
+   */
   public double[] getYDataAsPrimitive() {
     return _yData;
   }

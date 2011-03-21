@@ -100,15 +100,15 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
    * Search for configuration elements using a request object.
    * 
    * @param <T>  the type of configuration element
-   * @param clazz  the configuration element type, not null
    * @param request  the request object with value for search fields, not null
    * @return all configuration elements matching the request, not null
    */
-  public <T> List<T> search(final Class<T> clazz, final ConfigSearchRequest request) {
-    ArgumentChecker.notNull(clazz, "clazz");
+  public <T> List<T> search(final ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getType(), "request.type");
     request.setVersionCorrection(getVersionCorrection());
-    ConfigSearchResult<T> searchResult = getMaster().typed(clazz).search(request);
+    
+    ConfigSearchResult<T> searchResult = getMaster().search(request);
     List<ConfigDocument<T>> documents = searchResult.getDocuments();
     List<T> result = new ArrayList<T>();
     for (ConfigDocument<T> configDocument : documents) {
@@ -149,9 +149,9 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
     VersionCorrection vc = getVersionCorrection();  // lock against change
     try {
       if (vc != null) {
-        return getMaster().typed(clazz).get(uniqueId, vc);
+        return getMaster().get(uniqueId, vc, clazz);
       } else {
-        return getMaster().typed(clazz).get(uniqueId);
+        return getMaster().get(uniqueId, clazz);
       }
     } catch (DataNotFoundException ex) {
       return null;
@@ -173,11 +173,14 @@ public class MasterConfigSource implements ConfigSource, VersionedSource {
   public <T> ConfigDocument<T> getDocumentByName(final Class<T> clazz, final String name, final Instant versionAsOf) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
-    ConfigSearchRequest request = new ConfigSearchRequest();
+    
+    ConfigSearchRequest<T> request = new ConfigSearchRequest<T>();
     request.setPagingRequest(PagingRequest.ONE);
     request.setVersionCorrection(VersionCorrection.ofVersionAsOf(versionAsOf));
     request.setName(name);
-    ConfigSearchResult<T> searchResult = getMaster().typed(clazz).search(request);
+    request.setType(clazz);
+    
+    ConfigSearchResult<T> searchResult = getMaster().search(request);
     return searchResult.getFirstDocument();
   }
 

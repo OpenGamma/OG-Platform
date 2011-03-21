@@ -7,11 +7,13 @@ package com.opengamma.math.curve;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * Defines a constant curve 
+ * Defines a constant curve (i.e. a curve with <i>y = constant</i>)
  */
 public class ConstantDoublesCurve extends Curve<Double, Double> {
 
@@ -82,11 +84,13 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param x An array of x values
-   * @param interpolator An interpolator
+   * @param x An array of <i>x</i> values, not null
+   * @param interpolator An interpolator, not null
    * @return An interpolated curve with constant value 
    */
-  public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+  public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
+    Validate.notNull(x, "x");
+    Validate.notNull(interpolator, "interpolator");
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
     return InterpolatedDoublesCurve.from(x, y, interpolator);
@@ -94,10 +98,11 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param x An array of x values
+   * @param x An array of <i>x</i> values, not null
    * @return A nodal curve with constant value
    */
-  public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
+  public NodalDoublesCurve toNodalDoublesCurve(final double[] x) {
+    Validate.notNull(x, "x");
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
     return NodalDoublesCurve.from(x, y);

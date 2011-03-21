@@ -5,15 +5,14 @@
  */
 package com.opengamma.master.region.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.TimeZone;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.Identifier;
@@ -24,15 +23,17 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test InMemoryRegionRepository.
  */
+@Test
 public class InMemoryRegionMasterTest {
 
   private static String NAME = "France";
   private static Identifier ID_COUNTRY = RegionUtils.countryRegionId("FR");
-  private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(CurrencyUnit.EUR);
+  private static Identifier ID_CURENCY = RegionUtils.currencyRegionId(Currency.EUR);
   private static Identifier ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
   private static Identifier ID_OTHER1 = Identifier.of("TEST_SCHEME", "The French");
   private static Identifier ID_OTHER2 = Identifier.of("TEST_SCHEME", "France");
@@ -43,7 +44,7 @@ public class InMemoryRegionMasterTest {
   private InMemoryRegionMaster master;
   private RegionDocument addedDoc;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     master = new InMemoryRegionMaster();
     ManageableRegion inputRegion = new ManageableRegion();
@@ -51,33 +52,31 @@ public class InMemoryRegionMasterTest {
     inputRegion.setFullName(NAME);
     inputRegion.setClassification(RegionClassification.INDEPENDENT_STATE);
     inputRegion.setCountryISO("FR");
-    inputRegion.setCurrency(CurrencyUnit.EUR);
+    inputRegion.setCurrency(Currency.EUR);
     inputRegion.setTimeZone(TimeZone.of("Europe/Paris"));
     RegionDocument inputDoc = new RegionDocument(inputRegion);
     addedDoc = master.add(inputDoc);
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
     master.get(UniqueIdentifier.of("A", "B"));
   }
 
   public void test_get_match() {
     RegionDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(Identifier.of("MemReg", "1"), result.getUniqueId());
+    assertEquals(UniqueIdentifier.of("MemReg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_oneId_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest(ID_OTHER1);
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_oneId_mic() {
     RegionSearchRequest request = new RegionSearchRequest(ID_COUNTRY);
     RegionSearchResult result = master.search(request);
@@ -85,7 +84,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_oneId_ccid() {
     RegionSearchRequest request = new RegionSearchRequest(ID_COUNTRY);
     RegionSearchResult result = master.search(request);
@@ -94,7 +92,6 @@ public class InMemoryRegionMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_oneBundle_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_OTHER);
     request.getRegionKeys().setSearchType(IdentifierSearchType.ALL);
@@ -102,7 +99,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_oneBundle_full() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_FULL);
     RegionSearchResult result = master.search(request);
@@ -110,7 +106,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_oneBundle_part() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_PART);
     RegionSearchResult result = master.search(request);
@@ -119,7 +114,6 @@ public class InMemoryRegionMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_twoBundles_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.addRegionKey(ID_OTHER1);
@@ -128,7 +122,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_twoBundles_oneMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.addRegionKey(ID_COUNTRY);
@@ -138,7 +131,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_twoBundles_bothMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.addRegionKey(ID_COUNTRY);
@@ -149,7 +141,6 @@ public class InMemoryRegionMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_name_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setName("No match");
@@ -157,7 +148,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_name_match() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setName(NAME);
@@ -167,7 +157,6 @@ public class InMemoryRegionMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_classification_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setClassification(RegionClassification.DEPENDENCY);
@@ -175,7 +164,6 @@ public class InMemoryRegionMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_classification_match() {
     RegionSearchRequest request = new RegionSearchRequest();
     request.setClassification(RegionClassification.INDEPENDENT_STATE);

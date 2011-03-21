@@ -1,0 +1,35 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.definition {
+
+  /**
+   * Base message for a parameter to an invocation.
+   */
+  message Parameter {
+  
+    /**
+     * Primary name of the parameter, obeying syntactic rules of the bound language if necessary.
+     */
+    required string name;
+    
+    /**
+     * Brief (1 sentence) description of the parameter. The description should be language
+     * agnostic and generic (unless the object is only published to a specific language
+     * binding).
+     */
+    optional string description;
+    
+    /**
+     * True if the parameter must be supplied at invocation, false if it may be omitted or a default
+     * is available. Note that the default is not sent to the client - it is only required within
+     * the Java stack.
+     */
+    required boolean $required;
+    
+  }
+
+}

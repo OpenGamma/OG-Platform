@@ -12,6 +12,7 @@
 #ifndef _WIN32
 #include <apr-1/apr_dso.h>
 #include "MemoryPool.h"
+#include "Error.h"
 #endif /* ifndef _WIN32 */
 
 #include "Unicode.h"

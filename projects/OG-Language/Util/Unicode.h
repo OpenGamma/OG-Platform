@@ -19,24 +19,40 @@
 #   define TCHAR		wchar_t
 #   define TEXT(str)	L##str
 #   define _tcscmp		wcscmp
+#   define _tcsncmp		wcsncmp
 #   define _tcsdup		wcsdup
-#   define _tcsicmp	wcscasecmp
+#   define _tcsicmp		wcscasecmp
 #   define _tcslen		wcslen
-#   define _tcsrchr	wcsrchr
+#   define _tcsrchr		wcsrchr
 #   define _tstoi		?
+#   define _tstof		?
 #  else /* ifdef _UNICODE */
 #   include <string.h>
 #   define TCHAR		char
 #   define TEXT(str)	str
 #   define _tcscmp		strcmp
+#   define _tcsncmp		strncmp
 #   define _tcsdup		strdup
-#   define _tcsicmp	strcasecmp
+#   define _tcsicmp		strcasecmp
 #   define _tcslen		strlen
-#   define _tcsrchr	strrchr
+#   define _tcsrchr		strrchr
 #   define _tstoi		atoi
+#   define _tstof		atof
 #  endif /* ifdef _UNICODE */
 #  define _TCHAR_DEFINED
 # endif /* ifmdef _TCHAR_DEFINED */
 #endif /* ifdef _WIN32 */
+
+#ifdef _UNICODE
+# define _tcsAsciiDup	WideToAsciiDup
+# define Ascii_tcsDup	AsciiToWideDup
+# define _tcsWideDup	wcsdup
+# define Wide_tcsDup	wcsdup
+#else /* ifdef _UNICODE */
+# define _tcsAsciiDup	strdup
+# define Ascii_tcsDup	strdup
+# define _tcsWideDup	AsciiToWideDup
+# define Wide_tcsDup	WideToAsciiDup
+#endif /* ifdef _UNICODE */
 
 #endif /* ifndef __inc_og_language_util_unicode_h */

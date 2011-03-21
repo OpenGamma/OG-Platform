@@ -5,25 +5,22 @@
  */
 package com.opengamma.web.bundle;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import java.io.File;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.web.bundle.BundleManager;
 import com.opengamma.web.bundle.BundleParser;
 import com.opengamma.web.bundle.Fragment;
 
 /**
- * Test BundleParser
+ * Test BundleParser.
  */
+@Test
 public class BundleParserTest {
-  
-  @Test
+
   public void testParser() throws Exception {
     File xmlFile = new File(getClass().getResource("uiResourceConfig.xml").getPath());
     
@@ -68,9 +65,6 @@ public class BundleParserTest {
     for (Fragment fragment : jsBundleCommon) {
       assertEquals(fragment, jsOgCommon.get(j++));
     }    
-    
   }
-  
-  
 
 }

@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.BlackOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BjerksundStenslandModel;
@@ -277,7 +276,6 @@ public class CrankNicolsonFiniteDifferenceSORTest {
 
   @Test
   public void testAmericanPrice() {
-    double df = YIELD_CURVE.getDiscountFactor(T);
     int timeSteps = 10;
     int priceSteps = 100;
  

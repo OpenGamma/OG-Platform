@@ -5,26 +5,24 @@
  */
 package com.opengamma.util.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Tests the Timeout benchmark.
  */
+@Test
 public class TimeoutTest {
 
-  @Test
   public void testTimeoutMillis() {
     assertTrue(Timeout.standardTimeoutMillis() > 0);
   }
 
-  @Test
   public void testTimeoutNanos() {
     assertTrue(Timeout.standardTimeoutNanos() > 0);
   }
 
-  @Test
   public void testTimeoutSeconds() {
     assertTrue(Timeout.standardTimeoutSeconds() > 0);
   }

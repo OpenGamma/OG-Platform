@@ -9,19 +9,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 public class YieldCurveDefinitionTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
-    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(CurrencyUnit.USD, RegionUtils.countryRegionId("US"), "ANNOYING", "STUPID");
+    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId("US"), "ANNOYING", "STUPID");
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "Convention"));
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.TWO_YEARS, 3, "CONVENTIONAL"));

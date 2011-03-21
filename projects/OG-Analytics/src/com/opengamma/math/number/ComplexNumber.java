@@ -9,11 +9,12 @@ package com.opengamma.math.number;
  * 
  */
 public class ComplexNumber extends Number {
-  /** Defining <it>i</it>*/
+  private static final long serialVersionUID = 1L;
+  /** Defining <i>i</i>*/
   public static final ComplexNumber I = new ComplexNumber(0, 1);
-  /** Defining <it>-i</it>*/
+  /** Defining <i>-i</i>*/
   public static final ComplexNumber MINUS_I = new ComplexNumber(0, -1);
-  /** Defining 0 + 0<it>i</it> */
+  /** Defining 0 + 0<i>i</i> */
   public static final ComplexNumber ZERO = new ComplexNumber(0);
 
   private final double _real;

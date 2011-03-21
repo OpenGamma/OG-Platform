@@ -5,17 +5,16 @@
  */
 package com.opengamma.security.auditlog;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
 
 /**
  * 
- *
- * @author pietari
  */
+@Test
 public class DuplicateFilteringAuditLoggerTest {
-  
-  @Test
+
   public void testDuplicateFiltering() throws InterruptedException {
     InMemoryAuditLogger memoryLogger = new InMemoryAuditLogger();  
     DuplicateFilteringAuditLogger filteringLogger = new DuplicateFilteringAuditLogger(memoryLogger, 1000, 1);

@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finiteDifference;
@@ -13,7 +13,6 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class ValueBoundaryCondition implements BoundaryCondition {
-
   private final Function1D<Double, Double> _timeValue;
   private final double _level;
 

@@ -12,19 +12,19 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * Tests the SimpleCurrencyMatrix class
  */
 public class SimpleCurrencyMatrixTest {
   
-  private final CurrencyUnit currencyUSD = CurrencyUnit.of ("USD");
-  private final CurrencyUnit currencyGBP = CurrencyUnit.of ("GBP");
-  private final CurrencyUnit currencyEUR = CurrencyUnit.of ("EUR");
-  private final CurrencyUnit currencyCHF = CurrencyUnit.of ("CHF");
+  private final Currency currencyUSD = Currency.of ("USD");
+  private final Currency currencyGBP = Currency.of ("GBP");
+  private final Currency currencyEUR = Currency.of ("EUR");
+  private final Currency currencyCHF = Currency.of ("CHF");
   
   @Test
   public void testFixedConversion () {

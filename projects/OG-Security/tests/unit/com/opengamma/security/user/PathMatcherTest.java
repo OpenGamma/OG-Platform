@@ -5,42 +5,40 @@
  */
 package com.opengamma.security.user;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.security.user.PathMatcher;
+import org.testng.annotations.Test;
 
 /**
  * 
- *
- * @author pietari
  */
+@Test
 public class PathMatcherTest {
   
-  @Test
   public void testMatching() {
     
-    Assert.assertTrue(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
-    Assert.assertFalse(PathMatcher.matches("/MarketData2/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
+    assertTrue(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
+    assertFalse(PathMatcher.matches("/MarketData2/Bloomberg/AAPL/View", "/MarketData/Bloomberg/*/View"));
     
-    Assert.assertTrue(PathMatcher.matches("/Portfolio/2DFS/View", "/Portf*/**"));
-    Assert.assertTrue(PathMatcher.matches("/Portfolio/3XYZ/Modify", "/Portf*/**"));
-    Assert.assertFalse(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/Portf*/**"));
+    assertTrue(PathMatcher.matches("/Portfolio/2DFS/View", "/Portf*/**"));
+    assertTrue(PathMatcher.matches("/Portfolio/3XYZ/Modify", "/Portf*/**"));
+    assertFalse(PathMatcher.matches("/MarketData/Bloomberg/AAPL/View", "/Portf*/**"));
     
-    Assert.assertTrue(PathMatcher.matches("/anything/anything", "**"));
-    Assert.assertTrue(PathMatcher.matches("/anything", "**"));
-    Assert.assertTrue(PathMatcher.matches("/", "**"));
-    Assert.assertTrue(PathMatcher.matches("", "**"));
+    assertTrue(PathMatcher.matches("/anything/anything", "**"));
+    assertTrue(PathMatcher.matches("/anything", "**"));
+    assertTrue(PathMatcher.matches("/", "**"));
+    assertTrue(PathMatcher.matches("", "**"));
     
-    Assert.assertTrue(PathMatcher.matches("/random", "/*"));
-    Assert.assertFalse(PathMatcher.matches("random", "/*"));
+    assertTrue(PathMatcher.matches("/random", "/*"));
+    assertFalse(PathMatcher.matches("random", "/*"));
     
-    Assert.assertFalse(PathMatcher.matches("/random", "*"));
-    Assert.assertFalse(PathMatcher.matches("random/", "*"));
-    Assert.assertTrue(PathMatcher.matches("random", "*"));
+    assertFalse(PathMatcher.matches("/random", "*"));
+    assertFalse(PathMatcher.matches("random/", "*"));
+    assertTrue(PathMatcher.matches("random", "*"));
     
-    Assert.assertTrue(PathMatcher.matches("random/", "*/"));
-    Assert.assertFalse(PathMatcher.matches("random", "*/"));
+    assertTrue(PathMatcher.matches("random/", "*/"));
+    assertFalse(PathMatcher.matches("random", "*/"));
   }
 
 }

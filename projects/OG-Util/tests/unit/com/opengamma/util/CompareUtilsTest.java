@@ -5,16 +5,16 @@
  */
 package com.opengamma.util;
 
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.*;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test CompareUtils.
  */
+@Test
 public class CompareUtilsTest {
 
-  @Test
   public void test_max() {
     assertEquals(null, CompareUtils.<String>max(null, null));
     assertEquals("A", CompareUtils.max(null, "A"));
@@ -25,7 +25,6 @@ public class CompareUtilsTest {
     assertEquals("B", CompareUtils.max("A", "B"));
   }
 
-  @Test
   public void test_min() {
     assertEquals(null, CompareUtils.<String>min(null, null));
     assertEquals("A", CompareUtils.min(null, "A"));
@@ -36,7 +35,6 @@ public class CompareUtilsTest {
     assertEquals("A", CompareUtils.min("A", "B"));
   }
 
-  @Test
   public void testCompareWithNull() {
     assertTrue(CompareUtils.compareWithNull(null, null) == 0);
     assertTrue(CompareUtils.compareWithNull(null, "Test") < 0);
@@ -45,7 +43,6 @@ public class CompareUtilsTest {
     assertTrue(CompareUtils.compareWithNull("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
   }
 
-  @Test
   public void testCompareWithNullHigh() {
     assertTrue(CompareUtils.compareWithNullHigh(null, null) == 0);
     assertTrue(CompareUtils.compareWithNullHigh(null, "Test") > 0);

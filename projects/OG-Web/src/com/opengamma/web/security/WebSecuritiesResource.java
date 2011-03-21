@@ -116,7 +116,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return out;
   }
   
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
@@ -151,6 +151,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     return Response.seeOther(uri).build();
   }
   
+  //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)

@@ -13,6 +13,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public final class InterpolationBoundedValues implements Serializable {
+  private static final long serialVersionUID = 1L;
   private final int _lowerBoundIndex;
   private final Double _lowerBoundKey;
   private final Double _lowerBoundValue;

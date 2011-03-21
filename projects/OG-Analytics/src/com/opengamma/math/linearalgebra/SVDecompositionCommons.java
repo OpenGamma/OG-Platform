@@ -14,10 +14,14 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for Commons implementation of SVD
+ * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/linear/SingularValueDecompositionImpl.html">Commons Math library implementation</a> 
+ * of singular value decomposition.
  */
 public class SVDecompositionCommons extends Decomposition<SVDecompositionResult> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
     Validate.notNull(x);

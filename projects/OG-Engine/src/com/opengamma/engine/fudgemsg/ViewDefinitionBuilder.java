@@ -18,7 +18,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -27,6 +26,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -47,6 +47,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD = "portfolioRequirementsBySecurityType";
   private static final String SECURITY_TYPE_FIELD = "securityType";
   private static final String PORTFOLIO_REQUIREMENT_FIELD = "portfolioRequirement";
+  private static final String PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD = "requiredOutput";
+  private static final String PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD = "constraints";
+  
   private static final String SPECIFIC_REQUIREMENT_FIELD = "specificRequirement";
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
@@ -64,7 +67,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
     context.objectToFudgeMsg(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
 
-    CurrencyUnit defaultCurrency = viewDefinition.getDefaultCurrency();
+    Currency defaultCurrency = viewDefinition.getDefaultCurrency();
     if (defaultCurrency != null) {
       message.add(CURRENCY_FIELD, null, defaultCurrency.getCode());
     }
@@ -90,8 +93,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         MutableFudgeFieldContainer securityTypeRequirementsMsg = context.newMessage();
         securityTypeRequirementsMsg.add(SECURITY_TYPE_FIELD, securityTypeRequirements.getKey());
         for (Pair<String, ValueProperties> requirement : securityTypeRequirements.getValue()) {
-          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, requirement.getFirst());
-          // TODO put the value constraints into the message if they're specified
+          MutableFudgeFieldContainer reqMsg = context.newMessage();
+          reqMsg.add(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD, requirement.getFirst());
+          context.objectToFudgeMsg(reqMsg, PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD, null, requirement.getSecond());
+          securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, reqMsg);
         }
         calcConfigMsg.add(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, securityTypeRequirementsMsg);
       }
@@ -122,7 +127,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
     if (message.hasField(CURRENCY_FIELD)) {
       String isoCode = message.getString(CURRENCY_FIELD);
-      viewDefinition.setDefaultCurrency(CurrencyUnit.of(isoCode));
+      viewDefinition.setDefaultCurrency(Currency.of(isoCode));
     }
 
     if (message.hasField(MIN_DELTA_CALC_PERIOD_FIELD)) {
@@ -146,8 +151,11 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         String securityType = securityTypeRequirementsMsg.getString(SECURITY_TYPE_FIELD);
         Set<Pair<String, ValueProperties>> requirements = new HashSet<Pair<String, ValueProperties>>();
         for (FudgeField requirement : securityTypeRequirementsMsg.getAllByName(PORTFOLIO_REQUIREMENT_FIELD)) {
-          // TODO fetch the value constraints from the message
-          requirements.add(Pair.of((String) requirement.getValue(), ValueProperties.none()));
+          FudgeFieldContainer reqMsg = (FudgeFieldContainer) requirement.getValue();
+
+          String requiredOutput = reqMsg.getString(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD);
+          ValueProperties constraints = (ValueProperties) context.fieldValueToObject(ValueProperties.class, reqMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
+          requirements.add(Pair.of(requiredOutput, constraints));
         }
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }

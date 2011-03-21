@@ -10,10 +10,13 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.date.ArrayDateObjectTimeSeries;
 import com.opengamma.util.timeseries.date.DateObjectTimeSeries;
 
+@Test
 public class ArrayDateObjectTimeSeriesTest extends DateObjectTimeSeriesTest {
 
   @Override

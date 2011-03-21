@@ -8,78 +8,80 @@ package com.opengamma.math.linearalgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * interface for holders of SVD Results
+ * Contains the results of SV matrix decomposition.
  */
 public interface SVDecompositionResult extends DecompositionResult {
 
   /**
-   * Returns the matrix U of the decomposition.
-   * <p>U is an orthogonal matrix, i.e. its transpose is also its inverse.</p>
-   * @return the U matrix
-   * @see #getUT()
+   * Returns the matrix {@latex.inline $\\mathbf{U}$} of the decomposition.
+   * <p>
+   * {@latex.inline $\\mathbf{U}$} is an orthogonal matrix, i.e. its transpose is also its inverse.
+   * @return the {@latex.inline $\\mathbf{U}$} matrix
    */
   DoubleMatrix2D getU();
 
   /**
-   * Returns the transpose of the matrix U of the decomposition.
-   * <p>U is an orthogonal matrix, i.e. its transpose is also its inverse.</p>
+   * Returns the transpose of the matrix {@latex.inline $\\mathbf{U}$} of the decomposition.
+   * <p>
+   * {@latex.inline $\\mathbf{U}$} is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the U matrix (or null if decomposed matrix is singular)
-   * @see #getU()
    */
   DoubleMatrix2D getUT();
 
   /**
-   * Returns the diagonal matrix &Sigma; of the decomposition.
-   * <p>&Sigma; is a diagonal matrix. The singular values are provided in
-   * non-increasing order.</p>
-   * @return the &Sigma; matrix
+   * Returns the diagonal matrix {@latex.inline $\\mathbf{\\Sigma}$} of the decomposition.
+   * <p>
+   * {@latex.inline $\\mathbf{\\Sigma}$} is a diagonal matrix. The singular values are provided in
+   * non-increasing order.
+   * @return the {@latex.inline $\\mathbf{\\Sigma}$} matrix
    */
   DoubleMatrix2D getS();
 
   /**
-   * Returns the diagonal elements of the matrix &Sigma; of the decomposition.
-   * <p>The singular values are provided in non-increasing order.</p>
-   * @return the diagonal elements of the &Sigma; matrix
+   * Returns the diagonal elements of the matrix {@latex.inline $\\mathbf{\\Sigma}$} of the decomposition.
+   * <p>
+   * The singular values are provided in non-increasing order.
+   * @return the diagonal elements of the {@latex.inline $\\mathbf{\\Sigma}$} matrix
    */
   double[] getSingularValues();
 
   /**
-   * Returns the matrix V of the decomposition.
-   * <p>V is an orthogonal matrix, i.e. its transpose is also its inverse.</p>
-   * @return the V matrix (or null if decomposed matrix is singular)
-   * @see #getVT()
+   * Returns the matrix {@latex.inline $\\mathbf{V}$} of the decomposition.
+   * <p>
+   * {@latex.inline $\\mathbf{V}$} is an orthogonal matrix, i.e. its transpose is also its inverse.
+   * @return the {@latex.inline $\\mathbf{V}$} matrix
    */
   DoubleMatrix2D getV();
 
   /**
-   * Returns the transpose of the matrix V of the decomposition.
-   * <p>V is an orthogonal matrix, i.e. its transpose is also its inverse.</p>
-   * @return the V matrix (or null if decomposed matrix is singular)
-   * @see #getV()
+   * Returns the transpose of the matrix {@latex.inline $\\mathbf{V}$} of the decomposition.
+   * <p>
+   * {@latex.inline $\\mathbf{V}$} is an orthogonal matrix, i.e. its transpose is also its inverse.
+   * @return the {@latex.inline $\\mathbf{V}$} matrix
    */
   DoubleMatrix2D getVT();
 
   /**
-   * Returns the L<sub>2</sub> norm of the matrix.
-   * <p>The L<sub>2</sub> norm is max(|A &times; u|<sub>2</sub> /
-   * |u|<sub>2</sub>), where |.|<sub>2</sub> denotes the vectorial 2-norm
-   * (i.e. the traditional euclidian norm).</p>
+   * Returns the {@latex.inline $L_2$} norm of the matrix.
+   * <p>
+   * The {@latex.inline $L_2$} norm is {@latex.inline $\\max\\left(\\frac{|\\mathbf{A} \\times U|_2}{|U|_2}\\right)$}, where {@latex.inline $|.|_2$} denotes the vectorial 2-norm
+   * (i.e. the traditional Euclidian norm).
    * @return norm
    */
   double getNorm();
 
   /**
-   * Return the condition number of the matrix.
+   * Returns the condition number of the matrix.
    * @return condition number of the matrix
    */
   double getConditionNumber();
 
   /**
-   * Return the effective numerical matrix rank.
+   * Returns the effective numerical matrix rank.
    * <p>The effective numerical rank is the number of non-negligible
    * singular values. The threshold used to identify non-negligible
-   * terms is max(m,n) &times; ulp(s<sub>1</sub>) where ulp(s<sub>1</sub>)
-   * is the least significant bit of the largest singular value.</p>
+   * terms is {@latex.inline $\\max(m, n) \\times \\mathrm{ulp}(S_1)$}, where {@latex.inline $\\mathrm{ulp}(S_1)$}  
+   * is the least significant bit of the largest singular value.
    * @return effective numerical matrix rank
    */
   int getRank();
