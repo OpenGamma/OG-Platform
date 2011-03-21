@@ -5,18 +5,14 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.Test;
-
 /**
  * 
- *
- * @author pietari
  */
 public class StandardRuleResolverTest {
   

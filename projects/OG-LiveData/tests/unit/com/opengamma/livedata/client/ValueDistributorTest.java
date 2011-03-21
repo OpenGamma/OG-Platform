@@ -5,16 +5,14 @@
  */
 package com.opengamma.livedata.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.List;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
-
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -23,8 +21,6 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 
 /**
  * 
- *
- * @author kirk
  */
 public class ValueDistributorTest {
   private final FudgeContext _fudgeContext = new FudgeContext();
