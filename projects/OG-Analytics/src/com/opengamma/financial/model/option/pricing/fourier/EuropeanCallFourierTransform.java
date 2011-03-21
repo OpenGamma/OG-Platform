@@ -33,7 +33,6 @@ public class EuropeanCallFourierTransform {
 
       @Override
       public ComplexNumber evaluate(final ComplexNumber z) {
-        @SuppressWarnings("synthetic-access")
         final ComplexNumber num = exp(function.evaluate(z));
         final ComplexNumber denom = multiply(z, add(z, ComplexNumber.I));
         final ComplexNumber res = multiply(-1.0, divide(num, denom));

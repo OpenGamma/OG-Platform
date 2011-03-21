@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -88,10 +88,12 @@ public class FixedFloatSwapSecurityToSwapConverter {
       fixedLeg = (FixedInterestRateLeg) payLeg;
       isPayer = true;
       floatLeg = (FloatingInterestRateLeg) receiveLeg;
+      isPayer = true;
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) receiveLeg;
       isPayer = false;
       floatLeg = (FloatingInterestRateLeg) payLeg;
+      isPayer = false;
     } else {
       throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps");
     }
