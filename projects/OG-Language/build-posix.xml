@@ -53,6 +53,8 @@
 			<includepath>
 				<pathelement path="${solution.dir}" />
 				<pathelement path="${lib.dir}/include" />
+				<pathelement path="${jni.base.include.dir}" />
+				<pathelement path="${jni.native.include.dir}" />
 			</includepath>
 			<fileset dir="${basedir}">
 				<include name="*.c" />
@@ -60,6 +62,7 @@
 			</fileset>
 			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
 			<libset dir="${lib.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
+			<libset libs="${cc.libDefault}" if="cc.libDefault" />
 		</cpptasks:cc>
 		<antcall target="compile-after">
 			<param name="compile.type" value="${cc.configuration}" />

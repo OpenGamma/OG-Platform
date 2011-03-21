@@ -9,16 +9,14 @@ import static org.mockito.Mockito.mock;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.junit.Test;
-
-import com.opengamma.web.WebHomeUris;
+import org.testng.annotations.Test;
 
 /**
  * Test WebHomeUris.
  */
+@Test
 public class WebHomeUrisTest {
 
-  @Test
   public void test_constructable() {
     UriInfo uriInfo = mock(UriInfo.class);
     new WebHomeUris(uriInfo);
