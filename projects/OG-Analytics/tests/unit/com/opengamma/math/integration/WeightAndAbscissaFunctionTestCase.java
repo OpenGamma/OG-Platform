@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  * 
  */
-public abstract class OrthogonalPolynomialGeneratingFunctionTestCase {
+public abstract class WeightAndAbscissaFunctionTestCase {
   private static final double EPS = 1e-3;
 
   protected abstract QuadratureWeightAndAbscissaFunction getFunction();
