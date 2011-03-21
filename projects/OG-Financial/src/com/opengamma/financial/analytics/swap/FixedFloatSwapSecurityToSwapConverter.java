@@ -48,8 +48,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;
 
-  public FixedFloatSwapSecurityToSwapConverter(final HolidaySource holidaySource, final RegionSource regionSource,
-      final ConventionBundleSource conventionSource) {
+  public FixedFloatSwapSecurityToSwapConverter(final HolidaySource holidaySource, final RegionSource regionSource, final ConventionBundleSource conventionSource) {
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _conventionSource = conventionSource;
@@ -71,8 +70,8 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
   }
 
-  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName,
-      final String liborCurveName, final double marketRate, final double initialRate, final ZonedDateTime now) {
+  public FixedCouponSwap<Payment> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String liborCurveName, final double marketRate, final double initialRate,
+      final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
@@ -84,13 +83,15 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
     FixedInterestRateLeg fixedLeg;
     FloatingInterestRateLeg floatLeg;
-    final boolean isPayer;
+    boolean isPayer = true; // Indicated if the fixed leg is payer or receiver.
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) payLeg;
+      isPayer = true;
       floatLeg = (FloatingInterestRateLeg) receiveLeg;
       isPayer = true;
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) receiveLeg;
+      isPayer = false;
       floatLeg = (FloatingInterestRateLeg) payLeg;
       isPayer = false;
     } else {
@@ -99,33 +100,24 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Identifier regionId = payLeg.getRegionIdentifier();
     final Calendar calendar = getCalendar(regionId);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
-    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
+    final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
-    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate,
-        fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate, maturityDate, fundingCurveName,
-        liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
+    return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate, fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate,
+        maturityDate, fundingCurveName, liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays(), !isPayer));
 
   }
 
-  public GenericAnnuity<Payment> getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final String fundingCurveName,
-      final String liborCurveName, final Calendar calendar, final double initialRate, final int settlementDays) {
-    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate,
-        floatLeg.getFrequency());
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates,
-        floatLeg.getBusinessDayConvention(), calendar, 0);
-    final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates,
-        floatLeg.getBusinessDayConvention(), calendar, settlementDays); //TODO should settlement days be negative?
-    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate,
-        unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
+  public GenericAnnuity<Payment> getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double initialRate, final int settlementDays, boolean isPayer) {
+    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
+    final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
+    //TODO should settlement days be negative?
+    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
 
-    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates,
-        DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
-    double[] resetTimes = ScheduleCalculator.getTimes(resetDates,
-        DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
-    double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates,
-        DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
+    double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     final double spread = floatLeg.getSpread();
@@ -149,10 +141,10 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Payment[] payments = new Payment[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
       if (resetTimes[i] < 0.0) {
-        payments[i] = new CouponFixed(paymentTimes[i], fundingCurveName, yearFractions[i], notional, initialRate);
+        payments[i] = new CouponFixed(paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional, initialRate);
       } else {
-        payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i],
-            resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
+        payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i],
+            spreads[i], liborCurveName);
       }
     }
 
@@ -160,15 +152,12 @@ public class FixedFloatSwapSecurityToSwapConverter {
     return new GenericAnnuity<Payment>(payments);
   }
 
-  public AnnuityCouponFixed getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,
-      final String fundingCurveName, final Calendar calendar, final boolean isPayer) {
-    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate,
-        fixedLeg.getFrequency());
-    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates,
-        fixedLeg.getBusinessDayConvention(), calendar, 0); //TODO are settlement days really 0 for swaps?    
-    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates,
-        DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), now);
+  public AnnuityCouponFixed getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,
+      final String fundingCurveName, final Calendar calendar, boolean isPayer) {
+    final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
+    final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, fixedLeg.getBusinessDayConvention(), calendar, 0);
+    //TODO are settlement days really 0 for swaps?    
+    double[] paymentTimes = ScheduleCalculator.getTimes(adjustedDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), now);
     double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, fixedLeg.getDayCount(), effectiveDate);
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final int n = ScheduleCalculator.numberOfNegativeValues(paymentTimes);
