@@ -5,21 +5,18 @@
  */
 package com.opengamma.security.user;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
- *
- * @author pietari
  */
+@Test
 public class UserTest {
-  
-  @Test
+
   public void testPermissioning() {
     User user = new User();
     
@@ -32,14 +29,13 @@ public class UserTest {
     user.getUserGroups().add(group1);
     user.getUserGroups().add(group2);
     
-    Assert.assertTrue(user.hasPermission("/Portfolio/123456/Read"));
-    Assert.assertTrue(user.hasPermission("/Portfolio/123456/Write"));
-    Assert.assertTrue(user.hasPermission("/Portfolio/7890/Read"));
-    Assert.assertFalse(user.hasPermission("/Portfolio/7890/Write"));
-    Assert.assertFalse(user.hasPermission("/Portfolio/Foo/Read"));
+    assertTrue(user.hasPermission("/Portfolio/123456/Read"));
+    assertTrue(user.hasPermission("/Portfolio/123456/Write"));
+    assertTrue(user.hasPermission("/Portfolio/7890/Read"));
+    assertFalse(user.hasPermission("/Portfolio/7890/Write"));
+    assertFalse(user.hasPermission("/Portfolio/Foo/Read"));
   }
-  
-  @Test
+
   public void password() {
     String password = "crpty&@\uFFFD9,3 % (4/10)";
     User user = new User();
@@ -53,6 +49,5 @@ public class UserTest {
     assertTrue(user.checkPassword(password));
     assertFalse(user.checkPassword("goog"));
   }
-  
 
 }

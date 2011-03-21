@@ -8,30 +8,21 @@ package com.opengamma.util.rest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.testng.annotations.Test;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
  * Test IllegalArgumentExceptionMapper.
  */
-@RunWith(Parameterized.class)
+@Test
 public class IllegalArgumentExceptionMapperTest extends AbstractExceptionMapperTestHelper {
 
-  /**
-   * @param mediaType
-   */
-  public IllegalArgumentExceptionMapperTest(MediaType mediaType) {
-    super(mediaType);
-  }
-
-  @Test
-  public void test_mapping() throws Exception {
+  @Test(dataProvider="mediaTypes")
+  public void test_mapping(MediaType mediaType) throws Exception {
     IllegalArgumentException ex = new IllegalArgumentException("Test message");
     IllegalArgumentExceptionMapper mapper = new IllegalArgumentExceptionMapper();
-    init(mapper);
+    init(mapper, mediaType);
     
     Response test = mapper.toResponse(ex);
     testResult(test, Status.BAD_REQUEST, ex);

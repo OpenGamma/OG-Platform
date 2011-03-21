@@ -14,6 +14,7 @@
 #include <Util/DllVersion.h>
 #endif /* ifdef _WIN32 */
 #include <Util/Mutex.h>
+#include <Util/String.h>
 
 LOGGING (com.opengamma.language.connector.Alert);
 

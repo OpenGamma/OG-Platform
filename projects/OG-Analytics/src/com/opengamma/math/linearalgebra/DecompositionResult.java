@@ -9,27 +9,28 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * interface for holder of matrix decomposition results
+ * Contains the results of matrix decomposition. The decomposed matrices (e.g. the L and U matrices for LU decomposition) are stored in this class.
+ * There are methods that allow calculations to be performed using these matrices.  
  */
 public interface DecompositionResult {
 
   /**
-   * Solve Ax = b where A is a (decomposed) matrix and b is some vector 
-   * @param b a vector 
+   * Solves {@latex.inline $\\mathbf{A}x = b$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $b$} is a vector. 
+   * @param b a vector, not null
    * @return the vector x
    */
   DoubleMatrix1D solve(final DoubleMatrix1D b);
 
   /**
-   * Solve Ax = b where A is a (decomposed) matrix and b is some vector 
-   * @param b vector as a double array
-   * @return the vector x as a double array
+   * Solves {@latex.inline $\\mathbf{A}x = b$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $b$} is a vector. 
+   * @param b vector, not null
+   * @return the vector x 
    */
   double[] solve(final double[] b);
 
   /**
-   * Solve Ax = b where A is a (decomposed) matrix and b is some matrix
-   * @param b matrix 
+   * Solves {@latex.inline $\\mathbf{A}x = \\mathbf{B}$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $\\mathbf{B}$} is a matrix.
+   * @param b matrix, not null
    * @return the matrix x
    */
   DoubleMatrix2D solve(final DoubleMatrix2D b);

@@ -14,7 +14,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for results of Commons implementation of LU Decomposition
+ * Wrapper for results of the Commons implementation of LU decomposition ({@link LUDecompositionCommons})
  */
 public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final double _determinant;
@@ -24,10 +24,12 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final DecompositionSolver _solver;
   private final DoubleMatrix2D _u;
 
+  /**
+   * @param lu The result of the LU decomposition, not null. {@latex.inline $\\mathbf{L}$} cannot be singular.
+   */
   public LUDecompositionCommonsResult(final LUDecomposition lu) {
-    if (lu.getL() == null) {
-      throw new IllegalArgumentException("Matrix is singular; could not perform LU decomposition");
-    }
+    Validate.notNull(lu, "LU decomposition");
+    Validate.notNull(lu.getL(), "Matrix is singular; could not perform LU decomposition");
     _determinant = lu.getDeterminant();
     _l = CommonsMathWrapper.unwrap(lu.getL());
     _p = CommonsMathWrapper.unwrap(lu.getP());
@@ -36,43 +38,67 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
     _u = CommonsMathWrapper.unwrap(lu.getU());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getDeterminant() {
     return _determinant;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getL() {
     return _l;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getP() {
     return _p;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int[] getPivot() {
     return _pivot;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getU() {
     return _u;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] solve(final double[] b) {
     Validate.notNull(b);
     return _solver.solve(b);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);

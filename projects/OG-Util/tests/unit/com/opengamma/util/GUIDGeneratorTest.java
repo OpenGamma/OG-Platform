@@ -5,20 +5,18 @@
  */
 package com.opengamma.util;
 
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
- *
- * @author kirk
+ * Test GUIDGenerator.
  */
+@Test
 public class GUIDGeneratorTest {
   
-  @Test
   public void generatorAlwaysGeneratesSomething() {
     UUID uuid = GUIDGenerator.generate();
     assertNotNull(uuid);

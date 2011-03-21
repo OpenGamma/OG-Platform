@@ -362,6 +362,7 @@ public class Client implements Runnable {
       public void run() {
         UserMessagePayload response = null;
         try {
+          s_logger.debug("Dispatching user message {}", message);
           response = dispatchUserMessage(message.getPayload());
         } catch (Throwable t) {
           s_logger.error("Error in user message handler", t);

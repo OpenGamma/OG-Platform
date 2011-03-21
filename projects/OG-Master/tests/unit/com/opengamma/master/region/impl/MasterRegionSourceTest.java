@@ -5,7 +5,8 @@
  */
 package com.opengamma.master.region.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,8 +14,6 @@ import static org.mockito.Mockito.when;
 
 import javax.time.Instant;
 import javax.time.calendar.TimeZone;
-
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
@@ -33,6 +32,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test MasterRegionSource.
  */
+@Test
 public class MasterRegionSourceTest {
 
   private static final Currency GBP = Currency.GBP;
@@ -42,18 +42,17 @@ public class MasterRegionSourceTest {
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
     new MasterRegionSource(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterRegionSource(null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getRegion_noOverride_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
@@ -66,7 +65,6 @@ public class MasterRegionSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getRegion_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
@@ -79,7 +77,6 @@ public class MasterRegionSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getRegion_notFound() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     
@@ -92,7 +89,6 @@ public class MasterRegionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getRegion_Identifier_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
@@ -110,7 +106,6 @@ public class MasterRegionSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getRegion_Identifier_noFound() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(ID);
@@ -128,7 +123,6 @@ public class MasterRegionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getRegion_IdentifierBundle_found() throws Exception {
     RegionMaster mock = mock(RegionMaster.class);
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE);

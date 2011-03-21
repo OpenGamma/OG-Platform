@@ -5,23 +5,22 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test IntDoublePair.
  */
+@Test
 public class IntDoublePairTest {
 
-  @Test
   public void test_IntDoublePair_of() {
     IntDoublePair test = IntDoublePair.of(1, 2.5d);
     assertEquals(new IntDoublePair(1, 2.5d), test);
   }
 
-  @Test
   public void testConstructionGets() {
     IntDoublePair test = new IntDoublePair(1, 2.0d);
     assertEquals(Integer.valueOf(1), test.getFirst());
@@ -35,26 +34,25 @@ public class IntDoublePairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
     pair.setValue(Double.valueOf(1.2d));
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_null() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
     pair.setValue(null);
   }
 
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSetValue_primitives() {
     IntDoublePair pair = new IntDoublePair(2, -0.3d);
     pair.setValue(1.2d);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void compareTo() {
     IntDoublePair ab = Pair.of(1, 1.7d);
     IntDoublePair ac = Pair.of(1, 1.9d);
@@ -73,7 +71,6 @@ public class IntDoublePairTest {
     assertTrue(ba.compareTo(ba) == 0);
   }
 
-  @Test
   public void testEquals() {
     IntDoublePair a = new IntDoublePair(1, 2.0);
     IntDoublePair b = new IntDoublePair(1, 3.0);
@@ -100,7 +97,6 @@ public class IntDoublePairTest {
     assertEquals(true, d.equals(d));
   }
 
-  @Test
   public void testEquals_toObjectVersion() {
     IntDoublePair a = Pair.of(1, 1.7d);
     Pair<Integer, Double> b = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
@@ -108,7 +104,6 @@ public class IntDoublePairTest {
     assertEquals(true, b.equals(a));
   }
 
-  @Test
   public void testEquals_toObjectVersion_null() {
     Pair<Integer, Double> a = Pair.of(null, Double.valueOf(1.9d));
     IntDoublePair b = Pair.of(1, 1.7d);
@@ -118,14 +113,12 @@ public class IntDoublePairTest {
     assertEquals(true, b.equals(b));
   }
 
-  @Test
   public void testHashCode() {
     IntDoublePair a = Pair.of(1, 1.7d);
     Pair<Integer, Double> b = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
     assertEquals(a.hashCode(), b.hashCode());
   }
 
-  @Test
   public void testHashCode_value() {
     IntDoublePair a = new IntDoublePair(1, 2.0);
     assertEquals(a.hashCode(), a.hashCode());

@@ -7,19 +7,26 @@ package com.opengamma.math.function.special;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function2D;
 
 /**
- * 
+ * Class implementing the Kronecker delta function, defined as:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\delta_{i, j}=
+ * \\begin{cases}
+ * 1 & i = j\\\\
+ * 0 & i \\neq j
+ * \\end{cases}
+ * \\end{align*}
+ * }
  */
-public class KroneckerDeltaFunction implements Function<Integer, Integer> {
+public class KroneckerDeltaFunction extends Function2D<Integer, Integer> {
 
   @Override
-  public Integer evaluate(final Integer... x) {
-    Validate.notNull(x, "integer array");
-    Validate.isTrue(x.length == 2, "Can only have two inputs to Kronecker delta function");
-    final int i = x[0];
-    final int j = x[1];
+  public Integer evaluate(final Integer i, Integer j) {
+    Validate.notNull(i, "i");
+    Validate.notNull(j, "j");
     return i == j ? 1 : 0;
   }
 

@@ -8,43 +8,29 @@ package com.opengamma.math.integration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.math.function.Function1D;
-
 /**
- * 
+ * Factory class for 1-D integrators that do not take arguments.
  */
 public final class RealFunctionIntegrator1DFactory {
   // TODO add more integration types
-  /**
-   * 
-   */
+  /** Romberg integrator name */
   public static final String ROMBERG = "Romberg";
-  /**
-   * 
-   */
+  /** {@link RombergIntegrator1D} */
   public static final RombergIntegrator1D ROMBERG_INSTANCE = new RombergIntegrator1D();
-  /**
-   * 
-   */
+  /** Simpson integrator name */
   public static final String SIMPSON = "Simpson";
-  /**
-   * 
-   */
+  /** {@link SimpsonIntegrator1D} */
   public static final SimpsonIntegrator1D SIMPSON_INSTANCE = new SimpsonIntegrator1D();
-  /**
-   * 
-   */
+  /** Extended trapezoid integrator name */
   public static final String EXTENDED_TRAPEZOID = "ExtendedTrapezoid";
-  /**
-   * 
-   */
+  /** {@link ExtendedTrapezoidIntegrator1D} */
   public static final ExtendedTrapezoidIntegrator1D EXTENDED_TRAPEZOID_INSTANCE = new ExtendedTrapezoidIntegrator1D();
 
-  private static final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> s_staticInstances;
+  private static final Map<String, Integrator1D<Double, Double>> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> staticInstances = new HashMap<String, Integrator1D<Double, Function1D<Double, Double>, Double>>();
+    final Map<String, Integrator1D<Double, Double>> staticInstances = new HashMap<String, Integrator1D<Double, Double>>();
     final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
     staticInstances.put(ROMBERG, ROMBERG_INSTANCE);
     instanceNames.put(ROMBERG_INSTANCE.getClass(), ROMBERG);
@@ -52,23 +38,33 @@ public final class RealFunctionIntegrator1DFactory {
     instanceNames.put(SIMPSON_INSTANCE.getClass(), SIMPSON);
     staticInstances.put(EXTENDED_TRAPEZOID, EXTENDED_TRAPEZOID_INSTANCE);
     instanceNames.put(EXTENDED_TRAPEZOID_INSTANCE.getClass(), EXTENDED_TRAPEZOID);
-    s_staticInstances = new HashMap<String, Integrator1D<Double, Function1D<Double, Double>, Double>>(staticInstances);
+    s_staticInstances = new HashMap<String, Integrator1D<Double, Double>>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
 
   private RealFunctionIntegrator1DFactory() {
-
   }
 
-  public static Integrator1D<Double, Function1D<Double, Double>, Double> getIntegrator(final String integratorName) {
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = s_staticInstances.get(integratorName);
+  /**
+   * Given a name, returns an instance of that integrator 
+   * @param integratorName The name of the integrator
+   * @return The integrator 
+   * @throws IllegalArgumentException If the integrator name is null or there is no integrator for that name
+   */
+  public static Integrator1D<Double, Double> getIntegrator(final String integratorName) {
+    final Integrator1D<Double, Double> integrator = s_staticInstances.get(integratorName);
     if (integrator != null) {
       return integrator;
     }
     throw new IllegalArgumentException("Integrator " + integratorName + " not handled");
   }
 
-  public static String getIntegratorName(final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
+  /**
+   * Given an integrator, returns its name 
+   * @param integrator The integrator
+   * @return The name of that integrator
+   */
+  public static String getIntegratorName(final Integrator1D<Double, Double> integrator) {
     if (integrator == null) {
       return null;
     }

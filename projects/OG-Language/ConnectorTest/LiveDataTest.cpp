@@ -33,7 +33,14 @@ static void StopConnector () {
 static void QueryAvailable () {
 	CLiveDataQueryAvailable query (g_poConnector);
 	ASSERT (query.Send ());
-	ASSERT (query.Recv (CRequestBuilder::GetDefaultTimeout ()));
+	com_opengamma_language_livedata_Available *pAvailable = query.Recv (CRequestBuilder::GetDefaultTimeout ());
+	ASSERT (pAvailable);
+	LOGINFO (TEXT ("Received ") << pAvailable->fudgeCountLiveData << TEXT (" definitions"));
+	ASSERT (pAvailable->fudgeCountLiveData > 0);
+	int i;
+	for (i = 0; i < pAvailable->fudgeCountLiveData; i++) {
+		LOGDEBUG (TEXT ("Function ") << i << TEXT (": ") << pAvailable->_liveData[i]->_definition->fudgeParent._name << TEXT (" (") << pAvailable->_liveData[i]->_identifier << TEXT (")"));
+	}
 }
 
 BEGIN_TESTS(LiveDataTest)

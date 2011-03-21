@@ -65,10 +65,10 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;log4cxx.lib;libfudgec.lib;Util.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
     </Link>
     <PreLinkEvent>
-      <Command>xcopy /D /Y "$(SolutionDir)\lib\$(Configuration)$(Platform)\*.dll" "$(OutDir)"</Command>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(Platform)\*.dll" "$(OutDir)"</Command>
     </PreLinkEvent>
     <PreLinkEvent>
       <Message>Copy dependent libraries to output directory</Message>
@@ -93,10 +93,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;version.lib;log4cxx.lib;libfudgec.lib;Util.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib\lib\$(Configuration)$(Platform);$(SolutionDir)\build\$(Configuration)$(Platform)</AdditionalLibraryDirectories>
     </Link>
     <PreLinkEvent>
-      <Command>xcopy /D /Y "$(SolutionDir)\lib\$(Configuration)$(Platform)\*.dll" "$(OutDir)"</Command>
+      <Command>xcopy /D /Y "$(SolutionDir)\lib\dll\$(Configuration)$(Platform)\*.dll" "$(OutDir)"</Command>
     </PreLinkEvent>
     <PreLinkEvent>
       <Message>Copy dependent libraries to output directory</Message>

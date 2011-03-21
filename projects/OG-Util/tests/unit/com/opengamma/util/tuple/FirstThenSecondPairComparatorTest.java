@@ -5,9 +5,9 @@
  */
 package com.opengamma.util.tuple;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
@@ -15,9 +15,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Test FirstThenSecondPairComparator.
  */
+@Test
 public class FirstThenSecondPairComparatorTest {
 
-  @Test
   public void testSingleton() {
     Pair<Integer, String> a = Pair.of(1, "A");
     Pair<Integer, String> b = Pair.of(1, "B");
@@ -28,7 +28,6 @@ public class FirstThenSecondPairComparatorTest {
     assertTrue(FirstThenSecondPairComparator.INSTANCE.compare(b, b) == 0);
   }
 
-  @Test
   public void testSingleton_doubles() {
     Pair<Double, Double> a = Pair.of(1.0, 1.0);
     Pair<Double, Double> b = Pair.of(1.0, 2.0);
@@ -39,7 +38,6 @@ public class FirstThenSecondPairComparatorTest {
     assertTrue(FirstThenSecondPairComparator.INSTANCE_DOUBLES.compare(b, b) == 0);
   }
 
-  @Test
   public void testCompare() {
     final Pair<Double, Double> first = Pair.of(1.0, 3.0);
     final Pair<Double, Double> second = Pair.of(1.0, 5.0);

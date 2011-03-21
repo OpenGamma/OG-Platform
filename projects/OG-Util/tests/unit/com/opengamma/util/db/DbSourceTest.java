@@ -5,28 +5,28 @@
  */
 package com.opengamma.util.db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertSame;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * Test DbSource.
  */
+@Test
 public class DbSourceTest {
 
   //-------------------------------------------------------------------------
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_isWildcard() {
     new DbSource(null, null, null, null, null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_basics() {
     BasicDataSource ds = new BasicDataSource();
     HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;
@@ -45,7 +45,6 @@ public class DbSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toString() {
     BasicDataSource ds = new BasicDataSource();
     HSQLDbHelper dialect = HSQLDbHelper.INSTANCE;

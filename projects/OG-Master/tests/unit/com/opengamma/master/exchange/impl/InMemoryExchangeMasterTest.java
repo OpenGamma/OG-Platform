@@ -5,12 +5,10 @@
  */
 package com.opengamma.master.exchange.impl;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import javax.time.calendar.TimeZone;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.ExchangeUtils;
@@ -28,6 +26,7 @@ import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
 /**
  * Test InMemoryExchangeMaster.
  */
+@Test
 public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";
@@ -44,7 +43,7 @@ public class InMemoryExchangeMasterTest {
   private InMemoryExchangeMaster master;
   private ExchangeDocument addedDoc;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     master = new InMemoryExchangeMaster();
     ManageableExchange inputExchange = new ManageableExchange(BUNDLE_FULL, NAME, GB, TimeZone.of("Europe/London"));
@@ -53,26 +52,24 @@ public class InMemoryExchangeMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_noMatch() {
     master.get(UniqueIdentifier.of("A", "B"));
   }
 
   public void test_get_match() {
     ExchangeDocument result = master.get(addedDoc.getUniqueId());
-    assertEquals(Identifier.of("MemExg", "1"), result.getUniqueId());
+    assertEquals(UniqueIdentifier.of("MemExg", "1"), result.getUniqueId());
     assertEquals(addedDoc, result);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_oneId_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID_OTHER1);
     ExchangeSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_oneId_mic() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID_LIFFE_MIC);
     ExchangeSearchResult result = master.search(request);
@@ -80,7 +77,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_oneId_ccid() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID_LIFFE_MIC);
     ExchangeSearchResult result = master.search(request);
@@ -89,7 +85,6 @@ public class InMemoryExchangeMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_oneBundle_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_OTHER);
     request.getExchangeKeys().setSearchType(IdentifierSearchType.ALL);
@@ -97,7 +92,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_oneBundle_full() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_FULL);
     ExchangeSearchResult result = master.search(request);
@@ -105,7 +99,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_oneBundle_part() {
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE_PART);
     ExchangeSearchResult result = master.search(request);
@@ -114,7 +107,6 @@ public class InMemoryExchangeMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_twoBundles_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExchangeKey(ID_OTHER1);
@@ -123,7 +115,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_twoBundles_oneMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExchangeKey(ID_LIFFE_MIC);
@@ -133,7 +124,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(addedDoc, result.getFirstDocument());
   }
 
-  @Test
   public void test_search_twoBundles_bothMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.addExchangeKey(ID_LIFFE_MIC);
@@ -144,7 +134,6 @@ public class InMemoryExchangeMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_name_noMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.setName("No match");
@@ -152,7 +141,6 @@ public class InMemoryExchangeMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_name_match() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
     request.setName(NAME);

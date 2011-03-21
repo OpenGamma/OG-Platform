@@ -10,10 +10,13 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateObjectTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateObjectTimeSeries;
 
+@Test
 public class MapSQLDateObjectTimeSeriesTest extends SQLDateObjectTimeSeriesTest {
 
   @Override

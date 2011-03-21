@@ -11,7 +11,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- * Class representing the Dirac delta function, defined as:
+ * Class implementing the Dirac delta function, defined as:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * \\delta(x)=

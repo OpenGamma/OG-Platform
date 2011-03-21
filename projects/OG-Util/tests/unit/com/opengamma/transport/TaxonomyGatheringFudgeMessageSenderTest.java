@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -18,23 +18,22 @@ import java.util.Properties;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
- * 
- *
+ * Test TaxonomyGatheringFudgeMessageSender.
  */
+@Test
 public class TaxonomyGatheringFudgeMessageSenderTest {
   private File _tmpFile;
   
-  @Before
+  @BeforeMethod
   public void setupTmpFile() throws IOException {
     _tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest", ".properties");
     _tmpFile.deleteOnExit();
   }
 
-  @Test
   public void noTaxonomyFileAvailableYet() throws IOException {
     _tmpFile.delete();
     
@@ -48,7 +47,7 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     assertTrue(gatheringSender.getCurrentTaxonomy().isEmpty());
   }
 
-  @Test(timeout = 10000)
+  @Test(timeOut = 10000)
   public void taxonomyGathering() throws IOException, InterruptedException {
     _tmpFile.delete();
     FudgeContext context = new FudgeContext();
@@ -90,7 +89,7 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     assertEquals(5, props.size());
   }
 
-  @Test(timeout = 10000)
+  @Test(timeOut = 20000)
   public void validFileLoadingOnStartup() throws IOException, InterruptedException {
     _tmpFile.delete();
     FudgeContext context = new FudgeContext();

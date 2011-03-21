@@ -5,27 +5,27 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertSame;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test VersionCorrection. 
  */
+@Test
 public class VersionCorrectionTest {
 
   private static final Instant INSTANT1 = Instant.ofEpochSeconds(1);
   private static final Instant INSTANT2 = Instant.ofEpochSeconds(2);
   private static final Instant INSTANT3 = Instant.ofEpochSeconds(3);
 
-  @Test
   public void test_LATEST() {
     VersionCorrection test = VersionCorrection.LATEST;
     assertEquals(null, test.getVersionAsOf());
@@ -34,7 +34,6 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_of_InstantInstant() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(INSTANT1, test.getVersionAsOf());
@@ -62,7 +61,6 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_ofVersionAsOf_Instant() {
     VersionCorrection test = VersionCorrection.ofVersionAsOf(INSTANT1);
     assertEquals(INSTANT1, test.getVersionAsOf());
@@ -75,7 +73,6 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_ofCorrectedTo_Instant() {
     VersionCorrection test = VersionCorrection.ofCorrectedTo(INSTANT2);
     assertEquals(null, test.getVersionAsOf());
@@ -88,82 +85,69 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_withVersionAsOf_instantToInstant() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(VersionCorrection.of(INSTANT3, INSTANT2), test.withVersionAsOf(INSTANT3));
   }
 
-  @Test
   public void test_withVersionAsOf_instantToNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(VersionCorrection.of(null, INSTANT2), test.withVersionAsOf(null));
   }
 
-  @Test
   public void test_withVersionAsOf_nullToInstant() {
     VersionCorrection test = VersionCorrection.of(null, INSTANT2);
     assertEquals(VersionCorrection.of(INSTANT3, INSTANT2), test.withVersionAsOf(INSTANT3));
   }
 
-  @Test
   public void test_withVersionAsOf_nullToNull() {
     VersionCorrection test = VersionCorrection.of(null, INSTANT2);
     assertEquals(VersionCorrection.of(null, INSTANT2), test.withVersionAsOf(null));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_withCorrectedTo_instantToInstant() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(VersionCorrection.of(INSTANT1, INSTANT3), test.withCorrectedTo(INSTANT3));
   }
 
-  @Test
   public void test_withCorrectedTo_instantToNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(VersionCorrection.of(INSTANT1, null), test.withCorrectedTo(null));
   }
 
-  @Test
   public void test_withCorrectedTo_nullToInstant() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, null);
     assertEquals(VersionCorrection.of(INSTANT1, INSTANT3), test.withCorrectedTo(INSTANT3));
   }
 
-  @Test
   public void test_withCorrectedTo_nullToNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, null);
     assertEquals(VersionCorrection.of(INSTANT1, null), test.withCorrectedTo(null));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_withLatestFixed_noNulls() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertSame(test, test.withLatestFixed(INSTANT3));
   }
 
-  @Test
   public void test_withLatestFixed_nullVersion() {
     VersionCorrection test = VersionCorrection.of(null, INSTANT2);
     assertEquals(VersionCorrection.of(INSTANT3, INSTANT2), test.withLatestFixed(INSTANT3));
   }
 
-  @Test
   public void test_withLatestFixed_nullCorrection() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, null);
     assertEquals(VersionCorrection.of(INSTANT1, INSTANT3), test.withLatestFixed(INSTANT3));
   }
 
-  @Test
   public void test_withLatestFixed_nulls() {
     VersionCorrection test = VersionCorrection.of(null, null);
     assertEquals(VersionCorrection.of(INSTANT3, INSTANT3), test.withLatestFixed(INSTANT3));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_compareTo_nonNull() {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(INSTANT1, INSTANT3);
@@ -182,7 +166,6 @@ public class VersionCorrectionTest {
     assertEquals(true, c.compareTo(c) == 0);
   }
 
-  @Test
   public void test_compareTo_nullVersion() {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(null, INSTANT2);
@@ -194,7 +177,6 @@ public class VersionCorrectionTest {
     assertEquals(true, b.compareTo(b) == 0);
   }
 
-  @Test
   public void test_compareTo_nullCorrection() {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(INSTANT1, null);
@@ -206,14 +188,13 @@ public class VersionCorrectionTest {
     assertEquals(true, b.compareTo(b) == 0);
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expectedExceptions = NullPointerException.class)
   public void test_compareTo_null() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     test.compareTo(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals() {
     VersionCorrection d1a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection d1b = VersionCorrection.of(INSTANT1, INSTANT2);
@@ -235,7 +216,6 @@ public class VersionCorrectionTest {
     assertEquals(false, d1b.equals(null));
   }
 
-  @Test
   public void test_hashCode() {
     VersionCorrection d1a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection d1b = VersionCorrection.of(INSTANT1, INSTANT2);
@@ -244,7 +224,6 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_fudgeEncoding_notNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
@@ -255,7 +234,6 @@ public class VersionCorrectionTest {
     assertEquals(test, decoded);
   }
 
-  @Test
   public void test_fudgeEncoding_nulls() {
     VersionCorrection test = VersionCorrection.of(null, null);
     FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());

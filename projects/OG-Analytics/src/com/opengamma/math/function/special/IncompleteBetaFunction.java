@@ -20,7 +20,7 @@ import com.opengamma.math.function.Function1D;
  * \\end{equation*}}
  * where {@latex.inline $a, b > 0$}.
  * <p>
- * This class uses the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Beta.html">Commons Math library implementation</a> of the Beta function
+ * This class uses the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Beta.html">Commons Math library implementation</a> of the Beta function.
  * 
  */
 public class IncompleteBetaFunction extends Function1D<Double, Double> {

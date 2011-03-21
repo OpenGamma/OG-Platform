@@ -12,7 +12,7 @@
 #include "BufferedInput.h"
 #include "Logging.h"
 
-LOGGING(com.opengamma.language.util.CBufferedInput);
+LOGGING(com.opengamma.language.util.BufferedInput);
 
 CBufferedInput::CBufferedInput () {
 	LOGDEBUG ("Creating input buffer, size " << INITIAL_BUFFER_SIZE);

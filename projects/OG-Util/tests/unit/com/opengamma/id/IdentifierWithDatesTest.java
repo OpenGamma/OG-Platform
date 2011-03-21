@@ -5,20 +5,21 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test IdentifierWithDates. 
  */
+@Test
 public class IdentifierWithDatesTest {
 
   private static final IdentificationScheme SCHEME = IdentificationScheme.of("Scheme");
@@ -26,7 +27,6 @@ public class IdentifierWithDatesTest {
   private static final LocalDate VALID_FROM = LocalDate.of(2010, MonthOfYear.JANUARY, 1);
   private static final LocalDate VALID_TO = LocalDate.of(2010, MonthOfYear.DECEMBER, 1);
   
-  @Test
   public void test_factory_Identifier_LocalDate_LocalDate() {
     IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     assertEquals(IDENTIFIER, test.asIdentifier());
@@ -35,12 +35,11 @@ public class IdentifierWithDatesTest {
     assertEquals("Scheme::value:S:2010-01-01:E:2010-12-01", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_Identifier_LocalDate_LocalDate_nullIdentifier() {
     IdentifierWithDates.of((Identifier) null, VALID_FROM, VALID_TO);
   }
 
-  @Test
   public void test_factory_Identifier_LocalDate_LocalDate_nullValidFrom() {
     IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, (LocalDate) null, VALID_TO);
     assertEquals(IDENTIFIER, test.asIdentifier());
@@ -49,7 +48,6 @@ public class IdentifierWithDatesTest {
     assertEquals("Scheme::value:E:2010-12-01", test.toString());
   }
 
-  @Test
   public void test_factory_Identifier_LocalDate_LocalDate_nullValidTo() {
     IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, (LocalDate) null);
     assertEquals(IDENTIFIER, test.asIdentifier());
@@ -58,13 +56,12 @@ public class IdentifierWithDatesTest {
     assertEquals("Scheme::value:S:2010-01-01", test.toString());
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_validFrom_after_validTo() {
     IdentifierWithDates.of(IDENTIFIER, VALID_TO, VALID_FROM);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_parse() {
     IdentifierWithDates test = IdentifierWithDates.parse("Scheme::value:S:2010-01-01:E:2010-12-01");
     assertEquals(IDENTIFIER, test.asIdentifier());
@@ -82,20 +79,18 @@ public class IdentifierWithDatesTest {
     assertNull(test.getValidFrom());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat() {
     Identifier.parse("Scheme:value");
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getIdentityKey() {
     IdentifierWithDates test = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     assertEquals(IDENTIFIER, test.getIdentityKey());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals() {
     IdentifierWithDates d1a = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     IdentifierWithDates d1b = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
@@ -117,7 +112,6 @@ public class IdentifierWithDatesTest {
     assertEquals(false, d1b.equals(null));
   }
 
-  @Test
   public void test_hashCode() {
     IdentifierWithDates d1a = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
     IdentifierWithDates d1b = IdentifierWithDates.of(IDENTIFIER, VALID_FROM, VALID_TO);
@@ -126,7 +120,6 @@ public class IdentifierWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_fudgeEncoding_with_valid_dates() {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, VALID_TO);
@@ -139,7 +132,6 @@ public class IdentifierWithDatesTest {
     assertEquals(test, decoded);
   }
   
-  @Test
   public void test_fudgeEncoding_with_validFrom() {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, null);
@@ -152,7 +144,6 @@ public class IdentifierWithDatesTest {
     assertEquals(test, decoded);
   }
   
-  @Test
   public void test_fudgeEncoding_with_validTo() {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, null, VALID_TO);

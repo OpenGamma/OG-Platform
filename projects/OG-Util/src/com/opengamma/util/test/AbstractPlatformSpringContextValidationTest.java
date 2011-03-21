@@ -35,4 +35,12 @@ public abstract class AbstractPlatformSpringContextValidationTest extends Abstra
     return params;
   }
 
+//  @DataProvider(name = "runMode")
+//  public static Object[][] data_runMode() {
+//    return new Object[][] {
+//      {"shareddev"},
+//      {"standalone"},
+//    };
+//  }
+
 }

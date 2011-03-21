@@ -25,6 +25,8 @@ static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBa
 	FILE *f = fopen (szPath, TEXT ("rt"));
 	if (!f) {
 		LOGWARN (TEXT ("Couldn't open ") << szPath << TEXT (", error ") << GetLastError ());
+	} else {
+		LOGDEBUG (TEXT ("Reading from ") << szPath);
 	}
 	return f;
 }
@@ -93,7 +95,7 @@ CAbstractSettings::CAbstractSettings () {
 		CachePut (pszKey, pszValue);
 	}
 	fclose (f);
-	LOGINFO (TEXT ("Configuration file read, ") << nLine << TEXT (" lines"));
+	LOGDEBUG (TEXT ("Configuration file read, ") << nLine << TEXT (" lines"));
 #endif /* ifdef _WIN32 */
 }
 

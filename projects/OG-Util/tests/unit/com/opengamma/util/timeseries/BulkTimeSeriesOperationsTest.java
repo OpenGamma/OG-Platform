@@ -5,21 +5,22 @@
  */
 package com.opengamma.util.timeseries;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.testng.annotations.Test;
 
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 
+@Test
 public class BulkTimeSeriesOperationsTest {
   
   private Logger s_logger = LoggerFactory.getLogger(BulkTimeSeriesOperationsTest.class);
@@ -101,7 +102,6 @@ public class BulkTimeSeriesOperationsTest {
     LocalDate.of(2010, MonthOfYear.MARCH, 6),   
   };
   
-  @Test
   public void testBulkIntersection() {
     
     LocalDateDoubleTimeSeries one = new ArrayLocalDateDoubleTimeSeries(DATES1, VALUES1);
@@ -111,20 +111,20 @@ public class BulkTimeSeriesOperationsTest {
     
     LocalDateDoubleTimeSeries[] inputs = new LocalDateDoubleTimeSeries[] { one, two, three, four };
     DoubleTimeSeries<LocalDate>[] intersection = BulkTimeSeriesOperations.intersection(inputs);
-    for (int i=0; i<intersection.length; i++) {
+    for (int i = 0; i < intersection.length; i++) {
       LocalDate[] timesArray = intersection[i].timesArray();
-      Assert.assertArrayEquals(RESULT, timesArray);
+      assertEquals(Arrays.asList(RESULT), Arrays.asList(timesArray));
       Double[] valuesArray = intersection[i].valuesArray();
       s_logger.info(Arrays.toString(timesArray));
       s_logger.info(Arrays.toString(valuesArray));
       
-      for (int j=0; j<timesArray.length; j++) {
+      for (int j = 0; j < timesArray.length; j++) {
         s_logger.info("i+1 = "+(i+1));
         s_logger.info("timesArray["+j+"].getDayOfMonth() = "+ timesArray[j].getDayOfMonth());
         s_logger.info("valuesArray["+j+"] = "+valuesArray[j]);
-        Assert.assertEquals((double)((i+1) * timesArray[j].getDayOfMonth()), (double)valuesArray[j], 1E-20);
+        assertEquals((double)((i+1) * timesArray[j].getDayOfMonth()), (double)valuesArray[j], 1E-20);
       }
     }
-    Assert.assertEquals(BulkTimeSeriesOperations.intersection(new LocalDateDoubleTimeSeries[] { one })[0], one);
+    assertEquals(BulkTimeSeriesOperations.intersection(new LocalDateDoubleTimeSeries[] { one })[0], one);
   }
 }

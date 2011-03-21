@@ -5,9 +5,9 @@
  */
 package com.opengamma.transport.jaxrs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,8 +20,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -29,6 +28,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * Test the FudgeXXXProducer and FudgeXXXConsumer pairs by cycling
  * a Fudge message through them.
  */
+@Test
 public class FudgeProviders {
 
   private void testBeans(final MessageBodyWriter<FudgeMsgEnvelope> producer, final MessageBodyReader<FudgeMsgEnvelope> consumer) {
@@ -63,18 +63,15 @@ public class FudgeProviders {
     assertEquals((Integer) 42, msgOut.getFieldValue(Integer.class, msgOut.getByName("number")));
   }
 
-  @Test
   public void testBinary() {
     testBeans(new FudgeBinaryProducer(), new FudgeBinaryConsumer());
   }
 
-  @Test
   public void testJSON() {
     testBeans(new FudgeJSONProducer(), new FudgeJSONConsumer());
   }
 
-  @Test
-  @Ignore
+  @Test(enabled = false)
   public void testXML() {
     testBeans(new FudgeXMLProducer(), new FudgeXMLConsumer());
   }
