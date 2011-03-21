@@ -6,17 +6,16 @@
 package com.opengamma.master.timeseries.impl;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.time.calendar.LocalDate;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -40,6 +39,7 @@ import com.opengamma.util.tuple.Pair;
  * Test MasterHistoricalDataSource.
  * Ensure it makes the right method calls to the underlying TimeSeriesMaster and TimeSeriesResolver.
  */
+@Test
 public class MasterHistoricalDataSourceTest {
 
   private static final String TEST_CONFIG = "TEST_CONFIG";
@@ -53,15 +53,15 @@ public class MasterHistoricalDataSourceTest {
   private TimeSeriesMetaDataResolver _mockResolver;
   private MasterHistoricalDataSource _tsSource;
 
+  @BeforeMethod
   @SuppressWarnings("unchecked")
-  @Before
   public void setUp() throws Exception {
     _mockMaster = mock(TimeSeriesMaster.class);
     _mockResolver = mock(TimeSeriesMetaDataResolver.class);
     _tsSource = new MasterHistoricalDataSource(_mockMaster, _mockResolver);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _tsSource = null;
     _mockResolver = null;
@@ -69,25 +69,24 @@ public class MasterHistoricalDataSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith1ArgNull() throws Exception {
     TimeSeriesMetaDataResolver mock = mock(TimeSeriesMetaDataResolver.class);
     new MasterHistoricalDataSource(null, mock);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWith2ArgNull() throws Exception {
     @SuppressWarnings("unchecked")
     TimeSeriesMaster<LocalDate> mock = mock(TimeSeriesMaster.class);
     new MasterHistoricalDataSource(mock, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructorWithNull() throws Exception {
     new MasterHistoricalDataSource(null, null);
   }
 
-  @Test
   public void getHistoricalDataByIdentifierWithMetaData() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
@@ -114,7 +113,6 @@ public class MasterHistoricalDataSourceTest {
     assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
   }
 
-  @Test
   public void getHistoricalDataByIdentifierWithoutMetaData() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.getIdentifiers().addAll(IDENTIFIERS.getIdentifiers());
@@ -148,7 +146,6 @@ public class MasterHistoricalDataSourceTest {
     assertEquals(tsDoc.getTimeSeries().values(), tsPair.getSecond().values());
   }
 
-  @Test
   public void getHistoricalWithInclusiveExclusiveDates() throws Exception {
     
     LocalDate end = DateUtil.previousWeekDay();
@@ -203,7 +200,6 @@ public class MasterHistoricalDataSourceTest {
     return dts;
   }
 
-  @Test
   public void getHistoricalDataByUID() throws Exception {
     TimeSeriesSearchRequest<LocalDate> request = new TimeSeriesSearchRequest<LocalDate>();
     request.setTimeSeriesId(UID);

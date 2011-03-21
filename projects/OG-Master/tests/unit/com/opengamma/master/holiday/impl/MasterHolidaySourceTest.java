@@ -5,7 +5,8 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,8 +16,6 @@ import java.util.Collections;
 
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
@@ -35,6 +34,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Test MasterHolidaySource.
  */
+@Test
 public class MasterHolidaySourceTest {
 
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
@@ -46,18 +46,17 @@ public class MasterHolidaySourceTest {
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
     new MasterHolidaySource(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterHolidaySource(null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getHoliday_noOverride_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
@@ -70,7 +69,6 @@ public class MasterHolidaySourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getHoliday_found() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
@@ -83,7 +81,6 @@ public class MasterHolidaySourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getHoliday_notFound() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     
@@ -96,7 +93,6 @@ public class MasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_isHoliday_LocalDateCurrency_holiday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
@@ -114,7 +110,6 @@ public class MasterHolidaySourceTest {
     assertEquals(true, testResult);
   }
 
-  @Test
   public void test_isHoliday_LocalDateCurrency_workday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
@@ -130,7 +125,6 @@ public class MasterHolidaySourceTest {
     assertEquals(false, testResult);
   }
 
-  @Test
   public void test_isHoliday_LocalDateCurrency_sunday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(GBP);
@@ -147,7 +141,6 @@ public class MasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_isHoliday_LocalDateTypeIdentifier_holiday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, IdentifierBundle.of(ID));
@@ -166,7 +159,6 @@ public class MasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_isHoliday_LocalDateTypeIdentifierBundle_holiday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, BUNDLE);

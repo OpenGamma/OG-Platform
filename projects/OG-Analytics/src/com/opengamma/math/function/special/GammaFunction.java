@@ -23,7 +23,8 @@ import com.opengamma.math.function.Function1D;
  * \\end{equation*}}
  * It is analytic everywhere but {@latex.inline $z=0, -1, -2, \\ldots$}
  * <p>
- * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Gamma.html">Commons Math library implementation</a> of the Gamma function.
+ * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Gamma.html">Commons Math library implementation</a> 
+ * of the Gamma function.
  * 
  */
 public class GammaFunction extends Function1D<Double, Double> {

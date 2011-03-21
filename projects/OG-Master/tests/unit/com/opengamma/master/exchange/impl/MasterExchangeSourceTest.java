@@ -5,15 +5,14 @@
  */
 package com.opengamma.master.exchange.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.time.Instant;
-
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
@@ -32,6 +31,7 @@ import com.opengamma.util.db.PagingRequest;
 /**
  * Test MasterExchangeSource.
  */
+@Test
 public class MasterExchangeSourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
@@ -40,18 +40,17 @@ public class MasterExchangeSourceTest {
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
     new MasterExchangeSource(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterExchangeSource(null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getExchange_noOverride_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
@@ -64,7 +63,6 @@ public class MasterExchangeSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getExchange_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
@@ -77,7 +75,6 @@ public class MasterExchangeSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getExchange_notFound() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     
@@ -90,7 +87,6 @@ public class MasterExchangeSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getSingleExchange_Identifier_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
@@ -109,7 +105,6 @@ public class MasterExchangeSourceTest {
     assertEquals(example(), testResult);
   }
 
-  @Test
   public void test_getSingleExchange_Identifier_noFound() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(ID);
@@ -128,7 +123,6 @@ public class MasterExchangeSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getSingleExchange_IdentifierBundle_found() throws Exception {
     ExchangeMaster mock = mock(ExchangeMaster.class);
     ExchangeSearchRequest request = new ExchangeSearchRequest(BUNDLE);

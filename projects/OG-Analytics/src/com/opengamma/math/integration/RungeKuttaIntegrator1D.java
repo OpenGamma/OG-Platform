@@ -13,7 +13,7 @@ import com.opengamma.math.function.Function1D;
  * maths. It is a very robust integrator and should be used before trying more
  * specialised methods.
  */
-public class RungeKuttaIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
+public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   private static final double DEF_TOL = 1e-10;
   private static final double STEP_SIZE_LIMIT = 1e-50;
   private static final int DEF_MIN_STEPS = 10;

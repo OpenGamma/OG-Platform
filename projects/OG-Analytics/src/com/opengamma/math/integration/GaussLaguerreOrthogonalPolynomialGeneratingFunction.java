@@ -1,24 +1,25 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.math.integration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.MathException;
+import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.special.LaguerrePolynomialFunction;
 import com.opengamma.math.function.special.NaturalLogGammaFunction;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
-  private static final double EPS = 1e-6;
+public class GaussLaguerreOrthogonalPolynomialGeneratingFunction implements QuadratureWeightAndAbscissaFunction {
+  private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
+  private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-10);
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
@@ -27,61 +28,36 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   }
 
   public GaussLaguerreOrthogonalPolynomialGeneratingFunction(final double alpha) {
-    super();
-    _alpha = alpha;
-  }
-
-  public GaussLaguerreOrthogonalPolynomialGeneratingFunction(final double alpha, final int maxIter) {
-    super(maxIter);
     _alpha = alpha;
   }
 
   @Override
-  public GaussianQuadratureFunction generate(final int n, final Double... parameters) {
-    if (parameters != null) {
-      s_logger.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
-    }
-    return generate(n);
-  }
-
-  public GaussianQuadratureFunction generate(final int n) {
-    ArgumentChecker.notNegativeOrZero(n, "n");
-
-    double z = 0, z1 = 0, p1 = 0, p2 = 0, p3 = 0, pp = 0;
-    int ai, j;
-    final int max = getMaxIterations();
+  public GaussianQuadratureData generate(final int n) {
+    Validate.isTrue(n > 0);
+    final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = LAGUERRE.getPolynomialsAndFirstDerivative(n, _alpha);
+    final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
+    final DoubleFunction1D p1 = polynomials[n - 1].getFirst();
+    final DoubleFunction1D function = pair.getFirst();
+    final DoubleFunction1D derivative = pair.getSecond();
     final double[] x = new double[n];
     final double[] w = new double[n];
+    double root = 0;
     for (int i = 0; i < n; i++) {
-      if (i == 0) {
-        z = (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 2.4 * n + 1.8 * _alpha);
-      } else if (i == 1) {
-        z += (15 + 6.25 * _alpha) / (1 + 0.9 * _alpha + 2.5 * n);
-      } else {
-        ai = i - 1;
-        z += ((1 + 2.55 * ai) / (1.9 * ai) + 1.26 * ai * _alpha / (1 + 3.5 * ai)) * (z - x[i - 2]) / (1 + 0.3 * _alpha);
-      }
-      for (j = 0; j < max; j++) {
-        p1 = 1.;
-        p2 = 0.;
-        for (int k = 0; k < n; k++) {
-          p3 = p2;
-          p2 = p1;
-          p1 = ((2 * k + 1 + _alpha - z) * p2 - (k + _alpha) * p3) / (k + 1);
-        }
-        pp = (n * p1 - (n + _alpha) * p2) / z;
-        z1 = z;
-        z = z1 - p1 / pp;
-        if (Math.abs(z - z1) < EPS) {
-          break;
-        }
-      }
-      if (j == max) {
-        throw new MathException("Could not converge in " + max + " iterations");
-      }
-      x[i] = z;
-      w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
+      root = ROOT_FINDER.getRoot(function, derivative, getInitialRootGuess(root, i, n, x));
+      x[i] = root;
+      w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (derivative.evaluate(root) * n * p1.evaluate(root));
     }
-    return new GaussianQuadratureFunction(x, w);
+    return new GaussianQuadratureData(x, w);
+  }
+
+  private double getInitialRootGuess(final double previousRoot, final int i, final int n, final double[] x) {
+    if (i == 0) {
+      return (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 1.8 * _alpha + 2.4 * n);
+    }
+    if (i == 1) {
+      return previousRoot + (15 + 6.25 * _alpha) / (1 + 0.9 * _alpha + 2.5 * n);
+    }
+    final int j = i - 1;
+    return previousRoot + ((1 + 2.55 * j) / 1.9 / j + 1.26 * j * _alpha / (1 + 3.5 * j)) * (previousRoot - x[i - 2]) / (1 + 0.3 * _alpha);
   }
 }

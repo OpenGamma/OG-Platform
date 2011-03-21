@@ -17,7 +17,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" />
 		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" conf="core->*" />
         <dependency org="org.joda" name="joda-beans" rev="0.3.2" />
-		<dependency org="org.testng" name="testng" rev="6.0"/>
+		<dependency org="org.testng" name="testng" rev="6.0b"/>
 		<dependency org="org.slf4j" name="slf4j" rev="[1.5.11,2.0[" conf="*->core,jcl-migration,log4j-migration"/>
 		<dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
         <dependency org="com.sun.jersey" name="jersey-spring" rev="1.3" />

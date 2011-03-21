@@ -1,16 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/OG Master"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=OG Master"/>
-<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
-<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
-<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<launchConfiguration type="org.testng.eclipse.launchconfig">
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG Master"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
+<mapEntry key="com.opengamma.master.config.impl.InMemoryConfigMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.config.impl.MasterConfigSourceTest" value=""/>
+<mapEntry key="com.opengamma.master.config.impl.MockViewDefinition" value=""/>
+<mapEntry key="com.opengamma.master.exchange.impl.InMemoryExchangeMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.exchange.impl.MasterExchangeSourceTest" value=""/>
+<mapEntry key="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySourceTest" value=""/>
+<mapEntry key="com.opengamma.master.holiday.impl.InMemoryHolidayMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.holiday.impl.MasterHolidaySourceTest" value=""/>
+<mapEntry key="com.opengamma.master.listener.JmsMasterChangeManagerTest" value=""/>
+<mapEntry key="com.opengamma.master.listener.TestMasterChangeClient" value=""/>
+<mapEntry key="com.opengamma.master.position.impl.MasterPositionSourceTest" value=""/>
+<mapEntry key="com.opengamma.master.region.impl.InMemoryRegionMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.region.impl.MasterRegionSourceTest" value=""/>
+<mapEntry key="com.opengamma.master.region.impl.RegionFileReaderTest" value=""/>
+<mapEntry key="com.opengamma.master.security.impl.InMemorySecurityMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.security.impl.MasterSecuritySourceTest" value=""/>
+<mapEntry key="com.opengamma.master.timeseries.impl.DefaultTimeSeriesMetaDataResolverTest" value=""/>
+<mapEntry key="com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.timeseries.impl.InMemoryTimeSeriesMasterTest" value=""/>
+<mapEntry key="com.opengamma.master.timeseries.impl.MasterHistoricalDataSourceTest" value=""/>
+<mapEntry key="com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfigurationTest" value=""/>
+</mapAttribute>
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
+<listEntry value="com.opengamma.master.config.impl.MockViewDefinition"/>
+<listEntry value="com.opengamma.master.config.impl.InMemoryConfigMasterTest"/>
+<listEntry value="com.opengamma.master.config.impl.MasterConfigSourceTest"/>
+<listEntry value="com.opengamma.master.exchange.impl.InMemoryExchangeMasterTest"/>
+<listEntry value="com.opengamma.master.exchange.impl.MasterExchangeSourceTest"/>
+<listEntry value="com.opengamma.master.holiday.impl.MasterHolidaySourceTest"/>
+<listEntry value="com.opengamma.master.holiday.impl.InMemoryHolidayMasterTest"/>
+<listEntry value="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySourceTest"/>
+<listEntry value="com.opengamma.master.listener.TestMasterChangeClient"/>
+<listEntry value="com.opengamma.master.listener.JmsMasterChangeManagerTest"/>
+<listEntry value="com.opengamma.master.position.impl.MasterPositionSourceTest"/>
+<listEntry value="com.opengamma.master.region.impl.RegionFileReaderTest"/>
+<listEntry value="com.opengamma.master.region.impl.InMemoryRegionMasterTest"/>
+<listEntry value="com.opengamma.master.region.impl.MasterRegionSourceTest"/>
+<listEntry value="com.opengamma.master.security.impl.MasterSecuritySourceTest"/>
+<listEntry value="com.opengamma.master.security.impl.InMemorySecurityMasterTest"/>
+<listEntry value="com.opengamma.master.timeseries.impl.DefaultTimeSeriesMetaDataResolverTest"/>
+<listEntry value="com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfigurationTest"/>
+<listEntry value="com.opengamma.master.timeseries.impl.MasterHistoricalDataSourceTest"/>
+<listEntry value="com.opengamma.master.timeseries.impl.InMemoryLocalDateTimeSeriesMasterTest"/>
+<listEntry value="com.opengamma.master.timeseries.impl.InMemoryTimeSeriesMasterTest"/>
+</listAttribute>
+<listAttribute key="org.testng.eclipse.GROUP_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
+<stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
+<listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST"/>
+<mapAttribute key="org.testng.eclipse.PARAMETERS"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="1"/>
 </launchConfiguration>

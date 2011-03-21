@@ -1,16 +1,23 @@
 package com.opengamma.engine.fudgemsg;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeDataInputStreamReader;
 import org.fudgemsg.FudgeDataOutputStreamWriter;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgReader;
 import org.fudgemsg.FudgeMsgWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -20,7 +27,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class BuilderTestProxyFactory {
 
   public interface BuilderTestProxy {
-    public FudgeFieldContainer proxy(FudgeFieldContainer orig);
+    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig);
   }
 
   public BuilderTestProxy getProxy() {
@@ -34,26 +41,34 @@ public class BuilderTestProxyFactory {
 
   private static class NullBuilderTestProxy implements BuilderTestProxy {
     @Override
-    public FudgeFieldContainer proxy(FudgeFieldContainer orig) {
+    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig) {
       return orig;
     }
   }
 
   private static class ExecBuilderTestProxy implements BuilderTestProxy {
-    private final ProcessBuilder processBuilder;
+    private static final Logger s_logger = LoggerFactory.getLogger (ExecBuilderTestProxy.class);
+    
+    final String _execPath;
 
     public ExecBuilderTestProxy(String execPath) {
-      this.processBuilder = new ProcessBuilder(execPath);
-      processBuilder.directory(new File(execPath).getParentFile());
+      _execPath=execPath;
     }
 
     @Override
-    public FudgeFieldContainer proxy(FudgeFieldContainer orig) {
+    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig) {
 
       FudgeContext context = OpenGammaFudgeContext.getInstance();
 
+      LinkedList<String> command = new LinkedList<String>();
+      command.add(_execPath);
+      command.add(clazz.getName());
+      
+      final ProcessBuilder processBuilder = new ProcessBuilder(command);
+      
+      
       try {
-        Process proc = processBuilder.start();
+        final Process proc = processBuilder.start();
         try{
           OutputStream outputStream = proc.getOutputStream();
           try {
@@ -64,26 +79,45 @@ public class BuilderTestProxyFactory {
             
             InputStream inputStream = proc.getInputStream();
             try {
-              FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
-              FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
-          
-                           
-              FudgeFieldContainer retMsg = fudgeMsgReader.nextMessage();
               
-            
-              String string = orig.toString();
-              String string2 = retMsg.toString();
-              if (!string.equals(string2)){
+              FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
+              final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
+          
+              ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(3);
+              Future<FudgeFieldContainer> retMsgFuture = scheduledThreadPoolExecutor.submit(new Callable<FudgeFieldContainer>() {
+
+                @Override
+                public FudgeFieldContainer call() throws Exception {
+                  return fudgeMsgReader.nextMessage();
+                }
                 
-              }
+              });
+              
+              Future<List<String>> errFuture = scheduledThreadPoolExecutor.submit(new Callable<List<String>>() {
+
+                @Override
+                public List<String> call() throws Exception {
+                  InputStream errorStream = proc.getErrorStream();
+                  try
+                  {
+                    return IOUtils.readLines(errorStream);
+                  }
+                  finally
+                  {
+                    errorStream.close();
+                  }
+                }
+              });
             
+              for (String err : errFuture.get()) {
+                s_logger.warn(err);
+              }
               int ret = proc.waitFor();
               if (ret!=0)
               {
                 throw new IOException("Exit code not expected: "+ret);
               }
-              
-              return retMsg;
+              return retMsgFuture.get();
             } finally {
               inputStream.close();
             }

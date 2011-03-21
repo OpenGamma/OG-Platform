@@ -5,14 +5,12 @@
  */
 package com.opengamma.master.timeseries.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
@@ -28,6 +26,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Test InMemoryLocalDateTimeSeriesMaster.
  */
+@Test
 public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMasterTest<LocalDate> {
 
   @Override
@@ -60,7 +59,6 @@ public class InMemoryLocalDateTimeSeriesMasterTest extends InMemoryTimeSeriesMas
     return DateUtil.printYYYYMMDD(date);
   }
   
-  @Test
   public void getTimeSeriesWithDateRange() throws Exception {
     List<TimeSeriesDocument<LocalDate>> tsList = addAndTestTimeSeries();
     for (TimeSeriesDocument<LocalDate> tsDoc : tsList) {
