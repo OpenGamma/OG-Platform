@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -19,9 +18,10 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
 
   @Override
   public FRADefinition visitFRASecurity(final FRASecurity security) {
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final String currencyCode = currency.getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyCode + "_FRA"));

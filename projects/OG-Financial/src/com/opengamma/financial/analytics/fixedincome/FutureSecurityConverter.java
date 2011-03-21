@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -21,16 +20,17 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.FixedIncomeFutureInstrumentDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -108,7 +108,7 @@ public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncom
   @Override
   public FixedIncomeFutureInstrumentDefinition<?> visitInterestRateFutureSecurity(
       final InterestRateFutureSecurity security) {
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_IRFUTURE"));
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency); //TODO use exchange holiday

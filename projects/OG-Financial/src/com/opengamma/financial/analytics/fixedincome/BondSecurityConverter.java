@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -30,13 +29,9 @@ import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
-import com.opengamma.financial.security.bond.CorporateBondSecurity;
-import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
-
+import com.opengamma.util.money.Currency;
 /**
  * 
  */
@@ -59,7 +54,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
 
   @Override
   public BondDefinition visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);

@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -17,9 +16,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
-import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
-
+import com.opengamma.util.money.Currency;
 /**
  * 
  */
@@ -37,7 +35,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(security.getIdentifiers());
-    final CurrencyUnit currency = security.getCurrency();
+    final Currency currency = security.getCurrency();
     final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, currency);
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),

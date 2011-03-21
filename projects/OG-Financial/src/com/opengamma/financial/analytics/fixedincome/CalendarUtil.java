@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.fixedincome;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
@@ -16,13 +15,15 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class CalendarUtil {
 
-  public static Calendar getCalendar(RegionSource regionSource, HolidaySource holidaySource, final Identifier regionId) {
+  public static Calendar getCalendar(final RegionSource regionSource, final HolidaySource holidaySource,
+      final Identifier regionId) {
     if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
       final Set<Region> resultRegions = new HashSet<Region>();
@@ -36,7 +37,7 @@ public class CalendarUtil {
     }
   }
 
-  public static Calendar getCalendar(HolidaySource holidaySource, CurrencyUnit currency) {
+  public static Calendar getCalendar(final HolidaySource holidaySource, final Currency currency) {
     return new HolidaySourceCalendarAdapter(holidaySource, currency);
   }
 }

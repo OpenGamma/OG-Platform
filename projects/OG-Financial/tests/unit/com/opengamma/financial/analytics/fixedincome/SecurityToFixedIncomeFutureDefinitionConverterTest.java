@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.fixedincome;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.Holiday;
@@ -22,6 +21,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -29,23 +29,26 @@ import com.opengamma.id.UniqueIdentifier;
 public class SecurityToFixedIncomeFutureDefinitionConverterTest {
   private static final HolidaySource HOLIDAY_SOURCE = new MyHolidaySource();
   private static final ExchangeSource EXCHANGE_SOURCE = new MyExchangeSource();
-  private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
+  private static final ConventionBundleSource CONVENTION_SOURCE = new DefaultConventionBundleSource(
+      new InMemoryConventionBundleMaster());
 
   private static class MyHolidaySource implements HolidaySource {
     private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final CurrencyUnit currency) {
+    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final IdentifierBundle regionOrExchangeIds) {
+    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
+        final IdentifierBundle regionOrExchangeIds) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final Identifier regionOrExchangeId) {
+    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
+        final Identifier regionOrExchangeId) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 

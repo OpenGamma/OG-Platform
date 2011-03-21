@@ -36,7 +36,6 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
-import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 
 /**
@@ -84,12 +83,15 @@ public class FixedFloatSwapSecurityToSwapConverter {
     }
     FixedInterestRateLeg fixedLeg;
     FloatingInterestRateLeg floatLeg;
+    final boolean isPayer;
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) payLeg;
       floatLeg = (FloatingInterestRateLeg) receiveLeg;
+      isPayer = true;
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) receiveLeg;
       floatLeg = (FloatingInterestRateLeg) payLeg;
+      isPayer = false;
     } else {
       throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps");
     }
@@ -100,7 +102,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
 
     return new FixedCouponSwap<Payment>(getFixedLeg(fixedLeg, now, effectiveDate, maturityDate, marketRate,
-        fundingCurveName, calendar), getFloatLeg(floatLeg, now, effectiveDate, maturityDate, fundingCurveName,
+        fundingCurveName, calendar, isPayer), getFloatLeg(floatLeg, now, effectiveDate, maturityDate, fundingCurveName,
         liborCurveName, calendar, initialRate, conventions.getSwapFloatingLegSettlementDays()));
 
   }
@@ -159,7 +161,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
 
   public AnnuityCouponFixed getFixedLeg(final FixedInterestRateLeg fixedLeg, final ZonedDateTime now,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final double marketRate,
-      final String fundingCurveName, final Calendar calendar) {
+      final String fundingCurveName, final Calendar calendar, final boolean isPayer) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate,
         fixedLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates,
@@ -170,13 +172,13 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final int n = ScheduleCalculator.numberOfNegativeValues(paymentTimes);
     if (n >= paymentTimes.length) {
-      return new AnnuityCouponFixed(new double[] {0.0}, 0.0, 0.0, fundingCurveName);
+      return new AnnuityCouponFixed(new double[] {0.0}, 0.0, 0.0, fundingCurveName, isPayer);
     }
     if (n > 0) {
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
-    return new AnnuityCouponFixed(paymentTimes, notional, marketRate, yearFractions, fundingCurveName);
+    return new AnnuityCouponFixed(paymentTimes, notional, marketRate, yearFractions, fundingCurveName, isPayer);
   }
 
 }
