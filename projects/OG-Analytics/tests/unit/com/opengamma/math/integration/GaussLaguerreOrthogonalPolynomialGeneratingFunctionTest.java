@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -19,15 +19,18 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunctionTest extends Ort
   private static final double[] W4 = new double[] {0.603154, 0.357419, 0.0388879, 0.000539295};
   private static final double[] X5 = new double[] {0.26356, 1.4134, 3.59643, 7.08581, 12.6408};
   private static final double[] W5 = new double[] {0.521756, 0.398667, 0.0759424, 0.00361176, 0.00002337};
-  private static final GeneratingFunction<Double, GaussianQuadratureFunction> F = new GaussLaguerreOrthogonalPolynomialGeneratingFunction(0);
-  private static final Double[] PARAMS = new Double[] {-1., 1.};
+  private static final QuadratureWeightAndAbscissaFunction F = new GaussLaguerreOrthogonalPolynomialGeneratingFunction(0);
 
   @Test
   public void test() {
-    testInputsFixedLimits(F, PARAMS);
-    testResults(F.generate(2, PARAMS), X2, W2);
-    testResults(F.generate(3, PARAMS), X3, W3);
-    testResults(F.generate(4, PARAMS), X4, W4);
-    testResults(F.generate(5, PARAMS), X5, W5);
+    testResults(F.generate(2), X2, W2);
+    testResults(F.generate(3), X3, W3);
+    testResults(F.generate(4), X4, W4);
+    testResults(F.generate(5), X5, W5);
+  }
+
+  @Override
+  protected QuadratureWeightAndAbscissaFunction getFunction() {
+    return F;
   }
 }

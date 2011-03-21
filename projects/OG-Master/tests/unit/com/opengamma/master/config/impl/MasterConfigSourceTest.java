@@ -6,15 +6,13 @@
 package com.opengamma.master.config.impl;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.List;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -24,6 +22,7 @@ import com.opengamma.master.config.ConfigSearchRequest;
 /**
  * Test MasterConfigSource.
  */
+@Test
 public class MasterConfigSourceTest {
 
   private static final ConfigDocument<Identifier> DOC;
@@ -36,7 +35,7 @@ public class MasterConfigSourceTest {
   
   private MasterConfigSource _configSource;
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     ConfigDocument<?> added = configMaster.add(DOC);
@@ -44,23 +43,22 @@ public class MasterConfigSourceTest {
     _configSource = new MasterConfigSource(configMaster);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _configSource = null;
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
     new MasterConfigSource(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterConfigSource(null, null);
   }
 
-  @Test
   public void search() throws Exception {
     ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
     request.setName("Test");
@@ -70,13 +68,11 @@ public class MasterConfigSourceTest {
     assertEquals(Identifier.of("A", "B"), searchResult.get(0));
   }
 
-  @Test
   public void get() throws Exception {
     Identifier test = _configSource.get(Identifier.class, DOC.getUniqueId());
     assertEquals(Identifier.of("A", "B"), test);
   }
 
-  @Test
   public void accessInvalidDocument() throws Exception {
     UniqueIdentifier uniqueIdentifier = _configSource.get(UniqueIdentifier.class, UniqueIdentifier.of("U", "1"));
     assertNull(uniqueIdentifier);

@@ -162,15 +162,100 @@ public class ArgumentCheckerTest {
       throw ex;
     }
   }
+
   //-------------------------------------------------------------------------
-  public void test_notEmpty_Collection_ok() {
-    Collection<?> coll = Arrays.asList("Element");
+  public void test_notEmpty_intArray_ok() {
+    int[] array = new int[] {6};
+    ArgumentChecker.notEmpty(array, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_intArray_null() {
+    int[] array = null;
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_intArray_empty() {
+    int[] array = new int[0];
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_notEmpty_longArray_ok() {
+    long[] array = new long[] {6L};
+    ArgumentChecker.notEmpty(array, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_longArray_null() {
+    long[] array = null;
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_longArray_empty() {
+    long[] array = new long[0];
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_notEmpty_doubleArray_ok() {
+    double[] array = new double[] {6.0d};
+    ArgumentChecker.notEmpty(array, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_doubleArray_null() {
+    double[] array = null;
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notEmpty_doubleArray_empty() {
+    double[] array = new double[0];
+    try {
+      ArgumentChecker.notEmpty(array, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_notEmpty_Iterable_ok() {
+    Iterable<?> coll = Arrays.asList("Element");
     ArgumentChecker.notEmpty(coll, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_notEmpty_Collection_null() {
-    Collection<?> coll = null;
+  public void test_notEmpty_Iterable_null() {
+    Iterable<?> coll = null;
     try {
       ArgumentChecker.notEmpty(coll, "name");
     } catch (IllegalArgumentException ex) {
@@ -180,8 +265,8 @@ public class ArgumentCheckerTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_notEmpty_Collection_empty() {
-    Collection<?> coll = Collections.emptyList();
+  public void test_notEmpty_Iterable_empty() {
+    Iterable<?> coll = Collections.emptyList();
     try {
       ArgumentChecker.notEmpty(coll, "name");
     } catch (IllegalArgumentException ex) {
@@ -252,19 +337,19 @@ public class ArgumentCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_noNulls_Collection_ok() {
-    Collection<?> coll = Arrays.asList("Element");
+  public void test_noNulls_Iterable_ok() {
+    Iterable<?> coll = Arrays.asList("Element");
     ArgumentChecker.noNulls(coll, "name");
   }
 
-  public void test_noNulls_Collection_ok_empty() {
-    Collection<?> coll = Arrays.asList();
+  public void test_noNulls_Iterable_ok_empty() {
+    Iterable<?> coll = Arrays.asList();
     ArgumentChecker.noNulls(coll, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_noNulls_Collection_null() {
-    Collection<?> coll = null;
+  public void test_noNulls_Iterable_null() {
+    Iterable<?> coll = null;
     try {
       ArgumentChecker.noNulls(coll, "name");
     } catch (IllegalArgumentException ex) {
@@ -274,8 +359,8 @@ public class ArgumentCheckerTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_noNulls_Collection_nullElement() {
-    Collection<?> coll = Arrays.asList((Object) null);
+  public void test_noNulls_Iterable_nullElement() {
+    Iterable<?> coll = Arrays.asList((Object) null);
     try {
       ArgumentChecker.noNulls(coll, "name");
     } catch (IllegalArgumentException ex) {
@@ -285,21 +370,6 @@ public class ArgumentCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_notNegative_double_ok() {
-    ArgumentChecker.notNegative(0.0d, "name");
-    ArgumentChecker.notNegative(1.0d, "name");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class) 
-  public void test_notNegative_double_negative() {
-    try {
-      ArgumentChecker.notNegative(-1.0d, "name");
-    } catch(IllegalArgumentException iae) {
-      assertEquals(iae.getMessage().contains("'name'"), true);
-      throw iae;
-    }
-  }
-
   public void test_notNegative_int_ok() {
     ArgumentChecker.notNegative(0, "name");
     ArgumentChecker.notNegative(1, "name");
@@ -315,7 +385,61 @@ public class ArgumentCheckerTest {
     }
   }
 
+  public void test_notNegative_long_ok() {
+    ArgumentChecker.notNegative(0L, "name");
+    ArgumentChecker.notNegative(1L, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class) 
+  public void test_notNegative_long_negative() {
+    try {
+      ArgumentChecker.notNegative(-1L, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  public void test_notNegative_double_ok() {
+    ArgumentChecker.notNegative(0.0d, "name");
+    ArgumentChecker.notNegative(1.0d, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class) 
+  public void test_notNegative_double_negative() {
+    try {
+      ArgumentChecker.notNegative(-1.0d, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
   //-------------------------------------------------------------------------
+  public void test_notNegativeOrZero_int_ok() {
+    ArgumentChecker.notNegativeOrZero(1, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_int_zero() {
+    try {
+      ArgumentChecker.notNegativeOrZero(0, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_int_negative() {
+    try {
+      ArgumentChecker.notNegativeOrZero(-1, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
   public void test_notNegativeOrZero_double_ok() {
     ArgumentChecker.notNegativeOrZero(1.0d, "name");
   }
@@ -340,30 +464,31 @@ public class ArgumentCheckerTest {
     }
   }
 
-  public void test_notNegativeOrZero_int_ok() {
-    ArgumentChecker.notNegativeOrZero(1, "name");
+  //-------------------------------------------------------------------------
+  public void test_notZero_double_ok() {
+    ArgumentChecker.notZero(1d, 0.1d, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class) 
-  public void test_notNegativeOrZero_int_zero() {
+  public void test_notZero_double_zero() {
     try {
-      ArgumentChecker.notNegativeOrZero(0, "name");
+      ArgumentChecker.notZero(0d, 0.1d, "name");
     } catch(IllegalArgumentException iae) {
       assertEquals(iae.getMessage().contains("'name'"), true);
       throw iae;
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class) 
-  public void test_notNegativeOrZero_int_negative() {
+  public void test_notZero_double_negative() {
     try {
-      ArgumentChecker.notNegativeOrZero(-1, "name");
+      ArgumentChecker.notZero(-1d, 0.1d, "name");
     } catch(IllegalArgumentException iae) {
       assertEquals(iae.getMessage().contains("'name'"), true);
       throw iae;
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   public void testHasNullElement() {
     Collection<?> c = Sets.newHashSet(null, new Object(), new Object());
     assertTrue(ArgumentChecker.hasNullElement(c));

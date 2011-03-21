@@ -5,7 +5,8 @@
  */
 package com.opengamma.master.position.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,8 +15,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 
 import javax.time.Instant;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -39,6 +38,7 @@ import com.opengamma.master.position.PositionSearchResult;
 /**
  * Test MasterPositionSource.
  */
+@Test
 public class MasterPositionSourceTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("A", "B");
@@ -49,18 +49,17 @@ public class MasterPositionSourceTest {
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2arg_nullMaster() throws Exception {
     new MasterPositionSource(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_3arg_nullMaster() throws Exception {
     new MasterPositionSource(null, null, null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getPortfolio_uniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
@@ -89,7 +88,6 @@ public class MasterPositionSourceTest {
     assertEquals(0, testResult.getRootNode().getChildNodes().get(0).getChildNodes().size());
   }
 
-  @Test
   public void test_getPortfolio_oid_instants_children() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
@@ -150,7 +148,6 @@ public class MasterPositionSourceTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getPortfolioNode_uniqueId() throws Exception {
     PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     PositionMaster mockPosition = mock(PositionMaster.class);
@@ -182,7 +179,6 @@ public class MasterPositionSourceTest {
   }
 
 //  //-------------------------------------------------------------------------
-//  @Test
 //  public void test_getPosition() throws Exception {
 //    PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
 //    PositionMaster mockPosition = mock(PositionMaster.class);
@@ -202,7 +198,6 @@ public class MasterPositionSourceTest {
 //    assertEquals(Identifier.of("B", "C"), testResult.getSecurityKey().getIdentifiers().iterator().next());
 //  }
 //  
-//  @Test
 //  public void test_getTrade() throws Exception {
 //    PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
 //    PositionMaster mockPosition = mock(PositionMaster.class);

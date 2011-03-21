@@ -41,7 +41,7 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     ValueProperties constraints = ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_ID.toString()).withAny(ValuePropertyNames.CURVE).get();
     ValueProperties allConstraints = ValueProperties.all();
     ValueProperties noConstraints = ValueProperties.none();
-    //TODO PLAT-1126 ValueProperties nearlyAllConstraints = ValueProperties.all().withoutAny("SomePropName");
+    ValueProperties nearlyAllConstraints = ValueProperties.all().withoutAny("SomePropName");
     
     final ViewDefinition viewDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_PORTFOLIO_ID, TEST_USER, new ResultModelDefinition());
     final ViewCalculationConfiguration calcConfig1 = new ViewCalculationConfiguration (viewDefinition, "1");
@@ -54,7 +54,7 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "YetAnotherOutput", noConstraints);
-    //TODO PLAT-1126 calcConfig1.addPortfolioRequirement("SomeOtherSecType", "YetAnotherOutput", nearlyAllConstraints);
+    calcConfig1.addPortfolioRequirement("SomeOtherSecType", "YetAnotherOutput", nearlyAllConstraints);
         
     final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration (viewDefinition, "2");
     calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Foo")));

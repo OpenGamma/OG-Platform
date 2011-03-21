@@ -5,15 +5,13 @@
  */
 package com.opengamma.master.security.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -30,6 +28,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 /**
  * Test InMemorySecurityMaster.
  */
+@Test
 public class InMemorySecurityMasterTest {
 
   // TODO Move the logical tests from here to the generic SecurityMasterTestCase then we can just extend from that
@@ -47,7 +46,7 @@ public class InMemorySecurityMasterTest {
   private SecurityDocument doc1;
   private SecurityDocument doc2;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     testEmpty = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
     testPopulated = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Test"));
@@ -60,12 +59,11 @@ public class InMemorySecurityMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
     new InMemorySecurityMaster((Supplier<ObjectIdentifier>) null);
   }
 
-  @Test
   public void test_defaultSupplier() {
     InMemorySecurityMaster master = new InMemorySecurityMaster();
     SecurityDocument doc = new SecurityDocument();
@@ -74,7 +72,6 @@ public class InMemorySecurityMasterTest {
     assertEquals("MemSec", added.getUniqueId().getScheme());
   }
 
-  @Test
   public void test_alternateSupplier() {
     InMemorySecurityMaster master = new InMemorySecurityMaster(new ObjectIdentifierSupplier("Hello"));
     SecurityDocument doc = new SecurityDocument();
@@ -84,7 +81,6 @@ public class InMemorySecurityMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_emptyMaster() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testEmpty.search(request);
@@ -92,7 +88,6 @@ public class InMemorySecurityMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_populatedMaster_all() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     SecuritySearchResult result = testPopulated.search(request);
@@ -103,7 +98,6 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
-  @Test
   public void test_search_populatedMaster_filterByBundle() {
     SecuritySearchRequest request = new SecuritySearchRequest(BUNDLE1);
     SecuritySearchResult result = testPopulated.search(request);
@@ -112,7 +106,6 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, result.getDocuments().contains(doc1));
   }
 
-  @Test
   public void test_search_populatedMaster_filterByBundle_both() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityKeys(BUNDLE1);
@@ -125,7 +118,6 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
-  @Test
   public void test_search_populatedMaster_filterByName() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setName("*est 2");
@@ -136,7 +128,6 @@ public class InMemorySecurityMasterTest {
     assertEquals(true, docs.contains(doc2));
   }
 
-  @Test
   public void test_search_populatedMaster_filterByType() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setSecurityType("TYPE2");
@@ -148,12 +139,11 @@ public class InMemorySecurityMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_emptyMaster() {
     assertNull(testEmpty.get(OTHER_UID));
   }
 
-  @Test
   public void test_get_populatedMaster() {
     assertSame(doc1, testPopulated.get(doc1.getUniqueId()));
     assertSame(doc2, testPopulated.get(doc2.getUniqueId()));
@@ -172,7 +162,7 @@ public class InMemorySecurityMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
     SecurityDocument doc = new SecurityDocument();
     doc.setSecurity(SEC1);
@@ -188,16 +178,14 @@ public class InMemorySecurityMasterTest {
     assertEquals(doc1.getUniqueId(), updated.getUniqueId());
     assertNotNull(doc1.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
-    assertEquals(false, doc1.getVersionFromInstant().equals(updated.getVersionFromInstant()));
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_remove_emptyMaster() {
     testEmpty.remove(OTHER_UID);
   }
 
-  @Test
   public void test_remove_populatedMaster() {
     testPopulated.remove(doc1.getUniqueId());
     SecuritySearchRequest request = new SecuritySearchRequest();

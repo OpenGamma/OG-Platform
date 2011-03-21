@@ -21,7 +21,6 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 
 /**
@@ -46,11 +45,11 @@ public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefi
     this(characteristicExponent, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
   }
 
-  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Double> integrator) {
     this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, DEFAULT_USE_VARIANCE_REDUCTION);
   }
 
-  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final boolean useVarianceReduction) {
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Double> integrator, final boolean useVarianceReduction) {
     this(characteristicExponent, integrator, DEFAULT_ALPHA, DEFAULT_LIMIT_TOLERANCE, useVarianceReduction);
   }
 
@@ -65,7 +64,7 @@ public class FourierOptionModel implements OptionModel<EuropeanVanillaOptionDefi
     _useVarianceReduction = useVarianceReduction;
   }
 
-  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Function1D<Double, Double>, Double> integrator, final double alpha,
+  public FourierOptionModel(final CharacteristicExponent characteristicExponent, final Integrator1D<Double, Double> integrator, final double alpha,
       final double limitTolerance, final boolean useVarianceReduction) {
     Validate.notNull(characteristicExponent, "characteristic exponent");
     Validate.notNull(integrator, "integrator");

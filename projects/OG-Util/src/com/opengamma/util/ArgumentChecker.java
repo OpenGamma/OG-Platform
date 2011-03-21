@@ -115,22 +115,7 @@ public final class ArgumentChecker {
    * @throws IllegalArgumentException if the input is null
    * @throws IllegalArgumentException if the input is empty
    */
-  public static void notEmpty(Object[][] parameter, String name) {
-    notNull(parameter, name);
-    if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
-    }
-  }
-
-  /**
-   * Checks that the specified parameter array is non-null and not empty.
-   * 
-   * @param parameter  the parameter to check, may be null
-   * @param name  the name of the parameter to use in the error message, not null
-   * @throws IllegalArgumentException if the input is null
-   * @throws IllegalArgumentException if the input is empty
-   */
-  public static void notEmpty(double[] parameter, String name) {
+  public static void notEmpty(int[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
       throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
@@ -153,6 +138,21 @@ public final class ArgumentChecker {
   }
 
   /**
+   * Checks that the specified parameter array is non-null and not empty.
+   * 
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is null
+   * @throws IllegalArgumentException if the input is empty
+   */
+  public static void notEmpty(double[] parameter, String name) {
+    notNull(parameter, name);
+    if (parameter.length == 0) {
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+    }
+  }
+
+  /**
    * Checks that the specified parameter collection is non-null and not empty.
    * 
    * @param parameter  the parameter to check, may be null
@@ -163,7 +163,7 @@ public final class ArgumentChecker {
   public static void notEmpty(Iterable<?> parameter, String name) {
     notNull(parameter, name);
     if (parameter.iterator().hasNext() == false) {
-      throw new IllegalArgumentException("Input parameter collection '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not be zero length");
     }
   }
 
@@ -210,7 +210,7 @@ public final class ArgumentChecker {
     notNull(parameter, name);
     for (Object obj : parameter) {
       if (obj == null) {
-        throw new IllegalArgumentException("Input parameter collection '" + name + "' must not contain null");
+        throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not contain null");
       }
     }
   }
@@ -236,12 +236,26 @@ public final class ArgumentChecker {
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is negative
    */
+  public static void notNegative(long parameter, String name) {
+    if (parameter < 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+    }
+  }
+
+  /**
+   * Checks that the argument is not negative.
+   * 
+   * @param parameter  the parameter to check
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is negative
+   */
   public static void notNegative(double parameter, String name) {
     if (parameter < 0) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks that the argument is not negative or zero.
    * 
@@ -268,20 +282,22 @@ public final class ArgumentChecker {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Checks that the argument is not equal to zero to within an accuracy eps.
+   * Checks that the argument is not equal to zero to within a given accuracy.
    * 
-   * @param x  the value to check
+   * @param parameter  the value to check
    * @param eps  the accuracy
    * @param name  the name to use in the error message
    * @throws IllegalArgumentException If the absolute value of the argument is less than eps
    */
-  public static void notZero(double x, double eps, String name) {
-    if (CompareUtils.closeEquals(x, 0, eps)) {
+  public static void notZero(double parameter, double eps, String name) {
+    if (CompareUtils.closeEquals(parameter, 0, eps)) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks a collection for null elements.
    * 
@@ -290,7 +306,7 @@ public final class ArgumentChecker {
    * @throws IllegalArgumentException if the collection is null
    */
   public static boolean hasNullElement(Iterable<?> iterable) {
-    notNull(iterable, "collection");
+    notNull(iterable, "iterable");
     for (Object o : iterable) {
       if (o == null) {
         return true;

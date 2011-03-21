@@ -87,7 +87,7 @@ public class RungeKuttaIntegrator1DTest {
   public void test() {
     final double eps = 1e-9;
     final int minSteps = 10;
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+    final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
 
     double lower = 0;
     double upper = 2.0;
@@ -107,7 +107,7 @@ public class RungeKuttaIntegrator1DTest {
 
     final double eps = 1e-9;
     final int minSteps = 10;
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+    final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
     final double lower = -1.0;
     final double upper = 1.0;
     assertEquals(0.0, integrator.integrate(SIN_INV_X, lower, upper), eps);

@@ -55,7 +55,7 @@ public abstract class AbstractBuilderTestCase {
     getLogger ().debug ("message {}", message);
     
     
-    final FudgeFieldContainer proxiedMessage = _proxy.proxy(message);
+    final FudgeFieldContainer proxiedMessage = _proxy.proxy(clazz, message);
     getLogger ().debug ("message after proxy {}", proxiedMessage);
     
     final T cycled = getFudgeDeserializationContext ().fudgeMsgToObject(clazz, proxiedMessage);

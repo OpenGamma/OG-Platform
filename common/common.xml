@@ -172,9 +172,9 @@
 	<property name="test.database.type" value="all"/>  <!-- hsqldb, postgres, all. -->
 	<property name="test.database.previousVersions" value="1"/>  <!-- number of previous versions to test upgrade scripts from -->
 	
-	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
+	<target name="tests" depends="junit-batch,junit-report,testng-batch" description="--> run unit tests and generate report"/>
 	
-	<target name="junit-batch" depends="compile-tests">
+	<target name="junit-batch" depends="compile-tests" unless="testng">
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
 		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}"><isset property="junit.logback" /></condition>
@@ -205,7 +205,7 @@
 		</junit>
 	</target>
 
-	<target name="junit-report" depends="junit-batch">
+	<target name="junit-report" depends="junit-batch" unless="testng">
 		<mkdir dir="${tests.junit.dir}/html" />
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<junitreport todir="${tests.junit.dir}/xml">
@@ -214,7 +214,7 @@
 		</junitreport>
 	</target>
 
-    <target name="testng-batch" depends="compile,compile-tests">
+    <target name="testng-batch" depends="compile-tests" if="testng">
         <taskdef resource="testngtasks" classpathref="lib.path.id"/>
         <delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
         <delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
@@ -223,7 +223,8 @@
         <!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
         <condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}"><isset property="junit.logback" /></condition>
         <property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
-        <testng suitename="Ant tests for ${ant.project.name}" outputdir="tests/output" workingDir="${basedir}">
+        <testng suitename="Ant tests for ${ant.project.name}" outputdir="tests/output" workingDir="${basedir}"
+        	  useDefaultListeners="false" listeners="com.opengamma.util.test.JUnitReporter">
             <classpath>
                 <path refid="lib.path.id" />
                 <fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
