@@ -58,6 +58,10 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     }
   }
 
+  @Test
+  public void test() {
+    //TODO
+  }
   private static class MyExchangeSource implements ExchangeSource {
     private static final Exchange EXCHANGE = new Exchange() {
 
