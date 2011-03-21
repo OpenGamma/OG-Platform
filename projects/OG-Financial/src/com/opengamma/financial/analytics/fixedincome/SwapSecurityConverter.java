@@ -25,9 +25,17 @@ import com.opengamma.financial.instrument.swap.TenorSwapDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.ForwardSwapSecurity;
+import com.opengamma.financial.security.swap.InterestRateLeg;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -65,7 +73,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     }
     final ZonedDateTime effectiveDate = security.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = security.getMaturityDate().toZonedDateTime();
-    final CurrencyUnit currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     if (payLeg instanceof FixedInterestRateLeg && receiveLeg instanceof FloatingInterestRateLeg) {
       return getFixedFloatSwapDefinition(security, effectiveDate, maturityDate, currency, true);
     } else if (payLeg instanceof FloatingInterestRateLeg && receiveLeg instanceof FixedInterestRateLeg) {
@@ -77,7 +85,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   private FixedFloatSwapDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final CurrencyUnit currency,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency,
       final boolean payFixed) {
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
@@ -93,7 +101,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   private FixedIncomeInstrumentDefinition<TenorSwap<Payment>> getTenorSwapDefinition(final SwapSecurity swapSecurity,
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final CurrencyUnit currency) {
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency) {
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
@@ -113,11 +121,11 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     private final ZonedDateTime _maturityDate;
     private final Calendar _calendar;
     private final ConventionBundle _conventions;
-    private final CurrencyUnit _currency;
+    private final Currency _currency;
     private final String _currencyCode;
 
     public MySwapLegVisitor(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-        final Calendar calendar, final ConventionBundle conventions, final CurrencyUnit currency) {
+        final Calendar calendar, final ConventionBundle conventions, final Currency currency) {
       _effectiveDate = effectiveDate;
       _maturityDate = maturityDate;
       _calendar = calendar;

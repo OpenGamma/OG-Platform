@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.util.money.Currency;
 /**

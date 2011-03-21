@@ -30,6 +30,10 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 /**

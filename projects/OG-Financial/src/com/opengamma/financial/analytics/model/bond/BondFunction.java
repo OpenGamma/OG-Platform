@@ -28,6 +28,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
