@@ -62,7 +62,7 @@ public final class RealFunctionIntegrator1DFactory {
   /**
    * Given an integrator, returns its name 
    * @param integrator The integrator
-   * @return The name of that integrator
+   * @return The name of that integrator (null if not found)
    */
   public static String getIntegratorName(final Integrator1D<Double, Double> integrator) {
     if (integrator == null) {

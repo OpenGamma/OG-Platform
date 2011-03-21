@@ -13,29 +13,17 @@ import java.util.Map;
  * Factory class for various types of matrix algebra calculators.
  */
 public final class MatrixAlgebraFactory {
-  /**
-   * Label for Colt matrix algebra
-   */
+  /** Label for Colt matrix algebra */
   public static final String COLT = "Colt";
-  /**
-   * Label for Commons matrix algebra
-   */
+  /** Label for Commons matrix algebra */
   public static final String COMMONS = "Commons";
-  /**
-   * Label for OpenGamma matrix algebra
-   */
+  /** Label for OpenGamma matrix algebra */
   public static final String OG = "OG";
-  /**
-   * Instance of Colt matrix algebra
-   */
+  /** {@link ColtMatrixAlgebra} */
   public static final ColtMatrixAlgebra COLT_ALGEBRA = new ColtMatrixAlgebra();
-  /**
-   * Instance of Commons matrix algebra
-   */
+  /** {@link CommonsMatrixAlgebra} */
   public static final CommonsMatrixAlgebra COMMONS_ALGEBRA = new CommonsMatrixAlgebra();
-  /**
-   * Instance of OpenGamma matrix algebra
-   */
+  /** {@link OGMatrixAlgebra} */
   public static final OGMatrixAlgebra OG_ALGEBRA = new OGMatrixAlgebra();
   private static final Map<String, MatrixAlgebra> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -54,6 +42,12 @@ public final class MatrixAlgebraFactory {
   private MatrixAlgebraFactory() {
   }
 
+  /**
+   * Given a name, returns an instance of the matrix algebra calculator
+   * @param algebraName The name of the matrix algebra calculator
+   * @return The matrix algebra calculator
+   * @throws IllegalArgumentException If the calculator name is null or there is no calculator for that name
+   */
   public static MatrixAlgebra getMatrixAlgebra(final String algebraName) {
     if (s_staticInstances.containsKey(algebraName)) {
       return s_staticInstances.get(algebraName);
@@ -61,6 +55,11 @@ public final class MatrixAlgebraFactory {
     throw new IllegalArgumentException("Matrix algebra " + algebraName + " not found");
   }
 
+  /**
+   * Given a matrix algebra calculator, returns its name
+   * @param algebra The algebra
+   * @return The name of that calculator (null if not found)
+   */
   public static String getMatrixAlgebraName(final MatrixAlgebra algebra) {
     if (algebra == null) {
       return null;

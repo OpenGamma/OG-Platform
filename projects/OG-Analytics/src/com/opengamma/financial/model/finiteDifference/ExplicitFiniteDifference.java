@@ -8,7 +8,7 @@ package com.opengamma.financial.model.finiteDifference;
 import com.opengamma.math.surface.Surface;
 
 /**
- * Explicit solver for the PDE {@latex.inline $\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2}$ + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)V = 0$}
+ * Explicit solver for the PDE {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)V = 0$}
  */
 public class ExplicitFiniteDifference {
 

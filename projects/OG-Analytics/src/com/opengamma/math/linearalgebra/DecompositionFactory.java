@@ -64,7 +64,7 @@ public final class DecompositionFactory {
   /**
    * Given a decomposition method, returns its name
    * @param decomposition The decomposition method
-   * @return The name of the decomposition method
+   * @return The name of the decomposition method (null if not found)
    */
   public static String getDecompositionName(final Decomposition<?> decomposition) {
     if (decomposition == null) {
