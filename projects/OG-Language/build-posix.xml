@@ -62,6 +62,7 @@
 			</fileset>
 			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
 			<libset dir="${lib.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
+			<libset libs="${cc.libDefault}" if="cc.libDefault" />
 		</cpptasks:cc>
 		<antcall target="compile-after">
 			<param name="compile.type" value="${cc.configuration}" />
