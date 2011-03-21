@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <spawn.h>
+#include <sys/stat.h>
 #endif
 #include <assert.h>
 
