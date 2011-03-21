@@ -20,7 +20,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.util.time.DateUtil;
 
@@ -91,13 +90,13 @@ public class FRADefinitionTest {
 
   @Test
   public void testConversion() {
-    String fundingCurveName = "A";
-    String indexCurveName = "B";
-    ForwardRateAgreement fra = DEFINITION.toDerivative(DATE, fundingCurveName, indexCurveName);
+    final String fundingCurveName = "A";
+    final String indexCurveName = "B";
+    final ForwardRateAgreement fra = DEFINITION.toDerivative(DATE, fundingCurveName, indexCurveName);
     assertEquals(fra.getFixingDate(), 90. / 365, 0);
-    assertEquals(fra.getSettlementDate(), 93. / 365, 0);
+    assertEquals(fra.getSettlementDate(), 92. / 365, 0);
     assertEquals(fra.getMaturity(), 181. / 365, 0);
-    assertEquals(fra.getDiscountingYearFraction(), 88. / 360, 0);
+    assertEquals(fra.getDiscountingYearFraction(), 89. / 360, 0);
     assertEquals(fra.getForwardYearFraction(), 91. / 360, 0);
     assertEquals(fra.getFundingCurveName(), fundingCurveName);
     assertEquals(fra.getIndexCurveName(), indexCurveName);

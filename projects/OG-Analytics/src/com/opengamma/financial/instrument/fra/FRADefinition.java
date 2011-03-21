@@ -127,7 +127,7 @@ public class FRADefinition implements FixedIncomeInstrumentDefinition<ForwardRat
   // TODO this only works for following
   // TODO this code needs to be extracted out - it will be used in many FI definitions
   private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
-    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(1));
+    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(0));
     for (int i = 0; i < settlementDays; i++) {
       date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
     }

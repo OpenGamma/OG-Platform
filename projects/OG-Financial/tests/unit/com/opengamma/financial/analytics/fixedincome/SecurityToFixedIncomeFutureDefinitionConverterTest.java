@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.fixedincome;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.core.common.Currency;
+import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.Holiday;
@@ -35,7 +35,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
     private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
+    public boolean isHoliday(final LocalDate dateToCheck, final CurrencyUnit currency) {
       return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
@@ -60,7 +60,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
 
       @Override
       public UniqueIdentifier getUniqueId() {
-        return UniqueIdentifier.of("SOMETHING");
+        return UniqueIdentifier.of("SOMETHING", "SOMETHING ELSE");
       }
 
       @Override

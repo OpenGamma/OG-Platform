@@ -20,7 +20,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.util.time.DateUtil;
 
@@ -86,14 +85,14 @@ public class CashDefinitionTest {
     Cash cash = CASH.toDerivative(DATE, name);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 3. / 360, 0);
-    assertEquals(cash.getYearFraction(), 178. / 360, 0);
+    assertEquals(cash.getTradeTime(), 2. / 360, 0);
+    assertEquals(cash.getYearFraction(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
     cash = CASH.toDerivative(DATE, name, name, name);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 3. / 360, 0);
-    assertEquals(cash.getYearFraction(), 178. / 360, 0);
+    assertEquals(cash.getTradeTime(), 2. / 360, 0);
+    assertEquals(cash.getYearFraction(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
   }
 }

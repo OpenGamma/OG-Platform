@@ -26,7 +26,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
+import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -48,25 +48,32 @@ public abstract class BondFunction extends NonCompiledInvoker {
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final BondSecurity security = (BondSecurity) target.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext
+        .getConventionBundleSource(executionContext);
+    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId());
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY,
+        security.getUniqueId());
     final Object value = inputs.getValue(requirement);
     if (value == null) {
       throw new NullPointerException("Could not get " + requirement);
     }
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(security, true);
-    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now.toLocalDate(), _bondCurveName);
+    final BondDefinition bond = (BondDefinition) security.accept(visitor);
+    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now.toLocalDate(),
+        _bondCurveName);
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context,
+      final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId()));
+      return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target
+          .getSecurity().getUniqueId()));
     }
     return null;
   }
@@ -90,7 +97,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
     return bond.getCurrency();
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, CurrencyUnit currency, Security security, BondDefinition bond, Object value, LocalDate now,
-      String yieldCurveName);
+  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, CurrencyUnit currency,
+      Security security, BondDefinition bond, Object value, LocalDate now, String yieldCurveName);
 
 }
