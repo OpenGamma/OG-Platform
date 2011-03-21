@@ -5,28 +5,26 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests ViewProcessor
  */
+@Test
 public class ViewProcessorTest {
 
-  @Test
   public void testCreateViewProcessor() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
@@ -41,7 +39,7 @@ public class ViewProcessorTest {
     vp.stop();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void testAssertNotStarted() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();

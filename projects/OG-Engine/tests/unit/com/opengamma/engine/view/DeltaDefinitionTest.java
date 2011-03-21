@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -18,19 +16,16 @@ import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test DeltaDefinition. 
- *
- * @author jonathan
  */
+@Test
 public class DeltaDefinitionTest {
   
-  @Test
-  public void TestEmptyDefinition() {
+  public void testEmptyDefinition() {
     DeltaDefinition dd = new DeltaDefinition();
     doBasicTests(dd);
   }
   
-  @Test
-  public void TestWithCustomNumberComparer() {
+  public void testWithCustomNumberComparer() {
     DeltaDefinition dd = new DeltaDefinition();
     dd.setNumberComparer(new NumberDeltaComparer(3));
     

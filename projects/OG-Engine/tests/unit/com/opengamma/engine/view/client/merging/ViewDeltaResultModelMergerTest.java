@@ -5,14 +5,12 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,12 +25,12 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
+@Test
 public class ViewDeltaResultModelMergerTest {
 
   private static final String CONFIG_1 = "config1";
   private static final String CONFIG_2 = "config2";
   
-  @Test
   public void testMerger() {
     ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
     assertNull(merger.consume());
@@ -77,7 +75,6 @@ public class ViewDeltaResultModelMergerTest {
     assertNull(merger.consume());
   }
   
-  @Test
   public void testHandlesPartiallyEmptyModels() {
     ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
     InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();

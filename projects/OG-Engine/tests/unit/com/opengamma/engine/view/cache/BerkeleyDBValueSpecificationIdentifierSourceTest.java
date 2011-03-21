@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.fudgemsg.FudgeContext;
 import org.junit.AfterClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ import com.sleepycat.je.EnvironmentConfig;
 /**
  * A simple unit test of {@link BerkeleyDBIdentifierMap}.
  */
+@Test
 public class BerkeleyDBValueSpecificationIdentifierSourceTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierSourceTest.class);
   private static Set<File> s_dbDirsToDelete = new HashSet<File>();
@@ -156,7 +156,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     assertEquals(initialIdentifier + 1, identifier);
   }
   
-  public void putPerformanceTestImpl(final boolean bulkOperation) {
+  private void putPerformanceTestImpl(final boolean bulkOperation) {
     final int numRequirementNames = 100;
     final int numIdentifiers = 100;
     final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);
@@ -185,7 +185,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     dbEnvironment.close();
   }
 
-  public void getPerformanceTestImpl(final boolean bulkOperation) {
+  private void getPerformanceTestImpl(final boolean bulkOperation) {
     final int numRequirementNames = 100;
     final int numIdentifiers = 100;
     final long numSpecifications = ((long) numRequirementNames) * ((long) numIdentifiers);

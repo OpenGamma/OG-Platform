@@ -5,22 +5,29 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNotNull;
 
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Tests the function statistics gatherer.
  */
+@Test
 public class FunctionCostsTest {
 
-  private InMemoryFunctionCostsMaster _master = new InMemoryFunctionCostsMaster();
-  private FunctionCosts _costs = new FunctionCosts(_master);
+  private InMemoryFunctionCostsMaster _master;
+  private FunctionCosts _costs;
 
-  @Test
+  @BeforeMethod
+  public void setUp() {
+    _master = new InMemoryFunctionCostsMaster();
+    _costs = new FunctionCosts(_master);
+  }
+
   public void testBasicBehaviour() {
     FunctionInvocationStatistics stats = _costs.getStatistics("Default", "Foo");
     assertNotNull(stats);
@@ -49,14 +56,12 @@ public class FunctionCostsTest {
     assertEquals(4.996, stats.getDataOutputCost(), 0.0005);
   }
 
-  @Test
   public void testMaps() {
     assertSame(_costs.getStatistics("A", "1"), _costs.getStatistics("A", "1"));
     assertNotSame(_costs.getStatistics("A", "2"), _costs.getStatistics("B", "2"));
     assertNotSame(_costs.getStatistics("B", "1"), _costs.getStatistics("A", "1"));
   }
 
-  @Test
   public void testPersistence() {
     FunctionInvocationStatistics stats = _costs.getStatistics("Default", "Foo");
     assertNotNull(stats);
@@ -81,7 +86,6 @@ public class FunctionCostsTest {
     assertEquals(7.0, stats.getDataOutputCost(), 0.05);
   }
 
-  @Test
   public void testInitialMean() {
     FunctionInvocationStatistics stats = _costs.getStatistics("Default", "Foo");
     assertEquals(1.0, stats.getInvocationCost(), 1e-5);

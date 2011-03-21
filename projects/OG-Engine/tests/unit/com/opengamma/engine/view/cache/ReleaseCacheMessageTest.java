@@ -5,14 +5,13 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +22,7 @@ import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
+@Test
 public class ReleaseCacheMessageTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ReleaseCacheMessageTest.class);
@@ -78,7 +78,7 @@ public class ReleaseCacheMessageTest {
       }
       pause ();
     }
-    fail("expected=" + expectedSize + ", was=" + set.size());
+    Assert.fail("expected=" + expectedSize + ", was=" + set.size());
   }
 
   @Test

@@ -5,27 +5,25 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.util.test.Timeout;
 
 /**
  * Tests the LocalNodeJobInvoker class
  */
+@Test
 public class LocalNodeJobInvokerTest implements JobInvokerRegister {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis ();
 
   private JobInvoker _invoker;
 
-  @Test
   public void addNodeWithCallbackPending() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
@@ -35,7 +33,6 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
     assertEquals(invoker, _invoker);
   }
 
-  @Test
   public void addCallbackWithNodePending() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
@@ -49,7 +46,6 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
     _invoker = invoker;
   }
 
-  @Test
   public void invokeWithNoNodes() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver();
@@ -57,7 +53,6 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
     assertNull(receiver.getCompletionResult());
   }
 
-  @Test
   public void invokeWithOneNode() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker(new TestCalculationNode());
     final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver();

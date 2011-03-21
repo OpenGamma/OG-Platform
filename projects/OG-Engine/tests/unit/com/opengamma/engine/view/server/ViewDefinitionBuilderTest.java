@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine.view.server;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
@@ -24,16 +22,16 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * Tests ViewDefinitionBuilder, which is particularly complex.
  */
+@Test
 public class ViewDefinitionBuilderTest {
 
   private FudgeContext _fudgeContext;
   
-  @Before
+  @BeforeMethod
   public void setup() {
     _fudgeContext = OpenGammaFudgeContext.getInstance();
   }
   
-  @Test
   public void testSerializationCycle() {
     ViewDefinition viewDef = new ViewDefinition("Test View", UniqueIdentifier.of("Test Scheme", "Port1"), "someuser");
     viewDef.setMaxDeltaCalculationPeriod(1000L);

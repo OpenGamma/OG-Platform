@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +15,6 @@ import java.util.Set;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
-
-import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -34,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Tests the behavior of ViewEvaluationModel.
  */
+@Test
 public class ViewEvaluationModelTest {
 
   private final Instant _time0 = Instant.now();

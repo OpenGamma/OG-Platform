@@ -5,34 +5,28 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
-
-import org.junit.Test;
 
 /**
  * Test NumberDeltaComparer.
- *
- * @author jonathan
  */
+@Test
 public class NumberDeltaComparerTest {
   
-  @Test
   public void bothNulls() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(4);
     assertFalse(ndc.isDelta(null, null));
   }
   
-  @Test
   public void oneNulls() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(4);
     assertTrue(ndc.isDelta(null, 1.5));
     assertTrue(ndc.isDelta(1.5, null));
   }
   
-  @Test
   public void testDoubleFourDecimalPlaces() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(4);
     
@@ -49,7 +43,6 @@ public class NumberDeltaComparerTest {
     assertFalse(ndc.isDelta(0.0000123456, -0.0000123456));
   }
   
-  @Test
   public void testDoubleNoDecimalPlaces() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(0);
     
@@ -60,7 +53,6 @@ public class NumberDeltaComparerTest {
     assertTrue(ndc.isDelta(99.9, 100.0));
   }
   
-  @Test
   public void testDoubleMinusTwoDecimalPlaces() {
     // Means we're only interested in hundreds or more changing
     NumberDeltaComparer ndc = new NumberDeltaComparer(-2);
@@ -69,7 +61,6 @@ public class NumberDeltaComparerTest {
     assertTrue(ndc.isDelta(1000.123, 1100.123));
   }
   
-  @Test
   public void testBigDecimalTenDecimalPlaces() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(10);
     

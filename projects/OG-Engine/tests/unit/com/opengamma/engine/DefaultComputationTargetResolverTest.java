@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -30,10 +28,10 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
-
 /**
  * Test DefaultComputationTargetResolver.
  */
+@Test
 public class DefaultComputationTargetResolverTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
@@ -42,7 +40,6 @@ public class DefaultComputationTargetResolverTest {
   private static final Security SECURITY = new MockSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_constructor() {
     SecuritySource secSource = new MockSecuritySource();
     PositionSource posSource = new MockPositionSource();
@@ -52,7 +49,6 @@ public class DefaultComputationTargetResolverTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_resolve_portfolio() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
@@ -63,7 +59,6 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
 
-  @Test
   public void test_resolve_portfolioNode() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
@@ -76,7 +71,6 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
 
-  @Test
   public void test_resolve_position() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
@@ -89,7 +83,6 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
   
-  @Test
   public void test_resolve_trade() {
     OffsetDateTime now = OffsetDateTime.now();
     MockSecuritySource secSource = new MockSecuritySource();
@@ -107,8 +100,6 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
   
-
-  @Test
   public void test_resolve_security() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
@@ -119,7 +110,6 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
 
-  @Test
   public void test_resolve_primitive() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();
@@ -129,7 +119,7 @@ public class DefaultComputationTargetResolverTest {
     assertEquals(expected, test.resolve(spec));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expectedExceptions=NullPointerException.class)
   public void test_resolve_nullSpecification() {
     MockSecuritySource secSource = new MockSecuritySource();
     MockPositionSource posSource = new MockPositionSource();

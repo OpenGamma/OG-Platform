@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
-
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -30,6 +28,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
+@Test
 public class PrivateToSharedTransferTest {
 
   private ValueSpecification[] createValueSpecifications(final int count) {

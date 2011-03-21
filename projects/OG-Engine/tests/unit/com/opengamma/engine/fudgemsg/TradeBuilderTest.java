@@ -5,12 +5,11 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.CounterpartyImpl;
@@ -22,15 +21,14 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test the {@link TradeBuilder} class.
  */
+@Test
 public class TradeBuilderTest extends AbstractBuilderTestCase {
 
-  @Test
   public void testEmpty() {
     TradeImpl trade = new TradeImpl();
     assertEncodeDecodeCycle(Trade.class, trade);
   }
 
-  @Test
   public void testFull() {
     TradeImpl trade = new TradeImpl();
     trade.setUniqueId(UniqueIdentifier.of("A", "B"));

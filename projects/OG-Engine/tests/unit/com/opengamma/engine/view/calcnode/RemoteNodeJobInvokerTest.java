@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Random;
 import java.util.concurrent.Executors;
 
@@ -15,8 +15,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -32,12 +30,12 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the RemoteNodeJobInvoker
  */
+@Test
 public class RemoteNodeJobInvokerTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
-  @Test
   public void simpleInvocation() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(1);
@@ -65,7 +63,6 @@ public class RemoteNodeJobInvokerTest {
     assertNotNull(resultReceiver.waitForResult(TIMEOUT));
   }
 
-  @Test
   public void saturate() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(3);
