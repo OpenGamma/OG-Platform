@@ -52,6 +52,7 @@ import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FutureSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
+import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
 import com.opengamma.financial.analytics.swap.TenorSwapSecurityToTenorSwapConverter;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -272,16 +273,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final ExchangeSource exchangeSource = OpenGammaExecutionContext.getExchangeSource(executionContext);
       final ConventionBundleSource conventionSource = OpenGammaExecutionContext
           .getConventionBundleSource(executionContext);
-      //final FixedFloatSwapSecurityToSwapConverter swapConverter = new FixedFloatSwapSecurityToSwapConverter(
-      //    holidaySource, regionSource, conventionSource);
+      final FixedFloatSwapSecurityToSwapConverter swapConverter = new FixedFloatSwapSecurityToSwapConverter(
+          holidaySource, regionSource, conventionSource);
       final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
       final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
       final FutureSecurityConverter futureConverter = new FutureSecurityConverter(holidaySource, conventionSource,
           exchangeSource);
-      final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
-          regionSource);
+      //final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
+      //    regionSource);
       final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> instrumentAdapter = new FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>>(
-          null, cashConverter, null, fraConverter, null, null, swapConverter);
+          null, cashConverter, null, fraConverter, null, null, null);
       final FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> futureAdapter = new FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>>(
           null, null, null, null, futureConverter, null, null);
       final TenorSwapSecurityToTenorSwapConverter tenorSwapConverter = new TenorSwapSecurityToTenorSwapConverter(
@@ -310,10 +311,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           InterestRateDerivative derivative;
           final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
           if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-            derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow,
-                _fundingCurveDefinitionName, _fundingCurveDefinitionName);
-            //derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-            //  _fundingCurveDefinitionName, marketValue / 100., 0.0, now);
+            //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow,
+            //    _fundingCurveDefinitionName, _fundingCurveDefinitionName);
+            derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
+              _fundingCurveDefinitionName, marketValue / 100., 0.0, now);
           } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
             derivative = financialSecurity.accept(instrumentAdapter)
                 .toDerivative(localNow, _fundingCurveDefinitionName);
@@ -431,10 +432,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
-              _forwardCurveDefinitionName);
-          //derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-          //  _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
+          //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
+          //    _forwardCurveDefinitionName);
+          derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
+            _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
@@ -476,10 +477,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         InterestRateDerivative derivative;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
-              _forwardCurveDefinitionName);
-          //derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-          //  _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
+          //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
+          //    _forwardCurveDefinitionName);
+          derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
+            _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _forwardCurveDefinitionName);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {

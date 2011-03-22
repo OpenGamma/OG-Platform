@@ -5,8 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -17,10 +16,10 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
 
-
 /**
  * Tests ViewDefinitionBuilder
  */
+@Test
 public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
   
   private static final UserPrincipal TEST_USER = UserPrincipal.getLocalUser();
@@ -31,7 +30,6 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
   
   private static final UniqueIdentifier FUNCTION_ID = UniqueIdentifier.of("AFunc", "B");
   
-  @Test
   public void testEncoding() {
     assertEncodeDecodeCycle(ViewDefinition.class, getTestViewDefinition());
   }

@@ -5,16 +5,14 @@
  */
 package com.opengamma.engine.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.math.BigDecimal;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.MockPositionSource;
@@ -27,6 +25,7 @@ import com.opengamma.id.UniqueIdentifierSupplier;
 /**
  * Tests for the {@link PortfolioStructure} class. 
  */
+@Test
 public class PortfolioStructureTest {
 
   private FunctionCompilationContext _context;
@@ -38,7 +37,7 @@ public class PortfolioStructureTest {
   private PositionImpl _position2;
   private PositionImpl _badPosition;
   
-  @Before
+  @BeforeMethod
   public void createPortfolio() {
     final UniqueIdentifierSupplier uid = new UniqueIdentifierSupplier("Test");
     final MockPositionSource positionSource = new MockPositionSource();
@@ -71,7 +70,6 @@ public class PortfolioStructureTest {
     return _context.getPortfolioStructure();
   }
 
-  @Test
   public void testGetParentNode_portfolioNode() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
@@ -81,7 +79,6 @@ public class PortfolioStructureTest {
     assertNull(resolver.getParentNode(_badChild));
   }
 
-  @Test
   public void testGetParentNode_position() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
@@ -90,7 +87,6 @@ public class PortfolioStructureTest {
     assertNull(resolver.getParentNode(_badPosition));
   }
 
-  @Test
   public void testGetRootPortfolioNode_portfolioNode() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
@@ -100,7 +96,6 @@ public class PortfolioStructureTest {
     assertNull(resolver.getRootPortfolioNode(_badChild));
   }
 
-  @Test
   public void testGetRootPortfolioNode_position() {
     final PortfolioStructure resolver = getPortfolioStructure();
     assertNotNull(resolver);
@@ -109,7 +104,6 @@ public class PortfolioStructureTest {
     assertNull(resolver.getRootPortfolioNode(_badPosition));
   }
   
-  @Test
   public void testGetAllPositions () {
     final PortfolioStructure resolver = getPortfolioStructure ();
     assertNotNull(resolver);

@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
@@ -17,8 +17,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,10 +31,10 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * 
  */
+@Test
 public class CalculationJobResultTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   
-  @Test
   public void fudge() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);

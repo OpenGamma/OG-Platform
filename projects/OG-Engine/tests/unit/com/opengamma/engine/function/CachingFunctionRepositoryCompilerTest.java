@@ -5,23 +5,22 @@
  */
 package com.opengamma.engine.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
+import org.testng.annotations.Test;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import org.junit.Test;
-
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
+@Test
 public class CachingFunctionRepositoryCompilerTest {
   
   private static class MockFunction extends AbstractFunction {
@@ -84,7 +83,6 @@ public class CachingFunctionRepositoryCompilerTest {
     
   }
   
-  @Test
   public void testCompileFunction () {
     final InMemoryFunctionRepository functions = new InMemoryFunctionRepository ();
     final MockFunction alwaysValid = new MockFunction ("always valid", null, null);

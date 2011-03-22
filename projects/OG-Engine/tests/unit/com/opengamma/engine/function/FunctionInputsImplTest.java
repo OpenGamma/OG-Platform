@@ -5,19 +5,18 @@
  */
 package com.opengamma.engine.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collection;
-
-import org.junit.Test;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
+@Test
 public class FunctionInputsImplTest {
   private static final ValueRequirement REQ1 = new ValueRequirement("foo-1", "USD");
   private static final ValueRequirement REQ2 = new ValueRequirement("foo-2", "USD");
@@ -26,17 +25,16 @@ public class FunctionInputsImplTest {
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");
   private static final ComputedValue VALUE2 = new ComputedValue(SPEC2, "2");
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void nullValue() {
     (new FunctionInputsImpl()).addValue(null);
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void cyclicalValue() {
     (new FunctionInputsImpl()).addValue(new ComputedValue(SPEC1, new ComputedValue(SPEC1, "")));
   }
   
-  @Test
   public void getAll() {
     FunctionInputsImpl inputs = new FunctionInputsImpl(VALUE1);
     inputs.addValue(VALUE2);
@@ -48,7 +46,6 @@ public class FunctionInputsImplTest {
     assertTrue(values.contains(VALUE2));
   }
   
-  @Test
   public void getByName() {
     FunctionInputsImpl inputs = new FunctionInputsImpl(VALUE1);
     inputs.addValue(VALUE2);
@@ -58,7 +55,6 @@ public class FunctionInputsImplTest {
     assertNull(inputs.getValue("foo-3"));
   }
   
-  @Test
   public void getBySpec() {
     FunctionInputsImpl inputs = new FunctionInputsImpl(VALUE1);
     inputs.addValue(VALUE2);

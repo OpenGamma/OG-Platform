@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.view.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +45,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests ViewClient
  */
+@Test
 public class ViewClientTest {
   
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
@@ -331,7 +331,7 @@ public class ViewClientTest {
     client.shutdown();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void testUseTerminatedClient() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();

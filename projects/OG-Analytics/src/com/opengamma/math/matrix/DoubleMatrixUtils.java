@@ -7,17 +7,19 @@ package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
-
 /**
  * Various utility classes for matrices.
  */
 public final class DoubleMatrixUtils {
-
+  //TODO shouldn't these all be separate calculators implementing Function?
   private DoubleMatrixUtils() {
-    //Cannot instantiate
   }
 
+  /**
+   * The transpose of a matrix {@latex.inline $\\mathbf{A}$} with elements {@latex.inline $A_{ij}$} is {@latex.inline $A_{ji}$}.
+   * @param matrix The matrix to transpose, not null
+   * @return The transposed matrix
+   */
   public static DoubleMatrix2D getTranspose(final DoubleMatrix2D matrix) {
     final int rows = matrix.getNumberOfRows();
     final int columns = matrix.getNumberOfColumns();
@@ -30,8 +32,13 @@ public final class DoubleMatrixUtils {
     return new DoubleMatrix2D(primitives);
   }
 
+  /**
+   * The identity matrix is a matrix with diagonal elements equals to one and zero elsewhere.
+   * @param dimension The dimension of matrix required, not negative or zero
+   * @return The identity matrix
+   */
   public static DoubleMatrix2D getIdentityMatrix2D(final int dimension) {
-    ArgumentChecker.notNegative(dimension, "dimension");
+    Validate.isTrue(dimension >= 0, "dimension must be >= 0");
     if (dimension == 0) {
       return DoubleMatrix2D.EMPTY_MATRIX;
     }
@@ -45,6 +52,11 @@ public final class DoubleMatrixUtils {
     return new DoubleMatrix2D(data);
   }
 
+  /**
+   * Converts a vector into a diagonal matrix.
+   * @param vector The vector, not null
+   * @return A diagonal matrix 
+   */
   public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(final DoubleMatrix1D vector) {
     Validate.notNull(vector);
     final int n = vector.getNumberOfElements();
@@ -58,6 +70,11 @@ public final class DoubleMatrixUtils {
     return new DoubleMatrix2D(data);
   }
 
+  /**
+   * Converts a vector into a diagonal matrix.
+   * @param vector The vector, not null
+   * @return A diagonal matrix
+   */
   public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(final double[] vector) {
     Validate.notNull(vector);
     return getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(vector));

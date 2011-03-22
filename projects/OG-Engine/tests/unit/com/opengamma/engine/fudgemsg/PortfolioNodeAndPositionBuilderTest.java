@@ -5,16 +5,15 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.math.BigDecimal;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +29,14 @@ import com.opengamma.id.UniqueIdentifierSupplier;
 /**
  * Tests the PortfolioNode and Position object builders.
  */
+@Test
 public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioNodeAndPositionBuilderTest.class);
 
   private UniqueIdentifierSupplier _uidSupplier;
 
-  @Before
+  @BeforeMethod
   public void init() {
     _uidSupplier = new UniqueIdentifierSupplier("PortfolioNodeBuilderTest");
   }
@@ -138,19 +138,16 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     return count;
   }
 
-  @Test
   public void testPortfolio() {
     final FudgeFieldContainer message = runPortfolioNodeTest(createPortfolioNodes()[0]);
     assertEquals(0, countParentIdentifiers(message));
   }
 
-  @Test
   public void testPortfolioWithPositions() {
     final FudgeFieldContainer message = runPortfolioNodeTest(createPortfolioWithPositions());
     assertEquals(0, countParentIdentifiers(message));
   }
 
-  @Test
   public void testPortfolioWithParent() {
     final PortfolioNodeImpl root = createPortfolioNodes()[0];
     root.setParentNodeId(nextIdentifier());
@@ -166,14 +163,12 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     return message;
   }
 
-  @Test
   public void testPosition() {
     final FudgeFieldContainer message = runPositionTest(new PositionImpl(nextIdentifier(), new BigDecimal(100), IdentifierBundle.of(Identifier.of("Scheme 1", "Id 1"), Identifier
         .of("Scheme 2", "Id 2"))));
     assertEquals(0, countParentIdentifiers(message));
   }
 
-  @Test
   public void testPositionWithPortfolioNode() {
     final PositionImpl position = new PositionImpl(nextIdentifier(), new BigDecimal(100), Identifier.of("Security", "Bar"));
     position.setParentNodeId(nextIdentifier());

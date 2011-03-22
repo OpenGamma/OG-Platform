@@ -5,13 +5,11 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
-
-import org.junit.Test;
 
 import com.opengamma.engine.depgraph.DepGraphTestHelper;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -21,9 +19,9 @@ import com.opengamma.engine.depgraph.DependencyNode;
 /**
  * Tests ResultOutputMode
  */
+@Test
 public class ResultOutputModeTest {
 
-  @Test
   public void testOutputModes() {
     DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing1and2();

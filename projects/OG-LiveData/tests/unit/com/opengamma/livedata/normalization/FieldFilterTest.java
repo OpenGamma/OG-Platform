@@ -5,22 +5,18 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
-
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * 
- *
- * @author pietari
  */
 public class FieldFilterTest {
   
