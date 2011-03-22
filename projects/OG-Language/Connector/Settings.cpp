@@ -18,13 +18,17 @@
 
 LOGGING (com.opengamma.language.connector.Settings);
 
-#ifdef _WIN32
-#define DEFAULT_PIPE_PREFIX			TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Client-")
-#else
-#define DEFAULT_PIPE_PREFIX			TEXT ("/var/run/OG-Language/Client-")
-#endif
+#ifndef DEFAULT_PIPE_PREFIX
+# ifdef _WIN32
+#  define DEFAULT_PIPE_PREFIX			TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Client-")
+# else /* ifdef _WIN32 */
+#  ifndef DEFAULT_PIPE_FOLDER
+#   define DEFAULT_PIPE_FOLDER			TEXT ("/var/run/OG-Language/")
+#  endif /* ifndef DEFAULT_PIPE_FOLDER */
+#  define DEFAULT_PIPE_PREFIX			DEFAULT_PIPE_FOLDER TEXT ("Client-")
+# endif /* ifdef _WIN32 */
+#endif /* ifndef DEFAULT_PIPE_PREFIX */
 
-#define DEFAULT_CONNECTION_PIPE		SERVICE_DEFAULT_CONNECTION_PIPE
 #define DEFAULT_CONNECT_TIMEOUT		3000	/* 3s default */
 #define DEFAULT_DISPLAY_ALERTS		true
 #define DEFAULT_HEARTBEAT_TIMEOUT	3000	/* 3s default */
@@ -34,11 +38,10 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_OUTPUT_PIPE_PREFIX	DEFAULT_PIPE_PREFIX TEXT ("Output-")
 #define DEFAULT_SEND_TIMEOUT		1500	/* 1.5s default */
 #ifdef _WIN32
-#define DEFAULT_SERVICE_EXECUTABLE	TEXT ("ServiceRunner.exe")
+# define DEFAULT_SERVICE_EXECUTABLE	TEXT ("ServiceRunner.exe")
 #else
-#define DEFAULT_SERVICE_EXECUTABLE	TEXT ("ServiceRunner")
+# define DEFAULT_SERVICE_EXECUTABLE	TEXT ("ServiceRunner")
 #endif
-#define DEFAULT_SERVICE_NAME		SERVICE_DEFAULT_SERVICE_NAME
 #define DEFAULT_SERVICE_POLL		250		/* 1/4s default */
 #define DEFAULT_START_TIMEOUT		30000	/* 30s default */
 #define DEFAULT_STOP_TIMEOUT		2000	/* 2s default */
@@ -54,7 +57,7 @@ CSettings::~CSettings () {
 }
 
 const TCHAR *CSettings::GetConnectionPipe () {
-	return GetConnectionPipe (DEFAULT_CONNECTION_PIPE);
+	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
 int CSettings::GetConnectTimeout () {
@@ -147,7 +150,7 @@ const TCHAR *CSettings::GetServiceExecutable () {
 }
 
 const TCHAR *CSettings::GetServiceName () {
-	return GetServiceName (DEFAULT_SERVICE_NAME);
+	return GetServiceName (ServiceDefaultServiceName ());
 }
 
 int CSettings::GetServicePoll () {

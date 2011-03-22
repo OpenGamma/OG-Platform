@@ -52,6 +52,7 @@
 				<define name="DEFAULT_CONFIG_FOLDER" value="${defaults.config.folder}" if="defaults.config.folder" />
 				<define name="DEFAULT_CONFIG_BASE" value="${defaults.config.base}" if="defaults.config.base" />
 				<define name="DEFAULT_JVM_LIBRARY" value="${defaults.jvm.library}" if="defaults.jvm.library" />
+				<define name="DEFAULT_PIPE_FOLDER" value="${defaults.pipe.folder}" if="defaults.pipe.folder" />
 			</defineset>
 			<includepath>
 				<pathelement path="${solution.dir}" />
