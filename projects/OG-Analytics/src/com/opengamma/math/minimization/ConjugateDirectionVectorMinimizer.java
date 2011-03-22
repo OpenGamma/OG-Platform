@@ -80,9 +80,7 @@ public class ConjugateDirectionVectorMinimizer implements VectorMinimizer {
 
       final double extrapValue = function.evaluate(extrapolatedPoint);
       // Powell's condition for updating the direction set
-      if (extrapValue < startValue
-          && (2 * (startValue - 2 * f2 * extrapValue) * square(startValue - f2 - delta)) < (square(startValue
-              - extrapValue) * delta)) {
+      if (extrapValue < startValue && (2 * (startValue - 2 * f2 * extrapValue) * square(startValue - f2 - delta)) < (square(startValue - extrapValue) * delta)) {
         lambda = _lineSearch.minimise(function, deltaX, x);
         x = (DoubleMatrix1D) OG_ALGEBRA.add(x, OG_ALGEBRA.scale(deltaX, lambda));
         directionSet[indexDelta] = directionSet[n - 1];
@@ -91,8 +89,7 @@ public class ConjugateDirectionVectorMinimizer implements VectorMinimizer {
 
       x0 = x;
     }
-    throw new MathException("ConjugateDirection Failed to converge after " + _maxInterations + " interations, with a tolerance of "
-        + _eps + " Final position reached was " + x0.toString());
+    throw new MathException("ConjugateDirection Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _eps + " Final position reached was " + x0.toString());
   }
 
   DoubleMatrix1D[] getDefaultDirectionSet(final int dim) {

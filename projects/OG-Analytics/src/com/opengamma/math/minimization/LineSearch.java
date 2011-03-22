@@ -28,7 +28,7 @@ public class LineSearch {
 
     final LineSearchHelper f = new LineSearchHelper(function, direction, x);
 
-    final double[] bracketPoints = _bracketer.getBracketedPoints(f, 0, 1.0);
+    final double[] bracketPoints = _bracketer.getBracketedPoints(f, 0, 1);
     if (bracketPoints[2] < bracketPoints[0]) {
       final double temp = bracketPoints[0];
       bracketPoints[0] = bracketPoints[2];
