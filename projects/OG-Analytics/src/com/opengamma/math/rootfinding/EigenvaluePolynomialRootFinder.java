@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.apache.commons.lang.Validate;
+
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.EigenvalueDecomposition;
@@ -12,15 +14,37 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
- * 
+ * The eigenvalues of a matrix {@latex.inline $\\mathbf{A}$} are the roots of the characteristic polynomial 
+ * {@latex.inline %preamble{\\usepackage{bbold}} $P(x) = \\mathrm{det}[\\mathbf{A} - x\\mathbb{1}]$}. For a 
+ * polynomial 
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * P(x) = \\sum_{i=0}^n a_i x^i
+ * \\end{align*} 
+ * }
+ * an equivalent polynomial can be constructed from the characteristic polynomial of the matrix
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * A = 
+ * \\begin{pmatrix}
+ * -\\frac{a_{m-1}}{a_m}  & -\\frac{a_{m-2}}{a_m} & \\cdots & -\\frac{a_{1}}{a_m} & -\\frac{a_{0}}{a_m} \\\\
+ * 1                      & 0                     & \\cdots & 0                   & 0                   \\\\
+ * 0                      & 1                     & \\cdots & 0                   & 0                   \\\\
+ * \\vdots                &                       & \\cdots &                     & \\vdots             \\\\
+ * 0                      & 0                     & \\cdots & 1                   & 0                   
+ * \\end{pmatrix}
+ * \\end{align*}
+ * }
+ * and so the roots are found by calculating the eigenvalues of this matrix.
  */
 public class EigenvaluePolynomialRootFinder implements Polynomial1DRootFinder<Double> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double[] getRoots(final RealPolynomialFunction1D function) {
-    if (function == null) {
-      throw new IllegalArgumentException("Function was null");
-    }
+    Validate.notNull(function, "function");
     final double[] coeffs = function.getCoefficients();
     final int l = coeffs.length - 1;
     final DoubleMatrix2D hessian = DoubleFactory2D.dense.make(l, l);

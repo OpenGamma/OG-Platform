@@ -6,7 +6,7 @@
 package com.opengamma.math.number;
 
 /**
- * Class defining a complex number. Note that it extends {@link java.util.Number}.
+ * Class defining a complex number. Note that it extends {@link java.lang.Number}.
  */
 public class ComplexNumber extends Number {
   private static final long serialVersionUID = 1L;
