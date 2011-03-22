@@ -1,6 +1,9 @@
 #Mon Mar 21 16:33:20 GMT 2011
+file_export_version=3.0
 /instance/org.eclipse.ant.ui/problem_properties=ignore
 /instance/org.eclipse.ant.ui/problem_classpath=warning
+/instance/org.apache.ivyde.eclipse/do.retrieve=true
+/instance/org.apache.ivyde.eclipse/resolveInWorkspace=true
 @org.eclipse.jdt.launching=3.5.200.v20110105_r362
 /instance/org.apache.ivyde.eclipse/ivy_conf_path=${workspace_loc\:OG Platform/common/ivysettings.xml}
 /instance/org.eclipse.wst.sse.core/task-tag-projects-already-scanned=Fudge,Fudge-Proto,OG Activ,OG Analytics,OG Bloomberg,OG Core,OG Engine,OG Excel,OG Financial,OG Integration,OG Language,OG LiveData,OG Master,OG Master DB,OG Platform,OG Reuters,OG Security,OG Util,OG Web
@@ -10,6 +13,10 @@
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.visibilityCheck=enabled
 @org.eclipse.ui.editors=3.6.1.r361_v20100825-0800
 /instance/org.apache.ivyde.eclipse/retrieve.pattern=lib/[type]/[organization]/[module]/[artifact]-[revision].[ext]
+@org.eclipse.ui=3.6.2.M20010203-1100
+/instance/org.apache.ivyde.eclipse/retrieve.pattern=lib/[type]/[organization]/[module]/[artifact]-[revision].[ext]
+@org.eclipse.jdt.core=3.6.2.v_A76_R36x
+/instance/ogr.eclipse.jdt.core/org.eclipse.jdr.core.compiler.problem.assertIdentifier=error
 @org.eclipse.pde.ui=3.6.1.v20110210_r362
 /instance/org.apache.ivyde.eclipse/do.retrieve=true
 @net.sf.eclipsecs.ui=5.3.0.201012121300
