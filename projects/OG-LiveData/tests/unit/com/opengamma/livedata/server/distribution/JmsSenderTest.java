@@ -5,20 +5,19 @@
  */
 package com.opengamma.livedata.server.distribution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
@@ -27,18 +26,17 @@ import com.opengamma.util.test.ActiveMQTestUtil;
 
 /**
  * 
- *
  */
-@Ignore // PL 24.6.2010: Putting on ignore as it's failing intermittently on Bamboo and I can't figure out why
+@Test // PL 24.6.2010: Putting on ignore as it's failing intermittently on Bamboo and I can't figure out why
 public class JmsSenderTest {
   
-  private static CollectingByteArrayMessageReceiver _collectingReceiver;
-  private static DefaultMessageListenerContainer _container;
-  private static MarketDataDistributor _mdd;
-  private static JmsSenderFactory _factory;
-  
+  private CollectingByteArrayMessageReceiver _collectingReceiver;
+  private DefaultMessageListenerContainer _container;
+  private MarketDataDistributor _mdd;
+  private JmsSenderFactory _factory;
+
   @BeforeClass
-  public static void setUpClass() {
+  public void setUpClass() {
     ActiveMQConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
 
     JmsTemplate jmsTemplate = new JmsTemplate(cf);
@@ -58,25 +56,26 @@ public class JmsSenderTest {
     _container.afterPropertiesSet();
     _container.start();
   }
-  
+
   @AfterClass
-  public static void tearDown() {
+  public void tearDown() {
     _container.stop();
     _container.destroy();
   }
-  
-  @Before
+
+  @BeforeMethod
   public void setUp() {
     _collectingReceiver.clearMessages();
   }
-  
+
+  //-------------------------------------------------------------------------
   private void ensureStarted() {
     assertTrue(_container.isActive());
     assertTrue(_container.isRunning());
     assertEquals(1, _container.getActiveConsumerCount());
   }
   
-  @Test(timeout=30000)
+  @Test(timeOut=30000, enabled = false)
   public void simpleScenario() throws Exception {
     ensureStarted();
     
@@ -100,7 +99,7 @@ public class JmsSenderTest {
     }
   }
   
-  @Test(timeout=30000)
+  @Test(timeOut=30000, enabled = false)
   public void reconnectionScenario() throws Exception {
     ensureStarted();
     

@@ -5,19 +5,15 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
-
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * 
- *
- * @author kirk
  */
 public class NormalizationRuleSetTest {
 

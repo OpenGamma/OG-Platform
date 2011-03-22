@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import com.opengamma.engine.test.TestCalculationNode;
 import com.opengamma.util.test.Timeout;
@@ -18,42 +20,44 @@ import com.opengamma.util.test.Timeout;
  * Tests the LocalNodeJobInvoker class
  */
 @Test
-public class LocalNodeJobInvokerTest implements JobInvokerRegister {
+public class LocalNodeJobInvokerTest {
 
-  private static final long TIMEOUT = Timeout.standardTimeoutMillis ();
+  private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
   private JobInvoker _invoker;
+  private Register _register;
 
-  public void addNodeWithCallbackPending() {
+  @BeforeMethod
+  public void setUp() {
+    _invoker = null;
+    _register = new Register();
+  }
+
+  public void testAddNodeWithCallbackPending() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
-    assertFalse (invoker.notifyWhenAvailable(this));
+    assertFalse(invoker.notifyWhenAvailable(_register));
     assertNull(_invoker);
     invoker.addNode(new TestCalculationNode());
     assertEquals(invoker, _invoker);
   }
 
-  public void addCallbackWithNodePending() {
+  public void testAddCallbackWithNodePending() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     _invoker = null;
     invoker.addNode(new TestCalculationNode());
-    assertTrue (invoker.notifyWhenAvailable(this));
+    assertTrue(invoker.notifyWhenAvailable(_register));
     assertNull(_invoker);
   }
 
-  @Override
-  public void registerJobInvoker(final JobInvoker invoker) {
-    _invoker = invoker;
-  }
-
-  public void invokeWithNoNodes() {
+  public void testInvokeWithNoNodes() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker();
     final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver();
     assertFalse(invoker.invoke(JobDispatcherTest.createTestJob(), receiver));
     assertNull(receiver.getCompletionResult());
   }
 
-  public void invokeWithOneNode() {
+  public void testInvokeWithOneNode() {
     final LocalNodeJobInvoker invoker = new LocalNodeJobInvoker(new TestCalculationNode());
     final TestJobInvocationReceiver receiver = new TestJobInvocationReceiver();
     final CalculationJob job = JobDispatcherTest.createTestJob();
@@ -63,4 +67,10 @@ public class LocalNodeJobInvokerTest implements JobInvokerRegister {
     assertEquals(job.getSpecification(), jobResult.getSpecification());
   }
 
+  class Register implements JobInvokerRegister {
+    @Override
+    public void registerJobInvoker(final JobInvoker invoker) {
+      _invoker = invoker;
+    }
+  }
 }
