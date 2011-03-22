@@ -15,6 +15,7 @@
 #include <Util/File.h>
 #include <Util/Process.h>
 #include <Util/Error.h>
+#include <Util/Quote.h>
 
 LOGGING (com.opengamma.language.connector.Settings);
 

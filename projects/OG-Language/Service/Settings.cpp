@@ -26,12 +26,11 @@ LOGGING(com.opengamma.language.service.Settings);
 #endif /* ifndef DEFAULT_IDLE_TIMEOUT */
 #ifndef DEFAULT_JVM_LIBRARY
 # ifdef _WIN32
-#  define DEFAULT_JVM_LIBRARY			jvm.dll
+#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.dll")
 # else /* ifdef _WIN32 */
-#  define DEFAULT_JVM_LIBRARY			jvm.so
+#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.so")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_JVM_LIBRARY */
-#define DEFAULT_JVM_LIBRARY_STR		TEXT(QUOTE(DEFAULT_JVM_LIBRARY))
 #ifndef DEFAULT_LOG_CONFIGURATION
 # define DEFAULT_LOG_CONFIGURATION	NULL
 #endif /* ifndef DEFAULT_LOG_CONFIGURATION */
@@ -53,7 +52,7 @@ LOGGING(com.opengamma.language.service.Settings);
 #  ifndef DEFAULT_PIPE_FOLDER
 #   define DEFAULT_PIPE_FOLDER		TEXT ("/var/run/OG-Language/")
 #  endif /* ifndef DEFAULT_PIPE_FOLDER */
-#  define DEFAULT_CONNECTION_PIPE     DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
+#  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_CONNECTION_PIPE */
 
@@ -201,7 +200,7 @@ const TCHAR *CSettings::GetJvmLibrary () {
 #endif
 		if (m_pszDefaultJvmLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
-			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY_STR);
+			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
 		}
 	}
 	return GetJvmLibrary (m_pszDefaultJvmLibrary);
