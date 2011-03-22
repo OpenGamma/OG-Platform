@@ -175,7 +175,7 @@ public class VectorRootFinderTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
-    DUMMY.getRoot(LINEAR, null);
+    DUMMY.getRoot(LINEAR, (DoubleMatrix1D) null);
   }
 
   public void testLinear(final VectorRootFinder rootFinder, final double eps) {

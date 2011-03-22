@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleSkewnessCalculator;
@@ -24,6 +25,7 @@ public class GeneralizedParetoDistributionMomentEstimator extends DistributionPa
   private static final Function1D<double[], Double> VARIANCE = new SampleVarianceCalculator();
   private static final Function1D<double[], Double> SKEWNESS = new SampleSkewnessCalculator();
   private static final RealSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder();
+  private static final BracketRoot BRACKETER = new BracketRoot();
 
   @Override
   public ProbabilityDistribution<Double> evaluate(final double[] x) {
@@ -39,7 +41,8 @@ public class GeneralizedParetoDistributionMomentEstimator extends DistributionPa
       }
 
     };
-    final double ksi = ROOT_FINDER.getRoot(ksiFunction, 0., 0.5);
+    double[] bracket = BRACKETER.getBracketedPoints(ksiFunction, 0, 0.33333);
+    final double ksi = ROOT_FINDER.getRoot(ksiFunction, bracket[0], bracket[1]);
     final double ksiP1 = 1 - ksi;
     final double sigma = Math.sqrt(variance * (1 - 2 * ksi) * ksiP1 * ksiP1);
     final double mu = mean - sigma / ksiP1;

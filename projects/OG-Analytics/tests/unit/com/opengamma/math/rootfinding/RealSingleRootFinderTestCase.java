@@ -6,7 +6,8 @@
 package com.opengamma.math.rootfinding;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+
+import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 
@@ -24,42 +25,38 @@ public abstract class RealSingleRootFinderTestCase {
   };
   protected static final double EPS = 1e-9;
 
-  public void testInputs(final RealSingleRootFinder finder) {
-    try {
-      finder.checkInputs(null, 1., 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      finder.checkInputs(F, null, 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      finder.checkInputs(F, 1., null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  protected abstract RealSingleRootFinder getRootFinder();
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullFunction() {
+    getRootFinder().checkInputs(null, 1., 2.);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullLower() {
+    getRootFinder().checkInputs(F, null, 2.);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullUpper() {
+    getRootFinder().checkInputs(F, 1., null);
   }
 
-  public void test(final RealSingleRootFinder finder) {
-    try {
-      finder.getRoot(F, 10., 100.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      finder.getRoot(F, 1.5, 3.5);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testOutsideRoots() {
+    getRootFinder().getRoot(F, 10., 100.);
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testBracketTwoRoots() {
+    getRootFinder().getRoot(F, 1.5, 3.5);
+  }
+  
+  @Test
+  public void test() {
+    RealSingleRootFinder finder = getRootFinder();
     assertEquals(finder.getRoot(F, 2.5, 3.5), 3, EPS);
     assertEquals(finder.getRoot(F, 1.5, 2.5), 2, EPS);
-    assertEquals(finder.getRoot(F, 0.5, -1.5), -1, EPS);
+    assertEquals(finder.getRoot(F, -1.5, 0.5), -1, EPS);
   }
 }
