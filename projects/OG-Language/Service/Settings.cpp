@@ -15,21 +15,54 @@
 
 LOGGING(com.opengamma.language.service.Settings);
 
-#define DEFAULT_CONNECTION_TIMEOUT	3000	/* 3s default */
-#define DEFAULT_BUSY_TIMEOUT		2000	/* 2s default */
-#define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
+#ifndef DEFAULT_CONNECTION_TIMEOUT
+# define DEFAULT_CONNECTION_TIMEOUT	3000	/* 3s default */
+#endif /* ifndef DEFAULT_CONNECTION_TIMEOUT */
+#ifndef DEFAULT_BUSY_TIMEOUT
+# define DEFAULT_BUSY_TIMEOUT		2000	/* 2s default */
+#endif /* ifndef DEFAULT_BUSY_TIMEOUT */
+#ifndef DEFAULT_IDLE_TIMEOUT
+# define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
+#endif /* ifndef DEFAULT_IDLE_TIMEOUT */
 #ifndef DEFAULT_JVM_LIBRARY
-#ifdef _WIN32
-#define DEFAULT_JVM_LIBRARY			jvm.dll
-#else /* ifdef _WIN32 */
-#define DEFAULT_JVM_LIBRARY			jvm.so
-#endif /* ifdef _WIN32 */
+# ifdef _WIN32
+#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.dll")
+# else /* ifdef _WIN32 */
+#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.so")
+# endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_JVM_LIBRARY */
-#define DEFAULT_JVM_LIBRARY_STR		TEXT(QUOTE(DEFAULT_JVM_LIBRARY))
-#define DEFAULT_LOG_CONFIGURATION	NULL
+#ifndef DEFAULT_LOG_CONFIGURATION
+# define DEFAULT_LOG_CONFIGURATION	NULL
+#endif /* ifndef DEFAULT_LOG_CONFIGURATION */
 #ifdef _WIN32
-#define DEFAULT_SDDL				NULL
+# ifndef DEFAULT_SDDL
+#  define DEFAULT_SDDL				NULL
+# endif /* ifndef DEFAULT_SDDL */
 #endif /* ifdef _WIN32 */
+#ifndef DEFAULT_SERVICE_NAME
+# define DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
+#endif /* ifndef DEFAULT_SERVICE_NAME */
+#ifndef DEFAULT_CONNECTION_PIPE
+# ifndef DEFAULT_PIPE_NAME
+#  define DEFAULT_PIPE_NAME			TEXT ("Connection")
+# endif /* ifndef DEFAULT_PIPE_NAME */
+# ifdef _WIN32
+#  define DEFAULT_CONNECTION_PIPE	TEXT ("\\\\.\\pipe\\") DEFAULT_SERVICE_NAME TEXT ("-") DEFAULT_PIPE_NAME
+# else /* ifdef _WIN32 */
+#  ifndef DEFAULT_PIPE_FOLDER
+#   define DEFAULT_PIPE_FOLDER		TEXT ("/var/run/OG-Language/")
+#  endif /* ifndef DEFAULT_PIPE_FOLDER */
+#  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
+# endif /* ifdef _WIN32 */
+#endif /* ifndef DEFAULT_CONNECTION_PIPE */
+
+const TCHAR *ServiceDefaultConnectionPipe () {
+	return DEFAULT_CONNECTION_PIPE;
+}
+
+const TCHAR *ServiceDefaultServiceName () {
+	return DEFAULT_SERVICE_NAME;
+}
 
 CSettings::CSettings () : CAbstractSettings () {
 	m_pszDefaultJvmLibrary = NULL;
@@ -167,14 +200,14 @@ const TCHAR *CSettings::GetJvmLibrary () {
 #endif
 		if (m_pszDefaultJvmLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
-			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY_STR);
+			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
 		}
 	}
 	return GetJvmLibrary (m_pszDefaultJvmLibrary);
 }
 
 const TCHAR *CSettings::GetConnectionPipe () {
-	return GetConnectionPipe (SERVICE_DEFAULT_CONNECTION_PIPE);
+	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
 unsigned long CSettings::GetConnectionTimeout () {
@@ -253,7 +286,7 @@ unsigned long CSettings::GetIdleTimeout () {
 }
 
 const TCHAR *CSettings::GetServiceName () {
-	return GetServiceName (SERVICE_DEFAULT_SERVICE_NAME);
+	return GetServiceName (ServiceDefaultServiceName ());
 }
 
 #ifdef _WIN32
