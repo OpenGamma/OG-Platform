@@ -11,6 +11,7 @@
 #include "Settings.h"
 #include <Util/File.h>
 #include <Util/Process.h>
+#include <Util/Quote.h>
 
 LOGGING(com.opengamma.language.service.Settings);
 
@@ -24,8 +25,7 @@ LOGGING(com.opengamma.language.service.Settings);
 #define DEFAULT_JVM_LIBRARY			jvm.so
 #endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_JVM_LIBRARY */
-#define _DEFAULT_JVM_LIBRARY_STR(v)	#v
-#define DEFAULT_JVM_LIBRARY_STR		_DEFAULT_JVM_LIBRARY_STR(DEFAULT_JVM_LIBRARY)
+#define DEFAULT_JVM_LIBRARY_STR		TEXT(QUOTE(DEFAULT_JVM_LIBRARY))
 #define DEFAULT_LOG_CONFIGURATION	NULL
 #ifdef _WIN32
 #define DEFAULT_SDDL				NULL
@@ -167,7 +167,7 @@ const TCHAR *CSettings::GetJvmLibrary () {
 #endif
 		if (m_pszDefaultJvmLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
-			m_pszDefaultJvmLibrary = _tcsdup (TEXT (DEFAULT_JVM_LIBRARY_STR));
+			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY_STR);
 		}
 	}
 	return GetJvmLibrary (m_pszDefaultJvmLibrary);
