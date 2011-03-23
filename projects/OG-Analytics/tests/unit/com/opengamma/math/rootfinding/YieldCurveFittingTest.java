@@ -130,8 +130,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
   @Test
   public void testJacobian() {
-    testJacobian(getSingleCurveSetup());
-    testJacobian(getDoubleCurveSetup());
+    assertJacobian(getSingleCurveSetup());
+    assertJacobian(getDoubleCurveSetup());
   }
 
   private YieldCurveFittingTestDataBundle getSingleCurveSetup() {
