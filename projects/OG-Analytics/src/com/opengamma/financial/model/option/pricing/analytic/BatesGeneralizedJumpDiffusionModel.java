@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
- * The Bates generalized jump diffusion model is described by the jump-diffusion process
+ * The Bates generalized jump diffusion model prices options with an underlying process 
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * dS = (b - \\lambda \\overline{k})S dt + \\sigma S dz + k dq
