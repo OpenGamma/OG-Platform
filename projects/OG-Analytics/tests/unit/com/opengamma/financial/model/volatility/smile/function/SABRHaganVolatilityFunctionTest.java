@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 /**

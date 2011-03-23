@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 /**
@@ -25,12 +23,12 @@ public abstract class SABRVolatilityFunctionTestCase {
 
   protected abstract VolatilityFunctionProvider<SABRFormulaData> getFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
     getFunction().getVolatilityFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     getFunction().getVolatilityFunction(OPTION).evaluate((SABRFormulaData) null);
   }

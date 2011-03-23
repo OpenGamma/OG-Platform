@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
@@ -19,22 +17,22 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis LI_MCLEOD = new LiMcLeodPortmanteauIIDHypothesis(0.05, 20);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new LiMcLeodPortmanteauIIDHypothesis(-0.1, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new LiMcLeodPortmanteauIIDHypothesis(1.5, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroLag() {
     new LiMcLeodPortmanteauIIDHypothesis(0.05, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     final TimeSeries<Long, Double> subSeries = RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3));
     LI_MCLEOD.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));

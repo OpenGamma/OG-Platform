@@ -5,10 +5,8 @@
  */
 package com.opengamma.math;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.number.ComplexNumber;
 
 /**

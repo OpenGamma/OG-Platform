@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -44,12 +42,12 @@ public class GramCharlierModelTest {
   private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(30, EXPIRY, false);
   private static final double EPS = 1e-6;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     GRAM_CHARLIER.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     GRAM_CHARLIER.getPricingFunction(CALL).evaluate((SkewKurtosisOptionDataBundle) null);
   }

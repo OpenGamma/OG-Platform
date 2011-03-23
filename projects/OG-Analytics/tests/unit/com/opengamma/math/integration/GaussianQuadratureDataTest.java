@@ -6,10 +6,9 @@
 package com.opengamma.math.integration;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -19,17 +18,17 @@ public class GaussianQuadratureDataTest {
   private static final double[] W = new double[] {6, 7, 8, 9};
   private static final GaussianQuadratureData F = new GaussianQuadratureData(X, W);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAbscissas() {
     new GaussianQuadratureData(null, W);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWeights() {
     new GaussianQuadratureData(X, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength() {
     new GaussianQuadratureData(X, new double[] {1, 2, 3});
   }

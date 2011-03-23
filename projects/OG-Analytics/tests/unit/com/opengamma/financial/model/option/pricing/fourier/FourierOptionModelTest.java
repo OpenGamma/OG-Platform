@@ -1,14 +1,12 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashSet;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -52,87 +50,87 @@ public class FourierOptionModelTest {
   private static final OptionModel<OptionDefinition, StandardOptionDataBundle> BSM_MODEL = new BlackScholesMertonModel();
   private static final double EPS = 1e-3;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent1() {
     new FourierOptionModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent2() {
     new FourierOptionModel(null, new RungeKuttaIntegrator1D());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent3() {
     new FourierOptionModel(null, -0.4, 1e-7, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent4() {
     new FourierOptionModel(null, new RungeKuttaIntegrator1D(), -0.4, 1e-6, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent5() {
     new FourierOptionModel(null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExponent6() {
     new FourierOptionModel(null, new RungeKuttaIntegrator1D(), false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIntegrator1() {
     new FourierOptionModel(GAUSSIAN, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIntegrator2() {
     new FourierOptionModel(GAUSSIAN, null, -0.5, 1e-8, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIntegrator3() {
     new FourierOptionModel(GAUSSIAN, null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadAlpha1() {
     new FourierOptionModel(GAUSSIAN, 0, 1e-8, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadAlpha2() {
     new FourierOptionModel(GAUSSIAN, new RungeKuttaIntegrator1D(), -1, 1e-8, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance1() {
     new FourierOptionModel(GAUSSIAN, -0.5, -1e-8, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance2() {
     new FourierOptionModel(GAUSSIAN, new RungeKuttaIntegrator1D(), -0.5, -1e-8, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     FOURIER_MODEL1.getGreeks(null, BLACK_DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     FOURIER_MODEL1.getGreeks(ITM_CALL, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreeks() {
     FOURIER_MODEL1.getGreeks(ITM_CALL, BLACK_DATA, null);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testWrongGreeks() {
     FOURIER_MODEL1.getGreeks(ITM_CALL, BLACK_DATA, Sets.newHashSet(Greek.DELTA, Greek.GAMMA));
   }

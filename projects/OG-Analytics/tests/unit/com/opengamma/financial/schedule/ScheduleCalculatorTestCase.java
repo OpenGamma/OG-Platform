@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.schedule;
 
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.util.time.DateUtil;
@@ -24,32 +23,32 @@ public abstract class ScheduleCalculatorTestCase {
 
   public abstract Schedule getScheduleCalculator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartDate1() {
     getScheduleCalculator().getSchedule(null, END1, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartDate2() {
     getScheduleCalculator().getSchedule(null, END2, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEndDate1() {
     getScheduleCalculator().getSchedule(START1, null, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEndDate2() {
     getScheduleCalculator().getSchedule(START2, null, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAfterEnd1() {
     getScheduleCalculator().getSchedule(END1, START1, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAfterEnd2() {
     getScheduleCalculator().getSchedule(END2, START2, true, true);
   }

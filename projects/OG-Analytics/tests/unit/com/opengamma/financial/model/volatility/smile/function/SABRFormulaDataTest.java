@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -21,27 +20,27 @@ public class SABRFormulaDataTest {
   private static final double F = 103;
   private static final SABRFormulaData DATA = new SABRFormulaData(F, ALPHA, BETA, NU, RHO);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeForward() {
     new SABRFormulaData(-F, ALPHA, BETA, NU, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeBETA() {
     new SABRFormulaData(F, ALPHA, -BETA, NU, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNu() {
     new SABRFormulaData(F, ALPHA, BETA, -NU, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowRho() {
     new SABRFormulaData(F, ALPHA, BETA, NU, RHO - 10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighRho() {
     new SABRFormulaData(F, ALPHA, BETA, NU, RHO + 10);
   }

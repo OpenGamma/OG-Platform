@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.SingularValueDecomposition;
@@ -32,22 +30,22 @@ public class SVDecompositionColtResultTest {
   private static final SVDecompositionColtResult RESULT = new SVDecompositionColtResult(SVD);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSVD() {
     new SVDecompositionColtResult(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     RESULT.solve((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     RESULT.solve((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     RESULT.solve((com.opengamma.math.matrix.DoubleMatrix2D) null);
   }

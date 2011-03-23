@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -23,7 +21,7 @@ public class ArrayInterpolator1DDataBundleTest extends Interpolator1DDataBundleT
     return new ArrayInterpolator1DDataBundle(keys, values);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullKeys() {
     new ArrayInterpolator1DDataBundle(null, new double[] { 1., 2. });
   }

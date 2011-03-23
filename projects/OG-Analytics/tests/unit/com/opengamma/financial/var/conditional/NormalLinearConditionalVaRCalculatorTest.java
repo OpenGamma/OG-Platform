@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.var.conditional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 
 /**
@@ -29,32 +27,32 @@ public class NormalLinearConditionalVaRCalculatorTest {
   };
   private static final NormalLinearConditionalVaRCalculator<Double> CALCULATOR = new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new NormalLinearConditionalVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePeriod() {
     new NormalLinearConditionalVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQuantile() {
     new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighQuantile() {
     new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new NormalLinearConditionalVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.evaluate((Double[]) null);
   }

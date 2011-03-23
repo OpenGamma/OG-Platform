@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
@@ -27,52 +25,52 @@ public class PolynomialInterpolator1DTest {
   private static final Interpolator1DDataBundle MODEL = INTERPOLATOR_NO_OFFSET.getDataBundle(new double[] {1, 2, 3, 4, 5}, new double[] {6, 7, 8, 9, 10});
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIllegalDegree1() {
     new PolynomialInterpolator1D(0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIllegalDegree2() {
     new PolynomialInterpolator1D(0, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOffset() {
     new PolynomialInterpolator1D(3, -4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLargeOffset() {
     new PolynomialInterpolator1D(3, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR_WITH_OFFSET.interpolate(null, 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, null);
   }
 
-  @Test(expected = MathException.class)
+  @Test(expectedExceptions = MathException.class)
   public void testInsufficientData() {
     INTERPOLATOR_WITH_OFFSET.interpolate(INTERPOLATOR_WITH_OFFSET.getDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange() {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 0.);
   }
 
-  @Test(expected = MathException.class)
+  @Test(expectedExceptions = MathException.class)
   public void testOutOfRangeWithOffset() {
     INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 2.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighOutOfRange() {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
   }

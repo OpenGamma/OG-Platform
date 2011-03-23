@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.SVDecompositionColt;
@@ -37,17 +35,17 @@ public class InverseJacobianEstimateInitializationFunctionTest {
 
   private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {3, 4});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDecomposition() {
     new InverseJacobianEstimateInitializationFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     ESTIMATE.getInitializedMatrix(null, X);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     ESTIMATE.getInitializedMatrix(J, null);
   }

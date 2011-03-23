@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.currency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -48,7 +46,7 @@ public class SimpleCurrencyMatrixTest {
     assertTrue(matrix.getTargetCurrencies().isEmpty());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIllegalIdentityInsert() {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(currencyUSD, currencyUSD, 2.0);
@@ -67,7 +65,7 @@ public class SimpleCurrencyMatrixTest {
     assertEquals(3, matrix.getTargetCurrencies().size());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIllegalCrossConversion1() {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(currencyUSD, currencyEUR, 1.4);
@@ -75,7 +73,7 @@ public class SimpleCurrencyMatrixTest {
     matrix.setCrossConversion(currencyUSD, currencyCHF, currencyEUR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIllegalCrossConversion2() {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(currencyUSD, currencyGBP, 1.6);

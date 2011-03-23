@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.financial.convention.daycount.AccruedInterestCalculator.getAccruedInterest;
-import static org.junit.Assert.assertEquals;
-
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.util.time.DateUtil;
 
@@ -29,37 +27,37 @@ public class AccruedInterestCalculatorTest {
       DateUtil.getUTCDate(2007, 2, 14)};
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
     getAccruedInterest(null, DATE1, SCHEDULE1, 0.2, 1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDate() {
     getAccruedInterest(DC1, null, SCHEDULE1, 0.04, 1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule() {
     getAccruedInterest(DC1, DATE1, null, 0.02, 1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullElementInSchedule() {
     getAccruedInterest(DC1, DATE1, new ZonedDateTime[] {null}, 0.02, 1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentsPerYear() {
     getAccruedInterest(DC1, DATE1, SCHEDULE1, 0.02, -1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadDate() {
     getAccruedInterest(DC1, DateUtil.getUTCDate(2000, 1, 1), SCHEDULE1, 0.02, 1, false, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testActActICMANormalEOM() {
     getAccruedInterest(new ActualActualICMANormal(), DATE1, SCHEDULE1, 0.02, 1, true, 0);
   }

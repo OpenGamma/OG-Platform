@@ -11,6 +11,7 @@
 #include "Connector.h"
 #define FUDGE_NO_NAMESPACE
 #include "com_opengamma_language_connector_UserMessage.h"
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.Connector);
 

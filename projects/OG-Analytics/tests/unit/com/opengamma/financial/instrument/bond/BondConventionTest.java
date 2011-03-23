@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.instrument.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -36,37 +34,37 @@ public class BondConventionTest {
   private static final YieldConvention YIELD_CONVENTION = SimpleYieldConvention.US_TREASURY_EQUIVALANT;
   private static final BondConvention CONVENTION = new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlementDays() {
     new BondConvention(-SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
     new BondConvention(SETTLEMENT_DAYS, null, BUSINESS_DAY, CALENDAR, IS_EOM, NAME, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBusinessDayConvention() {
     new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, null, CALENDAR, IS_EOM, NAME, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
     new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, null, IS_EOM, NAME, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeExDividendDays() {
     new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME, -1, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, null, EX_DIVIDEND_DAYS, YIELD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYieldConvention() {
     new BondConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, IS_EOM, NAME, EX_DIVIDEND_DAYS, null);
   }

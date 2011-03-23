@@ -5,34 +5,34 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class GammaDistributionTest extends ProbabilityDistributionTestCase {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeK1() {
     new GammaDistribution(-1, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeK2() {
     new GammaDistribution(-1, 1, ENGINE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTheta1() {
     new GammaDistribution(1, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTheta2() {
     new GammaDistribution(1, -1, ENGINE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEngine() {
     new GammaDistribution(1, 1, null);
   }

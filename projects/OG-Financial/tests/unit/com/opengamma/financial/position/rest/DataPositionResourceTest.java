@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.position.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,9 +17,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 
 import javax.ws.rs.core.Response;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -36,7 +35,7 @@ public class DataPositionResourceTest {
   private PositionMaster _underlying;
   private DataPositionResource _resource;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     _underlying = mock(PositionMaster.class);
     _resource = new DataPositionResource(new DataPositionsResource(_underlying), UID);

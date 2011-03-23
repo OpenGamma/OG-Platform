@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing;
 
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertNull;
+import org.testng.annotations.Test;
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -38,17 +36,17 @@ public class FiniteDifferenceGreekVisitorTest {
   private static final OptionDefinition DEFINITION = new EuropeanVanillaOptionDefinition(110, new Expiry(DateUtil.getUTCDate(2011, 5, 1)), true);
   private static final GreekVisitor<Double> VISITOR = new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(FUNCTION, DATA, DEFINITION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(null, DATA, DEFINITION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(FUNCTION, null, DEFINITION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(FUNCTION, DATA, null);
   }

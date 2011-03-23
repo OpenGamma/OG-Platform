@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.integration;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 

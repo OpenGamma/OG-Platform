@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.BitSet;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -47,47 +46,47 @@ public abstract class LeastSquareSmileFitterTestCase {
 
   protected abstract double[] getInitialValues();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOptions() {
     getFitter().getFitResult(null, FLAT_DATA, ERRORS, getInitialValues(), FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyOptions() {
     getFitter().getFitResult(new EuropeanVanillaOption[0], FLAT_DATA, ERRORS, getInitialValues(), FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     getFitter().getFitResult(OPTIONS, null, ERRORS, getInitialValues(), FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthData() {
     getFitter().getFitResult(OPTIONS, new BlackFunctionData[] {new BlackFunctionData(FORWARD, DF, SIGMA)}, ERRORS, getInitialValues(), FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthErrors() {
     getFitter().getFitResult(OPTIONS, FLAT_DATA, new double[] {1, 1, 1, 1}, getInitialValues(), FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInitialValues() {
     getFitter().getFitResult(OPTIONS, FLAT_DATA, ERRORS, null, FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthInitialValues() {
     getFitter().getFitResult(OPTIONS, FLAT_DATA, ERRORS, new double[] {1, 1, 1, 1, 1, 1, 1}, FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixed() {
     getFitter().getFitResult(OPTIONS, FLAT_DATA, ERRORS, getInitialValues(), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongMaturity() {
     final EuropeanVanillaOption[] options = Arrays.copyOf(OPTIONS, OPTIONS.length);
     options[5] = new EuropeanVanillaOption(OPTIONS[5].getStrike(), OPTIONS[5].getTimeToExpiry() + 0.05, OPTIONS[5].isCall());

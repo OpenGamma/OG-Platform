@@ -15,7 +15,8 @@ import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Root finder that calculates the roots of a cubic equation using {@link CubicRootFinder} and returns only the real roots. If
+ * there are no real roots, an exception is thrown.
  */
 public class CubicRealRootFinder implements Polynomial1DRootFinder<Double> {
   private static final Double[] EMPTY_ARRAY = new Double[0];
@@ -35,9 +36,7 @@ public class CubicRealRootFinder implements Polynomial1DRootFinder<Double> {
         reals.add(c.getReal());
       }
     }
-    if (reals.size() == 0) {
-      throw new IllegalArgumentException("Could not find any real roots");
-    }
+    Validate.isTrue(reals.size() > 0, "Could not find any real roots");
     return reals.toArray(EMPTY_ARRAY);
   }
 }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -56,77 +54,77 @@ public class BondTest {
     UNIT_ANNUITY = new GenericAnnuity<CouponFixed>(unit);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTimes1() {
     new Bond(null, COUPON, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTimes2() {
     new Bond(null, COUPON, YEAR_FRACTION, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTimes3() {
     new Bond(null, COUPONS, YEAR_FRACTIONS, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTimes1() {
     new Bond(new double[0], COUPON, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTimes2() {
     new Bond(new double[0], COUPON, YEAR_FRACTION, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTimes3() {
     new Bond(new double[0], COUPONS, YEAR_FRACTIONS, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons1() {
     new Bond(TIMES, null, YEAR_FRACTIONS, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCoupons1() {
     new Bond(TIMES, new double[0], YEAR_FRACTIONS, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction1() {
     new Bond(TIMES, COUPONS, null, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction1() {
     new Bond(TIMES, COUPONS, new double[0], 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     new Bond(TIMES, COUPON, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
     new Bond(TIMES, COUPON, YEAR_FRACTION, 0.0, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName3() {
     new Bond(TIMES, COUPONS, YEAR_FRACTIONS, 0.0, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCoupons1() {
     new Bond(TIMES, new double[] {1, 2, 3, 4, 5}, YEAR_FRACTIONS, 0.0, BOND_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction1() {
     new Bond(TIMES, COUPONS, new double[] {1, 2, 3, 4, 5}, 0.0, BOND_CURVE);
   }

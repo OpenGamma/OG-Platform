@@ -6,11 +6,9 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
@@ -27,12 +25,12 @@ public class VolatilitySurfaceTest {
       4, 5, 6, 4, 5, 6}, INTERPOLATOR, "S");
   private static final VolatilitySurface VOL = new VolatilitySurface(SURFACE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new VolatilitySurface(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
     VOL.getVolatility(null);
   }

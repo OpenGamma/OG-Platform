@@ -6,16 +6,14 @@
 package com.opengamma.math.cube;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.cube.InterpolatedFromSurfacesDoublesCube.SurfacePlane;
 import com.opengamma.math.function.Function;
@@ -299,137 +297,137 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     assertEquals(cube.getPlane(), XY_CUBE.getPlane());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane1() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane2() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_PRIMITIVE, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane3() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane4() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_OBJECT, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane5() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane6() {
     new InterpolatedFromSurfacesDoublesCube(null, POINTS_LIST, SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane7() {
     new InterpolatedFromSurfacesDoublesCube(null, SURFACE_MAP, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPlane8() {
     new InterpolatedFromSurfacesDoublesCube(null, SURFACE_MAP, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints3() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints4() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (Double[]) null, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints5() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoints6() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, (List<Double>) null, SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, null, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces3() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, null, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces4() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, null, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces5() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, null, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSurfaces6() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, null, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., null}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue3() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPointValue4() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., null), SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, null, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, null, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry1() {
     final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<Double, Surface<Double, Double, Double>>();
     m.put(1., S1);
@@ -438,7 +436,7 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, m, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry2() {
     final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<Double, Surface<Double, Double, Double>>();
     m.put(1., S1);
@@ -447,117 +445,117 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, m, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new double[] {1, 2, 3, 4, 5}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength3() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength4() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, new Double[] {1., 2., 3., 4., 5.}, SURFACE_ARRAY, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength5() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength6() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, Arrays.asList(1., 2., 3., 4.), SURFACE_LIST, INTERPOLATOR, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_PRIMITIVE, SURFACE_ARRAY, null, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator4() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_OBJECT, SURFACE_ARRAY, null, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator5() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator6() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, POINTS_LIST, SURFACE_LIST, null, true, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator7() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator8() {
     new InterpolatedFromSurfacesDoublesCube(SurfacePlane.XY, SURFACE_MAP, null, true, NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetXData() {
     XY_CUBE.getXData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetYData() {
     XY_CUBE.getYData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetZData() {
     XY_CUBE.getZData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetValues() {
     XY_CUBE.getValues();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSize() {
     XY_CUBE.size();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetValueWithNull1() {
     XY_CUBE.getValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetValueWithNull2() {
     XY_CUBE.getValue(null, 2., 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetValueWithNull3() {
     XY_CUBE.getValue(1., null, 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetValueWithNull4() {
     XY_CUBE.getValue(1., 2., null);
   }

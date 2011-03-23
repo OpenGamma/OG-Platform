@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.surface;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 
 /**
@@ -26,32 +24,32 @@ public class FunctionalSurfaceShiftFunctionTest {
   private static final FunctionalDoublesSurface SURFACE = FunctionalDoublesSurface.from(F, "A");
   private static final FunctionalSurfaceShiftFunction SHIFT = new FunctionalSurfaceShiftFunction();
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test1() {
     SHIFT.evaluate(SURFACE, 2, 1, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test2() {
     SHIFT.evaluate(SURFACE, 2, 1, 1, "A");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test3() {
     SHIFT.evaluate(SURFACE, new double[] {2 }, new double[] {1 }, new double[] {2. });
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test4() {
     SHIFT.evaluate(SURFACE, new double[] {2 }, new double[] {1 }, new double[] {2. }, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve1() {
     SHIFT.evaluate(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve2() {
     SHIFT.evaluate(null, 1, "B");
   }

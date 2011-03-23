@@ -11,7 +11,19 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Class defining a supershare option. 
+ * <p> 
+ * Supershare options have European-style exercise with payoff
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = 
+ * \\begin{cases}
+ * \\frac{S}{K_L} \\quad & \\mathrm{if} \\quad K_L \\leq S \\leq K_H\\\\
+ * 0\\quad & \\mathrm{otherwise}
+ * \\end{cases}
+ * \\end{align*}
+ * }
+ * where {@latex.inline $K_L$} is the lower bound, {@latex.inline $K_H$}  the upper bound and {@latex.inline $S$} the spot.
  */
 public class SupershareOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
@@ -28,33 +40,48 @@ public class SupershareOptionDefinition extends OptionDefinition {
   private final double _lowerBound;
   private final double _upperBound;
 
+  /**
+   * @param expiry The expiry
+   * @param lowerBound The lower bound
+   * @param upperBound The upper bound
+   */
   public SupershareOptionDefinition(final Expiry expiry, final double lowerBound, final double upperBound) {
     super(null, expiry, null);
-    ArgumentChecker.notNegative(lowerBound, "lower bound");
-    ArgumentChecker.notNegative(upperBound, "upper bound");
-    if (lowerBound >= upperBound) {
-      throw new IllegalArgumentException("Lower bound must be less than upper bound");
-    }
+    Validate.isTrue(lowerBound >= 0, "lower bound must be >= 0");
+    Validate.isTrue(upperBound >= 0, "upper bound must be >= 0");
+    Validate.isTrue(upperBound > lowerBound, "Lower bound must be less than upper bound");
     _lowerBound = lowerBound;
     _upperBound = upperBound;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
 
+  /**
+   * @return The lower bound 
+   */
   public double getLowerBound() {
     return _lowerBound;
   }
 
+  /**
+   * @return The upper bound
+   */
   public double getUpperBound() {
     return _upperBound;
   }

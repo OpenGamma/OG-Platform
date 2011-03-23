@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -37,12 +35,12 @@ public class DeltaGammaCovarianceMatrixStandardDeviationCalculatorTest {
     COVARIANCES.put(1, COVARIANCE_MATRIX);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new DeltaGammaCovarianceMatrixStandardDeviationCalculator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     F.evaluate((Map<Integer, ParametricVaRDataBundle>) null);
   }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.var;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 
 /**
@@ -25,52 +23,52 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
   private static final Function<Double, Double> KURTOSIS = new MyFunction(4.);
   private static final JohnsonSUDeltaGammaVaRCalculator<Double> F = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePeriods() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighQuantile() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE + 1, MEAN, STD, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowQuantile() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE - 1, MEAN, STD, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null, STD, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, null, SKEW, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator3() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, null, KURTOSIS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator4() {
     new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     F.evaluate((Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeKurtosis() {
     final Function<Double, Double> k = new MyFunction(-0.4);
     final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, k);

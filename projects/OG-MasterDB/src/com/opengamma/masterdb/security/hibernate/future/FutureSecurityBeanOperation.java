@@ -6,13 +6,12 @@
 package com.opengamma.masterdb.security.hibernate.future;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryBeanToExpiry;
 import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpiryBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierBeanToIdentifier;
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
-import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
-
 
 import java.util.Collection;
 import java.util.Date;
@@ -22,7 +21,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;

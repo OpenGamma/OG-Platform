@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation;
 
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -18,32 +16,32 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 public class CombinedInterpolatorExtrapolatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName1() {
     getInterpolator("Wrong name");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName2() {
     getInterpolator("Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName3() {
     getInterpolator("Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName1() {
     getInterpolator(Interpolator1DFactory.LINEAR, "Wrong name");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName2() {
     getInterpolator(Interpolator1DFactory.LINEAR, "Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName3() {
     getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, "Wrong name");
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public abstract class Integrator1DTestCase {
@@ -32,17 +30,17 @@ public abstract class Integrator1DTestCase {
   private static final Double UPPER = 12.;
   private static final double EPS = 1e-5;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     getIntegrator().integrate(null, LOWER, UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLowerBound() {
     getIntegrator().integrate(DF, null, UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUpperBound() {
     getIntegrator().integrate(DF, LOWER, null);
   }

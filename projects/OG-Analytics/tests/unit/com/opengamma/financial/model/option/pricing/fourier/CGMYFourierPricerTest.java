@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

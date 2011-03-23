@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -22,22 +20,22 @@ public class ExponentialInterpolator1DTest {
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(Collections.<Double, Double> emptyMap()), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2}, new double[] {1, 2}), -4.);
   }

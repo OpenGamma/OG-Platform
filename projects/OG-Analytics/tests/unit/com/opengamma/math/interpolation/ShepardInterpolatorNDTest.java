@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**
@@ -15,17 +14,17 @@ import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final InterpolatorND<InterpolatorNDDataBundle> INTERPOLATOR = new ShepardInterpolatorND(3.0);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(null, new double[] {1, 2});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoint() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDimension() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2});
   }

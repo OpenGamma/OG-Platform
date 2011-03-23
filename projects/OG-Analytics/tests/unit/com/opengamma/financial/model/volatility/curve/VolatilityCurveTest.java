@@ -6,11 +6,9 @@
 package com.opengamma.financial.model.volatility.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.InterpolatedCurveShiftFunction;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
@@ -22,7 +20,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 public class VolatilityCurveTest {
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(new double[] {1, 2, 3}, new double[] {4, 5, 6}, new LinearInterpolator1D());
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
     new VolatilityCurve(null);
   }

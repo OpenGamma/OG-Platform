@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -28,12 +26,12 @@ public class OptionDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final OptionDataBundle DATA = new OptionDataBundle(CURVE, SURFACE, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     new OptionDataBundle(new OptionDataBundle(CURVE, SURFACE, null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new OptionDataBundle(null);
   }

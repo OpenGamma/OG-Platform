@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.estimation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -20,12 +18,12 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
 public class StudentTDistributionMaximumLikelihoodEstimatorTest {
   private static final DistributionParameterEstimator<Double> ESTIMATOR = new StudentTDistributionMaximumLikelihoodEstimator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     ESTIMATOR.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty() {
     ESTIMATOR.evaluate(new double[0]);
   }

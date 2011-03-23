@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -46,27 +44,27 @@ public class FadeInOptionDefinitionTest {
   private static final FadeInOptionDefinition CALL = new FadeInOptionDefinition(SPOT, EXPIRY, true, LOWER, UPPER);
   private static final FadeInOptionDefinition PUT = new FadeInOptionDefinition(SPOT, EXPIRY, false, LOWER, UPPER);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLowerBound() {
     new FadeInOptionDefinition(SPOT, EXPIRY, true, -LOWER, UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeUpperBound() {
     new FadeInOptionDefinition(SPOT, EXPIRY, true, LOWER, -UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUpperSmallerThanHigher() {
     new FadeInOptionDefinition(SPOT, EXPIRY, true, UPPER, LOWER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPayoffWithNullDataBundle() {
     CALL.getPayoffFunction().getPayoff(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPayoffWithNullTS() {
     CALL.getPayoffFunction().getPayoff(new StandardOptionWithSpotTimeSeriesDataBundle(DATA, null), null);
   }

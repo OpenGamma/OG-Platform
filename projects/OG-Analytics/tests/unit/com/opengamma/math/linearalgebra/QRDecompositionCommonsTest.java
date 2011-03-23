@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -23,7 +21,7 @@ public class QRDecompositionCommonsTest {
   private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
     QR.evaluate((DoubleMatrix2D) null);
   }

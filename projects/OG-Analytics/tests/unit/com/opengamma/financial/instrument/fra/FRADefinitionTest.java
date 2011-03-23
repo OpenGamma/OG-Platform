@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.fra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -39,32 +37,32 @@ public class FRADefinitionTest {
   private static final double RATE = 0.05;
   private static final FRADefinition DEFINITION = new FRADefinition(START, MATURITY, RATE, CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
     new FRADefinition(null, MATURITY, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     new FRADefinition(START, null, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new FRADefinition(START, MATURITY, RATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     DEFINITION.toDerivative(null, new String[] {"A"});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveNames() {
     DEFINITION.toDerivative(DATE, (String[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurveNames() {
     DEFINITION.toDerivative(DATE, new String[0]);
   }

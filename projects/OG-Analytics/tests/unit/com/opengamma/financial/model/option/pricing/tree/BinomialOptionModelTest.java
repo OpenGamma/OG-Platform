@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.model.option.pricing.tree;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -61,27 +61,27 @@ public class BinomialOptionModelTest {
   };
   private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     new BinomialOptionModel<StandardOptionDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
     new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, -3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroN() {
     new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDepth() {
     new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, -3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInconsistentDepth() {
     new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, 10);
   }
@@ -104,7 +104,7 @@ public class BinomialOptionModelTest {
     expected[3][1] = DoublesPair.of(90.91, 0.);
     expected[3][2] = DoublesPair.of(110., 10.);
     expected[3][3] = DoublesPair.of(133.1, 33.1);
-    testTrees(expected, result, 4);
+    assertTrees(expected, result, 4);
   }
 
   @Test
@@ -125,10 +125,10 @@ public class BinomialOptionModelTest {
     expected[3][1] = DoublesPair.of(90.91, 9.0909);
     expected[3][2] = DoublesPair.of(110., 0.);
     expected[3][3] = DoublesPair.of(133.1, 0.);
-    testTrees(expected, result, 4);
+    assertTrees(expected, result, 4);
   }
 
-  private void testTrees(final DoublesPair[][] expected, final DoublesPair[][] result, final int n) {
+  private void assertTrees(final DoublesPair[][] expected, final DoublesPair[][] result, final int n) {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (expected[i][j] == null) {

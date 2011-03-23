@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.local;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.junit.Test;
-
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -47,12 +45,12 @@ public class DermanKaniImpliedBinomialTreeModelTest {
   };
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(R, B, new VolatilitySurface(FunctionalDoublesSurface.from(SMILE)), SPOT, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getImpliedTrees(null, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getImpliedTrees(OPTION, null);
   }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -23,7 +21,7 @@ public class OptionDefinitionTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final double YEARS = 1;
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, YEARS));
-  private static final boolean IS_CALL = true;
+  private static final Boolean IS_CALL = true;
   private static final double PAYOFF_VALUE = 34;
   private static final OptionDefinition DEFINITION = new MyOptionDefinition(STRIKE, EXPIRY, IS_CALL);
   protected static final OptionExerciseFunction<StandardOptionDataBundle> EXERCISE = new OptionExerciseFunction<StandardOptionDataBundle>() {
@@ -41,17 +39,17 @@ public class OptionDefinitionTest {
     }
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrike() {
     new MyOptionDefinition(-STRIKE, EXPIRY, IS_CALL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
     new MyOptionDefinition(STRIKE, null, IS_CALL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDateAfterExpiry() {
     DEFINITION.getTimeToExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, YEARS * 2));
   }

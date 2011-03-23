@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -47,7 +45,7 @@ public class PoweredOptionModelTest {
   public void testNonIntegerPower() {
     try {
       POWERED_MODEL.getGreeks(new PoweredOptionDefinition(100, EXPIRY, 1.3, true), getBundle(0.), REQUIRED_GREEKS);
-      fail();
+      Assert.fail();
     } catch (final OptionPricingException e) {
       // Expected
     }

@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
-import org.junit.Test;
 
 /**
  * Test Period Fudge support.

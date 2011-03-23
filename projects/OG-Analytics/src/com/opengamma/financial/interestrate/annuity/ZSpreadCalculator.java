@@ -20,7 +20,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
+import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -30,7 +30,7 @@ public final class ZSpreadCalculator {
   private static final PresentValueCalculator PRESENT_VALUE_CALCULATOR = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueSensitivityCalculator.getInstance();
   private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
-  private static final RealSingleRootFinder ROOT_FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
   private static final ZSpreadCalculator CALCULATOR = new ZSpreadCalculator();
 
   private ZSpreadCalculator() {

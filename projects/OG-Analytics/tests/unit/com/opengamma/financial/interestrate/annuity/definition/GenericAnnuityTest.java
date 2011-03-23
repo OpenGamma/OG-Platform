@@ -6,15 +6,13 @@
 package com.opengamma.financial.interestrate.annuity.definition;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -52,37 +50,37 @@ public class GenericAnnuityTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     new GenericAnnuity<CouponFixed>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     new GenericAnnuity<CouponFixed>(new CouponFixed[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPayment() {
     new GenericAnnuity<CouponFixed>(new CouponFixed[] {null});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullList() {
     new GenericAnnuity<CouponFixed>(null, CouponFixed.class, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullClass() {
     new GenericAnnuity<CouponFixed>(LIST_PAYMENTS, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyList() {
     new GenericAnnuity<CouponFixed>(new ArrayList<CouponFixed>(), CouponFixed.class, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentInList() {
     final List<CouponFixed> list = new ArrayList<CouponFixed>();
     list.add(null);

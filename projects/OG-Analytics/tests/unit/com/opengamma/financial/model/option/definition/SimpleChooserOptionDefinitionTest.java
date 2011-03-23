@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -43,22 +41,22 @@ public class SimpleChooserOptionDefinitionTest {
   private static final Set<Greek> PRICE = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullChooseDate() {
     new SimpleChooserOptionDefinition(EXPIRY, STRIKE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLateChooseDate() {
     new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.05)));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrike() {
     new SimpleChooserOptionDefinition(EXPIRY, -STRIKE, UNDERLYING_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     CHOOSER.getPayoffFunction().getPayoff(null, null);
   }

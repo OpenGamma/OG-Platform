@@ -1,11 +1,9 @@
 package com.opengamma.financial.instrument.swaption;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -51,12 +49,12 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
 
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiryDate() {
     SwaptionPhysicalFixedIborDefinition.from(null, SWAP, IS_LONG);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSwap() {
     SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, null, IS_LONG);
   }
@@ -66,7 +64,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertEquals(SWAPTION.getExpiry().getExpiry(), EXPIRY_DATE);
     assertEquals(SWAPTION.getUnderlyingSwap(), SWAP);
     assertEquals(SWAPTION.isLong(), IS_LONG);
-    assertEquals(SWAPTION.isCall(), SWAP.getFixedLeg().isPayer());
+    assertEquals(SWAPTION.isCall(), (Boolean) SWAP.getFixedLeg().isPayer());
   }
 
 }

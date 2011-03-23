@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.equity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -58,17 +56,17 @@ public class CAPMFromRegressionCalculatorTest {
     ASSET_5 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, asset5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CAPM.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoMarketData() {
     CAPM.evaluate(ASSET_1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     CAPM.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }

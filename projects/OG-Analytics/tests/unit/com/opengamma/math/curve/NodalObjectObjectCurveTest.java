@@ -6,9 +6,9 @@
 package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.junit.Test;
 
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -210,7 +208,7 @@ public class NodalObjectObjectCurveTest {
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalPoint() {
     NodalObjectsCurve.from(MAP).getYValue(3.1f);
   }

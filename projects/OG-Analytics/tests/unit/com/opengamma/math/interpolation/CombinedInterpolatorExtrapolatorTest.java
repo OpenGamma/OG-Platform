@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -48,42 +46,42 @@ public class CombinedInterpolatorExtrapolatorTest {
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(X, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null, LEFT_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(null, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExtrapolator() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeftExtrapolator() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, null, RIGHT_EXTRAPOLATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRightExtrapolator() {
     new CombinedInterpolatorExtrapolator<Interpolator1DDataBundle>(INTERPOLATOR, LEFT_EXTRAPOLATOR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     COMBINED1.interpolate(null, 2.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     COMBINED1.interpolate(DATA, null);
   }
@@ -94,12 +92,12 @@ public class CombinedInterpolatorExtrapolatorTest {
     assertEquals(COMBINED1.interpolate(DATA, x), F.evaluate(x), 1e-15);
     try {
       COMBINED1.interpolate(DATA, x - 100);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
     }
     try {
       COMBINED1.interpolate(DATA, x + 100);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
     }
   }

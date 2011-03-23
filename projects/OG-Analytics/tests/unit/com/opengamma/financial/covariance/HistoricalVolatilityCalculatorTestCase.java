@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
@@ -59,34 +57,34 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     getCalculator().evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInInput() {
     getCalculator().testTimeSeries(null, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     getCalculator().evaluate(new DoubleTimeSeries[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortTS() {
     getCalculator().testTimeSeries(new DoubleTimeSeries[] {new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1l}, new double[] {3})}, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs1() {
     final DoubleTimeSeries<?>[] tsArray = (new DoubleTimeSeries[] {new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1l, 2l, 3l}, new double[] {3, 4, 5}),
         new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1l, 2l}, new double[] {3, 4})});
     getCalculator().testTimeSeries(tsArray, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs2() {
     final DoubleTimeSeries<?>[] tsArray = new DoubleTimeSeries[] {new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1l, 2l, 3l}, new double[] {3, 4, 5}),
         new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1l, 2l, 3l}, new double[] {4, 5, 6}), new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {2l, 3l, 4l}, new double[] {4, 5, 6})};
@@ -96,40 +94,40 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
 
   @Test
   public void testTimeSeries() {
-    testHighLowTimeSeries(LOW_TS, HIGH_TS);
-    testHighLowCloseTimeSeries(LOW_TS, HIGH_TS, CLOSE_TS);
-    testHighLowCloseTimeSeries(LOW_TS, CLOSE_TS, HIGH_TS);
-    testHighLowCloseTimeSeries(HIGH_TS, CLOSE_TS, LOW_TS);
-    testHighLowCloseTimeSeries(CLOSE_TS, HIGH_TS, LOW_TS);
-    testHighLowCloseTimeSeries(CLOSE_TS, LOW_TS, HIGH_TS);
+    assertHighLowTimeSeries(LOW_TS, HIGH_TS);
+    assertHighLowCloseTimeSeries(LOW_TS, HIGH_TS, CLOSE_TS);
+    assertHighLowCloseTimeSeries(LOW_TS, CLOSE_TS, HIGH_TS);
+    assertHighLowCloseTimeSeries(HIGH_TS, CLOSE_TS, LOW_TS);
+    assertHighLowCloseTimeSeries(CLOSE_TS, HIGH_TS, LOW_TS);
+    assertHighLowCloseTimeSeries(CLOSE_TS, LOW_TS, HIGH_TS);
   }
 
-  private void testHighLowTimeSeries(final DoubleTimeSeries<Long> x, final DoubleTimeSeries<Long> y) {
+  private void assertHighLowTimeSeries(final DoubleTimeSeries<Long> x, final DoubleTimeSeries<Long> y) {
     try {
       CALCULATOR.testHighLow(x, y);
-      fail();
+      Assert.fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }
     try {
       LENIENT_CALCULATOR.testHighLow(x, y);
-      fail();
+      Assert.fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }
     FOOLISH_CALCULATOR.testHighLow(x, y);
   }
 
-  private void testHighLowCloseTimeSeries(final DoubleTimeSeries<Long> x, final DoubleTimeSeries<Long> y, final DoubleTimeSeries<Long> z) {
+  private void assertHighLowCloseTimeSeries(final DoubleTimeSeries<Long> x, final DoubleTimeSeries<Long> y, final DoubleTimeSeries<Long> z) {
     try {
       CALCULATOR.testHighLowClose(x, y, z);
-      fail();
+      Assert.fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }
     try {
       LENIENT_CALCULATOR.testHighLowClose(x, y, z);
-      fail();
+      Assert.fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }

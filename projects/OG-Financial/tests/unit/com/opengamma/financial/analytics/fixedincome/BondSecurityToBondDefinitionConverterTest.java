@@ -6,13 +6,11 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
@@ -57,33 +55,33 @@ public class BondSecurityToBondDefinitionConverterTest {
       SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(FIRST_ACCRUAL_DATE),
       new DateTimeWithZone(SETTLEMENT_DATE), new DateTimeWithZone(FIRST_COUPON_DATE), 100, 100000000, 5000, 1000, 100, 100);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullHolidaySource() {
     new BondSecurityToBondDefinitionConverter(null, CONVENTION_SOURCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConventionSource() {
     new BondSecurityToBondDefinitionConverter(HOLIDAY_SOURCE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity1() {
     CONVERTER.getBond((BondSecurity) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity2() {
     CONVERTER.getBond((BondSecurity) null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity3() {
     CONVERTER.getBond((BondSecurity) null, false, CONVENTION_SOURCE.getConventionBundle(Identifier.of(
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     CONVERTER.getBond(BOND, false, null);
   }

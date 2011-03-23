@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -40,6 +42,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   private static final double SIGMA3 = 0.35;
   private static final Set<Greek> GREEK_SET = Collections.singleton(Greek.FAIR_PRICE);
 
+  @Test
   public void test(final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model, final double eps) {
     final AmericanVanillaOptionDefinition definition = new AmericanVanillaOptionDefinition(1., NINE_MONTHS, true);
     super.testInputs(model, definition);
@@ -47,85 +50,85 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
     AmericanVanillaOptionDefinition put = new AmericanVanillaOptionDefinition(STRIKE, TENTH_YEAR, false);
     final VolatilitySurface surface = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA1));
     StandardOptionDataBundle vars = new StandardOptionDataBundle(CURVE, B, surface, SPOT1, DATE);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 0.0205, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 0.0205, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 1.8757, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 1.8757, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 10, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 10, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA2))).withSpot(SPOT1);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 0.3151, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 0.3151, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 3.1256, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 3.1256, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 10.3725, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 10.3725, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA3))).withSpot(SPOT1);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 0.9479, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 0.9479, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 4.3746, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 4.3746, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 11.1578, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 11.1578, eps);
 
     call = new AmericanVanillaOptionDefinition(STRIKE, SIX_MONTHS, true);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA1))).withSpot(SPOT1);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 0.8099, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 0.8099, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 4.0628, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 4.0628, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 10.7898, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 10.7898, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA2))).withSpot(SPOT1);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 2.7180, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 2.7180, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 6.7661, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 6.7661, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 12.9814, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 12.9814, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA3))).withSpot(SPOT1);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 4.9665, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 4.9665, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 9.4608, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 9.4608, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(call, vars, GREEK_SET), 15.5137, eps);
+    assertResult(model.getGreeks(call, vars, GREEK_SET), 15.5137, eps);
 
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA1))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 10.0000, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 10.0000, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 1.8757, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 1.8757, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 0.0408, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 0.0408, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA2))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 10.2280, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 10.2280, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 3.1256, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 3.1256, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 0.4552, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 0.4552, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA3))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 10.8663, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 10.8663, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 4.3746, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 4.3746, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 1.2383, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 1.2383, eps);
 
     put = new AmericanVanillaOptionDefinition(STRIKE, SIX_MONTHS, false);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA1))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 10.54, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 10.54, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 4.0628, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 4.0628, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 1.0689, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 1.0689, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA2))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 12.4097, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 12.4097, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 6.7661, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 6.7661, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 3.2932, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 3.2932, eps);
     vars = vars.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(SIGMA3))).withSpot(SPOT1);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 14.6445, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 14.6445, eps);
     vars = vars.withSpot(SPOT2);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 9.4608, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 9.4608, eps);
     vars = vars.withSpot(SPOT3);
-    testResult(model.getGreeks(put, vars, GREEK_SET), 5.8374, eps);
+    assertResult(model.getGreeks(put, vars, GREEK_SET), 5.8374, eps);
   }
 
-  private void testResult(final GreekResultCollection result, final double value, final double eps) {
+  private void assertResult(final GreekResultCollection result, final double value, final double eps) {
     assertEquals(result.get(Greek.FAIR_PRICE), value, eps);
   }
 

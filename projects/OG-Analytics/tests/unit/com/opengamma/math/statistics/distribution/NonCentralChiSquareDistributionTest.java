@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
 
 /**
  * 
@@ -18,32 +17,32 @@ public class NonCentralChiSquareDistributionTest {
   private static final double NON_CENTRALITY = 1.5;
   private static final NonCentralChiSquareDistribution DIST = new NonCentralChiSquareDistribution(DOF, NON_CENTRALITY);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDOF() {
     new NonCentralChiSquareDistribution(-DOF, NON_CENTRALITY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNonCentrality() {
     new NonCentralChiSquareDistribution(DOF, -NON_CENTRALITY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX() {
     DIST.getCDF(null);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testInverseCDF() {
     DIST.getInverseCDF(0.5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testPDF() {
     DIST.getPDF(0.5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testRandom() {
     DIST.nextRandom();
   }

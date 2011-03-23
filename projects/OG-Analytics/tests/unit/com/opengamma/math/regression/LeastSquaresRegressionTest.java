@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 
 public class LeastSquaresRegressionTest {
 
@@ -16,21 +15,21 @@ public class LeastSquaresRegressionTest {
     final LeastSquaresRegression regression = new OrdinaryLeastSquaresRegression();
     try {
       regression.checkData(null, null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     double[][] x = new double[0][0];
     try {
       regression.checkData(x, null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     double[] y = new double[0];
     try {
       regression.checkData(x, (double[]) null, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -38,21 +37,21 @@ public class LeastSquaresRegressionTest {
     y = new double[3];
     try {
       regression.checkData(x, (double[]) null, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     x = new double[][] {new double[] {1., 2., 3.}, new double[] {4., 5.}, new double[] {6., 7., 8.}, new double[] {9., 0., 0.}};
     try {
       regression.checkData(x, (double[]) null, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     x[1] = new double[] {4., 5., 6.};
     try {
       regression.checkData(x, (double[]) null, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -60,35 +59,35 @@ public class LeastSquaresRegressionTest {
     double[] w1 = new double[0];
     try {
       regression.checkData(x, w1, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     double[][] w = new double[0][0];
     try {
       regression.checkData(x, w, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     w1 = new double[3];
     try {
       regression.checkData(x, w1, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     w = new double[3][0];
     try {
       regression.checkData(x, w, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     w = new double[][] {new double[] {1., 2., 3.}, new double[] {4., 5.}, new double[] {6., 7., 8.}, new double[] {9., 0., 0.}};
     try {
       regression.checkData(x, w, y);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

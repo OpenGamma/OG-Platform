@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -32,22 +31,22 @@ public class SampleCovarianceCalculatorTest {
     VAR0 = calc.evaluate(X0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     CALCULATOR.evaluate((double[][]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOneTS() {
     CALCULATOR.evaluate(X0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOneShortTS() {
     CALCULATOR.evaluate(new double[] {1}, X1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthTS() {
     CALCULATOR.evaluate(new double[] {1, 2, 3, 4, 5, 6, 7, 8}, X1);
   }

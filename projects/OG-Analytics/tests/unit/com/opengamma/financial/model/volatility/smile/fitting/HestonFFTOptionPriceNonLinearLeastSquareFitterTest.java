@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -21,27 +20,27 @@ public class HestonFFTOptionPriceNonLinearLeastSquareFitterTest extends LeastSqu
   private static final HestonFFTOptionPriceNonLinearLeastSquareFitter FITTER = new HestonFFTOptionPriceNonLinearLeastSquareFitter();
   private static final double[] INITIAL_VALUES = new double[] {0.5, 0.3, 0.2, 0.1, 0};
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
     new HestonFFTOptionPriceNonLinearLeastSquareFitter(null, ALPHA, LIMIT_TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
     new HestonFFTOptionPriceNonLinearLeastSquareFitter(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha() {
     new HestonFFTOptionPriceNonLinearLeastSquareFitter(INTERPOLATOR, 0, LIMIT_TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongAlpha() {
     new HestonFFTOptionPriceNonLinearLeastSquareFitter(INTERPOLATOR, -1, LIMIT_TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance() {
     new HestonFFTOptionPriceNonLinearLeastSquareFitter(INTERPOLATOR, ALPHA, -LIMIT_TOLERANCE);
   }

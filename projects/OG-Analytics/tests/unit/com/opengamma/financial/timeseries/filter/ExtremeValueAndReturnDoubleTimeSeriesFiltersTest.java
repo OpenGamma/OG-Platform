@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -35,77 +33,77 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
     VALUE_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS2() {
     RETURN_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadRange() {
     new ExtremeValueDoubleTimeSeriesFilter(MAX, MIN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMaxValue() {
     VALUE_FILTER.setMaximumValue(MIN - 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMaxReturn() {
     RETURN_FILTER.setMaximumValue(MIN - 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMaxEqualsMinValue() {
     VALUE_FILTER.setMaximumValue(MIN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMaxEqualsMinReturn() {
     RETURN_FILTER.setMaximumValue(MIN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMinValue() {
     VALUE_FILTER.setMinimumValue(MAX + 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMinReturn() {
     RETURN_FILTER.setMinimumValue(MAX + 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMinEqualsMaxValue() {
     VALUE_FILTER.setMinimumValue(MAX);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetMinEqualsMaxReturn() {
     RETURN_FILTER.setMinimumValue(MAX);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetCalculator() {
     RETURN_FILTER.setReturnCalculator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetRangeValue() {
     VALUE_FILTER.setRange(MAX, MIN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetRangeReturn() {
     RETURN_FILTER.setRange(MAX, MIN);
   }

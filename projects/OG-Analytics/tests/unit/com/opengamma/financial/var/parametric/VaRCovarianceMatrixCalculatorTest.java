@@ -6,15 +6,13 @@
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.covariance.CovarianceCalculator;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
@@ -259,27 +257,27 @@ public class VaRCovarianceMatrixCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new VaRCovarianceMatrixCalculator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALC.evaluate((SensitivityAndReturnDataBundle[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyData() {
     CALC.evaluate(new SensitivityAndReturnDataBundle[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataValue() {
     CALC.evaluate(new SensitivityAndReturnDataBundle[] {null});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testThirdOrderSensitivity() {
     final SensitivityAndReturnDataBundle data = new SensitivityAndReturnDataBundle(new ValueGreekSensitivity(new ValueGreek(Greek.SPEED), "A"), 10,
         Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new long[] {1},

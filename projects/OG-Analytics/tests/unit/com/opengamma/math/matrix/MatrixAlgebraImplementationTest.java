@@ -5,11 +5,10 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
 
 /**
  * 
@@ -37,237 +36,237 @@ public class MatrixAlgebraImplementationTest {
   };
   private static final double EPS = 1e-10;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsCondition() {
     COMMONS.getCondition(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtCondition() {
     COLT.getCondition(M1);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGCondition() {
     OG.getCondition(M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsDeterminant() {
     COMMONS.getCondition(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtDeterminant() {
     COLT.getCondition(M1);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGDeterminant() {
     OG.getDeterminant(M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsInnerProduct() {
     COMMONS.getInnerProduct(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtInnerProduct() {
     COLT.getInnerProduct(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGInnerProduct1() {
     OG.getInnerProduct(M1, new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGInnerProduct2() {
     OG.getInnerProduct(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsInverse() {
     COMMONS.getInverse(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtInverse() {
     COLT.getInverse(M1);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGInverse() {
     OG.getInverse(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsNorm1() {
     COMMONS.getNorm1(M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtNorm1() {
     COLT.getNorm1(M5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGNorm1() {
     OG.getNorm1(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsNorm2() {
     COMMONS.getNorm2(M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtNorm2() {
     COLT.getNorm2(M5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGNorm2_1() {
     OG.getNorm2(M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGNorm2_2() {
     OG.getNorm2(M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsNormInfinity() {
     COMMONS.getNormInfinity(M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtNormInfinity() {
     COLT.getNormInfinity(M5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGNormInfinity() {
     OG.getNormInfinity(M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsOuterProduct() {
     COMMONS.getOuterProduct(M3, M4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtOuterProduct() {
     COLT.getOuterProduct(M3, M4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGOuterProduct() {
     OG.getOuterProduct(M3, M4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsPower() {
     COMMONS.getPower(M1, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtPower() {
     COLT.getPower(M2, 2);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGPower1() {
     OG.getPower(M2, 2);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testOGPower2() {
     OG.getPower(M2, 2.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsTrace() {
     COMMONS.getTrace(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtTrace() {
     COLT.getTrace(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGTrace1() {
     OG.getTrace(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGTrace2() {
     OG.getTrace(new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsTranspose() {
     COMMONS.getTranspose(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtTranspose() {
     COLT.getTranspose(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGTranspose() {
     OG.getTranspose(M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsMultiply1() {
     COMMONS.multiply(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtMultiply1() {
     COLT.multiply(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsMultiply2() {
     COMMONS.multiply(M3, M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtMultiply2() {
     COLT.multiply(M3, M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCommonsMultiply3() {
     COMMONS.multiply(M5, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testColtMultiply3() {
     COLT.multiply(M5, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply1() {
     OG.multiply(M5, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply2() {
     OG.multiply(new DoubleMatrix1D(new double[] {1, 2, 3}), M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply3() {
     OG.multiply(M3, new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOGMultiply4() {
     OG.multiply(new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}), M3);
   }

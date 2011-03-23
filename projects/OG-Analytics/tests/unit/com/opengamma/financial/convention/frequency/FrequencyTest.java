@@ -5,38 +5,36 @@
  */
 package com.opengamma.financial.convention.frequency;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.Period;
-
-import org.junit.Test;
 
 /**
  * 
  */
 public class FrequencyTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     new SimpleFrequency(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeFrequency() {
     new SimpleFrequency("a", -32);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
     new PeriodFrequency(null, Period.ofDays(2));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPeriod() {
     new PeriodFrequency("X", null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoEquivalent() {
     new SimpleFrequency("a", 23).toPeriodFrequency();
   }

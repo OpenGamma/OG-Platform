@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.annuity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 
@@ -18,27 +16,27 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 public class YieldSensitivityCalculatorTest {
   private static YieldSensitivityCalculator YSC = YieldSensitivityCalculator.getInstance();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity1() {
     YSC.calculateYield(null, 1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity2() {
     YSC.calculatePriceForYield(null, 0.05);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity3() {
     YSC.calculateNthOrderSensitivity(null, 1.0, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity4() {
     YSC.calculateNthOrderSensitivityFromYield(null, 0.04, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
     YSC.calculateNthOrderSensitivity(new GenericAnnuity<CouponFixed>(new CouponFixed[] {new CouponFixed(2, "A", 2, 0.4)}), 1, -1);
   }

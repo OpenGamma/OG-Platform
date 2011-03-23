@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 1.5;
@@ -17,7 +17,7 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
   private static final ProbabilityDistribution<Double> DIST = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
   private static final double LARGE_X = 1e10;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadConstructor() {
     new GeneralizedExtremeValueDistribution(MU, -SIGMA, KSI);
   }
@@ -32,12 +32,12 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
   public void testSupport() {
     ProbabilityDistribution<Double> dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
     double limit = MU - SIGMA / KSI;
-    testLimit(dist, limit - EPS);
+    assertLimit(dist, limit - EPS);
     assertEquals(dist.getCDF(limit + EPS), 0, EPS);
     assertEquals(dist.getCDF(LARGE_X), 1, EPS);
     dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, -KSI);
     limit = MU + SIGMA / KSI;
-    testLimit(dist, limit + EPS);
+    assertLimit(dist, limit + EPS);
     assertEquals(dist.getCDF(-LARGE_X), 0, EPS);
     assertEquals(dist.getCDF(limit - EPS), 1, EPS);
     dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, 0);
@@ -45,16 +45,16 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
     assertEquals(dist.getCDF(LARGE_X), 1, EPS);
   }
 
-  private void testLimit(final ProbabilityDistribution<Double> dist, final double limit) {
+  private void assertLimit(final ProbabilityDistribution<Double> dist, final double limit) {
     try {
       dist.getCDF(limit);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       dist.getPDF(limit);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

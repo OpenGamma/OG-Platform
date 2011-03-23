@@ -12,7 +12,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
+import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 
 /**
  * A calculator to determine the upper limit of the Fourier integral for a characteristic function {@latex.inline $\\phi$}.
@@ -29,7 +29,7 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
  */
 public class IntegralLimitCalculator {
   private static BracketRoot s_bracketRoot = new BracketRoot();
-  private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder(1e-1);
+  private static final RealSingleRootFinder s_root = new BrentSingleRootFinder(1e-1);
 
   /**
    * 

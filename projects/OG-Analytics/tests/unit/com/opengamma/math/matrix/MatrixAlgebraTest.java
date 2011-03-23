@@ -5,11 +5,10 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
 
 /**
  * 
@@ -37,37 +36,37 @@ public class MatrixAlgebraTest {
   };
   private static final double EPS = 1e-10;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWrongSize() {
     ALGEBRA.add(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentRowNumber1D() {
     ALGEBRA.add(M1, new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentRowNumber2D() {
     ALGEBRA.add(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}, new double[] {5, 6}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentColumnNumber2D() {
     ALGEBRA.add(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWrongType1() {
     ALGEBRA.add(M1, M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWrongType2() {
     ALGEBRA.add(M3, M5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testAddWrongType3() {
     ALGEBRA.add(M5, M5);
   }
@@ -82,37 +81,37 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {6, 8}, new double[] {10, 12}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractWrongSize() {
     ALGEBRA.subtract(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentRowNumber1D() {
     ALGEBRA.subtract(M1, new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentRowNumber2D() {
     ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}, new double[] {5, 6}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentColumnNumber2D() {
     ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractWrongType1() {
     ALGEBRA.subtract(M1, M5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractWrongType2() {
     ALGEBRA.subtract(M3, M5);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testSubtractWrongType3() {
     ALGEBRA.subtract(M5, M5);
   }
@@ -127,7 +126,7 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {-4, -4}, new double[] {-4, -4}}));
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testScaleWrongType() {
     ALGEBRA.scale(M5, 0.5);
   }
@@ -146,12 +145,12 @@ public class MatrixAlgebraTest {
     assertMatrixEquals(m, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDivide1D() {
     ALGEBRA.divide(M1, M3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDivide2D() {
     ALGEBRA.divide(M3, M1);
   }

@@ -5,20 +5,18 @@
  */
 package com.opengamma.financial.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Collection;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.test.MockSecurity;
@@ -39,7 +37,7 @@ public class EHCachingFinancialSecuritySourceTest {
   private MockSecurity _security1 = new MockSecurity("");
   private MockSecurity _security2 = new MockSecurity("");
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {    
     _underlyingSecuritySource = new MockFinancialSecuritySource();
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, EHCacheUtils.createCacheManager ());
@@ -48,7 +46,7 @@ public class EHCachingFinancialSecuritySourceTest {
     _security2.addIdentifier(_secId2);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _underlyingSecuritySource = null;
     if (_cachingSecuritySource != null) {

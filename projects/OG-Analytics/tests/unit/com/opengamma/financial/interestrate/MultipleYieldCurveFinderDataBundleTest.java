@@ -6,15 +6,13 @@
 package com.opengamma.financial.interestrate;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -73,36 +71,36 @@ public class MultipleYieldCurveFinderDataBundleTest {
     DATA = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivatives() {
     new MultipleYieldCurveFinderDataBundle(null, PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParRates() {
     new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNodes() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolators() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, null, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSensitivityCalculators() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthParRates() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[]{0.01}, null, NODES, INTERPOLATORS, null);    
   }
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNameClash() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
@@ -110,32 +108,32 @@ public class MultipleYieldCurveFinderDataBundleTest {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDerivatives() {
     new MultipleYieldCurveFinderDataBundle(new ArrayList<InterestRateDerivative>(), PAR_RATES, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1, new YieldCurve(ConstantDoublesCurve.from(2.)))),
         NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSize1() {
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSize2() {
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
     calculators.put(CURVE_NAME2, CALCULATOR1);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNames1() {
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
@@ -143,7 +141,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNames2() {
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
     calculators.put(CURVE_NAME2, CALCULATOR1);
@@ -151,7 +149,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue1() {
     final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
     nodes.put(CURVE_NAME1, TIMES1);
@@ -160,7 +158,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue2() {
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
@@ -168,7 +166,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, SENSITIVITY_CALCULATORS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue3() {
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> calculators = new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
     calculators.put(CURVE_NAME2, CALCULATOR1);
@@ -176,32 +174,32 @@ public class MultipleYieldCurveFinderDataBundleTest {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, calculators);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     DATA.getCurveNodePointsForCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
     DATA.getInterpolatorForCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName3() {
     DATA.getSensitivityCalculatorForName(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongName1() {
     DATA.getCurveNodePointsForCurve("X");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongName2() {
     DATA.getInterpolatorForCurve("Y");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongName3() {
     DATA.getSensitivityCalculatorForName("Z");
   }

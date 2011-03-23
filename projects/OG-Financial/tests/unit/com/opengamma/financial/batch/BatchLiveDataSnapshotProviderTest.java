@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
-
-import org.junit.Test;
 
 import com.opengamma.core.historicaldata.impl.MockHistoricalDataSource;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;

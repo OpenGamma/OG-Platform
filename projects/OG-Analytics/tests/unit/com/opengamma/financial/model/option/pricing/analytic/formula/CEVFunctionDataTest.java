@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,7 +19,7 @@ public class CEVFunctionDataTest {
   private static final double BETA = 0.96;
   private static final CEVFunctionData DATA = new CEVFunctionData(F, DF, SIGMA, BETA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowBeta() {
     new CEVFunctionData(F, 0, SIGMA, -BETA);
   }

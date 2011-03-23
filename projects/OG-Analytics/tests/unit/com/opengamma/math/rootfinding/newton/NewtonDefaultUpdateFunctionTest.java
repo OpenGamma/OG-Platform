@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -17,12 +16,12 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class NewtonDefaultUpdateFunctionTest {
   private static final NewtonDefaultUpdateFunction F = new NewtonDefaultUpdateFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     F.getUpdatedMatrix(null, null, null, null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     F.getUpdatedMatrix(new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
