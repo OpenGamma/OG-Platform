@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collection;
 import java.util.Random;
-
-import org.junit.Test;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
-import org.junit.Test;
-
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 
 /**

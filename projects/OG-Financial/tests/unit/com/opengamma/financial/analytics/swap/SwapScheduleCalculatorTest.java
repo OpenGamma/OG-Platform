@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.analytics.swap;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
-import org.junit.Test;
-
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -112,32 +110,32 @@ public class SwapScheduleCalculatorTest {
   };
   private static final SwapSecurity SECURITY = new SwapSecurity(new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(EFFECTIVE), new DateTimeWithZone(MATURITY), "", PAY_LEG, RECEIVE_LEG);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity1() {
     SwapScheduleCalculator.getPayLegPaymentTimes(null, CALENDAR, EFFECTIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar1() {
     SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, null, EFFECTIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecurity2() {
     SwapScheduleCalculator.getReceiveLegPaymentTimes(null, CALENDAR, EFFECTIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar2() {
     SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, null, EFFECTIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate() {
     SwapScheduleCalculator.getPaymentTimes(null, MATURITY, PAY_LEG, CALENDAR, EFFECTIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNow() {
     SwapScheduleCalculator.getPaymentTimes(EFFECTIVE, MATURITY, PAY_LEG, CALENDAR, null);
   }
