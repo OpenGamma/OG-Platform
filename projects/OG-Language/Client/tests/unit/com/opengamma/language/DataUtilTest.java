@@ -7,10 +7,9 @@
 package com.opengamma.language;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 
 /**
  * Tests the methods in the {@link DataUtil} class.
@@ -42,35 +41,35 @@ public class DataUtilTest {
     assertArrayEquals(values, data.getMatrix());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingleNull() {
     DataUtil.of((Value) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLinearNull() {
     DataUtil.of((Value[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLinearNullElement() {
     final Value[] values = new Value[] {ValueUtil.of(1), null, ValueUtil.of(2)};
     DataUtil.of(values);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNull() {
     DataUtil.of((Value[][]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNullElement() {
     final Value[][] values = new Value[][] {new Value[] {ValueUtil.of(1), null},
         new Value[] {ValueUtil.of(3), ValueUtil.of(4)}};
     DataUtil.of(values);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixNullArray() {
     final Value[][] values = new Value[][] {new Value[] {ValueUtil.of(1), ValueUtil.of(2)}, null};
     DataUtil.of(values);

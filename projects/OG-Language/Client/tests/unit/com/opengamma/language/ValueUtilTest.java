@@ -6,12 +6,11 @@
 
 package com.opengamma.language;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
 
 /**
  * Tests the methods in the {@link ValueUtil} class.
@@ -22,7 +21,7 @@ public class ValueUtilTest {
   public void testBoolean() {
     final Value value = ValueUtil.of(true);
     assertNotNull(value);
-    assertEquals(true, value.getBoolValue());
+    assertEquals(Boolean.TRUE, value.getBoolValue());
   }
 
   @Test
@@ -60,12 +59,12 @@ public class ValueUtilTest {
     assertEquals("Foo", value.getStringValue());
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullString() {
     ValueUtil.of((String) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMessage() {
     ValueUtil.of((FudgeFieldContainer) null);
   }
