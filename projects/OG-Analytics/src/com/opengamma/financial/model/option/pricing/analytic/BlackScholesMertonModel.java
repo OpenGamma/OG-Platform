@@ -93,7 +93,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
    * Greek visitor for this class. Analytic solutions for the greeks are used.
    */
   @SuppressWarnings("synthetic-access")
-  private class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition> {
+  protected class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition> {
     private final double _s;
     private final double _k;
     private final double _sigma;
@@ -108,8 +108,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * @param data The data, not null
-     * @param pricingFunction, The pricing function, not null
-     * @param definition, The definition, not null
+     * @param pricingFunction The pricing function, not null
+     * @param definition The option definition, not null
      */
     public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle data, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
       super(pricingFunction, data, definition);
@@ -191,7 +191,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
      * {@inheritDoc}
      * {@latex.ilb %preamble{\\usepackage{amsmath}}
      * \\begin{align*}
-     * \\text{dVannadVol} = \\frac{\\text{Vanna}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - 1\\right)
+     * \\text{dVanna dVol} = \\frac{\\text{Vanna}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - 1\\right)
      * \\end{align*}
      * }
      */
@@ -205,8 +205,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
      * {@inheritDoc}
      * {@latex.ilb %preamble{\\usepackage{amsmath}}
      * \\begin{align*}
-     * \\text{dZetadVol}_{call} &= -\\frac{n(d_2)d_1}{\\sigma}\\\\
-     * \\text{dZetadVol}_{put} &= \\frac{n(d_2)d_1}{\\sigma}
+     * \\text{dZeta dVol}_{call} &= -\\frac{n(d_2)d_1}{\\sigma}\\\\
+     * \\text{dZeta dVol}_{put} &= \\frac{n(d_2)d_1}{\\sigma}
      * \\end{align*}
      * }
      */
@@ -304,10 +304,6 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\end{align*}
-     * }
      */
     @Override
     public Double visitPrice() {
@@ -560,10 +556,6 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\end{align*}
-     * }
      */
     @Override
     public Double visitZeta() {
