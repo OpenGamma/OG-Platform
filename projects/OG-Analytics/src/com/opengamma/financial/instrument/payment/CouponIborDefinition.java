@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
 public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
-   * Ibor-like index on which the coupon fixes. The index currency should be th same as the index currency.
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
    */
   private final IborIndex _index;
   /**

@@ -53,32 +53,32 @@ public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCas
   public void testGaussianRadialBasisFunction() {
     double r0 = 1;
     InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), false);
-    testCosExp(interpolator, 5e-2);
+    assertCosExp(interpolator, 5e-2);
     r0 = 5;
     // why does normalised fit much better for flat surfaces?
     interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), true);
-    testFlat(interpolator, 1e-6);
+    assertFlat(interpolator, 1e-6);
   }
 
   @Test
   public void testMultiquadraticRadialBasisFunction() {
     final double r0 = 1;
     final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new GaussianRadialBasisFunction(r0), false);
-    testCosExp(interpolator, 1e-2);
+    assertCosExp(interpolator, 1e-2);
   }
 
   @Test
   public void testInverseMultiquadraticRadialBasisFunction() {
     final double r0 = 2;
     final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new InverseMultiquadraticRadialBasisFunction(r0), true);
-    testCosExp(interpolator, 1e-2);
+    assertCosExp(interpolator, 1e-2);
   }
 
   @Test
   public void testThinPlateSplineRadialBasisFunction() {
     final double r0 = 1.0;
     final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> interpolator = new RadialBasisFunctionInterpolatorND(new ThinPlateSplineRadialBasisFunction(r0), true);
-    testCosExp(interpolator, 2e-2);//TODO this used to work with tol of 1e-2 ??
+    assertCosExp(interpolator, 2e-2);//TODO this used to work with tol of 1e-2 ??
   }
 
 }

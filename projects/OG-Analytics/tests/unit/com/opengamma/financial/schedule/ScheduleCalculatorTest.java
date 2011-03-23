@@ -6,15 +6,21 @@
 package com.opengamma.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -30,6 +36,14 @@ public class ScheduleCalculatorTest {
   private static final Calendar WEEKEND = new WeekendCalendar();
   private static final Calendar FIRST = new FirstOfMonthCalendar();
   private static final ZonedDateTime NOW = DateUtil.getUTCDate(2010, 1, 1);
+
+  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final boolean SHORT_STUB = true;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate1() {
@@ -188,6 +202,31 @@ public class ScheduleCalculatorTest {
         new ZonedDateTime[] {DateUtil.getUTCDate(2010, 1, 29), DateUtil.getUTCDate(2010, 2, 26), DateUtil.getUTCDate(2010, 3, 31), DateUtil.getUTCDate(2010, 4, 30), DateUtil.getUTCDate(2010, 5, 31),
             DateUtil.getUTCDate(2010, 6, 30), DateUtil.getUTCDate(2010, 7, 30), DateUtil.getUTCDate(2010, 8, 31), DateUtil.getUTCDate(2010, 9, 30), DateUtil.getUTCDate(2010, 10, 29),
             DateUtil.getUTCDate(2010, 11, 30), DateUtil.getUTCDate(2010, 12, 31)});
+    // End date is modified
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 3, 18)});
+    // Check modified in modified following.
+    ZonedDateTime settlementDateModified = DateUtil.getUTCDate(2011, 3, 31);
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(settlementDateModified, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 30), DateUtil.getUTCDate(2012, 3, 30), DateUtil.getUTCDate(2012, 9, 28), DateUtil.getUTCDate(2013, 3, 29)});
+    // End-of-month
+    ZonedDateTime settlementDateEOM = DateUtil.getUTCDate(2011, 2, 28);
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(settlementDateEOM, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 8, 31), DateUtil.getUTCDate(2012, 2, 29), DateUtil.getUTCDate(2012, 8, 31), DateUtil.getUTCDate(2013, 2, 28)});
+    // Stub: short-last
+    Period tenorLong = Period.ofMonths(27);
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 3, 18), DateUtil.getUTCDate(2013, 6, 17)});
+    // Stub: long-last
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 19), DateUtil.getUTCDate(2012, 3, 19), DateUtil.getUTCDate(2012, 9, 17), DateUtil.getUTCDate(2013, 6, 17)});
+    // Stub: very short period: short stub.
+    Period tenorVeryShort = Period.ofMonths(3);
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorVeryShort, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 6, 17)});
+    // Stub: very short period: long stub.
+    assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorVeryShort, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
+        new ZonedDateTime[] {DateUtil.getUTCDate(2011, 6, 17)});
   }
 
   @Test

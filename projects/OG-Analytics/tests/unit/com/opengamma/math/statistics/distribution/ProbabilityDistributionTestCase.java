@@ -6,37 +6,36 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.testng.Assert;
+
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
  */
-public class ProbabilityDistributionTestCase {
+public abstract class ProbabilityDistributionTestCase {
+
   protected static final double EPS = 1e-5;
   protected static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
-  @Test
-  public void testCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
-    testCDFWithNull(dist);
+  protected void assertCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
+    assertCDFWithNull(dist);
     for (int i = 0; i < p.length; i++) {
       assertEquals(dist.getCDF(x[i]), p[i], EPS);
     }
   }
 
-  @Test
-  public void testPDF(final double[] z, final double[] x, final ProbabilityDistribution<Double> dist) {
-    testPDFWithNull(dist);
+  protected void assertPDF(final double[] z, final double[] x, final ProbabilityDistribution<Double> dist) {
+    assertPDFWithNull(dist);
     for (int i = 0; i < z.length; i++) {
       assertEquals(dist.getPDF(x[i]), z[i], EPS);
     }
   }
 
-  @Test
-  public void testInverseCDF(final double[] x, final ProbabilityDistribution<Double> dist) {
-    testInverseCDFWithNull(dist);
+  protected void assertInverseCDF(final double[] x, final ProbabilityDistribution<Double> dist) {
+    assertInverseCDFWithNull(dist);
     for (final double d : x) {
       assertEquals(dist.getInverseCDF(dist.getCDF(d)), d, EPS);
     }
@@ -54,8 +53,7 @@ public class ProbabilityDistributionTestCase {
     }
   }
 
-  @Test
-  public void testInverseCDFWithNull(final ProbabilityDistribution<Double> dist) {
+  protected void assertInverseCDFWithNull(final ProbabilityDistribution<Double> dist) {
     try {
       dist.getInverseCDF(null);
       Assert.fail();
@@ -64,8 +62,7 @@ public class ProbabilityDistributionTestCase {
     }
   }
 
-  @Test
-  public void testPDFWithNull(final ProbabilityDistribution<Double> dist) {
+  protected void assertPDFWithNull(final ProbabilityDistribution<Double> dist) {
     try {
       dist.getPDF(null);
       Assert.fail();
@@ -74,8 +71,7 @@ public class ProbabilityDistributionTestCase {
     }
   }
 
-  @Test
-  public void testCDFWithNull(final ProbabilityDistribution<Double> dist) {
+  protected void assertCDFWithNull(final ProbabilityDistribution<Double> dist) {
     try {
       dist.getCDF(null);
       Assert.fail();

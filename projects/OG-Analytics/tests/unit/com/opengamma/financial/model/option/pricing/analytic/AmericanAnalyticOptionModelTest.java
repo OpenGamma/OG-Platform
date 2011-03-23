@@ -42,7 +42,7 @@ public abstract class AmericanAnalyticOptionModelTest extends AnalyticOptionMode
 
   protected void assertValid(final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model, final double eps) {
     final AmericanVanillaOptionDefinition definition = new AmericanVanillaOptionDefinition(1., NINE_MONTHS, true);
-    super.testInputs(model, definition);
+    super.assertInputs(model, definition);
     AmericanVanillaOptionDefinition call = new AmericanVanillaOptionDefinition(STRIKE, TENTH_YEAR, true);
     AmericanVanillaOptionDefinition put = new AmericanVanillaOptionDefinition(STRIKE, TENTH_YEAR, false);
     final VolatilitySurface surface = new VolatilitySurface(ConstantDoublesSurface.from(SIGMA1));

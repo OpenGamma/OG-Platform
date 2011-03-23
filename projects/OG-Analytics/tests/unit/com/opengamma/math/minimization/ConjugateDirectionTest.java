@@ -18,7 +18,7 @@ public class ConjugateDirectionTest extends MultidimensionalMinimizerTestCase {
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMIZER, EPS);
+    super.assertSolvingRosenbrock(MINIMIZER, EPS);
   }
 
   /**
@@ -31,7 +31,7 @@ public class ConjugateDirectionTest extends MultidimensionalMinimizerTestCase {
 
   @Test
   public void testSolvingCoupledRosenbrock() {
-    super.testSolvingCoupledRosenbrock(MINIMIZER, 10 * EPS);
+    super.assertSolvingCoupledRosenbrock(MINIMIZER, 10 * EPS);
   }
 
 }

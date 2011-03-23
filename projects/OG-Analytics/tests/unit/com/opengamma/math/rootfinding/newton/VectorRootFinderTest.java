@@ -16,7 +16,7 @@ import com.opengamma.math.rootfinding.VectorRootFinder;
 /**
  * 
  */
-public class VectorRootFinderTest {
+public abstract class VectorRootFinderTest {
   protected static final double EPS = 1e-6;
   protected static final double TOLERANCE = 1e-8;
   protected static final int MAXSTEPS = 100;
@@ -176,8 +176,7 @@ public class VectorRootFinderTest {
     DUMMY.getRoot(LINEAR, (DoubleMatrix1D) null);
   }
 
-  @Test
-  public void testLinear(final VectorRootFinder rootFinder, final double eps) {
+  protected void assertLinear(final VectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {0.0, 0.0});
     final DoubleMatrix1D x1 = rootFinder.getRoot(LINEAR, x0);
     assertEquals(1.0, x1.getData()[0], eps);
@@ -188,16 +187,14 @@ public class VectorRootFinderTest {
    * Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
    * we switch to using SVD rather than the default LU
    */
-  @Test
-  public void testFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
+  protected void assertFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {-0.0, 0.0});
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, JACOBIAN2D, x0);
     assertEquals(1.0, x1.getEntry(0), eps);
     assertEquals(1.0, x1.getEntry(1), eps);
   }
 
-  @Test
-  public void testFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
+  protected void assertFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {0.8, 0.2, -0.7});
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D, x0);
     assertEquals(1.0, x1.getData()[0], eps);
@@ -205,8 +202,7 @@ public class VectorRootFinderTest {
     assertEquals(-1.0, x1.getData()[2], eps);
   }
 
-  @Test
-  public void testYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {
+  protected void assertYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {
     final int n = TIME_GRID.length;
     final double[] flatCurve = new double[n];
     for (int i = 0; i < n; i++) {

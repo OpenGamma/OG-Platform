@@ -41,7 +41,7 @@ public class BrentMinimizer1DTest extends Minimizer1DTestCase {
 
   @Test
   public void test() {
-    super.testInputs(MINIMIZER);
-    super.test(MINIMIZER);
+    super.assertInputs(MINIMIZER);
+    super.assertMinimizer(MINIMIZER);
   }
 }

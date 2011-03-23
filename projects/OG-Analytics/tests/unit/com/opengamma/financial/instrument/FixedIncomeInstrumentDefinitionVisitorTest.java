@@ -238,5 +238,15 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     public String visitCouponCMS(CouponCMSDefinition payment) {
       return "CouponCMS2";
     }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+      return "CouponIborSpread1";
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment) {
+      return "CouponIborSpread2";
+    }
   }
 }

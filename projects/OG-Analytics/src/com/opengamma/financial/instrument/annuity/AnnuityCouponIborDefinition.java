@@ -40,9 +40,30 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
   public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, Tenor tenor, double notional, IborIndex index, boolean isPayer) {
 
     Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(index, "index");
+    Validate.notNull(tenor, "tenor");
     Validate.isTrue(notional > 0, "notional <= 0");
 
     ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), tenor);
+    return from(settlementDate, maturityDate, notional, index, isPayer);
+  }
+
+  /**
+   * Annuity builder from the conventions and common characteristics.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, ZonedDateTime maturityDate, double notional, IborIndex index, boolean isPayer) {
+
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(maturityDate, "maturity date");
+    Validate.notNull(index, "index");
+    Validate.isTrue(notional > 0, "notional <= 0");
+
     ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor().getPeriod());
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getBusinessDayConvention(), index.getCalendar());
 

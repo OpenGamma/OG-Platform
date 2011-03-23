@@ -6,7 +6,7 @@
 
 package com.opengamma.language.custom;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Tests the mapping of message classes to visitor implementations.

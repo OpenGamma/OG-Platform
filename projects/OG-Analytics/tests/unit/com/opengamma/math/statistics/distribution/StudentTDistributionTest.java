@@ -34,9 +34,9 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   @Test
   public void test() {
     ProbabilityDistribution<Double> dist = new StudentTDistribution(1, ENGINE);
-    testCDFWithNull(dist);
-    testPDFWithNull(dist);
-    testInverseCDF(X, dist);
+    assertCDFWithNull(dist);
+    assertPDFWithNull(dist);
+    assertInverseCDF(X, dist);
     for (int i = 0; i < 10; i++) {
       dist = new StudentTDistribution(DOF[i], ENGINE);
       assertEquals(P[i], dist.getCDF(X[i]), EPS);
