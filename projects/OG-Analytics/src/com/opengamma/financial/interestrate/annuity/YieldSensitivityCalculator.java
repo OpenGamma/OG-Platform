@@ -12,14 +12,14 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
+import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 
 /**
  * 
  */
 public final class YieldSensitivityCalculator {
   private static final BracketRoot BRACKETER = new BracketRoot();
-  private static final RealSingleRootFinder ROOT_FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
   private static final YieldSensitivityCalculator INSTANCE = new YieldSensitivityCalculator();
 
   private YieldSensitivityCalculator() {

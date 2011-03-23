@@ -10,13 +10,10 @@
 // Public interface for Service component
 
 #define SERVICE_SETTINGS_CONNECTION_PIPE	TEXT ("connectionPipe")
-#ifdef _WIN32
-#define SERVICE_DEFAULT_CONNECTION_PIPE		TEXT ("\\\\.\\pipe\\OpenGammaLanguageAPI-Connection")
-#else
-#define SERVICE_DEFAULT_CONNECTION_PIPE		TEXT ("/var/run/OG-Language/Connection.sock")
-#endif
 #define SERVICE_SETTINGS_SERVICE_NAME		TEXT ("serviceName")
-#define SERVICE_DEFAULT_SERVICE_NAME		TEXT ("OpenGammaLanguageAPI")
+
+const TCHAR *ServiceDefaultConnectionPipe ();
+const TCHAR *ServiceDefaultServiceName ();
 
 #include "ClientConnect.h"
 

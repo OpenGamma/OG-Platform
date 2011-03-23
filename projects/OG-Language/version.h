@@ -31,8 +31,7 @@
 #endif /* ifndef VERSION_SUFFIX */
 
 // Generated "Version" string
-#define QUOTE_(x)	#x
-#define QUOTE(x)	QUOTE_(x)
+#include <Util/Quote.h>
 #define VERSION		TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
 
 #endif /* ifndef __inc_og_language_version_h */

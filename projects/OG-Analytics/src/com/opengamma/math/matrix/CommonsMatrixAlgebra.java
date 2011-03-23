@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.EigenDecomposition;
 import org.apache.commons.math.linear.EigenDecompositionImpl;
@@ -19,12 +20,16 @@ import org.apache.commons.math.linear.SingularValueDecompositionImpl;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Provides matrix algebra by calling the Commons library 
+ * Provides matrix algebra by using the <a href = "http://commons.apache.org/math/api-2.1/index.html">Commons library</a>. 
  */
 public class CommonsMatrixAlgebra extends MatrixAlgebra {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getCondition(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       final SingularValueDecomposition svd = new SingularValueDecompositionImpl(temp);
@@ -33,8 +38,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find condition number of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getDeterminant(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       final LUDecomposition lud = new LUDecompositionImpl(temp);
@@ -43,8 +52,13 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find determinant of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final RealVector t1 = CommonsMathWrapper.wrap((DoubleMatrix1D) m1);
       final RealVector t2 = CommonsMathWrapper.wrap((DoubleMatrix1D) m2);
@@ -53,8 +67,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       final LUDecomposition lud = new LUDecompositionImpl(temp);
@@ -64,8 +82,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getNorm1(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       final RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
       return temp.getL1Norm();
@@ -83,8 +105,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find norm1 of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getNorm2(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       final RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
       return temp.getNorm();
@@ -96,8 +122,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find norm2 of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getNormInfinity(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       final RealVector temp = CommonsMathWrapper.wrap((DoubleMatrix1D) m);
       return temp.getLInfNorm();
@@ -115,8 +145,13 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find normInfinity of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final RealVector t1 = CommonsMathWrapper.wrap((DoubleMatrix1D) m1);
       final RealVector t2 = CommonsMathWrapper.wrap((DoubleMatrix1D) m2);
@@ -125,8 +160,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
+    Validate.notNull(m, "m");
     return getPower(m, (double) p);
   }
 
@@ -158,8 +197,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find pow of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getTrace(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       return temp.getTrace();
@@ -167,8 +210,12 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find trace of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       return CommonsMathWrapper.unwrap(temp.transpose());
@@ -176,12 +223,19 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find transpose of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * The following combinations of input matrices m1 and m2 are allowed:
+   * <ul>
+   * <li> m1 = 2-D matrix, m2 = 2-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{AB}$}
+   * <li> m1 = 2-D matrix, m2 = 1-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{A}b$}
+   * </ul>
+   */
   @Override
-  //TODO this does not work in the same way as OG matrix algebra
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix1D) {
-      throw new IllegalArgumentException("Cannot have 1D matrix as first argument");
-    }
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
+    Validate.isTrue(!(m1 instanceof DoubleMatrix1D), "Cannot have 1D matrix as first argument");
     if (m1 instanceof DoubleMatrix2D) {
       final RealMatrix t1 = CommonsMathWrapper.wrap((DoubleMatrix2D) m1);
       RealMatrix t2;

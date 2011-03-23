@@ -11,7 +11,7 @@ import com.opengamma.financial.model.option.definition.GeneralLogNormalOptionDat
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
+import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class LogNormalBinomialTreeBuilder<T extends GeneralLogNormalOptionDataBundle> extends BinomialTreeBuilder<T> {
 
-  private static final RealSingleRootFinder s_root = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final RealSingleRootFinder s_root = new BrentSingleRootFinder();
   private static BracketRoot s_bracketRoot = new BracketRoot();
 
   @Override

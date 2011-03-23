@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.Convention;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -19,7 +20,10 @@ import com.opengamma.util.time.Tenor;
  */
 public class IborIndex {
 
-  //TODO: add name?
+  /**
+   * Name of the index.
+   */
+  private final String _name;
   /**
    * The index currency.
    */
@@ -29,21 +33,25 @@ public class IborIndex {
    */
   private final Tenor _tenor;
   /**
-   * Number of days between the trade date and settlement date.
+   * The conventions linked to the index.
    */
-  private final int _settlementDays;
-  /**
-   * Calendar associated to the index.
-   */
-  private final Calendar _calendar;
-  /**
-   * The day count convention used to compute the accrual factor associated to the period.
-   */
-  private final DayCount _dayCount;
-  /**
-   * Business day convention used when a date related to the index is not a good business day.
-   */
-  private final BusinessDayConvention _businessDayConvention;
+  private final Convention _convention;
+  //  /**
+  //   * Number of days between the trade date and settlement date.
+  //   */
+  //  private final int _settlementDays;
+  //  /**
+  //   * Calendar associated to the index.
+  //   */
+  //  private final Calendar _calendar;
+  //  /**
+  //   * The day count convention used to compute the accrual factor associated to the period.
+  //   */
+  //  private final DayCount _dayCount;
+  //  /**
+  //   * Business day convention used when a date related to the index is not a good business day.
+  //   */
+  //  private final BusinessDayConvention _businessDayConvention;
   /**
    * Flag indicating if the end-of-month rule is used.
    */
@@ -64,13 +72,15 @@ public class IborIndex {
     _currency = currency;
     Validate.notNull(tenor, "tenor");
     this._tenor = tenor;
-    this._settlementDays = spotLag;
     Validate.notNull(calendar, "calendar");
-    this._calendar = calendar;
     Validate.notNull(dayCount, "day count");
-    this._dayCount = dayCount;
     Validate.notNull(businessDayConvention, "business day convention");
-    this._businessDayConvention = businessDayConvention;
+    _name = _currency.toString() + _tenor.toString();
+    _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, _name + " conventions");
+    //    this._settlementDays = spotLag;
+    //    this._calendar = calendar;
+    //    this._dayCount = dayCount;
+    //    this._businessDayConvention = businessDayConvention;
     this._endOfMonth = endOfMonth;
   }
 
@@ -95,7 +105,7 @@ public class IborIndex {
    * @return the spotLag
    */
   public int getSettlementDays() {
-    return _settlementDays;
+    return _convention.getSettlementDays();
   }
 
   /**
@@ -103,7 +113,7 @@ public class IborIndex {
    * @return the calendar
    */
   public Calendar getCalendar() {
-    return _calendar;
+    return _convention.getWorkingDayCalendar();
   }
 
   /**
@@ -111,7 +121,7 @@ public class IborIndex {
    * @return the dayCount
    */
   public DayCount getDayCount() {
-    return _dayCount;
+    return _convention.getDayCount();
   }
 
   /**
@@ -119,7 +129,7 @@ public class IborIndex {
    * @return the businessDayConvention
    */
   public BusinessDayConvention getBusinessDayConvention() {
-    return _businessDayConvention;
+    return _convention.getBusinessDayConvention();
   }
 
   /**
@@ -130,16 +140,30 @@ public class IborIndex {
     return _endOfMonth;
   }
 
+  /**
+   * Gets the _name field.
+   * @return The index name.
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Gets the _convention field.
+   * @return The index conventions
+   */
+  public Convention getConvention() {
+    return _convention;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _businessDayConvention.hashCode();
-    result = prime * result + _calendar.hashCode();
+    result = prime * result + _convention.hashCode();
     result = prime * result + _currency.hashCode();
-    result = prime * result + _dayCount.hashCode();
     result = prime * result + (_endOfMonth ? 1231 : 1237);
-    result = prime * result + _settlementDays;
+    result = prime * result + _name.hashCode();
     result = prime * result + _tenor.hashCode();
     return result;
   }
@@ -156,25 +180,19 @@ public class IborIndex {
       return false;
     }
     IborIndex other = (IborIndex) obj;
+    if (!ObjectUtils.equals(_convention, other._convention)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_currency, other._currency)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
     if (_endOfMonth != other._endOfMonth) {
       return false;
     }
-    if (_settlementDays != other._settlementDays) {
+    if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
-    if (!ObjectUtils.equals(_tenor, other._tenor)) {
+    if (_tenor != other._tenor) {
       return false;
     }
     return true;
