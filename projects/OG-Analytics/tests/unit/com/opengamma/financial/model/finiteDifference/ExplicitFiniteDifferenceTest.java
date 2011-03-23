@@ -45,8 +45,8 @@ public class ExplicitFiniteDifferenceTest {
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   private static final double VOL_BETA;
-  //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  //private static final OptionDefinition OPTION;
+  // private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
+  // private static final OptionDefinition OPTION;
   private static final ConvectionDiffusionPDEDataBundle DATA;
   private static final ConvectionDiffusionPDEDataBundle LN_DATA;
   private static final ConvectionDiffusionPDEDataBundle CEV_DATA;
@@ -62,12 +62,12 @@ public class ExplicitFiniteDifferenceTest {
 
     FORWARD = SPOT / YIELD_CURVE.getDiscountFactor(T);
     VOL_BETA = ATM_VOL * Math.pow(FORWARD, 1 - BETA);
-    //OPTION = new EuropeanVanillaOptionDefinition(FORWARD, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
+    // OPTION = new EuropeanVanillaOptionDefinition(FORWARD, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
 
-    LOWER = new FixedValueBoundaryCondition(0.0, 0.0);
+    LOWER = new DirichletBoundaryCondition(0.0, 0.0);
     UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * FORWARD);
 
-    LN_LOWER = new FixedValueBoundaryCondition(0.0, Math.log(FORWARD / 100.0));
+    LN_LOWER = new DirichletBoundaryCondition(0.0, Math.log(FORWARD / 100.0));
     LN_UPPER = new FixedSecondDerivativeBoundaryCondition(0 * FORWARD, Math.log(50 * FORWARD));
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -215,7 +215,7 @@ public class ExplicitFiniteDifferenceTest {
     double lowerBound = 0.0;
     double upperBound = 5 * FORWARD;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(FORWARD, T, true);
-    //double modSigma = VOL_BETA * Math.pow(df, BETA - 1);
+    // double modSigma = VOL_BETA * Math.pow(df, BETA - 1);
 
     ExplicitFiniteDifference solver = new ExplicitFiniteDifference();
 
@@ -235,8 +235,8 @@ public class ExplicitFiniteDifferenceTest {
       final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
       final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
 
-   //   System.out.println(i + "\t" + f + "\t" + res[i] + "\t" + cevVol + "\t" + impVol);
-       assertEquals(cevVol, impVol, 1e-3);
+      // System.out.println(i + "\t" + f + "\t" + res[i] + "\t" + cevVol + "\t" + impVol);
+      assertEquals(cevVol, impVol, 1e-3);
     }
   }
 
