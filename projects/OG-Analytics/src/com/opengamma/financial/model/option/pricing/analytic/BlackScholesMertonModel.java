@@ -17,24 +17,53 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * Generalised Black-Scholes-Merton option pricing. Inputs will give:<br>
- * <em>b = r</em> Black-Scholes stock option pricing model<br>
- * <em>b = r - q</em> Merton stock option model with continuous dividend
- * yield <em>q</em><br>
- * <em>b = 0</em> Black future option model<br>
- * <em>b = 0, r = 0</em> Asay margined future option model<br>
- * <em>b = r - r<sub>f</sub></em> Garman-Kohlhagen FX option model, with
- * foreign risk-free rate <em>r<sub>f</sub></em>
+ * Generalized Black-Scholes-Merton option pricing. 
+ * <p>
+ * The price of an option is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= Se^{(b-r)T}N(d_1) - Ke^{-rT}N(d_2)\\\\
+ * p &= Ke^{-rT}N(-d_2) - Se^{(b-r)T}N(-d_1)
+ * \\end{align*}
+ * }
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_1 &= \\frac{\\ln(\\frac{S}{K}) + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}\\\\
+ * d_2 &= d_1 - \\sigma\\sqrt{T}
+ * \\end{align*}
+ * } 
+ * Depending on the data supplied, the model is:
+ * <ul>
+ * <li><em>b = r</em>   Black-Scholes stock option pricing model
+ * <li><em>b = r - q</em>   Merton stock option model with continuous dividend yield <em>q</em>
+ * <li><em>b = 0</em>   Black future option model
+ * <li><em>b = 0, r = 0</em>   Asay margined future option model
+ * <li><em>b = r - r<sub>f</sub></em>   Garman-Kohlhagen FX option model, with foreign risk-free rate <em>r<sub>f</sub></em>
+ * </ul>
  * 
  */
 public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Returns a visitor that calculates the greeks analytically.
+   * @param pricingFunction The pricing function, not null
+   * @param data The data, not null
+   * @param definition The option definition, not null
+   * @return A visitor that calculates BSM greeks analytically.
+   */
   @Override
-  public GreekVisitor<Double> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars, final OptionDefinition definition) {
-    return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
+  public GreekVisitor<Double> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle data, final OptionDefinition definition) {
+    Validate.notNull(pricingFunction);
+    Validate.notNull(data);
+    Validate.notNull(definition);
+    return new BlackScholesMertonGreekVisitor(data, pricingFunction, definition);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);
@@ -77,19 +106,19 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
     private final double _d2;
     private final double _price;
 
-    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
-      super(pricingFunction, vars, definition);
-      _s = vars.getSpot();
+    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle data, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
+      super(pricingFunction, data, definition);
+      _s = data.getSpot();
       _k = definition.getStrike();
-      _t = definition.getTimeToExpiry(vars.getDate());
-      _r = vars.getInterestRate(_t);
-      _sigma = vars.getVolatility(_t, _k);
-      _b = vars.getCostOfCarry();
+      _t = definition.getTimeToExpiry(data.getDate());
+      _r = data.getInterestRate(_t);
+      _sigma = data.getVolatility(_t, _k);
+      _b = data.getCostOfCarry();
       _isCall = definition.isCall();
       _df = getDF(_r, _b, _t);
       _d1 = getD1(_s, _k, _t, _sigma, _b);
       _d2 = getD2(_d1, _sigma, _t);
-      _price = pricingFunction.evaluate(vars);
+      _price = pricingFunction.evaluate(data);
     }
 
     @Override

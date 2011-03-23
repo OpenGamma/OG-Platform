@@ -6,16 +6,14 @@
 
 package com.opengamma.language.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.language.debug.DebugFunctionLiteral;
@@ -60,7 +58,7 @@ public class FunctionProviderTest {
     assertTrue(names.isEmpty());
   }
 
-  private void testAggregatingProvider(final boolean cached) {
+  private void assertAggregatingProvider(final boolean cached) {
     final ExtFunctionProviderBean bean1 = createBean(new DebugFunctionLiteral("Literal-1", "1"),
         new DebugFunctionLiteral("Literal-2", "2"));
     final ExtFunctionProviderBean bean2 = createBean(new DebugFunctionLiteral("Literal-3", "3"),
@@ -95,12 +93,12 @@ public class FunctionProviderTest {
 
   @Test
   public void testCachedAggregatingProvider() {
-    testAggregatingProvider(true);
+    assertAggregatingProvider(true);
   }
 
   @Test
   public void testNonCachedAggregatingProvider() {
-    testAggregatingProvider(false);
+    assertAggregatingProvider(false);
   }
 
 }

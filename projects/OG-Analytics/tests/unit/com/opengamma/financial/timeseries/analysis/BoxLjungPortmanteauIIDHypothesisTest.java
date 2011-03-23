@@ -37,8 +37,8 @@ public class BoxLjungPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase 
 
   @Test
   public void test() {
-    super.testNullTS(BOX_LJUNG);
-    super.testEmptyTS(BOX_LJUNG);
+    super.assertNullTS(BOX_LJUNG);
+    super.assertEmptyTS(BOX_LJUNG);
     assertTrue(BOX_LJUNG.evaluate(RANDOM));
     assertFalse(BOX_LJUNG.evaluate(SIGNAL));
     assertFalse(BOX_LJUNG.evaluate(INCREASING));

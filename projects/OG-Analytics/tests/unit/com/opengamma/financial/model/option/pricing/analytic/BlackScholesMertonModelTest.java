@@ -40,7 +40,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   @Test
   public void testInputs() {
     final OptionDefinition definition = new EuropeanVanillaOptionDefinition(1., EIGHT_DAYS, true);
-    super.testInputs(MODEL, definition);
+    super.assertInputs(MODEL, definition);
   }
 
   @Test
@@ -96,7 +96,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(r)), b, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), spot, DATE);
     final GreekResultCollection result = MODEL.getGreeks(definition, data, greeks);
-    testResults(result, expected);
+    assertResults(result, expected);
     assertPutCallParity(strike, expiry, r, b, sigma, spot);
   }
 
@@ -105,7 +105,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(r)), b, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), spot, DATE);
     final GreekResultCollection result = MODEL.getGreeks(definition, data, Collections.singleton(greek));
-    testResults(result, expected);
+    assertResults(result, expected);
   }
 
   private void assertPutCallParity(final double strike, final Expiry expiry, final double r, final double b, final double sigma, final double spot) {

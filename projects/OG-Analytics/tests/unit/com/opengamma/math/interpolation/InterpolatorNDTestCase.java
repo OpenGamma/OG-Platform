@@ -6,7 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class InterpolatorNDTestCase {
+public abstract class InterpolatorNDTestCase {
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<Pair<double[], Double>>();
   protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<Pair<double[], Double>>();
@@ -56,8 +56,7 @@ public class InterpolatorNDTestCase {
     SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
   }
 
-  @Test
-  protected <T extends InterpolatorNDDataBundle> void testFlat(InterpolatorND<T> interpolator, double tol) {
+  protected <T extends InterpolatorNDDataBundle> void assertFlat(InterpolatorND<T> interpolator, double tol) {
     double x1, x2, x3;
     double[] x;
     for (int i = 0; i < 10; i++) {
@@ -70,8 +69,7 @@ public class InterpolatorNDTestCase {
     }
   }
 
-  @Test
-  protected <T extends InterpolatorNDDataBundle> void testCosExp(InterpolatorND<T> interpolator, double tol) {
+  protected <T extends InterpolatorNDDataBundle> void assertCosExp(InterpolatorND<T> interpolator, double tol) {
     double x1, x2;
     double[] x;
     for (int i = 0; i < 10; i++) {

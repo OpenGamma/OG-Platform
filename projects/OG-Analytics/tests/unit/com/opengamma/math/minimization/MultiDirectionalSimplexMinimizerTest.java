@@ -18,13 +18,13 @@ public class MultiDirectionalSimplexMinimizerTest extends MultidimensionalMinimi
   @Test
   public void test() {
 
-    super.testInputs(MINIMIZER);
-    super.test(MINIMIZER, EPS);
+    super.assertInputs(MINIMIZER);
+    super.assertMinimizer(MINIMIZER, EPS);
   }
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMIZER, EPS);
+    super.assertSolvingRosenbrock(MINIMIZER, EPS);
   }
 
   /**

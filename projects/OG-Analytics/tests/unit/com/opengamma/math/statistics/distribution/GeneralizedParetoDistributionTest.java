@@ -37,8 +37,8 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
 
   @Test
   public void testBadInputs() {
-    testCDFWithNull(DIST);
-    testPDFWithNull(DIST);
+    assertCDFWithNull(DIST);
+    assertPDFWithNull(DIST);
   }
 
   @Test

@@ -66,7 +66,7 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
   @Test
   public void testInterpolation() {
     final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
-    testCosExp(interpolator, 2e-2);
+    assertCosExp(interpolator, 2e-2);
   }
 
 }

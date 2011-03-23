@@ -27,8 +27,8 @@ public class TurningPointIIDHypothesisTest extends IIDHypothesisTestCase {
 
   @Test
   public void test() {
-    super.testNullTS(TURNING_POINT);
-    super.testEmptyTS(TURNING_POINT);
+    super.assertNullTS(TURNING_POINT);
+    super.assertEmptyTS(TURNING_POINT);
     assertTrue(TURNING_POINT.evaluate(RANDOM));
     assertTrue(TURNING_POINT.evaluate(SIGNAL));
     assertFalse(TURNING_POINT.evaluate(INCREASING));

@@ -5,11 +5,9 @@
  */
 package com.opengamma.language.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.language.connector.Conditional;
 
 /**
@@ -62,7 +60,7 @@ public class ContextInitializationBeanTest {
     }
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void testPropertyAssertion() {
     final Bean bean = new Bean();
     bean.setSessionContextFactory(new SessionContextFactoryBean());
@@ -70,7 +68,8 @@ public class ContextInitializationBeanTest {
     bean.afterPropertiesSet ();
   }
 
-  private void testSessionContext(final Boolean condition) {
+  //-------------------------------------------------------------------------
+  private void assertSessionContext(final Boolean condition) {
     final Bean bean = new Bean();
     final SessionContextFactoryBean ctxFactory = new SessionContextFactoryBean();
     bean.setSessionContextFactory(ctxFactory);
@@ -94,20 +93,21 @@ public class ContextInitializationBeanTest {
 
   @Test
   public void testSessionContextNoCondition() {
-    testSessionContext(null);
+    assertSessionContext(null);
   }
 
   @Test
   public void testSessionContextConditionHolds() {
-    testSessionContext(true);
+    assertSessionContext(true);
   }
 
   @Test
   public void testSessionContextConditionUnheld() {
-    testSessionContext(false);
+    assertSessionContext(false);
   }
 
-  private void testUserContext(final Boolean condition) {
+  //-------------------------------------------------------------------------
+  private void assertUserContext(final Boolean condition) {
     final Bean bean = new Bean();
     final UserContextFactoryBean ctxFactory = new UserContextFactoryBean();
     bean.setUserContextFactory(ctxFactory);
@@ -130,20 +130,21 @@ public class ContextInitializationBeanTest {
 
   @Test
   public void testUserContextNoCondition() {
-    testUserContext(null);
+    assertUserContext(null);
   }
 
   @Test
   public void testUserContextConditionHolds() {
-    testUserContext(true);
+    assertUserContext(true);
   }
 
   @Test
   public void testUserContextConditionUnheld() {
-    testUserContext(false);
+    assertUserContext(false);
   }
 
-  private void testGlobalContext(final Boolean condition) {
+  //-------------------------------------------------------------------------
+  private void assertGlobalContext(final Boolean condition) {
     final Bean bean = new Bean();
     final GlobalContextFactoryBean ctxFactory = new GlobalContextFactoryBean();
     bean.setGlobalContextFactory(ctxFactory);
@@ -166,17 +167,17 @@ public class ContextInitializationBeanTest {
 
   @Test
   public void testGlobalContextNoCondition() {
-    testGlobalContext(null);
+    assertGlobalContext(null);
   }
 
   @Test
   public void testGlobalContextConditionHolds() {
-    testGlobalContext(true);
+    assertGlobalContext(true);
   }
 
   @Test
   public void testGlobalContextConditionUnheld() {
-    testGlobalContext(false);
+    assertGlobalContext(false);
   }
 
 }

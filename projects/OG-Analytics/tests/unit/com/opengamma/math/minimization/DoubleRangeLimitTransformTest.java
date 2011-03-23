@@ -42,13 +42,13 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
     for (int i = 0; i < 10; i++) {
       final double x = A + (B - A) * RANDOM.nextDouble();
       final double y = 5 * NORMAL.nextRandom();
-      testRoundTrip(RANGE_LIMITS, x);
-      testReverseRoundTrip(RANGE_LIMITS, y);
+      assertRoundTrip(RANGE_LIMITS, x);
+      assertReverseRoundTrip(RANGE_LIMITS, y);
 
-      testGradient(RANGE_LIMITS, x);
-      testInverseGradient(RANGE_LIMITS, y);
+      assertGradient(RANGE_LIMITS, x);
+      assertInverseGradient(RANGE_LIMITS, y);
 
-      testGradientRoundTrip(RANGE_LIMITS, x);
+      assertGradientRoundTrip(RANGE_LIMITS, x);
     }
   }
 

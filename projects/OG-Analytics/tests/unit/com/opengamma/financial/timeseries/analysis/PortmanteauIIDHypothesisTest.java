@@ -40,8 +40,8 @@ public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
 
   @Test
   public void test() {
-    super.testNullTS(TEST);
-    super.testEmptyTS(TEST);
+    super.assertNullTS(TEST);
+    super.assertEmptyTS(TEST);
     assertTrue(TEST.evaluate(RANDOM));
     assertFalse(TEST.evaluate(SIGNAL));
     assertFalse(TEST.evaluate(INCREASING));

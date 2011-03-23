@@ -175,8 +175,8 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
 
   @Test
   public void testJacobian() {
-    testJacobian(getSingleCurveSetup());
-    testJacobian(getDoubleCurveSetup());
+    assertJacobian(getSingleCurveSetup());
+    assertJacobian(getDoubleCurveSetup());
   }
 
   @Test

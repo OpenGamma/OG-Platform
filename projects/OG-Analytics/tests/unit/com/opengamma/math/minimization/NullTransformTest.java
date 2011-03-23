@@ -19,11 +19,11 @@ public class NullTransformTest extends ParameterLimitsTransformTestCase {
   public void test() {
     for (int i = 0; i < 10; i++) {
       final double y = 5 * NORMAL.nextRandom();
-      testRoundTrip(NULL_TRANSFORM, y);
-      testReverseRoundTrip(NULL_TRANSFORM, y);
-      testGradient(NULL_TRANSFORM, y);
-      testInverseGradient(NULL_TRANSFORM, y);
-      testGradientRoundTrip(NULL_TRANSFORM, y);
+      assertRoundTrip(NULL_TRANSFORM, y);
+      assertReverseRoundTrip(NULL_TRANSFORM, y);
+      assertGradient(NULL_TRANSFORM, y);
+      assertInverseGradient(NULL_TRANSFORM, y);
+      assertGradientRoundTrip(NULL_TRANSFORM, y);
     }
   }
 
