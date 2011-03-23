@@ -3,5 +3,7 @@
 
 	<!-- Suppress default targets (the clean wrecks the C++ header area)-->
 	<target name="clean-lib" />
+	<target name="clean-build" />
+	<target name="clean-dist" />
 
 </project>

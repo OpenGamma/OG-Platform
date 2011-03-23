@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite" parallel="false">
+  <test name="Test" preserve-order="false">
+    <classes>
+      <class name="com.opengamma.engine.ComputationTargetSpecificationTest"/>
+      <class name="com.opengamma.engine.ComputationTargetTest"/>
+      <class name="com.opengamma.engine.DefaultComputationTargetResolverTest"/>
+      <class name="com.opengamma.engine.depgraph.DependencyGraphBuilderTest"/>
+      <class name="com.opengamma.engine.depgraph.DependencyNodeTest"/>
+      <class name="com.opengamma.engine.fudgemsg.PortfolioNodeAndPositionBuilderTest"/>
+      <class name="com.opengamma.engine.fudgemsg.TradeBuilderTest"/>
+      <class name="com.opengamma.engine.fudgemsg.ValuePropertiesBuilderTest"/>
+      <class name="com.opengamma.engine.fudgemsg.ValueSpecificationBuilderTest"/>
+      <class name="com.opengamma.engine.fudgemsg.ViewDefinitionBuilderTest"/>
+      <class name="com.opengamma.engine.function.CachingFunctionRepositoryCompilerTest"/>
+      <class name="com.opengamma.engine.function.FunctionInputsImplTest"/>
+      <class name="com.opengamma.engine.function.PortfolioStructureTest"/>
+      <class name="com.opengamma.engine.function.config.RepositoryFactoryTest"/>
+      <class name="com.opengamma.engine.function.resolver.DefaultFunctionResolverTest"/>
+      <class name="com.opengamma.engine.livedata.CombiningLiveDataSnapshotProviderTest"/>
+      <class name="com.opengamma.engine.management.ManagementServiceTest"/>
+      <class name="com.opengamma.engine.position.csv.CSVPositionSourceTest"/>
+      <class name="com.opengamma.engine.position.rest.DataPositionSourceResourceTest"/>
+      <class name="com.opengamma.engine.value.ComputedValueTest"/>
+      <class name="com.opengamma.engine.value.ValuePropertiesTest"/>
+      <class name="com.opengamma.engine.value.ValueRequirementTest"/>
+      <class name="com.opengamma.engine.view.DeltaDefinitionTest"/>
+      <class name="com.opengamma.engine.view.LiveDataDeltaCalculatorTest"/>
+      <class name="com.opengamma.engine.view.NumberDeltaComparerTest"/>
+      <class name="com.opengamma.engine.view.ResultOutputModeTest"/>
+      <class name="com.opengamma.engine.view.ViewComputationResultModelImplTest"/>
+      <class name="com.opengamma.engine.view.ViewDeltaResultModelImplTest"/>
+      <class name="com.opengamma.engine.view.ViewProcessorTest"/>
+      <class name="com.opengamma.engine.view.ViewTest"/>
+      <class name="com.opengamma.engine.view.cache.BerkeleyDBValueSpecificationIdentifierSourceTest"/>
+      <class name="com.opengamma.engine.view.cache.CachingValueSpecificationIdentifierSourceTest"/>
+      <class name="com.opengamma.engine.view.cache.DefaultViewComputationCacheTest"/>
+      <class name="com.opengamma.engine.view.cache.PrivateToSharedTransferTest"/>
+      <class name="com.opengamma.engine.view.cache.ReleaseCacheMessageTest"/>
+      <class name="com.opengamma.engine.view.cache.RemoteCacheRequestResponseTest"/>
+      <class name="com.opengamma.engine.view.cache.ServerSocketRemoteViewComputationCacheTest"/>
+      <class name="com.opengamma.engine.view.cache.WriteBehindViewComputationCacheTest"/>
+      <class name="com.opengamma.engine.view.calc.CancelExecutionTest"/>
+      <class name="com.opengamma.engine.view.calc.MultipleNodeExecutorTest"/>
+      <class name="com.opengamma.engine.view.calc.SingleComputationCycleTest"/>
+      <class name="com.opengamma.engine.view.calc.ViewRecalculationJobTest"/>
+      <class name="com.opengamma.engine.view.calcnode.stats.DbFunctionCostsMasterTest"/>
+      <class name="com.opengamma.engine.view.calcnode.stats.FunctionCostsTest"/>
+      <class name="com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSenderTest"/>
+      <class name="com.opengamma.engine.view.calcnode.stats.InMemoryFunctionCostsMasterTest"/>
+      <class name="com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProviderTest"/>
+      <class name="com.opengamma.engine.view.calcnode.CalculationJobSpecificationTest"/>
+      <class name="com.opengamma.engine.view.calcnode.JobDispatcherTest"/>
+      <class name="com.opengamma.engine.view.client.ViewClientTest"/>
+      <class name="com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProviderTest"/>
+      <class name="com.opengamma.engine.view.client.merging.ViewComputationResultModelMergerTest"/>
+      <class name="com.opengamma.engine.view.client.merging.ViewDeltaResultModelMergerTest"/>
+      <class name="com.opengamma.engine.view.compilation.ViewDefinitionCompilerTest"/>
+      <class name="com.opengamma.engine.view.compilation.ViewEvaluationModelTest"/>
+      <class name="com.opengamma.engine.view.server.ViewDefinitionBuilderTest"/>
+    </classes>
+  </test>
+</suite>

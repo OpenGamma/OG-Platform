@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.timeseries.sampling;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -14,8 +14,6 @@ import java.util.Map.Entry;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.schedule.DailyScheduleCalculator;
@@ -91,22 +89,22 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     TS_MISSING_MONTH = new ArrayLocalDateDoubleTimeSeries(t4, d4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     F.getSampledTimeSeries(null, DAILY_SCHEDULE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule() {
     F.getSampledTimeSeries(TS_NO_MISSING_DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonOverlappingSchedule() {
     F.getSampledTimeSeries(TS_MISSING_MONTH, new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2)});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMissingDataOnFirstDay() {
     F.getSampledTimeSeries(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {1, 2, 3}),
         new LocalDate[] {LocalDate.of(1999, 12, 31), LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)});

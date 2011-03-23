@@ -5,16 +5,14 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.test.TestComputationResultListener;
@@ -29,11 +27,11 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests SingleComputationCycle
  */
+@Test
 public class SingleComputationCycleTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
   
-  @Test
   public void testInterruptCycle() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     BlockingDependencyGraphExecutorFactory dgef = new BlockingDependencyGraphExecutorFactory(TIMEOUT);

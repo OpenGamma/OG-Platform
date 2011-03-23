@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.rootfinding;
 
-import org.junit.Test;
 
 /**
  * 
@@ -13,9 +12,8 @@ import org.junit.Test;
 public class RidderSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new RidderSingleRootFinder();
 
-  @Test
-  public void test() {
-    testInputs(FINDER);
-    test(FINDER);
+  @Override
+  protected RealSingleRootFinder getRootFinder() {
+    return FINDER;
   }
 }

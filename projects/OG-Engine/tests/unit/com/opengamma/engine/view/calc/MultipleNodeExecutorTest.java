@@ -5,18 +5,16 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -33,6 +31,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 /**
  * Tests the graph partitioning logic in MultipleNodeExecutor.
  */
+@Test
 public class MultipleNodeExecutorTest {
 
   /**
@@ -46,7 +45,7 @@ public class MultipleNodeExecutorTest {
   private DependencyNode[] _testNode;
   private DependencyGraph _testGraph;
 
-  @Before
+  @BeforeMethod
   public void createGraph() {
     _testGraph = new DependencyGraph("Default");
     _testNode = new DependencyNode[5];
@@ -98,7 +97,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Graph untouched - single job.
    */
-  @Test
   public void testMin5() {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -115,7 +113,6 @@ public class MultipleNodeExecutorTest {
   /**
    * No changes to graph
    */
-  @Test
   public void testMax1() {
     final MultipleNodeExecutor executor = createExecutor(1, 1, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -141,11 +138,11 @@ public class MultipleNodeExecutorTest {
           } else if (singletonFragment(fragment2, _testNode[3])) {
             mask |= 16;
           } else {
-            fail();
+            Assert.fail();
           }
         }
       } else {
-        fail();
+        Assert.fail();
       }
     }
     assertEquals(31, mask);
@@ -154,7 +151,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Input-merge on N0+N1, single-dep merge on N4+N3
    */
-  @Test
   public void testMinMax2() {
     final MultipleNodeExecutor executor = createExecutor(2, 2, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -173,7 +169,7 @@ public class MultipleNodeExecutorTest {
         assertEquals(1, fragment.getInputFragments().size());
         assertTrue(singletonFragment(fragment.getInputFragments().iterator().next(), _testNode[2]));
       } else {
-        fail();
+        Assert.fail();
       }
     }
     assertEquals(3, mask);
@@ -182,7 +178,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Input-merge on N0+N1, single-dep merge on N4+N3, input-merge on N(0+1)+N(4+3).
    */
-  @Test
   public void testMinMax4() {
     final MultipleNodeExecutor executor = createExecutor(3, 4, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -202,7 +197,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Single-dep merge N4+N3, single tail on N2 (one of N0, N1 or N(4+3)).
    */
-  @Test
   public void testThread1() {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -222,7 +216,7 @@ public class MultipleNodeExecutorTest {
       } else if (fragment.getNodes().contains(_testNode[3]) && fragment.getNodes().contains(_testNode[4])) {
         mask |= 4;
       } else {
-        fail();
+        Assert.fail();
       }
     }
     assertEquals(7, mask);
@@ -231,7 +225,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Single-dep merge N4+N3, two tails on N2.
    */
-  @Test
   public void testThread2() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -251,7 +244,7 @@ public class MultipleNodeExecutorTest {
       } else if (fragment.getNodes().contains(_testNode[3]) && fragment.getNodes().contains(_testNode[4])) {
         mask |= 4;
       } else {
-        fail();
+        Assert.fail();
       }
     }
     assertEquals(7, mask);
@@ -260,7 +253,6 @@ public class MultipleNodeExecutorTest {
   /**
    * Single-dep merge N4+N3, three tails on N2.
    */
-  @Test
   public void testThread3() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
@@ -280,7 +272,7 @@ public class MultipleNodeExecutorTest {
       } else if (fragment.getNodes().contains(_testNode[3]) && fragment.getNodes().contains(_testNode[4])) {
         mask |= 4;
       } else {
-        fail();
+        Assert.fail();
       }
     }
     assertEquals(7, mask);
@@ -311,7 +303,6 @@ public class MultipleNodeExecutorTest {
    * Should be broken into N{5, 2, 3, [two of {1, 4, 7}]}, N6, N0 and other of N{1, 4, 7} at 2x concurrency
    * Should be broken into N{5, 2} or N{5, 3} and others at 1x concurrency
    */
-  @Test
   public void testTailGraphColouring() {
     final DependencyNode n5 = new DependencyNode(new ComputationTarget("5"));
     n5.setFunction(MockFunction.getMockFunction(n5.getComputationTarget(), "foo"));
@@ -362,7 +353,7 @@ public class MultipleNodeExecutorTest {
         assertTrue (colour.getValue ().containsAll(Arrays.asList (_testNode[1], _testNode[2], _testNode[3], _testNode[4])));
         mask |= 4;
       } else {
-        fail ();
+        Assert.fail ();
       }
     }
     assertEquals(7, mask);

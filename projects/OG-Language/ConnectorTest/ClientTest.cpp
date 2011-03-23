@@ -19,6 +19,7 @@ LOGGING (com.opengamma.language.connector.ClientTest);
 #define TIMEOUT_START		30000
 #define TIMEOUT_HEARTBEAT	30000
 #define TIMEOUT_MESSAGE		3000
+#define TIMEOUT_CALLBACK	1000
 
 class CStateCallback : public CClientService::CStateChange {
 private:
@@ -84,6 +85,10 @@ static void Start () {
 		CThread::Sleep (100);
 	}
 	ASSERT (g_poService->GetState () == RUNNING);
+	LOGDEBUG (TEXT ("Waiting for callback to arrive"));
+	for (n = 0; !g_poCallback->Running () && (n < TIMEOUT_CALLBACK / 100); n++) {
+		CThread::Sleep (100);
+	}
 	ASSERT (g_poCallback->Running ());
 }
 

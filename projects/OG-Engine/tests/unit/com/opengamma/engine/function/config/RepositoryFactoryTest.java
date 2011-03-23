@@ -5,18 +5,18 @@
  */
 package com.opengamma.engine.function.config;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
+@Test
 public class RepositoryFactoryTest {
 
   public static class MockEmptyFunction extends AbstractFunction.NonCompiledInvoker {
@@ -117,12 +118,11 @@ public class RepositoryFactoryTest {
     }
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expectedExceptions = NullPointerException.class)
   public void nullConfiguration() {
     RepositoryFactory.constructRepository(null);
   }
 
-  @Test
   public void emptyConfiguration() {
     RepositoryConfiguration configuration = new RepositoryConfiguration();
     InMemoryFunctionRepository repo = RepositoryFactory.constructRepository(configuration);
@@ -130,7 +130,6 @@ public class RepositoryFactoryTest {
     assertTrue(repo.getAllFunctions().isEmpty());
   }
 
-  @Test
   public void singleConfigurationNoArgs() {
     RepositoryConfiguration configuration = new RepositoryConfiguration();
     configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
@@ -152,7 +151,6 @@ public class RepositoryFactoryTest {
     assertSame(definition, invoker);
   }
 
-  @Test
   public void twoConfigurationsWithArgs() {
     RepositoryConfiguration configuration = new RepositoryConfiguration();
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
@@ -171,13 +169,13 @@ public class RepositoryFactoryTest {
         assertEquals("foo", single.getParam());
       } else if (definition instanceof MockMultiArgumentFunctionArrayForm) {
         MockMultiArgumentFunctionArrayForm multi = (MockMultiArgumentFunctionArrayForm) definition;
-        assertArrayEquals(new String[] {"foo1", "foo2"}, multi.getParams());
+        assertEquals(Arrays.asList("foo1", "foo2"), Arrays.asList(multi.getParams()));
       } else if (definition instanceof MockMultiArgumentFunctionIndividualParameterForm) {
         MockMultiArgumentFunctionIndividualParameterForm multi = (MockMultiArgumentFunctionIndividualParameterForm) definition;
         assertEquals("bar1", multi.getParam1());
         assertEquals("bar2", multi.getParam2());
       } else {
-        fail("Unexpected type of definition " + definition);
+        Assert.fail("Unexpected type of definition " + definition);
       }
     }
   }

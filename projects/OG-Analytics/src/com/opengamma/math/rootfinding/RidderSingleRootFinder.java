@@ -5,72 +5,53 @@
  */
 package com.opengamma.math.rootfinding;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.MaxIterationsExceededException;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.solvers.RiddersSolver;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Finds a single root of a function using Ridder's method. This class is a wrapper for the 
+ * <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/solvers/RiddersSolver.html">Commons Math library implementation</a>
+ * of Ridder's method.
  */
-public class RidderSingleRootFinder extends RealSingleRootFinder {
-  private final double _accuracy;
+public class RidderSingleRootFinder extends RealSingleRootFinder {  
   private static final int MAX_ITER = 10000;
-  private static final double ZERO = 1e-16;
+  private final RiddersSolver _ridder = new RiddersSolver();
 
+  /**
+   * Sets the accuracy to 10<sup>-15</sup>
+   */
   public RidderSingleRootFinder() {
     this(1e-15);
   }
 
+  /**
+   * @param accuracy The accuracy of the function evaluations.
+   */
   public RidderSingleRootFinder(final double accuracy) {
-    _accuracy = Math.abs(accuracy);
+    _ridder.setFunctionValueAccuracy(accuracy);
+    _ridder.setMaximalIterationCount(MAX_ITER);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws MathException If the Commons method could not evaluate the function; if the Commons method could not converge. 
+   */
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double xLow, final Double xHigh) {
     checkInputs(function, xLow, xHigh);
-    double x1 = xLow;
-    double x2 = xHigh;
-    double y1 = function.evaluate(x1);
-    double y2 = function.evaluate(x2);
-    if (Math.abs(y1) < _accuracy) {
-      return xHigh;
+    UnivariateRealFunction wrapped = CommonsMathWrapper.wrapUnivariate(function);
+    try {
+      return _ridder.solve(wrapped, xLow, xHigh);
+    } catch (MaxIterationsExceededException e) {
+      throw new MathException(e);
+    } catch (FunctionEvaluationException e) {
+      throw new MathException(e);
     }
-    if (Math.abs(y2) < _accuracy) {
-      return x1;
-    }
-    Validate.isTrue(y1 * y2 < 0, "Root was not bracketed by " + x1 + " and " + x2);
-    double xMid, yMid, denom, xNew, yNew;
-    for (int i = 0; i < MAX_ITER; i++) {
-      xMid = (x1 + x2) / 2;
-      yMid = function.evaluate(xMid);
-      denom = Math.sqrt(yMid * yMid - y1 * y2);
-      if (Math.abs(denom) < ZERO) {
-        throw new MathException("Denominator of updating formula was zero");
-      }
-      xNew = xMid + (xMid - x1) * (y1 >= y2 ? 1 : -1) * yMid / denom;
-      yNew = function.evaluate(xNew);
-      if (Math.abs(yNew) < ZERO) {
-        return xNew;
-      }
-      if (Math.abs(Math.copySign(yMid, yNew) - yMid) > ZERO) {
-        x1 = xMid;
-        y1 = yMid;
-        x2 = xNew;
-        y2 = yNew;
-      } else if (Math.abs(Math.copySign(y1, yNew) - y1) > ZERO) {
-        x2 = xNew;
-        y2 = yNew;
-      } else if (Math.abs(Math.copySign(y2, yNew) - y2) > ZERO) {
-        x1 = xNew;
-        y1 = yNew;
-      } else {
-        throw new MathException("Should never reach here");
-      }
-      if (Math.abs(x2 - x1) < _accuracy) {
-        return xNew;
-      }
-    }
-    throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }
 }

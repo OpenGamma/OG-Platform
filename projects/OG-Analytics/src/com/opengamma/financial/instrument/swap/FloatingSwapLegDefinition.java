@@ -206,6 +206,7 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
       //TODO copied from original implementation
       payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], _notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], _spread, liborCurveName);
     }
+    //TODO: the payer/receiver flag should be stored at the leg level!
     return new GenericAnnuity<Payment>(payments);
   }
 

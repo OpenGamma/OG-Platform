@@ -18,7 +18,9 @@ import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Class that calculates the real roots of a polynomial using Laguerre's method. This class is a wrapper for the 
+ * <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/solvers/LaguerreSolver.html">Commons Math library implementation</a>
+ * of Laguerre's method.
  */
 //TODO Have a complex and real root finder
 public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<Double> {
@@ -26,6 +28,10 @@ public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<
   private static final Double[] EMPTY_ARRAY = new Double[0];
   private static final double EPS = 1e-16;
 
+  /**
+   * {@inheritDoc}
+   * @throws MathException If there are no real roots; if the Commons method could not evaluate the function; if the Commons method could not converge. 
+   */
   @Override
   public Double[] getRoots(final RealPolynomialFunction1D function) {
     Validate.notNull(function, "function");

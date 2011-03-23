@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
 
@@ -147,7 +146,7 @@ public class NewtonRaphsonSingleRootFinderTest {
     ROOT_FINDER.getRoot(F1, DF1, X1, null);
   }
 
-  @Test(expected = MathException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testEnclosedExtremum() {
     ROOT_FINDER.getRoot(F2, DF2, X1, X3);
   }
@@ -174,12 +173,12 @@ public class NewtonRaphsonSingleRootFinderTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInitialGuess1() {
-    ROOT_FINDER.getRoot(F1, null);
+    ROOT_FINDER.getRoot(F1, (Double) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInitialGuess2() {
-    ROOT_FINDER.getRoot(F2, null);
+    ROOT_FINDER.getRoot(F2, (Double) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -200,10 +199,6 @@ public class NewtonRaphsonSingleRootFinderTest {
     assertEquals(ROOT_FINDER.getRoot(F1, DF1, X1, X2), ROOT, EPS);
     assertEquals(ROOT_FINDER.getRoot(F2, X1, X2), ROOT, EPS);
     assertEquals(ROOT_FINDER.getRoot(F2, DF2, X1, X2), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F1, X2, X1), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F1, DF1, X2, X1), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, X2, X1), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, DF2, X2, X1), ROOT, EPS);
     assertEquals(ROOT_FINDER.getRoot(F1, X), ROOT, EPS);
     assertEquals(ROOT_FINDER.getRoot(F1, DF1, X), ROOT, EPS);
     assertEquals(ROOT_FINDER.getRoot(F2, X), ROOT, EPS);

@@ -38,6 +38,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
         if (CompareUtils.closeEquals(f, k, EPS)) {
           final double f1 = Math.pow(f, beta1);
           vol = alpha * (1 + t * (beta1 * beta1 * alpha * alpha / 24 / f1 / f1 + rho * alpha * beta * nu / 4 / f1 + nu * nu * (2 - 3 * rho * rho) / 24)) / f1;
+
         } else {
           if (CompareUtils.closeEquals(beta, 0, EPS)) {
             final double ln = Math.log(f / k);
@@ -69,6 +70,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   }
 
   private double getZOverChi(final double rho, final double z) {
+
     if (CompareUtils.closeEquals(z, 0.0, EPS)) {
       return 1.0;
     }
@@ -79,6 +81,10 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
         return 0.0;
       }
       return -z / Math.log(1 - z);
+    }
+    // Implementation comment: To avoid numerical instability (0/0) around ATM the first order approximation is used.
+    if (CompareUtils.closeEquals(z, 0.0, 1E-7)) {
+      return 1.0 - rho * z / 2.0;
     }
     final double chi = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) - Math.log(rhoStar);
     return z / chi;

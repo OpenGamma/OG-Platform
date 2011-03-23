@@ -5,24 +5,22 @@
  */
 package com.opengamma.engine.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Collections;
-
-import org.junit.Test;
 
 /**
  * Tests for the {@link ValueProperties} class.
  */
+@Test
 public class ValuePropertiesTest {
 
-  @Test
   public void testNone() {
     final ValueProperties none = ValueProperties.none();
     assertNotNull(none);
@@ -30,7 +28,6 @@ public class ValuePropertiesTest {
     assertNull(none.getProperties());
   }
   
-  @Test
   public void testAll () {
     final ValueProperties all = ValueProperties.all ();
     assertNotNull (all);
@@ -38,7 +35,6 @@ public class ValuePropertiesTest {
     assertTrue(all.getProperties().isEmpty ());
   }
 
-  @Test
   public void testWithCollection() {
     ValueProperties props = ValueProperties.with("A", Arrays.asList("1", "2")).get();
     assertEquals(2, props.getValues("A").size());
@@ -56,7 +52,6 @@ public class ValuePropertiesTest {
     assertTrue(props.getValues("A").isEmpty());
   }
 
-  @Test
   public void testWithSingle() {
     ValueProperties props = ValueProperties.with("A", "1").get();
     assertEquals(1, props.getValues("A").size());
@@ -72,7 +67,6 @@ public class ValuePropertiesTest {
     assertTrue(props.getValues("A").isEmpty());
   }
 
-  @Test
   public void testWithArray() {
     ValueProperties props = ValueProperties.with("A", "1", "2").get();
     assertEquals(2, props.getValues("A").size());
@@ -90,13 +84,11 @@ public class ValuePropertiesTest {
     assertTrue(props.getValues("A").isEmpty());
   }
 
-  @Test
   public void testWithAny() {
     ValueProperties props = ValueProperties.withAny("A").get();
     assertTrue(props.getValues("A").isEmpty());
   }
   
-  @Test
   public void testWithOptional () {
     ValueProperties props = ValueProperties.withAny("A").get();
     assertTrue(props.getValues("A").isEmpty ());
@@ -112,7 +104,6 @@ public class ValuePropertiesTest {
     assertTrue(props.isOptional ("A"));
   }
   
-  @Test
   public void testIsSatisfiedBy() {
     final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").withOptional ("D").with("E", "1").withOptional("E").get();
     assertTrue(requirement.isSatisfiedBy(requirement));
@@ -137,7 +128,6 @@ public class ValuePropertiesTest {
     assertFalse(requirement.isSatisfiedBy(ValueProperties.withAny("A").withAny("B").withAny("C").with ("E", "2").get ()));
   }
 
-  @Test
   public void testCompose() {
     final ValueProperties requirement = ValueProperties.with("A", "1").with("B", "2", "3").withAny("C").withOptional("D").with ("E", "1").withOptional("E").get();
     ValueProperties offering = ValueProperties.with ("A", "1").with ("B", "2", "3").withAny ("C").get ();
@@ -177,7 +167,6 @@ public class ValuePropertiesTest {
     assertFalse (offering.equals (props));
   }
   
-  @Test
   public void testEquals () {
     final ValueProperties requirement1 = ValueProperties.with ("A", "1").with ("B", "2", "3").get ();
     final ValueProperties requirement2 = ValueProperties.with ("A", "1").with ("B", "3").get ();
@@ -211,7 +200,6 @@ public class ValuePropertiesTest {
     assertEquals (1, greater.compareTo (lesser));
   }
   
-  @Test
   public void testCompareTo () {
     final ValueProperties empty = ValueProperties.none ();
     final ValueProperties all = ValueProperties.all ();

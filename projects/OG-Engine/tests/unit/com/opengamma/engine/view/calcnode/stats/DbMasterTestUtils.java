@@ -8,14 +8,12 @@ package com.opengamma.engine.view.calcnode.stats;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.Ignore;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Utility class to load the Spring testing config once, speeding up the tests.
  */
-@Ignore
 public final class DbMasterTestUtils {
 
   private static Map<String, ConfigurableApplicationContext> s_context = new ConcurrentHashMap<String, ConfigurableApplicationContext>();

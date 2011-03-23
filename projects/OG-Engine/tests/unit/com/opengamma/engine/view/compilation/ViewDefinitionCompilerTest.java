@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,8 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
@@ -45,14 +43,14 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+@Test
 public class ViewDefinitionCompilerTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
     new ViewEvaluationModel(null, null, 0);
   }
 
-  @Test
   public void testEmptyView() {
     Identifier secIdentifier = Identifier.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
@@ -93,7 +91,6 @@ public class ViewDefinitionCompilerTest {
     assertEquals(0, vem.getAllComputationTargets().size());
   }
 
-  @Test
   public void testSingleValueNoLiveData() {
     Identifier secIdentifier = Identifier.of("SEC", "1");
     PositionImpl pos = new PositionImpl(new BigDecimal(1), secIdentifier);
@@ -149,7 +146,6 @@ public class ViewDefinitionCompilerTest {
     assertTargets(vem, pn.getUniqueId());
   }
 
-  @Test
   public void testSingleValueExternalDependency() {
     Identifier secIdentifier1 = Identifier.of("SEC", "1");
     Identifier secIdentifier2 = Identifier.of("SEC", "2");
@@ -210,7 +206,6 @@ public class ViewDefinitionCompilerTest {
     assertTargets(vem, sec2.getUniqueId(), pn.getUniqueId());
   }
 
-  @Test
   public void testPrimitivesOnlyNoPortfolioReference() {
     ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
@@ -242,7 +237,6 @@ public class ViewDefinitionCompilerTest {
     assertTargets(vem, t1);
   }
 
-  @Test
   public void testPrimitivesAndSecuritiesNoPortfolioReference() {
     ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");

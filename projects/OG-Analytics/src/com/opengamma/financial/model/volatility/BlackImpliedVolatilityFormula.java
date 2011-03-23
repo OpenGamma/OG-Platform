@@ -11,8 +11,8 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFuncti
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -62,14 +62,14 @@ public class BlackImpliedVolatilityFormula {
       }
       if (count++ > MAX_ITERATIONS) {
         final BracketRoot bracketer = new BracketRoot();
-        final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(EPS);
+        final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
         final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
           @SuppressWarnings({"synthetic-access" })
           @Override
-          public Double evaluate(final Double sigma) {
-            final BlackFunctionData newData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), sigma);
-            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(newData) - optionPrice;
+          public Double evaluate(final Double volatility) {
+            final BlackFunctionData myData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), volatility);
+            return BLACK_PRICE_FUNCTION.getPriceFunction(option).evaluate(myData) - optionPrice;
           }
         };
         final double[] range = bracketer.getBracketedPoints(func, 0.0, 10.0);

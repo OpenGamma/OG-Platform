@@ -63,7 +63,7 @@ public class NodeSensitivityCalculatorTest {
     INTERPOLATED_CURVES.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
     final double couponRate = 0.07;
-    IRD = new FixedFloatSwap(fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    IRD = new FixedFloatSwap(fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
 
   }
 

@@ -125,12 +125,12 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     doTest(swap, CURVES);
 
     final AnnuityCouponIbor va = new AnnuityCouponIbor(floatPaymentTimes, indexFixingTimes, indexFixingTimes, indexMaturityTimes, yearFrac, yearFrac, new double[2 * n], 3.43, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME);
-    final AnnuityCouponFixed ca = new AnnuityCouponFixed(fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME);
+        LIBOR_CURVE_NAME, true);
+    final AnnuityCouponFixed ca = new AnnuityCouponFixed(fixedPaymentTimes, swapRate, FUNDING_CURVE_NAME, false);
     swap = new FixedFloatSwap(ca, va);
     doTest(swap, CURVES);
   }
@@ -152,8 +152,9 @@ public class ParRateParallelSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
+        FUNDING_CURVE_NAME, false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     doTest(swap, CURVES);

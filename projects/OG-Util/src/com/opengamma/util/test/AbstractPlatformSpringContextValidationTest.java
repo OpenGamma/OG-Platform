@@ -22,6 +22,7 @@ import com.opengamma.util.PlatformConfigUtils;
  */
 @RunWith(Parameterized.class)
 public abstract class AbstractPlatformSpringContextValidationTest extends AbstractSpringContextValidationTest {
+  // TODO: delete when no subclasses
 
   protected AbstractPlatformSpringContextValidationTest(final String opengammaPlatformRunmode) {
     PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);

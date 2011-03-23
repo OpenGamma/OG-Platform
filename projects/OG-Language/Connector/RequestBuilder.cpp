@@ -17,25 +17,14 @@ bool CRequestBuilder::SendMsg (FudgeMsg msg) {
 		SetLastError (EALREADY);
 		return false;
 	}
-	if (!m_poConnector) {
-		LOGWARN (TEXT ("Connector has already been released"));
-		SetLastError (EALREADY);
-		return false;
-	}
 	m_poQuery = m_poConnector->Call (msg);
-	CConnector::Release (m_poConnector);
-	m_poConnector = NULL;
 	return m_poQuery != NULL;
 }
 
 FudgeMsg CRequestBuilder::RecvMsg (long lTimeout) {
 	LOGDEBUG (TEXT ("Waiting for response"));
 	if (!m_poQuery) {
-		if (m_poConnector) {
-			LOGWARN (TEXT ("Request has not been sent"));
-		} else {
-			LOGWARN (TEXT ("Response has already been received"));
-		}
+		LOGWARN (TEXT ("No request pending"));
 		SetLastError (EALREADY);
 		return NULL;
 	}
@@ -47,6 +36,7 @@ FudgeMsg CRequestBuilder::RecvMsg (long lTimeout) {
 		return NULL;
 	}
 	delete m_poQuery;
+	m_poQuery = NULL;
 	return msg;
 }
 
@@ -54,14 +44,12 @@ CRequestBuilder::CRequestBuilder (CConnector *poConnector) {
 	poConnector->Retain ();
 	m_poConnector = poConnector;
 	m_poQuery = NULL;
-	Init ();
+	m_pResponse = NULL;
 }
 
 CRequestBuilder::~CRequestBuilder () {
-	Done ();
-	if (m_poConnector) {
-		CConnector::Release (m_poConnector);
-	}
+	assert (!m_pResponse);
+	CConnector::Release (m_poConnector);
 	if (m_poQuery) {
 		delete m_poQuery;
 	}

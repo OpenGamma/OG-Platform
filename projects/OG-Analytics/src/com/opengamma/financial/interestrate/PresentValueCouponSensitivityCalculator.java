@@ -17,7 +17,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
@@ -74,13 +73,13 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    return -PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
+    return PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
 
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    return visitSwap(frn, curves);
-  }
+  //  @Override
+  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    return visitSwap(frn, curves);
+  //  }
 
   /**
    * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
@@ -91,7 +90,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInter
    */
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    return PVC.visit(((AnnuityCouponIbor) swap.getReceiveLeg()).withUnitCoupons(), curves);
+    return PVC.visit(((AnnuityCouponIbor) swap.getSecondLeg()).withUnitCoupons(), curves);
   }
 
   @Override

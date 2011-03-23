@@ -97,8 +97,8 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap) {
-    final double a = visit(swap.getPayLeg());
-    final double b = visit(swap.getReceiveLeg());
+    final double a = visit(swap.getFirstLeg());
+    final double b = visit(swap.getSecondLeg());
     return Math.max(a, b);
   }
 

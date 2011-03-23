@@ -10,7 +10,6 @@
 // C++ wrapper for APR memory pool functions
 
 #include <apr-1/apr_pools.h>
-#include "Error.h"
 
 class CMemoryPool {
 private:

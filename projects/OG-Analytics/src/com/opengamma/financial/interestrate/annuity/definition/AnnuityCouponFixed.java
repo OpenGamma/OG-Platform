@@ -25,12 +25,12 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     super(payments);
   }
 
-  public AnnuityCouponFixed(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
-    this(paymentTimes, 1.0, couponRate, yieldCurveName);
+  public AnnuityCouponFixed(final double[] paymentTimes, final double couponRate, final String yieldCurveName, boolean isPayer) {
+    this(paymentTimes, 1.0, couponRate, yieldCurveName, isPayer);
   }
 
-  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName) {
-    this(paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName);
+  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, boolean isPayer) {
+    this(paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName, isPayer);
   }
 
   /**
@@ -40,9 +40,10 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
    * @param couponRate The common coupon rate.
    * @param yearFractions The year fraction of each payment.
    * @param yieldCurveName The discounting curve name.
+   * @param isPayer TODO
    */
-  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
-    super(init(paymentTimes, notional, couponRate, yearFractions, yieldCurveName));
+  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName, boolean isPayer) {
+    super(init(paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
   }
 
   public double getCouponRate() {

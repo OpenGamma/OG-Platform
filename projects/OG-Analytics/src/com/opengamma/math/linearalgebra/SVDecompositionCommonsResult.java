@@ -14,7 +14,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for results of Commons implementation of SVD
+ * Wrapper for results of the Commons implementation of singular value decomposition {@link SVDecompositionCommons}
  */
 public class SVDecompositionCommonsResult implements SVDecompositionResult {
   private final double _condition;
@@ -30,6 +30,9 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
 
   // TODO combine this and the colt result by feeding in the values for condition etc directly. This means that we will need an OG wrapper for the solver 
   // in the commons case or our own for the colt stuff
+  /**
+   * @param svd The result of the SV decomposition, not null
+   */
   public SVDecompositionCommonsResult(final SingularValueDecomposition svd) {
     Validate.notNull(svd);
     _condition = svd.getConditionNumber();
@@ -44,63 +47,99 @@ public class SVDecompositionCommonsResult implements SVDecompositionResult {
     _solver = svd.getSolver();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getConditionNumber() {
     return _condition;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getNorm() {
     return _norm;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getRank() {
     return _rank;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getS() {
     return _s;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getSingularValues() {
     return _singularValues;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getU() {
     return _u;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getUT() {
     return _uTranspose;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getV() {
     return _v;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getVT() {
     return _vTranspose;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] solve(final double[] b) {
     Validate.notNull(b);
     return _solver.solve(b);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);

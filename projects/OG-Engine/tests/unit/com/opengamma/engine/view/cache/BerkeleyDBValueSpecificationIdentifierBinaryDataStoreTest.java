@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.monitor.OperationTimer;
 import com.sleepycat.je.Environment;
@@ -27,6 +27,7 @@ import com.sleepycat.je.Environment;
 /**
  * 
  */
+@Test
 public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest.class);
 
@@ -54,7 +55,6 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     s_dbDirsToDelete.clear();
   }
   
-  @Test
   public void putPerformanceTest() {
     final int numEntries = 5000;
     final int minEntrySize = 50;
@@ -89,7 +89,6 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     dbEnvironment.close();
   }
 
-  @Test
   public void getPerformanceTest() {
     final int numEntries = 500;
     final int numCycles = 5;
@@ -134,7 +133,6 @@ public class BerkeleyDBValueSpecificationIdentifierBinaryDataStoreTest {
     dbEnvironment.close();
   }
   
-  @Test
   public void parallelPutGetTest() throws InterruptedException {
     final int numEntries = 5000;
     final int numCycles = 1;

@@ -170,9 +170,11 @@ public interface ConfigMaster extends NotifyingMaster {
   void remove(final UniqueIdentifier uniqueId);
   
   /**
-   * Get the list of all configuration types in the master
+   * Get the list of all configuration types in the master.
+   * <p>
+   * This returns the complete list of types currently stored.
    * 
-   * @return the collections of configuration types
+   * @return the list of types, independent and modifiable, not null
    */
   List<String> getTypes();
 

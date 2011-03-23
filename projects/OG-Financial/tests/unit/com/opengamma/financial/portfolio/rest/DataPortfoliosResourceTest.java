@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.portfolio.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,9 +17,6 @@ import java.net.URI;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.financial.portfolio.rest.DataPortfolioResource;
 import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
@@ -37,7 +36,7 @@ public class DataPortfoliosResourceTest {
   private UriInfo _uriInfo;
   private DataPortfoliosResource _resource;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     _underlying = mock(PortfolioMaster.class);
     _uriInfo = mock(UriInfo.class);

@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import javax.time.Instant;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
@@ -23,11 +21,12 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
-  
-  private InMemoryInterpolatedYieldCurveDefinitionMaster _master = new InMemoryInterpolatedYieldCurveDefinitionMaster ();
-  
-  @Before
+
+  private InMemoryInterpolatedYieldCurveDefinitionMaster _master;
+
+  @BeforeMethod
   public void init() {
+    _master = new InMemoryInterpolatedYieldCurveDefinitionMaster();
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "A")));
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.GBP, null, "1", "B")));
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "2", "C")));
@@ -56,7 +55,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertNull(_master.getDefinition(Currency.CHF, "1"));
   }
   
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetDefinition_instant () {
     _master.getDefinition (Currency.USD, "FUNDING", Instant.now ());
   }
@@ -109,7 +108,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertEquals("E", yc.getInterpolatorName());
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAdd_duplicate() {
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "E")));
   }
@@ -149,7 +148,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertNotNull(_master.getDefinition(Currency.USD, "1"));
   }
   
-  @Test(expected=UnsupportedOperationException.class)
+  @Test(expectedExceptions=UnsupportedOperationException.class)
   public void testCorrect () {
     _master.correct(null);
   }
@@ -163,12 +162,12 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertEquals("A", yc.getInterpolatorName());
   }
   
-  @Test(expected=DataNotFoundException.class)
+  @Test(expectedExceptions=DataNotFoundException.class)
   public void testGet_missing () {
     _master.get(UniqueIdentifier.of(_master.getIdentifierScheme(), "GBP_3"));
   }
   
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void testGet_deleted () {
     _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_1"));
     _master.get(UniqueIdentifier.of(_master.getIdentifierScheme(), "USD_1"));
@@ -181,7 +180,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertNull(_master.getDefinition(Currency.USD, "1"));
   }
   
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void testRemove_missing () {
     _master.remove(UniqueIdentifier.of(_master.getIdentifierScheme(), "3_USD"));
   }
@@ -205,7 +204,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertNull(_master.getDefinition(Currency.USD, "1"));
   }
   
-  @Test(expected=DataNotFoundException.class)
+  @Test(expectedExceptions=DataNotFoundException.class)
   public void testUpdate_missing () {
     _master.update(new YieldCurveDefinitionDocument(UniqueIdentifier.of(_master.getIdentifierScheme(), "3_USD"), new YieldCurveDefinition(Currency.USD, null, "3", "E")));
   }

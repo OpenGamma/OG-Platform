@@ -32,6 +32,11 @@ public class FunctionAdapter<T1, T2> implements FunctionVisitor<T1, T2> {
   }
 
   @Override
+  public T1 visitInvoke(final Invoke message, final T2 data) {
+    return getUnderlying().visitInvoke(message, data);
+  }
+
+  @Override
   public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
     return getUnderlying().visitQueryAvailable(message, data);
   }

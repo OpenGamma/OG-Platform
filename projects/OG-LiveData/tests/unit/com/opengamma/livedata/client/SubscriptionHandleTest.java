@@ -5,12 +5,10 @@
  */
 package com.opengamma.livedata.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
-
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -20,8 +18,6 @@ import com.opengamma.livedata.test.CollectingLiveDataListener;
 
 /**
  * 
- *
- * @author kirk
  */
 public class SubscriptionHandleTest {
   

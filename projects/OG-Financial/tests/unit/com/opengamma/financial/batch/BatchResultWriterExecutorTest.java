@@ -5,15 +5,14 @@
  */
 package com.opengamma.financial.batch;
 
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.concurrent.Future;
-
-import org.junit.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.test.TestDependencyGraphExecutor;

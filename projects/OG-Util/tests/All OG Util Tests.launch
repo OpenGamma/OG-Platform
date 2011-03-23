@@ -2,229 +2,29 @@
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG Util"/>
-<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS">
-<mapEntry key="com.opengamma.id.DataNotFoundExceptionTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentificationSchemeTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierBundleMapperTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierBundleTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierBundleWithDatesTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierSearchTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierTest" value=""/>
-<mapEntry key="com.opengamma.id.IdentifierWithDatesTest" value=""/>
-<mapEntry key="com.opengamma.id.ObjectIdentifierSupplierTest" value=""/>
-<mapEntry key="com.opengamma.id.ObjectIdentifierTest" value=""/>
-<mapEntry key="com.opengamma.id.UniqueIdentifierSupplierTest" value=""/>
-<mapEntry key="com.opengamma.id.UniqueIdentifierTemplateTest" value=""/>
-<mapEntry key="com.opengamma.id.UniqueIdentifierTest" value=""/>
-<mapEntry key="com.opengamma.id.VersionCorrectionTest" value=""/>
-<mapEntry key="com.opengamma.transport.FudgeConduitTest" value=""/>
-<mapEntry key="com.opengamma.transport.InMemoryBatchMessageDispatcherTest" value=""/>
-<mapEntry key="com.opengamma.transport.TaxonomyGatheringFudgeMessageSenderTest" value=""/>
-<mapEntry key="com.opengamma.transport.jaxrs.FudgeProviders" value=""/>
-<mapEntry key="com.opengamma.transport.jaxrs.HttpMethodFilterTest" value=""/>
-<mapEntry key="com.opengamma.transport.jms.JmsBatchMessageDispatcherTest" value=""/>
-<mapEntry key="com.opengamma.transport.jms.JmsByteArrayTransportTest" value=""/>
-<mapEntry key="com.opengamma.transport.socket.EndPointDescriptionTest" value=""/>
-<mapEntry key="com.opengamma.transport.socket.MessageBatchingWriterTest" value=""/>
-<mapEntry key="com.opengamma.transport.socket.SocketFudgeConnectionConduitTest" value=""/>
-<mapEntry key="com.opengamma.transport.socket.SocketFudgeMessageConduitTest" value=""/>
-<mapEntry key="com.opengamma.transport.socket.SocketFudgeRequestConduitTest" value=""/>
-<mapEntry key="com.opengamma.util.ArgumentCheckerTest" value=""/>
-<mapEntry key="com.opengamma.util.CompareUtilsTest" value=""/>
-<mapEntry key="com.opengamma.util.GUIDGeneratorTest" value=""/>
-<mapEntry key="com.opengamma.util.PerformanceCounterTest" value=""/>
-<mapEntry key="com.opengamma.util.RegexUtilsTest" value=""/>
-<mapEntry key="com.opengamma.util.VersionUtilsTest" value=""/>
-<mapEntry key="com.opengamma.util.db.DbDateUtilsTest" value=""/>
-<mapEntry key="com.opengamma.util.db.DbHelperTest" value=""/>
-<mapEntry key="com.opengamma.util.db.DbSourceTest" value=""/>
-<mapEntry key="com.opengamma.util.db.DerbyDbHelperTest" value=""/>
-<mapEntry key="com.opengamma.util.db.HSQLDbHelperTest" value=""/>
-<mapEntry key="com.opengamma.util.db.PagingRequestTest" value=""/>
-<mapEntry key="com.opengamma.util.db.PagingTest" value=""/>
-<mapEntry key="com.opengamma.util.db.PostgreSQLDbHelperTest" value=""/>
-<mapEntry key="com.opengamma.util.money.CurrencyTest" value=""/>
-<mapEntry key="com.opengamma.util.monitor.OperationTimerTest" value=""/>
-<mapEntry key="com.opengamma.util.rest.AbstractExceptionMapperTestHelper" value=""/>
-<mapEntry key="com.opengamma.util.rest.DataNotFoundExceptionMapperTest" value=""/>
-<mapEntry key="com.opengamma.util.rest.IllegalArgumentExceptionMapperTest" value=""/>
-<mapEntry key="com.opengamma.util.rest.ThrowableExceptionMapperTest" value=""/>
-<mapEntry key="com.opengamma.util.rest.UnsupportedOperationExceptionMapperTest" value=""/>
-<mapEntry key="com.opengamma.util.rest.WebApplicationExceptionTest" value=""/>
-<mapEntry key="com.opengamma.util.test.DBToolTest" value=""/>
-<mapEntry key="com.opengamma.util.test.TimeoutTest" value=""/>
-<mapEntry key="com.opengamma.util.time.DateUtilTest" value=""/>
-<mapEntry key="com.opengamma.util.time.ExpiryTest" value=""/>
-<mapEntry key="com.opengamma.util.time.TenorUtilTest" value=""/>
-<mapEntry key="com.opengamma.util.time.fudgemsg.ZonedDateTimeFudgeEncodingTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ArrayDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ArrayDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ArrayLocalDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ArraySQLDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ArrayZonedDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.BulkTimeSeriesOperationsTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.DateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.DoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ListDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ListDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ListLocalDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ListSQLDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ListZonedDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.LocalDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.MapDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.MapDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.MapLocalDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.MapSQLDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.MapZonedDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.SQLDateDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.ZonedDateTimeDoubleTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ArrayDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ArrayDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ArrayLocalDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ArraySQLDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ArrayZonedDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.BigDecimalObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.DateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ListDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ListDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ListLocalDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ListSQLDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ListZonedDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.LocalDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.MapDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.MapDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.MapLocalDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.MapSQLDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.MapZonedDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.SQLDateObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.timeseries.object.ZonedDateTimeObjectTimeSeriesTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.DoublesPairTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.FirstThenSecondDoublesPairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.FirstThenSecondPairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.IntDoublePairTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.LongDoublePairTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.MagnitudeDoublesPairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.MagnitudePairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.ObjectsPairTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.QuadrantDoublesPairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.QuadrantPairComparatorTest" value=""/>
-<mapEntry key="com.opengamma.util.tuple.TripleTest" value=""/>
-</mapAttribute>
-<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST">
-<listEntry value="com.opengamma.id.IdentificationSchemeTest"/>
-<listEntry value="com.opengamma.id.UniqueIdentifierTemplateTest"/>
-<listEntry value="com.opengamma.id.DataNotFoundExceptionTest"/>
-<listEntry value="com.opengamma.id.VersionCorrectionTest"/>
-<listEntry value="com.opengamma.id.IdentifierSearchTest"/>
-<listEntry value="com.opengamma.id.IdentifierBundleTest"/>
-<listEntry value="com.opengamma.id.UniqueIdentifierSupplierTest"/>
-<listEntry value="com.opengamma.id.ObjectIdentifierSupplierTest"/>
-<listEntry value="com.opengamma.id.IdentifierBundleMapperTest"/>
-<listEntry value="com.opengamma.id.IdentifierBundleWithDatesTest"/>
-<listEntry value="com.opengamma.id.UniqueIdentifierTest"/>
-<listEntry value="com.opengamma.id.ObjectIdentifierTest"/>
-<listEntry value="com.opengamma.id.IdentifierWithDatesTest"/>
-<listEntry value="com.opengamma.id.IdentifierTest"/>
-<listEntry value="com.opengamma.transport.FudgeConduitTest"/>
-<listEntry value="com.opengamma.transport.TaxonomyGatheringFudgeMessageSenderTest"/>
-<listEntry value="com.opengamma.transport.InMemoryBatchMessageDispatcherTest"/>
-<listEntry value="com.opengamma.transport.jaxrs.FudgeProviders"/>
-<listEntry value="com.opengamma.transport.jaxrs.HttpMethodFilterTest"/>
-<listEntry value="com.opengamma.transport.jms.JmsBatchMessageDispatcherTest"/>
-<listEntry value="com.opengamma.transport.jms.JmsByteArrayTransportTest"/>
-<listEntry value="com.opengamma.transport.socket.SocketFudgeConnectionConduitTest"/>
-<listEntry value="com.opengamma.transport.socket.SocketFudgeRequestConduitTest"/>
-<listEntry value="com.opengamma.transport.socket.SocketFudgeMessageConduitTest"/>
-<listEntry value="com.opengamma.transport.socket.EndPointDescriptionTest"/>
-<listEntry value="com.opengamma.transport.socket.MessageBatchingWriterTest"/>
-<listEntry value="com.opengamma.util.GUIDGeneratorTest"/>
-<listEntry value="com.opengamma.util.RegexUtilsTest"/>
-<listEntry value="com.opengamma.util.VersionUtilsTest"/>
-<listEntry value="com.opengamma.util.CompareUtilsTest"/>
-<listEntry value="com.opengamma.util.ArgumentCheckerTest"/>
-<listEntry value="com.opengamma.util.PerformanceCounterTest"/>
-<listEntry value="com.opengamma.util.db.DerbyDbHelperTest"/>
-<listEntry value="com.opengamma.util.db.DbDateUtilsTest"/>
-<listEntry value="com.opengamma.util.db.PostgreSQLDbHelperTest"/>
-<listEntry value="com.opengamma.util.db.PagingTest"/>
-<listEntry value="com.opengamma.util.db.DbHelperTest"/>
-<listEntry value="com.opengamma.util.db.DbSourceTest"/>
-<listEntry value="com.opengamma.util.db.PagingRequestTest"/>
-<listEntry value="com.opengamma.util.db.HSQLDbHelperTest"/>
-<listEntry value="com.opengamma.util.money.CurrencyTest"/>
-<listEntry value="com.opengamma.util.monitor.OperationTimerTest"/>
-<listEntry value="com.opengamma.util.rest.WebApplicationExceptionTest"/>
-<listEntry value="com.opengamma.util.rest.UnsupportedOperationExceptionMapperTest"/>
-<listEntry value="com.opengamma.util.rest.IllegalArgumentExceptionMapperTest"/>
-<listEntry value="com.opengamma.util.rest.AbstractExceptionMapperTestHelper"/>
-<listEntry value="com.opengamma.util.rest.DataNotFoundExceptionMapperTest"/>
-<listEntry value="com.opengamma.util.rest.ThrowableExceptionMapperTest"/>
-<listEntry value="com.opengamma.util.test.TimeoutTest"/>
-<listEntry value="com.opengamma.util.test.DBToolTest"/>
-<listEntry value="com.opengamma.util.time.TenorUtilTest"/>
-<listEntry value="com.opengamma.util.time.ExpiryTest"/>
-<listEntry value="com.opengamma.util.time.DateUtilTest"/>
-<listEntry value="com.opengamma.util.time.fudgemsg.ZonedDateTimeFudgeEncodingTest"/>
-<listEntry value="com.opengamma.util.timeseries.ListSQLDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ListZonedDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.MapDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ArrayLocalDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.LocalDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.MapDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ZonedDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ListDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ArraySQLDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ArrayZonedDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.MapSQLDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.MapLocalDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.BulkTimeSeriesOperationsTest"/>
-<listEntry value="com.opengamma.util.timeseries.MapZonedDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.SQLDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ArrayDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ListDateTimeDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ListLocalDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.DateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.DoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.ArrayDateDoubleTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ArrayDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.LocalDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.MapZonedDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.BigDecimalObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ArrayDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.SQLDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.MapDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ListDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ListDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.MapSQLDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ListSQLDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.MapLocalDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ArrayLocalDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ZonedDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.MapDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ArraySQLDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.DateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ListLocalDateObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ListZonedDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.timeseries.object.ArrayZonedDateTimeObjectTimeSeriesTest"/>
-<listEntry value="com.opengamma.util.tuple.ObjectsPairTest"/>
-<listEntry value="com.opengamma.util.tuple.FirstThenSecondPairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.MagnitudePairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.DoublesPairTest"/>
-<listEntry value="com.opengamma.util.tuple.QuadrantPairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.TripleTest"/>
-<listEntry value="com.opengamma.util.tuple.FirstThenSecondDoublesPairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.QuadrantDoublesPairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.LongDoublePairTest"/>
-<listEntry value="com.opengamma.util.tuple.MagnitudeDoublesPairComparatorTest"/>
-<listEntry value="com.opengamma.util.tuple.IntDoublePairTest"/>
-</listAttribute>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS" />
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST" />
 <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
 <listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
 <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
-<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.id"/>
+<listEntry value="com.opengamma.transport"/>
+<listEntry value="com.opengamma.transport.jaxrs"/>
+<listEntry value="com.opengamma.transport.jms"/>
+<listEntry value="com.opengamma.transport.socket"/>
+<listEntry value="com.opengamma.util"/>
+<listEntry value="com.opengamma.util.money"/>
+<listEntry value="com.opengamma.util.monitor"/>
+<listEntry value="com.opengamma.util.rest"/>
+<listEntry value="com.opengamma.util.test"/>
+<listEntry value="com.opengamma.util.time"/>
+<listEntry value="com.opengamma.util.time.fudgemsg"/>
+<listEntry value="com.opengamma.util.timeseries"/>
+<listEntry value="com.opengamma.util.timeseries.object"/>
+<listEntry value="com.opengamma.util.tuple"/>
+</listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
-<intAttribute key="org.testng.eclipse.TYPE" value="1"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="5"/>
 </launchConfiguration>

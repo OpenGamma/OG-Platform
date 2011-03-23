@@ -8,7 +8,7 @@ package com.opengamma.math.matrix;
 import org.apache.commons.lang.Validate;
 
 /**
- * A minimal implementation of a 2D matrix of doubles 
+ * A minimal implementation of a 2D matrix of doubles.
  * 
  */
 public class DoubleMatrix2D implements Matrix<Double> {
@@ -16,9 +16,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
   private final int _rows;
   private final int _columns;
   private final int _elements;
-  /**
-   * Empty 2D matrix
-   */
+  /** * Empty 2D matrix */
   public static final DoubleMatrix2D EMPTY_MATRIX = new DoubleMatrix2D(new double[0][0]);
 
   /**
@@ -36,6 +34,10 @@ public class DoubleMatrix2D implements Matrix<Double> {
   }
 
   // REVIEW could do with a constructor that does NOT copy the data
+  /**
+   * @param data The data, not null. The data is expected in row-column form.
+   * @throws IllegalArgumentException If the matrix is not rectangular
+   */
   public DoubleMatrix2D(final double[][] data) {
     Validate.notNull(data);
     if (data.length == 0) {
@@ -48,9 +50,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        if (data[i].length != _columns) {
-          throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
-        }
+        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row");
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = data[i][j];
         }
@@ -59,6 +59,10 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
+  /**
+   * @param data The data, not null. The data is expected in row-column form.
+   * @throws IllegalArgumentException If the matrix is not rectangular
+   */
   public DoubleMatrix2D(final Double[][] data) {
     Validate.notNull(data);
     if (data.length == 0) {
@@ -71,9 +75,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        if (data[i].length != _columns) {
-          throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
-        }
+        Validate.isTrue(data[i].length == _columns, "Number of columns did not match that in first row");
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = data[i][j];
         }
@@ -82,10 +84,20 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
+  /**
+   * Returns the row for a particular index.
+   * @param index The index
+   * @return The row 
+   */
   public DoubleMatrix1D getRowVector(final int index) {
     return new DoubleMatrix1D(_data[index]);
   }
 
+  /**
+   * Returns the column for a particular index.
+   * @param index The index
+   * @return The column
+   */
   public DoubleMatrix1D getColumnVector(final int index) {
     final double[] res = new double[_rows];
     for (int i = 0; i < _rows; i++) {
@@ -94,6 +106,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
     return new DoubleMatrix1D(res);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double getEntry(final int... index) {
     return _data[index[0]][index[1]];
@@ -101,33 +116,42 @@ public class DoubleMatrix2D implements Matrix<Double> {
   }
 
   /**
-   * Returns the underlying matrix data. If this is changed so is the matrix
-   * @see #toArray to get clone of data
-   * @return array of arrays containing the matrix elements 
+   * Returns the underlying matrix data. If this is changed so is the matrix.
+   * @see #toArray to get a copy of data
+   * @return An array of arrays containing the matrix elements 
    */
   public double[][] getData() {
     return _data;
   }
 
   /**
-   * Convert the matrix to a array of double arrays. 
-   * The array is independent from matrix data, its elements are copied.
-   * @return array of arrays containing a copy of matrix elements
+   * Convert the matrix to an array of double arrays. 
+   * As its elements are copied, the array is independent from the matrix data.
+   * @return An array of arrays containing a copy of matrix elements
    */
   public double[][] toArray() {
     final DoubleMatrix2D temp = new DoubleMatrix2D(_data);
     return temp.getData();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfElements() {
     return _elements;
   }
 
+  /**
+   * @return The number of rows in this matrix
+   */
   public int getNumberOfRows() {
     return _rows;
   }
 
+  /**
+   * @return The number of columns in this matrix
+   */
   public int getNumberOfColumns() {
     return _columns;
   }

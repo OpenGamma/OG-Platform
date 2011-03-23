@@ -5,15 +5,11 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -22,12 +18,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.MockPositionSource;
@@ -73,13 +68,21 @@ import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.Timeout;
 
-@RunWith(Parameterized.class)
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;
   private static final int JOB_FINISH_TIME = (int)Timeout.standardTimeoutMillis();
   private static final int SLEEP_TIME = JOB_FINISH_TIME / 10;
   private static final Logger s_logger = LoggerFactory.getLogger(CancelExecutionTest.class);
+
+  @DataProvider(name = "executors")
+  Object[][] data_executors() {
+    return new Object[][] {
+      {multipleNodeExecutorFactoryManyJobs()},
+      {multipleNodeExecutorFactoryOneJob()},
+      {new SingleNodeExecutorFactory()},
+    };
+  }
 
   private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryOneJob() {
     final MultipleNodeExecutorFactory factory = new MultipleNodeExecutorFactory();
@@ -93,23 +96,7 @@ public class CancelExecutionTest {
     return factory;
   }
 
-  @Parameters
-  public static Collection<Object[]> getParameters() {
-    final List<Object[]> executors = new ArrayList<Object[]>();
-    executors.add(new Object[] {multipleNodeExecutorFactoryManyJobs()});
-    executors.add(new Object[] {multipleNodeExecutorFactoryOneJob()});
-    executors.add(new Object[] {new SingleNodeExecutorFactory()});
-    // The BatchExecutor doesn't support cancellation
-    return executors;
-  }
-
-  private final DependencyGraphExecutorFactory<?> _factory;
   private final AtomicInteger _functionCount = new AtomicInteger();
-
-  public CancelExecutionTest(final DependencyGraphExecutorFactory<?> factory) {
-    _factory = factory;
-    s_logger.info("CancelExecutionTest running with {}", factory);
-  }
 
   private void sleep() {
     try {
@@ -118,7 +105,7 @@ public class CancelExecutionTest {
     }
   }
 
-  private Future<?> executeTestJob() {
+  private Future<?> executeTestJob(DependencyGraphExecutorFactory<?> factory) {
     final LiveDataEntitlementChecker liveDataEntitlementChecker = new PermissiveLiveDataEntitlementChecker();
     final InMemoryLKVSnapshotProvider liveData = new InMemoryLKVSnapshotProvider();
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
@@ -156,7 +143,7 @@ public class CancelExecutionTest {
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, factory, viewPermissionProvider, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -188,10 +175,10 @@ public class CancelExecutionTest {
   /**
    * Allow the job to finish, then call {@link Future#cancel}.
    */
-  @Test
-  public void testJobFinish() throws Exception {
+  @Test(dataProvider = "executors")
+  public void testJobFinish(DependencyGraphExecutorFactory<?> factory) throws Exception {
     s_logger.info("testJobFinish");
-    Future<?> job = executeTestJob();
+    Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
       if (jobFinished()) {
@@ -203,16 +190,16 @@ public class CancelExecutionTest {
       }
       sleep();
     }
-    fail("Job didn't finish in time available");
+    Assert.fail("Job didn't finish in time available");
   }
 
   /**
    * Call {@link Future#cancel} before the job finishes, with interrupt enabled.
    */
-  @Test
-  public void testJobCancelWithInterrupt() {
+  @Test(dataProvider = "executors")
+  public void testJobCancelWithInterrupt(DependencyGraphExecutorFactory<?> factory) {
     s_logger.info("testJobCancelWithInterrupt");
-    Future<?> job = executeTestJob();
+    Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     job.cancel(true);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
@@ -220,7 +207,7 @@ public class CancelExecutionTest {
         assertTrue(job.isCancelled());
         assertTrue(job.isDone());
         s_logger.info("Job finished in {}", i);
-        fail("Job finished normally despite cancel");
+        Assert.fail("Job finished normally despite cancel");
         return;
       }
       sleep();
@@ -230,10 +217,10 @@ public class CancelExecutionTest {
   /**
    * Call {@link Future#cancel} before the job finishes, with no interrupt.
    */
-  @Test
-  public void testJobCancelWithoutInterrupt() {
+  @Test(dataProvider = "executors")
+  public void testJobCancelWithoutInterrupt(DependencyGraphExecutorFactory<?> factory) {
     s_logger.info("testJobCancelWithoutInterrupt");
-    Future<?> job = executeTestJob();
+    Future<?> job = executeTestJob(factory);
     assertNotNull(job);
     job.cancel(false);
     for (int i = 0; i < JOB_FINISH_TIME / SLEEP_TIME; i++) {
@@ -241,7 +228,7 @@ public class CancelExecutionTest {
         assertTrue(job.isCancelled());
         assertTrue(job.isDone());
         s_logger.info("Job finished in {}", i);
-        fail("Job finished normally despite cancel");
+        Assert.fail("Job finished normally despite cancel");
         return;
       }
       sleep();

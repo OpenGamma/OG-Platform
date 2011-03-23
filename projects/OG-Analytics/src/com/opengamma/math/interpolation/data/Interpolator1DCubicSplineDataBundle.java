@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.linearalgebra.TridiagonalMatrix;
-import com.opengamma.math.linearalgebra.TridiagonalMatrixInvertor;
+import com.opengamma.math.linearalgebra.InverseTridiagonalMatrixCalculator;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -190,7 +190,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   }
 
   private DoubleMatrix2D getInverseTridiagonalMatrix(final double[] deltaX) {
-    final TridiagonalMatrixInvertor invertor = new TridiagonalMatrixInvertor();
+    final InverseTridiagonalMatrixCalculator invertor = new InverseTridiagonalMatrixCalculator();
     final int n = deltaX.length + 1;
     final double[] a = new double[n];
     final double[] b = new double[n - 1];

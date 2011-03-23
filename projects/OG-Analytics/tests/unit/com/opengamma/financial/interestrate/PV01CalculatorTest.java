@@ -98,7 +98,7 @@ public class PV01CalculatorTest {
       yearFracs[i] = yearFrac;
     }
 
-    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(paymentTimes, 31234.31231, coupon, yearFracs, FUNDING_CURVE_NAME, true);
     doTest(annuity, CURVES);
   }
 
@@ -124,7 +124,7 @@ public class PV01CalculatorTest {
     }
 
     final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, paymentYearFracs, forwardYearFracs, spreads, Math.E, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME);
+        LIBOR_CURVE_NAME, true);
     doTest(annuity, CURVES);
 
   }
@@ -162,7 +162,7 @@ public class PV01CalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, false);
     doTest(swap, CURVES);
   }
 
@@ -183,8 +183,9 @@ public class PV01CalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FUNDING_CURVE_NAME,
+        FUNDING_CURVE_NAME, false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
     doTest(swap, CURVES);

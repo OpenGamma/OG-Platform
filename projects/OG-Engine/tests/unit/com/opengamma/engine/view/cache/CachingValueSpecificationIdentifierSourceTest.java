@@ -5,15 +5,13 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.AssertJUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -24,6 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
+@Test
 public class CachingValueSpecificationIdentifierSourceTest {
   
   @Test
@@ -42,7 +41,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
       @Override
       public long getIdentifier(ValueSpecification spec) {
         if (shouldFail.get()) {
-          Assert.fail("Should not have called underlying.");
+          AssertJUnit.fail("Should not have called underlying.");
         }
         return realIdentifiers.get (spec);
       }
@@ -50,7 +49,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
       @Override
       public ValueSpecification getValueSpecification(long identifier) {
         if (shouldFail.get ()) {
-          Assert.fail ("Should not have called underlying.");
+          AssertJUnit.fail ("Should not have called underlying.");
         }
         return valueSpec[(int)identifier];
       }

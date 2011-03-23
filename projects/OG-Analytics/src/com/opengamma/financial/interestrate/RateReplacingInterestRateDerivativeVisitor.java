@@ -87,12 +87,12 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public TenorSwap<? extends Payment> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Double rate) {
-    return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getPayLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getReceiveLeg(), rate));
+    return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
   }
 
   @Override
   public FixedFloatSwap visitFixedFloatSwap(final FixedFloatSwap swap, final Double rate) {
-    return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getReceiveLeg());
+    return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
 }

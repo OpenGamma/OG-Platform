@@ -24,31 +24,31 @@ import com.opengamma.util.CompareUtils;
  */
 public class TenorSwapDefinition implements FixedIncomeInstrumentDefinition<TenorSwap<Payment>> {
   private static final Logger s_logger = LoggerFactory.getLogger(TenorSwapDefinition.class);
-  private final FloatingSwapLegDefinition _payLeg;
-  private final FloatingSwapLegDefinition _receiveLeg;
+  private final FloatingSwapLegDefinition _firstLeg;
+  private final FloatingSwapLegDefinition _secondLeg;
 
-  public TenorSwapDefinition(final FloatingSwapLegDefinition payLeg, final FloatingSwapLegDefinition receiveLeg) {
-    Validate.notNull(payLeg, "pay leg");
-    Validate.notNull(receiveLeg, "receive leg");
-    Validate.isTrue(CompareUtils.closeEquals(payLeg.getSpread(), 0), "Spread on pay leg must be zero");
-    _payLeg = payLeg;
-    _receiveLeg = receiveLeg;
+  public TenorSwapDefinition(final FloatingSwapLegDefinition firstLeg, final FloatingSwapLegDefinition secondLeg) {
+    Validate.notNull(firstLeg, "first leg");
+    Validate.notNull(secondLeg, "second leg");
+    Validate.isTrue(CompareUtils.closeEquals(firstLeg.getSpread(), 0), "Spread on first leg must be zero"); //TODO:why?
+    _firstLeg = firstLeg;
+    _secondLeg = secondLeg;
   }
 
-  public FloatingSwapLegDefinition getPayLeg() {
-    return _payLeg;
+  public FloatingSwapLegDefinition getFirstLeg() {
+    return _firstLeg;
   }
 
-  public FloatingSwapLegDefinition getReceiveLeg() {
-    return _receiveLeg;
+  public FloatingSwapLegDefinition getSecondLeg() {
+    return _secondLeg;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _payLeg.hashCode();
-    result = prime * result + _receiveLeg.hashCode();
+    result = prime * result + _firstLeg.hashCode();
+    result = prime * result + _secondLeg.hashCode();
     return result;
   }
 
@@ -64,10 +64,10 @@ public class TenorSwapDefinition implements FixedIncomeInstrumentDefinition<Teno
       return false;
     }
     final TenorSwapDefinition other = (TenorSwapDefinition) obj;
-    if (!ObjectUtils.equals(_payLeg, other._payLeg)) {
+    if (!ObjectUtils.equals(_firstLeg, other._firstLeg)) {
       return false;
     }
-    return ObjectUtils.equals(_receiveLeg, other._receiveLeg);
+    return ObjectUtils.equals(_secondLeg, other._secondLeg);
   }
 
   @Override
@@ -75,8 +75,8 @@ public class TenorSwapDefinition implements FixedIncomeInstrumentDefinition<Teno
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 2);
     s_logger.info("Using first yield curve name as the funding curve name, the second as the pay leg libor curve name and the third as the receive leg libor curve name");
-    final GenericAnnuity<Payment> payLeg = _payLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[1]);
-    final GenericAnnuity<Payment> receiveLeg = _receiveLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[2]);
+    final GenericAnnuity<Payment> payLeg = _firstLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[1]);
+    final GenericAnnuity<Payment> receiveLeg = _secondLeg.toDerivative(date, yieldCurveNames[0], yieldCurveNames[2]);
     return new TenorSwap<Payment>(payLeg, receiveLeg);
   }
 

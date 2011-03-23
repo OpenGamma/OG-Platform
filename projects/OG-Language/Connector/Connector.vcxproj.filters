@@ -96,6 +96,45 @@
     <ClInclude Include="com_opengamma_language_connector_Procedure.h">
       <Filter>Header Files\Fudge</Filter>
     </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Available.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Available_Entry.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_livedata_Available.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_livedata_Available_Entry.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_procedure_Available.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_procedure_Available_Entry.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_definition_Definition.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_definition_Parameter.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Definition.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_livedata_Definition.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_procedure_Definition.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Invoke.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Result.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -168,6 +207,36 @@
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_connector_Procedure.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Available_Entry.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Available_Entry.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Available_Entry.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_definition_Definition.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Definition.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Definition.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Definition.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_definition_Parameter.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Invoke.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Result.c">
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
   </ItemGroup>

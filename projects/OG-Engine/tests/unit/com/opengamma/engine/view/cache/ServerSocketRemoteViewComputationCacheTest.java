@@ -5,9 +5,11 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -16,9 +18,6 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +36,8 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * A test of the remote View Computation Cache Source infrastucture operating
  * over proper sockets.
- *
  */
+@Test
 public class ServerSocketRemoteViewComputationCacheTest {
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketRemoteViewComputationCacheTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -48,7 +47,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
   private ServerSocketFudgeConnectionReceiver _serverSocket;
   private SocketFudgeConnection _socket;
   
-  @Before
+  @BeforeMethod
   public void setupCacheSource() throws UnknownHostException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource (s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer (cache);
@@ -63,7 +62,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
     _cacheSource = new RemoteViewComputationCacheSource (client, new InMemoryBinaryDataStoreFactory (), EHCacheUtils.createCacheManager ());
   }
   
-  @After
+  @AfterMethod
   public void shutDown() {
     if(_socket != null) {
       _socket.stop();

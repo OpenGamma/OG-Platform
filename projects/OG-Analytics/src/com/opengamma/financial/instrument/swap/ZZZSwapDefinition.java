@@ -18,7 +18,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 
 /**
- * Class describing a generic swap with two legs.
+ * Class describing a generic swap with two legs. One should be payer and the other receiver.
  * @param <P1> The payment type on first leg.
  * @param <P2> The payment type on second leg.
  *
@@ -31,6 +31,7 @@ public class ZZZSwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentD
   public ZZZSwapDefinition(AnnuityDefinition<P1> firstLeg, AnnuityDefinition<P2> secondLeg) {
     Validate.notNull(firstLeg, "first leg");
     Validate.notNull(secondLeg, "second leg");
+    Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }
@@ -49,6 +50,14 @@ public class ZZZSwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentD
    */
   public AnnuityDefinition<P2> getSecondLeg() {
     return _secondLeg;
+  }
+
+  @Override
+  public String toString() {
+    String result = "Swap : \n";
+    result += "First leg: \n" + _firstLeg.toString();
+    result += "\nSecond leg: \n" + _secondLeg.toString();
+    return result;
   }
 
   @Override
