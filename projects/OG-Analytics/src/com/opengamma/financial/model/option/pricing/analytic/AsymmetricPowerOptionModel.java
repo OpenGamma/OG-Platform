@@ -31,7 +31,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * where 
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
- * d_1 = \\frac{\\ln{\\frac{S}{K^{\\frac{1}{i}}}} + (b + (i - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
+ * d_1 = \\frac{\\ln\\left(\\frac{S}{K^{\\frac{1}{i}}}\\right) + (b + (i - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
  * \\end{align*}
  * }
  * and

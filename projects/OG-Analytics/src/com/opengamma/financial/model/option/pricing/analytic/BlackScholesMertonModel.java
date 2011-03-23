@@ -106,6 +106,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
     private final double _d2;
     private final double _price;
 
+    /**
+     * @param data The data, not null
+     * @param pricingFunction, The pricing function, not null
+     * @param definition, The definition, not null
+     */
     public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle data, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
       super(pricingFunction, data, definition);
       _s = data.getSpot();
@@ -121,6 +126,15 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       _price = pricingFunction.evaluate(data);
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Carry rho}_{call} &= TSe^{(b-r)T}N(d_1)\\\\
+     * \\text{Carry rho}_{put} &= -TSe^{(b-r)T}N(-d_1)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitCarryRho() {
       final int sign = _isCall ? 1 : -1;
@@ -128,12 +142,30 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Delta_{call} &= e^{(b-r)T)}N(d_1)\\\\
+     * \\Delta_{put} &= e^{(b-r)T}(N(d_1) - 1)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitDelta() {
       final double value = _df * (_isCall ? NORMAL.getCDF(_d1) : NORMAL.getCDF(_d1) - 1);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Delta bleed}_{call} &= -e^{(b-r)T}\\left[n(d_1)\\left(\\frac{b}{\\sigma\\sqrt{T}} + \\frac{d_2}{2T}\\right) + (b - r)N(d_1)\\right]\\\\
+     * \\text{Delta bleed}_{put} &= -e^{(b-r)T}\\left[n(d_1)\\left(\\frac{b}{\\sigma\\sqrt{T}} - \\frac{d_2}{2T}\\right) + (b - r)N(d_1)\\right]
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitDeltaBleed() {
       final int sign = _isCall ? 1 : -1;
@@ -141,53 +173,128 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Driftless theta} = \\frac{Sn(d_1)\\sigma}{2\\sqrt{T}}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitDriftlessTheta() {
       final double value = -_s * NORMAL.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{dVannadVol} = \\frac{\\text{Vanna}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - 1\\right)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitDVannaDVol() {
       final double value = visitVanna() * (_d1 * _d2 - _d1 / _d2 - 1) / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{dZetadVol}_{call} &= -\\frac{n(d_2)d_1}{\\sigma}\\\\
+     * \\text{dZetadVol}_{put} &= \\frac{n(d_2)d_1}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitDZetaDVol() {
       final double value = (_isCall ? -1 : 1) * NORMAL.getPDF(_d2) * _d1 / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Lambda_{call} &= \\frac{e^{(b-r)T}N(d_1)S}{P_{call}}\\\\
+     * \\Lambda_{put} &= \\frac{e^{(b-r)T}(N(d_1) - 1)S}{P_{put}}\\\\
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitElasticity() {
       final double value = _df * (_isCall ? NORMAL.getCDF(_d1) : NORMAL.getCDF(_d1) - 1) * _s / _price;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Gamma = \\frac{n(d_1)e^{(b-r)T}}{S\\sigma\\sqrt{T}}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitGamma() {
       final double value = _df * NORMAL.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Gamma bleed} = \\Gamma\\left[r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} + \\frac{1 - d_1 d_2}{2T}\\right]
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitGammaBleed() {
       final double value = visitGamma() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Gamma_P = \\frac{S\\Gamma}{100}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitGammaP() {
       return visitGamma() * _s / 100;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Gamma bleed}_P = \\Gamma_P\\left[r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} + \\frac{1 - d_1 d_2}{2T}\\right]
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitGammaPBleed() {
       final double value = visitGammaP() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Phi_{call} &= -TSe^{(b-r)T}N(d_1)\\\\
+     * \\Phi_{put} &= TSe^{(b-r)T}N(-d_1)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitPhi() {
       final int sign = _isCall ? 1 : -1;
@@ -195,11 +302,27 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitPrice() {
       return _price;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\rho_{call} &= TKe^{-rT}N(d_2)\\\\
+     * \\rho_{put} &= -TKe^{-rT}N(-d_2)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitRho() {
       final int sign = _isCall ? 1 : -1;
@@ -207,18 +330,43 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Speed} = \\frac{\\Gamma\\left(1 + \\frac{d_1}{\\sigma\\sqrt{T}}\\right)}{S}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitSpeed() {
       final double value = -visitGamma() * (1 + _d1 / (_sigma * Math.sqrt(_t))) / _s;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Speed}_P = -\\frac{\\Gamma d_1}{100\\sigma\\sqrt{T}}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitSpeedP() {
       final double value = -visitGamma() * _d1 / (100 * _sigma * Math.sqrt(_t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Strike delta}_{call} &= -e^{-rT}N(d_2)\\\\
+     * \\text{Strike delta}_{put} &= e^{-rT}N(-d_2)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitStrikeDelta() {
       final int sign = _isCall ? 1 : -1;
@@ -226,12 +374,29 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Strike gamma} = \\frac{n(d_2)e^{-rT}}{K\\sigma\\sqrt{T}}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitStrikeGamma() {
       final double value = NORMAL.getPDF(_d2) * Math.exp(-_r * _t) / (_k * _sigma * Math.sqrt(_t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\Theta_{call} &= -\\frac{Se^{(b-r)T}\\sqrt{T}}{2\\sqrt{T}} - (b - r)Se^{(b-r)T}N(d_1) - rKe^{-rT}N(d_2)\\\\
+     * \\Theta_{put} &= -\\frac{Se^{(b-r)T}\\sqrt{T}}{2\\sqrt{T}} + (b - r)Se^{(b-r)T}N(-d_1) + rKe^{-rT}N(-d_2)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitTheta() {
       final int sign = _isCall ? 1 : -1;
@@ -240,90 +405,207 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vanna} = \\frac{-e^{(b-r)T}d_2 n(d_1)}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVanna() {
       final double value = -_df * _d2 * NORMAL.getPDF(_d1) / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Variance vomma} = \\frac{Se^{(b-r)T}\\sqrt{T}n(d_1)[(d_1 d_2 - 1)(d_1 d_2 - 3) - (d_1^2 + d_2^2)]}{8\\sigma^5}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVarianceUltima() {
       final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * NORMAL.getPDF(_d1) * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVarianceVanna() {
       final double value = -_s * _df * NORMAL.getPDF(_d1) * _d2 / (2 * _sigma * _sigma);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Variance vega} = \\frac{Se^{(b-r)T}n(d_1)\\sqrt{T}}{2\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVarianceVega() {
       final double value = _s * _df * NORMAL.getPDF(_d1) * Math.sqrt(_t) / (2 * _sigma);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Variance vomma} = \\frac{Se^{(b-r)T}\\sqrt{T}n(d_1)(d_1 d_2 - 1)}{4\\sigma^3}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVarianceVomma() {
       final double value = _s * _df * Math.sqrt(_t) / (4 * Math.pow(_sigma, 3)) * NORMAL.getPDF(_d1) * (_d1 * _d2 - 1);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vega} = Se^{(b-r)T}n(d_1)\\sqrt{T}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVega() {
       final double value = _s * _df * NORMAL.getPDF(_d1) * Math.sqrt(_t);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vega bleed} = \\text{Vega}\\left(r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} - \\frac{1 + d_1 d_2}{2T}\\right)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVegaBleed() {
       final double value = visitVega() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) - (1 + _d1 * _d2) / (2 * _t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vega}_p = \\frac{S\\sigma e^{(b-r)T}n(d_1)\\sqrt{T}}{10}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVegaP() {
       final double value = visitVega() * _sigma / 10;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Ultima} = \\frac{\\text{Vomma}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - \\frac{d_2}{d_1} - 1\\right)
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitUltima() {
       final double value = visitVomma() * (_d1 * _d2 - _d1 / _d2 - _d2 / _d1 - 1) / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vomma} = \\frac{\\text{Vega } d_1 d_2}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVomma() {
       final double value = visitVega() * _d1 * _d2 / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Vomma}_P= \\frac{\\text{Vega}_P d_1 d_2}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitVommaP() {
       final double value = visitVegaP() * _d1 * _d2 / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitZeta() {
       final double value = NORMAL.getCDF(_isCall ? _d2 : -_d2);
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitZetaBleed() {
       final double value = (_isCall ? 1 : -1) * NORMAL.getPDF(_d2) * (_b / (_sigma * Math.sqrt(_t)) - _d1 / (2 * _t));
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Zomma} = \\frac{\\Gamma(d_1 d_2 - 1)}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitZomma() {
       final double value = visitGamma() * (_d1 * _d2 - 1) / _sigma;
       return value;
     }
 
+    /**
+     * {@inheritDoc}
+     * {@latex.ilb %preamble{\\usepackage{amsmath}}
+     * \\begin{align*}
+     * \\text{Zomma}_P = \\frac{\\Gamma_P(d_1 d_2 - 1)}{\\sigma}
+     * \\end{align*}
+     * }
+     */
     @Override
     public Double visitZommaP() {
       final double value = visitGammaP() * (_d1 * _d2 - 1) / _sigma;

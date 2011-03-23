@@ -7,18 +7,20 @@ package com.opengamma.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * A capped power option is a power option with a maximum payoff. The exercise
- * style is European.
+ * A capped power option is a power option with a cap on the maximum payoff.
  * <p>
- * When the spot price is <i>S</i>, an option with strike <i>K</i>, power
- * <i>i</i> and capped at a maximum of <i>C</i> has payoff <i>min[max(0,
- * S<sup>i</sup> - K), C]</i> for a call and <i>min[max(0, K - S<sup>i</sup>),
- * C]</i> for a put.
- * 
+ * The exercise style is European. The payoff of these options is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\min(\\max(S^i - K, 0), C)\\\\
+ * p &= \\min(\\max(K - S^i, 0), C)
+ * \\end{align*}
+ * }
+ * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power ({@latex.inline $i > 0$}), {@latex.inline $C$} is the cap ({@latex.inline $C > 0$})
+ * and {@latex.inline $S$} is the spot.
  */
 
 public class CappedPowerOptionDefinition extends OptionDefinition {
@@ -37,15 +39,16 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike The option strike
-   * @param expiry The option expiry
-   * @param power The power 
-   * @param cap The cap
+   * @param strike The strike
+   * @param expiry The expiry
+   * @param power The power, not negative
+   * @param cap The cap, not negative
    * @param isCall Is the option a put or call
    */
   public CappedPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final double cap, final boolean isCall) {
     super(strike, expiry, isCall);
-    ArgumentChecker.notNegative(cap, "cap");
+    Validate.isTrue(power > 0, "power must be > 0");
+    Validate.isTrue(cap > 0, "cap must be > 0");
     if (!isCall && cap > strike) {
       throw new IllegalArgumentException("Cannot have cap larger than strike for a put");
     }
@@ -54,27 +57,31 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
   }
 
   /**
-   * 
-   * @return The value of the power.
+   * @return The power.
    */
   public double getPower() {
     return _power;
   }
 
   /**
-   * 
-   * @return The value of the cap.
+   * @return The cap.
    */
   public double getCap() {
     return _cap;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
