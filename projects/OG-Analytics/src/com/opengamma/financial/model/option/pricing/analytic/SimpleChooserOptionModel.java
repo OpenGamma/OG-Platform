@@ -15,13 +15,28 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
- * Pricing model for simple chooser options.
- * 
+ * Pricing model for capped power options (see {@link com.opengamma.financial.model.option.definition.CappedPowerOptionDefinition}).
+ * <p>
+ * The price of this option is given by
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * p = Se^{(b-r)T_2}N(d_1) - Ke^{-rT_2}N(d_1 - \\sigma\\sqrt{T_2}) - Se^{(b-r)T_2}N(-d_2) + Ke^{-rT_2}N(-d_2 + \\sigma\\sqrt{T_1})
+ * \\end{align*}
+ * }
+ * where {@latex.inline $T_1$} is the time to make the choice and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_1 &= \\frac{\\ln(\\frac{S}{K}) + (b + \\frac{\\sigma^2}{2})T_2}{\\sigma\\sqrt{T_1}}\\\\
+ * d_2 &= \\frac{\\ln(\\frac{S}{K}) + bT_2 + \\frac{\\sigma^2 T_1}{2}}{\\sigma\\sqrt{T_1}}
+ * \\end{align*}
+ * }
  */
 public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final SimpleChooserOptionDefinition definition) {
     Validate.notNull(definition);
