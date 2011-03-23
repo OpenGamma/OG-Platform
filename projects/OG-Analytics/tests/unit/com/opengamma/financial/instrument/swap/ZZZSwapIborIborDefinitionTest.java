@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -56,12 +56,12 @@ public class ZZZSwapIborIborDefinitionTest {
   // Swap
   private static final ZZZSwapIborIborDefinition TENOR_SWAP = new ZZZSwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeg1() {
     new ZZZSwapIborIborDefinition(null, IBOR_LEG_2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeg2() {
     new ZZZSwapIborIborDefinition(IBOR_LEG_1, null);
   }
