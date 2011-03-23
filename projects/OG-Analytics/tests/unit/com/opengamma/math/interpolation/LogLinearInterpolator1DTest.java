@@ -23,7 +23,7 @@ public class LogLinearInterpolator1DTest {
 
     @Override
     public Double evaluate(final Double x) {
-      return 2 * x - 7;
+      return 2 * x + 7;
     }
   };
   private static final Interpolator1DDataBundle MODEL;
@@ -75,6 +75,6 @@ public class LogLinearInterpolator1DTest {
 
   @Test(enabled = false, description = "Compares NaN to NaN, but that is probably wrong")
   public void test() {
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
+    assertEquals(Math.log(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
   }
 }
