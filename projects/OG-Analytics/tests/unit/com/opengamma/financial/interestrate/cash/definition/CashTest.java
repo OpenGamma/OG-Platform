@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.cash.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,37 +19,37 @@ public class CashTest {
   private static final double FRACTION = 3;
   private static final String CURVE_NAME = "test";
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTime1() {
     new Cash(-T, R, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTime2() {
     new Cash(-T, R, TRADE_T, FRACTION, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRate1() {
     new Cash(T, -R, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRate2() {
     new Cash(T, -R, TRADE_T, FRACTION, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     new Cash(T, R, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
     new Cash(T, R, TRADE_T, FRACTION, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadTradeTime() {
     new Cash(T, R, T + 1, FRACTION, null);
   }

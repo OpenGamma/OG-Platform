@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.function;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,27 +20,27 @@ public class Function2DTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     F.evaluate((Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     F.evaluate(new Double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortArray() {
     F.evaluate(new Double[] {1.});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirst() {
     F.evaluate(new Double[] {null, 1.});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecond() {
     F.evaluate(new Double[] {1., null});
   }

@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.currency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Collections;
 import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -42,7 +40,7 @@ public class CurrencyMatrixSourcingFunctionTest {
   private FunctionCompilationContext _functionCompilationContext;
   private CurrencyMatrixSourcingFunction _function;
 
-  @Before
+  @BeforeMethod
   public void setupContexts() {
     _functionExecutionContext = new FunctionExecutionContext();
     _functionCompilationContext = new FunctionCompilationContext();

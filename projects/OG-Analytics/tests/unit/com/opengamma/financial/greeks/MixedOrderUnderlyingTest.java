@@ -5,34 +5,32 @@
  */
 package com.opengamma.financial.greeks;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.junit.Test;
-
 import com.opengamma.financial.pnl.UnderlyingType;
 
 public class MixedOrderUnderlyingTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap() {
     new MixedOrderUnderlying((TreeMap<Integer, UnderlyingType>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSmallMap() {
     final TreeMap<Integer, UnderlyingType> map = new TreeMap<Integer, UnderlyingType>();
     map.put(1, UnderlyingType.SPOT_PRICE);
     new MixedOrderUnderlying(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder1() {
     final TreeMap<Integer, UnderlyingType> map = new TreeMap<Integer, UnderlyingType>();
     map.put(0, UnderlyingType.BOND_YIELD);
@@ -40,7 +38,7 @@ public class MixedOrderUnderlyingTest {
     new MixedOrderUnderlying(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder2() {
     final List<NthOrderUnderlying> orders = new ArrayList<NthOrderUnderlying>();
     orders.add(new NthOrderUnderlying(0, UnderlyingType.SPOT_PRICE));
@@ -48,12 +46,12 @@ public class MixedOrderUnderlyingTest {
     new MixedOrderUnderlying(orders);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSet() {
     new MixedOrderUnderlying((List<NthOrderUnderlying>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSmallSet() {
     new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(2, UnderlyingType.BOND_YIELD)));
   }

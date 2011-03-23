@@ -5,16 +5,15 @@
  */
 package com.opengamma.financial.convention.yield;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class SimpleYieldConventionTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     new SimpleYieldConvention(null);
   }

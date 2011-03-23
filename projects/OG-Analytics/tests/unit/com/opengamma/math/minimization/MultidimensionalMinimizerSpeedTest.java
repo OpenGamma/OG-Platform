@@ -5,12 +5,12 @@
  */
 package com.opengamma.math.minimization;
 
+import org.testng.annotations.Test;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK_GRAD;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBROCK;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBROCK_GRAD;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

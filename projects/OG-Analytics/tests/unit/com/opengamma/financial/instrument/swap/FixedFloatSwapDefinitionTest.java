@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -56,12 +54,12 @@ public class FixedFloatSwapDefinitionTest {
       SPREAD, CONVENTION);
   private static final FixedFloatSwapDefinition SWAP = new FixedFloatSwapDefinition(FIXED_DEFINITION, FLOAT_DEFINITION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedLeg() {
     new FixedFloatSwapDefinition(null, FLOAT_DEFINITION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFloatLeg() {
     new FixedFloatSwapDefinition(FIXED_DEFINITION, null);
   }

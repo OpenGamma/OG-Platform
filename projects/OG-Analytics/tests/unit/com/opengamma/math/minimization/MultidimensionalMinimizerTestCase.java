@@ -5,12 +5,12 @@
  */
 package com.opengamma.math.minimization;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBROCK;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.UNCOUPLED_ROSENBROCK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
@@ -24,22 +24,24 @@ public class MultidimensionalMinimizerTestCase {
 
   };
 
+  @Test
   public void testInputs(final VectorMinimizer minimizer) {
 
     try {
       minimizer.minimize(null, new DoubleMatrix1D(new double[] {2., 3.}));
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       minimizer.minimize(F_2D, null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
+  @Test
   public void test(final VectorMinimizer minimizer, double tol) {
     DoubleMatrix1D r = minimizer.minimize(F_2D, new DoubleMatrix1D(new double[] {10., 10.}));
     assertEquals(r.getEntry(0), -3.4, tol);
@@ -49,6 +51,7 @@ public class MultidimensionalMinimizerTestCase {
     assertEquals(r.getEntry(1), 1, tol);
   }
 
+  @Test
   public void testSolvingRosenbrock(final VectorMinimizer minimizer, double tol) {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0});
     final DoubleMatrix1D solution = minimizer.minimize(ROSENBROCK, start);
@@ -56,6 +59,7 @@ public class MultidimensionalMinimizerTestCase {
     assertEquals(1.0, solution.getEntry(1), tol);
   }
 
+  @Test
   public void testSolvingUncoupledRosenbrock(final VectorMinimizer minimizer, double tol) {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0});
     final DoubleMatrix1D solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
@@ -64,6 +68,7 @@ public class MultidimensionalMinimizerTestCase {
     }
   }
 
+  @Test
   public void testSolvingCoupledRosenbrock(final VectorMinimizer minimizer, double tol) {
     final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
     final DoubleMatrix1D solution = minimizer.minimize(COUPLED_ROSENBROCK, start);

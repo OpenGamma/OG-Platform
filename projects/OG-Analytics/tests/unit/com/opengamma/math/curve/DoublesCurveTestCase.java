@@ -5,8 +5,8 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.junit.Test;
 
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.DoublesPair;
@@ -122,32 +120,32 @@ public class DoublesCurveTestCase {
     assertTrue(y == curve.getYData());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     new DummyCurve((double[]) null, Y_PRIMITIVE, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     new DummyCurve(X_PRIMITIVE, (double[]) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     new DummyCurve((Double[]) null, Y_OBJECT, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     new DummyCurve(X_OBJECT, (Double[]) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     new DummyCurve((Map<Double, Double>) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     final Map<Double, Double> m = new HashMap<Double, Double>();
     m.put(null, 3.);
@@ -155,7 +153,7 @@ public class DoublesCurveTestCase {
     new DummyCurve(m, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull7() {
     final Map<Double, Double> m = new HashMap<Double, Double>();
     m.put(3., null);
@@ -163,12 +161,12 @@ public class DoublesCurveTestCase {
     new DummyCurve(m, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull8() {
     new DummyCurve((DoublesPair[]) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull9() {
     final DoublesPair[] p = new DoublesPair[2];
     p[0] = DoublesPair.of(2., 3.);
@@ -176,65 +174,65 @@ public class DoublesCurveTestCase {
     new DummyCurve(p, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull10() {
     new DummyCurve((List<Double>) null, Y_LIST, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull11() {
     new DummyCurve(X_LIST, (List<Double>) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull12() {
     final List<Double> l = Arrays.asList(3., null);
     new DummyCurve(l, Y_LIST, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull13() {
     final List<Double> l = Arrays.asList(3., null);
     new DummyCurve(X_LIST, l, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull14() {
     new DummyCurve((List<DoublesPair>) null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull15() {
     final List<DoublesPair> l = Arrays.asList(null, DoublesPair.of(1., 2.));
     new DummyCurve(l, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull16() {
     new DummyCurve((double[]) null, Y_PRIMITIVE, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull17() {
     new DummyCurve(X_PRIMITIVE, (double[]) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull18() {
     new DummyCurve((Double[]) null, Y_OBJECT, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull19() {
     new DummyCurve(X_OBJECT, (Double[]) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull20() {
     new DummyCurve((Map<Double, Double>) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull21() {
     final Map<Double, Double> m = new HashMap<Double, Double>();
     m.put(null, 3.);
@@ -242,7 +240,7 @@ public class DoublesCurveTestCase {
     new DummyCurve(m, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull22() {
     final Map<Double, Double> m = new HashMap<Double, Double>();
     m.put(3., null);
@@ -250,12 +248,12 @@ public class DoublesCurveTestCase {
     new DummyCurve(m, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull23() {
     new DummyCurve((DoublesPair[]) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull24() {
     final DoublesPair[] p = new DoublesPair[2];
     p[0] = DoublesPair.of(2., 3.);
@@ -263,34 +261,34 @@ public class DoublesCurveTestCase {
     new DummyCurve(p, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull25() {
     new DummyCurve((List<Double>) null, Y_LIST, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull26() {
     new DummyCurve(X_LIST, (List<Double>) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull27() {
     final List<Double> l = Arrays.asList(3., null);
     new DummyCurve(l, Y_LIST, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull28() {
     final List<Double> l = Arrays.asList(3., null);
     new DummyCurve(X_LIST, l, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull29() {
     new DummyCurve((List<DoublesPair>) null, true, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull30() {
     final List<DoublesPair> l = Arrays.asList(null, DoublesPair.of(1., 2.));
     new DummyCurve(l, true, NAME1);

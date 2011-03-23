@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.equity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.GeometricMeanCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
@@ -57,43 +55,43 @@ public class CAPMCalculatorsTest {
     LOW_BETA_RETURN = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, r3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCovarianceCalculator() {
     new CAPMBetaCalculator(null, VARIANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVarianceCalculator() {
     new CAPMBetaCalculator(COVARIANCE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpectedMarketReturnCalculator() {
     new CAPMExpectedReturnCalculator(null, ARITHMETIC_MEAN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpectedRiskFreeRateCalculator() {
     new CAPMExpectedReturnCalculator(GEOMETRIC_MEAN, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTSArray() {
     BETA.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength() {
     BETA.evaluate(MARKET_RETURN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortTS() {
     BETA.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {1}), new FastArrayLongDoubleTimeSeries(
         DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1}, new double[] {1}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMismatchingDates() {
     final Long[] t = (Long[]) MARKET_RETURN.timesArray();
     t[1] = t[1] * 100;
@@ -101,12 +99,12 @@ public class CAPMCalculatorsTest {
     BETA.evaluate(MARKET_RETURN, ts);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMarketPriceTS() {
     RETURN.evaluate(null, RISK_FREE_RETURN, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRiskFreeTS() {
     RETURN.evaluate(MARKET_RETURN, null, 0);
   }

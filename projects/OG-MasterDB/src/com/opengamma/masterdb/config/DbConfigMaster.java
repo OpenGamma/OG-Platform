@@ -195,13 +195,13 @@ public class DbConfigMaster implements ConfigMaster {
   }
 
   @Override
+  public List<String> getTypes() {
+    return _worker.getTypes();
+  }
+
+  @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getIdentifierScheme() + "]";
   }
 
-  @Override
-  public List<String> getTypes() {
-    return _worker.getTypes();
-  }
-   
 }

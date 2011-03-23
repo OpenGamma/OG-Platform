@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -32,15 +32,17 @@ public class Minimizer1DTestCase {
 
   };
 
+  @Test
   public void testInputs(final ScalarMinimizer minimizer) {
     try {
       minimizer.minimize(null, 0.0, 2., 3.);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
+  @Test
   public void test(final ScalarMinimizer minimizer) {
     double result = minimizer.minimize(QUADRATIC, 0.0, -10., 10.);
     assertEquals(result, -3.5, EPS);

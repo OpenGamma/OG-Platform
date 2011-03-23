@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -28,17 +26,17 @@ public class BarycentricRationalFunctionInterpolator1DTest {
   private static final Interpolator1D<Interpolator1DDataBundle> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(new double[0], new double[0]), null);
   }
 
-  @Test(expected = MathException.class)
+  @Test(expectedExceptions = MathException.class)
   public void testInsufficentData() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(new double[] {1, 2}, new double[] {3, 4}), 1.5);
   }

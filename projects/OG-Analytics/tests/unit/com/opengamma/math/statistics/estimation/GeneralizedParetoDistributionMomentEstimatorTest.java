@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.estimation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.GeneralizedParetoDistribution;
@@ -31,7 +29,7 @@ public class GeneralizedParetoDistributionMomentEstimatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     ESTIMATOR.evaluate((double[]) null);
   }

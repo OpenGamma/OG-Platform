@@ -6,11 +6,9 @@
 package com.opengamma.financial.interestrate.bond.definition;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
@@ -27,22 +25,22 @@ public class BondForwardTest {
   private static final CouponFixed[] PAYMENTS = new CouponFixed[] {new CouponFixed(0.5, YIELD_CURVE_NAME, 0.5, 0.03)};
   private static final BondForward FORWARD = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
     new BondForward(null, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeForwardDate() {
     new BondForward(BOND, -FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiredCoupons() {
     new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiredCoupon() {
     new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, new CouponFixed[] {null});
   }

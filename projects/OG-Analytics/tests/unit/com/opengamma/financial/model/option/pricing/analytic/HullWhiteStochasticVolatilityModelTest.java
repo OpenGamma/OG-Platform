@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -35,12 +35,12 @@ public class HullWhiteStochasticVolatilityModelTest {
   private static final double VOL_OF_VOL = 0.5;
   private static final double EPS = 1e-4;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY, true)).evaluate((HullWhiteStochasticVolatilityModelDataBundle) null);
   }
@@ -49,30 +49,30 @@ public class HullWhiteStochasticVolatilityModelTest {
   public void test() {
     HullWhiteStochasticVolatilityModelDataBundle data = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, -0.75);
     OptionDefinition definition = new EuropeanVanillaOptionDefinition(70, EXPIRY, false);
-    test(0.0904, definition, data);
+    assertModel(0.0904, definition, data);
     data = data.withCorrelation(-0.5);
     definition = new EuropeanVanillaOptionDefinition(80, EXPIRY, false);
-    test(0.4278, definition, data);
+    assertModel(0.4278, definition, data);
     data = data.withCorrelation(-0.25);
     definition = new EuropeanVanillaOptionDefinition(90, EXPIRY, false);
-    test(1.6982, definition, data);
+    assertModel(1.6982, definition, data);
     data = data.withCorrelation(0.);
     definition = new EuropeanVanillaOptionDefinition(100, EXPIRY, false);
-    test(5.3061, definition, data);
+    assertModel(5.3061, definition, data);
     definition = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
-    test(5.3061, definition, data);
+    assertModel(5.3061, definition, data);
     data = data.withCorrelation(0.25);
     definition = new EuropeanVanillaOptionDefinition(110, EXPIRY, true);
-    test(2.1274, definition, data);
+    assertModel(2.1274, definition, data);
     data = data.withCorrelation(0.5);
     definition = new EuropeanVanillaOptionDefinition(120, EXPIRY, true);
-    test(0.8881, definition, data);
+    assertModel(0.8881, definition, data);
     data = data.withCorrelation(0.75);
     definition = new EuropeanVanillaOptionDefinition(130, EXPIRY, true);
-    test(0.4287, definition, data);
+    assertModel(0.4287, definition, data);
   }
 
-  private void test(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelDataBundle data) {
+  private void assertModel(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelDataBundle data) {
     assertEquals(value, MODEL.getPricingFunction(definition).evaluate(data), EPS);
   }
 }

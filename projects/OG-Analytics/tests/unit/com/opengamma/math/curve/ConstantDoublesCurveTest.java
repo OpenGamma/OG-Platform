@@ -6,11 +6,9 @@
 package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -23,7 +21,7 @@ public class ConstantDoublesCurveTest {
   private static final String NAME2 = "b";
   private static final ConstantDoublesCurve CURVE = new ConstantDoublesCurve(Y1, NAME1);
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetXData() {
     CURVE.getXData();
   }

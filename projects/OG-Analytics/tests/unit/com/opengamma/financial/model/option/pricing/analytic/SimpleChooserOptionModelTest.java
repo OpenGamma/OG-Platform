@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -40,12 +38,12 @@ public class SimpleChooserOptionModelTest {
   private static final AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> MODEL = new SimpleChooserOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(DEFINITION).evaluate((StandardOptionDataBundle) null);
   }

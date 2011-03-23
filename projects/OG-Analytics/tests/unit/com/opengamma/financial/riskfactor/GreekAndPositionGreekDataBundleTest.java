@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -39,27 +37,27 @@ public class GreekAndPositionGreekDataBundleTest {
     GREEKS_DATA = new GreekDataBundle(GREEKS, UNDERLYING, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreeks() {
     new GreekDataBundle(null, UNDERLYING, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyGreeks() {
     new GreekDataBundle(new GreekResultCollection(), UNDERLYING, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     new GreekDataBundle(GREEKS, null, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyData1() {
     new GreekDataBundle(GREEKS, new HashMap<UnderlyingType, Double>(), OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGreekValueForGreek() {
     GREEKS_DATA.getGreekResultForGreek(Greek.CARRY_RHO);
   }

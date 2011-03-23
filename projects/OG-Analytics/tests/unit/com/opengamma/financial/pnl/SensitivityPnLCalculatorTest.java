@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.pnl;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.sensitivity.ValueGreek;
@@ -67,7 +65,7 @@ public class SensitivityPnLCalculatorTest {
     DATA[5] = new SensitivityAndReturnDataBundle(RHO, RHO_VALUE, m4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.evaluate((SensitivityAndReturnDataBundle[]) null);
   }

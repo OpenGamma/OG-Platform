@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -30,37 +28,37 @@ public class ParametricVaRDataBundleTest {
   private static final DoubleMatrix2D COV = new DoubleMatrix2D(new double[][] {new double[] {0.1, 0.2, 0.3}, new double[] {0.2, 0.4, 0.5}, new double[] {0.3, 0.6, 0.5}});
   private static final int ORDER = 1;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSensitivities1() {
     new ParametricVaRDataBundle(null, COV, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSensitivities2() {
     new ParametricVaRDataBundle(NAMES, null, COV, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCovariance1() {
     new ParametricVaRDataBundle(DELTA, null, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCovariance2() {
     new ParametricVaRDataBundle(NAMES, DELTA, null, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder1() {
     new ParametricVaRDataBundle(DELTA, COV, -ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder2() {
     new ParametricVaRDataBundle(NAMES, DELTA, COV, -ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongMatrixDimension() {
     final Matrix<double[]> m = new Matrix<double[]>() {
 
@@ -78,37 +76,37 @@ public class ParametricVaRDataBundleTest {
     new ParametricVaRDataBundle(m, COV, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonSquareCovarianceMatrix() {
     new ParametricVaRDataBundle(DELTA, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}), ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCovarianceMatrixSize1() {
     new ParametricVaRDataBundle(DELTA, new DoubleMatrix2D(new double[][] {new double[] {1}}), 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCovarianceMatrixSize2() {
     new ParametricVaRDataBundle(GAMMA, new DoubleMatrix2D(new double[][] {new double[] {1}}), 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNamesSize1() {
     new ParametricVaRDataBundle(Arrays.asList("A"), DELTA, COV, ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongReturnSize1() {
     new ParametricVaRDataBundle(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5}), DELTA, COV, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongReturnSize2() {
     new ParametricVaRDataBundle(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5}), GAMMA, COV, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNamesSize2() {
     new ParametricVaRDataBundle(Arrays.asList("A"), GAMMA, COV, ORDER);
   }

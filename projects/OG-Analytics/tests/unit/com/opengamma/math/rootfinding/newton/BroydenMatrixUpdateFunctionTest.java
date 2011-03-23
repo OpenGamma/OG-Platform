@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -28,17 +27,17 @@ public class BroydenMatrixUpdateFunctionTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDeltaX() {
     UPDATE.getUpdatedMatrix(J, V, null, V, M);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDeltaY() {
     UPDATE.getUpdatedMatrix(J, V, V, null, M);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     UPDATE.getUpdatedMatrix(J, V, V, V, null);
   }

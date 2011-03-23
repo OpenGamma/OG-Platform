@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -16,12 +15,12 @@ import org.junit.Test;
 public class TurningPointIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TURNING_POINT = new TurningPointIIDHypothesis(0.05);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new TurningPointIIDHypothesis(-0.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new TurningPointIIDHypothesis(1.5);
   }

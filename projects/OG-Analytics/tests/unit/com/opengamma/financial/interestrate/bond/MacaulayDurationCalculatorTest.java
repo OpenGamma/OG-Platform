@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -22,17 +20,17 @@ public class MacaulayDurationCalculatorTest {
   private static final MacaulayDurationCalculator MDC = new MacaulayDurationCalculator();
   private static final String CURVE_NAME = "Test Curve";
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
     MDC.calculate(null, 1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDirtyPrice() {
     MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.05, CURVE_NAME), -0.4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroPrice() {
     final int n = 10;
     final double[] paymentTimes = new double[n];

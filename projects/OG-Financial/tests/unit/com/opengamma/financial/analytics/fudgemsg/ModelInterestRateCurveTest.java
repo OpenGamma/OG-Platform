@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;

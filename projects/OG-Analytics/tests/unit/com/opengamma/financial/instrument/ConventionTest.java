@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.instrument;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -30,27 +28,27 @@ public class ConventionTest {
   private static final String NAME = "CONVENTION";
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlementDays() {
     new Convention(-SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
     new Convention(SETTLEMENT_DAYS, null, BUSINESS_DAY, CALENDAR, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBusinessDayConvention() {
     new Convention(SETTLEMENT_DAYS, DAY_COUNT, null, CALENDAR, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
     new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, null);
   }

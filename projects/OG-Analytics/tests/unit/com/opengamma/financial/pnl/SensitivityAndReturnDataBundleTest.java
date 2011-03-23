@@ -5,17 +5,15 @@
  */
 package com.opengamma.financial.pnl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.sensitivity.Sensitivity;
@@ -58,53 +56,53 @@ public class SensitivityAndReturnDataBundleTest {
     DATA = new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSensitivity() {
     new SensitivityAndReturnDataBundle(null, VALUE_DELTA, M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullReturns() {
     new SensitivityAndReturnDataBundle(S1, VALUE_DELTA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyReturns() {
     new SensitivityAndReturnDataBundle(S1, VALUE_DELTA, Collections.<UnderlyingType, DoubleTimeSeries<?>> emptyMap());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKey() {
     final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
     m.put(null, TS1);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry() {
     final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
     m.put(UnderlyingType.SPOT_PRICE, null);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongUnderlyings1() {
     final Sensitivity<ValueGreek> s = new ValueGreekSensitivity(new ValueGreek(Greek.VANNA), "ValueVanna");
     new SensitivityAndReturnDataBundle(s, VALUE_DELTA, M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongUnderlyings2() {
     final Sensitivity<ValueGreek> s = new ValueGreekSensitivity(new ValueGreek(Greek.VEGA), "ValueVega");
     new SensitivityAndReturnDataBundle(s, VALUE_DELTA, M1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingType() {
     DATA.getReturnTimeSeriesForUnderlying(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongUnderlyingType() {
     DATA.getReturnTimeSeriesForUnderlying(UnderlyingType.BOND_YIELD);
   }

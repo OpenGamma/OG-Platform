@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -40,12 +38,12 @@ public class MertonJumpDiffusionModelTest {
   private static final double EPS1 = 1e-2;
   private static final double EPS2 = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(new EuropeanVanillaOptionDefinition(100, EXPIRY1, true)).evaluate((MertonJumpDiffusionModelDataBundle) null);
   }

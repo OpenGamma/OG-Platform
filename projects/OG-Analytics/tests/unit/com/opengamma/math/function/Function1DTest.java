@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.function;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class Function1DTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
@@ -17,17 +17,17 @@ public class Function1DTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInputList() {
     F.evaluate((Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyInputList() {
     F.evaluate(new Double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputListWithNulls() {
     F.evaluate(new Double[] {null});
   }

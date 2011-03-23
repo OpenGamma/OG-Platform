@@ -78,7 +78,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> corrected = (ConfigDocument<Identifier>) _cfgMaster.correct(input);
+    ConfigDocument<Identifier> corrected = _cfgMaster.correct(input);
     assertEquals(false, base.getUniqueId().equals(corrected.getUniqueId()));
     assertEquals(base.getVersionFromInstant(), corrected.getVersionFromInstant());
     assertEquals(base.getVersionToInstant(), corrected.getVersionToInstant());

@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;

@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.model.MovingAverageTimeSeriesModel;
@@ -47,37 +45,37 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
     RANDOM = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, dates, random);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder() {
     new MovingAverageTimeSeriesOrderIdentifier(-10, 0.05);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new MovingAverageTimeSeriesOrderIdentifier(20, -0.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new MovingAverageTimeSeriesOrderIdentifier(20, 1.2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     MA_IDENTIFIER.getOrder(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
     MA_IDENTIFIER.getOrder(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     MA_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new long[] {1, 2}, new double[] {0.1, 0.2}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRandomTS() {
     MA_IDENTIFIER.getOrder(RANDOM);
   }

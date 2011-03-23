@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -52,41 +52,41 @@ public class MomentCalculatorTest {
 
   @Test
   public void testNull() {
-    testNull(SAMPLE_VARIANCE);
-    testNull(SAMPLE_STD);
-    testNull(POPULATION_VARIANCE);
-    testNull(POPULATION_STD);
-    testNull(SAMPLE_SKEWNESS);
-    testNull(SAMPLE_PEARSON_KURTOSIS);
-    testNull(SAMPLE_FISHER_KURTOSIS);
-    testNull(SAMPLE_CENTRAL_MOMENT);
+    assertNullArg(SAMPLE_VARIANCE);
+    assertNullArg(SAMPLE_STD);
+    assertNullArg(POPULATION_VARIANCE);
+    assertNullArg(POPULATION_STD);
+    assertNullArg(SAMPLE_SKEWNESS);
+    assertNullArg(SAMPLE_PEARSON_KURTOSIS);
+    assertNullArg(SAMPLE_FISHER_KURTOSIS);
+    assertNullArg(SAMPLE_CENTRAL_MOMENT);
   }
 
   @Test
   public void testInsufficientData() {
-    testInsufficientData(SAMPLE_VARIANCE);
-    testInsufficientData(SAMPLE_STD);
-    testInsufficientData(POPULATION_VARIANCE);
-    testInsufficientData(POPULATION_STD);
-    testInsufficientData(SAMPLE_SKEWNESS);
-    testInsufficientData(SAMPLE_PEARSON_KURTOSIS);
-    testInsufficientData(SAMPLE_FISHER_KURTOSIS);
-    testInsufficientData(SAMPLE_CENTRAL_MOMENT);
+    assertInsufficientData(SAMPLE_VARIANCE);
+    assertInsufficientData(SAMPLE_STD);
+    assertInsufficientData(POPULATION_VARIANCE);
+    assertInsufficientData(POPULATION_STD);
+    assertInsufficientData(SAMPLE_SKEWNESS);
+    assertInsufficientData(SAMPLE_PEARSON_KURTOSIS);
+    assertInsufficientData(SAMPLE_FISHER_KURTOSIS);
+    assertInsufficientData(SAMPLE_CENTRAL_MOMENT);
   }
 
-  private void testNull(final Function1D<double[], Double> f) {
+  private void assertNullArg(final Function1D<double[], Double> f) {
     try {
       f.evaluate((double[]) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
-  private void testInsufficientData(final Function1D<double[], Double> f) {
+  private void assertInsufficientData(final Function1D<double[], Double> f) {
     try {
       f.evaluate(new double[] {1.});
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -127,12 +127,12 @@ public class MomentCalculatorTest {
     assertEquals(SAMPLE_FISHER_KURTOSIS.evaluate(CHI_SQ_DATA), 12 / DOF, EPS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCentralMomentsConstructor() {
     new SampleCentralMomentCalculator(-1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNormalizedCentralMomentsConstructor() {
     new SampleNormalizedCentralMomentCalculator(-1);
   }

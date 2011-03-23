@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -19,12 +17,12 @@ import com.opengamma.financial.interestrate.bond.definition.BondForward;
  */
 public class BondCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName1() {
     BondCalculatorFactory.getBondCalculator("A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName2() {
     BondCalculatorFactory.getBondForwardCalculator("F");
   }

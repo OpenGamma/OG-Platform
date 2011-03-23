@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 
 /**
@@ -77,32 +75,32 @@ public class DoubleFunction1DTest {
   private static final double A = 5.67;
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddNull() {
     F1.add(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDivideNull() {
     F1.divide(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMultiplyNull() {
     F1.multiply(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractNull() {
     F1.subtract(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConvertNull() {
     DoubleFunction1D.from(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDerivativeNullType() {
     F1.derivative(null, EPS);
   }

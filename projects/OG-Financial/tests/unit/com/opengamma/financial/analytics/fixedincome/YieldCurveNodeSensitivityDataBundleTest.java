@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.money.Currency;
 
@@ -24,17 +22,17 @@ public class YieldCurveNodeSensitivityDataBundleTest {
   private static final Currency CCY = Currency.USD;
   private static final String NAME = "SINGLE";
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     new YieldCurveNodeSensitivityDataBundle(CCY, null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
     new YieldCurveNodeSensitivityDataBundle(null, M, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     new YieldCurveNodeSensitivityDataBundle(CCY, M, null);
   }

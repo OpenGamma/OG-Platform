@@ -6,9 +6,8 @@
 package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -18,32 +17,32 @@ public class ConstantCurveShiftFunctionTest {
   private static final double Y = 3;
   private static final ConstantDoublesCurve CURVE = ConstantDoublesCurve.from(Y, "X");
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test1() {
     F.evaluate(CURVE, 2, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test2() {
     F.evaluate(CURVE, 2, 1, "A");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test3() {
     F.evaluate(CURVE, new double[] {2}, new double[] {1});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test4() {
     F.evaluate(CURVE, new double[] {2}, new double[] {1}, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve1() {
     F.evaluate(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve2() {
     F.evaluate(null, 1, "B");
   }

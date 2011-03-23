@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -22,42 +20,42 @@ public class IncompleteBetaFunctionTest {
   private static final int MAX_ITER = 10000;
   private static final Function1D<Double, Double> BETA = new IncompleteBetaFunction(A, B);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeA1() {
     new IncompleteBetaFunction(-A, B);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeA2() {
     new IncompleteBetaFunction(-A, B, EPS, MAX_ITER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeB1() {
     new IncompleteBetaFunction(A, -B);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeB2() {
     new IncompleteBetaFunction(A, -B, EPS, MAX_ITER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeEps() {
     new IncompleteBetaFunction(A, B, -EPS, MAX_ITER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeIter() {
     new IncompleteBetaFunction(A, B, EPS, -MAX_ITER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLow() {
     BETA.evaluate(-0.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHigh() {
     BETA.evaluate(1.5);
   }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.future.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -18,7 +16,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class FutureDefinitionTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new FutureDefinition(null);
   }

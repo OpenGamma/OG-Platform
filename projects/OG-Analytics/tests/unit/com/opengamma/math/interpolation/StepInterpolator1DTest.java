@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -30,22 +28,22 @@ public class StepInterpolator1DTest {
     DATA = INTERPOLATOR.getDataBundle(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate((Interpolator1DDataBundle) null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     INTERPOLATOR.interpolate(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(DATA, -3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(DATA, 15.);
   }

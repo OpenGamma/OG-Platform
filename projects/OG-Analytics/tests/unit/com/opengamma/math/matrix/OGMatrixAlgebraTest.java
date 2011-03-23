@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -22,7 +21,7 @@ public class OGMatrixAlgebraTest {
   private static final DoubleMatrix1D E = new DoubleMatrix1D(new double[] {-1, 2, 3});
   private static final DoubleMatrix1D F = new DoubleMatrix1D(new double[] {2, -2, 1});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMatrixSizeMismatch() {
     ALGEBRA.multiply(B, A);
   }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 
 /**
@@ -21,22 +19,22 @@ public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestC
   private static final ParameterLimitsTransform LOWER_LIMIT = new SingleRangeLimitTransform(B, LimitType.GREATER_THAN);
   private static final ParameterLimitsTransform UPPER_LIMIT = new SingleRangeLimitTransform(A, LimitType.LESS_THAN);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange1() {
     LOWER_LIMIT.transform(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange2() {
     UPPER_LIMIT.transform(1.01);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange3() {
     LOWER_LIMIT.transformGradient(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange4() {
     UPPER_LIMIT.transformGradient(1.01);
   }

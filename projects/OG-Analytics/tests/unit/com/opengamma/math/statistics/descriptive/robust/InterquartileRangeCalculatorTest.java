@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.descriptive.robust;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -36,12 +34,12 @@ public class InterquartileRangeCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     IQR.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     IQR.evaluate(new double[] {1., 2.});
   }

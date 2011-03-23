@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -168,16 +166,17 @@ public class VectorRootFinderTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     DUMMY.getRoot(null, new DoubleMatrix1D(new double[0]));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     DUMMY.getRoot(LINEAR, (DoubleMatrix1D) null);
   }
 
+  @Test
   public void testLinear(final VectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {0.0, 0.0});
     final DoubleMatrix1D x1 = rootFinder.getRoot(LINEAR, x0);
@@ -189,6 +188,7 @@ public class VectorRootFinderTest {
    * Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
    * we switch to using SVD rather than the default LU
    */
+  @Test
   public void testFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {-0.0, 0.0});
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, JACOBIAN2D, x0);
@@ -196,6 +196,7 @@ public class VectorRootFinderTest {
     assertEquals(1.0, x1.getEntry(1), eps);
   }
 
+  @Test
   public void testFunction3D(final NewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {0.8, 0.2, -0.7});
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D, x0);
@@ -204,6 +205,7 @@ public class VectorRootFinderTest {
     assertEquals(-1.0, x1.getData()[2], eps);
   }
 
+  @Test
   public void testYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {
     final int n = TIME_GRID.length;
     final double[] flatCurve = new double[n];

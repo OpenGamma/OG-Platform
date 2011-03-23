@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -20,22 +18,22 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class HistoricalVolatilityHighLowCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
   private static final HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityHighLowCalculator(RELATIVE_RETURN_CALCULATOR);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
     new HistoricalVolatilityHighLowCalculator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
     new HistoricalVolatilityHighLowCalculator(null, CalculationMode.LENIENT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator3() {
     new HistoricalVolatilityHighLowCalculator(null, CalculationMode.LENIENT, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighTS() {
     CALCULATOR.evaluate(new DoubleTimeSeries[] {HIGH_TS});
   }

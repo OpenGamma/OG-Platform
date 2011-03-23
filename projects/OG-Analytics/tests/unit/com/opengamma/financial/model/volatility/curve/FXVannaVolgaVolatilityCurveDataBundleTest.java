@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.volatility.curve;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.util.time.DateUtil;
 
@@ -25,12 +23,12 @@ public class FXVannaVolgaVolatilityCurveDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final FXVannaVolgaVolatilityCurveDataBundle DATA = new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, VWB, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, ATM, VWB, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeATMVol() {
     new FXVannaVolgaVolatilityCurveDataBundle(DELTA, RR, -ATM, VWB, DATE);
   }

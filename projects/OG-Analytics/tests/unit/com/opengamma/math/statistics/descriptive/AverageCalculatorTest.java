@@ -5,12 +5,12 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
@@ -27,16 +27,16 @@ public class AverageCalculatorTest {
 
   @Test
   public void testNull() {
-    testNull(MEAN);
-    testNull(MEDIAN);
-    testNull(MODE);
+    assertNull(MEAN);
+    assertNull(MEDIAN);
+    assertNull(MODE);
   }
 
   @Test
   public void testEmpty() {
-    testEmpty(MEAN);
-    testEmpty(MEDIAN);
-    testEmpty(MODE);
+    assertEmpty(MEAN);
+    assertEmpty(MEDIAN);
+    assertEmpty(MODE);
   }
 
   @Test
@@ -65,27 +65,27 @@ public class AverageCalculatorTest {
     final double[] x = {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
     try {
       MODE.evaluate(x);
-      fail();
+      Assert.fail();
     } catch (final MathException e) {
       // Expected
     }
     assertEquals(MODE.evaluate(DATA), 5.7, EPS);
   }
 
-  private void testNull(final Function1D<double[], Double> calculator) {
+  private void assertNull(final Function1D<double[], Double> calculator) {
     try {
       calculator.evaluate((double[]) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
-  private void testEmpty(final Function1D<double[], Double> calculator) {
+  private void assertEmpty(final Function1D<double[], Double> calculator) {
     final double[] x = new double[0];
     try {
       calculator.evaluate(x);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

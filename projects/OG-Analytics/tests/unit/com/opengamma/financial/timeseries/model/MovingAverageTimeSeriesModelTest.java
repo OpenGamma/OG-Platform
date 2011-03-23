@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.timeseries.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
@@ -47,37 +45,37 @@ public class MovingAverageTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadConstructor() {
     new MovingAverageTimeSeriesModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThetas() {
     MODEL.getSeries(null, 2, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyThetas() {
     MODEL.getSeries(new double[0], 2, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
     MODEL.getSeries(new double[] {0.2}, -3, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientThetas() {
     MODEL.getSeries(new double[] {0.2}, 4, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates() {
     MODEL.getSeries(new double[] {0.3}, 1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDates() {
     MODEL.getSeries(new double[] {0.3}, 1, new long[0]);
   }

@@ -83,7 +83,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> updated = (ConfigDocument<Identifier>) _cfgMaster.update(input);
+    ConfigDocument<Identifier> updated = _cfgMaster.update(input);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());

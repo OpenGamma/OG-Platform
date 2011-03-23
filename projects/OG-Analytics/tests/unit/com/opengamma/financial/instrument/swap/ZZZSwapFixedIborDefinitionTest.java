@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -91,7 +89,7 @@ public class ZZZSwapFixedIborDefinitionTest {
     assertEquals(swap.getSecondLeg(), iborAnnuity);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedLeg() {
     // Ibor leg
     CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
@@ -110,7 +108,7 @@ public class ZZZSwapFixedIborDefinitionTest {
     new ZZZSwapFixedIborDefinition(null, iborAnnuity);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIborLeg() {
     // Fixed leg
     CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
@@ -20,62 +18,62 @@ public class TrigonometricFunctionUtilsTest {
   private static final ComplexNumber Z = new ComplexNumber(X, -0.34);
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     TrigonometricFunctionUtils.acos(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     TrigonometricFunctionUtils.acosh(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     TrigonometricFunctionUtils.asin(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     TrigonometricFunctionUtils.asinh(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     TrigonometricFunctionUtils.atan(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     TrigonometricFunctionUtils.atanh(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull7() {
     TrigonometricFunctionUtils.cos(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull8() {
     TrigonometricFunctionUtils.cosh(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull9() {
     TrigonometricFunctionUtils.sin(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull10() {
     TrigonometricFunctionUtils.sinh(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull11() {
     TrigonometricFunctionUtils.tan(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull12() {
     TrigonometricFunctionUtils.tanh(null);
   }

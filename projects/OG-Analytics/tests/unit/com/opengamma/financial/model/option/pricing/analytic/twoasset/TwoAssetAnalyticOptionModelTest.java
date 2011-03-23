@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -55,22 +53,22 @@ public class TwoAssetAnalyticOptionModelTest {
       ConstantDoublesSurface.from(0.1)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), 100, 90, 1, DATE);
   private static final Set<Greek> REQUIRED_GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     DUMMY.getGreeks(null, DATA, REQUIRED_GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     DUMMY.getGreeks(OPTION, null, REQUIRED_GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreeks() {
     DUMMY.getGreeks(OPTION, DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyGreeks() {
     DUMMY.getGreeks(OPTION, DATA, Collections.<Greek> emptySet());
   }

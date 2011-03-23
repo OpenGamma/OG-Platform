@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -24,12 +23,12 @@ public abstract class MinimumBracketerTestCase {
 
   protected abstract MinimumBracketer getBracketer();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     getBracketer().checkInputs(null, 1., 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs() {
     getBracketer().checkInputs(F, 1., 1.);
   }

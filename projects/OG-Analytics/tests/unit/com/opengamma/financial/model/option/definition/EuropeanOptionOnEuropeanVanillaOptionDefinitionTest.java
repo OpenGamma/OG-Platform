@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -31,17 +29,17 @@ public class EuropeanOptionOnEuropeanVanillaOptionDefinitionTest {
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT,
       DateUtil.getUTCDate(2010, 7, 1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
     new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongUnderlying() {
     new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true, new EuropeanVanillaOptionDefinition(UNDERLYING_STRIKE, new Expiry(DateUtil.getUTCDate(2010, 12, 1)), false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     OPTION.getPayoffFunction().getPayoff(null, null);
   }

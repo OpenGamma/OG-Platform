@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.convention.calendar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 
 /**

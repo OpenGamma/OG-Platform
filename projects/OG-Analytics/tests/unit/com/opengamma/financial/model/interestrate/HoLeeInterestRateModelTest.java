@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -33,17 +31,17 @@ public class HoLeeInterestRateModelTest {
   private static final VolatilityCurve SIGMA = new VolatilityCurve(ConstantDoublesCurve.from(VOL));
   private static final StandardDiscountBondModelDataBundle DATA = new StandardDiscountBondModelDataBundle(R, SIGMA, TODAY);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
     MODEL.getDiscountBondFunction(null, MATURITY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     MODEL.getDiscountBondFunction(START, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getDiscountBondFunction(START, MATURITY).evaluate((StandardDiscountBondModelDataBundle) null);
   }

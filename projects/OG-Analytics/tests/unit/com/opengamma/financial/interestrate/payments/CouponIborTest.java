@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -25,28 +24,28 @@ public class CouponIborTest {
   private static final String LIBOR_CURVE_NAME = "libor";
   private static final CouponIbor PAYMENT = new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
     new CouponIbor(-1, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeResetTime() {
     new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, -0.1, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMaturityBeforereset() {
     new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, RESET_TIME - 0.1, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction1() {
     new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, -0.25, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
     ;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction2() {
     new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, -0.25, LIBOR_CURVE_NAME);
     ;
@@ -62,12 +61,12 @@ public class CouponIborTest {
   //    new CouponIbor(PAYMENT_TIME, RESET_TIME, MATURITY, PAYMENT_YEAR_FRACTION, 1.5 * FORWARD_YEAR_FRACTION, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
   //  }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurve() {
     new CouponIbor(PAYMENT_TIME, null, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, LIBOR_CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborCurve() {
     new CouponIbor(PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, RESET_TIME, RESET_TIME, MATURITY, FORWARD_YEAR_FRACTION, null);
   }

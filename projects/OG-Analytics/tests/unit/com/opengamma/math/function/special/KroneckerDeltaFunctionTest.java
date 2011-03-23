@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -15,12 +14,12 @@ import org.junit.Test;
 public class KroneckerDeltaFunctionTest {
   private static final KroneckerDeltaFunction F = new KroneckerDeltaFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     F.evaluate(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     F.evaluate(1, null);
   }

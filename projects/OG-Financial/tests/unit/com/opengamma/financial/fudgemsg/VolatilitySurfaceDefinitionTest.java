@@ -6,10 +6,8 @@
 package com.opengamma.financial.fudgemsg;
 
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;

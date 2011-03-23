@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -30,22 +28,22 @@ public class SupershareOptionDefinitionTest {
           2009, 1, 1));
   private static final SupershareOptionDefinition OPTION = new SupershareOptionDefinition(EXPIRY, LOWER, UPPER);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLowerBound() {
     new SupershareOptionDefinition(EXPIRY, -LOWER, UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeUpperBound() {
     new SupershareOptionDefinition(EXPIRY, LOWER, -UPPER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadBounds() {
     new SupershareOptionDefinition(EXPIRY, UPPER, LOWER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     OPTION.getPayoffFunction().getPayoff(null, null);
   }

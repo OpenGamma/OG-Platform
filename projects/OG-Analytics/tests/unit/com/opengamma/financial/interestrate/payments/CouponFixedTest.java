@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * Test of fixed coupon class.
@@ -22,17 +21,17 @@ public class CouponFixedTest {
 
   //TODO: test constructor with notional.
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
     new CouponFixed(-1, CURVE_NAME, YEAR_FRACTION, COUPON);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction() {
     new CouponFixed(PAYMENT_TIME, CURVE_NAME, -0.25, COUPON);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
     new CouponFixed(PAYMENT_TIME, null, YEAR_FRACTION, COUPON);
   }

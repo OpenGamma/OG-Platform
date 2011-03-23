@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -41,22 +39,22 @@ public class IRFutureDefinitionTest {
   private static final double RATE = 95;
   private static final IRFutureDefinition DEFINITION = new IRFutureDefinition(LAST_TRADE_DATE, MATURITY_DATE, CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLastTradeDate() {
     new IRFutureDefinition(null, MATURITY_DATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturityDate() {
     new IRFutureDefinition(LAST_TRADE_DATE, null, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new IRFutureDefinition(LAST_TRADE_DATE, MATURITY_DATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMaturityBeforeLastTradeDate() {
     new IRFutureDefinition(MATURITY_DATE, LAST_TRADE_DATE, CONVENTION);
   }

@@ -6,11 +6,9 @@
 package com.opengamma.math.surface;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.tuple.DoublesPair;
@@ -34,52 +32,52 @@ public class InterpolatedSurfaceShiftFunctionTest {
   private static final InterpolatedDoublesSurface SURFACE = InterpolatedDoublesSurface.from(X, Y, Z, INTERPOLATOR, NAME);
   private static final InterpolatedSurfaceShiftFunction F = new InterpolatedSurfaceShiftFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     F.evaluate(null, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     F.evaluate(null, 3, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     F.evaluate(null, 3, 4, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     F.evaluate(null, 3, 4, 5, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5}, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY1() {
     F.evaluate(SURFACE, new double[] {1}, new double[] {2, 3}, new double[] {4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY2() {
     F.evaluate(SURFACE, new double[] {1}, new double[] {2, 3}, new double[] {4}, "M");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ1() {
     F.evaluate(SURFACE, new double[] {1}, new double[] {2}, new double[] {3, 4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ2() {
     F.evaluate(SURFACE, new double[] {1}, new double[] {2}, new double[] {3, 4}, "L");
   }

@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.interestrate.swap;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -40,21 +39,21 @@ public class SwapRateCalculatorTest {
     SWAP = new FixedFloatSwap(t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     CALCULATOR.visit(SWAP, bundle);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurve() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
     CALCULATOR.visit(SWAP, bundle);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSwap() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);

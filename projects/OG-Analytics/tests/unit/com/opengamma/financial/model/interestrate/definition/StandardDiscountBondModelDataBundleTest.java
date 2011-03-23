@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.interestrate.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -29,17 +27,17 @@ public class StandardDiscountBondModelDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final StandardDiscountBondModelDataBundle DATA = new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYieldCurve() {
     new StandardDiscountBondModelDataBundle(null, SIGMA_CURVE, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVolatilityCurve() {
     new StandardDiscountBondModelDataBundle(R_CURVE, null, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     new StandardDiscountBondModelDataBundle(R_CURVE, SIGMA_CURVE, null);
   }

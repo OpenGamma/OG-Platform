@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.future.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -27,42 +25,42 @@ public class FXFutureDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final FXFutureDataBundle DATA = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDomesticCurveConstructor() {
     new FXFutureDataBundle(null, FOREIGN, SPOT, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testForeignCurveConstructor() {
     new FXFutureDataBundle(DOMESTIC, null, -SPOT, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSpotConstructor() {
     new FXFutureDataBundle(DOMESTIC, FOREIGN, -SPOT, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateConstructor() {
     new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDomesticCurveBuilder() {
     DATA.withDiscountCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForeignCurveBuilder() {
     DATA.withForeignCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSpotBuilder() {
     DATA.withSpot(-SPOT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateBuilder() {
     DATA.withDate(null);
   }

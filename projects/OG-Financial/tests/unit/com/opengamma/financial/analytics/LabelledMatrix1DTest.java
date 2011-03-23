@@ -6,12 +6,10 @@
 package com.opengamma.financial.analytics;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  * 
@@ -26,77 +24,77 @@ public class LabelledMatrix1DTest {
   private static final DoubleLabelledMatrix1D M1 = new DoubleLabelledMatrix1D(TIMES1, LABELS1, VALUES1);
   private static final double HIGH_TOLERANCE = 0.25 / 365;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKeys1() {
     new MyLabelledMatrix1D(null, VALUES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKeys2() {
     new MyLabelledMatrix1D(null, LABELS, VALUES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLabels() {
     new MyLabelledMatrix1D(KEYS, null, VALUES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValues1() {
     new MyLabelledMatrix1D(KEYS, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValues2() {
     new MyLabelledMatrix1D(KEYS, LABELS, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength1() {
     new MyLabelledMatrix1D(KEYS, new double[] {1, 2, 3});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength2() {
     new MyLabelledMatrix1D(KEYS, LABELS, new double[] {1, 2, 3});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength3() {
     new MyLabelledMatrix1D(KEYS, new String[] {"1", "2", "3"}, VALUES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWithNullKey() {
     M1.addIgnoringLabel(null, "N", 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWithNullLabel() {
     M1.addIgnoringLabel(2., null, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddSingleValueWrongLabel1() {
     M1.add(1., "12M", 0.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddSingleValueWrongLabel2() {
     M1.add(1. + HIGH_TOLERANCE / 2, "12M", 0.1, HIGH_TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddNullMatrix1() {
     M1.addIgnoringLabel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddNullMatrix2() {
     M1.add(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddWithWrongLabel() {
     final int n = TIMES1.length;
     final Double[] times = Arrays.copyOf(TIMES1, n);

@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -49,17 +47,17 @@ public class GreekConverterTest {
     GREEKS_DATA = new GreekDataBundle(GREEKS, map, TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     G_TO_PG_CONVERTER.evaluate((GreekDataBundle) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     G_TO_VG_CONVERTER.evaluate((GreekDataBundle) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGreekResultMissingDataValueGreek() {
     final GreekResultCollection greeks = new GreekResultCollection();
     greeks.put(Greek.DELTA, 5.);

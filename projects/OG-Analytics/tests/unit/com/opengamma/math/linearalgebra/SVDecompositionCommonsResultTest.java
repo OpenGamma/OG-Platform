@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -17,8 +17,6 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.linear.SingularValueDecomposition;
-import org.junit.Test;
-
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
@@ -42,22 +40,22 @@ public class SVDecompositionCommonsResultTest {
   private static final SVDecompositionResult SVD = new SVDecompositionCommonsResult(new MySingularValueDecomposition());
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSVD() {
     new SVDecompositionCommonsResult(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     SVD.solve((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     SVD.solve((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     SVD.solve((DoubleMatrix2D) null);
   }

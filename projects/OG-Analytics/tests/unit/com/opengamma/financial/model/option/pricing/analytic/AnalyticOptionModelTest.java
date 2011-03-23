@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -47,17 +45,18 @@ public class AnalyticOptionModelTest {
       15., DATE);
   private static final double EPS = 1e-2;
 
+  @Test
   public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
     try {
       model.getPricingFunction(null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
 
     try {
       model.getPricingFunction(definition).evaluate((T) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -79,6 +78,7 @@ public class AnalyticOptionModelTest {
     testResults(finiteDifference, bsm);
   }
 
+  @Test
   protected void testResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {

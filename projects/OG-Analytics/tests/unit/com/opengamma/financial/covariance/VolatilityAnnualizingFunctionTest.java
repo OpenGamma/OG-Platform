@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -16,22 +15,22 @@ public class VolatilityAnnualizingFunctionTest {
   private static final double DAYS_PER_YEAR = 360;
   private static final double WORKING_DAYS_PER_YEAR = 250;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegative() {
     new VolatilityAnnualizingFunction(-DAYS_PER_YEAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     new VolatilityAnnualizingFunction(DAYS_PER_YEAR).evaluate((Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     new VolatilityAnnualizingFunction(DAYS_PER_YEAR).evaluate((Double) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty() {
     new VolatilityAnnualizingFunction(DAYS_PER_YEAR).evaluate(new Double[0]);
   }

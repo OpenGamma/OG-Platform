@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.linearalgebra.SVDecompositionColt;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -25,17 +23,17 @@ public class JacobianDirectionFunctionTest {
   private static final DoubleMatrix2D M = new DoubleMatrix2D(new double[][] {new double[] {X0, 0, 0}, new double[] {0, X1, 0}, new double[] {0, 0, X2}});
   private static final DoubleMatrix1D Y = new DoubleMatrix1D(new double[] {1, 1, 1});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new JacobianDirectionFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEstimate() {
     F.getDirection(null, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY() {
     F.getDirection(M, null);
   }

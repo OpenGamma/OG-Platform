@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public class RungeKuttaIntegrator1DTest {
@@ -68,17 +66,17 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeAbsTol() {
     new RungeKuttaIntegrator1D(-1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRelTol() {
     new RungeKuttaIntegrator1D(1e-7, -1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLessTahnOneStep() {
     new RungeKuttaIntegrator1D(0);
   }

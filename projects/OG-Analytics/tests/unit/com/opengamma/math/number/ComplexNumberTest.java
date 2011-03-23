@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.number;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,27 +19,27 @@ public class ComplexNumberTest {
   private static final ComplexNumber Z4 = new ComplexNumber(2, 2);
   private static final ComplexNumber Z5 = new ComplexNumber(2, 3);
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testByteValue() {
     Z1.byteValue();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testIntValue() {
     Z1.intValue();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testLongValue() {
     Z1.longValue();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFloatValue() {
     Z1.floatValue();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDoubleValue() {
     Z1.doubleValue();
   }

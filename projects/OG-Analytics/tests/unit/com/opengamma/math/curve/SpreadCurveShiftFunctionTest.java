@@ -6,10 +6,8 @@
 package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -38,32 +36,32 @@ public class SpreadCurveShiftFunctionTest {
     SPREAD = SpreadDoublesCurve.from(new Curve[] {CURVE1, CURVE2}, SPREAD_FUNCTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve1() {
     F.evaluate(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve2() {
     F.evaluate(null, 1, "B");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test1() {
     F.evaluate(SPREAD, 2, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test2() {
     F.evaluate(SPREAD, 2, 1, "A");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test3() {
     F.evaluate(SPREAD, new double[] {2}, new double[] {1});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void test4() {
     F.evaluate(SPREAD, new double[] {2}, new double[] {1}, "A");
   }
