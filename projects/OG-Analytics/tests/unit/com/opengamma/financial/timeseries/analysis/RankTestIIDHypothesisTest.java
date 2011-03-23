@@ -27,8 +27,8 @@ public class RankTestIIDHypothesisTest extends IIDHypothesisTestCase {
 
   @Test
   public void test() {
-    super.testNullTS(RANK_TEST);
-    super.testEmptyTS(RANK_TEST);
+    super.assertNullTS(RANK_TEST);
+    super.assertEmptyTS(RANK_TEST);
     assertTrue(RANK_TEST.evaluate(RANDOM));
     assertTrue(RANK_TEST.evaluate(SIGNAL));
     assertFalse(RANK_TEST.evaluate(INCREASING));

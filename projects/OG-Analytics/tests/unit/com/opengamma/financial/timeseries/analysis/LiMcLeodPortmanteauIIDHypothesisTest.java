@@ -40,8 +40,8 @@ public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase 
 
   @Test
   public void test() {
-    super.testNullTS(LI_MCLEOD);
-    super.testEmptyTS(LI_MCLEOD);
+    super.assertNullTS(LI_MCLEOD);
+    super.assertEmptyTS(LI_MCLEOD);
     assertTrue(LI_MCLEOD.evaluate(RANDOM));
     assertFalse(LI_MCLEOD.evaluate(SIGNAL));
     assertFalse(LI_MCLEOD.evaluate(INCREASING));

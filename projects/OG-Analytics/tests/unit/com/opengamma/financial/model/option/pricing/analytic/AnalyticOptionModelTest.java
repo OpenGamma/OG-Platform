@@ -72,14 +72,13 @@ public class AnalyticOptionModelTest {
     greekTypes.remove(Greek.ZETA_BLEED);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
     GreekResultCollection finiteDifference = DUMMY_MODEL.getGreeks(PUT, DATA, greekTypes);
-    testResults(finiteDifference, bsm);
+    assertResults(finiteDifference, bsm);
     bsm = BSM.getGreeks(CALL, DATA, greekTypes);
     finiteDifference = DUMMY_MODEL.getGreeks(CALL, DATA, greekTypes);
-    testResults(finiteDifference, bsm);
+    assertResults(finiteDifference, bsm);
   }
 
-  @Test
-  protected void testResults(final GreekResultCollection results, final GreekResultCollection expected) {
+  protected void assertResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {
       final Double result2 = expected.get(entry.getKey());

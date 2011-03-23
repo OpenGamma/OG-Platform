@@ -12,8 +12,6 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -26,7 +24,7 @@ import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
+public abstract class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry NINE_MONTHS = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final Expiry TENTH_YEAR = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.1));
@@ -42,8 +40,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   private static final double SIGMA3 = 0.35;
   private static final Set<Greek> GREEK_SET = Collections.singleton(Greek.FAIR_PRICE);
 
-  @Test
-  public void test(final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model, final double eps) {
+  protected void assertValid(final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model, final double eps) {
     final AmericanVanillaOptionDefinition definition = new AmericanVanillaOptionDefinition(1., NINE_MONTHS, true);
     super.testInputs(model, definition);
     AmericanVanillaOptionDefinition call = new AmericanVanillaOptionDefinition(STRIKE, TENTH_YEAR, true);

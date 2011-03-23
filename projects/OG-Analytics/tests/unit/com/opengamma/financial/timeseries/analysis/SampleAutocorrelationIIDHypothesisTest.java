@@ -40,8 +40,8 @@ public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCas
 
   @Test
   public void test() {
-    super.testNullTS(SAMPLE_ACF);
-    super.testEmptyTS(SAMPLE_ACF);
+    super.assertNullTS(SAMPLE_ACF);
+    super.assertEmptyTS(SAMPLE_ACF);
     assertTrue(SAMPLE_ACF.evaluate(RANDOM));
     assertFalse(SAMPLE_ACF.evaluate(SIGNAL));
     assertFalse(SAMPLE_ACF.evaluate(INCREASING));

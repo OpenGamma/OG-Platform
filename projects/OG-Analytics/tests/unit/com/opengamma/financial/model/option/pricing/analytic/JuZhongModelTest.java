@@ -14,6 +14,6 @@ public class JuZhongModelTest extends AmericanAnalyticOptionModelTest {
 
   @Test
   public void test() {
-    super.test(new JuZhongModel(), 10);
+    super.assertValid(new JuZhongModel(), 10);
   }
 }
