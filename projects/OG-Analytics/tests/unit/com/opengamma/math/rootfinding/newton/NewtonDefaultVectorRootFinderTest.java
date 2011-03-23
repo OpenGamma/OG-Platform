@@ -21,24 +21,24 @@ public class NewtonDefaultVectorRootFinderTest extends VectorRootFinderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular1() {
-    testFunction2D(DEFAULT, EPS);
+    assertFunction2D(DEFAULT, EPS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular2() {
-    testFunction2D(DEFAULT_JACOBIAN_2D, EPS);
+    assertFunction2D(DEFAULT_JACOBIAN_2D, EPS);
   }
 
   @Test
   public void test() {
-    testLinear(DEFAULT, EPS);
-    testLinear(SV, EPS);
-    testFunction2D(SV, EPS);
-    testFunction2D(SV_JACOBIAN_2D, EPS);
-    testFunction3D(DEFAULT, EPS);
-    testFunction3D(DEFAULT_JACOBIAN_3D, EPS);
-    testFunction3D(SV, EPS);
-    testFunction3D(SV_JACOBIAN_3D, EPS);
-    testYieldCurveBootstrap(DEFAULT, EPS);
+    assertLinear(DEFAULT, EPS);
+    assertLinear(SV, EPS);
+    assertFunction2D(SV, EPS);
+    assertFunction2D(SV_JACOBIAN_2D, EPS);
+    assertFunction3D(DEFAULT, EPS);
+    assertFunction3D(DEFAULT_JACOBIAN_3D, EPS);
+    assertFunction3D(SV, EPS);
+    assertFunction3D(SV_JACOBIAN_3D, EPS);
+    assertYieldCurveBootstrap(DEFAULT, EPS);
   }
 }

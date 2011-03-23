@@ -22,7 +22,7 @@ public abstract class WeightAndAbscissaFunctionTestCase {
     getFunction().generate(-1);
   }
 
-  public void assertResults(final GaussianQuadratureData f, final double[] x, final double[] w) {
+  protected void assertResults(final GaussianQuadratureData f, final double[] x, final double[] w) {
     final double[] x1 = f.getAbscissas();
     final double[] w1 = f.getWeights();
     for (int i = 0; i < x.length; i++) {

@@ -26,9 +26,9 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test
   public void test() {
-    testCDF(P, X, NORMAL);
-    testPDF(Z, X, NORMAL);
-    testInverseCDF(X, NORMAL);
+    assertCDF(P, X, NORMAL);
+    assertPDF(Z, X, NORMAL);
+    assertInverseCDF(X, NORMAL);
   }
 
   @Test

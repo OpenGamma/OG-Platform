@@ -6,12 +6,14 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -27,7 +29,7 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
-public class AnalyticOptionModelTest {
+public abstract class AnalyticOptionModelTest {
   protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle>() {
 
@@ -45,8 +47,7 @@ public class AnalyticOptionModelTest {
       15., DATE);
   private static final double EPS = 1e-2;
 
-  @Test
-  public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
+  protected <S extends OptionDefinition, T extends StandardOptionDataBundle> void assertInputs(final AnalyticOptionModel<S, T> model, final S definition) {
     try {
       model.getPricingFunction(null);
       Assert.fail();

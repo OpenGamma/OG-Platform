@@ -34,9 +34,9 @@ public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
   @Test
   public void test() {
     ProbabilityDistribution<Double> dist = new ChiSquareDistribution(1, ENGINE);
-    testCDFWithNull(dist);
-    testPDFWithNull(dist);
-    testInverseCDFWithNull(dist);
+    assertCDFWithNull(dist);
+    assertPDFWithNull(dist);
+    assertInverseCDFWithNull(dist);
     for (int i = 0; i < 5; i++) {
       dist = new ChiSquareDistribution(DOF[i], ENGINE);
       assertEquals(1 - dist.getCDF(X[i]), Q[i], EPS);

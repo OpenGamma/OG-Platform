@@ -24,8 +24,8 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
 
   @Test
   public void testBadInputs() {
-    testCDFWithNull(DIST);
-    testPDFWithNull(DIST);
+    assertCDFWithNull(DIST);
+    assertPDFWithNull(DIST);
   }
 
   @Test

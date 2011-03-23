@@ -44,11 +44,11 @@ public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestC
     for (int i = 0; i < 10; i++) {
       final double x = B - 5 * Math.log(RANDOM.nextDouble());
       final double y = 5 * NORMAL.nextRandom();
-      testRoundTrip(LOWER_LIMIT, x);
-      testReverseRoundTrip(LOWER_LIMIT, y);
-      testGradient(LOWER_LIMIT, x);
-      testInverseGradient(LOWER_LIMIT, y);
-      testGradientRoundTrip(LOWER_LIMIT, x);
+      assertRoundTrip(LOWER_LIMIT, x);
+      assertReverseRoundTrip(LOWER_LIMIT, y);
+      assertGradient(LOWER_LIMIT, x);
+      assertInverseGradient(LOWER_LIMIT, y);
+      assertGradientRoundTrip(LOWER_LIMIT, x);
     }
   }
 
@@ -57,11 +57,11 @@ public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestC
     for (int i = 0; i < 10; i++) {
       final double x = A + 5 * Math.log(RANDOM.nextDouble());
       final double y = 5 * NORMAL.nextRandom();
-      testRoundTrip(UPPER_LIMIT, x);
-      testReverseRoundTrip(UPPER_LIMIT, y);
-      testGradient(UPPER_LIMIT, x);
-      testInverseGradient(UPPER_LIMIT, y);
-      testGradientRoundTrip(UPPER_LIMIT, x);
+      assertRoundTrip(UPPER_LIMIT, x);
+      assertReverseRoundTrip(UPPER_LIMIT, y);
+      assertGradient(UPPER_LIMIT, x);
+      assertInverseGradient(UPPER_LIMIT, y);
+      assertGradientRoundTrip(UPPER_LIMIT, x);
     }
   }
 

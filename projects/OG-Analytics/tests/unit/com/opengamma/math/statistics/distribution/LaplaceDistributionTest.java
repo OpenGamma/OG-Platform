@@ -49,9 +49,9 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test
   public void test() {
-    testCDFWithNull(LAPLACE);
-    testPDFWithNull(LAPLACE);
-    testInverseCDFWithNull(LAPLACE);
+    assertCDFWithNull(LAPLACE);
+    assertPDFWithNull(LAPLACE);
+    assertInverseCDFWithNull(LAPLACE);
     final double mean = new MeanCalculator().evaluate(DATA);
     final double median = new MedianCalculator().evaluate(DATA);
     final double variance = new SampleVarianceCalculator().evaluate(DATA);
