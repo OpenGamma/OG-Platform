@@ -38,6 +38,11 @@ public class AsymmetricPowerOptionDefinitionTest {
     CALL.getPayoffFunction().getPayoff(null, null);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativePower() {
+    new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, -POWER, true);
+  }
+
   @Test
   public void testExercise() {
     assertFalse(CALL.getExerciseFunction().shouldExercise(DATA, STRIKE + 10));
