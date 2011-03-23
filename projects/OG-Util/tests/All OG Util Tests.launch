@@ -26,5 +26,5 @@
 <listEntry value="com.opengamma.util.tuple"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
-<intAttribute key="org.testng.eclipse.TYPE" value="1"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="5"/>
 </launchConfiguration>
