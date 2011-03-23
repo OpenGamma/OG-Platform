@@ -14,12 +14,39 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * Pricing model for asymmetric power options.
- * 
+ * Pricing model for asymmetric power options (see {@link com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition}).
+ * <p>
+ * The price of a call is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c = S^i e^{[(i-1)(r + \\frac{i\\sigma^2}{2}) - i(r-b)]T}N(d_1) - Ke^{-rT}N(d_2)
+ * \\end{align*}
+ * }
+ * and of a put by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * p = Ke^{-rT}N(-d_2) - S^i e^{[(i-1)(r + \\frac{i\\sigma^2}{2}) - i(r-b)]T}N(-d_1)
+ * \\end{align*}
+ * }
+ * where 
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_1 = \\frac{\\ln{\\frac{S}{K^{\\frac{1}{i}}}} + (b + (i - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
+ * \\end{align*}
+ * }
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_2 = d_1 - i\\sigma\\sqrt{T}
+ * \\end{align*}
+ * }
  */
 public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
     Validate.notNull(definition);

@@ -12,12 +12,15 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  * Definition for an asymmetric power options (a.k.a. standard power options).
- * The exercise style is European.
  * <p>
- * When the spot price is <i>S</i>, an option with strike <i>K</i> and power
- * <i>i</i> (where <i>i > 0</i>) has payoff <i>max(S<sup>i</sup> - K, 0)</i> for
- * a call and <i>max(K - S<sup>i</sup>, 0)<i> for a put.
- * 
+ * The exercise style is European. The payoff of these options is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\max(S^i - K, 0)\\\\
+ * p &= \\max(K - S^i, 0)
+ * \\end{align*}
+ * }
+ * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power, with {@latex.inline $i > 0$}, and {@latex.inline $S$} is the spot.
  */
 public class AsymmetricPowerOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
@@ -34,30 +37,36 @@ public class AsymmetricPowerOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike The option strike
-   * @param expiry The option expiry
-   * @param power The power of the option
+   * @param strike The strike
+   * @param expiry The expiry
+   * @param power The power, greater than zero
    * @param isCall Is the option a call or put
    */
   public AsymmetricPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final boolean isCall) {
     super(strike, expiry, isCall);
+    Validate.isTrue(power > 0, "power must be > 0");
     _power = power;
   }
 
   /**
-   * 
-   * @return The value of the power.
+   * @return The power.
    */
   public double getPower() {
     return _power;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {

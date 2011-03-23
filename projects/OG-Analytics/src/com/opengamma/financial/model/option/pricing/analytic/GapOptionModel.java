@@ -26,7 +26,13 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * where
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
- * d = \\frac{\\ln{\\frac{S}{K_1}} + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}
+ * d_1 = \\frac{\\ln{\\frac{S}{K_1}} + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}
+ * \\end{align*}
+ * }
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_2 = d_1 - \\sigma\\sqrt{T}
  * \\end{align*}
  * }
  * 

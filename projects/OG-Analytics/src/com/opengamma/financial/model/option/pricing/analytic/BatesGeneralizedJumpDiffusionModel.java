@@ -18,13 +18,41 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
- *  
+ * The Bates generalized jump diffusion model is described by the jump-diffusion process
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * dS = (b - \\lambda \\overline{k})S dt + \\sigma S dz + k dq
+ * \\end{align*}
+ * }
+ * with {@latex.inline $S$} the spot, {@latex.inline $b$} the cost-of-carry, {@latex.inline $\\sigma$} the volatility of the (relative) price
+ * change based on no jumps, {@latex.inline $k$} a random percentage jump conditional on a Poisson-distributed event occurring, with ({@latex.inline $1+k$})
+ * lognormally distributed, {@latex.inline $\\overline{k}$} the expected jump size, {@latex.inline $\\lambda$} the frequency of events (the average number
+ * of events per year) and {@latex.inline $q$} a Poisson counter with intensity {@latex.inline $\\lambda$}.
+ * <p>
+ * The price of an option can be calculated using:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\sum_{i=0}^{\\infty} \\frac{e^{-\\lambda T}(\\lambda T)^i}{i!}c_i(S, K, T, r, b_i, \\sigma_i)\\\\
+ * p &= \\sum_{i=0}^{\\infty} \\frac{e^{-\\lambda T}(\\lambda T)^i}{i!}p_i(S, K, T, r, b_i, \\sigma_i)
+ * \\end{align*}
+ * }  
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * b_i &= b - \\lambda \\overline{k} + \\frac{i\\overline{\\gamma}}{T}\\\\
+ * \\sigma_i &= \\sqrt{\\sigma^2 + \\delta^2\\frac{i}{T}}\\\\
+ * \\overline{\\gamma} &= \\ln(1 + \\overline{k}) 
+ * \\end{align*}
+ * }
+ * and {@latex.inline $\\delta$} is the standard deviation of log asset price jumps.
  */
-
 public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelDataBundle> {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final int N = 50;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<BatesGeneralizedJumpDiffusionModelDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);
