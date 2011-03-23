@@ -22,7 +22,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * Class defining an analytical approximation for American option prices as derived by Bjerksund and Stensland (2002).
  * <p>
- * The price of a call is given by
+ * The price of a call is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * C = &\\alpha_2 S^\\beta - \\alpha_2 \\phi(S, t_1, \\beta, I_2, I_2)\\\\
@@ -79,8 +79,12 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * e_4 &= -\\frac{\\ln(\\frac{SI_1^2}{HI_2^2}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
  * \\end{align*}
  * }
- * and {@latex.inline $\\rho = \\sqrt{\\frac{t_1}{T}}$} and {@latex.inline $M(\\;\\cdot\\;, \\;\\cdot\\;, \\;\\cdot\\;)$} is the cdf of the bivariate
+ * and {@latex.inline $\\rho = \\sqrt{\\frac{t_1}{T}}$} and {@latex.inline $M(\\;\\cdot\\;, \\;\\cdot\\;, \\;\\cdot\\;)$} is the CDF of the bivariate
  * normal distribution (see {@link com.opengamma.math.statistics.distribution.BivariateNormalDistribution}).
+ * <p>
+ * The price of puts is calculated using the Bjerksund-Stensland put-call transformation 
+ * {@latex.inline $p(S, K, T, r, b, \\sigma) = c(K, S, T, r - b, -b, \\sigma)$}.
+ * 
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();

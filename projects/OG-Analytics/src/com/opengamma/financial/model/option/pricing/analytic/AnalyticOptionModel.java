@@ -41,7 +41,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
    * @param pricingFunction The pricing function, not null
    * @param data The data, not null
    * @param definition The option definition, not null
-   * @return A visitor that calculates greeks. 
+   * @return A visitor that calculates greeks
    */
   public GreekVisitor<Double> getGreekVisitor(final Function1D<U, Double> pricingFunction, final U data, final T definition) {
     Validate.notNull(pricingFunction);
