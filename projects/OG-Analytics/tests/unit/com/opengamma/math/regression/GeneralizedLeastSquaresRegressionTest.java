@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class GeneralizedLeastSquaresRegressionTest {
   private static final double EPS = 1e-9;
@@ -43,19 +43,19 @@ public class GeneralizedLeastSquaresRegressionTest {
     final OrdinaryLeastSquaresRegression olsRegression = new OrdinaryLeastSquaresRegression();
     LeastSquaresRegressionResult gls = regression.regress(x, w, yIntercept, true);
     LeastSquaresRegressionResult ols = olsRegression.regress(x, yIntercept, true);
-    testRegressions(n, 5, gls, ols);
+    assertRegressions(n, 5, gls, ols);
     gls = regression.regress(x, w, yNoIntercept, false);
     ols = olsRegression.regress(x, yNoIntercept, false);
-    testRegressions(n, 4, gls, ols);
+    assertRegressions(n, 4, gls, ols);
     gls = regression.regress(x, w, yIntercept, true);
     ols = olsRegression.regress(x, yIntercept, true);
-    testRegressions(n, 5, gls, ols);
+    assertRegressions(n, 5, gls, ols);
     gls = regression.regress(x, w, yNoIntercept, false);
     ols = olsRegression.regress(x, yNoIntercept, false);
-    testRegressions(n, 4, gls, ols);
+    assertRegressions(n, 4, gls, ols);
   }
 
-  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
+  private void assertRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
       final LeastSquaresRegressionResult regression2) {
     final double[] r1 = regression1.getResiduals();
     final double[] r2 = regression2.getResiduals();

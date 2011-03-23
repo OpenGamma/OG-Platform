@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 
 /**
@@ -20,22 +18,22 @@ public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCas
   private static final boolean USE_NORMALIZED = false;
   private static final InterpolatorND<RadialBasisFunctionInterpolatorDataBundle> INTERPOLATOR = new RadialBasisFunctionInterpolatorND(BASIS_FUNCTION, USE_NORMALIZED);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBasisFunction() {
     new RadialBasisFunctionInterpolatorND(null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(null, new double[] {1, 2});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoint() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDimension() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2});
   }

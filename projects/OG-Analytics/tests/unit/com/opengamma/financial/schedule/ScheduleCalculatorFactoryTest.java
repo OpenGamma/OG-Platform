@@ -5,39 +5,37 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.MonthOfYear;
-
-import org.junit.Test;
 
 /**
  * 
  */
 public class ScheduleCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName1() {
     ScheduleCalculatorFactory.getScheduleCalculator("A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName1() {
     ScheduleCalculatorFactory.getScheduleCalculator(null, DayOfWeek.WEDNESDAY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName2() {
     ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.DAILY, DayOfWeek.WEDNESDAY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName2() {
     ScheduleCalculatorFactory.getScheduleCalculator(null, 31, MonthOfYear.DECEMBER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName3() {
     ScheduleCalculatorFactory.getScheduleCalculator(ScheduleCalculatorFactory.DAILY, 23, MonthOfYear.APRIL);
   }

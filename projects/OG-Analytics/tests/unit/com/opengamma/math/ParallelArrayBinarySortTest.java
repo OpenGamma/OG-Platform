@@ -6,10 +6,8 @@
 package com.opengamma.math;
 
 import static org.junit.Assert.assertArrayEquals;
-
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  * 
@@ -24,47 +22,47 @@ public class ParallelArrayBinarySortTest {
   private static final Float[] F2 = new Float[] {1f, 7f, 3f, 4f, 9f, 10f, 8f, 2f, 5f, 6f};
   private static final Double[] Y4 = new Double[] {2.1, 14.1, 6.1, 8.1, 18.1, 20.1, 16.1, 4.1, 10.1, 12.1};
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleNullKeys() {
     ParallelArrayBinarySort.parallelBinarySort(null, Y1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleNullValues() {
     ParallelArrayBinarySort.parallelBinarySort(X1, (double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleDifferentLengths() {
     ParallelArrayBinarySort.parallelBinarySort(X1, new double[] {2, 4, 6});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleObjectNullKeys() {
     ParallelArrayBinarySort.parallelBinarySort((double[]) null, Y1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleObjectNullValues() {
     ParallelArrayBinarySort.parallelBinarySort(X1, (Object[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDoubleObjectDifferentLengths() {
     ParallelArrayBinarySort.parallelBinarySort(X1, new Object[] {2, 4, 6});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testObjectNullKeys() {
     ParallelArrayBinarySort.parallelBinarySort((String[]) null, Y3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testObjectNullValues() {
     ParallelArrayBinarySort.parallelBinarySort(F1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testObjectDifferentLengths() {
     ParallelArrayBinarySort.parallelBinarySort(F1, new Double[] {2., 4., 6.});
   }

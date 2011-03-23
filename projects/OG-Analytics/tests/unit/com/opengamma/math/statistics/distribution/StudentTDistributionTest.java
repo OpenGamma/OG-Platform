@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -18,17 +16,17 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   private static final double[] DOF = new double[] { 1, 4, 6, 10, 11, 13, 15, 18, 23, 27 };
   private static final double[] P = new double[] { 0.6, 0.6, 0.75, 0.9, 0.9, 0.95, 0.975, 0.99, 0.995, 0.9995 };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDOF1() {
     new StudentTDistribution(-2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDOF2() {
     new StudentTDistribution(-2, ENGINE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEngine() {
     new StudentTDistribution(2, null);
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -52,17 +50,17 @@ public class DoubleQuadraticInterpolator1DNodeSensitivityCalculatorTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputData() {
     CALCULATOR.calculate(null, 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     CALCULATOR.calculate(DATA, 31.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     CALCULATOR.calculate(DATA, -1.);
   }

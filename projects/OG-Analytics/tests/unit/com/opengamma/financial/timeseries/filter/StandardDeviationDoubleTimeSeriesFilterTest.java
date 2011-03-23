@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -43,7 +41,7 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
     TS = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }

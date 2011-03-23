@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -55,22 +53,22 @@ public class NaturalCubicSplineInterpolator1DNodeSensitivityCalculatorTest {
     DATA1 = INTERPOLATOR.getDataBundleFromSortedArrays(t, r);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputMap() {
     INTERPOLATOR.interpolate(null, 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInterpolateValue() {
     INTERPOLATOR.interpolate(DATA1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(DATA1, 31.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(DATA1, -1.);
   }

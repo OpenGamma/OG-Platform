@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.List;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
@@ -35,22 +33,22 @@ public class BasisFunctionGeneratorTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKnots() {
     GENERATOR.generate(null, 2, 4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegDegree() {
     GENERATOR.generate(KNOTS, -1, 4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFunctionIndexOutOfRange1() {
     GENERATOR.generate(KNOTS, 2, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFunctionIndexOutOfRange2() {
     GENERATOR.generate(KNOTS, 5, KNOTS.length - 5);
   }

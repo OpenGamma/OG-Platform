@@ -5,9 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
@@ -17,8 +17,6 @@ import org.apache.commons.math.linear.InvalidMatrixException;
 import org.apache.commons.math.linear.QRDecomposition;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
-import org.junit.Test;
-
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
@@ -35,22 +33,22 @@ public class QRDecompositionCommonsResultTest {
   protected static final DecompositionSolver SOLVER = new MyDecompositionSolver();
   private static final QRDecompositionResult QR = new QRDecompositionCommonsResult(new MyQRDecomposition());
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullQR() {
     new QRDecompositionCommonsResult(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     QR.solve((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     QR.solve((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     QR.solve((DoubleMatrix2D) null);
   }

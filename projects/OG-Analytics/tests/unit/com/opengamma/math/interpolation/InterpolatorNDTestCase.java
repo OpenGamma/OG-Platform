@@ -5,8 +5,8 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +56,7 @@ public class InterpolatorNDTestCase {
     SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
   }
 
+  @Test
   protected <T extends InterpolatorNDDataBundle> void testFlat(InterpolatorND<T> interpolator, double tol) {
     double x1, x2, x3;
     double[] x;
@@ -69,6 +70,7 @@ public class InterpolatorNDTestCase {
     }
   }
 
+  @Test
   protected <T extends InterpolatorNDDataBundle> void testCosExp(InterpolatorND<T> interpolator, double tol) {
     double x1, x2;
     double[] x;

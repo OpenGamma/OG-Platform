@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -33,32 +31,32 @@ public class FixedFloatSwapTest {
 
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedPayments() {
     new FixedFloatSwap(null, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFloatPayments() {
     new FixedFloatSwap(FIXED_PAYMENTS, null, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurveName() {
     new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, null, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborCurveName() {
     new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyFixedPayments() {
     new FixedFloatSwap(new double[0], FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyFloatPayments() {
     new FixedFloatSwap(FIXED_PAYMENTS, new double[0], COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }

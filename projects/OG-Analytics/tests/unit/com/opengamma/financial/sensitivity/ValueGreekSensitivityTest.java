@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.pnl.UnderlyingType;
@@ -23,12 +21,12 @@ public class ValueGreekSensitivityTest {
   private static final String NAME = "NAME";
   private static final Sensitivity<ValueGreek> SENSITIVITY = new ValueGreekSensitivity(VALUE_GREEK, NAME);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValueGreek() {
     new ValueGreekSensitivity(null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIdentifier() {
     new ValueGreekSensitivity(VALUE_GREEK, null);
   }

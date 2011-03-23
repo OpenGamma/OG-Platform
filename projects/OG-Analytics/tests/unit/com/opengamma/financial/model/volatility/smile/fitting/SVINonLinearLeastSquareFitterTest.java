@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
@@ -43,7 +41,7 @@ public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTes
     INITIAL_VALUES = new double[] {0.01, 0.01, 0.01, 0.01, FORWARD * 0.5};
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSolver() {
     new SVINonLinearLeastSquareFitter(null);
   }

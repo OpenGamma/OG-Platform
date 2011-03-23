@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.riskreward;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -51,27 +49,27 @@ public class TotalRiskAlphaCalculatorTest {
   });
   private static final TotalRiskAlphaCalculator CALCULATOR = new TotalRiskAlphaCalculator(RETURN, RETURN, RETURN, ASSET_STD, MARKET_STD);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
     new TotalRiskAlphaCalculator(null, RETURN, RETURN, ASSET_STD, ASSET_STD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
     new TotalRiskAlphaCalculator(RETURN, null, RETURN, ASSET_STD, ASSET_STD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator3() {
     new TotalRiskAlphaCalculator(RETURN, RETURN, null, ASSET_STD, ASSET_STD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator4() {
     new TotalRiskAlphaCalculator(RETURN, RETURN, RETURN, null, ASSET_STD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator5() {
     new TotalRiskAlphaCalculator(RETURN, RETURN, RETURN, ASSET_STD, null);
   }

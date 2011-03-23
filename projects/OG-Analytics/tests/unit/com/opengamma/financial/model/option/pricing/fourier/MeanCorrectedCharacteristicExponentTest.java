@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
@@ -22,7 +20,7 @@ public class MeanCorrectedCharacteristicExponentTest {
   private static final CharacteristicExponent BASE = new MyCharacteristicExponent(SMALL_ALPHA, LARGE_ALPHA);
   private static final MeanCorrectedCharacteristicExponent EXPONENT = new MeanCorrectedCharacteristicExponent(BASE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirst() {
     new MeanCorrectedCharacteristicExponent(null);
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 
 /**
@@ -25,12 +23,12 @@ public class DoubleQuadraticInterpolator1DTest {
 
   private static final Interpolator1DDoubleQuadraticDataBundle DATA = INTERPOLATOR.getDataBundle(X_DATA, Y_DATA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(null, 2.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     INTERPOLATOR.interpolate(DATA, null);
   }

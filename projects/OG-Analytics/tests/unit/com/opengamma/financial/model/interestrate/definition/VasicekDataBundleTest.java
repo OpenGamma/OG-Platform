@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.interestrate.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
@@ -28,22 +26,22 @@ public class VasicekDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final VasicekDataBundle DATA = new VasicekDataBundle(SHORT_RATE, SIGMA, DATE, LONG_RATE, SPEED);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullShortRate() {
     new VasicekDataBundle(null, SIGMA, DATE, LONG_RATE, SPEED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVolatility() {
     new VasicekDataBundle(SHORT_RATE, null, DATE, LONG_RATE, SPEED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     new VasicekDataBundle(SHORT_RATE, SIGMA, null, LONG_RATE, SPEED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroSpeed() {
     new VasicekDataBundle(SHORT_RATE, SIGMA, DATE, LONG_RATE, 0);
   }

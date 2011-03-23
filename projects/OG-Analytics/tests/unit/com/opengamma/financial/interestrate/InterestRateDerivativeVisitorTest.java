@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -311,102 +309,102 @@ public class InterestRateDerivativeVisitorTest {
     assertEquals(FIXED_FIXED.accept(VISITOR), Swap.class);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCash1() {
     ABSTRACT_VISITOR.visit(CASH, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCash2() {
     ABSTRACT_VISITOR.visit(CASH);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFRA1() {
     ABSTRACT_VISITOR.visit(FRA, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFRA2() {
     ABSTRACT_VISITOR.visit(FRA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testIRFuture1() {
     ABSTRACT_VISITOR.visit(IR_FUTURE, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testIRFuture2() {
     ABSTRACT_VISITOR.visit(IR_FUTURE);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBond1() {
     ABSTRACT_VISITOR.visit(BOND, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBond2() {
     ABSTRACT_VISITOR.visit(BOND);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBondForward1() {
     ABSTRACT_VISITOR.visit(BOND_FORWARD, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBondForward2() {
     ABSTRACT_VISITOR.visit(BOND_FORWARD);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBondFuture1() {
     ABSTRACT_VISITOR.visit(BOND_FUTURE, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testBondFuture2() {
     ABSTRACT_VISITOR.visit(BOND_FUTURE);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFloatLeg1() {
     ABSTRACT_VISITOR.visit(FLOAT_LEG, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFloatLeg2() {
     ABSTRACT_VISITOR.visit(FLOAT_LEG);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFixedLeg1() {
     ABSTRACT_VISITOR.visit(FIXED_LEG, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFixedLeg2() {
     ABSTRACT_VISITOR.visit(FIXED_LEG);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwap1() {
     ABSTRACT_VISITOR.visit(SWAP, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSwap2() {
     ABSTRACT_VISITOR.visit(SWAP);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testTenorSwap1() {
     ABSTRACT_VISITOR.visit(TENOR_SWAP, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testTenorSwap2() {
     ABSTRACT_VISITOR.visit(TENOR_SWAP);
   }
@@ -421,92 +419,92 @@ public class InterestRateDerivativeVisitorTest {
   //    ABSTRACT_VISITOR.visit(FRN);
   //  }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFixedPayment1() {
     ABSTRACT_VISITOR.visit(FIXED_PAYMENT, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFixedPayment2() {
     ABSTRACT_VISITOR.visit(FIXED_PAYMENT);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testLiborPayment1() {
     ABSTRACT_VISITOR.visit(LIBOR_PAYMENT, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testLiborPayment2() {
     ABSTRACT_VISITOR.visit(LIBOR_PAYMENT);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGA1() {
     ABSTRACT_VISITOR.visit(GA, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGA2() {
     ABSTRACT_VISITOR.visit(GA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCS1() {
     ABSTRACT_VISITOR.visit(FCS, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCS2() {
     ABSTRACT_VISITOR.visit(FCS);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCA1() {
     ABSTRACT_VISITOR.visit(FCA, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCA2() {
     ABSTRACT_VISITOR.visit(FCA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFLA1() {
     ABSTRACT_VISITOR.visit(FLA, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFLA2() {
     ABSTRACT_VISITOR.visit(FLA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCP1() {
     ABSTRACT_VISITOR.visit(FCP, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testFCP2() {
     ABSTRACT_VISITOR.visit(FCP);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGeneralSwap1() {
     ABSTRACT_VISITOR.visit(FIXED_FIXED, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGeneralSwap2() {
     ABSTRACT_VISITOR.visit(FIXED_FIXED);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCM1() {
     ABSTRACT_VISITOR.visit(CM, CURVE_NAME);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testCM2() {
     ABSTRACT_VISITOR.visit(CM);
   }

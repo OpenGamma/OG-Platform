@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -38,8 +38,8 @@ public class OrdinaryLeastSquaresRegressionTest {
     }
     final LeastSquaresRegressionResult result1 = REGRESSION.regress(x, null, y1, false);
     final LeastSquaresRegressionResult result2 = REGRESSION.regress(x, null, y2, true);
-    testRegression(result1, a1);
-    testRegression(result2, a2);
+    assertRegression(result1, a1);
+    assertRegression(result2, a2);
     final double[] residuals1 = result1.getResiduals();
     for (int i = 0; i < n; i++) {
       assertEquals(y1[i], a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4]
@@ -52,7 +52,7 @@ public class OrdinaryLeastSquaresRegressionTest {
     }
   }
 
-  private void testRegression(final LeastSquaresRegressionResult result, final double[] a) {
+  private void assertRegression(final LeastSquaresRegressionResult result, final double[] a) {
     final double[] beta = result.getBetas();
     final double[] tStat = result.getTStatistics();
     final double[] pStat = result.getPValues();

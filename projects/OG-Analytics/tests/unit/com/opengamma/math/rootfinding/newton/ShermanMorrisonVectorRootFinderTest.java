@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 
 /**
@@ -21,12 +20,12 @@ public class ShermanMorrisonVectorRootFinderTest extends VectorRootFinderTest {
   private static final NewtonVectorRootFinder DEFAULT_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
   private static final NewtonVectorRootFinder SV_JACOBIAN_3D = new ShermanMorrisonVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular1() {
     testFunction2D(DEFAULT, EPS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingular2() {
     testFunction2D(DEFAULT_JACOBIAN_2D, EPS);
   }

@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;

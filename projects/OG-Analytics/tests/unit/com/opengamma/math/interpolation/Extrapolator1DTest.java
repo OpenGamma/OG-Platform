@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -35,47 +33,47 @@ public class Extrapolator1DTest {
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
     new LinearExtrapolator1D<Interpolator1DDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     LINEAR_EXTRAPOLATOR.interpolate(null, 1.4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue1() {
     LINEAR_EXTRAPOLATOR.interpolate(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
     FLAT_EXTRAPOLATOR.interpolate(null, 1.4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue2() {
     FLAT_EXTRAPOLATOR.interpolate(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testValueInRange1() {
     FLAT_EXTRAPOLATOR.interpolate(DATA, 1.2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testValueInRange2() {
     LINEAR_EXTRAPOLATOR.interpolate(DATA, 1.2);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDataBundleType1() {
     FLAT_EXTRAPOLATOR.getDataBundle(X_DATA, Y_DATA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDataBundleType2() {
     FLAT_EXTRAPOLATOR.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
   }

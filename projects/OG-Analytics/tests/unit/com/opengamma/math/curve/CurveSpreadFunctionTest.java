@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -49,46 +47,46 @@ public class CurveSpreadFunctionTest {
   private static final FunctionalDoublesCurve FUNCTIONAL1 = FunctionalDoublesCurve.from(F1);
   private static final FunctionalDoublesCurve FUNCTIONAL2 = FunctionalDoublesCurve.from(F2);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves1() {
     ADD.evaluate((Curve<Double, Double>[]) null);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurves1() {
     ADD.evaluate(new Curve[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves2() {
     ADD.evaluate((Curve<Double, Double>[]) null);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurves2() {
     ADD.evaluate(new Curve[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves3() {
     ADD.evaluate((Curve<Double, Double>[]) null);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurves3() {
     ADD.evaluate(new Curve[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves4() {
     ADD.evaluate((Curve<Double, Double>[]) null);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurves4() {
     ADD.evaluate(new Curve[0]);
   }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 

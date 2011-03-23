@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.interpolation.data;
 
+import org.testng.annotations.Test;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.NavigableMapInterpolator1DDataBundle;
@@ -27,7 +26,7 @@ public class NavigableMapInterpolator1DDataBundleTest extends Interpolator1DData
     return new NavigableMapInterpolator1DDataBundle(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputs() {
     new NavigableMapInterpolator1DDataBundle(null);
   }

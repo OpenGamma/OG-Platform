@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
@@ -35,27 +34,27 @@ public class RelativeTimeSeriesReturnCalculatorTest {
     }
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     STRICT.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     STRICT.evaluate(new DoubleTimeSeries<?>[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstElement() {
     STRICT.evaluate(null, TS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondElement() {
     STRICT.evaluate(TS, null);
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengthsStrict() {
     STRICT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1}, new double[] {1}));
   }
@@ -65,7 +64,7 @@ public class RelativeTimeSeriesReturnCalculatorTest {
     LENIENT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1}, new double[] {1}));
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentDatesStrict() {
     STRICT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 3}, new double[] {1, 2}));
   }

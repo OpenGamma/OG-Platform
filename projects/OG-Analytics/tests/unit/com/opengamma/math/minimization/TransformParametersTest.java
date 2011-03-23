@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.BitSet;
-
-import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
@@ -28,27 +26,27 @@ public class TransformParametersTest {
     PARAMS = new TransformParameters(INIT, NULLS, FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartValues() {
     new TransformParameters(null, NULLS, FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTransforms() {
     new TransformParameters(INIT, null, FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTransforms() {
     new TransformParameters(INIT, new ParameterLimitsTransform[0], FIXED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBitSet() {
     new TransformParameters(INIT, NULLS, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAllFixed() {
     final BitSet allFixed = new BitSet();
     allFixed.set(0);
@@ -58,42 +56,42 @@ public class TransformParametersTest {
     new TransformParameters(INIT, NULLS, allFixed);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTransformNullParameters() {
     PARAMS.transform(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTransformWrongParameters() {
     PARAMS.transform(new DoubleMatrix1D(new double[] {1, 2}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseTransformNullParameters() {
     PARAMS.inverseTransform(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseTransformWrongParameters() {
     PARAMS.inverseTransform(new DoubleMatrix1D(new double[] {1, 2}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testJacobianNullParameters() {
     PARAMS.jacobian(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testJacobianWrongParameters() {
     PARAMS.jacobian(new DoubleMatrix1D(new double[] {1, 2}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseJacobianNullParameters() {
     PARAMS.inverseJacobian(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseJacobianWrongParameters() {
     PARAMS.inverseJacobian(new DoubleMatrix1D(new double[] {1, 2}));
   }

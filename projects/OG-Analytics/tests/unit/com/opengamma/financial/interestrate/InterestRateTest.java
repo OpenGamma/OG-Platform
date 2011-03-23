@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,87 +19,87 @@ public class InterestRateTest {
   private static final PeriodicInterestRate QUARTERLY = new PeriodicInterestRate(RATE, 4);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCompoundingPeriodsPerYear() {
     new PeriodicInterestRate(RATE, -12);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoCompoundingPeriodsPerYear() {
     new PeriodicInterestRate(RATE, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument1() {
     ANNUAL.fromAnnual(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument2() {
     ANNUAL.fromContinuous(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument3() {
     ANNUAL.fromPeriodic(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument4() {
     CONTINUOUS.fromAnnual(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument5() {
     CONTINUOUS.fromContinuous(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument6() {
     CONTINUOUS.fromPeriodic(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument7() {
     QUARTERLY.fromAnnual(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument8() {
     QUARTERLY.fromContinuous(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArgument9() {
     QUARTERLY.fromPeriodic(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNumberOfPeriods1() {
     ANNUAL.toPeriodic(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNumberOfPeriods2() {
     CONTINUOUS.toPeriodic(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNumberOfPeriods3() {
     QUARTERLY.toPeriodic(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroNumberOfPeriods1() {
     ANNUAL.toPeriodic(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroNumberOfPeriods2() {
     CONTINUOUS.toPeriodic(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroNumberOfPeriods3() {
     QUARTERLY.toPeriodic(-3);
   }

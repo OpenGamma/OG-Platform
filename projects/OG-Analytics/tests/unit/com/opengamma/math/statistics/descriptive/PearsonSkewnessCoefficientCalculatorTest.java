@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.function.Function1D;
@@ -30,22 +28,22 @@ public class PearsonSkewnessCoefficientCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirst() {
     FIRST.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecond() {
     SECOND.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyFirst() {
     FIRST.evaluate(new double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptySecond() {
     SECOND.evaluate(new double[0]);
   }

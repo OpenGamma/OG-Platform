@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.instrument.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -51,32 +49,32 @@ public class BondForwardDefinitionTest {
     BOND_FORWARD_DEFINITION = new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE, BOND_FORWARD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondDefinition() {
     new BondForwardDefinition(null, FORWARD_DATE, BOND_FORWARD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardDate() {
     new BondForwardDefinition(BOND_DEFINITION, null, BOND_FORWARD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFprwardDate() {
     new BondForwardDefinition(BOND_DEFINITION, LocalDate.of(2012, 1, 1), BOND_FORWARD_CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToDerivativeWithNullDate() {
     BOND_FORWARD_DEFINITION.toDerivative(null, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToDerivativeWithNullNames() {
     BOND_FORWARD_DEFINITION.toDerivative(FORWARD_DATE, (String[]) null);
   }

@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,7 +19,7 @@ public class InterpolationBoundedValuesTest {
   private static final double HIGHER_BOUND_VALUE = 78;
   private static final InterpolationBoundedValues VALUES = new InterpolationBoundedValues(LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLowerBoundIndex() {
     new InterpolationBoundedValues(-LOWER_BOUND_INDEX, LOWER_BOUND_KEY, LOWER_BOUND_VALUE, HIGHER_BOUND_KEY, HIGHER_BOUND_VALUE);
   }

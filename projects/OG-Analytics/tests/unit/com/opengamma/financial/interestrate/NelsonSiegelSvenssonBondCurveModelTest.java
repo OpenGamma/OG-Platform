@@ -6,12 +6,10 @@
 package com.opengamma.financial.interestrate;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
@@ -50,17 +48,17 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
     TREASURY_E = new DoubleMatrix1D(e);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
     MODEL1.getParameterizedFunction().evaluate(null, new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParameters() {
     MODEL1.getParameterizedFunction().evaluate(3., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNumberOfElements() {
     MODEL1.getParameterizedFunction().evaluate(3., new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
@@ -86,7 +84,7 @@ public class NelsonSiegelSvenssonBondCurveModelTest {
     assertEquals(fitted.getEntry(5), 9.96780064, 1e-2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParametersToModel() {
     new NelsonSiegelSvennsonBondCurveModel(null);
   }

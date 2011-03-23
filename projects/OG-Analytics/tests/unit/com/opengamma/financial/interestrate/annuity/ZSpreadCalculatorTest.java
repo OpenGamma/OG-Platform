@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.interestrate.annuity;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -43,52 +41,52 @@ public class ZSpreadCalculatorTest {
     PAYMENTS = new GenericAnnuity<CouponFixed>(rateAtYield);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity1() {
     CALCULATOR.calculatePriceForZSpread(null, CURVES, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity2() {
     CALCULATOR.calculatePriceSensitivityToCurve(null, CURVES, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity3() {
     CALCULATOR.calculatePriceSensitivityToZSpread(null, CURVES, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity4() {
     CALCULATOR.calculateZSpread(null, CURVES, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAnnuity5() {
     CALCULATOR.calculateZSpreadSensitivityToCurve(null, CURVES, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves1() {
     CALCULATOR.calculatePriceForZSpread(PAYMENTS, null, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves2() {
     CALCULATOR.calculatePriceSensitivityToCurve(PAYMENTS, null, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves3() {
     CALCULATOR.calculatePriceSensitivityToZSpread(PAYMENTS, null, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves4() {
     CALCULATOR.calculateZSpread(PAYMENTS, null, 0.04);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves5() {
     CALCULATOR.calculateZSpreadSensitivityToCurve(PAYMENTS, null, 0.04);
   }

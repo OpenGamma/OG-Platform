@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.descriptive.robust;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -30,12 +28,12 @@ public class SampleMedianAbsoluteDeviationCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     MAD_CALC.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     MAD_CALC.evaluate(new double[] {3.});
   }

@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.math.function.Function1D;
@@ -63,27 +61,27 @@ public class MultipleYieldCurveFinderFunctionTest {
     FINDER = new MultipleYieldCurveFinderFunction(DATA, CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new MultipleYieldCurveFinderFunction(null, CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new MultipleYieldCurveFinderFunction(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     FINDER.evaluate((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMismatchingVector() {
     FINDER.evaluate(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
     final List<InterestRateDerivative> list = new ArrayList<InterestRateDerivative>();
     list.add(new Cash(1, 0.01, CURVE_NAME));

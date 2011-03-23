@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.cash;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -38,27 +36,27 @@ public class CashDefinitionTest {
   private static final double RATE = 0.05;
   private static final CashDefinition CASH = new CashDefinition(MATURITY, RATE, CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     new CashDefinition(null, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new CashDefinition(MATURITY, RATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     CASH.toDerivative(null, new String[] {"A"});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveNames() {
     CASH.toDerivative(DATE, (String[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurveNames() {
     CASH.toDerivative(DATE, new String[0]);
   }

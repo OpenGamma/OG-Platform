@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -27,27 +25,27 @@ public abstract class RealSingleRootFinderTestCase {
 
   protected abstract RealSingleRootFinder getRootFinder();
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     getRootFinder().checkInputs(null, 1., 2.);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLower() {
     getRootFinder().checkInputs(F, null, 2.);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUpper() {
     getRootFinder().checkInputs(F, 1., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutsideRoots() {
     getRootFinder().getRoot(F, 10., 100.);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBracketTwoRoots() {
     getRootFinder().getRoot(F, 1.5, 3.5);
   }

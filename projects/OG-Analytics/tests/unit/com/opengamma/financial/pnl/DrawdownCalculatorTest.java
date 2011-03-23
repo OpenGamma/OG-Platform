@@ -6,10 +6,8 @@
 package com.opengamma.financial.pnl;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -50,12 +48,12 @@ public class DrawdownCalculatorTest {
     HIGH_FIRST_DRAWDOWN[0] = 0;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
     CALCULATOR.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new long[0], new double[0]));
   }

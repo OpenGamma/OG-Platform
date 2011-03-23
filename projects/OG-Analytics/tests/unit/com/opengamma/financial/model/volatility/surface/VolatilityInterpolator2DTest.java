@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator2D;
@@ -42,17 +40,17 @@ public class VolatilityInterpolator2DTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator() {
     new VolatilityInterpolator2D(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     VOL.interpolate(null, DoublesPair.of(0.4, 0.7));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     VOL.interpolate(FLAT_DATA, null);
   }

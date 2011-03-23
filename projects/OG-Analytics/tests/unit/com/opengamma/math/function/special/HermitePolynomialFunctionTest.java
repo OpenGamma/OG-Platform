@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**
@@ -111,12 +109,12 @@ public class HermitePolynomialFunctionTest {
   private static final HermitePolynomialFunction HERMITE = new HermitePolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN() {
     HERMITE.getPolynomials(-3);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testGetPolynomials() {
     HERMITE.getPolynomialsAndFirstDerivative(3);
   }

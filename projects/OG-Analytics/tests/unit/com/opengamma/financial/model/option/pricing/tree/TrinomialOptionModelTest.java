@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.tree;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.BoyleTrinomialOptionModelDefinition;
@@ -37,27 +35,27 @@ public class TrinomialOptionModelTest {
       100., DATE);
   private static final TrinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRINOMIAL = new MyTrinomialOptionModelDefinition();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     new TrinomialOptionModel<StandardOptionDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
     new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, -3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroN() {
     new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDepth() {
     new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, -3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInconsistentDepth() {
     new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, 10);
   }

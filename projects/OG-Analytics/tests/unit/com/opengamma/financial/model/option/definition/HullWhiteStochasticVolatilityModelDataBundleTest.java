@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -45,7 +43,7 @@ public class HullWhiteStochasticVolatilityModelDataBundleTest {
   private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 6, 1);
   private static final HullWhiteStochasticVolatilityModelDataBundle DATA = new HullWhiteStochasticVolatilityModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBundle() {
     new HullWhiteStochasticVolatilityModelDataBundle(null);
   }

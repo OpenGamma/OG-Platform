@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition.twoasset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -40,7 +38,7 @@ public class TwoAssetCorrelationOptionDefinitionTest {
   private static final TwoAssetCorrelationOptionDefinition CALL = new TwoAssetCorrelationOptionDefinition(K, EXPIRY, true, PAYOUT);
   private static final TwoAssetCorrelationOptionDefinition PUT = new TwoAssetCorrelationOptionDefinition(K, EXPIRY, false, PAYOUT);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALL.getPayoffFunction().getPayoff(null, null);
   }

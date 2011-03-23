@@ -5,26 +5,25 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class DoubleMatrixUtilsTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDimension() {
     DoubleMatrixUtils.getIdentityMatrix2D(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix((double[]) null);
   }

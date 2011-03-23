@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.BitSet;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -119,11 +119,11 @@ public class SABRFittingTest {
 
   @Test
   public void testFitTime() {
-    testFitTime(NLSS, "non-linear least squares");
+    assertFitTime(NLSS, "non-linear least squares");
     //    testFitTime(CG, "conjugate gradient");
   }
 
-  private void testFitTime(final LeastSquareSmileFitter fitter, final String name) {
+  private void assertFitTime(final LeastSquareSmileFitter fitter, final String name) {
     final BitSet fixed = new BitSet();
     final double[] start = new double[] {0.03, 0.4, 0.1, 0.2};
     for (int i = 0; i < _hotspotWarmupCycles; i++) {

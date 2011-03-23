@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -41,12 +39,12 @@ public class FloatingStrikeLookbackOptionDefinitionTest {
   private static final StandardOptionWithSpotTimeSeriesDataBundle LOW_DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.1)), 0.05,
       new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT, DateUtil.getUTCDate(2010, 6, 1), LOW_TS);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     CALL.getPayoffFunction().getPayoff(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     CALL.getPayoffFunction().getPayoff(HIGH_DATA.withSpotTimeSeries(null), null);
   }

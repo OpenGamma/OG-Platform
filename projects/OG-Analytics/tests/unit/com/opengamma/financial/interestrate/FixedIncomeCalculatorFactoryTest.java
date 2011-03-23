@@ -5,17 +5,16 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class FixedIncomeCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName() {
     FixedIncomeCalculatorFactory.getCalculator("A");
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -18,22 +16,22 @@ public class GeometricMeanReturnCalculatorTest {
   private static final Function1D<double[], Double> SIMPLE = new SimplyCompoundedGeometricMeanReturnCalculator();
   private static final Function1D<double[], Double> CONTINUOUS = new ContinuouslyCompoundedGeometricMeanReturnCalculator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     SIMPLE.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty1() {
     SIMPLE.evaluate(new double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     CONTINUOUS.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty2() {
     CONTINUOUS.evaluate(new double[0]);
   }

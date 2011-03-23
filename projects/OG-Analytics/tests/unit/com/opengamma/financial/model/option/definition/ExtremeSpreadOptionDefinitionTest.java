@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -39,17 +37,17 @@ public class ExtremeSpreadOptionDefinitionTest {
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0,
       new VolatilitySurface(ConstantDoublesSurface.from(0)), 2, DATE, SPOT_SERIES);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPeriodEnd() {
     new ExtremeSpreadOptionDefinition(EXPIRY, true, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPeriodEndAfterExpiry() {
     new ExtremeSpreadOptionDefinition(EXPIRY, false, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 2)), false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     PUT.getTimeFromPeriodEnd(null);
   }

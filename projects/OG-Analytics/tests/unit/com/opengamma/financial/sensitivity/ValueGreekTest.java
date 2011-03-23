@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.financial.greeks.Greek;
 
 /**
@@ -19,7 +17,7 @@ import com.opengamma.financial.greeks.Greek;
 public class ValueGreekTest {
   private static final ValueGreek GREEK = new ValueGreek(Greek.GAMMA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreek() {
     new ValueGreek(null);
   }

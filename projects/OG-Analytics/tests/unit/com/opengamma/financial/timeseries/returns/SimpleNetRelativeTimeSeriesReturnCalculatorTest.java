@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -26,22 +24,22 @@ public class SimpleNetRelativeTimeSeriesReturnCalculatorTest {
   private static final DoubleTimeSeries<?> TS2 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {2, 4, 6, 8, 10});
   private static final DoubleTimeSeries<?> TS3 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 6}, new double[] {2, 4, 6, 8, 10});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     STRICT_CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstElement() {
     STRICT_CALCULATOR.evaluate(null, TS2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondElement() {
     STRICT_CALCULATOR.evaluate(TS1, null);
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentDates() {
     STRICT_CALCULATOR.evaluate(TS1, TS3);
   }

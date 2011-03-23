@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.greeks;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
 
 /**
  * 
@@ -28,7 +27,7 @@ public class GreekVisitorTest {
     for (final Greek g : greeks) {
       try {
         g.accept(NO_ACTION);
-        fail();
+        Assert.fail();
       } catch (final NotImplementedException e) {
       }
       if (g.equals(Greek.DELTA)) {
@@ -36,7 +35,7 @@ public class GreekVisitorTest {
       } else {
         try {
           g.accept(DELTA_ONLY);
-          fail();
+          Assert.fail();
         } catch (final NotImplementedException e) {
         }
       }

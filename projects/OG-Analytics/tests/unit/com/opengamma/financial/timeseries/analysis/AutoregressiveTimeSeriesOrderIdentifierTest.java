@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.model.AutoregressiveTimeSeriesModel;
@@ -49,37 +47,37 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
     RANDOM = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, random);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder() {
     new AutoregressiveTimeSeriesPACFOrderIdentifier(-10, 0.05);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new AutoregressiveTimeSeriesPACFOrderIdentifier(20, -0.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new AutoregressiveTimeSeriesPACFOrderIdentifier(20, 1.2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     PACF_IDENTIFIER.getOrder(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTS() {
     PACF_IDENTIFIER.getOrder(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     PACF_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_NANOS, new long[] {1, 2}, new double[] {0.1, 0.2}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRandomTS() {
     PACF_IDENTIFIER.getOrder(RANDOM);
   }

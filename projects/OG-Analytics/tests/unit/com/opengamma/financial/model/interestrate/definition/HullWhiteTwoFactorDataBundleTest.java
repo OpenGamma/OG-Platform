@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.interestrate.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -35,37 +33,37 @@ public class HullWhiteTwoFactorDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
   private static final HullWhiteTwoFactorDataBundle DATA = new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYieldCurve() {
     new HullWhiteTwoFactorDataBundle(null, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVolatilityCurve1() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, null, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVolatilityCurve2() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, null, DATE, SPEED_1, SPEED_2, U, F, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, null, SPEED_1, SPEED_2, U, F, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardCurve() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, null, RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowRho() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, -2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighRho() {
     new HullWhiteTwoFactorDataBundle(R_CURVE, SIGMA_CURVE_1, SIGMA_CURVE_2, DATE, SPEED_1, SPEED_2, U, F, 2);
   }

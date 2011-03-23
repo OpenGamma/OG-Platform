@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -57,22 +55,22 @@ public class TenorSwapDefinitionTest {
       SPREAD, CONVENTION);
   private static final TenorSwapDefinition SWAP = new TenorSwapDefinition(PAY_DEFINITION, RECEIVE_DEFINITION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedLeg() {
     new TenorSwapDefinition(null, RECEIVE_DEFINITION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFloatLeg() {
     new TenorSwapDefinition(PAY_DEFINITION, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonZeroSpreadOnPayLeg() {
     new TenorSwapDefinition(RECEIVE_DEFINITION, RECEIVE_DEFINITION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadYieldCurveNames() {
     SWAP.toDerivative(DATE, new String[] {"a", "b"});
   }
