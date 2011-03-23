@@ -18,7 +18,7 @@ import com.opengamma.util.time.Expiry;
  * \\begin{align*}
  * \\mathrm{payoff} = 
  * \\begin{cases}
- * \\frac{S}{K_L} \\quad & \\mathrm{if  } K_L \\leq S \\leq K_H\\\\
+ * \\frac{S}{K_L} \\quad & \\mathrm{if} \\quad K_L \\leq S \\leq K_H\\\\
  * 0\\quad & \\mathrm{otherwise}
  * \\end{cases}
  * \\end{align*}

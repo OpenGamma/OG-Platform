@@ -7,11 +7,32 @@ package com.opengamma.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Class defining a cash-or-nothing option.
+ * <p>
+ * Cash-or-nothing options have European-style exercise with payoff
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = 
+ * \\begin{cases}
+ * 0 \\quad & \\mathrm{if} \\quad S \\leq K\\\\
+ * P \\quad & \\mathrm{otherwise}
+ * \\end{cases}
+ * \\end{align*}
+ * }
+ * and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = 
+ * \\begin{cases}
+ * 0 \\quad & \\mathrm{if} \\quad S \\geq K\\\\
+ * P \\quad & \\mathrm{otherwise}
+ * \\end{cases}
+ * \\end{align*}
+ * }
+ * for a put, where {@latex.inline $K$} is the strike, {@latex.inline $P$} is the payment amount and {@latex.inline $S$} is the spot.
  */
 public class CashOrNothingOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
@@ -29,24 +50,39 @@ public class CashOrNothingOptionDefinition extends OptionDefinition {
   };
   private final double _payment;
 
+  /**
+   * @param strike The strike 
+   * @param expiry The expiry
+   * @param isCall Is the option a call or put
+   * @param payment The payment amount, greater than zero
+   */
   public CashOrNothingOptionDefinition(final double strike, final Expiry expiry, final boolean isCall, final double payment) {
     super(strike, expiry, isCall);
-    ArgumentChecker.notNegative(payment, "payment");
+    Validate.isTrue(payment >= 0, "payment");
     _payment = payment;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
 
+  /**
+   * @return The payment
+   */
   public double getPayment() {
     return _payment;
   }
