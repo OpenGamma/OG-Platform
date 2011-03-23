@@ -73,7 +73,7 @@ public class LogLinearInterpolator1DTest {
     assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
-  @Test(enabled = false, description = "Compares NaN to NaN, but that is probably wrong")
+  @Test
   public void test() {
     assertEquals(Math.log(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
   }
