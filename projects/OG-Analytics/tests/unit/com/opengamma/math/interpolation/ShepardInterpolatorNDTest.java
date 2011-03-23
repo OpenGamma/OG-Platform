@@ -32,7 +32,7 @@ public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
   @Test
   public void testInterpolation() {
     // testCosExp(INTERPOLATOR, 1e-1); // fairly awful interpolator
-    testFlat(INTERPOLATOR, 1e-12);
+    assertFlat(INTERPOLATOR, 1e-12);
 
   }
 }

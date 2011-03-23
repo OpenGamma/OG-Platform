@@ -6,6 +6,7 @@
 package com.opengamma.math.integration;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
 
 /**
@@ -21,8 +22,7 @@ public abstract class WeightAndAbscissaFunctionTestCase {
     getFunction().generate(-1);
   }
 
-  @Test
-  public void testResults(final GaussianQuadratureData f, final double[] x, final double[] w) {
+  public void assertResults(final GaussianQuadratureData f, final double[] x, final double[] w) {
     final double[] x1 = f.getAbscissas();
     final double[] w1 = f.getWeights();
     for (int i = 0; i < x.length; i++) {
