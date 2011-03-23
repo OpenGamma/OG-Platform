@@ -17,7 +17,7 @@ import com.opengamma.util.time.Expiry;
  * \\begin{align*}
  * \\mathrm{payoff} = 
  * \\begin{cases}
- * 0 \\quad & \\mathrm{if  } S \\leq K_1\\\\
+ * 0 \\quad & \\mathrm{if} \\quad S \\leq K_1\\\\
  * S - K_2 \\quad & \\mathrm{otherwise}
  * \\end{cases} 
  * \\end{align*}
@@ -27,7 +27,7 @@ import com.opengamma.util.time.Expiry;
  * \\begin{align*}
  * \\mathrm{payoff} = 
  * \\begin{cases}
- * 0 \\quad & \\mathrm{if  } S \\geq K_1\\\\
+ * 0 \\quad & \\mathrm{if} \\quad S \\geq K_1\\\\
  * K_2 - S \\quad & \\mathrm{otherwise}
  * \\end{cases}
  * \\end{align*}
