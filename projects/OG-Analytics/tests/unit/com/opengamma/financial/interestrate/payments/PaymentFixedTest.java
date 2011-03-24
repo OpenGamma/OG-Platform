@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,12 +19,12 @@ public class PaymentFixedTest {
   private static final String CURVE_NAME = "vfsmngsdjkflsadfk";
   private static final PaymentFixed PAYMENT = new PaymentFixed(PAYMENT_TIME, AMOUNT, CURVE_NAME);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
     new PaymentFixed(-1, AMOUNT, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
     new PaymentFixed(PAYMENT_TIME, AMOUNT, null);
   }

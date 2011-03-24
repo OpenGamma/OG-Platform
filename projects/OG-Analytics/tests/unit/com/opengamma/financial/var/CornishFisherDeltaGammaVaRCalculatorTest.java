@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.var;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
@@ -57,47 +55,47 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
   private static final CornishFisherDeltaGammaVaRCalculator<Double> CF1 = new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD, ZERO, ZERO);
   private static final CornishFisherDeltaGammaVaRCalculator<Double> CF2 = new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, STD, SKEW, KURTOSIS);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, ZERO, ZERO, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePeriod() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, ZERO, ZERO, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQuantile() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, ZERO, ZERO, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighQuantile() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, ZERO, ZERO, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null, ZERO, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, null, ZERO, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator3() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, ZERO, null, ZERO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator4() {
     new CornishFisherDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, ZERO, ZERO, ZERO, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CF1.evaluate((Double[]) null);
   }

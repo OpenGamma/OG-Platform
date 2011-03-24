@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing;
 
+import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;

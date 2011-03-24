@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.convention.yield;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -15,7 +14,7 @@ import org.junit.Test;
 public class YieldConventionFactoryTest {
   private static final YieldConventionFactory FACTORY = YieldConventionFactory.INSTANCE;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     FACTORY.getYieldConvention(null);
   }

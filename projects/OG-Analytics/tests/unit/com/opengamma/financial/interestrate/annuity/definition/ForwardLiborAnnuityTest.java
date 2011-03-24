@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 
 /**
@@ -28,207 +26,207 @@ public class ForwardLiborAnnuityTest {
   private static final AnnuityCouponIbor ANNUITY3 = new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   private static final AnnuityCouponIbor ANNUITY4 = new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes1() {
     new AnnuityCouponIbor(null, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes2() {
     new AnnuityCouponIbor(null, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes3() {
     new AnnuityCouponIbor(null, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes4() {
     new AnnuityCouponIbor(null, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingName1() {
     new AnnuityCouponIbor(T, null, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingName2() {
     new AnnuityCouponIbor(T, NOTIONAL, null, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingName3() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, null, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingName4() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, null, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborName1() {
     new AnnuityCouponIbor(T, FUNDING, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborName2() {
     new AnnuityCouponIbor(T, NOTIONAL, FUNDING, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborName3() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborName4() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes1() {
     new AnnuityCouponIbor(new double[0], FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes2() {
     new AnnuityCouponIbor(new double[0], NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes3() {
     new AnnuityCouponIbor(new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes4() {
     new AnnuityCouponIbor(new double[0], INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexFixing1() {
     new AnnuityCouponIbor(T, null, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexFixing1() {
     new AnnuityCouponIbor(T, new double[0], INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexFixing2() {
     new AnnuityCouponIbor(T, null, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexFixing2() {
     new AnnuityCouponIbor(T, new double[0], INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexMaturity1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, null, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexMaturity1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, new double[0], YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexMaturity2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, null, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexMaturity2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, new double[0], YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexFixing1() {
     new AnnuityCouponIbor(T, new double[] {1}, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexFixing2() {
     new AnnuityCouponIbor(T, new double[] {1}, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexFixing3() {
     new AnnuityCouponIbor(T, new double[] {1, 2, 3.1, 4}, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexMaturity1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexMaturity2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, null, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, null, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction3() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, null, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, new double[0], NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, new double[0], YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction3() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[0], SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction1() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction2() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction3() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[] {1}, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreads() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, null, NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptySpreads() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[0], NOTIONAL, FUNDING, LIBOR, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSpreads() {
     new AnnuityCouponIbor(T, INDEX_FIXING, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[] {1}, NOTIONAL, FUNDING, LIBOR, true);
   }

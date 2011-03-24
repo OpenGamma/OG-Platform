@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.data.KrigingInterpolatorDataBundle;
 
 /**
@@ -19,27 +17,27 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final double BETA = 1.5;
   private static final InterpolatorND<KrigingInterpolatorDataBundle> INTERPOLATOR = new KrigingInterpolatorND(BETA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowBeta() {
     new KrigingInterpolatorND(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighBeta() {
     new KrigingInterpolatorND(10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(null, new double[] {1, 2});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPoint() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDimension() {
     INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2});
   }
@@ -68,7 +66,7 @@ public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
   @Test
   public void testInterpolation() {
     final InterpolatorND<KrigingInterpolatorDataBundle> interpolator = new KrigingInterpolatorND(1.99);
-    testCosExp(interpolator, 2e-2);
+    assertCosExp(interpolator, 2e-2);
   }
 
 }

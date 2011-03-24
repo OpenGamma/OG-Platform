@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
@@ -15,22 +15,22 @@ public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMini
   @Test
   public void test() {
 
-    super.testInputs(MINIMIZER);
-    super.test(MINIMIZER, EPS);
+    super.assertInputs(MINIMIZER);
+    super.assertMinimizer(MINIMIZER, EPS);
   }
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMIZER, EPS);
+    super.assertSolvingRosenbrock(MINIMIZER, EPS);
   }
 
   @Test
   public void testSolvingUncoupledRosenbrock() {
-    super.testSolvingUncoupledRosenbrock(MINIMIZER, EPS);
+    super.assertSolvingUncoupledRosenbrock(MINIMIZER, EPS);
   }
 
   @Test
   public void testSolvingCoupledRosenbrock() {
-    super.testSolvingCoupledRosenbrock(MINIMIZER, EPS);
+    super.assertSolvingCoupledRosenbrock(MINIMIZER, EPS);
   }
 }

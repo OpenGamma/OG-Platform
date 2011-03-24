@@ -5,24 +5,22 @@
  */
 package com.opengamma.math.matrix;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 public class DoubleMatrix1DTest {
   private static final DoubleMatrix1D PRIMITIVES = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
   private static final DoubleMatrix1D OBJECTS = new DoubleMatrix1D(new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPrimitiveArray() {
     new DoubleMatrix1D((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectArray() {
     new DoubleMatrix1D((Double[]) null);
   }

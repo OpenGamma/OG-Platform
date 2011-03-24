@@ -5,12 +5,13 @@
  */
 package com.opengamma.financial.rest.security;
 
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.DEFAULT_SECURITYSOURCE_NAME;
 import static com.opengamma.financial.rest.security.SecuritySourceServiceNames.SECURITYSOURCE_SECURITY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -22,9 +23,6 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgFormatter;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -58,7 +56,7 @@ public class RESTMethodTest {
     return getSecuritySourceService().findResource(DEFAULT_SECURITYSOURCE_NAME);
   }
 
-  @Before
+  @BeforeMethod
   public void configureService() {
     MockFinancialSecuritySource securitySource = new MockFinancialSecuritySource();
     Identifier secId1 = Identifier.of(IdentificationScheme.of("d1"), "v1");

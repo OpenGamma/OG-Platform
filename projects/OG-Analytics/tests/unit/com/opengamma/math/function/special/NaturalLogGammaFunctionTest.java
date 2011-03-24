@@ -5,17 +5,15 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public class NaturalLogGammaFunctionTest {
   private static final Function1D<Double, Double> LN_GAMMA = new NaturalLogGammaFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNumber() {
     LN_GAMMA.evaluate(-0.1);
   }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -15,32 +15,32 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * 
  */
-public class ParameterLimitsTransformTestCase {
+public abstract class ParameterLimitsTransformTestCase {
 
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, RANDOM);
 
-  public void testRoundTrip(ParameterLimitsTransform transform, double modelParam) {
+  protected void assertRoundTrip(ParameterLimitsTransform transform, double modelParam) {
     double fp = transform.transform(modelParam);
     double mp = transform.inverseTransform(fp);
     assertEquals(modelParam, mp, 1e-8);
   }
 
   // reverse
-  public void testReverseRoundTrip(ParameterLimitsTransform transform, double fitParam) {
+  protected void assertReverseRoundTrip(ParameterLimitsTransform transform, double fitParam) {
     double mp = transform.inverseTransform(fitParam);
     double fp = transform.transform(mp);
     assertEquals(fitParam, fp, 1e-8);
   }
 
-  public void testGradientRoundTrip(ParameterLimitsTransform transform, double modelParam) {
+  protected void assertGradientRoundTrip(ParameterLimitsTransform transform, double modelParam) {
     double g = transform.transformGradient(modelParam);
     double fp = transform.transform(modelParam);
     double gInv = transform.inverseTransformGradient(fp);
     assertEquals(g, 1.0 / gInv, 1e-8);
   }
 
-  public void testGradient(ParameterLimitsTransform transform, double modelParam) {
+  protected void assertGradient(ParameterLimitsTransform transform, double modelParam) {
     double eps = 1e-5;
     double g = transform.transformGradient(modelParam);
     double fdg;
@@ -61,7 +61,7 @@ public class ParameterLimitsTransformTestCase {
     assertEquals(g, fdg, 1e-6);
   }
 
-  public void testInverseGradient(ParameterLimitsTransform transform, double fitParam) {
+  protected void assertInverseGradient(ParameterLimitsTransform transform, double fitParam) {
     double eps = 1e-5;
     double g = transform.inverseTransformGradient(fitParam);
     double fdg;

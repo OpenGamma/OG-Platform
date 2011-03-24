@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -16,7 +18,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -31,9 +32,9 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   private final T _definition;
 
   public FiniteDifferenceGreekVisitor(final Function1D<S, Double> pricingFunction, final S data, final T definition) {
-    ArgumentChecker.notNull(pricingFunction, "pricing function");
-    ArgumentChecker.notNull(data, "data");
-    ArgumentChecker.notNull(definition, "definition");
+    Validate.notNull(pricingFunction, "pricing function");
+    Validate.notNull(data, "data");
+    Validate.notNull(definition, "definition");
     _pricingFunction = pricingFunction;
     _data = data;
     _definition = definition;

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 
 /**
@@ -36,32 +34,32 @@ public class FixedCouponAnnuityTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes() {
     new AnnuityCouponFixed(null, NOTIONAL, COUPON_RATE, CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes() {
     new AnnuityCouponFixed(new double[0], NOTIONAL, COUPON_RATE, CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFractions() {
     new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null, CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFractions() {
     new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, new double[0], CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
     new AnnuityCouponFixed(PAYMENT_TIMES, NOTIONAL, COUPON_RATE, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongArrayLength() {
     new AnnuityCouponFixed(new double[] {1, 2, 3}, NOTIONAL, COUPON_RATE, YEAR_FRACTIONS, CURVE_NAME, true);
   }

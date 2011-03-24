@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.convention;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.StubCalculator;
 import com.opengamma.financial.convention.StubType;
@@ -92,82 +90,82 @@ public class StubCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule1() {
     StubCalculator.getStartStubType((LocalDate[]) null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule2() {
     StubCalculator.getStartStubType((ZonedDateTime[]) null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule3() {
     StubCalculator.getEndStubType((LocalDate[]) null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule4() {
     StubCalculator.getEndStubType((ZonedDateTime[]) null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInSchedule1() {
     StubCalculator.getStartStubType(new LocalDate[] {null, null}, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInSchedule2() {
     StubCalculator.getStartStubType(new ZonedDateTime[] {null, null}, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInSchedule3() {
     StubCalculator.getEndStubType(new LocalDate[] {null, null}, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInSchedule4() {
     StubCalculator.getEndStubType(new ZonedDateTime[] {null, null}, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePayments1() {
     StubCalculator.getStartStubType(NO_STUB1, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePayments2() {
     StubCalculator.getStartStubType(NO_STUB2, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePayments3() {
     StubCalculator.getEndStubType(NO_STUB1, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePayments4() {
     StubCalculator.getEndStubType(NO_STUB2, -1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayments1() {
     StubCalculator.getStartStubType(NO_STUB1, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayments2() {
     StubCalculator.getStartStubType(NO_STUB2, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayments3() {
     StubCalculator.getEndStubType(NO_STUB1, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayments4() {
     StubCalculator.getEndStubType(NO_STUB2, 5);
   }

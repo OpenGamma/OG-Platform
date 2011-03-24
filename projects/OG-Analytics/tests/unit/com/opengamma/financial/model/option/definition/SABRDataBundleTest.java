@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -42,22 +40,22 @@ public class SABRDataBundleTest {
   private static final double OTHER_KSI = 0.11;
   private static final SABRDataBundle DATA = new SABRDataBundle(CURVE, B, SURFACE, SPOT, DATE, ALPHA, BETA, RHO, KSI);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCorrelation1() {
     new SABRDataBundle(CURVE, B, SURFACE, SPOT, DATE, ALPHA, BETA, -2, KSI);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCorrelation2() {
     new SABRDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), ALPHA, BETA, -2, KSI);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCorrelation3() {
     new SABRDataBundle(CURVE, B, SURFACE, SPOT, DATE, ALPHA, BETA, 2, KSI);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCorrelation4() {
     new SABRDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), ALPHA, BETA, -2, KSI);
   }

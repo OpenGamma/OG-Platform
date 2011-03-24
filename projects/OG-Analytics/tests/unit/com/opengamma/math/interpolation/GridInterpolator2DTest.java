@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -54,34 +52,34 @@ public class GridInterpolator2DTest {
     FLAT_DATA.put(DoublesPair.of(5., 7.), 0.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullXInterpolator() {
     new GridInterpolator2D(null, INTERPOLATOR_1D);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYInterpolator() {
     new GridInterpolator2D(INTERPOLATOR_1D, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR_2D.interpolate(null, Pair.of(2., 4.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     INTERPOLATOR_2D.interpolate(FLAT_DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
     final Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
     map.put(Pair.of(1., 0.), null);
     INTERPOLATOR_2D.interpolate(map, DoublesPair.of(0.5, 0.5));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs() {
     final Map<DoublesPair, Double> data = new HashMap<DoublesPair, Double>();
     data.put(Pair.of(0., 5.), 2.);
@@ -90,7 +88,7 @@ public class GridInterpolator2DTest {
     INTERPOLATOR_2D.interpolate(data, DoublesPair.of(0., 2.));
   }
 
-  @Test(expected = MathException.class)
+  @Test(expectedExceptions = MathException.class)
   public void testNonGrid() {
     final Map<DoublesPair, Double> nonGrid = new HashMap<DoublesPair, Double>(FLAT_DATA);
     nonGrid.put(Pair.of(5., 8.), 0.);

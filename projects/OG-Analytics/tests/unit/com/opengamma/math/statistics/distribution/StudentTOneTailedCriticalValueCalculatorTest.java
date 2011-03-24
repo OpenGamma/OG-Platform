@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -23,27 +21,27 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
   private static final Function1D<Double, Double> F = new StudentTOneTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNu1() {
     new StudentTOneTailedCriticalValueCalculator(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNu2() {
     new StudentTOneTailedCriticalValueCalculator(-3, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEngine() {
     new StudentTDistribution(3, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     F.evaluate((Double) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegative() {
     F.evaluate(-4.);
   }

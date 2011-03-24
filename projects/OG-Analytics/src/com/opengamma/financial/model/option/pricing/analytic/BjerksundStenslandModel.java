@@ -20,14 +20,80 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
+ * Class defining an analytical approximation for American option prices as derived by Bjerksund and Stensland (2002).
+ * <p>
+ * The price of a call is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * C = &\\alpha_2 S^\\beta - \\alpha_2 \\phi(S, t_1, \\beta, I_2, I_2)\\\\
+ * & + \\phi(S, t_1, 1, I_2, I_2) - \\phi(S, t_1, 1, I_1, I_2)\\\\
+ * & - K\\phi(S, t_1, 0, I_2, I_2) + K\\phi(S, t_1, 0, I_1, I_2)\\\\
+ * & + \\alpha_1 \\phi(S, t_1, \\beta, I_1, I_2) - \\alpha_1 \\psi(S, T, \\beta, I_1, I_2, I_2, t_1)\\\\
+ * & + \\psi(S, T, 1, I_1, I2, I_1, t_1) - \\psi(S, T, 1, K, I_2, I_1, t_1)\\\\
+ * & - K\\psi(S, T, 0, I_1, I_2, I_1, t_1) + K\\psi(S, T, 0, K, I_2, I_1, t_1)
+ * \\end{align*}
+ * }
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * t_1 &= \\frac{(\\sqrt{5} - 1)T}{2}\\\\
+ * I_1 &= B_0 + (B_\\infty - B_0)(1 - e^{h_1})\\\\
+ * I_2 &= B_0 + (B_\\infty - B_0)(1 - e^{h_2})\\\\
+ * B_0 &= \\frac{\\beta K}{\\beta - 1}\\\\
+ * B_\\infty &= \\max\\left(K, \\frac{rK}{r-b}\\right)\\\\
+ * h_1 &= \\frac{(bt_1 + 2\\sigma\\sqrt{t_1})K^2}{B_0(B_0 - B_\\infty)}\\\\
+ * h_2 &= \\frac{(bT + 2\\sigma\\sqrt{T})K^2}{B_0(B_0 - B_\\infty)}\\\\
+ * \\alpha_1 &= (I_1 - K)I_1^{-\\beta}\\\\
+ * \\alpha_2 &= (I_2 - K)I_2^{-\\beta}\\\\
+ * \\beta &= \\frac{1}{2} - \\frac{b}{\\sigma^2} + \\sqrt{\\left(\\frac{b}{\\sigma^2} - \\frac{1}{2}\\right)^2 + \\frac{2r}{\\sigma^2}}
+ * \\end{align*}
+ * }
+ * The function {@latex.inline $\\phi(S, T, \\gamma, H, I)$} is defined as
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\phi(S, T, \\gamma, H, I) &= e^\\lambda S^\\gamma\\left[N(-d_1) - \\left(\\frac{I}{S}\\right)^\\kappa N(-d_2)\\right]\\\\
+ * d_1 &= \\frac{\\ln(\\frac{S}{H}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}\\\\
+ * d_2 &= \\frac{\\ln(\\frac{I^2}{SH}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}\\\\
+ * \\lambda &= -r + \\gamma b + \\frac{\\gamma(\\gamma - 1)\\sigma^2}{2}\\\\
+ * \\kappa &= \\frac{2b}{\\sigma^2} + 2\\gamma + 1
+ * \\end{align*}
+ * }
+ * and the function {@latex.inline $\\psi(S, T, \\gamma, H, I_2, I_1, t_1)$} is defined as
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\psi(S, T, \\gamma, H, I_2, I_1, t_1) = &e^{\\lambda T} S^\\gamma\\left[M(d_1, e_1, \\rho) 
+ *   -\\left(\\frac{I_2}{S}\\right)^\\kappa M(d_2, e_2, \\rho) - \\left(\\frac{I_1}{S}\\right)^\\kappa M(d_3, e_3, -\\rho)
+ *   +\\left(\\frac{I_1}{I_2}\\right)^\\kappa M(d_4, e_4, \\rho)\\right]
+ * \\end{align*}
+ * }
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_1 &= -\\frac{\\ln(\\frac{S}{I_1}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)t_1}{\\sigma\\sqrt{t_1}}\\\\
+ * d_2 &= -\\frac{\\ln(\\frac{I_2^2}{SI_1}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)t_1}{\\sigma\\sqrt{t_1}}\\\\
+ * d_3 &= -\\frac{\\ln(\\frac{S}{I_1}) - (b + (\\gamma - \\frac{1}{2})\\sigma^2)t_1}{\\sigma\\sqrt{t_1}}\\\\
+ * d_4 &= -\\frac{\\ln(\\frac{I_2^2}{SI_1}) - (b + (\\gamma - \\frac{1}{2})\\sigma^2)t_1}{\\sigma\\sqrt{t_1}}\\\\
+ * e_1 &= -\\frac{\\ln(\\frac{S}{H}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}\\\\
+ * e_2 &= -\\frac{\\ln(\\frac{I_1^2}{SH}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}\\\\
+ * %e_3 &= -\\frac{\\ln(\\frac{I_2^2}{SH}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}\\\\
+ * e_4 &= -\\frac{\\ln(\\frac{SI_1^2}{HI_2^2}) + (b + (\\gamma - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
+ * \\end{align*}
+ * }
+ * and {@latex.inline $\\rho = \\sqrt{\\frac{t_1}{T}}$} and {@latex.inline $M(\\;\\cdot\\;, \\;\\cdot\\;, \\;\\cdot\\;)$} is the CDF of the bivariate
+ * normal distribution (see {@link com.opengamma.math.statistics.distribution.BivariateNormalDistribution}).
+ * <p>
+ * The price of puts is calculated using the Bjerksund-Stensland put-call transformation 
+ * {@latex.inline $p(S, K, T, r, b, \\sigma) = c(K, S, T, r - b, -b, \\sigma)$}.
  * 
- * Analytical approximation to American option price  
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
     Validate.notNull(definition);

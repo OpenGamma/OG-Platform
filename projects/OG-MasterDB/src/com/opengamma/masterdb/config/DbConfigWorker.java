@@ -275,7 +275,17 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
     String count = "SELECT COUNT(*) FROM cfg_config " + where;
     return new String[] {search, count };
   }
-  
+
+  /**
+   * Gets the list of configuration types.
+   * 
+   * @return the list of types, independent and modifiable, not null
+   */
+  protected List<String> getTypes() {
+    return getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);    
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Mapper from SQL rows to a ConfigDocument<?>.
    */
@@ -327,9 +337,5 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
       _documents.add(doc);
     }
   }
-  
-  protected List<String> getTypes() {
-    return getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);    
-  }
-  
+
 }

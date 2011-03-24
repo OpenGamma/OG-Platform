@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
@@ -24,17 +22,17 @@ import com.opengamma.util.tuple.Triple;
  */
 public class BlackDermanToyYieldOnlyInterestRateModelTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadNodes() {
     new BlackDermanToyYieldOnlyInterestRateModel(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
     new BlackDermanToyYieldOnlyInterestRateModel(3).getTrees(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new BlackDermanToyYieldOnlyInterestRateModel(5).getTrees(DateUtil.getUTCDate(2010, 8, 1)).evaluate((StandardDiscountBondModelDataBundle) null);
   }

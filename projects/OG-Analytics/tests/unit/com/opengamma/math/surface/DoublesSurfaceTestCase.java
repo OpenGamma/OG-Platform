@@ -5,16 +5,14 @@
  */
 package com.opengamma.math.surface;
 
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -87,115 +85,115 @@ public class DoublesSurfaceTestCase {
     assertTrue(z == surface.getZData());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     new DummySurface((double[]) null, Y_PRIMITIVE, Z_PRIMITIVE, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     new DummySurface(X_PRIMITIVE, (double[]) null, Z_PRIMITIVE, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     new DummySurface(X_PRIMITIVE, Y_PRIMITIVE, (double[]) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     new DummySurface((Double[]) null, Y_OBJECT, Z_OBJECT, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     new DummySurface(X_OBJECT, (Double[]) null, Z_OBJECT, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     new DummySurface(X_OBJECT, Y_OBJECT, (Double[]) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull7() {
     new DummySurface((List<Double>) null, Y_LIST, Z_LIST, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull8() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(l, Y_LIST, Z_LIST, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull9() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(X_LIST, l, Z_LIST, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull10() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(X_LIST, Y_LIST, l, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull11() {
     new DummySurface((DoublesPair[]) null, X_PRIMITIVE, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull12() {
     new DummySurface(XY_PAIR, (double[]) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull13() {
     new DummySurface(new DoublesPair[] {null}, Z_PRIMITIVE, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull14() {
     new DummySurface((DoublesPair[]) null, Z_OBJECT, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull15() {
     new DummySurface(XY_PAIR, (Double[]) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull16() {
     new DummySurface(new DoublesPair[] {null}, Z_OBJECT, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull17() {
     new DummySurface((List<DoublesPair>) null, Z_LIST, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull18() {
     new DummySurface(XY_PAIR_LIST, (List<Double>) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull19() {
     new DummySurface(Arrays.asList(DoublesPair.of(1., 2.), null), Z_LIST, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull20() {
     new DummySurface(XY_PAIR_LIST, Arrays.asList(1., null), NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull21() {
     new DummySurface((Map<DoublesPair, Double>) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull22() {
     final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
     m.put(DoublesPair.of(1., 2.), 3.);
@@ -203,7 +201,7 @@ public class DoublesSurfaceTestCase {
     new DummySurface(m, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull23() {
     final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
     m.put(DoublesPair.of(1., 2.), 3.);
@@ -211,127 +209,127 @@ public class DoublesSurfaceTestCase {
     new DummySurface(m, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull24() {
     new DummySurface((List<Triple<Double, Double, Double>>) null, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull25() {
     @SuppressWarnings("unchecked")
     final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<Double, Double, Double>(1., 2., 3.), null);
     new DummySurface(l, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull26() {
     new DummySurface((double[]) null, Y_PRIMITIVE, Z_PRIMITIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull27() {
     new DummySurface(X_PRIMITIVE, (double[]) null, Z_PRIMITIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull28() {
     new DummySurface(X_PRIMITIVE, Y_PRIMITIVE, (double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull29() {
     new DummySurface((Double[]) null, Y_OBJECT, Z_OBJECT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull30() {
     new DummySurface(X_OBJECT, (Double[]) null, Z_OBJECT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull31() {
     new DummySurface(X_OBJECT, Y_OBJECT, (Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull32() {
     new DummySurface((List<Double>) null, Y_LIST, Z_LIST);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull33() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(l, Y_LIST, Z_LIST);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull34() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(X_LIST, l, Z_LIST);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull35() {
     final List<Double> l = Arrays.asList(3., null);
     new DummySurface(X_LIST, Y_LIST, l);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull36() {
     new DummySurface((DoublesPair[]) null, X_PRIMITIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull37() {
     new DummySurface(XY_PAIR, (double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull38() {
     new DummySurface(new DoublesPair[] {null}, Z_PRIMITIVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull39() {
     new DummySurface((DoublesPair[]) null, Z_OBJECT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull40() {
     new DummySurface(XY_PAIR, (Double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull41() {
     new DummySurface(new DoublesPair[] {null}, Z_OBJECT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull42() {
     new DummySurface((List<DoublesPair>) null, Z_LIST);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull43() {
     new DummySurface(XY_PAIR_LIST, (List<Double>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull44() {
     new DummySurface(Arrays.asList(DoublesPair.of(1., 2.), null), Z_LIST);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull45() {
     new DummySurface(XY_PAIR_LIST, Arrays.asList(1., null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull46() {
     new DummySurface((Map<DoublesPair, Double>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull47() {
     final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
     m.put(DoublesPair.of(1., 2.), 3.);
@@ -339,7 +337,7 @@ public class DoublesSurfaceTestCase {
     new DummySurface(m);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull48() {
     final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
     m.put(DoublesPair.of(1., 2.), 3.);
@@ -347,12 +345,12 @@ public class DoublesSurfaceTestCase {
     new DummySurface(m);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull49() {
     new DummySurface((List<Triple<Double, Double, Double>>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull50() {
     @SuppressWarnings("unchecked")
     final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<Double, Double, Double>(1., 2., 3.), null);

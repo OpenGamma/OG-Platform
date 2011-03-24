@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
 import com.opengamma.math.statistics.descriptive.SampleFisherKurtosisCalculator;
@@ -29,31 +27,31 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeBDistribution() {
     new LaplaceDistribution(1, -0.4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEngine() {
     new LaplaceDistribution(0, 1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseCDFWithLow() {
     LAPLACE.getInverseCDF(-0.45);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseCDFWithHigh() {
     LAPLACE.getInverseCDF(6.7);
   }
 
   @Test
   public void test() {
-    testCDFWithNull(LAPLACE);
-    testPDFWithNull(LAPLACE);
-    testInverseCDFWithNull(LAPLACE);
+    assertCDFWithNull(LAPLACE);
+    assertPDFWithNull(LAPLACE);
+    assertInverseCDFWithNull(LAPLACE);
     final double mean = new MeanCalculator().evaluate(DATA);
     final double median = new MedianCalculator().evaluate(DATA);
     final double variance = new SampleVarianceCalculator().evaluate(DATA);

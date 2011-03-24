@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.CalculationMode;
 
 /**
@@ -18,17 +16,17 @@ import com.opengamma.util.CalculationMode;
 public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
   private static final HistoricalVolatilityCalculator CALCULATOR = new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(0.94, RETURN_CALCULATOR);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(0.3, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculationMode() {
     new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(0.4, RETURN_CALCULATOR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLambda() {
     new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(-0.95, RETURN_CALCULATOR);
   }

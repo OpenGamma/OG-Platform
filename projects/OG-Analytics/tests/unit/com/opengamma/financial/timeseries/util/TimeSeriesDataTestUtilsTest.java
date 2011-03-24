@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.timeseries.util;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
@@ -21,12 +20,12 @@ public class TimeSeriesDataTestUtilsTest {
   private static final DoubleTimeSeries<?> TS3 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4});
   private static final DoubleTimeSeries<?> TS4 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5}, new double[] {10, 20, 30, 40, 50});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOrEmptyWithNull() {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOrEmptyWithEmpty() {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
   }
@@ -36,22 +35,22 @@ public class TimeSeriesDataTestUtilsTest {
     TimeSeriesDataTestUtils.testNotNullOrEmpty(TS1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesSizeWithNull() {
     TimeSeriesDataTestUtils.testTimeSeriesSize(null, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesSizeWithEmpty() {
     TimeSeriesDataTestUtils.testTimeSeriesSize(FastArrayIntDoubleTimeSeries.EMPTY_SERIES, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesSizeWithNegativeMinimum() {
     TimeSeriesDataTestUtils.testTimeSeriesSize(TS1, -2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesSizeWithSmallTS() {
     TimeSeriesDataTestUtils.testTimeSeriesSize(TS1, 10);
   }
@@ -61,33 +60,33 @@ public class TimeSeriesDataTestUtilsTest {
     TimeSeriesDataTestUtils.testTimeSeriesSize(TS1, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithNull1() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(null, TS2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithNull2() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithEmpty1() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(FastArrayIntDoubleTimeSeries.EMPTY_SERIES, TS2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithEmpty2() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithWrongDates2() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, TS2);
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTimeSeriesDatesWithWrongDates1() {
     TimeSeriesDataTestUtils.testTimeSeriesDates(TS1, TS3);
   }

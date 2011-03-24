@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -16,27 +15,27 @@ public class BivariateNormalDistributionTest {
   private static final ProbabilityDistribution<double[]> DIST = new BivariateNormalDistribution();
   private static final double EPS = 1e-8;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCDF() {
     DIST.getCDF(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientLengthCDF() {
     DIST.getCDF(new double[] {2, 1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testExcessiveLengthCDF() {
     DIST.getCDF(new double[] {2, 1, 4, 5});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighCorrelation() {
     DIST.getCDF(new double[] {1., 1., 3.});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowCorrelation() {
     DIST.getCDF(new double[] {1., 1., -3.});
   }

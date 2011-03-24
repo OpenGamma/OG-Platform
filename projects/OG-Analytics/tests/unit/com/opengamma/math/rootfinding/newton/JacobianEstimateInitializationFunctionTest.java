@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.rootfinding.newton;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -30,12 +28,12 @@ public class JacobianEstimateInitializationFunctionTest {
   };
   private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {1, 2});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     ESTIMATE.getInitializedMatrix(null, X);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     ESTIMATE.getInitializedMatrix(J, null);
   }

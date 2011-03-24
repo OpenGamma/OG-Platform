@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,7 +200,7 @@ public abstract class YieldCurveFittingSetup {
     return res;
   }
 
-  public void testJacobian(final YieldCurveFittingTestDataBundle data) {
+  protected void assertJacobian(final YieldCurveFittingTestDataBundle data) {
     final MultipleYieldCurveFinderFunction func = new MultipleYieldCurveFinderFunction(data, data.getMarketValueCalculator());
     final MultipleYieldCurveFinderJacobian jac = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
     final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();

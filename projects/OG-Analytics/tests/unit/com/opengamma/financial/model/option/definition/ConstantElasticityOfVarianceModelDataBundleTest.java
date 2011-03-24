@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -39,7 +37,7 @@ public class ConstantElasticityOfVarianceModelDataBundleTest {
   private static final double OTHER_ELASTICITY = 2;
   private static final ConstantElasticityOfVarianceModelDataBundle DATA = new ConstantElasticityOfVarianceModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, ELASTICITY);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new ConstantElasticityOfVarianceModelDataBundle(null, ELASTICITY);
   }

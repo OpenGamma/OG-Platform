@@ -5,13 +5,11 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
@@ -24,27 +22,27 @@ public class TridiagonalMatrixTest {
   private static final double[] C = new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10};
   private static final TridiagonalMatrix M = new TridiagonalMatrix(A, B, C);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullA() {
     new TridiagonalMatrix(null, B, C);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullB() {
     new TridiagonalMatrix(A, null, C);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullC() {
     new TridiagonalMatrix(A, B, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongB() {
     new TridiagonalMatrix(A, new double[] {1, 2, 3, 4, 5, 6, 7, 8}, C);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongC() {
     new TridiagonalMatrix(A, B, new double[] {1, 2, 3, 4, 5, 6, 7});
   }

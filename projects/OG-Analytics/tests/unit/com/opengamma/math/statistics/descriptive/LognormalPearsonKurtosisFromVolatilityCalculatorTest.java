@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function2D;
 
 /**
@@ -19,12 +17,12 @@ public class LognormalPearsonKurtosisFromVolatilityCalculatorTest {
   private static final double SIGMA = 0.3;
   private static final double T = 0.25;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSigma() {
     F.evaluate(null, T);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullT() {
     F.evaluate(SIGMA, null);
   }

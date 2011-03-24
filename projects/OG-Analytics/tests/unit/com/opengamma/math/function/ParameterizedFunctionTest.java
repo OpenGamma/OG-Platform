@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.math.matrix.DoubleMatrix1D;

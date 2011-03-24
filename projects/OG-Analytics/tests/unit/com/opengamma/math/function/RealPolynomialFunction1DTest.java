@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -21,12 +19,12 @@ public class RealPolynomialFunction1DTest {
   private static final DoubleFunction1D F = new RealPolynomialFunction1D(C);
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoefficients() {
     new RealPolynomialFunction1D(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCoefficients() {
     new RealPolynomialFunction1D(new double[0]);
   }

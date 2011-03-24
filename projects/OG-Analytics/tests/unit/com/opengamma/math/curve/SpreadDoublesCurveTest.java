@@ -6,13 +6,11 @@
 package com.opengamma.math.curve;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Set;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -39,32 +37,32 @@ public class SpreadDoublesCurveTest {
   private static final Curve<Double, Double>[] CURVES3 = new Curve[] {INTERPOLATED1, INTERPOLATED1, INTERPOLATED1};
   private static final SpreadDoublesCurve SPREAD3 = SpreadDoublesCurve.from(CURVES3, ADD, NAME3);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves1() {
     new SpreadDoublesCurve(null, ADD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooFewCurves1() {
     new SpreadDoublesCurve(new Curve[] {INTERPOLATED1}, ADD);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreadFunction1() {
     new SpreadDoublesCurve(CURVES1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves2() {
     new SpreadDoublesCurve(null, ADD, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooFewCurves2() {
     new SpreadDoublesCurve(new Curve[] {INTERPOLATED1}, ADD, NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreadFunction2() {
     new SpreadDoublesCurve(CURVES1, null, NAME1);
   }
@@ -95,17 +93,17 @@ public class SpreadDoublesCurveTest {
     assertEquals(new SpreadDoublesCurve(CURVES1, ADD, NAME1), SPREAD1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetXValues() {
     SPREAD1.getXData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetYValues() {
     SPREAD1.getYData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetSize() {
     SPREAD1.size();
   }
@@ -149,7 +147,7 @@ public class SpreadDoublesCurveTest {
     assertEquals(SPREAD3.getLongName(), NAME3 + "=(a+a+a)");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullXValue() {
     SPREAD1.getYValue(null);
   }

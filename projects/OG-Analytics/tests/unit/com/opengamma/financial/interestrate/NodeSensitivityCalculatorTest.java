@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
+import static org.junit.Assert.assertArrayEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-import static org.junit.Assert.assertArrayEquals;
-
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -67,22 +65,22 @@ public class NodeSensitivityCalculatorTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInstrument() {
     NSC.calculate(null, PresentValueSensitivityCalculator.getInstance(), null, INTERPOLATED_CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     NSC.calculate(IRD, null, null, INTERPOLATED_CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolatedCurves() {
     NSC.calculate(IRD, PresentValueSensitivityCalculator.getInstance(), null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNames() {
     NSC.calculate(IRD, PresentValueSensitivityCalculator.getInstance(), new YieldCurveBundle(INTERPOLATED_CURVES), INTERPOLATED_CURVES);
   }

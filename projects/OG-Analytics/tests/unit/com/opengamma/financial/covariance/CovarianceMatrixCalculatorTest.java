@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.covariance;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -25,17 +23,17 @@ public class CovarianceMatrixCalculatorTest {
   private static final Function<DoubleTimeSeries<?>, DoubleMatrix2D> CALCULATOR = new CovarianceMatrixCalculator(COVARIANCE);
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new CovarianceMatrixCalculator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTSArray() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyTSArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries<?>[0]);
   }

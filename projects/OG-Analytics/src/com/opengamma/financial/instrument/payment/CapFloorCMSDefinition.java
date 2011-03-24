@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
 import com.opengamma.util.money.Currency;
 
@@ -36,12 +37,13 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    * @param underlyingSwap The underlying swap.
+   * @param cmsIndex The CMS index associated to the cap/floor.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
   public CapFloorCMSDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
-      ZonedDateTime fixingDate, ZZZSwapFixedIborDefinition underlyingSwap, double strike, boolean isCap) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap);
+      ZonedDateTime fixingDate, ZZZSwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
     _strike = strike;
     _isCap = isCap;
   }
@@ -55,14 +57,15 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
    * @param notional Coupon notional.
    * @param fixingDate The coupon fixing date.
    * @param underlyingSwap The underlying swap.
+   * @param cmsIndex The CMS index associated to the cap/floor.
    * @param strike The strike
    * @param isCap The cap/floor flag.
    * @return The CMS cap/floor.
    */
   public CapFloorCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
-      ZZZSwapFixedIborDefinition underlyingSwap, double strike, boolean isCap) {
+      ZZZSwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
     Validate.notNull(underlyingSwap, "underlying swap");
-    return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, strike, isCap);
+    return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex, strike, isCap);
   }
 
   /**

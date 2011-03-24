@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.statistics.estimation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.function.Function1D;
@@ -21,12 +19,12 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 public class ChiSquareDistributionMomentEstimatorTest {
   private static final Function1D<double[], ProbabilityDistribution<Double>> CALCULATOR = new ChiSquareDistributionMomentEstimator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     CALCULATOR.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty() {
     CALCULATOR.evaluate(new double[0]);
   }

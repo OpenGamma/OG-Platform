@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -31,22 +29,22 @@ public class BlackPriceFunctionTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final BlackPriceFunction FUNCTION = new BlackPriceFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption1() {
     FUNCTION.getPriceFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption2() {
     FUNCTION.getPriceFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     FUNCTION.getPriceFunction(ATM_CALL).evaluate((BlackFunctionData) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
     FUNCTION.getVegaFunction(ATM_CALL).evaluate((BlackFunctionData) null);
   }

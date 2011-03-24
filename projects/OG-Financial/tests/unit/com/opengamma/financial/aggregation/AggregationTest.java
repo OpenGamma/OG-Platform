@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.aggregation;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test aggregation.

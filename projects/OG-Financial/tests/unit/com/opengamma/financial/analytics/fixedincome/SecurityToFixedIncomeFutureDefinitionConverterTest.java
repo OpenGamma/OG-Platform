@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
-
-import org.junit.Test;
 
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;

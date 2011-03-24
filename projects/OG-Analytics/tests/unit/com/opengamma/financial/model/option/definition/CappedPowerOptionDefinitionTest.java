@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -24,27 +22,27 @@ public class CappedPowerOptionDefinitionTest {
   private static final CappedPowerOptionDefinition CALL = new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, CAP, true);
   private static final CappedPowerOptionDefinition PUT = new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, CAP, false);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrike() {
     new CappedPowerOptionDefinition(-STRIKE, EXPIRY, POWER, CAP, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
     new CappedPowerOptionDefinition(STRIKE, null, POWER, CAP, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCap() {
     new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, -CAP, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     CALL.getPayoffFunction().getPayoff(null, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCapPut() {
     new CappedPowerOptionDefinition(STRIKE, EXPIRY, POWER, STRIKE + 10, false);
   }

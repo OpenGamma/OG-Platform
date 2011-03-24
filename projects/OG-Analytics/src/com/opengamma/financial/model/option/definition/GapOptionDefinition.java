@@ -7,11 +7,32 @@ package com.opengamma.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Class defining a gap option.
+ * <p>
+ * Gap options have European-style exercise with payoff
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = 
+ * \\begin{cases}
+ * 0 \\quad & \\mathrm{if} \\quad S \\leq K_1\\\\
+ * S - K_2 \\quad & \\mathrm{otherwise}
+ * \\end{cases} 
+ * \\end{align*}
+ * }
+ * for a call and 
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = 
+ * \\begin{cases}
+ * 0 \\quad & \\mathrm{if} \\quad S \\geq K_1\\\\
+ * K_2 - S \\quad & \\mathrm{otherwise}
+ * \\end{cases}
+ * \\end{align*}
+ * }
+ * for a put, where {@latex.inline $K_1$} is the strike, {@latex.inline $K_2$} is the payoff strike and {@latex.inline $S$} is the spot.
  */
 public class GapOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
@@ -28,18 +49,30 @@ public class GapOptionDefinition extends OptionDefinition {
   };
   private final double _payoffStrike;
 
+  /**
+   * @param strike The strike
+   * @param expiry The expiry
+   * @param isCall Is the option a call or put
+   * @param payoffStrike The payoff strike of the option, greater than zero
+   */
   public GapOptionDefinition(final double strike, final Expiry expiry, final boolean isCall, final double payoffStrike) {
     super(strike, expiry, isCall);
-    ArgumentChecker.notNegative(payoffStrike, "payoff strike");
+    Validate.isTrue(payoffStrike >= 0, "payoff strike");
     _payoffStrike = payoffStrike;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {

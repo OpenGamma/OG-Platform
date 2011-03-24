@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
@@ -26,14 +28,36 @@ import com.opengamma.util.CompareUtils;
  */
 public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
+  /**
+   * Returns a pricing function.
+   * @param definition The option definition, not null
+   * @return The pricing function
+   */
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
+  /**
+   * Returns a visitor that calculates greeks. By default, the calculation method is finite difference. If a different
+   * method is possible (e.g. analytic formulae) then this method should be overridden in the implementing class.
+   * @param pricingFunction The pricing function, not null
+   * @param data The data, not null
+   * @param definition The option definition, not null
+   * @return A visitor that calculates greeks
+   */
   public GreekVisitor<Double> getGreekVisitor(final Function1D<U, Double> pricingFunction, final U data, final T definition) {
+    Validate.notNull(pricingFunction);
+    Validate.notNull(data);
+    Validate.notNull(definition);
     return new AnalyticOptionModelFiniteDifferenceGreekVisitor<U, T>(pricingFunction, data, definition);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
+    Validate.notNull(definition);
+    Validate.notNull(data);
+    Validate.notNull(requiredGreeks);
     final Function1D<U, Double> pricingFunction = getPricingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();
     final GreekVisitor<Double> visitor = getGreekVisitor(pricingFunction, data, definition);

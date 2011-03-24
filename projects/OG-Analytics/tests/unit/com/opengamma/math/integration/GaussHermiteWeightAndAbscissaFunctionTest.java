@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.integration;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -29,8 +29,8 @@ public class GaussHermiteWeightAndAbscissaFunctionTest extends WeightAndAbscissa
 
   @Test
   public void test() {
-    testResults(F.generate(2), X2, W2);
-    testResults(F.generate(3), X3, W3);
-    testResults(F.generate(4), X4, W4);
+    assertResults(F.generate(2), X2, W2);
+    assertResults(F.generate(3), X3, W3);
+    assertResults(F.generate(4), X4, W4);
   }
 }

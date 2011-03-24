@@ -5,8 +5,7 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.InterpolatorNDTestCase;
 import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorDataBundle;
 
@@ -15,7 +14,7 @@ import com.opengamma.math.interpolation.data.RadialBasisFunctionInterpolatorData
  */
 public class RadialBasisFunctionInterpolatorDataBundleTest extends InterpolatorNDTestCase {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     new RadialBasisFunctionInterpolatorDataBundle(FLAT_DATA, null, false);
   }

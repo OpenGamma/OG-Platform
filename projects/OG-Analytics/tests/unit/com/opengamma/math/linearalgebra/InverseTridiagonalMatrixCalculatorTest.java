@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
@@ -25,7 +23,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
   private static final DoubleMatrix2D TRI = MATRIX.toDoubleMatrix2D();
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((TridiagonalMatrix) null);
   }

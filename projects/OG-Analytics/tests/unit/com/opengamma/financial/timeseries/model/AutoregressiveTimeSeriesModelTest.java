@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.model;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
@@ -44,37 +42,37 @@ public class AutoregressiveTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadConstructor() {
     new AutoregressiveTimeSeriesModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPhis() {
     MODEL.getSeries(null, 2, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPhis() {
     MODEL.getSeries(new double[0], 2, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
     MODEL.getSeries(new double[] {0.2}, -3, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientPhis() {
     MODEL.getSeries(new double[] {0.2}, 4, new long[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates() {
     MODEL.getSeries(new double[] {0.3, 0.4}, 1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDates() {
     MODEL.getSeries(new double[] {0.3, 0.4}, 1, new long[0]);
   }

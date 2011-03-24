@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**
@@ -110,7 +108,7 @@ public class LegendrePolynomialFunctionTest {
   private static final LegendrePolynomialFunction LEGENDRE = new LegendrePolynomialFunction();
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN() {
     LEGENDRE.getPolynomials(-3);
   }

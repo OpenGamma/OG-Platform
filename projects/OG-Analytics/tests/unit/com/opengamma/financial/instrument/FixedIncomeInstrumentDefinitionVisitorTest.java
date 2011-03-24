@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.instrument;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -239,6 +237,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponCMS(CouponCMSDefinition payment) {
       return "CouponCMS2";
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+      return "CouponIborSpread1";
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment) {
+      return "CouponIborSpread2";
     }
   }
 }

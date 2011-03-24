@@ -5,11 +5,11 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -29,32 +29,32 @@ public class PercentileCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighPercentile() {
     new PercentileCalculator(1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowPercentile() {
     new PercentileCalculator(0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetHighPercentile() {
     CALCULATOR.setPercentile(1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetLowPercentile() {
     CALCULATOR.setPercentile(0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new double[0]);
   }
@@ -71,12 +71,12 @@ public class PercentileCalculatorTest {
 
   @Test
   public void test() {
-    testResult(X, 10);
-    testResult(X, 99);
-    testResult(X, 50);
+    assertResult(X, 10);
+    assertResult(X, 99);
+    assertResult(X, 50);
   }
 
-  private void testResult(final double[] x, final int percentile) {
+  private void assertResult(final double[] x, final int percentile) {
     final double[] copy = Arrays.copyOf(x, N);
     Arrays.sort(copy);
     int count = 0;

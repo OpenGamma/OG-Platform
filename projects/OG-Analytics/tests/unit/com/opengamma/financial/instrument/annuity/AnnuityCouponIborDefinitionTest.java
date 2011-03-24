@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -29,11 +29,10 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 public class AnnuityCouponIborDefinitionTest {
   //Libor3m
-  private static final Tenor INDEX_TENOR = new Tenor(Period.ofMonths(3));
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -43,7 +42,7 @@ public class AnnuityCouponIborDefinitionTest {
   private static final Currency CUR = Currency.USD;
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   //Annuity description
-  private static final Tenor ANNUITY_TENOR = new Tenor(Period.ofYears(2));
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
   private static final boolean IS_PAYER = true;
   private static final double NOTIONAL = 1000000;
@@ -83,12 +82,12 @@ public class AnnuityCouponIborDefinitionTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPayments() {
     new AnnuityCouponIborDefinition(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOneNullPayment() {
     CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date

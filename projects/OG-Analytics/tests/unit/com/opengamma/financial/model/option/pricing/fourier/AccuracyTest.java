@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -30,30 +30,30 @@ public class AccuracyTest {
 
   @Test
   public void testVeryShortTime() {
-    testEquals(1 / 52.0, 0.001 * EPS, 0.0001 * EPS);
+    assertAccuracy(1 / 52.0, 0.001 * EPS, 0.0001 * EPS);
   }
 
   @Test
   public void testShortTime() {
-    testEquals(1 / 12.0, 0.01 * EPS, 0.001 * EPS);
+    assertAccuracy(1 / 12.0, 0.01 * EPS, 0.001 * EPS);
   }
 
   @Test
   public void testOneYear() {
-    testEquals(1.0, 0.1 * EPS, 0.01 * EPS);
+    assertAccuracy(1.0, 0.1 * EPS, 0.01 * EPS);
   }
 
   @Test
   public void testLongTime() {
-    testEquals(5.0, 0.1 * EPS, 0.01 * EPS);
+    assertAccuracy(5.0, 0.1 * EPS, 0.01 * EPS);
   }
 
   @Test
   public void testVeryLongTime() {
-    testEquals(30.0, 1.0 * EPS, 0.1 * EPS);
+    assertAccuracy(30.0, 1.0 * EPS, 0.1 * EPS);
   }
 
-  private void testEquals(final double t, final double integralTol, final double fftTol) {
+  private void assertAccuracy(final double t, final double integralTol, final double fftTol) {
     final CharacteristicExponent ce = new GaussianCharacteristicExponent(MU, SIGMA);
 
     final double maxLogMoneyness = 6.0 / N_STRIKES * SIGMA * Math.sqrt(t);
@@ -72,7 +72,6 @@ public class AccuracyTest {
       final double integral_vol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, o, integralPrice);
       assertEquals(SIGMA, integral_vol, EPS);
       assertEquals(SIGMA, fftVol, EPS);
-
     }
   }
 

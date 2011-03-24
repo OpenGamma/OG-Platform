@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.DriftSurface;
@@ -55,7 +53,7 @@ public class GeneralNormalOptionDataBundleTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 1);
   private static final GeneralNormalOptionDataBundle DATA = new GeneralNormalOptionDataBundle(YIELD, DRIFT_SURFACE, VOLATILITY_SURFACE, SPOT, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDriftSurface() {
     new GeneralNormalOptionDataBundle(YIELD, null, VOLATILITY_SURFACE, SPOT, DATE);
   }

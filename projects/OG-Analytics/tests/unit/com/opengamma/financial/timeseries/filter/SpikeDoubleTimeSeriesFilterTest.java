@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -39,7 +39,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -68,14 +68,14 @@ public class SpikeDoubleTimeSeriesFilterTest {
     data[10] = 100.;
     DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
     FilteredTimeSeries filtered = FILTER.evaluate(ts);
-    testSeries(ts, filtered, 10);
+    assertSeries(ts, filtered, 10);
     data[10] = -100.;
     ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
     filtered = FILTER.evaluate(ts);
-    testSeries(ts, filtered, 10);
+    assertSeries(ts, filtered, 10);
   }
 
-  private void testSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries filtered, final int index) {
+  private void assertSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries filtered, final int index) {
     final DoubleTimeSeries<Long> rejected = filtered.getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTime(0), ts.getTime(index));
