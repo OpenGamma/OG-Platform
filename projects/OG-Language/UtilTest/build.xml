@@ -1,3 +1,4 @@
 <project name="UtilTest">
 	<import file="${basedir}/../build-cpp.xml" />
+	<target name="clean-lib" />
 </project>
