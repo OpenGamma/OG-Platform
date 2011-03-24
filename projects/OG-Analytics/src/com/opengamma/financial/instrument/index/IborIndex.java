@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.instrument.index;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -13,7 +15,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Class describing an Ibor-like index.
@@ -31,27 +32,11 @@ public class IborIndex {
   /**
    * Tenor of the index.
    */
-  private final Tenor _tenor;
+  private final Period _tenor;
   /**
    * The conventions linked to the index.
    */
   private final Convention _convention;
-  //  /**
-  //   * Number of days between the trade date and settlement date.
-  //   */
-  //  private final int _settlementDays;
-  //  /**
-  //   * Calendar associated to the index.
-  //   */
-  //  private final Calendar _calendar;
-  //  /**
-  //   * The day count convention used to compute the accrual factor associated to the period.
-  //   */
-  //  private final DayCount _dayCount;
-  //  /**
-  //   * Business day convention used when a date related to the index is not a good business day.
-  //   */
-  //  private final BusinessDayConvention _businessDayConvention;
   /**
    * Flag indicating if the end-of-month rule is used.
    */
@@ -67,7 +52,7 @@ public class IborIndex {
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
    */
-  public IborIndex(Currency currency, Tenor tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
+  public IborIndex(Currency currency, Period tenor, int spotLag, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
     Validate.notNull(currency, "currency");
     _currency = currency;
     Validate.notNull(tenor, "tenor");
@@ -77,10 +62,6 @@ public class IborIndex {
     Validate.notNull(businessDayConvention, "business day convention");
     _name = _currency.toString() + _tenor.toString();
     _convention = new Convention(spotLag, dayCount, businessDayConvention, calendar, _name + " conventions");
-    //    this._settlementDays = spotLag;
-    //    this._calendar = calendar;
-    //    this._dayCount = dayCount;
-    //    this._businessDayConvention = businessDayConvention;
     this._endOfMonth = endOfMonth;
   }
 
@@ -96,7 +77,7 @@ public class IborIndex {
    * Gets the tenor field.
    * @return the tenor
    */
-  public Tenor getTenor() {
+  public Period getTenor() {
     return _tenor;
   }
 
@@ -154,6 +135,11 @@ public class IborIndex {
    */
   public Convention getConvention() {
     return _convention;
+  }
+
+  @Override
+  public String toString() {
+    return _name;
   }
 
   @Override

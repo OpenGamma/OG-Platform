@@ -21,7 +21,6 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * A wrapper class for a AnnuityDefinition containing CouponFixedDefinition.
@@ -41,7 +40,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param currency The annuity currency.
    * @param settlementDate The settlement date.
    * @param tenor The annuity tenor.
-   * @param period The payment frequency.
+   * @param paymentPeriod The period between payments.
    * @param calendar The calendar.
    * @param dayCount The day count.
    * @param businessDay The business day convention.
@@ -51,11 +50,11 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param isPayer The payer flag.
    * @return The fixed annuity.
    */
-  public static AnnuityCouponFixedDefinition from(Currency currency, ZonedDateTime settlementDate, Tenor tenor, Period period, Calendar calendar, DayCount dayCount, BusinessDayConvention businessDay,
-      boolean isEOM, double notional, double fixedRate, boolean isPayer) {
+  public static AnnuityCouponFixedDefinition from(Currency currency, ZonedDateTime settlementDate, Period tenor, Period paymentPeriod, Calendar calendar, DayCount dayCount,
+      BusinessDayConvention businessDay, boolean isEOM, double notional, double fixedRate, boolean isPayer) {
     double sign = isPayer ? -1.0 : 1.0;
-    ZonedDateTime maturityDate = settlementDate.plus(tenor.getPeriod());
-    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, period, businessDay, calendar, isEOM, true);
+    ZonedDateTime maturityDate = settlementDate.plus(tenor);
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, businessDay, calendar, isEOM, true);
     CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, fixedRate);

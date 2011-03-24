@@ -5,14 +5,17 @@
  */
 package com.opengamma.engine.view.client.merging;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 
@@ -21,6 +24,8 @@ import com.opengamma.engine.view.ViewComputationResultModel;
  */
 @Test
 public class RateLimitingMergingUpdateProviderTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingUpdateProviderTest.class);
 
   @Test
   public void testPassThrough() {
@@ -105,7 +110,7 @@ public class RateLimitingMergingUpdateProviderTest {
     // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
     assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - period / 10));
     assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
-    System.out.println ("size = " + testListener.consumeResults ().size ());
+    s_logger.info("Size = {}", testListener.consumeResults().size());
   }
 
   private void addResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {

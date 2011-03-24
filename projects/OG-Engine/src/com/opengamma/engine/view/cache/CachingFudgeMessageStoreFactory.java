@@ -10,17 +10,18 @@ import net.sf.ehcache.CacheManager;
 /**
  * A data store factory that wraps an underlying factory's generation with a local caching layer.
  */
-public class CachingBinaryDataStoreFactory implements BinaryDataStoreFactory {
+public class CachingFudgeMessageStoreFactory implements FudgeMessageStoreFactory {
   private static final int DEFAULT_MAX_LOCAL_CACHED_ELEMENTS = 100000;
-  private final BinaryDataStoreFactory _underlying;
+  private final FudgeMessageStoreFactory _underlying;
   private final int _maxLocalCachedElements;
   private final CacheManager _cacheManager;
 
-  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying, final CacheManager cacheManager) {
+  public CachingFudgeMessageStoreFactory(final FudgeMessageStoreFactory underlying, final CacheManager cacheManager) {
     this(underlying, cacheManager, DEFAULT_MAX_LOCAL_CACHED_ELEMENTS);
   }
 
-  public CachingBinaryDataStoreFactory(final BinaryDataStoreFactory underlying, final CacheManager cacheManager, int maxLocalCachedElements) {
+  public CachingFudgeMessageStoreFactory(final FudgeMessageStoreFactory underlying, final CacheManager cacheManager,
+      int maxLocalCachedElements) {
     _underlying = underlying;
     _maxLocalCachedElements = maxLocalCachedElements;
     _cacheManager = cacheManager;
@@ -33,7 +34,7 @@ public class CachingBinaryDataStoreFactory implements BinaryDataStoreFactory {
     return _maxLocalCachedElements;
   }
 
-  protected BinaryDataStoreFactory getUnderlying() {
+  protected FudgeMessageStoreFactory getUnderlying() {
     return _underlying;
   }
 
@@ -42,8 +43,9 @@ public class CachingBinaryDataStoreFactory implements BinaryDataStoreFactory {
   }
 
   @Override
-  public BinaryDataStore createDataStore(ViewComputationCacheKey cacheKey) {
-    return new CachingBinaryDataStore(getUnderlying().createDataStore(cacheKey), getCacheManager(), cacheKey, getMaxLocalCachedElements());
+  public FudgeMessageStore createMessageStore(ViewComputationCacheKey cacheKey) {
+    return new CachingFudgeMessageStore(getUnderlying().createMessageStore(cacheKey), getCacheManager(), cacheKey,
+        getMaxLocalCachedElements());
   }
 
 }

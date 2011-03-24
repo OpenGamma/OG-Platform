@@ -6,14 +6,15 @@
 package com.opengamma.engine.view.cache;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -85,7 +86,9 @@ public class ReleaseCacheMessageTest {
   public void testCacheReleaseMessage() {
     final ReportingBinaryDataStoreFactory privateServerStore = new ReportingBinaryDataStoreFactory("server private");
     final ReportingBinaryDataStoreFactory sharedStore = new ReportingBinaryDataStoreFactory("server shared");
-    final DefaultViewComputationCacheSource cacheSource = new DefaultViewComputationCacheSource(new InMemoryIdentifierMap(), s_fudgeContext, privateServerStore, sharedStore);
+    final DefaultViewComputationCacheSource cacheSource = new DefaultViewComputationCacheSource(
+        new InMemoryIdentifierMap(), s_fudgeContext, new DefaultFudgeMessageStoreFactory(privateServerStore,
+            s_fudgeContext), new DefaultFudgeMessageStoreFactory(sharedStore, s_fudgeContext));
     s_logger.info("Creating server local caches");
     putStuffIntoCache(cacheSource.getCache("Test View 1", "Config 1", 1L));
     putStuffIntoCache(cacheSource.getCache("Test View 1", "Config 2", 1L));
@@ -110,7 +113,9 @@ public class ReleaseCacheMessageTest {
     final ReportingBinaryDataStoreFactory privateClientStore = new ReportingBinaryDataStoreFactory("client private");
     final DirectFudgeConnection conduit = new DirectFudgeConnection(cacheSource.getFudgeContext());
     conduit.connectEnd1(server);
-    final RemoteViewComputationCacheSource remoteSource = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit.getEnd2()), privateClientStore, EHCacheUtils.createCacheManager ());
+    final RemoteViewComputationCacheSource remoteSource = new RemoteViewComputationCacheSource(new RemoteCacheClient(
+        conduit.getEnd2()), new DefaultFudgeMessageStoreFactory(privateClientStore, s_fudgeContext), EHCacheUtils
+        .createCacheManager());
     s_logger.info("Using server cache at remote client");
     putStuffIntoCache(remoteSource.getCache("Test View 1", "Config 1", 2L));
     assertEquals(8, privateServerStore._cachesCreated.size());

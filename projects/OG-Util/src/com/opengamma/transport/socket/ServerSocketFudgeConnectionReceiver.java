@@ -7,6 +7,7 @@ package com.opengamma.transport.socket;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,12 +43,15 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
   private final TerminatableJobContainer _connectionJobs = new TerminatableJobContainer();
 
+  private boolean _lazyFudgeMsgReads;
+
   public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying) {
     _fudgeContext = fudgeContext;
     _underlying = underlying;
   }
 
-  public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying, final ExecutorService executorService) {
+  public ServerSocketFudgeConnectionReceiver(final FudgeContext fudgeContext, final FudgeConnectionReceiver underlying,
+      final ExecutorService executorService) {
     super(executorService);
     _fudgeContext = fudgeContext;
     _underlying = underlying;
@@ -59,6 +63,14 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
 
   public FudgeConnectionReceiver getUnderlying() {
     return _underlying;
+  }
+
+  public void setLazyFudgeMsgReads(final boolean lazyFudgeMsgReads) {
+    _lazyFudgeMsgReads = lazyFudgeMsgReads;
+  }
+
+  public boolean isLazyFudgeMsgReads() {
+    return _lazyFudgeMsgReads;
   }
 
   @Override
@@ -89,6 +101,91 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
     _connectionJobs.terminateAll();
   }
 
+  /**
+   * An output stream with buffered behavior that only writes to the underlying stream when
+   * the buffer is full or when a flush takes place. This is different to the behavior of
+   * {@link BufferedOutputStream} which may make partial writes if given data larger than
+   * its internal buffer. This class is best used over network transports that have an optimal
+   * message size.
+   * <p>
+   * Note that it is not thread-safe.
+   */
+  private static class StrictBufferedOutputStream extends FilterOutputStream {
+
+    // TODO: move this out into Util and use for other network buffered outputs
+    // TODO: set the packet size from the MTU details of the network used
+
+    private final byte[] _buffer;
+    private int _bytes;
+
+    public StrictBufferedOutputStream(final OutputStream out, final int bytes) {
+      super(out);
+      ArgumentChecker.isTrue(bytes > 0, "bytes");
+      _buffer = new byte[bytes];
+    }
+
+    public StrictBufferedOutputStream(final OutputStream out) {
+      this(out, 1500);
+    }
+
+    @Override
+    public void write(final int b) throws IOException {
+      _buffer[_bytes++] = (byte) b;
+      if (_bytes == _buffer.length) {
+        out.write(_buffer);
+        _bytes = 0;
+      }
+    }
+
+    @Override
+    public void write(final byte[] b, int ofs, int len) throws IOException {
+      if (_bytes > 0) {
+        final int room = _buffer.length - _bytes;
+        if (room < len) {
+          // Start of packet fits in buffer
+          System.arraycopy(b, ofs, _buffer, _bytes, room);
+          out.write(_buffer);
+          _bytes = 0;
+          ofs += room;
+          len -= room;
+        } else {
+          System.arraycopy(b, ofs, _buffer, _bytes, len);
+          if (room == len) {
+            // Packet just fits in buffer
+            System.arraycopy(b, ofs, _buffer, _bytes, len);
+            out.write(_buffer);
+            _bytes = 0;
+          } else {
+            // Packet fits entirely in buffer
+            _bytes += len;
+          }
+          return;
+        }
+      }
+      while (len >= _buffer.length) {
+        // Part of the packet can be sent directly
+        out.write(b, ofs, _buffer.length);
+        ofs += _buffer.length;
+        len -= _buffer.length;
+      }
+      if (len > 0) {
+        // Part of the packet is left
+        System.arraycopy(b, ofs, _buffer, _bytes, len);
+        _bytes += len;
+      }
+    }
+
+    @Override
+    public void flush() throws IOException {
+      if (_bytes > 0) {
+        out.write(_buffer, 0, _bytes);
+        _bytes = 0;
+        out.flush();
+      }
+    }
+
+  }
+
   private class ConnectionJob extends TerminatableJob {
 
     private final Socket _socket;
@@ -101,9 +198,11 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
     ConnectionJob(final Socket socket, final InputStream is, final OutputStream os) {
       _socket = socket;
       _reader = getFudgeContext().createMessageReader(new BufferedInputStream(is));
+      _reader.setLazyReads(isLazyFudgeMsgReads());
       _sender = new FudgeMessageSender() {
 
-        private final MessageBatchingWriter _writer = new MessageBatchingWriter(getFudgeContext(), new BufferedOutputStream(os));
+        private final MessageBatchingWriter _writer = new MessageBatchingWriter(getFudgeContext(),
+            new StrictBufferedOutputStream(os));
 
         @Override
         public FudgeContext getFudgeContext() {

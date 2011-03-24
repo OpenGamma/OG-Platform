@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.util.time.Tenor;
 
 /**
  * A wrapper class for an AnnuityDefinition containing CouponIborSpreadDefinition.
@@ -34,7 +34,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
    * @param spread The common spread.
    * @return The Ibor annuity.
    */
-  public static AnnuityCouponIborSpreadDefinition from(ZonedDateTime settlementDate, Tenor tenor, double notional, IborIndex index, double spread, boolean isPayer) {
+  public static AnnuityCouponIborSpreadDefinition from(ZonedDateTime settlementDate, Period tenor, double notional, IborIndex index, double spread, boolean isPayer) {
     AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settlementDate, tenor, notional, index, isPayer);
     CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[iborAnnuity.getPayments().length];
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
