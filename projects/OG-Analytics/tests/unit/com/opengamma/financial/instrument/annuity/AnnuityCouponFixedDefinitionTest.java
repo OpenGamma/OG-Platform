@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -25,7 +27,6 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 public class AnnuityCouponFixedDefinitionTest {
   //Semi-annual 2Y
@@ -36,7 +37,7 @@ public class AnnuityCouponFixedDefinitionTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Tenor ANNUITY_TENOR = new Tenor(Period.ofYears(2));
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.0325;

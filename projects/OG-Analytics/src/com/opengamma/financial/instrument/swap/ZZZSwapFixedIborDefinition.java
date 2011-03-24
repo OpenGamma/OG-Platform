@@ -6,11 +6,13 @@
 package com.opengamma.financial.instrument.swap;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -32,6 +34,24 @@ public class ZZZSwapFixedIborDefinition extends ZZZSwapDefinition<CouponFixedDef
   public ZZZSwapFixedIborDefinition(AnnuityCouponFixedDefinition fixedLeg, AnnuityCouponIborDefinition iborLeg) {
     super(fixedLeg, iborLeg);
     Validate.isTrue(fixedLeg.getCurrency() == iborLeg.getCurrency(), "legs should have the same currency");
+  }
+
+  /**
+   * Vanilla swap builder from the settlement date, a CMS index and other details of a swap.
+   * @param settlementDate The settlement date.
+   * @param cmsIndex The CMS index from which the swap is constructed.
+   * @param notional The swap notional
+   * @param fixedRate The swap fixed rate.
+   * @param isPayer The payer flag of the fixed leg.
+   * @return The vanilla swap.
+   */
+  public static ZZZSwapFixedIborDefinition from(ZonedDateTime settlementDate, CMSIndex cmsIndex, double notional, double fixedRate, boolean isPayer) {
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(cmsIndex, "CMS index");
+    AnnuityCouponFixedDefinition fixedLeg = AnnuityCouponFixedDefinition.from(cmsIndex.getCurrency(), settlementDate, cmsIndex.getTenor(), cmsIndex.getFixedLegPeriod(), cmsIndex.getIborIndex()
+        .getCalendar(), cmsIndex.getFixedLegDayCount(), cmsIndex.getIborIndex().getBusinessDayConvention(), cmsIndex.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
+    AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, cmsIndex.getTenor(), notional, cmsIndex.getIborIndex(), !isPayer);
+    return new ZZZSwapFixedIborDefinition(fixedLeg, iborLeg);
   }
 
   /**

@@ -17,7 +17,7 @@ LOGGING (com.opengamma.language.connector.OverlappedTest);
 #define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
 #define TIMEOUT_CALL		3000
-#define RETRIES				10
+#define RETRIES				20
 
 static CConnector *g_poConnector;
 static double g_tOverlappedQuery = 0;
@@ -62,6 +62,7 @@ static void DoQueryAvailableOverlapped () {
 }
 
 static void QueryAvailableInline () {
+	g_tInlineQuery = 0;
 	int i;
 	for (i = 0; i < RETRIES; i++) {
 		g_tInlineQuery -= GetTickCount ();

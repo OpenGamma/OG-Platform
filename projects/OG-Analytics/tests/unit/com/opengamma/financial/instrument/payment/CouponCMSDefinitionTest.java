@@ -6,12 +6,14 @@
 package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -21,6 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -28,7 +31,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Test related to CouponCMSDefinition construction.
@@ -40,7 +42,7 @@ public class CouponCMSDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Tenor ANNUITY_TENOR = new Tenor(Period.ofYears(2));
+  private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
   //  private static final ZonedDateTime MATURITY_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, ANNUITY_TENOR);
   //Fixed leg: Semi-annual bond
@@ -51,12 +53,14 @@ public class CouponCMSDefinitionTest {
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, 1.0, RATE, FIXED_IS_PAYER);
   //Ibor leg: quarterly money
-  private static final Tenor INDEX_TENOR = new Tenor(Period.ofMonths(3));
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
   //  private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, INDEX, !FIXED_IS_PAYER);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER);
+
+  private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
 
   private static final ZZZSwapFixedIborDefinition SWAP = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
 
@@ -72,45 +76,50 @@ public class CouponCMSDefinitionTest {
   private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
   private static final CouponFloatingDefinition FLOAT_COUPON = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
 
-  private static final CouponCMSDefinition CMS_COUPON = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP);
-  private static final CouponCMSDefinition CMS_COUPON_2 = CouponCMSDefinition.from(FLOAT_COUPON, SWAP);
+  private static final CouponCMSDefinition CMS_COUPON = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP, CMS_INDEX);
+  private static final CouponCMSDefinition CMS_COUPON_2 = CouponCMSDefinition.from(FLOAT_COUPON, SWAP, CMS_INDEX);
 
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 12, 27); //For conversion to derivative
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentDate() {
-    CouponCMSDefinition.from(null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP);
+    CouponCMSDefinition.from(null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP, CMS_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAccrualStartDate() {
-    CouponCMSDefinition.from(PAYMENT_DATE, null, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP);
+    CouponCMSDefinition.from(PAYMENT_DATE, null, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP, CMS_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAccrualEndDate() {
-    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, null, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP);
+    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, null, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP, CMS_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixingDate() {
-    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, null, SWAP);
+    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, null, SWAP, CMS_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSwap() {
-    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, null);
+    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, null, CMS_INDEX);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCMSIndex() {
+    CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFromNullCoupon() {
-    CouponCMSDefinition.from(null, SWAP);
+    CouponCMSDefinition.from(null, SWAP, CMS_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFromNullSwap() {
     ZZZSwapFixedIborDefinition NullSwap = null; // To remove .from ambiguity
-    CouponCMSDefinition.from(FLOAT_COUPON, NullSwap);
+    CouponCMSDefinition.from(FLOAT_COUPON, NullSwap, CMS_INDEX);
   }
 
   @Test
@@ -135,7 +144,7 @@ public class CouponCMSDefinitionTest {
 
   @Test
   public void testFixingProcess() {
-    CouponFloatingDefinition CouponWithReset = CouponCMSDefinition.from(FLOAT_COUPON, SWAP);
+    CouponFloatingDefinition CouponWithReset = CouponCMSDefinition.from(FLOAT_COUPON, SWAP, CMS_INDEX);
     double RESET_RATE = 0.04;
     assertEquals(CouponWithReset.isFixed(), false);
     CouponWithReset.fixingProcess(RESET_RATE);

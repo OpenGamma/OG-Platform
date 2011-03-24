@@ -25,7 +25,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Utility to calculate schedules.
@@ -198,15 +197,15 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     // Adjusted to month-end: when start date is last calendar date of the month, the end date is the last business date of the month.
     // Month-end-rule applies only to year and month periods, not days or weeks.
-    if ((tenor.getPeriod().getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
+    if ((tenor.getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
       BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
       return preceding.adjustDate(calendar, endDate.with(DateAdjusters.lastDayOfMonth()));
     }
@@ -222,12 +221,12 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
   }
 

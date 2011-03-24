@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -13,7 +14,6 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.util.time.Tenor;
 
 /**
  * A wrapper class for a AnnuityDefinition containing CouponIborDefinition.
@@ -37,7 +37,7 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
    * @param isPayer The payer flag.
    * @return The Ibor annuity.
    */
-  public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, Tenor tenor, double notional, IborIndex index, boolean isPayer) {
+  public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, Period tenor, double notional, IborIndex index, boolean isPayer) {
 
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(index, "index");
@@ -64,7 +64,7 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
     Validate.notNull(index, "index");
     Validate.isTrue(notional > 0, "notional <= 0");
 
-    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor().getPeriod());
+    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor());
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getBusinessDayConvention(), index.getCalendar());
 
     double sign = isPayer ? -1.0 : 1.0;

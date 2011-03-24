@@ -7,14 +7,16 @@ package com.opengamma.engine.view.calc;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.Assert;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -33,6 +35,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 @Test
 public class MultipleNodeExecutorTest {
+
+  private static final boolean PRINT_GRAPHS = false;
 
   /**
    * Test graph:
@@ -100,8 +104,10 @@ public class MultipleNodeExecutorTest {
   public void testMin5() {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testMin5");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testMin5");
+      executor.printFragment(root);
+    }
     assertEquals(5, root.getNodes().size());
   }
 
@@ -116,8 +122,10 @@ public class MultipleNodeExecutorTest {
   public void testMax1() {
     final MultipleNodeExecutor executor = createExecutor(1, 1, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testMax1");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testMax1");
+      executor.printFragment(root);
+    }
     assertEquals(3, root.getInputFragments().size());
     int mask = 0;
     for (GraphFragment fragment : root.getInputFragments()) {
@@ -154,8 +162,10 @@ public class MultipleNodeExecutorTest {
   public void testMinMax2() {
     final MultipleNodeExecutor executor = createExecutor(2, 2, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testMinMax2");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testMinMax2");
+      executor.printFragment(root);
+    }
     assertEquals(2, root.getInputFragments().size());
     int mask = 0;
     for (GraphFragment fragment : root.getInputFragments()) {
@@ -181,8 +191,10 @@ public class MultipleNodeExecutorTest {
   public void testMinMax4() {
     final MultipleNodeExecutor executor = createExecutor(3, 4, Integer.MAX_VALUE);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testMinMax4");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testMinMax4");
+      executor.printFragment(root);
+    }
     assertEquals(1, root.getInputFragments().size());
     GraphFragment node = root.getInputFragments().iterator().next();
     assertEquals(4, node.getNodes().size());
@@ -200,8 +212,10 @@ public class MultipleNodeExecutorTest {
   public void testThread1() {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testThread1");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testThread1");
+      executor.printFragment(root);
+    }
     assertEquals(3, root.getInputFragments().size());
     int mask = 0;
     for (GraphFragment fragment : root.getInputFragments()) {
@@ -228,8 +242,10 @@ public class MultipleNodeExecutorTest {
   public void testThread2() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testThread2");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testThread2");
+      executor.printFragment(root);
+    }
     assertEquals(3, root.getInputFragments().size());
     int mask = 0;
     for (GraphFragment fragment : root.getInputFragments()) {
@@ -256,8 +272,10 @@ public class MultipleNodeExecutorTest {
   public void testThread3() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
     final RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    System.out.println("testThread3");
-    executor.printFragment(root);
+    if (PRINT_GRAPHS) {
+      System.out.println("testThread3");
+      executor.printFragment(root);
+    }
     assertEquals(3, root.getInputFragments().size());
     int mask = 0;
     for (GraphFragment fragment : root.getInputFragments()) {
@@ -319,27 +337,39 @@ public class MultipleNodeExecutorTest {
     _testGraph.addDependencyNode(n5);
     _testGraph.addDependencyNode(n6);
     _testGraph.addDependencyNode(n7);
-    System.out.println("testTailGraphColouring");
-    System.out.println ("concurrency 1");
+    if (PRINT_GRAPHS) {
+      System.out.println("testTailGraphColouring");
+      System.out.println("concurrency 1");
+    }
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
     RootGraphFragment root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
     extractColours(root, colours);
-    System.out.println (colours);
+    if (PRINT_GRAPHS) {
+      System.out.println(colours);
+    }
     assertEquals (7, colours.size ());
-    System.out.println ("concurrency 2");
+    if (PRINT_GRAPHS) {
+      System.out.println("concurrency 2");
+    }
     executor = createExecutor(1,1,2);
     root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear ();
     extractColours(root, colours);
-    System.out.println (colours);
+    if (PRINT_GRAPHS) {
+      System.out.println(colours);
+    }
     assertEquals (4, colours.size ());
-    System.out.println ("concurrency 3");
+    if (PRINT_GRAPHS) {
+      System.out.println("concurrency 3");
+    }
     executor = createExecutor(1,1,3);
     root = executor.createExecutionPlan(_testGraph, DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     colours.clear ();
     extractColours(root, colours);
-    System.out.println (colours);
+    if (PRINT_GRAPHS) {
+      System.out.println(colours);
+    }
     assertEquals (3, colours.size ());
     int mask = 0;
     for (Map.Entry<Integer, Collection<DependencyNode>> colour : colours.entrySet ()) {

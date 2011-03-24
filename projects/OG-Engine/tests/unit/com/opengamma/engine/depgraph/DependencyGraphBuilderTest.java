@@ -5,12 +5,11 @@
  */
 package com.opengamma.engine.depgraph;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -835,7 +836,7 @@ public class DependencyGraphBuilderTest {
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
     s_logger.debug("After removeUnnecessaryValues");
-    graph.dumpStructureASCII(System.out);
+    //graph.dumpStructureASCII(System.out);
   }
 
 }

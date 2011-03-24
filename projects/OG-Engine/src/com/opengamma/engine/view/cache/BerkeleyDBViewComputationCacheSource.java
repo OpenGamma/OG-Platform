@@ -53,7 +53,8 @@ public class BerkeleyDBViewComputationCacheSource extends DefaultViewComputation
   }
 
   public BerkeleyDBViewComputationCacheSource(IdentifierMap identifierMap, Environment dbEnvironment, FudgeContext fudgeContext) {
-    super(identifierMap, fudgeContext, new BerkeleyDBBinaryDataStoreFactory(dbEnvironment));
+    super(identifierMap, fudgeContext, new DefaultFudgeMessageStoreFactory(new BerkeleyDBBinaryDataStoreFactory(
+        dbEnvironment), fudgeContext));
   }
 
 }
