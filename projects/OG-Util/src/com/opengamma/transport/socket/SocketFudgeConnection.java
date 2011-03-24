@@ -121,6 +121,16 @@ public class SocketFudgeConnection extends AbstractSocketProcess implements Fudg
   }
 
   /**
+   * Sets a delay before flushing data messages to allow adjacent messages to be coalesced. Only useful if the
+   * message sender is being used concurrently.
+   * 
+   * @param microseconds the time to wait before flushing, or {@code 0} to flush immediately after a message (or coalesced group)
+   */
+  public void setFlushDelay(final int microseconds) {
+    _writer.setFlushDelay(microseconds);
+  }
+
+  /**
    * Note that the message sender may be called concurrently. All messages will be sent from a single thread
    * with others returning immediately. Thus successful completion of a {@link FudgeMessageSender#send} does
    * not guarantee message arrival or that it has even been (or will be) passed to the transport.

@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.LockSupport;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeDataOutputStreamWriter;
@@ -31,7 +32,9 @@ public class MessageBatchingWriter {
   private FudgeMsgWriter _out;
 
   private boolean _writingThreadActive;
+  private boolean _flushRequired;
   private Queue<FudgeFieldContainer> _messages;
+  private long _nanoFlushDelay;
 
   public MessageBatchingWriter() {
     _out = null;
@@ -40,6 +43,10 @@ public class MessageBatchingWriter {
   public MessageBatchingWriter(final FudgeMsgWriter out) {
     ArgumentChecker.notNull(out, "out");
     _out = out;
+  }
+
+  public void setFlushDelay(final int microseconds) {
+    _nanoFlushDelay = microseconds * 1000;
   }
 
   private static FudgeMsgWriter createFudgeMsgWriter(final FudgeContext fudgeContext, final OutputStream out) {
@@ -83,11 +90,11 @@ public class MessageBatchingWriter {
         _writingThreadActive = true;
       }
     }
+    boolean waitForOtherThreads = false;
     if (messages == null) {
       try {
         beforeWrite();
         getFudgeMsgWriter().writeMessage(message);
-        getFudgeMsgWriter().flush();
       } finally {
         synchronized (this) {
           if (_messages != null) {
@@ -96,6 +103,14 @@ public class MessageBatchingWriter {
           } else {
             // No other messages have been attempted
             _writingThreadActive = false;
+            if (_nanoFlushDelay > 0) {
+              if (!_flushRequired) {
+                waitForOtherThreads = true;
+                _flushRequired = true;
+              }
+            } else {
+              getFudgeMsgWriter().flush();
+            }
           }
         }
       }
@@ -115,7 +130,6 @@ public class MessageBatchingWriter {
           getFudgeMsgWriter().writeMessage(message);
           message = messages.poll();
         } while (message != null);
-        getFudgeMsgWriter().flush();
       } finally {
         synchronized (this) {
           if (_messages != null) {
@@ -124,11 +138,33 @@ public class MessageBatchingWriter {
           } else {
             // No other messages have been attempted
             _writingThreadActive = false;
+            if (_nanoFlushDelay > 0) {
+              if (!_flushRequired) {
+                waitForOtherThreads = true;
+                _flushRequired = true;
+              }
+            } else {
+              getFudgeMsgWriter().flush();
+            }
           }
         }
       }
     }
-
+    // TODO: it would be better if this could be offloaded to another thread so that
+    // we don't block the caller and only have one thread doing the park.
+    if (waitForOtherThreads) {
+      // Can't reliably do a sub-millisecond precision sleep, so use park
+      LockSupport.parkNanos(_nanoFlushDelay);
+      synchronized (this) {
+        if (_flushRequired) {
+          if (!_writingThreadActive) {
+            // No other threads have become active to write data so flush
+            getFudgeMsgWriter().flush();
+          }
+          _flushRequired = false;
+        }
+      }
+    }
   }
 
   /**

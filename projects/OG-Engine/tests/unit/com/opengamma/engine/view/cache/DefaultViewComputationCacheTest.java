@@ -32,8 +32,10 @@ public class DefaultViewComputationCacheTest {
   @BeforeMethod
   public void createCache() {
     final IdentifierMap identifierSource = new InMemoryIdentifierMap();
-    final BinaryDataStore privateDataStore = new InMemoryBinaryDataStore();
-    final BinaryDataStore sharedDataStore = new InMemoryBinaryDataStore();
+    final FudgeMessageStore privateDataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(),
+        FudgeContext.GLOBAL_DEFAULT);
+    final FudgeMessageStore sharedDataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(),
+        FudgeContext.GLOBAL_DEFAULT);
     _viewComputationCache = new DefaultViewComputationCache(identifierSource, privateDataStore, sharedDataStore, FudgeContext.GLOBAL_DEFAULT);
   }
 

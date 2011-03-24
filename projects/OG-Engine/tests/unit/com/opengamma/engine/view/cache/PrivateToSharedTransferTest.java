@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.view.cache;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -31,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
 @Test
 public class PrivateToSharedTransferTest {
 
-  private ValueSpecification[] createValueSpecifications(final int count) {
+  private static ValueSpecification[] createValueSpecifications(final int count) {
     final ValueSpecification[] specs = new ValueSpecification[count];
     for (int i = 0; i < specs.length; i++) {
       specs[i] = new ValueSpecification(new ValueRequirement(Integer.toString(i), "Foo"), "Bar");
@@ -39,10 +42,15 @@ public class PrivateToSharedTransferTest {
     return specs;
   }
 
+  private static FudgeMessageStoreFactory createInMemoryFudgeMessageStoreFactory(final FudgeContext fudgeContext) {
+    return new DefaultFudgeMessageStoreFactory(new InMemoryBinaryDataStoreFactory(), fudgeContext);
+  }
+
   @Test
   public void testMissingValueLoader_noCallback() {
     final IdentifierMap identifiers = new InMemoryIdentifierMap();
-    final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers, FudgeContext.GLOBAL_DEFAULT, new InMemoryBinaryDataStoreFactory());
+    final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers,
+        FudgeContext.GLOBAL_DEFAULT, createInMemoryFudgeMessageStoreFactory(FudgeContext.GLOBAL_DEFAULT));
     final ViewComputationCache cache = source.getCache("Test View", "Default", System.currentTimeMillis());
     final ValueSpecification[] specs = createValueSpecifications(4);
     cache.putPrivateValue(new ComputedValue(specs[0], "Zero"));
@@ -62,11 +70,12 @@ public class PrivateToSharedTransferTest {
   public void testMissingValueLoader_withCallback() {
     final IdentifierMap identifiers = new InMemoryIdentifierMap();
     final Set<Integer> missing = new HashSet<Integer>();
-    final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers, FudgeContext.GLOBAL_DEFAULT, new InMemoryBinaryDataStoreFactory());
+    final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers,
+        FudgeContext.GLOBAL_DEFAULT, createInMemoryFudgeMessageStoreFactory(FudgeContext.GLOBAL_DEFAULT));
     source.setMissingValueLoader(new MissingValueLoader() {
 
       @Override
-      public byte[] findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
+      public FudgeFieldContainer findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
         assertEquals("Test View", cache.getViewName());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
@@ -74,20 +83,21 @@ public class PrivateToSharedTransferTest {
         missing.add(i);
         switch (i) {
           case 0:
-            return FudgeContext.GLOBAL_DEFAULT.toByteArray(FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Zero").getMessage());
+            return FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Zero").getMessage();
           case 1:
-            return FudgeContext.GLOBAL_DEFAULT.toByteArray(FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("One").getMessage());
+            return FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("One").getMessage();
           case 2:
-            return FudgeContext.GLOBAL_DEFAULT.toByteArray(FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Two").getMessage());
+            return FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Two").getMessage();
           case 3:
-            return FudgeContext.GLOBAL_DEFAULT.toByteArray(FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Three").getMessage());
+            return FudgeContext.GLOBAL_DEFAULT.toFudgeMsg("Three").getMessage();
         }
         return null;
       }
 
       @Override
-      public Map<Long, byte[]> findMissingValues(final ViewComputationCacheKey cache, final Collection<Long> identifiers) {
-        final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+      public Map<Long, FudgeFieldContainer> findMissingValues(final ViewComputationCacheKey cache,
+          final Collection<Long> identifiers) {
+        final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
         for (Long identifier : identifiers) {
           map.put(identifier, findMissingValue(cache, identifier));
         }
@@ -128,22 +138,26 @@ public class PrivateToSharedTransferTest {
   @Test
   public void testFindMessage() throws InterruptedException {
     // Create the test infrastructure
-    final DefaultViewComputationCacheSource serverCacheSource = new DefaultViewComputationCacheSource(new InMemoryIdentifierMap(), OpenGammaFudgeContext.getInstance(),
-        new InMemoryBinaryDataStoreFactory());
+    final FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
+    final DefaultViewComputationCacheSource serverCacheSource = new DefaultViewComputationCacheSource(
+        new InMemoryIdentifierMap(), fudgeContext, createInMemoryFudgeMessageStoreFactory(fudgeContext));
     final ViewComputationCacheServer server = new ViewComputationCacheServer(serverCacheSource);
     server.getBinaryDataStore().setFindValueTimeout(Timeout.standardTimeoutMillis() * 5);
-    final DirectFudgeConnection conduit1 = new DirectFudgeConnection(serverCacheSource.getFudgeContext());
+    final DirectFudgeConnection conduit1 = new DirectFudgeConnection(fudgeContext);
     conduit1.connectEnd1(server);
-    final DirectFudgeConnection conduit2 = new DirectFudgeConnection(serverCacheSource.getFudgeContext());
+    final DirectFudgeConnection conduit2 = new DirectFudgeConnection(fudgeContext);
     conduit2.connectEnd1(server);
-    final DirectFudgeConnection conduit3 = new DirectFudgeConnection(serverCacheSource.getFudgeContext());
+    final DirectFudgeConnection conduit3 = new DirectFudgeConnection(fudgeContext);
     conduit3.connectEnd1(server);
-    final RemoteViewComputationCacheSource remoteCacheSource1 = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit1.getEnd2()), new InMemoryBinaryDataStoreFactory(), EHCacheUtils
-        .createCacheManager());
-    final RemoteViewComputationCacheSource remoteCacheSource2 = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit2.getEnd2()), new InMemoryBinaryDataStoreFactory(), EHCacheUtils
-        .createCacheManager());
-    final RemoteViewComputationCacheSource remoteCacheSource3 = new RemoteViewComputationCacheSource(new RemoteCacheClient(conduit3.getEnd2()), new InMemoryBinaryDataStoreFactory(), EHCacheUtils
-        .createCacheManager());
+    final RemoteViewComputationCacheSource remoteCacheSource1 = new RemoteViewComputationCacheSource(
+        new RemoteCacheClient(conduit1.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
+            .createCacheManager());
+    final RemoteViewComputationCacheSource remoteCacheSource2 = new RemoteViewComputationCacheSource(
+        new RemoteCacheClient(conduit2.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
+            .createCacheManager());
+    final RemoteViewComputationCacheSource remoteCacheSource3 = new RemoteViewComputationCacheSource(
+        new RemoteCacheClient(conduit3.getEnd2()), createInMemoryFudgeMessageStoreFactory(fudgeContext), EHCacheUtils
+            .createCacheManager());
     // Populate the test caches
     final ValueSpecification[] specs = createValueSpecifications(10);
     final ViewComputationCache serverCache = serverCacheSource.getCache("Test View", "Default", 1L);
@@ -165,7 +179,7 @@ public class PrivateToSharedTransferTest {
     value = serverCache.getValue(specs[1]);
     assertEquals("One", value);
     // Only identifier lookup messages expected
-    Thread.sleep (Timeout.standardTimeoutMillis());
+    Thread.sleep(Timeout.standardTimeoutMillis());
     assertEquals(3, conduit1.getAndResetMessages1To2());
     assertEquals(3, conduit1.getAndResetMessages2To1());
     assertEquals(3, conduit2.getAndResetMessages1To2());
@@ -176,7 +190,7 @@ public class PrivateToSharedTransferTest {
     value = serverCache.getValue(specs[2]);
     assertEquals("Two", value);
     // One message sent to each, 1 response (and ack) from client1
-    Thread.sleep (Timeout.standardTimeoutMillis());
+    Thread.sleep(Timeout.standardTimeoutMillis());
     assertEquals(2, conduit1.getAndResetMessages1To2());
     assertEquals(1, conduit1.getAndResetMessages2To1());
     assertEquals(1, conduit2.getAndResetMessages1To2());
@@ -187,7 +201,7 @@ public class PrivateToSharedTransferTest {
     value = serverCache.getValue(specs[3]);
     assertEquals("Three", value);
     // One message sent to each, 1 response (and ack) from client1 and client2
-    Thread.sleep (Timeout.standardTimeoutMillis());
+    Thread.sleep(Timeout.standardTimeoutMillis());
     assertRange(1, 2, conduit1.getAndResetMessages1To2());
     assertRange(0, 1, conduit1.getAndResetMessages2To1());
     assertRange(1, 2, conduit2.getAndResetMessages1To2());
@@ -195,13 +209,14 @@ public class PrivateToSharedTransferTest {
     assertEquals(1, conduit3.getAndResetMessages1To2());
     assertEquals(0, conduit3.getAndResetMessages2To1());
     // Query for a set of values on two different nodes
-    Collection<Pair<ValueSpecification, Object>> values = serverCache.getValues(Arrays.asList(specs[4], specs[5], specs[6]));
+    Collection<Pair<ValueSpecification, Object>> values = serverCache.getValues(Arrays.asList(specs[4], specs[5],
+        specs[6]));
     assertEquals(3, values.size());
     assertTrue(values.contains(Pair.of(specs[4], "Four")));
     assertTrue(values.contains(Pair.of(specs[5], "Five")));
     assertTrue(values.contains(Pair.of(specs[6], "Six")));
     // One message sent to each, 1 response (and ack) from client1 and 2
-    Thread.sleep (Timeout.standardTimeoutMillis());
+    Thread.sleep(Timeout.standardTimeoutMillis());
     assertEquals(2, conduit1.getAndResetMessages1To2());
     assertEquals(1, conduit1.getAndResetMessages2To1());
     assertEquals(2, conduit2.getAndResetMessages1To2());
@@ -209,22 +224,22 @@ public class PrivateToSharedTransferTest {
     assertEquals(1, conduit3.getAndResetMessages1To2());
     assertEquals(0, conduit3.getAndResetMessages2To1());
     // Query for a non-existent single value
-    value = serverCache.getValue (specs[8]);
-    assertNull (value);
-    assertEquals (1, conduit3.getAndResetMessages1To2());
-    assertEquals (0, conduit3.getAndResetMessages2To1());
+    value = serverCache.getValue(specs[8]);
+    assertNull(value);
+    assertEquals(1, conduit3.getAndResetMessages1To2());
+    assertEquals(0, conduit3.getAndResetMessages2To1());
     // Query for one existing and one non-existent value
-    values = serverCache.getValues (Arrays.asList (specs[7], specs[8]));
-    assertEquals (1, values.size ());
-    assertTrue (values.contains (Pair.of (specs[7], "Seven")));
-    assertEquals (2, conduit3.getAndResetMessages1To2());
-    assertEquals (1, conduit3.getAndResetMessages2To1());
+    values = serverCache.getValues(Arrays.asList(specs[7], specs[8]));
+    assertEquals(1, values.size());
+    assertTrue(values.contains(Pair.of(specs[7], "Seven")));
+    assertEquals(2, conduit3.getAndResetMessages1To2());
+    assertEquals(1, conduit3.getAndResetMessages2To1());
     // Query for two non-existing values
-    values = serverCache.getValues (Arrays.asList (specs[8], specs[9]));
-    assertNotNull (values);
-    assertTrue (values.isEmpty ());
-    assertEquals (1, conduit3.getAndResetMessages1To2());
-    assertEquals (0, conduit3.getAndResetMessages2To1());
+    values = serverCache.getValues(Arrays.asList(specs[8], specs[9]));
+    assertNotNull(values);
+    assertTrue(values.isEmpty());
+    assertEquals(1, conduit3.getAndResetMessages1To2());
+    assertEquals(0, conduit3.getAndResetMessages2To1());
   }
 
   private void assertRange(final int loInclusive, final int hiInclusive, final int value) {

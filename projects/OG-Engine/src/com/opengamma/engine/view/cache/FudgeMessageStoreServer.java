@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -45,13 +46,12 @@ import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Server for {@link RemoteBinaryDataStore} clients created by a {@link RemoteBinaryDataStoreFactory}.
+ * Server for {@link RemoteFudgeMessageStore} clients created by a {@link RemoteFudgeMessageStoreFactory}.
  * The underlying is the shared data store component of a {@link DefaultViewComputationCache}.
  */
-public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCachesCallback, MissingValueLoader, FudgeConnectionStateListener {
+public class FudgeMessageStoreServer implements FudgeConnectionReceiver, ReleaseCachesCallback, MissingValueLoader, FudgeConnectionStateListener {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(BinaryDataStoreServer.class);
-  private static final byte[] EMPTY_ARRAY = new byte[0];
+  private static final Logger s_logger = LoggerFactory.getLogger(FudgeMessageStoreServer.class);
 
   private static class ValueSearch {
 
@@ -94,7 +94,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
 
   private long _findValueTimeout = 5000L; // 5s default timeout
 
-  public BinaryDataStoreServer(final DefaultViewComputationCacheSource underlying) {
+  public FudgeMessageStoreServer(final DefaultViewComputationCacheSource underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
     underlying.setReleaseCachesCallback(this);
@@ -150,12 +150,12 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   }
 
   @Override
-  public byte[] findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
+  public FudgeFieldContainer findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
     s_logger.debug("findMissing value {}", identifier);
     broadcast(new FindMessage(cacheKey.getViewName(), cacheKey.getCalculationConfigurationName(), cacheKey.getSnapshotTimestamp(), Collections.singleton(identifier)));
     // We're in the callback so we know the cache must exist
-    final BinaryDataStore store = getUnderlying().findCache(cacheKey).getSharedDataStore();
-    byte[] data = store.get(identifier);
+    final FudgeMessageStore store = getUnderlying().findCache(cacheKey).getSharedDataStore();
+    FudgeFieldContainer data = store.get(identifier);
     if (data == null) {
       final ValueSearch search = getOrCreateValueSearch(cacheKey);
       try {
@@ -178,22 +178,23 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   }
 
   @Override
-  public Map<Long, byte[]> findMissingValues(final ViewComputationCacheKey cache, final Collection<Long> identifiers) {
+  public Map<Long, FudgeFieldContainer> findMissingValues(final ViewComputationCacheKey cache,
+      final Collection<Long> identifiers) {
     s_logger.debug("findMissing values {}", identifiers);
     broadcast(new FindMessage(cache.getViewName(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), identifiers));
     final ValueSearch search = getOrCreateValueSearch(cache);
     // We're in the callback so we know the cache must exist
-    final BinaryDataStore store = getUnderlying().findCache(cache).getSharedDataStore();
+    final FudgeMessageStore store = getUnderlying().findCache(cache).getSharedDataStore();
     final Long[] identifierArray = new Long[identifiers.size()];
     int identifierCount = 0;
     for (Long identifier : identifiers) {
       identifierArray[identifierCount++] = identifier;
     }
-    final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+    final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
     try {
       while (identifierCount > 0) {
         final Long identifier = identifierArray[0];
-        byte[] data = store.get(identifier);
+        FudgeFieldContainer data = store.get(identifier);
         if (data != null) {
           s_logger.debug("Value for {} found and transferred to shared data store", identifier);
           map.put(identifier, data);
@@ -272,27 +273,27 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     @Override
     protected GetResponse visitGetRequest(final GetRequest request) {
       final List<Long> identifiers = request.getIdentifier();
-      final Collection<byte[]> response;
+      final Collection<FudgeFieldContainer> response;
       final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       if (cache == null) {
         // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
         s_logger.warn("Get request on invalid cache - {}", request);
-        response = Collections.singleton(EMPTY_ARRAY);
+        response = Collections.singleton(FudgeContext.EMPTY_MESSAGE);
       } else {
-        final BinaryDataStore store = cache.getSharedDataStore();
+        final FudgeMessageStore store = cache.getSharedDataStore();
         if (identifiers.size() == 1) {
-          byte[] data = store.get(identifiers.get(0));
+          FudgeFieldContainer data = store.get(identifiers.get(0));
           if (data == null) {
-            data = EMPTY_ARRAY;
+            data = FudgeContext.EMPTY_MESSAGE;
           }
           response = Collections.singleton(data);
         } else {
-          response = new ArrayList<byte[]>(identifiers.size());
-          final Map<Long, byte[]> data = store.get(identifiers);
+          response = new ArrayList<FudgeFieldContainer>(identifiers.size());
+          final Map<Long, FudgeFieldContainer> data = store.get(identifiers);
           for (Long identifier : identifiers) {
-            byte[] value = data.get(identifier);
+            FudgeFieldContainer value = data.get(identifier);
             if (value == null) {
-              value = EMPTY_ARRAY;
+              value = FudgeContext.EMPTY_MESSAGE;
             }
             response.add(value);
           }
@@ -304,16 +305,16 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
     @Override
     protected CacheMessage visitPutRequest(final PutRequest request) {
       final List<Long> identifiers = request.getIdentifier();
-      final List<byte[]> data = request.getData();
+      final List<FudgeFieldContainer> data = request.getData();
       final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       // Review 2010-10-19 Andrew -- This causes cache creation. This is bad if messages were delayed and the cache has already been released.
-      final BinaryDataStore store = getUnderlying().getCache(key).getSharedDataStore();
+      final FudgeMessageStore store = getUnderlying().getCache(key).getSharedDataStore();
       if (identifiers.size() == 1) {
         store.put(identifiers.get(0), data.get(0));
       } else {
-        final Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+        final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
         final Iterator<Long> i = identifiers.iterator();
-        final Iterator<byte[]> j = data.iterator();
+        final Iterator<FudgeFieldContainer> j = data.iterator();
         while (i.hasNext()) {
           map.put(i.next(), j.next());
         }
@@ -357,7 +358,7 @@ public class BinaryDataStoreServer implements FudgeConnectionReceiver, ReleaseCa
   };
 
   protected MessageHandler onNewConnection(final FudgeConnection connection) {
-    getConnections().put(connection, EMPTY_ARRAY);
+    getConnections().put(connection, FudgeContext.EMPTY_MESSAGE);
     return new MessageHandler(connection);
   }
 
