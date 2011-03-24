@@ -8,6 +8,8 @@
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
 	<import file="${common.dir}/common-ivy.xml" />
 
+	<target name="clean-lib" />
+
 	<!-- Use Visual Studio if it's available -->
 	<available property="cpp.environment" value="msvc" file="msbuild.exe" filepath="${env.Path}" />
 	<!-- Default to POSIX-style tools and Ant's built in tasks -->
