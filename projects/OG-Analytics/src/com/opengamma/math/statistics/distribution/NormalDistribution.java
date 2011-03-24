@@ -7,7 +7,6 @@ package com.opengamma.math.statistics.distribution;
 
 import java.util.Date;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import cern.jet.random.Normal;
@@ -34,14 +33,13 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   private static final double DELTA = 0.05;
 
   // TODO need a better seed
-  private final RandomEngine _randomEngine;
   private final double _mean;
   private final double _standardDeviation;
   private final Normal _normal;
 
   /**
    * @param mean The mean of the distribution
-   * @param standardDeviation The standard deviation of the distribution
+   * @param standardDeviation The standard deviation of the distribution, not negative or zero
    */
   public NormalDistribution(final double mean, final double standardDeviation) {
     this(mean, standardDeviation, new MersenneTwister64(new Date()));
@@ -49,15 +47,14 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * @param mean The mean of the distribution
-   * @param standardDeviation The standard deviation of the distribution
-   * @param randomEngine A generator of random numbers
+   * @param standardDeviation The standard deviation of the distribution, not negative or zero
+   * @param randomEngine A generator of uniform random numbers, not null
    */
   public NormalDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
     Validate.isTrue(standardDeviation > 0, "standard deviation");
     Validate.notNull(randomEngine);
     _mean = mean;
     _standardDeviation = standardDeviation;
-    _randomEngine = randomEngine;
     _normal = new Normal(mean, standardDeviation, randomEngine);
   }
 
@@ -81,9 +78,9 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
     }
     if (x < XMIN + DELTA) {
       // smooth the two approximations together
-      double a = Math.sqrt(-Math.log(getCDF(XMIN)));
-      double b = Math.sqrt(-Math.log(getCDF(XMIN + DELTA)));
-      double temp = (a * (XMIN + DELTA - x) + b * (x - XMIN)) / DELTA;
+      final double a = Math.sqrt(-Math.log(getCDF(XMIN)));
+      final double b = Math.sqrt(-Math.log(getCDF(XMIN + DELTA)));
+      final double temp = (a * (XMIN + DELTA - x) + b * (x - XMIN)) / DELTA;
       return Math.exp(-temp * temp);
     }
     if (x > -(XMIN + DELTA)) {
@@ -140,14 +137,13 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
     long temp;
     temp = Double.doubleToLongBits(_mean);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _randomEngine.hashCode();
     temp = Double.doubleToLongBits(_standardDeviation);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -157,14 +153,10 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    NormalDistribution other = (NormalDistribution) obj;
+    final NormalDistribution other = (NormalDistribution) obj;
     if (Double.doubleToLongBits(_mean) != Double.doubleToLongBits(other._mean)) {
       return false;
     }
-    if (Double.doubleToLongBits(_standardDeviation) != Double.doubleToLongBits(other._standardDeviation)) {
-      return false;
-    }
-    return ObjectUtils.equals(_randomEngine, other._randomEngine);
+    return Double.doubleToLongBits(_standardDeviation) == Double.doubleToLongBits(other._standardDeviation);
   }
-
 }

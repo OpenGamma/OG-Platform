@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -55,5 +58,19 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
       assertEquals(highDOF.getPDF(x), normal.getPDF(x), eps);
       assertEquals(highDOF.getInverseCDF(x), normal.getInverseCDF(x), eps);
     }
+  }
+
+  @Test
+  public void testObject() {
+    final double dof = 2.4;
+    final StudentTDistribution dist = new StudentTDistribution(dof, ENGINE);
+    StudentTDistribution other = new StudentTDistribution(dof, ENGINE);
+    assertEquals(dist, other);
+    assertEquals(dist.hashCode(), other.hashCode());
+    other = new StudentTDistribution(dof);
+    assertEquals(dist, other);
+    assertEquals(dist.hashCode(), other.hashCode());
+    other = new StudentTDistribution(dof + 1, ENGINE);
+    assertFalse(dist.equals(other));
   }
 }

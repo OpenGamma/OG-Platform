@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import cern.jet.random.engine.MersenneTwister64;
-
 public class NormalDistributionTest extends ProbabilityDistributionTestCase {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, ENGINE);
   private static final double[] X = new double[] {0, 0.1, 0.4, 0.8, 1, 1.32, 1.78, 2, 2.36, 2.88, 3, 3.5, 4, 4.5, 5};
@@ -51,12 +49,11 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
     assertEquals(NORMAL, other);
     assertEquals(NORMAL.hashCode(), other.hashCode());
     other = new NormalDistribution(0, 1);
-    assertFalse(NORMAL.equals(other));
+    assertEquals(NORMAL, other);
+    assertEquals(NORMAL.hashCode(), other.hashCode());
     other = new NormalDistribution(0.1, 1, ENGINE);
     assertFalse(NORMAL.equals(other));
     other = new NormalDistribution(0, 1.1, ENGINE);
-    assertFalse(NORMAL.equals(other));
-    other = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED + 1));
     assertFalse(NORMAL.equals(other));
   }
 }
