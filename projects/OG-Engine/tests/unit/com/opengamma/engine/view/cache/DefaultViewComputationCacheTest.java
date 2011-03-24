@@ -65,17 +65,18 @@ public class DefaultViewComputationCacheTest {
 
   @Test
   public void testPutGetCycle_primInt() {
-    assertPutGetCycle(Integer.MAX_VALUE, 12 + 4, CacheSelectHint.allPrivate());
+    assertPutGetCycle(Integer.MAX_VALUE, 4 + 4, CacheSelectHint.allPrivate());
   }
 
   @Test
   public void testPutGetCycle_primString() {
-    assertPutGetCycle("Hello World", 13 + 11, CacheSelectHint.allShared());
+    final String testString = "Hello World";
+    assertPutGetCycle(testString, 4 + 1 + testString.length(), CacheSelectHint.allShared());
   }
 
   @Test
   public void testPutGetCycle_primDouble() {
-    assertPutGetCycle(3.14, 12 + 8, CacheSelectHint.allPrivate());
+    assertPutGetCycle(3.14, 4 + 8, CacheSelectHint.allPrivate());
   }
 
   public static final class Bean {
@@ -120,7 +121,7 @@ public class DefaultViewComputationCacheTest {
     final Bean bean = new Bean();
     bean.setFoo(42.0);
     bean.setBar(-1.0);
-    assertPutGetCycle(bean, 109, CacheSelectHint.allShared());
+    assertPutGetCycle(bean, 101, CacheSelectHint.allShared());
   }
 
   @Test
@@ -130,7 +131,7 @@ public class DefaultViewComputationCacheTest {
     bean.setFoo(42.0);
     bean.setBar(-1.0);
     list.add(bean);
-    assertPutGetCycle(list, 112, CacheSelectHint.allPrivate());
+    assertPutGetCycle(list, 104, CacheSelectHint.allPrivate());
   }
   
   private void assertPutValues (int type, final CacheSelectHint correctHint, final CacheSelectHint incorrectHint) {

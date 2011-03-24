@@ -7,10 +7,12 @@ package com.opengamma.engine.value;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.UniqueIdentifier;
@@ -70,7 +72,6 @@ public class ComputedValueTest {
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
-    System.out.println(msg);
     final ComputedValue cycledValue = s_fudgeContext.fromFudgeMsg(ComputedValue.class, msg);
     assertNotNull(cycledValue);
     assertEquals(value, cycledValue);
