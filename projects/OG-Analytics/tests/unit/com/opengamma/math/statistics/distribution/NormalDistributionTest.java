@@ -6,7 +6,11 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
+import cern.jet.random.engine.MersenneTwister64;
 
 public class NormalDistributionTest extends ProbabilityDistributionTestCase {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, ENGINE);
@@ -37,9 +41,22 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
       double x = -37.0 + 44 * i / 50.;
       double p = NORMAL.getCDF(x);
       double xStar = (p == 1.0 ? Double.POSITIVE_INFINITY : (p == 0.0 ? Double.NEGATIVE_INFINITY : NORMAL.getInverseCDF(p)));
-      // System.out.println(x + "\t" + p + "\t" + xStar);
       assertEquals(x, xStar, 1e-3);
     }
+  }
 
+  @Test
+  public void testObject() {
+    NormalDistribution other = new NormalDistribution(0, 1, ENGINE);
+    assertEquals(NORMAL, other);
+    assertEquals(NORMAL.hashCode(), other.hashCode());
+    other = new NormalDistribution(0, 1);
+    assertFalse(NORMAL.equals(other));
+    other = new NormalDistribution(0.1, 1, ENGINE);
+    assertFalse(NORMAL.equals(other));
+    other = new NormalDistribution(0, 1.1, ENGINE);
+    assertFalse(NORMAL.equals(other));
+    other = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED + 1));
+    assertFalse(NORMAL.equals(other));
   }
 }
