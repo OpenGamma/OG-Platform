@@ -17,14 +17,41 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
- * 
- * 
+ * The Merton jump-diffusion model prices options with an underlying process
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * dS = (b - \\lambda k)S dt + \\sigma S dz + k dq
+ * \\end{align*}
+ * } 
+ * with {@latex.inline $S$} the spot, {@latex.inline $b$} the cost-of-carry, {@latex.inline $\\sigma$} the volatility of the (relative) price
+ * change based on no jumps, {@latex.inline $dz$} a Brownian motion, {@latex.inline $dq$} a jump component and {@latex.inline $\\lambda$} the expected
+ * number of jumps per year. {@latex.inline $dz$} and {@latex.inline $dq$} are assumed to be uncorrelated.
+ * <p>
+ * The price of an option can be calculated using:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\sum_{i=0}^{\\infty} \\frac{e^{-\\lambda T}(\\lambda T)^i}{i!}c_i(S, K, T, r, \\sigma_i)\\\\
+ * p &= \\sum_{i=0}^{\\infty} \\frac{e^{-\\lambda T}(\\lambda T)^i}{i!}p_i(S, K, T, r, \\sigma_i)
+ * \\end{align*}
+ * }
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\sigma_i &= \\sqrt{z^2 + \\frac{\\delta^2 i}{T}}\\\\
+ * \\delta &= \\sqrt{\\frac{\\gamma v^2}{\\lambda}}\\\\
+ * z &= \\sqrt{v^2 - \\lambda \\delta^2}
+ * \\end{align*}
+ * }
+ * and {@latex.inline $v$} is the total volatility (including jumps) and {@latex.inline $\\gamma$} is the percentage of the total volatility explained
+ * by the jumps. 
  */
-
 public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelDataBundle> {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final int N = 50;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<MertonJumpDiffusionModelDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);

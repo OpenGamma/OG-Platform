@@ -10,12 +10,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.StringReader;
+import java.net.MalformedURLException;
+
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.DataProvider;
+import org.xml.sax.InputSource;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -38,8 +45,10 @@ public abstract class AbstractSpringContextValidationTestNG {
     return _springContext.get();
   }
 
-  protected void setSpringContext(final GenericApplicationContext springContext) {
+  private GenericApplicationContext createSpringContext() {
+    GenericApplicationContext springContext = new GenericApplicationContext();
     _springContext.set(springContext);
+    return springContext;
   }
 
   //-------------------------------------------------------------------------
@@ -49,11 +58,43 @@ public abstract class AbstractSpringContextValidationTestNG {
   protected void loadClassPathResource(final String opengammaPlatformRunmode, final String name) {
     PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
     
-    GenericApplicationContext springContext = new GenericApplicationContext();
+    GenericApplicationContext springContext = createSpringContext();
     XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(springContext);
     xmlReader.loadBeanDefinitions(new ClassPathResource(name));
     springContext.refresh();
-    setSpringContext(springContext);
+  }
+
+  protected void loadFileSystemResource(final String opengammaPlatformRunmode, final String path) {
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
+    
+    GenericApplicationContext springContext = createSpringContext();
+    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+    xmlReader.loadBeanDefinitions(new FileSystemResource(path));
+    springContext.refresh();
+  }
+
+  protected void loadXMLResource(final String opengammaPlatformRunmode, final String xml) {
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
+    
+    GenericApplicationContext springContext = createSpringContext();
+    XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+    xmlReader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
+    xmlReader.loadBeanDefinitions(new InputSource(new StringReader(xml)));
+    springContext.refresh();
+  }
+
+  protected void loadUrlResource(final String opengammaPlatformRunmode, final String url) {
+    PlatformConfigUtils.configureSystemProperties(opengammaPlatformRunmode);
+    
+    try {
+      GenericApplicationContext springContext = createSpringContext();
+      XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(getSpringContext());
+      xmlReader.loadBeanDefinitions(new UrlResource(url));
+      springContext.refresh();
+      
+    } catch (MalformedURLException ex) {
+      throw new OpenGammaRuntimeException("Malformed URL - " + url, ex);
+    }
   }
 
   @AfterMethod

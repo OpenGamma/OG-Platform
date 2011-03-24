@@ -18,14 +18,14 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
- * The Bates generalized jump diffusion model prices options with an underlying process 
+ * The Bates generalized jump-diffusion model prices options with an underlying process 
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * dS = (b - \\lambda \\overline{k})S dt + \\sigma S dz + k dq
  * \\end{align*}
  * }
  * with {@latex.inline $S$} the spot, {@latex.inline $b$} the cost-of-carry, {@latex.inline $\\sigma$} the volatility of the (relative) price
- * change based on no jumps, {@latex.inline $k$} a random percentage jump conditional on a Poisson-distributed event occurring, with ({@latex.inline $1+k$})
+ * change based on no jumps, {@latex.inline $dz$} a Brownian motion, {@latex.inline $k$} a random percentage jump conditional on a Poisson-distributed event occurring, with ({@latex.inline $1+k$})
  * lognormally distributed, {@latex.inline $\\overline{k}$} the expected jump size, {@latex.inline $\\lambda$} the frequency of events (the average number
  * of events per year) and {@latex.inline $q$} a Poisson counter with intensity {@latex.inline $\\lambda$}.
  * <p>
