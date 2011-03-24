@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.instrument.index;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.Period;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -17,14 +19,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
 public class IborIndexTest {
   //Libor3m
-  private static final Tenor TENOR = new Tenor(Period.ofMonths(3));
+  private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -77,7 +78,7 @@ public class IborIndexTest {
     Currency currencyModified = Currency.EUR;
     IborIndex indexModified = new IborIndex(currencyModified, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertFalse(INDEX.equals(indexModified));
-    Tenor tenorModified = new Tenor(Period.ofMonths(2));
+    Period tenorModified = Period.ofMonths(2);
     indexModified = new IborIndex(CUR, tenorModified, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
