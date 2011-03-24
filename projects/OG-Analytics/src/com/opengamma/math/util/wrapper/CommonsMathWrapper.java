@@ -165,8 +165,8 @@ public final class CommonsMathWrapper {
   }
 
   /**
-   * @param x A Commons pair of <em>(x, f(x))</em>, not null
-   * @return A matrix of double with the <em>x</em> as the first element and <em>f(x)</em> the second
+   * @param x A Commons pair of <i>(x, f(x))</i>, not null
+   * @return A matrix of double with the <i>x</i> as the first element and <i>f(x)</i> the second
    */
   public static double[] unwrap(final RealPointValuePair x) {
     Validate.notNull(x);

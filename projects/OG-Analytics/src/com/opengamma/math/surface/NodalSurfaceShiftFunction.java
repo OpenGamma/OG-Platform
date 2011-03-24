@@ -12,16 +12,23 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link NodalDoublesSurface}. If the <i>x-y</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original surface, then the surface cannot be shifted.
  */
 public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoublesSurface> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, shift, "PARALLEL_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -36,12 +43,20 @@ public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoub
     return NodalDoublesSurface.from(xData, yData, shiftedZ, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the point to shift is not a nodal point of the surface 
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double x, final double y, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, x, y, shift, "SINGLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the point to shift is not a nodal point of the surface 
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double x, final double y, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -61,12 +76,20 @@ public class NodalSurfaceShiftFunction implements SurfaceShiftFunction<NodalDoub
     throw new IllegalArgumentException("No x-y data in surface for (" + x + ", " + y + ")");
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the points to shift are not nodal points of the surface 
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] zShift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, xShift, yShift, zShift, "MULTIPLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the points to shift are not nodal points of the surface 
+   */
   @Override
   public NodalDoublesSurface evaluate(final NodalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     Validate.notNull(surface, "surface");
