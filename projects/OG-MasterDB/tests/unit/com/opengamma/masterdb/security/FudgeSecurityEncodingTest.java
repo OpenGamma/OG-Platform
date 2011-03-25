@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
