@@ -48,7 +48,7 @@ public class InMemoryReferenceRateRepositoryTest {
         .getIdentifiers());
     AssertJUnit.assertEquals(UniqueIdentifier.of(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), "7"), conventions2.getUniqueId());
     AssertJUnit.assertEquals(actact, conventions2.getDayCount());
-    AssertJUnit.assertEquals(following, conventions2.getBusinessDayConvention());
+    AssertJUnit.assertEquals(modified, conventions2.getBusinessDayConvention());
     AssertJUnit.assertEquals(2, conventions2.getSettlementDays());
   }
 }
