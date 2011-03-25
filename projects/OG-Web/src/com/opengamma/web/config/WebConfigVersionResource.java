@@ -53,6 +53,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
     out.put("latestConfig", latestDoc.getValue());
     out.put("configDoc", versionedConfig);
     out.put("config", versionedConfig.getValue());
+    out.put("configXml", createXML(versionedConfig));
     out.put("deleted", !latestDoc.isLatest());
     return out;
   }
