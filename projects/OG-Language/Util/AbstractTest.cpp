@@ -25,9 +25,10 @@ static int g_nTests = 0;
 static int g_nSuccessfulTests = 0;
 static CAbstractTest *g_poTests[MAX_TESTS];
 
-CAbstractTest::CAbstractTest (const TCHAR *pszName) {
+CAbstractTest::CAbstractTest (bool bAutomatic, const TCHAR *pszName) {
 	ASSERT (g_nTests < MAX_TESTS);
 	m_pszName = pszName;
+	m_bAutomatic = bAutomatic;
 	g_poTests[g_nTests++] = this;
 }
 
@@ -70,6 +71,11 @@ void CAbstractTest::Main (int argc, TCHAR **argv) {
 				}
 			}
 			if (!bRun) {
+				LOGINFO (TEXT ("Skipping test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
+				continue;
+			}
+		} else {
+			if (!g_poTests[nTest]->m_bAutomatic) {
 				LOGINFO (TEXT ("Skipping test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
 				continue;
 			}

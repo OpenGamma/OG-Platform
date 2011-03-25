@@ -14,9 +14,10 @@
 class CAbstractTest {
 private:
 	const TCHAR *m_pszName;
+	bool m_bAutomatic;
 public:
 #ifndef __cplusplus_cli
-	CAbstractTest (const TCHAR *pszName);
+	CAbstractTest (bool bAutomatic, const TCHAR *pszName);
 	~CAbstractTest ();
 	virtual void Run () = 0;
 	virtual void BeforeAll () { }
@@ -37,10 +38,10 @@ public:
 
 #ifdef __cplusplus_cli
 using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
-#define BEGIN_TESTS(label) \
-	[TestClass] \
+#define MANUAL_TESTS(label) \
 	public ref class C##label { \
 	public:
+#define BEGIN_TESTS(label) [TestClass] MANUAL_TESTS(label)
 #define TEST(proc) \
 		[TestMethod] \
 		void Test##proc () { \
@@ -82,12 +83,14 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 #define END_TESTS \
 	};
 #else
-#define BEGIN_TESTS(label) \
+#define BEGIN_TESTS_(automatic, label) \
 	static class C##label : public CAbstractTest { \
 	public: \
-	C##label () : CAbstractTest (TEXT (#label)) { } \
+		C##label () : CAbstractTest (automatic, TEXT (#label)) { } \
 		void Run () { \
 			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
+#define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
+#define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
 #define TEST(proc) \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			Before (); \
