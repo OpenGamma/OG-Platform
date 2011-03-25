@@ -300,10 +300,17 @@ public class MSTestToJUnit implements Runnable {
     exec.run();
   }
 
+  /**
+   * 
+   * @param args command line arguments
+   */
   public static void main(final String[] args) {
     processOutput(args[0], args[1]);
   }
 
+  /**
+   * 
+   */
   public static class AntTask extends Task {
 
     private String _inputFile;
