@@ -47,6 +47,9 @@ public class AddCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getOperationName() {
     return NAME;

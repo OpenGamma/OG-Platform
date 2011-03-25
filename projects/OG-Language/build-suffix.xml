@@ -94,6 +94,10 @@
 	</target>
 	<target name="unpack-resolve" depends="resolve,unpack-resolve-impl-posix,unpack-resolve-impl-windows" description="--> unpacks include files and Windows binaries" />
 
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<import file="${common.dir}/common-ivy.xml" />
+
 	<target name="deploy-jars">
 		<mkdir dir="${build.dir}/jar" />
 		<ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />
@@ -109,11 +113,16 @@
 		<subant target="compile-tests" buildpathref="javatest.build.path" antfile="build.parent-invoked.xml" />
 	</target>
 
-	<target name="tests" depends="unpack-resolve,deploy-jars" description="--> compile and run unit tests">
+	<target name="tests" depends="unpack-resolve,deploy-jars,clean-tests" description="--> compile and run unit tests">
 		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
 		<subant target="compile" buildpathref="cc.build.path" />
 		<subant target="tests" buildpathref="cctest.build.path" />
 		<subant target="tests" buildpathref="javatest.build.path" antfile="build.parent-invoked.xml" />
+		<mkdir dir="${basedir}/TestResults/html" />
+		<junitreport todir="${basedir}/TestResults">
+			<fileset dir="${basedir}" includes="*/tests/output/xml/TEST-*.xml,TestResults/TEST-*.xml" />
+			<report todir="${basedir}/TestResults/html" />
+		</junitreport>
 	</target>
 
 	<target name="tests-with-clover" description="--> build and run all tests with local Clover reports generated">
@@ -194,9 +203,5 @@
 	<target name="joda-bean">
 		<!-- TODO -->
 	</target>
-
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
-	<import file="${common.dir}/common-ivy.xml" />
 
 </project>

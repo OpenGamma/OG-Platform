@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -22,8 +23,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * A {@link ViewComputationCacheSource} implementation based on {@link DefaultViewComputationCache} with
- * the given {@link IdentifierMap} and {@link BinaryDataStore} objects supplied by the given
- * {@link BinaryDataStoreFactory} instance.
+ * the given {@link IdentifierMap} and {@link FudgeMessageStore} objects supplied by the given
+ * {@link FudgeMessageStoreFactory} instance.
  */
 public class DefaultViewComputationCacheSource implements ViewComputationCacheSource {
 
@@ -41,9 +42,9 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
    */
   public static interface MissingValueLoader {
 
-    byte[] findMissingValue(ViewComputationCacheKey cache, long identifier);
+    FudgeFieldContainer findMissingValue(ViewComputationCacheKey cache, long identifier);
 
-    Map<Long, byte[]> findMissingValues(ViewComputationCacheKey cache, Collection<Long> identifier);
+    Map<Long, FudgeFieldContainer> findMissingValues(ViewComputationCacheKey cache, Collection<Long> identifier);
 
   }
 
@@ -53,18 +54,19 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
   private final ConcurrentMap<ViewComputationCacheKey, DefaultViewComputationCache> _cachesByKey = new ConcurrentHashMap<ViewComputationCacheKey, DefaultViewComputationCache>();
   private final Map<Pair<String, Long>, List<ViewComputationCacheKey>> _activeCaches = new HashMap<Pair<String, Long>, List<ViewComputationCacheKey>>();
   private final ReentrantLock _cacheManagementLock = new ReentrantLock();
-  private final BinaryDataStoreFactory _privateDataStoreFactory;
-  private final BinaryDataStoreFactory _sharedDataStoreFactory;
+  private final FudgeMessageStoreFactory _privateDataStoreFactory;
+  private final FudgeMessageStoreFactory _sharedDataStoreFactory;
 
   private ReleaseCachesCallback _releaseCachesCallback;
   private MissingValueLoader _missingValueLoader;
 
-  protected DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory dataStoreFactory) {
+  protected DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext,
+      final FudgeMessageStoreFactory dataStoreFactory) {
     this(identifierMap, fudgeContext, dataStoreFactory, dataStoreFactory);
   }
 
-  public DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext, final BinaryDataStoreFactory privateDataStoreFactory,
-      final BinaryDataStoreFactory sharedDataStoreFactory) {
+  public DefaultViewComputationCacheSource(final IdentifierMap identifierMap, final FudgeContext fudgeContext,
+      final FudgeMessageStoreFactory privateDataStoreFactory, final FudgeMessageStoreFactory sharedDataStoreFactory) {
     ArgumentChecker.notNull(identifierMap, "Identifier map");
     ArgumentChecker.notNull(fudgeContext, "Fudge context");
     ArgumentChecker.notNull(privateDataStoreFactory, "Private data store factory");
@@ -96,8 +98,8 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     final ViewComputationCacheKey key = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
     final DefaultViewComputationCache cache = _cachesByKey.get(key);
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
-    final InMemoryBinaryDataStore dataStore = new InMemoryBinaryDataStore();
-    for (Pair<ValueSpecification, byte[]> value : cache) {
+    final FudgeMessageStore dataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(), getFudgeContext());
+    for (Pair<ValueSpecification, FudgeFieldContainer> value : cache) {
       dataStore.put(identifierMap.getIdentifier(value.getKey()), value.getValue());
     }
     return new DefaultViewComputationCache(identifierMap, dataStore, dataStore, getFudgeContext());
@@ -131,8 +133,9 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
       // Have to double-check. Too expensive to construct otherwise.
       cache = findCache(key);
       if (cache == null) {
-        final BinaryDataStore privateDataStore = _privateDataStoreFactory.createDataStore(key);
-        final BinaryDataStore sharedDataStore = (_privateDataStoreFactory == _sharedDataStoreFactory) ? privateDataStore : _sharedDataStoreFactory.createDataStore(key);
+        final FudgeMessageStore privateDataStore = _privateDataStoreFactory.createMessageStore(key);
+        final FudgeMessageStore sharedDataStore = (_privateDataStoreFactory == _sharedDataStoreFactory) ? privateDataStore
+            : _sharedDataStoreFactory.createMessageStore(key);
         cache = createViewComputationCache(getIdentifierMap(), privateDataStore, sharedDataStore, getFudgeContext());
         _cachesByKey.put(key, cache);
         final Pair<String, Long> releaseKey = Pair.of(key.getViewName(), key.getSnapshotTimestamp());
@@ -147,12 +150,12 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
           cache.setMissingValueLoader(new DefaultViewComputationCache.MissingValueLoader() {
 
             @Override
-            public byte[] findMissingValue(final long identifier) {
+            public FudgeFieldContainer findMissingValue(final long identifier) {
               return loader.findMissingValue(key, identifier);
             }
 
             @Override
-            public Map<Long, byte[]> findMissingValues(Collection<Long> identifiers) {
+            public Map<Long, FudgeFieldContainer> findMissingValues(Collection<Long> identifiers) {
               return loader.findMissingValues(key, identifiers);
             }
 
@@ -169,13 +172,13 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
    * Override this method if you need to create a different sub-class of {@link DefaultViewComputationCache}.
    * 
    * @param identifierMap the identifier map
-   * @param privateDataStore the binary data store for private values
-   * @param sharedDataStore the binary data store for shared values 
+   * @param privateDataStore the message store for private values
+   * @param sharedDataStore the message store for shared values 
    * @param fudgeContext the Fudge context
    * @return a new {@link DefaultViewComputationCache} instance
    */
-  protected DefaultViewComputationCache createViewComputationCache(final IdentifierMap identifierMap, final BinaryDataStore privateDataStore, final BinaryDataStore sharedDataStore,
-      final FudgeContext fudgeContext) {
+  protected DefaultViewComputationCache createViewComputationCache(final IdentifierMap identifierMap,
+      final FudgeMessageStore privateDataStore, final FudgeMessageStore sharedDataStore, final FudgeContext fudgeContext) {
     return new DefaultViewComputationCache(identifierMap, privateDataStore, sharedDataStore, fudgeContext);
   }
 

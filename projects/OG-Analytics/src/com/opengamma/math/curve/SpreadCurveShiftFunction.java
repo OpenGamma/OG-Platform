@@ -13,12 +13,18 @@ import org.apache.commons.lang.Validate;
 public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDoublesCurve> {
   private static final CurveSpreadFunction SPREAD_FUNCTION = new AddCurveSpreadFunction();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift, final String newName) {
@@ -34,9 +40,7 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -44,12 +48,9 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double x, final double shift) {
     throw new UnsupportedOperationException();
   }
-  
+
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -59,9 +60,7 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-values of the shifts
-   * @param y The shifts
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -71,10 +70,7 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-values of the shifts
-   * @param y The shifts
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */

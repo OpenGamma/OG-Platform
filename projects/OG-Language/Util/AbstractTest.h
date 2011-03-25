@@ -89,11 +89,11 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 		void Run () { \
 			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
 #define TEST(proc) \
-	LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
-	Before (); \
-	proc (); \
-	After (); \
-	LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete"));
+			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
+			Before (); \
+			proc (); \
+			After (); \
+			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete"));
 #define BEFORE_TEST(proc) \
 		} \
 		void Before () { \

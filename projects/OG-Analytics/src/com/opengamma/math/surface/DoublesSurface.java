@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Parent class for a family of surfaces that have real <i>x</i>, <i>y</i> and <i>z</i> values. 
  */
 public abstract class DoublesSurface extends Surface<Double, Double, Double> {
   private final int _n;
@@ -26,6 +26,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
   private Double[] _yDataObject;
   private Double[] _zDataObject;
 
+  /**
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null
+   * @param zData An array of <i>z</i> data, not null
+   */
   public DoublesSurface(final double[] xData, final double[] yData, final double[] zData) {
     super();
     Validate.notNull(xData, "x data");
@@ -39,6 +44,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = Arrays.copyOf(zData, _n);
   }
 
+  /**
+   * @param xData An array of <i>x</i> data, not null, no null elements.
+   * @param yData An array of <i>y</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param zData An array of <i>z</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   */
   public DoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData) {
     super();
     Validate.notNull(xData, "x data");
@@ -60,6 +70,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xData A list of <i>x</i> data, not null, no null elements.
+   * @param yData A list of <i>y</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param zData A list of <i>z</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   */
   public DoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData) {
     super();
     Validate.notNull(xData, "x data");
@@ -84,6 +99,10 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData An array of <i>x-y</i> data, not null, no null elements.
+   * @param zData An array of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   */
   public DoublesSurface(final DoublesPair[] xyData, final double[] zData) {
     super();
     Validate.notNull(xyData, "x-y data");
@@ -102,6 +121,10 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData An array of <i>x-y</i> data, not null, no null elements.
+   * @param zData An array of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   */
   public DoublesSurface(final DoublesPair[] xyData, final Double[] zData) {
     super();
     Validate.notNull(xyData, "x-y data");
@@ -121,6 +144,10 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData A list of <i>x-y</i> data, not null, no null elements.
+   * @param zData A list of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   */
   public DoublesSurface(final List<DoublesPair> xyData, final List<Double> zData) {
     super();
     Validate.notNull(xyData, "x-y data");
@@ -141,6 +168,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyzData A map of <i>x-y</i> data to <i>z</i> data, not null, no null elements.
+   */
   public DoublesSurface(final Map<DoublesPair, Double> xyzData) {
     super();
     Validate.notNull(xyzData, "x-y-z data");
@@ -158,6 +188,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyzData A list of <i>x-y-z</i> data, not null, no null elements.
+   */
   public DoublesSurface(final List<Triple<Double, Double, Double>> xyzData) {
     super();
     Validate.notNull(xyzData, "x-y-z data");
@@ -178,6 +211,12 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xData An array of <i>x</i> data, not null
+   * @param yData An array of <i>y</i> data, not null
+   * @param zData An array of <i>z</i> data, not null
+   * @param name The surface name
+   */
   public DoublesSurface(final double[] xData, final double[] yData, final double[] zData, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -191,6 +230,12 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     _zData = Arrays.copyOf(zData, _n);
   }
 
+  /**
+   * @param xData An array of <i>x</i> data, not null, no null elements.
+   * @param yData An array of <i>y</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param zData An array of <i>z</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param name The surface name
+   */
   public DoublesSurface(final Double[] xData, final Double[] yData, final Double[] zData, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -212,6 +257,12 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xData A list of <i>x</i> data, not null, no null elements.
+   * @param yData A list of <i>y</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param zData A list of <i>z</i> data, not null, no null elements. Must be the same length as the <i>x</i> data.
+   * @param name The surface name
+   */
   public DoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
@@ -236,6 +287,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData An array of <i>x-y</i> data, not null, no null elements.
+   * @param zData An array of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   * @param name The surface name
+   */
   public DoublesSurface(final DoublesPair[] xyData, final double[] zData, final String name) {
     super(name);
     Validate.notNull(xyData, "x-y data");
@@ -254,6 +310,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData An array of <i>x-y</i> data, not null, no null elements.
+   * @param zData An array of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   * @param name The surface name
+   */
   public DoublesSurface(final DoublesPair[] xyData, final Double[] zData, final String name) {
     super(name);
     Validate.notNull(xyData, "x-y data");
@@ -273,6 +334,11 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyData A list of <i>x-y</i> data, not null, no null elements.
+   * @param zData A list of <i>z</i> data, not null. Must be the same length as the <i>x-y</i> data.
+   * @param name The surface name
+   */
   public DoublesSurface(final List<DoublesPair> xyData, final List<Double> zData, final String name) {
     super(name);
     Validate.notNull(xyData, "x-y data");
@@ -293,6 +359,10 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyzData A map of <i>x-y</i> data to <i>z</i> data, not null, no null elements.
+   * @param name The surface name
+   */
   public DoublesSurface(final Map<DoublesPair, Double> xyzData, final String name) {
     super(name);
     Validate.notNull(xyzData, "x-y-z data");
@@ -310,6 +380,10 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * @param xyzData A list of <i>x-y-z</i> data, not null, no null elements.
+   * @param name The surface name
+   */
   public DoublesSurface(final List<Triple<Double, Double, Double>> xyzData, final String name) {
     super(name);
     Validate.notNull(xyzData, "x-y-z data");
@@ -330,6 +404,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double[] getXData() {
     if (_xDataObject != null) {
@@ -342,6 +419,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     return _xDataObject;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double[] getYData() {
     if (_yDataObject != null) {
@@ -354,6 +434,9 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     return _yDataObject;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double[] getZData() {
     if (_zDataObject != null) {
@@ -366,18 +449,30 @@ public abstract class DoublesSurface extends Surface<Double, Double, Double> {
     return _zDataObject;
   }
 
+  /**
+   * @return The <i>x</i> data as an array of primitives
+   */
   public double[] getXDataAsPrimitive() {
     return _xData;
   }
 
+  /**
+   * @return The <i>y</i> data as an array of primitives
+   */
   public double[] getYDataAsPrimitive() {
     return _yData;
   }
 
+  /**
+   * @return The <i>z</i> data as an array of primitives
+   */
   public double[] getZDataAsPrimitive() {
     return _zData;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int size() {
     return _n;

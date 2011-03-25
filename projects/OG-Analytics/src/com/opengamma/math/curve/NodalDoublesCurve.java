@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data). Any attempt to find a <i>y</i> value 
- * for which there is no <i>x</i> nodal point will result in failure
+ * for which there is no <i>x</i> nodal point will result in failure.
  */
 public class NodalDoublesCurve extends DoublesCurve {
 
@@ -438,8 +438,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @param x The <i>x</i> value
-   * @return The <i>y</i> value
+   * {@inheritDoc}
    * @throws IllegalArgumentException If the <i>x</i> value was not in the nodal points
    */
   @Override
