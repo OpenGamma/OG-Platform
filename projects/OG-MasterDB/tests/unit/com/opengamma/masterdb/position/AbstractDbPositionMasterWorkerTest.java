@@ -8,9 +8,9 @@ package com.opengamma.masterdb.position;
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlDate;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,13 +21,12 @@ import javax.time.TimeSource;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -41,7 +40,6 @@ import com.opengamma.util.test.DBTest;
 /**
  * Base tests for DbPositionMasterWorker via DbPositionMaster.
  */
-@Ignore
 public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbPositionMasterWorkerTest.class);
@@ -59,7 +57,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
@@ -158,7 +156,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 408, 507);
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _posMaster = null;
     super.tearDown();

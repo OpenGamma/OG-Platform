@@ -28,13 +28,12 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecurityUtils;
@@ -65,8 +64,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Abstract test for time-series masters.
  */
-@Ignore("Abstract class")
-abstract public class TimeSeriesMasterTest<T> extends DBTest {
+public abstract class TimeSeriesMasterTest<T> extends DBTest {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
@@ -113,7 +111,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
    * @throws java.lang.Exception
    */
   @SuppressWarnings("unchecked")
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     

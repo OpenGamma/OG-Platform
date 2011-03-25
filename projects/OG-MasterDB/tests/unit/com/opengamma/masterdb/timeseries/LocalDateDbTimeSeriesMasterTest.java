@@ -13,14 +13,15 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import org.junit.Test;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
-import com.opengamma.masterdb.timeseries.LocalDateDbTimeSeriesMaster;
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -29,8 +30,10 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Test LocalDateDbTimeSeriesMaster.
  */
+@Test
 public class LocalDateDbTimeSeriesMasterTest extends TimeSeriesMasterTest<LocalDate> {
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public LocalDateDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

@@ -5,15 +5,16 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -21,6 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -30,6 +32,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerCorrectTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyConfigDbConfigMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -37,12 +40,12 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correctConfig_nullDocument() {
     _cfgMaster.correct(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noConfigId() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("Name");
@@ -50,14 +53,14 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     _cfgMaster.correct(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noConfig() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setUniqueId(UniqueIdentifier.of("DbCfg", "101", "0"));
     _cfgMaster.correct(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();

@@ -5,15 +5,16 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -23,6 +24,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -32,6 +34,7 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerCorrectTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifySecurityDbSecurityMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -39,12 +42,12 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correctSecurity_nullDocument() {
     _secMaster.correct(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
@@ -53,14 +56,14 @@ public class ModifySecurityDbSecurityMasterWorkerCorrectTest extends AbstractDbS
     _secMaster.correct(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
     _secMaster.correct(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));

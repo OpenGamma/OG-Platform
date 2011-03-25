@@ -12,11 +12,13 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
+@Test
 public class FudgeSecurityEncodingTest extends SecurityTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FudgeSecurityEncodingTest.class);
@@ -24,7 +26,7 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   @Override
-  protected <T extends ManageableSecurity> void testSecurity(Class<T> securityClass, T security) {
+  protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
     FudgeFieldContainer msg = context.objectToFudgeMsg(security);
     s_logger.debug("Security {}", security);

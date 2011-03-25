@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/OG Master DB"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=OG Master DB"/>
-<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
-<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
-<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
+<launchConfiguration type="org.testng.eclipse.launchconfig">
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="OG Master DB"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS" />
+<listAttribute key="org.testng.eclipse.CLASS_TEST_LIST" />
+<listAttribute key="org.testng.eclipse.GROUP_LIST"/>
+<listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
+<stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
+<listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
+<listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
+<listEntry value="com.opengamma.masterdb"/>
+<listEntry value="com.opengamma.masterdb.batch"/>
+<listEntry value="com.opengamma.masterdb.config"/>
+<listEntry value="com.opengamma.masterdb.exchange"/>
+<listEntry value="com.opengamma.masterdb.holiday"/>
+<listEntry value="com.opengamma.masterdb.marketdatasnapshot"/>
+<listEntry value="com.opengamma.masterdb.portfolio"/>
+<listEntry value="com.opengamma.masterdb.position"/>
+<listEntry value="com.opengamma.masterdb.security"/>
+<listEntry value="com.opengamma.masterdb.timeseries"/>
+</listAttribute>
+<mapAttribute key="org.testng.eclipse.PARAMETERS"/>
+<intAttribute key="org.testng.eclipse.TYPE" value="5"/>
 </launchConfiguration>

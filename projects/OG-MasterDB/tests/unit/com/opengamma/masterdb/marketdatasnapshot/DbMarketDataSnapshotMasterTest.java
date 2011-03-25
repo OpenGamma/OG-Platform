@@ -1,16 +1,17 @@
 package com.opengamma.masterdb.marketdatasnapshot;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.HashMap;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.core.marketdatasnapshot.FXVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -30,20 +31,21 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
 
   private DbMarketDataSnapshotMaster _snpMaster;
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public DbMarketDataSnapshotMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _snpMaster = (DbMarketDataSnapshotMaster) context.getBean(getDatabaseType() + "DbMarketDataSnapshotMaster");
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
     _snpMaster = null;

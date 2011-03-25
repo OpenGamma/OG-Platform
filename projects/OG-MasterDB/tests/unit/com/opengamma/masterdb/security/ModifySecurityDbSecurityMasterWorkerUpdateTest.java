@@ -5,17 +5,18 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.testng.Assert;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -25,6 +26,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -34,6 +36,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerUpdateTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifySecurityDbSecurityMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -41,12 +44,12 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_updateSecurity_nullDocument() {
     _secMaster.update(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noSecurityId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "101");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
@@ -55,14 +58,14 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     _secMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noSecurity() {
     SecurityDocument doc = new SecurityDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbSec", "101", "0"));
     _secMaster.update(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
@@ -70,7 +73,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     _secMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "201", "0");
     ManageableSecurity security = new ManageableSecurity(uid, "Name", "Type", IdentifierBundle.of(Identifier.of("A", "B")));
@@ -123,7 +126,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
     SecurityDocument input = new SecurityDocument(security);
     try {
       w.update(input);
-      fail();
+      Assert.fail();
     } catch (BadSqlGrammarException ex) {
       // expected
     }

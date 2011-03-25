@@ -5,21 +5,23 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
@@ -29,6 +31,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerRemoveTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -36,7 +39,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_remove_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0", "0");
     _prtMaster.remove(uid);
