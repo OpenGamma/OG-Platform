@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import javax.time.calendar.Period;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -250,4 +252,10 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return Whether or not to roll to settlement
    */
   boolean rollToSettlement();
+
+  /**
+   * Field for the period of for which a rate is applicable
+   * @return The period
+   */
+  Period getPeriod();
 }
