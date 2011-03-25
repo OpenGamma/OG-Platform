@@ -18,6 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -270,7 +271,11 @@ public final class ScheduleCalculator {
    */
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
       boolean isEOM, boolean stubShort) {
-    boolean eomApply = (isEOM && startDate == startDate.with(DateAdjusters.lastDayOfMonth()));
+    boolean eomApply = false;
+    if (isEOM) {
+      BusinessDayConvention following = new FollowingBusinessDayConvention();
+      eomApply = (following.adjustDate(calendar, startDate.plusDays(1)).getMonthOfYear() != startDate.getMonthOfYear());
+    }
     // When the end-of-month rule applies and the start date is on month-end, the dates are the last business day of the month.
     BusinessDayConvention actualBDC;
     final List<ZonedDateTime> adjustedDates = new ArrayList<ZonedDateTime>();

@@ -107,19 +107,24 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
-      @FormParam("name") String name) {
+      @FormParam("name") String name,
+      @FormParam("configxml") String xml) {
     name = StringUtils.trimToNull(name);
-    if (name == null) {
+    xml = StringUtils.trimToNull(xml);
+    if (name == null || xml == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
+      if (xml == null) {
+        out.put("err_xmlMissing", true);
+      }
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    ConfigDocument<?> doc = new ConfigDocument<Object>();
+    ConfigDocument<Object> doc = new ConfigDocument<Object>();
     doc.setName(name);
-    // doc.setValue((T) "PLACEHOLDER");
+    doc.setValue(parseXML(xml));
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
@@ -127,7 +132,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   //-------------------------------------------------------------------------
   @Path("{configId}")
-  public WebConfigResource findConfig(@PathParam("configId") String idStr) {
+  public AbstractWebConfigResource findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
     UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
     try {
