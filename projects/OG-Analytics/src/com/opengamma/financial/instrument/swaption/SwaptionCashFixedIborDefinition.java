@@ -20,14 +20,14 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Class describing a European swaption on a vanilla swap with physical delivery.
+ * Class describing a European swaption on a vanilla swap with cash delivery.
  */
-public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOptionDefinition implements FixedIncomeInstrumentDefinition<SwaptionPhysicalFixedIbor> {
+public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOptionDefinition implements FixedIncomeInstrumentDefinition<SwaptionCashFixedIbor> {
 
   /**
    * Swap underlying the swaption.
@@ -46,9 +46,8 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedIborDefinition(ZonedDateTime expiryDate, double strike, ZZZSwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
+  private SwaptionCashFixedIborDefinition(ZonedDateTime expiryDate, double strike, ZZZSwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
     super(strike, new Expiry(expiryDate), isCall);
-    // A swaption payer can be consider as a call on the swap rate.
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
@@ -63,13 +62,24 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedIborDefinition from(ZonedDateTime expiryDate, ZZZSwapFixedIborDefinition underlyingSwap, boolean isLong) {
+  public static SwaptionCashFixedIborDefinition from(ZonedDateTime expiryDate, ZZZSwapFixedIborDefinition underlyingSwap, boolean isLong) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     // A swaption payer can be consider as a call on the swap rate.
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
     // Is working only for swap with same rate on all coupons and standard conventions.
-    return new SwaptionPhysicalFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
+    return new SwaptionCashFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
+  }
+
+  @Override
+  public SwaptionCashFixedIbor toDerivative(LocalDate date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double expiryTime = actAct.getDayCountFraction(zonedDate, getExpiry().getExpiry());
+    final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, _isLong);
   }
 
   /**
@@ -90,7 +100,7 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
 
   @Override
   public String toString() {
-    String result = "European swaption physical delivery: \n";
+    String result = "European swaption cash delivery: \n";
     result += "Expiry date: " + getExpiry().toString() + ", Long: " + _isLong;
     result += "\nUnderlying swap: \n" + _underlyingSwap.toString();
     return result;
@@ -115,22 +125,11 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionPhysicalFixedIborDefinition other = (SwaptionPhysicalFixedIborDefinition) obj;
+    SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public SwaptionPhysicalFixedIbor toDerivative(LocalDate date, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double expiryTime = actAct.getDayCountFraction(zonedDate, getExpiry().getExpiry());
-    final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, _isLong);
   }
 
   @Override

@@ -20,11 +20,11 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
-public class SwaptionPhysicalFixedIborDefinitionTest {
+public class SwaptionCashFixedIborDefinitionTest {
 
   // Swaption: description
   private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2011, 3, 28);
@@ -37,14 +37,14 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 30);
   private static final double NOTIONAL = 1000000; //1m
-  //Fixed leg: Semi-annual bond
+  // Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, FIXED_IS_PAYER);
-  //Ibor leg: quarterly money
+  // Ibor leg: quarterly money
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -52,18 +52,18 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
   // Swaption construction
   private static final ZZZSwapFixedIborDefinition SWAP = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
   // Conversion toDerivative
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 12, 27);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiryDate() {
-    SwaptionPhysicalFixedIborDefinition.from(null, SWAP, IS_LONG);
+    SwaptionCashFixedIborDefinition.from(null, SWAP, IS_LONG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSwap() {
-    SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, null, IS_LONG);
+    SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, null, IS_LONG);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     String fundingCurve = "Funding";
     String forwardCurve = "Forward";
     String[] curves = {fundingCurve, forwardCurve};
-    SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE, curves);
+    SwaptionCashFixedIbor convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
     assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
   }
