@@ -6,6 +6,8 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
 
 public class NormalDistributionTest extends ProbabilityDistributionTestCase {
@@ -37,9 +39,21 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
       double x = -37.0 + 44 * i / 50.;
       double p = NORMAL.getCDF(x);
       double xStar = (p == 1.0 ? Double.POSITIVE_INFINITY : (p == 0.0 ? Double.NEGATIVE_INFINITY : NORMAL.getInverseCDF(p)));
-      // System.out.println(x + "\t" + p + "\t" + xStar);
       assertEquals(x, xStar, 1e-3);
     }
+  }
 
+  @Test
+  public void testObject() {
+    NormalDistribution other = new NormalDistribution(0, 1, ENGINE);
+    assertEquals(NORMAL, other);
+    assertEquals(NORMAL.hashCode(), other.hashCode());
+    other = new NormalDistribution(0, 1);
+    assertEquals(NORMAL, other);
+    assertEquals(NORMAL.hashCode(), other.hashCode());
+    other = new NormalDistribution(0.1, 1, ENGINE);
+    assertFalse(NORMAL.equals(other));
+    other = new NormalDistribution(0, 1.1, ENGINE);
+    assertFalse(NORMAL.equals(other));
   }
 }

@@ -110,10 +110,23 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @return The Ibor coupon.
    */
   public static CouponIborDefinition from(CouponDefinition coupon, ZonedDateTime fixingDate, IborIndex index) {
+    Validate.notNull(coupon, "coupon");
     Validate.notNull(fixingDate, "fixing date");
     Validate.notNull(index, "index");
     return new CouponIborDefinition(index.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         fixingDate, index);
+  }
+
+  /**
+   * Builder from an Ibor coupon with spread. The spread is ignored.
+   * @param coupon The coupon with spread.
+   * @return The ibor coupon.
+   */
+  public static CouponIborDefinition from(CouponIborSpreadDefinition coupon) {
+    Validate.notNull(coupon, "coupon");
+    return new CouponIborDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+        coupon.getFixingDate(), coupon.getIndex());
+
   }
 
   /**

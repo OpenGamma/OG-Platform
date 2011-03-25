@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Triple;
 
 /**
  * A cube that is constructed from a set of parallel surfaces (see {@link Surface}), with an interpolator to find points between these surfaces. The surfaces are assumed to
- * be defined in the same plane (<i>x-y</i>, <i>x-z</i> or <i>y-z</i>), with their orientation supplied on construction of the cube.
+ * be coplanar (<i>x-y</i>, <i>x-z</i> or <i>y-z</i>), with their orientation supplied on construction of the cube.
  */
 public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Double, Double> {
 

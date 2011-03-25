@@ -45,10 +45,13 @@ static void StartStop () {
 	delete pJvm;
 }
 
-#define IGNORE_TEST // Comment out this line to run these tests. JVM limitations mean that ServiceTest will not pass if JVMTest is run
+//#define RUN_TESTS			// JVM limitations mean that ServiceTest will not pass if JVMTest is run
 
-#ifndef IGNORE_TEST
+#ifndef RUN_TESTS
+#undef BEGIN_TESTS
+#define BEGIN_TESTS MANUAL_TESTS
+#endif /* ifndef RUN_TESTS */
+
 BEGIN_TESTS (JVMTest)
 	TEST (StartStop)
 END_TESTS
-#endif /* ifndef IGNORE_TEST */

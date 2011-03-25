@@ -12,7 +12,7 @@ package com.opengamma.math.curve;
 public interface CurveShiftFunction<T extends Curve<Double, Double>> {
 
   /**
-   * Gives a new curve shifted by a constant <i>y</i> amount (i.e. a shift parallel to the <i>x</i> axis). The name of the new curve will
+   * Returns a new curve shifted by a constant <i>y</i> amount (i.e. a shift parallel to the <i>x</i> axis). The name of the new curve will
    * be automatically generated.
    * @param curve The curve, not null
    * @param shift The amount to shift
@@ -21,7 +21,7 @@ public interface CurveShiftFunction<T extends Curve<Double, Double>> {
   T evaluate(final T curve, final double shift);
 
   /**
-   * Gives a new curve shifted by a constant <i>y</i> amount (i.e. a shift parallel to the <i>x</i> axis). The name of the new curve is 
+   * Returns a new curve shifted by a constant <i>y</i> amount (i.e. a shift parallel to the <i>x</i> axis). The name of the new curve is 
    * supplied.
    * @param curve The curve, not null
    * @param shift The amount to shift
@@ -31,7 +31,7 @@ public interface CurveShiftFunction<T extends Curve<Double, Double>> {
   T evaluate(final T curve, final double shift, String newName);
 
   /**
-   * Gives a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve will
+   * Returns a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve will
    * be automatically generated.
    * @param curve The curve, not null
    * @param x The <i>x</i> value of the point to be shifted
@@ -39,9 +39,9 @@ public interface CurveShiftFunction<T extends Curve<Double, Double>> {
    * @return A shifted curve
    */
   T evaluate(T curve, double x, double shift);
-  
+
   /**
-   * Gives a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve is 
+   * Returns a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve is 
    * supplied.
    * @param curve The curve, not null
    * @param x The <i>x</i> value of the of the point to be shifted
@@ -52,7 +52,7 @@ public interface CurveShiftFunction<T extends Curve<Double, Double>> {
   T evaluate(T curve, double x, double shift, String newName);
 
   /**
-   * Gives a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve will
+   * Returns a new curve shifted by amounts <i>y</i> at values <i>x</i>. The name of the new curve will
    * be automatically generated.
    * @param curve The curve, not null
    * @param xShift An array of <i>x</i> values of the points to be shifted, not null. If this array is empty a new curve identical to the original 
@@ -63,7 +63,7 @@ public interface CurveShiftFunction<T extends Curve<Double, Double>> {
   T evaluate(T curve, double[] xShift, double[] yShift);
 
   /**
-   * Gives a new curve shifted by an amount <i>y</i> at value <i>x</i>. The name of the new curve is 
+   * Returns a new curve shifted by amounts <i>y</i> values <i>x</i>. The name of the new curve is 
    * supplied.
    * @param curve The curve, not null
    * @param xShift An array of <i>x</i> values of the points to be shifted, not null. If this array is empty a new curve identical to the original 

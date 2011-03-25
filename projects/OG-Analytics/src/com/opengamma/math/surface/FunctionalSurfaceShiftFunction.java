@@ -10,16 +10,22 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function;
 
 /**
- * 
+ * Shifts a {@link FunctionalDoublesSurface}. Only parallel shifts of the surface are supported.
  */
 public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<FunctionalDoublesSurface> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, shift, "PARALLEL_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -35,21 +41,41 @@ public class FunctionalSurfaceShiftFunction implements SurfaceShiftFunction<Func
     return FunctionalDoublesSurface.from(shiftedFunction, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double shift) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double x, final double y, final double shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     throw new UnsupportedOperationException();

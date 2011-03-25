@@ -30,7 +30,6 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   private Double[] _yDataObject;
 
   /**
-   * 
    * @param xData An array of <i>x</i> data, not null
    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
    * @param isSorted Is the <i>x</i>-data sorted
@@ -361,7 +360,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     }
     return _xDataObject;
   }
-  
+
   @Override
   public Double[] getYData() {
     if (_yDataObject != null) {
@@ -381,7 +380,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
   public double[] getXDataAsPrimitive() {
     return _xData;
   }
-  
+
   /**
    * Returns the <i>y</i> data points as a primitive array
    * @return The <i>y</i> data

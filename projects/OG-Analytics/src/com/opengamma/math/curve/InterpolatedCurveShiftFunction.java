@@ -17,12 +17,18 @@ import org.apache.commons.lang.Validate;
  */
 public class InterpolatedCurveShiftFunction implements CurveShiftFunction<InterpolatedDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -36,12 +42,18 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
     return InterpolatedDoublesCurve.fromSorted(xData, shiftedY, curve.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, x, shift, "SINGLE_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -65,12 +77,18 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
     return InterpolatedDoublesCurve.from(newX, newY, curve.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, xShift, yShift, "MULTIPLE_POINT_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
     Validate.notNull(curve, "curve");
