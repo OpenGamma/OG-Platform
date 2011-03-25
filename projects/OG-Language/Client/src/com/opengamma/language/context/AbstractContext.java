@@ -18,8 +18,10 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Base functionality for the global, session and user contexts.
+ * 
+ * @param <ParentContext> type of the parent context
  */
-public abstract class AbstractContext {
+public abstract class AbstractContext<ParentContext extends AbstractContext<?>> {
 
   /**
    * 
@@ -34,13 +36,15 @@ public abstract class AbstractContext {
    */
   protected static final String PROCEDURE_PROVIDER = "procedureProvider";
 
-  // TODO: The AbstractFunctionContext in OG-Engine is virtually identical, but it would be misleading to use
-  // that because of its association with functions. Could the common behaviors be abstracted out to something
-  // in OG-Util, and this class just have the bits common to global, user and session contexts.
-
   private final ConcurrentMap<String, Object> _values = new ConcurrentHashMap<String, Object>();
+  private final ParentContext _parentContext;
 
-  /* package */AbstractContext() {
+  /* package */AbstractContext(final ParentContext parentContext) {
+    _parentContext = parentContext;
+  }
+
+  protected ParentContext getParentContext() {
+    return _parentContext;
   }
 
   @SuppressWarnings("unchecked")
@@ -49,6 +53,13 @@ public abstract class AbstractContext {
     return (T) _values.get(key);
   }
 
+  /**
+   * Set a value within the context. The value must not already have been set.
+   * 
+   * @param key key
+   * @param value value
+   * @throws IllegalStateException if the value is already set
+   */
   protected void setValue(final String key, final Object value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
@@ -57,6 +68,12 @@ public abstract class AbstractContext {
     }
   }
 
+  /**
+   * Remove a value from the context. The value must be set.
+   * 
+   * @param key key
+   * @throws IllegalStateException if the value has not been set
+   */
   protected void removeValue(final String key) {
     ArgumentChecker.notNull(key, "key");
     if (_values.remove(key) == null) {
@@ -64,9 +81,26 @@ public abstract class AbstractContext {
     }
   }
 
+  /**
+   * Replaces a value within the context. Unlike {@link #setValue} and {@link #removeValue} this will
+   * always succeed.
+   * 
+   * @param key key
+   * @param value value
+   */
   protected void replaceValue(final String key, final Object value) {
-    removeValue(key);
-    setValue(key, value);
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _values.put(key, value);
+  }
+
+  protected void removeOrReplaceValue(final String key, final Object value) {
+    ArgumentChecker.notNull(key, "key");
+    if (value != null) {
+      _values.put(key, value);
+    } else {
+      _values.remove(key);
+    }
   }
 
   protected AggregatingFunctionProvider getFunctionProviderImpl() {
@@ -91,6 +125,25 @@ public abstract class AbstractContext {
 
   public ProcedureProvider getProcedureProvider() {
     return getProcedureProviderImpl();
+  }
+
+  protected <T> T getCascadedValueImpl(final String key) {
+    T value = getValue(key);
+    if (value == null) {
+      if (getParentContext() != null) {
+        value = getParentContext().getCascadedValueImpl(key);
+      }
+    }
+    return value;
+  }
+
+  protected <T> T getCascadedValue(final String key) {
+    T value = getValue(key);
+    if (value == null) {
+      value = getCascadedValueImpl(key);
+      replaceValue(key, value);
+    }
+    return value;
   }
 
 }

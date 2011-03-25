@@ -5,19 +5,26 @@
  */
 package com.opengamma.language.context;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotSame;
-import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests the extension points for chaining custom information and behaviors to the contexts.
  */
 public class ContextTest {
+
+  public static SessionContext createTestSessionContext() {
+    final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();
+    return contextFactory.createSessionContext("test", false);
+  }
 
   @Test
   public void testCreateSessions() {

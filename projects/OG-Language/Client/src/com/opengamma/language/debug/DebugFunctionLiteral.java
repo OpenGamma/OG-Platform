@@ -58,7 +58,7 @@ public class DebugFunctionLiteral implements PublishedFunction {
   @Override
   public MetaFunction getMetaFunction() {
     final List<MetaParameter> args = Collections.emptyList();
-    final FunctionInvoker invoker = new AbstractFunctionInvoker() {
+    final FunctionInvoker invoker = new AbstractFunctionInvoker(args) {
       @Override
       public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         return getLiteral();
