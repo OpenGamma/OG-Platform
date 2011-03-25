@@ -17,7 +17,7 @@ LOGGING (com.opengamma.language.connector.OverlappedTest);
 #define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
 #define TIMEOUT_CALL		3000
-#define RETRIES				10
+#define RETRIES				20
 
 static CConnector *g_poConnector;
 static double g_tOverlappedQuery = 0;
@@ -36,10 +36,10 @@ static void StopConnector () {
 }
 
 static void QueryAvailableOverlapped () {
-	g_tOverlappedQuery = 0;
+	g_tOverlappedQuery = GetTickCount ();
 	int i;
 	for (i = 0; i < RETRIES; i++) {
-		g_tOverlappedQuery -= GetTickCount ();
+		long tQuery = GetTickCount ();
 		CFunctionQueryAvailable queryFunctions (g_poConnector);
 		CLiveDataQueryAvailable queryLiveData (g_poConnector);
 		CProcedureQueryAvailable queryProcedures (g_poConnector);
@@ -49,10 +49,10 @@ static void QueryAvailableOverlapped () {
 		ASSERT (queryFunctions.Recv (CRequestBuilder::GetDefaultTimeout ()));
 		ASSERT (queryLiveData.Recv (CRequestBuilder::GetDefaultTimeout ()));
 		ASSERT (queryProcedures.Recv (CRequestBuilder::GetDefaultTimeout ()));
-		g_tOverlappedQuery += GetTickCount ();
-		LOGDEBUG (TEXT ("Overlapped QueryAvailable = ") << (g_tOverlappedQuery / (double)(i + 1)) << TEXT ("ms"));
+		tQuery = GetTickCount () - tQuery;
+		LOGDEBUG (TEXT ("Overlapped QueryAvailable ~ ") << tQuery << TEXT ("ms"));
 	}
-	g_tOverlappedQuery /= (double)RETRIES;
+	g_tOverlappedQuery = (double)(GetTickCount () - g_tOverlappedQuery) / (double)RETRIES;
 	LOGINFO (TEXT ("Overlapped QueryAvailable = ") << g_tOverlappedQuery << TEXT ("ms"));
 }
 
@@ -62,9 +62,10 @@ static void DoQueryAvailableOverlapped () {
 }
 
 static void QueryAvailableInline () {
+	g_tInlineQuery = GetTickCount ();
 	int i;
 	for (i = 0; i < RETRIES; i++) {
-		g_tInlineQuery -= GetTickCount ();
+		long tQuery = GetTickCount ();
 		CFunctionQueryAvailable queryFunctions (g_poConnector);
 		ASSERT (queryFunctions.Send ());
 		ASSERT (queryFunctions.Recv (CRequestBuilder::GetDefaultTimeout ()));
@@ -74,17 +75,18 @@ static void QueryAvailableInline () {
 		CProcedureQueryAvailable queryProcedures (g_poConnector);
 		ASSERT (queryProcedures.Send ());
 		ASSERT (queryProcedures.Recv (CRequestBuilder::GetDefaultTimeout ()));
-		g_tInlineQuery += GetTickCount ();
-		LOGDEBUG (TEXT ("Inline QueryAvailable = ") << (g_tInlineQuery / (double)(i + 1)) << TEXT ("ms"));
+		tQuery = GetTickCount () - tQuery;
+		LOGDEBUG (TEXT ("Inline QueryAvailable ~ ") << tQuery << TEXT ("ms"));
 	}
-	g_tInlineQuery /= (double)RETRIES;
+	g_tInlineQuery = (double)(GetTickCount () - g_tInlineQuery) / (double)RETRIES;
 	LOGINFO (TEXT ("Inline QueryAvailable = ") << g_tInlineQuery << TEXT ("ms"));
 }
 
 static void DoQueryAvailableInline () {
 	QueryAvailableInline ();
 	QueryAvailableInline ();
-	ASSERT (g_tOverlappedQuery < g_tInlineQuery);
+	LOGINFO (TEXT ("ASSERT ") << g_tOverlappedQuery << TEXT (" <= ") << g_tInlineQuery);
+	ASSERT (g_tOverlappedQuery <= g_tInlineQuery);
 }
 
 BEGIN_TESTS(OverlappedTest)

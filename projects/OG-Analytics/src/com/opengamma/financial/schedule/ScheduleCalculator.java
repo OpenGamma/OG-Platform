@@ -18,6 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -25,7 +26,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Utility to calculate schedules.
@@ -198,15 +198,15 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     // Adjusted to month-end: when start date is last calendar date of the month, the end date is the last business date of the month.
     // Month-end-rule applies only to year and month periods, not days or weeks.
-    if ((tenor.getPeriod().getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
+    if ((tenor.getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
       BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
       return preceding.adjustDate(calendar, endDate.with(DateAdjusters.lastDayOfMonth()));
     }
@@ -222,12 +222,12 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
   }
 
@@ -271,7 +271,11 @@ public final class ScheduleCalculator {
    */
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
       boolean isEOM, boolean stubShort) {
-    boolean eomApply = (isEOM && startDate == startDate.with(DateAdjusters.lastDayOfMonth()));
+    boolean eomApply = false;
+    if (isEOM) {
+      BusinessDayConvention following = new FollowingBusinessDayConvention();
+      eomApply = (following.adjustDate(calendar, startDate.plusDays(1)).getMonthOfYear() != startDate.getMonthOfYear());
+    }
     // When the end-of-month rule applies and the start date is on month-end, the dates are the last business day of the month.
     BusinessDayConvention actualBDC;
     final List<ZonedDateTime> adjustedDates = new ArrayList<ZonedDateTime>();

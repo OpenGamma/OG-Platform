@@ -14,12 +14,18 @@ import com.opengamma.math.function.Function;
  */
 public class FunctionalCurveShiftFunction implements CurveShiftFunction<FunctionalDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FunctionalDoublesCurve evaluate(final FunctionalDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public FunctionalDoublesCurve evaluate(final FunctionalDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -36,9 +42,7 @@ public class FunctionalCurveShiftFunction implements CurveShiftFunction<Function
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -48,10 +52,7 @@ public class FunctionalCurveShiftFunction implements CurveShiftFunction<Function
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -61,9 +62,7 @@ public class FunctionalCurveShiftFunction implements CurveShiftFunction<Function
   }
 
   /**
-   * @param curve The curve
-   * @param xShift The <i>x</i>-values of the shifts
-   * @param yShift The shifts
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -73,10 +72,7 @@ public class FunctionalCurveShiftFunction implements CurveShiftFunction<Function
   }
 
   /**
-   * @param curve The curve
-   * @param xShift The <i>x</i>-values of the shifts
-   * @param yShift The shifts
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */

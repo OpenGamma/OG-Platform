@@ -7,7 +7,7 @@ package com.opengamma.engine.view.calcnode;
 
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Random;
 import java.util.concurrent.Executors;
 
@@ -15,6 +15,10 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Execute;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -33,6 +37,7 @@ import com.opengamma.util.test.Timeout;
 @Test
 public class RemoteNodeJobInvokerTest {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeJobInvokerTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
@@ -48,10 +53,10 @@ public class RemoteNodeJobInvokerTest {
       @Override
       public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
         final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(fudgeContext);
-        System.out.println(msgEnvelope.getMessage());
+        s_logger.debug("message = {}", msgEnvelope.getMessage());
         final RemoteCalcNodeMessage message = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
         assertNotNull(message);
-        System.out.println(message);
+        s_logger.debug("request = {}", message);
         assertTrue(message instanceof Execute);
         final Execute job = (Execute) message;
         final Result result = new Result(JobDispatcherTest.createTestJobResult(job.getJob().getSpecification(), 0, "Test"));

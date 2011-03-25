@@ -21,7 +21,7 @@ public interface FudgeRequestSender {
    * order; i.e.
    * 
    * Client sends A & B concurrently from threads Ta and Tb.
-   * Sever receives either A then B, or B then A. It responds with A' and B'.
+   * Server receives either A then B, or B then A. It responds with A' and B'.
    * Either:
    *  Ta (which sent A) will receive response A' and Tb (which sent B) will receive response B', or
    *  Ta (which sent A) will receive response B' and Tb (which sent A) will receive response A'

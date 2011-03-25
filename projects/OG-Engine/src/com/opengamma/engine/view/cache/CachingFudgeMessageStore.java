@@ -16,23 +16,25 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
+import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Caches binary objects on top of another binary data store. This is an in-memory cache.
+ * Caches Fudge message objects on top of another Fudge message store. This is an in-memory cache.
  */
-public class CachingBinaryDataStore implements BinaryDataStore {
+public class CachingFudgeMessageStore implements FudgeMessageStore {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CachingBinaryDataStore.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CachingFudgeMessageStore.class);
 
-  private final BinaryDataStore _underlying;
+  private final FudgeMessageStore _underlying;
   private final CacheManager _cacheManager;
   private final Cache _cache;
 
-  public CachingBinaryDataStore(final BinaryDataStore underlying, final CacheManager cacheManager, final ViewComputationCacheKey cacheKey, final int maxCachedElements) {
+  public CachingFudgeMessageStore(final FudgeMessageStore underlying, final CacheManager cacheManager,
+      final ViewComputationCacheKey cacheKey, final int maxCachedElements) {
     _underlying = underlying;
     _cacheManager = cacheManager;
     final String cacheName = cacheKey.toString();
@@ -40,7 +42,7 @@ public class CachingBinaryDataStore implements BinaryDataStore {
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
-  protected BinaryDataStore getUnderlying() {
+  protected FudgeMessageStore getUnderlying() {
     return _underlying;
   }
 
@@ -60,39 +62,35 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   }
 
   @Override
-  public byte[] get(long identifier) {
-    s_logger.info("Get {} on {}", identifier, this);
+  public FudgeFieldContainer get(long identifier) {
     final Element cacheElement = getCache().get(identifier);
     if (cacheElement != null) {
-      s_logger.debug("Cache hit for {} on {}", identifier, this);
-      return (byte[]) cacheElement.getObjectValue();
+      return (FudgeFieldContainer) cacheElement.getObjectValue();
     }
-    s_logger.debug("Cache miss for {} on {}", identifier, this);
-    final byte[] data = getUnderlying().get(identifier);
+    final FudgeFieldContainer data = getUnderlying().get(identifier);
     getCache().put(new Element(identifier, data));
     return data;
   }
 
   @Override
-  public void put(final long identifier, final byte[] data) {
-    s_logger.info("Put {} on {}", identifier, this);
+  public void put(final long identifier, final FudgeFieldContainer data) {
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));
   }
 
   @Override
   public String toString() {
-    return "CachingBinaryDataStore[" + getCache().getName() + "]";
+    return "CachingFudgeMessageStore[" + getCache().getName() + "]";
   }
 
   @Override
-  public Map<Long, byte[]> get(Collection<Long> identifiers) {
-    final Map<Long, byte[]> result = new HashMap<Long, byte[]>();
+  public Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers) {
+    final Map<Long, FudgeFieldContainer> result = new HashMap<Long, FudgeFieldContainer>();
     final List<Long> missing = new ArrayList<Long>(identifiers.size());
     for (Long identifier : identifiers) {
       final Element cacheElement = getCache().get(identifier);
       if (cacheElement != null) {
-        result.put(identifier, (byte[]) cacheElement.getObjectValue());
+        result.put(identifier, (FudgeFieldContainer) cacheElement.getObjectValue());
       } else {
         missing.add(identifier);
       }
@@ -102,12 +100,12 @@ public class CachingBinaryDataStore implements BinaryDataStore {
     }
     if (missing.size() == 1) {
       final Long missingIdentifier = missing.get(0);
-      final byte[] data = getUnderlying().get(missingIdentifier);
+      final FudgeFieldContainer data = getUnderlying().get(missingIdentifier);
       result.put(missingIdentifier, data);
       getCache().put(new Element(missingIdentifier, data));
     } else {
-      final Map<Long, byte[]> missingData = getUnderlying().get(missing);
-      for (Map.Entry<Long, byte[]> data : missingData.entrySet()) {
+      final Map<Long, FudgeFieldContainer> missingData = getUnderlying().get(missing);
+      for (Map.Entry<Long, FudgeFieldContainer> data : missingData.entrySet()) {
         result.put(data.getKey(), data.getValue());
         getCache().put(new Element(data.getKey(), data.getValue()));
       }
@@ -116,9 +114,9 @@ public class CachingBinaryDataStore implements BinaryDataStore {
   }
 
   @Override
-  public void put(final Map<Long, byte[]> data) {
+  public void put(final Map<Long, FudgeFieldContainer> data) {
     getUnderlying().put(data);
-    for (Map.Entry<Long, byte[]> element : data.entrySet()) {
+    for (Map.Entry<Long, FudgeFieldContainer> element : data.entrySet()) {
       getCache().put(new Element(element.getKey(), element.getValue()));
     }
   }

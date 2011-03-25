@@ -62,7 +62,7 @@ public abstract class Curve<T extends Comparable<T>, U> {
 
   /**
    * Given an <i>x</i> value, return the <i>y</i> value from this curve
-   * @param x The <i>x</i> value
+   * @param x The <i>x</i> value, not null
    * @return The <i>y</i> value
    */
   public abstract U getYValue(T x);

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -13,7 +14,6 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.util.time.Tenor;
 
 /**
  * A wrapper class for a AnnuityDefinition containing CouponIborDefinition.
@@ -37,13 +37,11 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
    * @param isPayer The payer flag.
    * @return The Ibor annuity.
    */
-  public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, Tenor tenor, double notional, IborIndex index, boolean isPayer) {
-
+  public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, Period tenor, double notional, IborIndex index, boolean isPayer) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(index, "index");
     Validate.notNull(tenor, "tenor");
     Validate.isTrue(notional > 0, "notional <= 0");
-
     ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), tenor);
     return from(settlementDate, maturityDate, notional, index, isPayer);
   }
@@ -58,15 +56,12 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
    * @return The Ibor annuity.
    */
   public static AnnuityCouponIborDefinition from(ZonedDateTime settlementDate, ZonedDateTime maturityDate, double notional, IborIndex index, boolean isPayer) {
-
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
     Validate.notNull(index, "index");
     Validate.isTrue(notional > 0, "notional <= 0");
-
-    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor().getPeriod());
+    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor());
     ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getBusinessDayConvention(), index.getCalendar());
-
     double sign = isPayer ? -1.0 : 1.0;
     CouponIborDefinition[] coupons = new CouponIborDefinition[paymentDates.length];
     //First coupon uses settlement date
@@ -81,6 +76,20 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index);
     }
 
+    return new AnnuityCouponIborDefinition(coupons);
+  }
+
+  /**
+   * Builder from an Ibor annuity with spread. Ignores the spread.
+   * @param annuity The Ibor annuity zith spread. 
+   * @return The annuity.
+   */
+  public static AnnuityCouponIborDefinition from(AnnuityCouponIborSpreadDefinition annuity) {
+    Validate.notNull(annuity, "annuity");
+    CouponIborDefinition[] coupons = new CouponIborDefinition[annuity.getPayments().length];
+    for (int loopcpn = 0; loopcpn < annuity.getPayments().length; loopcpn++) {
+      coupons[loopcpn] = CouponIborDefinition.from(annuity.getNthPayment(loopcpn));
+    }
     return new AnnuityCouponIborDefinition(coupons);
   }
 

@@ -13,12 +13,18 @@ import org.apache.commons.lang.Validate;
  */
 public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -27,9 +33,7 @@ public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDo
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -39,10 +43,7 @@ public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDo
   }
 
   /**
-   * @param curve The curve
-   * @param x The <i>x</i>-value of the shift
-   * @param shift The shift
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -52,9 +53,7 @@ public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDo
   }
 
   /**
-   * @param curve The curve
-   * @param xShift The <i>x</i>-values of the shifts
-   * @param yShift The shifts
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
@@ -64,10 +63,7 @@ public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDo
   }
 
   /**
-   * @param curve The curve
-   * @param xShift The <i>x</i>-values of the shifts
-   * @param yShift The shifts
-   * @param newName The name of the new curve
+   * {@inheritDoc}
    * @return Not supported
    * @throws UnsupportedOperationException
    */
