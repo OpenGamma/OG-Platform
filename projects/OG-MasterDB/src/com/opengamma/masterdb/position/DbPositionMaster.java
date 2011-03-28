@@ -174,7 +174,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       where += "AND quantity >= :min_quantity ";
     }
     if (request.getMaxQuantity() != null) {
-      where += "AND quantity < :max_quantity ";
+      where += "AND quantity <= :max_quantity ";
     }
     if (request.getPositionIds() != null) {
       StringBuilder buf = new StringBuilder(request.getPositionIds().size() * 10);
