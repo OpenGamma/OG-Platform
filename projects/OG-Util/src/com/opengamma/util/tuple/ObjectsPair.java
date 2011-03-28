@@ -5,12 +5,6 @@
  */
 package com.opengamma.util.tuple;
 
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 /**
  * An immutable pair consisting of two {@code Object} elements.
  * <p>
@@ -66,34 +60,6 @@ public final class ObjectsPair<A, B> extends Pair<A, B> {
   @Override
   public B getSecond() {
     return second;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Serializes this pair to a Fudge message.
-   * @param context  the Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
-    msg.add(0, getClass().getName());
-    context.objectToFudgeMsg(msg, "first", null, first);
-    context.objectToFudgeMsg(msg, "second", null, second);
-    return msg;
-  }
-
-  /**
-   * Deserializes this pair from a Fudge message.
-   * @param context  the Fudge context, not null
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
-   */
-  public static ObjectsPair<?, ?> fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    FudgeField firstField = msg.getByName("first");
-    Object first = firstField != null ? context.fieldValueToObject(firstField) : null;
-    FudgeField secondField = msg.getByName("second");
-    Object second = secondField != null ? context.fieldValueToObject(secondField) : null;
-    return ObjectsPair.of(first, second);
   }
 
 }

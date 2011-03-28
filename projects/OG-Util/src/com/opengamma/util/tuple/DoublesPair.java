@@ -7,11 +7,6 @@ package com.opengamma.util.tuple;
 
 import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -166,32 +161,6 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
     final long f = Double.doubleToLongBits(first);
     final long s = Double.doubleToLongBits(second);
     return ((int) (f ^ (f >>> 32))) ^ ((int) (s ^ (s >>> 32)));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Serializes this pair to a Fudge message.
-   * @param context  the Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
-    msg.add(0, getClass().getName());
-    context.objectToFudgeMsg(msg, "first", null, getFirst());
-    context.objectToFudgeMsg(msg, "second", null, getSecond());
-    return msg;
-  }
-
-  /**
-   * Deserializes this pair from a Fudge message.
-   * @param context  the Fudge context, not null
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
-   */
-  public static DoublesPair fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    double first = (Double) context.fieldValueToObject(msg.getByName("first"));
-    double second = (Double) context.fieldValueToObject(msg.getByName("second"));
-    return DoublesPair.of(first, second);
   }
 
 }
