@@ -25,6 +25,9 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
  */
 public final class ObjectsPair<A, B> extends Pair<A, B> {
 
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /** The first element. */
   public final A first; // CSIGNORE
   /** The second element. */
