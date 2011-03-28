@@ -77,12 +77,12 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitSwaptionPhysicalFixedIbor(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitSwaptionPhysicalFixedIbor(this);
   }
 
 }
