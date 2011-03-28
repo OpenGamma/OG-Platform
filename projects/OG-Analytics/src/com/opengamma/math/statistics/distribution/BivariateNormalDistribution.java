@@ -9,7 +9,17 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * The bivariate normal distribution is a continuous probability distribution of two variables, {@latex.inline $x$} and {@latex.inline $y$} with
+ * cdf
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * M(x, y, \\rho) = \\frac{1}{2\\pi\\sqrt{1 - \\rho^2}}\\int_{-\\infty}^x\\int_{-\\infty}^{y} e^{\\frac{-(X^2 - 2\\rho XY + Y^2)}{2(1 - \\rho^2)}} dX dY
+ * \\end{align*}
+ * }
+ * where {@latex.inline $\\rho$} is the correlation between {@latex.inline $x$} and {@latex.inline $y$}.
+ * <p>
+ * The implementation of the cdf is taken from <i>"Better Approximations to Cumulative Normal Functions", West</i> 
+ * (<a href="www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
  */
 public class BivariateNormalDistribution implements ProbabilityDistribution<double[]> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -17,15 +27,15 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   private static final double[] X = new double[] {0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992};
   private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
+  /**
+   * @param x The parameters for the function, {@latex.inline $(x, y, \\rho$}, with {@latex.inline $-1 \\geq \\rho \\geq 1$}, not null 
+   * @return The cdf
+   */
   @Override
   public double getCDF(final double[] x) {
     Validate.notNull(x);
-    if (x.length != 3) {
-      throw new IllegalArgumentException("Need a, b and rho values");
-    }
-    if (x[2] < -1 || x[2] > 1) {
-      throw new IllegalArgumentException("Correlation must be >= -1 and <= 1");
-    }
+    Validate.isTrue(x.length == 3, "Need a, b and rho values");
+    Validate.isTrue(x[2] >= -1 && x[2] <= 1, "Correlation must be >= -1 and <= 1");
     final double a = x[0];
     double b = x[1];
     final double rho = x[2];
@@ -81,21 +91,34 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
     return NORMAL.getCDF(a) * NORMAL.getCDF(b) + rho * mult;
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws NotImplementedException
+   */
   @Override
   public double getInverseCDF(final double[] p) {
     throw new NotImplementedException();
   }
 
+  /**
+   * @param x The parameters for the function, {@latex.inline $(x, y, \\rho$}, with {@latex.inline $-1 \\geq \\rho \\geq 1$}, not null
+   * @return The pdf  
+   */
   @Override
   public double getPDF(final double[] x) {
     Validate.notNull(x);
-    if (x.length != 3) {
-      throw new IllegalArgumentException("Need a, b and rho values");
-    }
+    Validate.isTrue(x.length == 3, "Need a, b and rho values");
+    Validate.isTrue(x[2] >= -1 && x[2] <= 1, "Correlation must be >= -1 and <= 1");
     final double denom = 1 - x[2] * x[2];
     return Math.exp(-(x[0] * x[0] - 2 * x[2] * x[0] * x[1] + x[1] * x[1]) / (2 * denom)) / (TWO_PI * Math.sqrt(denom));
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws NotImplementedException
+   */
   @Override
   public double nextRandom() {
     throw new NotImplementedException();

@@ -8,35 +8,53 @@ package com.opengamma.math.statistics.distribution;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
  * 
  * The generalized extreme value distribution is a family of continuous probability distributions that combines the Gumbel (type I),
- * Frechet (type II) and Weibull (type III) families of distributions.
+ * Fr&eacute;chet (type II) and Weibull (type III) families of distributions.
  * <p>
  * This distribution has location parameter {@latex.inline $\\mu$}, shape parameter {@latex.inline $\\xi$}
  * and scale parameter {@latex.inline $\\sigma$}, with
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * \\mu&\\in&\\Re,\\\\
- * \\xi&\\in&\\Re,\\\\
- * \\sigma&>&0
- * \\end{eqnarray*}}
+ * \\begin{align*}
+ * \\mu&\\in\\Re,\\\\
+ * \\xi&\\in\\Re,\\\\
+ * \\sigma&>0
+ * \\end{align*}}
  * and support
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
+ * \\begin{align*}
  * x\\in
  * \\begin{cases}
  * \\left[\\mu - \\frac{\\sigma}{\\xi}, +\\infty\\right) & \\text{when } \\xi > 0\\\\
  * (-\\infty,+\\infty) & \\text{when } \\xi = 0\\\\
  * \\left(-\\infty, \\mu - \\frac{\\sigma}{\\xi}\\right] & \\text{when } \\xi < 0
  * \\end{cases}
- * \\end{eqnarray*}}
- *  
+ * \\end{align*}}
+ * The cdf is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * F(x) &=e^{-t(x)}\\\\
+ * t(x)&=
+ * \\begin{cases}
+ * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
+ * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
+ * \\end{cases}
+ * \\end{align*}}
+ * and the pdf by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * f(x)&=\\frac{t(x)^{\\xi + 1}e^{-t(x)}}{\\sigma}\\quad\\\\
+ * t(x)&=
+ * \\begin{cases}
+ * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
+ * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
+ * \\end{cases}
+ * \\end{align*}}
+ * 
  */
-// TODO accent on Frechet
 public class GeneralizedExtremeValueDistribution implements ProbabilityDistribution<Double> {
   private final double _mu;
   private final double _sigma;
@@ -45,17 +63,12 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
 
   /**
    * 
-   * @param mu
-   *          The location parameter
-   * @param sigma
-   *          The scale parameter
-   * @param ksi
-   *          The shape parameter
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $\\sigma < 0$}
+   * @param mu The location parameter
+   * @param sigma The scale parameter, not negative or zero
+   * @param ksi The shape parameter
    */
   public GeneralizedExtremeValueDistribution(final double mu, final double sigma, final double ksi) {
-    ArgumentChecker.notNegative(sigma, "sigma");
+    Validate.isTrue(sigma >= 0, "sigma must be >= 0");
     _mu = mu;
     _sigma = sigma;
     _ksi = ksi;
@@ -63,25 +76,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
-   * Returns the cdf:
-   * <p>
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{eqnarray*}
-   * F(x) &=&e^{-t(x)}\\quad\\text{where}\\\\
-   * t(x)&=&
-   * \\begin{cases}
-   * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
-   * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
-   * \\end{cases}
-   * \\end{eqnarray*}}
-   * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
-   * @param x {@latex.inline $x$}
-   * @return The CDF for {@latex.inline $x$}
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $x$} was null
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $x \\not\\in$} support
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
    */
   @Override
   public double getCDF(final Double x) {
@@ -90,12 +86,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
-   * 
-   * This method is not implemented
-   * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
-   * @param p {@latex.inline $p$}
-   * @return Method is not implemented
+   * {@inheritDoc}
+   * @return Not supported
    * @throws NotImplementedException
    */
   @Override
@@ -104,26 +96,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
-   * 
-   * Returns the pdf:
-   * <p>
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{eqnarray*}
-   * f(x)&=&\\frac{t(x)^{\\xi + 1}e^{-t(x)}}{\\sigma}\\quad\\text{where}\\\\
-   * t(x)&=&
-   * \\begin{cases}
-   * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
-   * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
-   * \\end{cases}
-   * \\end{eqnarray*}}
-   *  
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
-   * @param x {@latex.inline $x$}
-   * @return The PDF for {@latex.inline $x$}
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $x$} was null
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $x \\not\\in$} support
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
    */
   @Override
   public double getPDF(final Double x) {
@@ -133,11 +107,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   /**
-   * 
-   * This method is not implemented.
-   * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom()
-   * @return This method is not implemented
+   * {@inheritDoc}
+   * @return Not supported
    * @throws NotImplementedException
    */
   @Override
@@ -145,14 +116,23 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     throw new NotImplementedException();
   }
 
+  /**
+   * @return The location parameter
+   */
   public double getMu() {
     return _mu;
   }
 
+  /**
+   * @return The scale parameter
+   */
   public double getSigma() {
     return _sigma;
   }
 
+  /**
+   * @return The shape parameter
+   */
   public double getKsi() {
     return _ksi;
   }
@@ -168,6 +148,41 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
       throw new IllegalArgumentException("Support for GEV is in the range mu - sigma / ksi -> +infinity when ksi > 0");
     }
     return Math.pow(1 + _ksi * (x - _mu) / _sigma, -1. / _ksi);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_ksi);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_mu);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_sigma);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final GeneralizedExtremeValueDistribution other = (GeneralizedExtremeValueDistribution) obj;
+    if (Double.doubleToLongBits(_ksi) != Double.doubleToLongBits(other._ksi)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_mu) != Double.doubleToLongBits(other._mu)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_sigma) == Double.doubleToLongBits(other._sigma);
   }
 
 }
