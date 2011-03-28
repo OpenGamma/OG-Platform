@@ -124,7 +124,10 @@ public class MarketDataSnapshotMasterResource {
       if (document == null) {
         return null;
       }
-      return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
+      final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(resp);
+      
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
