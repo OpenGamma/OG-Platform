@@ -6,9 +6,9 @@
 
 package com.opengamma.util.test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -125,7 +125,7 @@ public abstract class AbstractSpringContextValidationTestNG {
   protected <T> T assertBeanExists(final Class<T> clazz, final String name) {
     final Object bean = getSpringContext().getBean(name);
     assertNotNull(bean);
-    assertTrue(clazz.isAssignableFrom(bean.getClass()));
+    assertEquals(true, clazz.isAssignableFrom(bean.getClass()));
     return (T) bean;
   }
 

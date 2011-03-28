@@ -5,25 +5,27 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
@@ -33,6 +35,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerAddTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerAddTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -40,18 +43,18 @@ public class ModifyPortfolioDbPortfolioMasterWorkerAddTest extends AbstractDbPor
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_nullDocument() {
     _prtMaster.add(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
     _prtMaster.add(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noRootNode() {
     ManageablePortfolio mockPortfolio = mock(ManageablePortfolio.class);
     when(mockPortfolio.getName()).thenReturn("Test");

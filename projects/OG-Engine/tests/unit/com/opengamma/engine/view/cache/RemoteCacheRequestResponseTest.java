@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -225,14 +224,14 @@ public class RemoteCacheRequestResponseTest {
 
     FudgeFieldContainer outputValue = dataStore.get(identifier1);
     assertNotNull(outputValue);
-    Assert.assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
+    assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
 
     outputValue = dataStore.get(identifier1 + 1);
     assertNull(outputValue);
 
     outputValue = dataStore.get(identifier1);
     assertNotNull(outputValue);
-    Assert.assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
+    assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
 
     // Multiple value
     final MutableFudgeFieldContainer inputValue2 = s_fudgeContext.newMessage();
@@ -248,8 +247,8 @@ public class RemoteCacheRequestResponseTest {
 
     final Map<Long, FudgeFieldContainer> outputMap = dataStore.get(Arrays.asList(identifier1, identifier2));
     assertEquals(2, outputMap.size());
-    Assert.assertEquals(inputValue1.getAllFields(), outputMap.get(identifier1).getAllFields());
-    Assert.assertEquals(inputValue2.getAllFields(), outputMap.get(identifier2).getAllFields());
+    assertEquals(inputValue1.getAllFields(), outputMap.get(identifier1).getAllFields());
+    assertEquals(inputValue2.getAllFields(), outputMap.get(identifier2).getAllFields());
   }
 
   @Test(timeOut = 10000l)
@@ -271,7 +270,7 @@ public class RemoteCacheRequestResponseTest {
 
     FudgeFieldContainer outputValue = dataStore.get(identifier);
     assertNotNull(outputValue);
-    Assert.assertEquals(inputValue.getAllFields(), outputValue.getAllFields());
+    assertEquals(inputValue.getAllFields(), outputValue.getAllFields());
 
     dataStore.delete();
 

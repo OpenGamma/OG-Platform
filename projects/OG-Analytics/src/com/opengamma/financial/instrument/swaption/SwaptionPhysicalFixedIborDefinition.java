@@ -82,10 +82,18 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
 
   /**
    * Gets the _isLong field.
-   * @return The Long (true)/Short (flase) flag.
+   * @return The Long (true)/Short (false) flag.
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  @Override
+  public String toString() {
+    String result = "European swaption physical delivery: \n";
+    result += "Expiry date: " + getExpiry().toString() + ", Long: " + _isLong;
+    result += "\nUnderlying swap: \n" + _underlyingSwap.toString();
+    return result;
   }
 
   @Override

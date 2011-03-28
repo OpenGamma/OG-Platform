@@ -5,12 +5,12 @@
  */
 package com.opengamma.masterdb.timeseries;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +28,12 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecurityUtils;
@@ -65,8 +64,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Abstract test for time-series masters.
  */
-@Ignore("Abstract class")
-abstract public class TimeSeriesMasterTest<T> extends DBTest {
+public abstract class TimeSeriesMasterTest<T> extends DBTest {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesMasterTest.class);
@@ -113,7 +111,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
    * @throws java.lang.Exception
    */
   @SuppressWarnings("unchecked")
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     
@@ -784,7 +782,7 @@ abstract public class TimeSeriesMasterTest<T> extends DBTest {
     }
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void addDataPointWithoutTSID() throws Exception {
     DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
     dataPointDocument.setDate(convert(LocalDate.of(2000, 1, 2)));

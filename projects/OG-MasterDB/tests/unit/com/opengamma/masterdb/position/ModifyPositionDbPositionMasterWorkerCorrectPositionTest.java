@@ -5,16 +5,17 @@
  */
 package com.opengamma.masterdb.position;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -23,6 +24,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -32,6 +34,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerCorrectPositionTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyPositionDbPositionMasterWorkerCorrectPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -39,12 +42,12 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_nullDocument() {
     _posMaster.correct(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noPositionId() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     PositionDocument doc = new PositionDocument();
@@ -52,14 +55,14 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     _posMaster.correct(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noPosition() {
     PositionDocument doc = new PositionDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbPos", "121", "0"));
     _posMaster.correct(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     pos.setUniqueId(UniqueIdentifier.of("DbPos", "0", "0"));

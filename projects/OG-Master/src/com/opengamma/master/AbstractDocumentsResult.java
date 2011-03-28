@@ -24,7 +24,7 @@ import com.opengamma.util.PublicSPI;
 import com.opengamma.util.db.Paging;
 
 /**
- * Result provding a list of documents with paging.
+ * Result providing a list of documents with paging.
  * 
  * @param <D>  the type of the document
  */

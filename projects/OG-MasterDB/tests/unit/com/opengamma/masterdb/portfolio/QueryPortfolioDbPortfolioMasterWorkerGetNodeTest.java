@@ -5,17 +5,19 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryPortfolioDbPortfolioMasterWorker.
@@ -25,6 +27,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetNodeTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPortfolioDbPortfolioMasterWorkerGetNodeTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryPortfolioDbPortfolioMasterWorkerGetNodeTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -32,12 +35,12 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetNodeTest extends AbstractDb
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getNode_nullUID() {
     _prtMaster.getNode(null);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getNode_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0", "0");
     _prtMaster.getNode(uid);
@@ -79,7 +82,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetNodeTest extends AbstractDb
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getNode_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPrt", "0");
     _prtMaster.getNode(uid);

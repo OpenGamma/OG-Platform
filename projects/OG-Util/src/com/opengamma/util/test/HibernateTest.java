@@ -7,8 +7,6 @@ package com.opengamma.util.test;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.junit.After;
-import org.junit.Before;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -36,7 +34,6 @@ public abstract class HibernateTest extends DBTest {
   
   public abstract Class<?>[] getHibernateMappingClasses();
 
-  @Before
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
@@ -52,7 +49,6 @@ public abstract class HibernateTest extends DBTest {
     testCount++;
   }
 
-  @After
   @AfterMethod
   public void tearDown() throws Exception {
     if (_sessionFactory != null) {

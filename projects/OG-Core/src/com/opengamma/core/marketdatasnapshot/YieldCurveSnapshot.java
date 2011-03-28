@@ -1,28 +1,21 @@
 package com.opengamma.core.marketdatasnapshot;
 
-import java.util.Map;
+import javax.time.Instant;
 
-import com.opengamma.util.time.Tenor;
 
 /**
- * Represent a snapshot of a yield curve in a MarketDataSnapshot
- * @see MarketDataSnapshot
+ * Represent a snapshot of a yield curve in a {@link StructuredMarketDataSnapshot}
+ * @see StructuredMarketDataSnapshot
  */
-public class YieldCurveSnapshot {
-  private final Map<Tenor, ValueSnapshot> _values;
-
-  public YieldCurveSnapshot(Map<Tenor, ValueSnapshot> values) {
-    super();
-    _values = values;
-  }
-
+public interface YieldCurveSnapshot {
+  
   /**
-   * Gets the values field.
-   * @return the values
+   * @return The instant at which this YieldCurve was evaluated in order to generate the snapshot keys
    */
-  public Map<Tenor, ValueSnapshot> getValues() {
-    return _values;
-  }
+  Instant getValuationTime();
   
-  
+  /**
+   * @return The values which should be applied when building this curve
+   */
+  UnstructuredMarketDataSnapshot getValues();
 }

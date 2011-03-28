@@ -446,7 +446,6 @@ public abstract class AbstractDBDialect implements DBDialect {
       }
       
       statement.close();
-      
     
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to drop schema", e);

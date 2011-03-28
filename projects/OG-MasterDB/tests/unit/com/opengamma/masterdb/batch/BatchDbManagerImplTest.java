@@ -5,10 +5,10 @@
  */
 package com.opengamma.masterdb.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,8 +21,9 @@ import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.security.test.MockSecurity;
@@ -52,30 +53,31 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
- * 
+ * Test BatchDbManagerImpl.
  */
 public class BatchDbManagerImplTest extends TransactionalHibernateTest {
-    
+
   private BatchDbManagerImpl _dbManager;
   private CommandLineBatchJob _batchJob;
   private CommandLineBatchJobRun _batchJobRun;
-  
+
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public BatchDbManagerImplTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
+
   @Override
   public Class<?>[] getHibernateMappingClasses() {
     return BatchDbManagerImpl.getHibernateMappingClasses();
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    
     _dbManager = new BatchDbManagerImpl();
     _dbManager.setDbSource(getDbSource());
     
@@ -98,7 +100,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     _batchJob.addRun(_batchJobRun);
   }
-    
+
+  //-------------------------------------------------------------------------
   @Test
   public void getVersion() {
     // create
@@ -110,7 +113,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     OpenGammaVersion version2 = _dbManager.getOpenGammaVersion(_batchJobRun);
     assertEquals(version1, version2);
   }
-  
+
   @Test
   public void getObservationTime() {
     // create
@@ -122,7 +125,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ObservationTime time2 = _dbManager.getObservationTime(_batchJobRun);
     assertEquals(time1, time2);
   }
-  
+
   @Test
   public void getObservationDateTime() {
     // create
@@ -135,7 +138,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ObservationDateTime datetime2 = _dbManager.getObservationDateTime(_batchJobRun);
     assertEquals(datetime1, datetime2);
   }
-  
+
   @Test
   public void getLocalComputeHost() throws UnknownHostException {
     // create
@@ -147,7 +150,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ComputeHost host2 = _dbManager.getLocalComputeHost();
     assertEquals(host1, host2);
   }
-  
+
   @Test
   public void getLocalComputeNode() throws UnknownHostException {
     // create
@@ -160,18 +163,18 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     ComputeNode node2 = _dbManager.getLocalComputeNode();
     assertEquals(node1, node2);
   }
-  
+
   @Test
   public void getNonExistentRiskRunFromDb() {
     RiskRun run = _dbManager.getRiskRunFromDb(_batchJobRun);
     assertNull(run);
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToGetNonExistentLiveDataSnapshot() {
     _dbManager.getLiveDataSnapshot(_batchJobRun);
   }
-  
+
   @Test 
   public void getLiveDataField() {
     // create
@@ -183,12 +186,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     LiveDataField field2 = _dbManager.getLiveDataField("test_field");
     assertEquals(field1, field2);
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
     _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
   }
-  
+
   @Test
   public void addValuesToIncompleteSnapshot() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
@@ -237,20 +240,20 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
     assertEquals(4, snapshot.getSnapshotEntries().size());
   }
-  
+
   @Test
   public void fixLiveDataSnapshotTime() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.now());
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToFixNonexistentLiveDataSnapshotTime() {
     _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.now());
   }
-  
+
   @Test
   public void createLiveDataSnapshotMultipleTimes() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
@@ -259,7 +262,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     assertNotNull(_dbManager.getLiveDataSnapshot(_batchJobRun));
   }
-  
+
   @Test
   public void createThenGetRiskRun() {
     assertNull(_batchJobRun.getOriginalCreationTime());
@@ -298,12 +301,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     RiskRun run2 = _dbManager.getRiskRunFromDb(_batchJobRun);
     assertEquals(run, run2);
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToStartBatchWithoutCreatingSnapshot() {
     _dbManager.startBatch(_batchJobRun);
   }
-  
+
   @Test
   public void startAndEndBatch() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
@@ -328,7 +331,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     
     assertEquals(run1, run2);
   }
-  
+
   @Test
   public void startBatchTwice() {
     assertNull(_batchJobRun.getOriginalCreationTime());
@@ -345,7 +348,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(1, run.getNumRestarts());
     assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
   }
-  
+
   @Test
   public void getComputationTargetBySpec() {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
@@ -370,7 +373,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
         new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
   }
-  
+
   @Test
   public void getComputationTarget() {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar", "1");
@@ -389,7 +392,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
     assertNull(primitive.getName());
   }
-  
+
   @Test
   public void updateComputationTarget() {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
@@ -408,7 +411,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     assertEquals("myOption", security.getName()); 
   }
-  
+
   @Test
   public void getValueName() {
     // create
@@ -420,7 +423,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
     assertEquals(valueName1, valueName2);
   }
-  
+
   @Test
   public void getFunctionUniqueId() {
     // create
@@ -432,7 +435,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
   }
-  
+
   @Test
   public void searchAllBatches() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
@@ -457,7 +460,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.COMPLETE, item.getStatus());
   }
-  
+
   @Test
   public void searchOneBatch() {
     _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
@@ -476,8 +479,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void getResultsNonexistentBatch() {
     BatchDataSearchRequest request = new BatchDataSearchRequest();
     request.setObservationDate(LocalDate.of(2000, 5, 5));
@@ -502,8 +505,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertNotNull(result);
     assertTrue(result.getItems().isEmpty());
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void getErrorsNonexistentBatch() {
     BatchErrorSearchRequest request = new BatchErrorSearchRequest();
     request.setObservationDate(LocalDate.of(2000, 5, 5));
@@ -528,12 +531,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertNotNull(result);
     assertTrue(result.getItems().isEmpty());
   }
-  
-  @Test(expected=IllegalStateException.class)
+
+  @Test(expectedExceptions=IllegalStateException.class)
   public void deleteNonExisting() {
     _dbManager.deleteBatch(_batchJobRun);
   }
-  
+
   @Test
   public void delete() {
     assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
@@ -546,7 +549,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _dbManager.deleteBatch(_batchJobRun);
     assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
   }
-  
+
   @Test
   public void writeAdHocBatchResult() {
     commit(); // don't want this test to be transactional
@@ -577,5 +580,5 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     AdHocBatchResult adHocBatchResult = new AdHocBatchResult(batchId, result);
     _dbManager.write(adHocBatchResult);    
   }
-  
+
 }

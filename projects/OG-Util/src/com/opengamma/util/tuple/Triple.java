@@ -29,6 +29,9 @@ import org.apache.commons.lang.builder.CompareToBuilder;
  */
 public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Serializable {
 
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /** The first element. */
   private final A _first;
   /** The second element. */

@@ -6,7 +6,9 @@
 package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -27,6 +29,8 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 
 /**
  * 
@@ -261,6 +265,26 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitCouponCMS(CouponCMS payment) {
       return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, Object data) {
+      return visit(swaption, data);
+    }
+
+    @Override
+    public Class<?> visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption) {
+      return visit(swaption);
+    }
+
+    @Override
+    public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, Object data) {
+      return visit(swaption);
+    }
+
+    @Override
+    public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption) {
+      return visit(swaption);
     }
   };
 

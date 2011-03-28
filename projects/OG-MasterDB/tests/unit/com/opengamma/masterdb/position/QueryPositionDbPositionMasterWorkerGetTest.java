@@ -5,17 +5,19 @@
  */
 package com.opengamma.masterdb.position;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.
@@ -25,6 +27,7 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerGetTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryPositionDbPositionMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -32,12 +35,12 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_get_nullUID() {
     _posMaster.get(null);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
     _posMaster.get(uid);
@@ -72,7 +75,7 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getPosition_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0");
     _posMaster.get(uid);

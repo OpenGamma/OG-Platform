@@ -5,14 +5,15 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -25,6 +26,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QuerySecurityDbSecurityMasterWorker.
@@ -34,6 +36,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   private static final Logger s_logger = LoggerFactory.getLogger(QuerySecurityDbSecurityMasterWorkerSearchTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QuerySecurityDbSecurityMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -177,7 +180,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assert202(test.getDocuments().get(1));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_securityIds_badSchemeValidOid() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addSecurityId(ObjectIdentifier.of("Rubbish", "120"));

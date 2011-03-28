@@ -9,13 +9,13 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -24,14 +24,13 @@ import com.opengamma.master.timeseries.DataPointDocument;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
 import com.opengamma.master.timeseries.TimeSeriesMaster;
 import com.opengamma.master.timeseries.impl.RandomTimeSeriesGenerator;
-import com.opengamma.masterdb.timeseries.LocalDateDbTimeSeriesMaster;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * A performance test of time-series.
  */
-@Ignore
+@Test(enabled = false)
 public class PerformanceTest extends DBTest {
 
   /** Logger. */
@@ -42,15 +41,16 @@ public class PerformanceTest extends DBTest {
    */
   private TimeSeriesMaster<LocalDate> _tsMaster;
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public PerformanceTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     
-    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/timeseries/db/tssQueries.xml");
+    ApplicationContext context = new FileSystemXmlApplicationContext("src/com/opengamma/masterdb/timeseries/tssQueries.xml");
     
     @SuppressWarnings("unchecked")
     Map<String, String> namedSQLMap = (Map<String, String>) context.getBean("tssNamedSQLMap");
@@ -63,7 +63,6 @@ public class PerformanceTest extends DBTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void createUpdateReadLotsOfTimeSeries() {
     long start = System.nanoTime();
     

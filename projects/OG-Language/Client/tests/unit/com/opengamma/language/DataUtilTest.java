@@ -6,7 +6,7 @@
 
 package com.opengamma.language;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;

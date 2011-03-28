@@ -107,6 +107,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       context.objectToFudgeMsg(calcConfigMsg, DEFAULT_PROPERTIES_FIELD, null, calcConfig.getDefaultProperties());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
+    context.objectToFudgeMsgWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueIdentifier.class);
     return message;
   }
 
@@ -167,6 +168,10 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         calcConfig.setDefaultProperties(context.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
       }
       viewDefinition.addViewCalculationConfiguration(calcConfig);
+    }
+    FudgeField uniqueId = message.getByName("uniqueId");
+    if (uniqueId != null) {
+      viewDefinition.setUniqueId(context.fieldValueToObject(UniqueIdentifier.class, uniqueId));
     }
     return viewDefinition;
   }

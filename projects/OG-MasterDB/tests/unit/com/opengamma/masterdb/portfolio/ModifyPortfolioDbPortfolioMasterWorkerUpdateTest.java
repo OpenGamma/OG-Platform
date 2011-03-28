@@ -5,15 +5,16 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
@@ -22,6 +23,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyPortfolioDbPortfolioMasterWorker.
@@ -31,6 +33,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPortfolioDbPortfolioMasterWorkerUpdateTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -38,12 +41,12 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_nullDocument() {
     _prtMaster.update(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noPortfolioId() {
     ManageablePortfolio position = new ManageablePortfolio("Test");
     PortfolioDocument doc = new PortfolioDocument();
@@ -51,14 +54,14 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     _prtMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noPortfolio() {
     PortfolioDocument doc = new PortfolioDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbPrt", "101", "0"));
     _prtMaster.update(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
     port.setUniqueId(UniqueIdentifier.of("DbPrt", "0", "0"));
@@ -67,7 +70,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerUpdateTest extends AbstractDb
     _prtMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     ManageablePortfolio port = new ManageablePortfolio("Test");
     port.setUniqueId(UniqueIdentifier.of("DbPrt", "201", "0"));

@@ -5,19 +5,21 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryPortfolioDbPortfolioMasterWorker.
@@ -27,6 +29,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerHistoryTest extends AbstractDb
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPortfolioDbPortfolioMasterWorkerHistoryTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryPortfolioDbPortfolioMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

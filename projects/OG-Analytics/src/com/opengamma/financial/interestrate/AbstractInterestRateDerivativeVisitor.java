@@ -27,6 +27,8 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 
 /**
  * 
@@ -144,6 +146,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
+  public T visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+  }
+
+  @Override
+  public T visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+  }
+
+  @Override
   public T visitFixedPayment(final PaymentFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedPayment()");
   }
@@ -235,6 +247,16 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitSwap(final Swap<?, ?> swap) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+  }
+
+  @Override
+  public T visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
+  }
+
+  @Override
+  public T visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
   }
 
