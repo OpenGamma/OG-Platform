@@ -235,6 +235,7 @@
             </classpath>
             <classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
             <jvmarg value="${junit.logback.jvmarg}" />
+            <jvmarg value="-Xmx${junit.maxheap}" />
             <sysproperty key="user.name" value="${user.name}" />
             <sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
             <sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -29,6 +30,7 @@ public class DbPositionMasterTest extends DBTest {
 
   private DbPositionMaster _posMaster;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbPositionMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);

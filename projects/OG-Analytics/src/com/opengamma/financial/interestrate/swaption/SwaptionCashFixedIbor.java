@@ -107,12 +107,12 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitSwaptionCashFixedIbor(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitSwaptionCashFixedIbor(this);
   }
 
 }
