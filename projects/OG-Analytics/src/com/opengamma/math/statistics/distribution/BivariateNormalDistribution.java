@@ -9,7 +9,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 /**
- * The bivariate normal distribution is a continuous probability distribution of two variables, {@latex.inline $x$} and {@latex.inline $y$} with
+ * The bivariate normal distribution is a continuous probability distribution of two variables, {@latex.inline $x$} and {@latex.inline $y$}, with
  * cdf
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
