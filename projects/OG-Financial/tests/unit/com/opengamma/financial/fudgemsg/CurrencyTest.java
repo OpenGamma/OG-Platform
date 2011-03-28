@@ -6,9 +6,11 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
+import org.testng.annotations.Test;
+
 import com.opengamma.util.money.Currency;
 
 /**
