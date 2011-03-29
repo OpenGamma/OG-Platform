@@ -13,7 +13,7 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Converter from FudgeMessage to JSON

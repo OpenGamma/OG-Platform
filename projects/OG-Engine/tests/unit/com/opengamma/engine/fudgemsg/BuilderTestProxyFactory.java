@@ -19,7 +19,7 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * This class allows you to test serializers from other platforms by using any {@link AbstractBuilderTestCase}s you have.

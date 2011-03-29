@@ -18,7 +18,7 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.ExpiryBuilder;
+import com.opengamma.util.fudgemsg.ExpiryBuilder;
 
 /**
  * An indication of when something expires.

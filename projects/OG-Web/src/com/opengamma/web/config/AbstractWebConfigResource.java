@@ -33,7 +33,7 @@ import org.xml.sax.InputSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 

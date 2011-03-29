@@ -35,7 +35,7 @@ import com.opengamma.engine.view.calcnode.msg.Result;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender;
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
 import com.opengamma.transport.DirectFudgeConnection;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.Timeout;
 
 /**
