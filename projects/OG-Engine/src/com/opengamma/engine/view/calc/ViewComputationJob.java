@@ -301,19 +301,43 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   
   private ViewEvaluationModel getOrCompileViewEvaluationModel(Instant evaluationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    if (_viewEvaluationModel != null && _viewEvaluationModel.isValidFor(evaluationTime) && functionInitId == _viewEvaluationModel.getFunctionInitId()) {
+    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
+    if (viewEvaluationModel != null && viewEvaluationModel.isValidFor(evaluationTime) && functionInitId == viewEvaluationModel.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing evaluation times)
-      return _viewEvaluationModel;
+      return viewEvaluationModel;
     }
     
-    _viewEvaluationModel = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), evaluationTime);
+    viewEvaluationModel = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), evaluationTime);
+    setViewEvaluationModel(viewEvaluationModel);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
-    getViewProcess().viewCompiled(_viewEvaluationModel);
+    getViewProcess().viewCompiled(viewEvaluationModel);
     
-    setLiveDataSubscriptions(_viewEvaluationModel.getAllLiveDataRequirements().keySet());
+    setLiveDataSubscriptions(viewEvaluationModel.getAllLiveDataRequirements().keySet());
+    return viewEvaluationModel;
+  }
+  
+  /**
+   * Gets the cached view evaluation model which may be re-used in subsequent computation cycles.
+   * <p>
+   * External visibility for tests.
+   * 
+   * @return the view evaluation model
+   */
+  public ViewEvaluationModel getViewEvaluationModel() {
     return _viewEvaluationModel;
+  }
+  
+  /**
+   * Replaces the cached view evaluation model.
+   * <p>
+   * External visibility for tests.
+   * 
+   * @param viewEvaluationModel  the view evaluation model
+   */
+  public void setViewEvaluationModel(ViewEvaluationModel viewEvaluationModel) {
+    _viewEvaluationModel = viewEvaluationModel;
   }
   
   private boolean requireFullCycleNext(long currentTime) {

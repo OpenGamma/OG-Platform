@@ -5,19 +5,31 @@
  */
 package com.opengamma.engine.view;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotSame;
-import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import java.util.Collections;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNull;
 
-import com.opengamma.engine.view.client.ViewClientImpl;
+import java.util.Arrays;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.engine.test.TestComputationResultListener;
+import com.opengamma.engine.test.TestViewCompilationListener;
+import com.opengamma.engine.view.calc.ViewComputationJob;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.execution.ArbitraryViewEvaluationTimeSequence;
+import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewEvaluationTimeSequence;
+import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.util.test.Timeout;
 
 /**
  * Tests View
@@ -31,29 +43,16 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     
-    assertEquals(env.getViewDefinition().getName(), view.getName());
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
-    // Repeated call should be ignored
-    view.init();
+    assertEquals(env.getViewDefinition().getName(), viewProcess.getDefinitionName());
     
-    view.stop();
-  }
-  
-  public void testLifecycleWithoutIniting() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    assertTrue(view.isRunning());
-    view.start();
-    assertTrue(view.isRunning());
-    view.stop();
-    assertFalse(view.isRunning());
+    viewProcess.stop();
+    assertFalse(client.isAttached());
+    vp.stop();
   }
   
   public void testViewAccessors() {
@@ -62,13 +61,15 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.init();
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     
-    view.assertAccessToLiveDataRequirements(ViewProcessorTestEnvironment.TEST_USER);
-    assertNull(view.getLatestResult());
-    assertEquals(env.getViewDefinition(), view.getDefinition());
-    assertEquals(Collections.emptySet(), view.getAllSecurityTypes());
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    
+    assertNull(client.getLatestResult());
+    assertEquals(env.getViewDefinition(), viewProcess.getDefinition());
+    
+    vp.stop();
   }
   
   public void testCreateClient() {
@@ -77,62 +78,118 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
-    view.init();
-    
-    ViewClientImpl client = (ViewClientImpl) view.createClient(ViewProcessorTestEnvironment.TEST_USER);
-    assertEquals(ViewClientState.STOPPED, client.getState());
-    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client.getUniqueId());
-    assertEquals(client, view.getClient(client.getUniqueId()));
     
-    view.stop();
+    assertEquals(ViewClientState.STARTED, client.getState());
+    client.pause();
+    assertEquals(ViewClientState.PAUSED, client.getState());
+    client.resume();
+    assertEquals(ViewClientState.STARTED, client.getState());
     
-    // Should automatically shut down the client
-    assertEquals(ViewClientState.TERMINATED, client.getState());
+    assertEquals(client, vp.getViewClient(client.getUniqueId()));
+    
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    viewProcess.stop();
+    
+    // Should automatically detach the client
+    assertFalse(client.isAttached());
+    assertEquals(ViewClientState.STARTED, client.getState());
+    
+    vp.stop();
   }
   
-  public void testGraphRebuild () {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment ();
-    env.init ();
-    final ViewProcessorImpl vp = env.getViewProcessor ();
-    vp.start ();
-    final ViewProcessImpl view = (ViewProcessImpl)vp.getView(env.getViewDefinition ().getName (), ViewProcessorTestEnvironment.TEST_USER);
-    view.init ();
-    ViewEvaluationModel originalModel = view.getViewEvaluationModel();
-    assertNotNull (originalModel);
-    final long time0 = System.currentTimeMillis ();
-    view.runOneCycle (time0);
-    view.runOneCycle (time0 + 10);
-    // The test graph doesn't refer to functions which expire, so there should have been no re-build of the graphs
-    assertSame (originalModel, view.getViewEvaluationModel ());
-    // Trick the view into thinking it needs to rebuild after time0 + 20
-    ViewEvaluationModel dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio(), originalModel.getFunctionInitId()) {
-      @Override
-      public boolean isValidFor (final long timestamp) {
-        return (timestamp <= time0 + 20);
-      }
-    };
-    view.setViewEvaluationModel(dummy);
-    // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
-    view.runOneCycle (time0 + 20);
-    assertSame (dummy, view.getViewEvaluationModel ());
-    // time0 + 30 requires a rebuild
-    view.runOneCycle (time0 + 30);
-    assertNotSame (dummy, view.getViewEvaluationModel ());
+  public void testGraphRebuild() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    final ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
     
-    // run a BATCH cycle. Even though a new evaluation model is built internally,
-    // it should not change the (live) evaluation model of the view 
-    dummy = new ViewEvaluationModel (originalModel.getDependencyGraphsByConfiguration(), originalModel.getPortfolio(), originalModel.getFunctionInitId()) {
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    
+    TestViewCompilationListener compilationListener = new TestViewCompilationListener();
+    client.setCompilationListener(compilationListener);
+    
+    TestComputationResultListener resultListener = new TestComputationResultListener();
+    client.setResultListener(resultListener);
+    
+    final long time0 = System.currentTimeMillis();
+    final ViewEvaluationTimeSequence evaluationTimes = new ArbitraryViewEvaluationTimeSequence(Arrays.asList(
+        Instant.ofEpochMillis(time0),
+        Instant.ofEpochMillis(time0 + 10),
+        Instant.ofEpochMillis(time0 + 20),
+        Instant.ofEpochMillis(time0 + 30)));
+    ViewProcessExecutionOptions testExecutionOptions = new ViewProcessExecutionOptions() {
+      
       @Override
-      public boolean isValidFor (final long timestamp) {
+      public boolean isRunAsFastAsPossible() {
         return false;
       }
+      
+      @Override
+      public Integer getMaxSuccessiveDeltaCycles() {
+        return null;
+      }
+      
+      @Override
+      public String getInputDataSource() {
+        return RealTimeViewProcessExecutionOptions.REAL_TIME_INPUT_DATA_SOURCE;
+      }
+      
+      @Override
+      public ViewEvaluationTimeSequence getEvaluationTimeSequence() {
+        return evaluationTimes;
+      }
+      
     };
-    view.setViewEvaluationModel(dummy);
-    view.runOneCycle(time0, view.getLiveDataSnapshotProvider(), null);
-    assertSame(dummy, view.getViewEvaluationModel());
+        
+    client.attachToViewProcess(env.getViewDefinition().getName(), testExecutionOptions);
+    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
+    Thread computationThread = env.getCurrentComputationThread(viewProcess);
+    
+    ViewEvaluationModel compilationModel1 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    
+    computationJob.liveDataChanged();
+    assertEquals(time0 + 10, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
+
+    // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
+    ViewEvaluationModel dummy = new ViewEvaluationModel(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+      @Override
+      public boolean isValidFor(final InstantProvider timestampProvider) {
+        Instant timestamp = timestampProvider.toInstant();
+        return (!timestamp.isAfter(Instant.ofEpochMillis(time0 + 20)));
+      }
+    };
+    computationJob.setViewEvaluationModel(dummy);
+    
+    // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
+    computationJob.liveDataChanged();
+    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
+    assertEquals(time0 + 20, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+
+    // time0 + 30 requires a rebuild
+    computationJob.liveDataChanged();
+    ViewEvaluationModel compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    assertNotSame(compilationModel1, compilationModel2);
+    assertNotSame(dummy, compilationModel2);
+    assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    
+    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
+    resultListener.assertNoResult(Timeout.standardTimeoutMillis());
+    
+    assertTrue(evaluationTimes.isEmpty());
+    
+    // Job should have terminated automatically with no further evaluation times
+    assertEquals(ViewProcessState.FINISHED, viewProcess.getState());
+    assertTrue(computationJob.isTerminated());
+    assertFalse(computationThread.isAlive());
+    
+    vp.stop();
   }
   
 }

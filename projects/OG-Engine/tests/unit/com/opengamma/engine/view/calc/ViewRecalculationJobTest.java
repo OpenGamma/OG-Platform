@@ -42,7 +42,7 @@ public class ViewRecalculationJobTest {
     resultListener.getResult(TIMEOUT);  // Consume the initial result
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    Thread recalcThread = env.getCurrentRecalcThread(viewProcess);
+    Thread recalcThread = env.getCurrentComputationThread(viewProcess);
     long startTime = System.currentTimeMillis();
     while (recalcThread.getState() != Thread.State.TIMED_WAITING) {
       // REVIEW jonathan 2010-10-01 -- I don't particularly like this, but how else can I wait for the recalc job to
@@ -55,7 +55,7 @@ public class ViewRecalculationJobTest {
     
     // We're now 'between cycles', waiting for the arrival of live data.
     // Interrupting should terminate the job gracefully
-    ViewComputationJob job = env.getCurrentRecalcJob(viewProcess);
+    ViewComputationJob job = env.getCurrentComputationJob(viewProcess);
     job.terminate();
     recalcThread.interrupt();
     

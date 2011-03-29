@@ -55,8 +55,8 @@ public class SingleComputationCycleTest {
     
     // Interrupting should cause everything to terminate gracefully
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    ViewComputationJob recalcJob = env.getCurrentRecalcJob(viewProcess);
-    Thread recalcThread = env.getCurrentRecalcThread(viewProcess);
+    ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
+    Thread recalcThread = env.getCurrentComputationThread(viewProcess);
     recalcJob.terminate();
     recalcThread.interrupt();
     recalcThread.join(TIMEOUT);

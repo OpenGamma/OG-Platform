@@ -5,18 +5,20 @@
  */
 package com.opengamma.engine.view;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import java.util.Collections;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -35,83 +37,81 @@ public class ViewProcessorTest {
     vp.start();
 
     assertTrue(vp.isRunning());
-    assertEquals(Collections.singleton(env.getViewDefinition().getName()), vp.getViewProcesses());
-    vp.stop();
-  }
-
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testAssertNotStarted() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    vp.assertNotStarted();
-  }
-
-  @Test
-  public void testObtainKnownView() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    assertTrue(vp.getViewProcesses().isEmpty());
     vp.stop();
   }
 
   @Test
-  public void testObtainUnknownView() {
+  public void testAttachToKnownView() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    
+    vp.stop();
+  }
 
-    ViewProcess view = vp.getView("Something random", ViewProcessorTestEnvironment.TEST_USER);
-    assertNull(view);
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testAttachToUnknownView() {
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess("Something random", RealTimeViewProcessExecutionOptions.INSTANCE);
   }
 
   @Test
   public void testSuspend_viewExists() throws InterruptedException, ExecutionException {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    final ViewProcessInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+
     Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
     assertNotNull(resume);
+    
     final CountDownLatch latch = new CountDownLatch(1);
-    Thread tryAndInit = new Thread() {
+    final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        v.init();
+        client2.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+        client2.shutdown();
         latch.countDown();
       }
     };
-    tryAndInit.start();
-    assertFalse (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    resume.run ();
-    assertTrue (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+    tryAttach.start();
+    assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+    resume.run();
+    assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
     vp.stop();
   }
 
   @Test
   public void testSuspend_viewNotExists() throws InterruptedException, ExecutionException {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
     assertNotNull(resume);
-    // View must start off in a suspended state
-    final ViewProcessInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    
+    final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     final CountDownLatch latch = new CountDownLatch(1);
-    Thread tryAndInit = new Thread() {
+    Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        v.init();
+        client2.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+        client2.shutdown();
         latch.countDown();
       }
     };
-    tryAndInit.start();
+    tryAttach.start();
     assertFalse (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
     resume.run ();
     assertTrue (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));

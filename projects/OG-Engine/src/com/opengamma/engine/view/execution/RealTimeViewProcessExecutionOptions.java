@@ -17,7 +17,10 @@ public final class RealTimeViewProcessExecutionOptions implements ViewProcessExe
    */
   public static final RealTimeViewProcessExecutionOptions INSTANCE = new RealTimeViewProcessExecutionOptions();
   
-  private static final String REAL_TIME_INPUT_DATA_SOURCE = "RealTime";
+  /**
+   * The real-time input data source
+   */
+  public static final String REAL_TIME_INPUT_DATA_SOURCE = "RealTime";
   
   private static ViewEvaluationTimeSequence s_timeSequence = new ViewEvaluationTimeSequence() {
     

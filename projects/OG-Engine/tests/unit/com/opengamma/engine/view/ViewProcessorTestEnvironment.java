@@ -99,7 +99,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
 
     final CompiledFunctionService compiledFunctions = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
-    compiledFunctions.initialize ();
+    compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
     TestLiveDataClient liveDataClient = new TestLiveDataClient();
@@ -172,11 +172,11 @@ public class ViewProcessorTestEnvironment {
     return viewProcessor.getViewProcessForClient(viewClientId);
   }
   
-  public ViewComputationJob getCurrentRecalcJob(ViewProcessImpl viewProcess) {
+  public ViewComputationJob getCurrentComputationJob(ViewProcessImpl viewProcess) {
     return viewProcess.getComputationJob();
   }
 
-  public Thread getCurrentRecalcThread(ViewProcessImpl viewProcess) {
+  public Thread getCurrentComputationThread(ViewProcessImpl viewProcess) {
     return viewProcess.getComputationThread();
   }
 

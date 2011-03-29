@@ -41,7 +41,7 @@ public class RateLimitingMergingViewProcessListener extends MergingViewProcessLi
     _timer = timer;
   }
   
-  public void shutdown() {
+  public void terminate() {
     _taskSetupLock.lock();
     try {
       cancelTimerTask();

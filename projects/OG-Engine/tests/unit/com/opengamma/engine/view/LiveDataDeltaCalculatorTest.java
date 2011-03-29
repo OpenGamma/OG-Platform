@@ -49,8 +49,8 @@ public class LiveDataDeltaCalculatorTest {
   @BeforeMethod
   public void setUp() {
     final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
-    _cache = source.getCache ("Test", "Default", 2); 
-    _previousCache = source.getCache ("Test", "Default", 1);
+    _cache = source.getCache(UniqueIdentifier.of("Test", "ViewProcess"), "Default", 2); 
+    _previousCache = source.getCache(UniqueIdentifier.of("Test", "ViewProcess"), "Default", 1);
     _deltaCalculator = new LiveDataDeltaCalculator(
         _graph,
         _cache,

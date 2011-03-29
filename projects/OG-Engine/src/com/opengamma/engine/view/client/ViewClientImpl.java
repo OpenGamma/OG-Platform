@@ -118,9 +118,14 @@ public class ViewClientImpl implements ViewClient {
           }
         }
       }
+      
+      @Override
+      public void processCompleted() {
+        ViewClientImpl.this.processCompleted();
+      }
 
       @Override
-      public void shutdown(boolean processCompleted) {
+      public void shutdown() {
         ViewClientImpl.this.detachFromViewProcess();
       }
       
@@ -205,6 +210,7 @@ public class ViewClientImpl implements ViewClient {
   public void detachFromViewProcess() {
     _clientLock.lock();
     try {
+      processCompleted();
       getViewProcessor().detachClientFromViewProcess(getUniqueId());
       getLatestCycleRetainer().replaceRetainedCycle(null);
       _mergingViewProcessListener.setPaused(true);
@@ -213,7 +219,6 @@ public class ViewClientImpl implements ViewClient {
       _latestResult.set(null);
       _isAttached = false;
       _permissionProvider = null;
-      _completionLatch.countDown();
     } finally {
       _clientLock.unlock();
     }
@@ -334,7 +339,7 @@ public class ViewClientImpl implements ViewClient {
       }
       detachFromViewProcess();
       getViewProcessor().removeViewClient(getUniqueId());
-      _mergingViewProcessListener.shutdown();
+      _mergingViewProcessListener.terminate();
       _state = ViewClientState.TERMINATED;
     } finally {
       _clientLock.unlock();
@@ -342,6 +347,13 @@ public class ViewClientImpl implements ViewClient {
   }
 
   //-------------------------------------------------------------------------
+  private void processCompleted() {
+    CountDownLatch latch = _completionLatch;
+    if (latch != null) {
+      latch.countDown();
+    }
+  }
+  
   private void checkNotTerminated() {
     if (getState() == ViewClientState.TERMINATED) {
       throw new IllegalStateException("The client has been terminated. It is not possible to use a terminated client.");

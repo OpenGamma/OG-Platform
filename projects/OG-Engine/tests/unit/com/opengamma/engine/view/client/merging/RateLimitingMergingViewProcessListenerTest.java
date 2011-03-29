@@ -66,7 +66,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     addResults(mergingListener, 1000);
     testListener.assertFullResults(1000);
 
-    mergingListener.shutdown(false);
+    mergingListener.shutdown();
     testListener.assertShutdown();
     testListener.assertNothingMoreReceived();
     
@@ -84,7 +84,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     testListener.assertFullResult();
     testListener.assertNothingMoreReceived();
 
-    mergingListener.shutdown();
+    mergingListener.terminate();
   }
 
   @Test
@@ -96,7 +96,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     assertCorrectUpdateRate(mergingListener, testListener, 400);
     assertCorrectUpdateRate(mergingListener, testListener, 50);
 
-    mergingListener.shutdown();
+    mergingListener.terminate();
   }
   
   @Test
@@ -123,7 +123,8 @@ public class RateLimitingMergingViewProcessListenerTest {
     ViewEvaluationModel postCompilation = mock(ViewEvaluationModel.class);
     mergingListener.compiled(postCompilation);
     
-    mergingListener.shutdown(true);
+    mergingListener.processCompleted();
+    mergingListener.shutdown();
     
     // End of sequence while paused
     
@@ -142,7 +143,8 @@ public class RateLimitingMergingViewProcessListenerTest {
     assertTrue(results.contains(Pair.of("value2", 2)));
     
     testListener.assertNextCall(postCompilation);
-    testListener.assertNextCall(true);
+    testListener.assertProcessCompleted();
+    testListener.assertShutdown();
     testListener.assertNothingMoreReceived();
   }
   
@@ -269,12 +271,21 @@ public class RateLimitingMergingViewProcessListenerTest {
     }
 
     @Override
-    public void shutdown(boolean processCompleted) {
-      _callsReceived.add(processCompleted);
+    public void processCompleted() {
+      _callsReceived.add("ProcessCompleted");
+    }
+    
+    public void assertProcessCompleted() {
+      assertNextCall("ProcessCompleted");
+    }
+    
+    @Override
+    public void shutdown() {
+      _callsReceived.add("Shutdown");
     }
     
     public void assertShutdown() {
-      assertReceived(Boolean.class);
+      assertNextCall("Shutdown");
     }
     
     public void assertNothingMoreReceived() {

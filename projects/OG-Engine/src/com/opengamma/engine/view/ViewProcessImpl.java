@@ -248,7 +248,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     lock();
     try {
       setState(ViewProcessState.FINISHED);
-      shutdownCore(true);
     } finally {
       unlock();
     }
@@ -257,7 +256,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   //-------------------------------------------------------------------------
   private void lock() {
     try {
+      s_logger.debug("Attempt to acquire lock by thread " + Thread.currentThread().getName());
       _processLock.acquire();
+      s_logger.debug("Lock acquired by thread " + Thread.currentThread().getName());
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
@@ -265,6 +266,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private void unlock() {
     _processLock.release();
+    s_logger.debug("Lock released by thread " + Thread.currentThread().getName());
   }
 
   /**
@@ -450,7 +452,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
     // Don't hold semaphore while calling out
     for (ViewProcessListener listener : listeners) {
-      listener.shutdown(false);
+      listener.shutdown();
     }
   }
   

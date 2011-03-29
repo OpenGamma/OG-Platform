@@ -44,7 +44,8 @@ public class MergingViewProcessListener implements ViewProcessListener {
   private ViewEvaluationModel _preResultCompilation;
   private ViewEvaluationModel _postResultCompilation;
   
-  private Boolean _processCompleted;
+  private boolean _processCompleted;
+  private boolean _shutdown;
   
   public MergingViewProcessListener(ViewProcessListener underlying, ViewCycleManager cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -165,13 +166,27 @@ public class MergingViewProcessListener implements ViewProcessListener {
   }
   
   @Override
-  public void shutdown(boolean processCompleted) {
+  public void processCompleted() {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().shutdown(processCompleted);
+        getUnderlying().processCompleted();
       } else {
-        _processCompleted = processCompleted;
+        _processCompleted = true;
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+  
+  @Override
+  public void shutdown() {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().shutdown();
+      } else {
+        _shutdown = true;
       }
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
@@ -195,9 +210,13 @@ public class MergingViewProcessListener implements ViewProcessListener {
         getUnderlying().compiled(_postResultCompilation);
         _postResultCompilation = null;
       }
-      if (_processCompleted != null) {
-        getUnderlying().shutdown(_processCompleted);
-        _processCompleted = null;
+      if (_processCompleted) {
+        getUnderlying().processCompleted();
+        _processCompleted = false;
+      }
+      if (_shutdown) {
+        getUnderlying().shutdown();
+        _shutdown = false;
       }
     } finally {
       _mergerLock.unlock();

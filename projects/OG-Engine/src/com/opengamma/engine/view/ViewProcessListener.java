@@ -18,6 +18,8 @@ public interface ViewProcessListener {
   
   void result(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
   
-  void shutdown(boolean processCompleted);
+  void processCompleted();
+  
+  void shutdown();
   
 }

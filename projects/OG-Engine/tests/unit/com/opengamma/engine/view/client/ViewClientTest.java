@@ -159,7 +159,7 @@ public class ViewClientTest {
     snapshotProvider.addValue(env.getPrimitive1(), 3);
     snapshotProvider.addValue(env.getPrimitive2(), 4);
     
-    env.getCurrentRecalcJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -210,7 +210,7 @@ public class ViewClientTest {
     
     assertEquals(0, deltaListener.getQueueSize());
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    env.getCurrentRecalcJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
+    env.getCurrentComputationJob(viewProcess).liveDataChanged();  // Need to get it to perform another cycle
     
     // Should have been merging results received in the meantime
     client.resume();
@@ -263,13 +263,13 @@ public class ViewClientTest {
     
     // Now client 1 is paused, so any changes should be batched.
     snapshotProvider.addValue(env.getPrimitive1(), 1);
-    env.getCurrentRecalcJob(viewProcess1).liveDataChanged();
+    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
     client2ResultListener.getResult(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoResult(TIMEOUT);
     
     snapshotProvider.addValue(env.getPrimitive1(), 2);
-    env.getCurrentRecalcJob(viewProcess1).liveDataChanged();
+    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
     client2ResultListener.getResult(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoResult(TIMEOUT);
@@ -286,7 +286,7 @@ public class ViewClientTest {
     
     // Changes should now propagate straight away to both listeners
     snapshotProvider.addValue(env.getPrimitive1(), 3);
-    env.getCurrentRecalcJob(viewProcess1).liveDataChanged();
+    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
     client2ResultListener.getResult(TIMEOUT);
     ViewComputationResultModel result3 = client1ResultListener.getResult(TIMEOUT);
     expected = new HashMap<ValueRequirement, Object>();
@@ -300,13 +300,13 @@ public class ViewClientTest {
     client1ResultListener.assertNoResult(TIMEOUT);
 
     snapshotProvider.addValue(env.getPrimitive2(), 1);
-    env.getCurrentRecalcJob(viewProcess1).liveDataChanged();
+    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
     client2ResultListener.getResult(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoResult(TIMEOUT);
 
     snapshotProvider.addValue(env.getPrimitive2(), 2);
-    env.getCurrentRecalcJob(viewProcess1).liveDataChanged();
+    env.getCurrentComputationJob(viewProcess1).liveDataChanged();
     client2ResultListener.getResult(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoResult(TIMEOUT);
@@ -375,7 +375,7 @@ public class ViewClientTest {
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
     
-    ViewComputationJob recalcJob = env.getCurrentRecalcJob(viewProcess);
+    ViewComputationJob recalcJob = env.getCurrentComputationJob(viewProcess);
     computationListener1.getResult(TIMEOUT);
     deltaListener1.getResult(TIMEOUT);
     assertEquals(0, computationListener1.getQueueSize());
@@ -429,16 +429,16 @@ public class ViewClientTest {
     client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
     
-    ViewComputationJob recalcJob1 = env.getCurrentRecalcJob(viewProcess1);
-    Thread recalcThread1 = env.getCurrentRecalcThread(viewProcess1);
+    ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
+    Thread recalcThread1 = env.getCurrentComputationThread(viewProcess1);
     assertFalse(recalcJob1.isTerminated());
     assertTrue(recalcThread1.isAlive());
     
     client.detachFromViewProcess();
     client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
-    ViewComputationJob recalcJob2 = env.getCurrentRecalcJob(viewProcess2);
-    Thread recalcThread2 = env.getCurrentRecalcThread(viewProcess2);
+    ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
+    Thread recalcThread2 = env.getCurrentComputationThread(viewProcess2);
     
     assertFalse(viewProcess1 == viewProcess2);
     assertTrue(recalcJob1.isTerminated());
