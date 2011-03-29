@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 
 /**

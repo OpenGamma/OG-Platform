@@ -8,17 +8,22 @@ package com.opengamma.financial.analytics.ircurve;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.id.Identifier;
+import com.opengamma.util.time.Tenor;
 
 /**
  *  
  */
 public class FixedIncomeStripWithSecurity {
   private StripInstrumentType _instrumentType;
+  private Tenor _tenor;
+  private Tenor _resolvedTenor;
+  private int _nthFutureFromTenor;
   private ZonedDateTime _maturity;
   private Identifier _securityIdentifier;
   private Security _security;
@@ -30,7 +35,36 @@ public class FixedIncomeStripWithSecurity {
   public StripInstrumentType getInstrumentType() {
     return _instrumentType;
   }
-
+  
+  /**
+   * Gets the tenor field
+   * @return the tenor
+   */
+  public Tenor getTenor() {
+    return _tenor;
+  }
+  
+  /**
+   * Gets the resolved tenor field
+   * @return the tenor
+   */
+  public Tenor getResolvedTenor() {
+    return _resolvedTenor;
+  }
+  
+  /**
+   * Get the number of the quarterly IR futures after the tenor to choose.  
+   * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
+   * @return number of futures after the tenor
+   * @throws IllegalStateException if called on a non-future strip
+   */
+  public int getNumberOfFuturesAfterTenor() {
+    if (_instrumentType != StripInstrumentType.FUTURE) {
+      throw new IllegalStateException("Cannot get number of futures after tenor for a non future strip " + toString());
+    }
+    return _nthFutureFromTenor;
+  }
+  
   /**
    * Gets the years field.
    * @return the years
@@ -56,8 +90,27 @@ public class FixedIncomeStripWithSecurity {
     return _security;
   }
 
-  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, ZonedDateTime maturity, Identifier securityIdentifier, Security security) {
+  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, Tenor originalTenor, 
+                                      Tenor resolvedTenor, int nthFutureFromOriginalTenor, 
+                                      ZonedDateTime maturity, Identifier securityIdentifier, 
+                                      Security security) {
+    Validate.isTrue(instrumentType == StripInstrumentType.FUTURE, "Trying to create a node with a nthFutureFromOriginalTenor param when not a future node");
     _instrumentType = instrumentType;
+    _tenor = originalTenor;
+    _resolvedTenor = resolvedTenor;
+    _nthFutureFromTenor = nthFutureFromOriginalTenor;
+    _maturity = maturity;
+    _securityIdentifier = securityIdentifier;
+    _security = security;
+  }
+  
+  public FixedIncomeStripWithSecurity(StripInstrumentType instrumentType, Tenor originalTenor, 
+      Tenor resolvedTenor, ZonedDateTime maturity, Identifier securityIdentifier, 
+      Security security) {
+    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE, "Trying to create a node without a nthFutureFromOriginalTenor param when a future node");
+    _instrumentType = instrumentType;
+    _tenor = originalTenor;
+    _resolvedTenor = resolvedTenor;
     _maturity = maturity;
     _securityIdentifier = securityIdentifier;
     _security = security;
@@ -70,7 +123,9 @@ public class FixedIncomeStripWithSecurity {
     }
     if (obj instanceof FixedIncomeStripWithSecurity) {
       FixedIncomeStripWithSecurity other = (FixedIncomeStripWithSecurity) obj;
-      return ObjectUtils.equals(_maturity, other._maturity) &&
+      return ObjectUtils.equals(_tenor, other._tenor) &&
+             ObjectUtils.equals(_nthFutureFromTenor, other._nthFutureFromTenor) &&
+             ObjectUtils.equals(_maturity, other._maturity) &&
              ObjectUtils.equals(_security, other._security) &&
              _instrumentType == other._instrumentType;
     }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.TimeZone;
@@ -13,9 +13,10 @@ import java.util.TimeZone;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
@@ -24,6 +25,7 @@ import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -33,6 +35,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerCorrectTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyHolidayDbHolidayMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -40,12 +43,12 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correctHoliday_nullDocument() {
     _holMaster.correct(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noHolidayId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
@@ -55,14 +58,14 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     _holMaster.correct(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbHol", "101", "0"));
     _holMaster.correct(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));

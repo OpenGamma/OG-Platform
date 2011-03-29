@@ -27,7 +27,7 @@ import com.opengamma.master.listener.BasicMasterChangeManager;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A config master implementation using a database for persistence.

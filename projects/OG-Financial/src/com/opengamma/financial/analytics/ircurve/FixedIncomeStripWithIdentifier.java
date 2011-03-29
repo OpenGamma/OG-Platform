@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -18,6 +19,7 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripWithIdentifier {
   private StripInstrumentType _instrumentType;
   private Tenor _maturity;
+  private int _nthFutureFromTenor;
   private Identifier _security;
 
   /**
@@ -43,10 +45,41 @@ public class FixedIncomeStripWithIdentifier {
   public Identifier getSecurity() {
     return _security;
   }
+  
+  /**
+   * Get the number of the quarterly IR futures after the tenor to choose.  
+   * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
+   * @return number of futures after the tenor
+   * @throws IllegalStateException if called on a non-future strip
+   */
+  public int getNumberOfFuturesAfterTenor() {
+    if (_instrumentType != StripInstrumentType.FUTURE) {
+      throw new IllegalStateException("Cannot get number of futures after tenor for a non future node " + toString());
+    }
+    return _nthFutureFromTenor;
+  }
+  
 
+  public FixedIncomeStripWithIdentifier(StripInstrumentType instrumentType, Tenor maturity, int nthFutureFromTenor, Identifier security) {
+    _instrumentType = instrumentType;
+    if (_instrumentType != StripInstrumentType.FUTURE) {
+      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node " + toString());
+    }
+    _nthFutureFromTenor = nthFutureFromTenor;
+    Validate.notNull(maturity);
+    _maturity = maturity;
+    Validate.notNull(security);
+    _security = security;
+  }
+  
   public FixedIncomeStripWithIdentifier(StripInstrumentType instrumentType, Tenor maturity, Identifier security) {
     _instrumentType = instrumentType;
+    if (_instrumentType == StripInstrumentType.FUTURE) {
+      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node type=" + instrumentType + " maturity=" + maturity + " security="+security);
+    }
+    Validate.notNull(maturity);
     _maturity = maturity;
+    Validate.notNull(security);
     _security = security;
   }
   
@@ -58,6 +91,7 @@ public class FixedIncomeStripWithIdentifier {
     if (obj instanceof FixedIncomeStripWithIdentifier) {
       FixedIncomeStripWithIdentifier other = (FixedIncomeStripWithIdentifier) obj;
       return ObjectUtils.equals(_maturity, other._maturity) &&
+             _nthFutureFromTenor == other._nthFutureFromTenor &&
              ObjectUtils.equals(_security, other._security) &&
              _instrumentType == other._instrumentType;
     }

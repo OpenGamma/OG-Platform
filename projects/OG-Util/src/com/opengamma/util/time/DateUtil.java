@@ -106,7 +106,8 @@ public class DateUtil {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    return (double) (endDate.toLocalDate().toEpochDays() - startDate.toLocalDate().toEpochDays()) / DAYS_PER_YEAR;
+    double diff = endDate.toLocalDate().toEpochDays() - startDate.toLocalDate().toEpochDays();
+    return diff / DAYS_PER_YEAR;
   }
 
   /**

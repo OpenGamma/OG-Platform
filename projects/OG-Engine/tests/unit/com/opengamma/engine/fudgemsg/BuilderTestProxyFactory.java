@@ -11,15 +11,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataInputStreamReader;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
+import org.fudgemsg.wire.FudgeDataInputStreamReader;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * This class allows you to test serializers from other platforms by using any {@link AbstractBuilderTestCase}s you have.

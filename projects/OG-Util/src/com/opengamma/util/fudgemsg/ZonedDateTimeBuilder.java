@@ -3,13 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.time.fudgemsg;
+package com.opengamma.util.fudgemsg;
 
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -18,33 +17,35 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
- * Builder to convert ZonedDateTime to and from Fudge.
+ * Fudge builder for {@code ZonedDateTime}.
  */
 @FudgeBuilderFor(ZonedDateTime.class)
 public final class ZonedDateTimeBuilder implements FudgeBuilder<ZonedDateTime> {
 
+  /** Field name. */
+  public static final String ODT_FIELD_NAME = "odt";
+  /** Field name. */
+  public static final String ZONE_FIELD_NAME = "zone";
+
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ZonedDateTime object) {
     final MutableFudgeFieldContainer msg = context.newMessage();
-    final OffsetDateTime offsetDateTime = object.toOffsetDateTime();
-    String zone = object.getZone().getID();
-    context.objectToFudgeMsg(msg, "offsetDateTime", null, offsetDateTime);
-    msg.add("zone", zone);
+    msg.add(ODT_FIELD_NAME, object.toOffsetDateTime());
+    msg.add(ZONE_FIELD_NAME, object.getZone().getID());
     return msg;
   }
 
   @Override
-  public ZonedDateTime buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    FudgeField fudgeField = message.getByName("offsetDateTime");
-    if (fudgeField == null) {
-      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'offsetDateTime' is not present");
+  public ZonedDateTime buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+    final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, ODT_FIELD_NAME);
+    if (odt == null) {
+      throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'odt' is not present");
     }
-    OffsetDateTime offsetDateTime = context.fieldValueToObject(OffsetDateTime.class, fudgeField);
-    String zone = message.getString("zone");
+    final String zone = msg.getString(ZONE_FIELD_NAME);
     if (zone == null) {
       throw new IllegalArgumentException("Fudge message is not a ZonedDateTime - field 'zone' is not present");
     }
-    return ZonedDateTime.of(offsetDateTime, TimeZone.of(zone));
+    return ZonedDateTime.of(odt, TimeZone.of(zone));
   }
 
 }

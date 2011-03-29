@@ -5,16 +5,17 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -22,6 +23,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifySecurityDbSecurityMasterWorker.
@@ -31,6 +33,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifySecurityDbSecurityMasterWorkerRemoveTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifySecurityDbSecurityMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -38,7 +41,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeSecurity_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbSec", "0", "0");
     _secMaster.remove(uid);

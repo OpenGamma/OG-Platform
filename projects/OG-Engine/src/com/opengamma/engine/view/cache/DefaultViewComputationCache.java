@@ -16,10 +16,10 @@ import java.util.WeakHashMap;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeSize;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.wire.FudgeSize;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.fudgemsg;
+package com.opengamma.util.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
@@ -13,7 +13,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 
 /**
- * Converts Currency instances to/from a Fudge string type.
+ * Fudge secondary type for {@code Currency} converting to a string.
  */
 public final class CurrencySecondaryType extends SecondaryFieldType<Currency, String> {
 
@@ -23,10 +23,17 @@ public final class CurrencySecondaryType extends SecondaryFieldType<Currency, St
   @FudgeSecondaryType
   public static final CurrencySecondaryType INSTANCE = new CurrencySecondaryType();
 
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Restricted constructor.
+   */
   private CurrencySecondaryType() {
     super(StringFieldType.INSTANCE, Currency.class);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String secondaryToPrimary(Currency object) {
     return object.getCode();

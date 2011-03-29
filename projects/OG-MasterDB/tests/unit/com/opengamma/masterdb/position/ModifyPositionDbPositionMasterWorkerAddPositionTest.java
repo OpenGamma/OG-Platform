@@ -5,9 +5,9 @@
  */
 package com.opengamma.masterdb.position;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -17,9 +17,10 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -27,6 +28,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyPositionDbPositionMasterWorker.
@@ -36,6 +38,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyPositionDbPositionMasterWorkerAddPositionTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyPositionDbPositionMasterWorkerAddPositionTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -43,12 +46,12 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_nullDocument() {
     _posMaster.add(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noPosition() {
     PositionDocument doc = new PositionDocument();
     _posMaster.add(doc);

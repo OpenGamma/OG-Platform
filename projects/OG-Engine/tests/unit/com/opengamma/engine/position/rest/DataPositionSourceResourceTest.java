@@ -31,7 +31,7 @@ import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Tests DataPositionResource.

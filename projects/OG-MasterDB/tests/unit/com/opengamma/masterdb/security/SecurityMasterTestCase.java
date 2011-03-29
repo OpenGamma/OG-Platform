@@ -5,9 +5,8 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +15,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +34,8 @@ import com.opengamma.master.security.SecuritySearchResult;
  * Generic TestCase for a SecurityMaster implementation. Either inherit from it, or
  * delegate through the SecurityMasterTestCaseMethods interface.
  */
-@Ignore("Abstract class")
-public class SecurityMasterTestCase extends SecurityTestCase {
+public abstract class SecurityMasterTestCase extends SecurityTestCase {
+  // abstract to stop it being seen as a test class
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityMasterTestCase.class);
 
@@ -117,7 +115,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
   }
 
   @Override
-  protected <T extends ManageableSecurity> void testSecurity(final Class<T> securityClass, final T security) {
+  protected <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security) {
     normalizeSecurity (security);
     s_logger.debug("Testing {} instance {}", securityClass, security.hashCode());
     final UniqueIdentifier uid = putSecurity(security);
@@ -153,7 +151,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     final UniqueIdentifier newuid = updateSecurity (security);
     assertNotNull(newuid);
     s_logger.debug("New UID = {}", newuid);
-    assertFalse(uid.equals(newuid));
+    assertEquals(false, uid.equals(newuid));
     // retrieve with original uid - gets original
     sec = getSecurity(uid);
     assertNotNull(sec);

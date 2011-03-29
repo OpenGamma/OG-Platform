@@ -22,7 +22,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Manager for receiving and handling events from masters.

@@ -5,8 +5,8 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.LinkedList;
 import java.util.TimeZone;
@@ -17,12 +17,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -50,20 +51,21 @@ public class DbSecurityMasterTest extends DBTest {
 
   private DbSecurityMaster _secMaster;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
     _secMaster = null;

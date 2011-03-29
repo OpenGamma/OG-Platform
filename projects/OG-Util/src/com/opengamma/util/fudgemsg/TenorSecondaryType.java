@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.fudgemsg;
+package com.opengamma.util.fudgemsg;
 
 import javax.time.calendar.Period;
 
@@ -14,7 +14,7 @@ import org.fudgemsg.types.StringFieldType;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Converts DayCount instances to/from a Fudge string type.
+ * Fudge secondary type for {@code Tenor} converting to a string.
  */
 public final class TenorSecondaryType extends SecondaryFieldType<Tenor, String> {
 
@@ -24,10 +24,17 @@ public final class TenorSecondaryType extends SecondaryFieldType<Tenor, String> 
   @FudgeSecondaryType
   public static final TenorSecondaryType INSTANCE = new TenorSecondaryType();
 
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Restricted constructor.
+   */
   private TenorSecondaryType() {
     super(StringFieldType.INSTANCE, Tenor.class);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String secondaryToPrimary(Tenor object) {
     return object.getPeriod().toString();

@@ -28,7 +28,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.Timeout;
 
 /**
