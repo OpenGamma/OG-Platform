@@ -13,6 +13,8 @@
     </publications>
     <dependencies>
       <dependency name="og-financial" rev="latest.integration" />
+      <dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" />
+	  <dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" />
       <!-- Pull windows binaries for Visual Studio build, posix user can install the libraries more easily -->
       <dependency org="org.fudgemsg" name="fudge-c" rev="0.2" conf="*->Windows" />
       <dependency org="org.apache" name="log4cxx" rev="0.10.0" conf="*->Windows" />

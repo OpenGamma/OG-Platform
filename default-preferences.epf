@@ -22,3 +22,5 @@ file_export_version=3.0
 @net.sf.eclipsecs.ui=5.3.0.201012121300
 /instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source=1.6
 /instance/net.sf.eclipsecs.core/include.rule.names=false
+@net.sf.eclipsecs.core=5.3.0.201012121300
+/instance/org.eclipse.ant.ui/ignoreAll=true

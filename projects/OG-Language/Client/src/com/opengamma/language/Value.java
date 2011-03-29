@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/language/Value.proto:15(10)
 package com.opengamma.language;
 public class Value implements java.io.Serializable {
   private static final long serialVersionUID = -3384801225834293009l;
@@ -117,7 +118,7 @@ public class Value implements java.io.Serializable {
       msg.add (null, STRING_VALUE_ORDINAL, _stringValue);
     }
     if (_messageValue != null)  {
-      msg.add (null, MESSAGE_VALUE_ORDINAL, fudgeContext.newMessage (_messageValue));
+      msg.add (null, MESSAGE_VALUE_ORDINAL, (_messageValue instanceof org.fudgemsg.ImmutableFudgeFieldContainer) ? _messageValue : fudgeContext.newMessage (_messageValue));
     }
     if (_errorValue != null)  {
       msg.add (null, ERROR_VALUE_ORDINAL, _errorValue);
