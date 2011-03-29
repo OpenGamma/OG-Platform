@@ -10,11 +10,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.fudgemsg.EncodedFudgeMsg;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
-import org.fudgemsg.FudgeEncoded;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.wire.EncodedFudgeMsg;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeEncoded;
 
 import com.opengamma.util.ArgumentChecker;
 

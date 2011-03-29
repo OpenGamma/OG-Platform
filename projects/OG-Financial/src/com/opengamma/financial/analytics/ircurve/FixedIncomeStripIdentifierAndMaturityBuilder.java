@@ -36,6 +36,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Converts specifications into fully resolved security definitions 
@@ -118,7 +119,14 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), maturity, strip.getSecurity(), security));
+      Tenor resolvedTenor = new Tenor(Period.between(curveDate, maturity.toLocalDate()));
+      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor, 
+                                                            strip.getNumberOfFuturesAfterTenor(), maturity,  strip.getSecurity(), security));
+      } else {
+        securityStrips.add(new FixedIncomeStripWithSecurity(strip.getInstrumentType(), strip.getMaturity(), resolvedTenor,
+                           maturity, strip.getSecurity(), security));
+      }
     }
     return new InterpolatedYieldCurveSpecificationWithSecurities(curveDate, curveSpecification.getName(), curveSpecification.getCurrency(), curveSpecification.getInterpolator(), securityStrips);
   }

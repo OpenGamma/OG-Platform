@@ -44,7 +44,7 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 

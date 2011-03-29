@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class QuasiNewtonTest extends MultidimensionalMinimizerWithGradiantTestCase {
+public class QuasiNewtonTest extends MultidimensionalMinimizerWithGradientTestCase {
   private static final QuasiNewtonInverseHessianUpdate BFGS = new BroydenFletcherGoldfarbShannoInverseHessianUpdate();
   private static final QuasiNewtonInverseHessianUpdate DFP = new DavidonFletcherPowellInverseHessianUpdate();
   private static final double EPS = 1e-8;

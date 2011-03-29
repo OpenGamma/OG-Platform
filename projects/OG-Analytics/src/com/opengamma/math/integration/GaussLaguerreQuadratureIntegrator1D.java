@@ -8,7 +8,7 @@ package com.opengamma.math.integration;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Gauss-Laguerre quadrature approximates the vlaue of integrals of the form
+ * Gauss-Laguerre quadrature approximates the value of integrals of the form
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * \\int_{0}^{\\infty} e^{-x}f(x) dx

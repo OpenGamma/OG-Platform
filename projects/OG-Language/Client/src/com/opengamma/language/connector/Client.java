@@ -26,11 +26,11 @@ import java.util.concurrent.TimeoutException;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
-import org.fudgemsg.FudgeRuntimeIOException;
-import org.fudgemsg.FudgeStreamReader;
-import org.fudgemsg.FudgeStreamWriter;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.FudgeRuntimeIOException;
+import org.fudgemsg.wire.FudgeStreamReader;
+import org.fudgemsg.wire.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

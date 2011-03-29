@@ -12,9 +12,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.LockSupport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgWriter;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeMsgWriter;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;

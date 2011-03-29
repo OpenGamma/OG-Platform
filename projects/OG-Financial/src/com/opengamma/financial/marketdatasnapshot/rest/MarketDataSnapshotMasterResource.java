@@ -16,7 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -92,7 +92,7 @@ public class MarketDataSnapshotMasterResource {
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
       final MutableFudgeFieldContainer resp = sctx.newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
-      sctx.objectToFudgeMsgWithClassHeaders(resp, "snapshot", null, document.getSnapshot(), MarketDataSnapshot.class);
+      sctx.objectToFudgeMsgWithClassHeaders(resp, "snapshot", null, document.getSnapshot(), StructuredMarketDataSnapshot.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -124,7 +124,10 @@ public class MarketDataSnapshotMasterResource {
       if (document == null) {
         return null;
       }
-      return FudgeContext.EMPTY_MESSAGE_ENVELOPE;
+      final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+      resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
+      return new FudgeMsgEnvelope(resp);
+      
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }

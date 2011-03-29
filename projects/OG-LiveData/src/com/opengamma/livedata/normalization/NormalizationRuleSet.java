@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.livedata.resolver.JmsTopicNameResolver;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An ordered set of normalization rules.

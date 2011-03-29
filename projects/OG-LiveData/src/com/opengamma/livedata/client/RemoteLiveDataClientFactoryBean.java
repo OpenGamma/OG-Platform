@@ -14,7 +14,7 @@ import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
 import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Creates a {@link JmsLiveDataClient}.

@@ -12,7 +12,6 @@ temp/
 tests/classes/
 tests/output/
 .settings/
-/.fudge-proto-gitignore
 MANIFEST.MF
 .clover/
 build.number

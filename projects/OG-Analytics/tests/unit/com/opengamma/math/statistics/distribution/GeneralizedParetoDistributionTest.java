@@ -6,8 +6,11 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
@@ -17,7 +20,7 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
   private static final double MU = 0.4;
   private static final double SIGMA = 1.4;
   private static final double KSI = 0.2;
-  private static final ProbabilityDistribution<Double> DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
+  private static final GeneralizedParetoDistribution DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
   private static final double LARGE_X = 1e20;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -39,6 +42,25 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
   public void testBadInputs() {
     assertCDFWithNull(DIST);
     assertPDFWithNull(DIST);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(KSI, DIST.getKsi(), 0);
+    assertEquals(MU, DIST.getMu(), 0);
+    assertEquals(SIGMA, DIST.getSigma(), 0);
+    GeneralizedParetoDistribution other = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new GeneralizedParetoDistribution(MU, SIGMA, KSI);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new GeneralizedParetoDistribution(MU + 1, SIGMA, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedParetoDistribution(MU, SIGMA + 1, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedParetoDistribution(MU, SIGMA, KSI + 1);
+    assertFalse(other.equals(DIST));
   }
 
   @Test
