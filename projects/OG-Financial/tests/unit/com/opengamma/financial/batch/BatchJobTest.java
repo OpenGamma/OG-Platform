@@ -25,7 +25,7 @@ import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.financial.ViewTestUtils;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -231,7 +231,7 @@ public class BatchJobTest {
 
   @Test
   public void initView() throws Exception {
-    ViewInternal testView = ViewTestUtils.getMockView();
+    ViewProcessInternal testView = ViewTestUtils.getMockView();
     
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
     cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));

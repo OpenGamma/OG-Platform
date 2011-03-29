@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.management;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.management.MalformedObjectNameException;
@@ -12,6 +13,7 @@ import javax.management.ObjectName;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessorInternal;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,8 +54,12 @@ public final class ViewProcessor implements ViewProcessorMBean {
   }
 
   @Override
-  public Set<String> getViewNames() {
-    return _viewProcessor.getViewNames();
+  public Set<UniqueIdentifier> getViewProcesses() {
+    Set<UniqueIdentifier> result = new HashSet<UniqueIdentifier>();
+    for (com.opengamma.engine.view.ViewProcess viewProcess : _viewProcessor.getViewProcesses()) {
+      result.add(viewProcess.getUniqueId());
+    }
+    return result;
   }
 
   /**

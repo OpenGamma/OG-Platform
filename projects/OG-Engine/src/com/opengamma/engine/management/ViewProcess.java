@@ -5,28 +5,26 @@
  */
 package com.opengamma.engine.management;
 
-import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
 
-import com.google.common.collect.Sets;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.engine.view.ViewProcessInternal;
+import com.opengamma.engine.view.ViewProcessState;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * An MBean implementation for those attributes and operations we wish to expose on a View.
  * 
  */
-public class View implements ViewMBean {
+public class ViewProcess implements ViewProcessMBean {
 
   /**
    * A View backing instance
    */
-  private final ViewInternal _view;
+  private final ViewProcessInternal _view;
 
   private final ObjectName _objectName;
 
@@ -36,58 +34,54 @@ public class View implements ViewMBean {
    * @param view the underlying View
    * @param viewProcessor the viewProcessor processing the view
    */
-  public View(ViewInternal view, com.opengamma.engine.view.ViewProcessor viewProcessor) {
+  public ViewProcess(ViewProcessInternal view, com.opengamma.engine.view.ViewProcessor viewProcessor) {
     ArgumentChecker.notNull(view, "View");
     ArgumentChecker.notNull(viewProcessor, "ViewProcessor");
     _view = view;
-    _objectName = createObjectName(viewProcessor.toString(), view.getName());
+    _objectName = createObjectName(viewProcessor.toString(), view.getUniqueId());
   }
 
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewName>"
    */
-  static ObjectName createObjectName(String viewProcessorName, String viewName) {
+  static ObjectName createObjectName(String viewProcessorName, UniqueIdentifier viewProcessId) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=View,ViewProcessor=" + viewProcessorName + ",name=" + viewName);
+      objectName = new ObjectName("com.opengamma:type=View,ViewProcessor=" + viewProcessorName + ",name=" + viewProcessId);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
     return objectName;
   }
-
+  
   @Override
-  public String getName() {
-    return _view.getName();
-  }
-
-  @Override
-  public void init() {
-    _view.init();
-  }
-
-  @Override
-  public String getPortfolioName() {
-    return _view.getPortfolio().getName();
+  public UniqueIdentifier getUniqueId() {
+    return _view.getUniqueId();
   }
   
   @Override
   public String getPortfolioIdentifier() {
-    return _view.getPortfolio().getUniqueId().toString();
+    return _view.getDefinition().getPortfolioId().toString();
   }
 
   @Override
-  public Set<String> getAllSecurityTypes() {
-    return _view.getAllSecurityTypes();
+  public boolean isBatchProcess() {
+    return _view.isBatchProcess();
   }
 
   @Override
-  public Set<String> getRequiredLiveData() {
-    Set<String> result = Sets.newHashSet();
-    for (ValueRequirement valueRequirement : _view.getRequiredLiveData()) {
-      result.add(valueRequirement.toString());
-    }
-    return result;
+  public String getDefinitionName() {
+    return _view.getDefinitionName();
+  }
+
+  @Override
+  public ViewProcessState getState() {
+    return _view.getState();
+  }
+
+  @Override
+  public void shutdown() {
+    _view.shutdown();
   }
   
   @Override
@@ -99,12 +93,6 @@ public class View implements ViewMBean {
   public void resume() {
     _view.resume();
   }
-
-  
-  @Override
-  public boolean isLiveComputationRunning() {
-    return _view.isLiveComputationRunning();
-  }
   
   /**
    * Gets the objectName field.
@@ -114,5 +102,5 @@ public class View implements ViewMBean {
   public ObjectName getObjectName() {
     return _objectName;
   }
-
+  
 }

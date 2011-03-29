@@ -11,10 +11,11 @@ import org.junit.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.test.TestComputationResultListener;
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -35,18 +36,15 @@ public class ViewRecalculationJobTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
-    view.init();
-    
-    ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestComputationResultListener resultListener = new TestComputationResultListener();
     client.setResultListener(resultListener);
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     
-    client.startLive();  // Performs an initial cycle
     resultListener.getResult(TIMEOUT);  // Consume the initial result
     
-    Thread recalcThread = env.getCurrentRecalcThread(view);
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    Thread recalcThread = env.getCurrentRecalcThread(viewProcess);
     long startTime = System.currentTimeMillis();
     while (recalcThread.getState() != Thread.State.TIMED_WAITING) {
       // REVIEW jonathan 2010-10-01 -- I don't particularly like this, but how else can I wait for the recalc job to
@@ -59,7 +57,7 @@ public class ViewRecalculationJobTest {
     
     // We're now 'between cycles', waiting for the arrival of live data.
     // Interrupting should terminate the job gracefully
-    ViewRecalculationJob job = env.getCurrentRecalcJob(view);
+    ViewComputationJob job = env.getCurrentRecalcJob(viewProcess);
     job.terminate();
     recalcThread.interrupt();
     

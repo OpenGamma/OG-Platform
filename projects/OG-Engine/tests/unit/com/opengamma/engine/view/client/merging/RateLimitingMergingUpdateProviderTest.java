@@ -24,7 +24,7 @@ public class RateLimitingMergingUpdateProviderTest {
 
   @Test
   public void testPassThrough() {
-    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), new Timer(
+    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ReplacementMerger(), new Timer(
         "Custom timer"));
 
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
@@ -49,7 +49,7 @@ public class RateLimitingMergingUpdateProviderTest {
 
   @Test
   public void testMergingWhenRateLimiting() throws InterruptedException {
-    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), 500);
+    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ReplacementMerger(), 500);
 
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);
@@ -63,7 +63,7 @@ public class RateLimitingMergingUpdateProviderTest {
 
   @Test
   public void testModifiableUpdatePeriod() throws InterruptedException {
-    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), 500);
+    RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ReplacementMerger(), 500);
 
     TestMergingUpdateListener testListener = new TestMergingUpdateListener();
     provider.addUpdateListener(testListener);

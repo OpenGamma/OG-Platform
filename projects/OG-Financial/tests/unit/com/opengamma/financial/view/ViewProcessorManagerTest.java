@@ -31,7 +31,7 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.engine.view.ViewProcessInternal;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
@@ -121,7 +121,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewInternal getView(String name, UserPrincipal credentials) {
+    public ViewProcessInternal getView(String name, UserPrincipal credentials) {
       return null;
     }
 

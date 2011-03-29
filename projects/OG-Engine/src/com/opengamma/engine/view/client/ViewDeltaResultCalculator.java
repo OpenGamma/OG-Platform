@@ -32,7 +32,7 @@ public class ViewDeltaResultCalculator {
    */
   public static ViewDeltaResultModel computeDeltaModel(ViewDefinition viewDefinition, ViewResultModel previousResult, ViewResultModel result) {
     InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
-    deltaModel.setValuationTime(result.getValuationTime());
+    deltaModel.setEvaluationTime(result.getEvaluationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     if (previousResult != null) {
       deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());

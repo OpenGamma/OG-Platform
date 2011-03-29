@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
@@ -85,7 +85,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().setViewName("test_view");
     
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
-    ViewImpl view = ViewTestUtils.getMockView();
+    ViewProcessImpl view = ViewTestUtils.getMockView();
     _batchJobRun.setView(view);
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>();

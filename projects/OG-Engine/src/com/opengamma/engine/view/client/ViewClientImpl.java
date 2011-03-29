@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.client;
 
 import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,43 +15,51 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewImpl;
-import com.opengamma.engine.view.client.merging.MergedUpdateListener;
-import com.opengamma.engine.view.client.merging.RateLimitingMergingUpdateProvider;
-import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
-import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
+import com.opengamma.engine.view.ViewProcessListener;
+import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.calc.ViewCycleReference;
+import com.opengamma.engine.view.calc.ViewCycleRetainer;
+import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
+import com.opengamma.engine.view.compilation.ViewCompilationListener;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Provides client-oriented functionality on top of a {@link View} including:
- * <ul>
- *   <li> Rate-limiting of updates
- *   <li> Pausing updates
- * </ul>
+ * Default implementation of {@link ViewClient}.
  */
 public class ViewClientImpl implements ViewClient {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ViewClientImpl.class);
   
+  private final ReentrantLock _clientLock = new ReentrantLock();
+  
   private final UniqueIdentifier _id;
-  private final ViewImpl _view;
+  private final ViewProcessorImpl _viewProcessor;
   private final UserPrincipal _user;
+  private final ViewCycleRetainer _latestCycleRetainer;
   
-  private ViewClientState _state = ViewClientState.STOPPED;
-  private ReentrantLock _clientLock = new ReentrantLock();
+  private boolean _isViewCycleAccessSupported;
+  private ViewClientState _state = ViewClientState.STARTED;
+  private boolean _isAttached;
   
+  // Per-process state
+  private boolean _isBatchController;
+  private volatile ViewPermissionProvider _permissionProvider;
+  private volatile boolean _canAccessCompilationOutput;
+  private volatile boolean _canAccessComputationResults;
+  private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
-  private final RateLimitingMergingUpdateProvider<ViewComputationResultModel> _liveComputationResultProvider;
-  private final RateLimitingMergingUpdateProvider<ViewDeltaResultModel> _liveDeltaResultProvider;
   
-  private ComputationResultListener _liveResultListener;
-  private DeltaComputationResultListener _liveDeltaListener;
+  private final ViewProcessListener _mergedViewProcessListener;
+  private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
   
+  private ViewCompilationListener _userCompilationListener;
   private ComputationResultListener _userResultListener;
   private DeltaComputationResultListener _userDeltaListener;
   
@@ -58,86 +67,221 @@ public class ViewClientImpl implements ViewClient {
    * Constructs an instance.
    *
    * @param id  the unique identifier assigned to this view client
-   * @param view  the view from which this client can receive computation results
+   * @param viewProcessor  the parent view processor to which this client belongs
    * @param user  the user who owns this client
    * @param timer  the timer to use for scheduled tasks
    */
-  public ViewClientImpl(UniqueIdentifier id, ViewImpl view, UserPrincipal user, Timer timer) {
+  public ViewClientImpl(UniqueIdentifier id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
     ArgumentChecker.notNull(id, "id");
-    ArgumentChecker.notNull(view, "view");
+    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notNull(timer, "timer");
     
     _id = id;
-    _view = view;
+    _viewProcessor = viewProcessor;
     _user = user;
-    _liveComputationResultProvider = new RateLimitingMergingUpdateProvider<ViewComputationResultModel>(new ViewComputationResultModelMerger(), timer);
-    _liveDeltaResultProvider = new RateLimitingMergingUpdateProvider<ViewDeltaResultModel>(new ViewDeltaResultModelMerger(), timer);
-    subscribeToMergedUpdates();
+    _latestCycleRetainer = new ViewCycleRetainer(viewProcessor.getViewCycleManager());
     
-    // Hide the implementations of ComputationResultListener / DeltaComputationResultListener from public view.
-    // These forward the raw output from the view to the merging update providers. We are also subscribed to
-    // merged updates and will forward these to user listeners.
-    _liveResultListener = new ComputationResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        return ViewClientImpl.this.getUser();
-      }
+    _mergedViewProcessListener = new ViewProcessListener() {
       
       @Override
-      public void computationResultAvailable(ViewComputationResultModel resultModel) {
-        _liveComputationResultProvider.newResult(resultModel);
+      public boolean isDeltaResultRequired() {
+        return _userDeltaListener != null;
       }
-    };
-    _liveDeltaListener = new DeltaComputationResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        return ViewClientImpl.this.getUser();
-      }
-      
-      @Override
-      public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
-        _liveDeltaResultProvider.newResult(deltaModel);
-      }
-    };
-  }
 
-  private void subscribeToMergedUpdates() {
-    _liveComputationResultProvider.addUpdateListener(new MergedUpdateListener<ViewComputationResultModel>() {
       @Override
-      public void handleResult(ViewComputationResultModel result) {
-        updateLatestResult(result);
+      public void compiled(ViewEvaluationModel viewEvaluationModel) {
+        _canAccessCompilationOutput = _permissionProvider.canAccessCompilationOutput(getUser(), viewEvaluationModel);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), viewEvaluationModel);
+        
+        // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
+        // pass to downstream listeners? Some special perm denied message in place of results on each computation
+        // cycle?
+        
+        ViewCompilationListener compilationListener = _userCompilationListener;
+        if (compilationListener != null) {
+          compilationListener.viewCompiled(viewEvaluationModel);
+        }
+      }
+
+      @Override
+      public void result(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+        updateLatestResult(fullResult);
         ComputationResultListener listener = _userResultListener;
         if (listener != null) {
-          listener.computationResultAvailable(result);
+          listener.computationResultAvailable(fullResult);
+        }
+        if (deltaResult != null) {
+          DeltaComputationResultListener deltaListener = _userDeltaListener;
+          if (deltaListener != null) {
+            deltaListener.deltaResultAvailable(deltaResult);
+          }
         }
       }
-    });
-    _liveDeltaResultProvider.addUpdateListener(new MergedUpdateListener<ViewDeltaResultModel>() {
+
       @Override
-      public void handleResult(ViewDeltaResultModel result) {
-        DeltaComputationResultListener listener = _userDeltaListener;
-        if (listener != null) {
-          listener.deltaResultAvailable(result);
-        }
+      public void shutdown(boolean processCompleted) {
+        ViewClientImpl.this.detachFromViewProcess();
       }
-    });
+      
+    };
+    
+    _mergingViewProcessListener = new RateLimitingMergingViewProcessListener(_mergedViewProcessListener, getViewProcessor().getViewCycleManager(), timer);
+    _mergingViewProcessListener.setPaused(true);
   }
-  
-  @Override
-  public View getView() {
-    return _view;
-  }
-  
+
   @Override
   public UniqueIdentifier getUniqueId() {
     return _id;
   }
-
-  //-------------------------------------------------------------------------
+  
   @Override
   public UserPrincipal getUser() {
     return _user;
+  }
+  
+  @Override
+  public ViewProcessorImpl getViewProcessor() {
+    return _viewProcessor;
+  }
+  
+  @Override
+  public ViewClientState getState() {
+    return _state;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isAttached() {
+    return _isAttached;
+  }
+  
+  @Override
+  public void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+    attachToViewProcess(viewDefinitionName, executionOptions, false);
+  }
+  
+  @Override
+  public void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions, boolean newBatchProcess) {
+    _clientLock.lock();
+    try {
+      checkNotTerminated();
+      
+      // The client is detached right now so the merging update listener is paused. Although the following calls may
+      // cause initial updates to be pushed through, they will not be seen until the merging update listener is
+      // resumed, at which point the new permission provider will be in place. 
+      if (newBatchProcess) {
+        _permissionProvider = getViewProcessor().attachClientToBatchViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionName, executionOptions);
+      } else {
+        _permissionProvider = getViewProcessor().attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionName, executionOptions);
+      }
+      attachToViewProcessCore(newBatchProcess);
+    } finally {
+      _clientLock.unlock();
+    }
+  }
+  
+  @Override
+  public void attachToViewProcess(UniqueIdentifier processId) {
+    _clientLock.lock();
+    try {
+      checkNotTerminated();
+      _permissionProvider = getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
+      attachToViewProcessCore(false);
+    } finally {
+      _clientLock.unlock();
+    }
+  }
+  
+  private void attachToViewProcessCore(boolean isBatchController) {
+    _isBatchController = isBatchController;
+    _isAttached = true;
+    boolean isPaused = getState() == ViewClientState.PAUSED;
+    _mergingViewProcessListener.setPaused(isPaused);
+    _completionLatch = new CountDownLatch(1);
+  }
+
+  @Override
+  public void detachFromViewProcess() {
+    _clientLock.lock();
+    try {
+      getViewProcessor().detachClientFromViewProcess(getUniqueId());
+      getLatestCycleRetainer().replaceRetainedCycle(null);
+      _mergingViewProcessListener.setPaused(true);
+      _mergingViewProcessListener.reset();
+      _isBatchController = false;
+      _latestResult.set(null);
+      _isAttached = false;
+      _permissionProvider = null;
+      _completionLatch.countDown();
+    } finally {
+      _clientLock.unlock();
+    }
+  }
+
+  @Override
+  public boolean isBatchController() {
+    return _isBatchController;
+  }
+  
+  //-------------------------------------------------------------------------  
+  @Override
+  public void setCompilationListener(ViewCompilationListener compilationListener) {
+    _userCompilationListener = compilationListener;
+  }
+  
+  @Override
+  public void setResultListener(ComputationResultListener resultListener) {
+    _userResultListener = resultListener;
+  }
+
+  @Override
+  public void setDeltaResultListener(DeltaComputationResultListener deltaResultListener) {
+    _userDeltaListener = deltaResultListener;
+  }
+  
+  @Override
+  public void setUpdatePeriod(long periodMillis) {
+    _mergingViewProcessListener.setMinimumUpdatePeriodMillis(periodMillis);
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public void pause() {
+    _clientLock.lock();
+    try {
+      checkNotTerminated();
+      if (isAttached()) {
+        _mergingViewProcessListener.setPaused(true);
+      }
+      _state = ViewClientState.PAUSED;
+    } finally {
+      _clientLock.unlock();
+    }
+  }
+  
+  @Override
+  public void resume() {
+    _clientLock.lock();
+    try {
+      checkNotTerminated();
+      if (isAttached()) {
+        _mergingViewProcessListener.setPaused(false);
+      }
+      _state = ViewClientState.STARTED;
+    } finally {
+      _clientLock.unlock();
+    }
+  }
+  
+  @Override
+  public void waitForCompletion() throws InterruptedException {
+    try {
+      _completionLatch.await();
+    } catch (InterruptedException e) {
+      s_logger.debug("Interrupted while waiting for completion of the view process");
+      throw e;
+    }
   }
   
   @Override
@@ -151,132 +295,34 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void setResultListener(ComputationResultListener resultListener) {
-    _clientLock.lock();
-    try {
-      _userResultListener = resultListener;
-      if (_state == ViewClientState.PAUSED || _state == ViewClientState.STARTED) {
-        configureViewResultSubscription();
-      }  
-    } finally {
-      _clientLock.unlock();
-    }
+  public boolean isViewCycleAccessSupported() {
+    return _isViewCycleAccessSupported;
   }
-
+  
   @Override
-  public void setDeltaResultListener(DeltaComputationResultListener deltaResultListener) {
+  public void setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
     _clientLock.lock();
     try {
-      _userDeltaListener = deltaResultListener;
-      if (_state == ViewClientState.PAUSED || _state == ViewClientState.STARTED) {
-        configureViewDeltaSubscription();
+      _isViewCycleAccessSupported = isViewCycleAccessSupported;
+      _mergingViewProcessListener.setLatestResultCycleRetained(isViewCycleAccessSupported);
+      if (!isViewCycleAccessSupported) {
+        getLatestCycleRetainer().replaceRetainedCycle(null);
       }
     } finally {
       _clientLock.unlock();
     }
   }
-  
-  @Override
-  public ViewClientState getState() {
-    return _state;
-  }
-  
-  @Override
-  public void setLiveUpdatePeriod(long periodMillis) {
-    _liveComputationResultProvider.setMinimumUpdatePeriodMillis(periodMillis);
-    _liveDeltaResultProvider.setMinimumUpdatePeriodMillis(periodMillis);
-  }
-  
-  @Override
-  public void startLive() {
-    _clientLock.lock();
-    try {
-      checkNotTerminated(_state);
-      _liveComputationResultProvider.setPaused(false);
-      _liveDeltaResultProvider.setPaused(false);
-      configureViewSubscriptions();
-      
-      // [XLS-197] -- if nothing has been calculated yet, this will be null. Otherwise, it will initialise the latest
-      // result which would not normally happen until the next result arrives. At worst, it will initialise it to the
-      // same value as a tick that is about to be applied now that the result providers have been unpaused.
-      _latestResult.set(_view.getLatestResult());
-      
-      _view.addLiveComputationClient(this);
-      
-      _state = ViewClientState.STARTED;
-    } finally {
-      _clientLock.unlock();
-    }
-  }
 
   @Override
-  public void pauseLive() {
-    _clientLock.lock();
-    try {
-      checkNotTerminated(_state);
-      _liveComputationResultProvider.setPaused(true);
-      _liveDeltaResultProvider.setPaused(true);
-      configureViewSubscriptions();
-      _view.addLiveComputationClient(this);
-      _state = ViewClientState.PAUSED;
-    } finally {
-      _clientLock.unlock();
+  public ViewCycleReference createLatestCycleReference() {
+    if (!isViewCycleAccessSupported()) {
+      throw new UnsupportedOperationException("Access to computation cycles is not supported from this client");
     }
-  }
-  
-  public void stopLive() {
-    _clientLock.lock();
-    try {
-      checkNotTerminated(_state);
-      _view.removeLiveComputationClient(this);
-      stopViewSubscriptions();
-      stopProvider(_liveComputationResultProvider);
-      stopProvider(_liveDeltaResultProvider);
-      _state = ViewClientState.STOPPED;
-    } finally {
-      _clientLock.unlock();
-    }    
-  }
-  
-  private class RunOneCycleListener implements ComputationResultListener {
-    private volatile ViewComputationResultModel _returnValue;
-    
-    @Override
-    public UserPrincipal getUser() {
-      return ViewClientImpl.this.getUser();
-    }
-    
-    @Override
-    public void computationResultAvailable(ViewComputationResultModel resultModel) {
-      _returnValue = resultModel;
-    }
-
-  };
-  
-  @Override
-  public ViewComputationResultModel runOneCycle(final long valuationTime) {
-    final RunOneCycleListener listener = new RunOneCycleListener();
-
-    _clientLock.lock();
-    try {
-      checkNotTerminated(_state);
-      
-      // don't really care if client is terminated while cycle is running
-      // so don't hold onto the lock. This also allows multiple
-      // one-off cycles to be run in parallel.
-
-    } finally {
-      _clientLock.unlock();
-    }
-    
-    try {
-      _view.runOneCycle(valuationTime, _view.getLiveDataSnapshotProvider(), listener);
-    } catch (Exception e) {
-      s_logger.error("Run one cycle failed", e);
+    ViewComputationResultModel latestResult = _latestResult.get();
+    if (latestResult == null) {
       return null;
     }
-    
-    return listener._returnValue;
+    return _viewProcessor.getViewCycleManager().createReference(latestResult.getViewCycleId());
   }
   
   @Override
@@ -286,56 +332,31 @@ public class ViewClientImpl implements ViewClient {
       if (_state == ViewClientState.TERMINATED) {
         return;
       }
-      _view.removeLiveComputationClient(this);
-      stopViewSubscriptions();
-      _liveComputationResultProvider.shutdown();
-      _liveDeltaResultProvider.shutdown();
+      detachFromViewProcess();
+      getViewProcessor().removeViewClient(getUniqueId());
+      _mergingViewProcessListener.shutdown();
       _state = ViewClientState.TERMINATED;
     } finally {
       _clientLock.unlock();
     }
   }
-    
+
   //-------------------------------------------------------------------------
-  private void configureViewSubscriptions() {
-    configureViewResultSubscription();
-    configureViewDeltaSubscription();
-  }
-
-  private void configureViewDeltaSubscription() {
-    if (_userDeltaListener != null) {
-      _view.addDeltaResultListener(_liveDeltaListener);
-    } else {
-      _view.removeDeltaResultListener(_liveDeltaListener);
-    }
-  }
-
-  private void configureViewResultSubscription() {
-    // Always want to listen to the full results so that getLatestResult works correctly
-    _view.addResultListener(_liveResultListener);
-  }
-  
-  private void stopViewSubscriptions() {
-    _view.removeResultListener(_liveResultListener);
-    _view.removeDeltaResultListener(_liveDeltaListener);
-  }
-  
-  private void checkNotTerminated(ViewClientState state) {
-    if (state == ViewClientState.TERMINATED) {
+  private void checkNotTerminated() {
+    if (getState() == ViewClientState.TERMINATED) {
       throw new IllegalStateException("The client has been terminated. It is not possible to use a terminated client.");
     }
   }
   
-  private void updateLatestResult(ViewComputationResultModel result) {
-    _latestResult.set(result);
+  private ViewCycleRetainer getLatestCycleRetainer() {
+    return _latestCycleRetainer;
   }
   
-  private void stopProvider(RateLimitingMergingUpdateProvider<?> provider) {
-    // Leave the provider paused to stop the (potential) flow of outbound updates
-    provider.setPaused(true);
-    
-    // Reset the merger to remove any update waiting to be sent to listeners
-    provider.resetMerger();
+  private void updateLatestResult(ViewComputationResultModel result) {
+    if (isViewCycleAccessSupported()) {
+      getLatestCycleRetainer().replaceRetainedCycle(result.getViewCycleId());
+    }
+    _latestResult.set(result);
   }
   
 }

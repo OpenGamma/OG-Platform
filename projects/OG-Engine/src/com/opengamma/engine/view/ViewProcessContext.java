@@ -24,16 +24,14 @@ import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A collection for everything relating to processing a particular view. This separates {@link View} from
- * {@link ViewProcessor}, allowing other types of processor to create and own a view.
+ * Encapsulates the context required by a view process.
  */
-public class ViewProcessingContext {
+public class ViewProcessContext {
 
-  private final LiveDataEntitlementChecker _liveDataEntitlementChecker;
+  private final ViewPermissionProvider _viewPermissionProvider;
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final LiveDataInjector _liveDataOverrideInjector;
@@ -46,15 +44,17 @@ public class ViewProcessingContext {
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
-  private final ViewPermissionProvider _permissionProvider;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
 
-  public ViewProcessingContext(LiveDataEntitlementChecker liveDataEntitlementChecker, LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
-      CompiledFunctionService functionCompilationService, FunctionResolver functionResolver, PositionSource positionSource, SecuritySource securitySource,
-      CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource, JobDispatcher computationJobDispatcher,
-      ViewProcessorQueryReceiver viewProcessorQueryReceiver, DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory, ViewPermissionProvider permissionProvider,
+  public ViewProcessContext(ViewPermissionProvider viewPermissionProvider,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
+      CompiledFunctionService functionCompilationService, FunctionResolver functionResolver,
+      PositionSource positionSource, SecuritySource securitySource,
+      CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource,
+      JobDispatcher computationJobDispatcher, ViewProcessorQueryReceiver viewProcessorQueryReceiver,
+      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
-    ArgumentChecker.notNull(liveDataEntitlementChecker, "liveDataEntitlementChecker");
+    ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
@@ -65,10 +65,9 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
-    ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
 
-    _liveDataEntitlementChecker = liveDataEntitlementChecker;
+    _viewPermissionProvider = viewPermissionProvider;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider();
     _liveDataOverrideInjector = liveDataOverrideSnapshotProvider;
@@ -82,18 +81,17 @@ public class ViewProcessingContext {
     _computationJobDispatcher = computationJobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
-    _permissionProvider = permissionProvider;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
   }
 
   // -------------------------------------------------------------------------
   /**
-   * Gets the live data entitlement checker.
+   * Gets the view permission provider
    * 
-   * @return the live data entitlement checker, not null
+   * @return the view permission provider, not null
    */
-  public LiveDataEntitlementChecker getLiveDataEntitlementChecker() {
-    return _liveDataEntitlementChecker;
+  public ViewPermissionProvider getViewPermissionProvider() {
+    return _viewPermissionProvider;
   }
 
   /**
@@ -198,15 +196,6 @@ public class ViewProcessingContext {
    */
   public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
-  }
-
-  /**
-   * Gets the view permission provider.
-   * 
-   * @return  the permission provider, not null
-   */
-  public ViewPermissionProvider getPermissionProvider() {
-    return _permissionProvider;
   }
 
   public GraphExecutorStatisticsGathererProvider getGraphExecutorStatisticsGathererProvider() {

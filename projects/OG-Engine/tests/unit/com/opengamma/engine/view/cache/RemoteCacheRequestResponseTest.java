@@ -211,7 +211,7 @@ public class RemoteCacheRequestResponseTest {
     conduit.connectEnd2  (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     final long timestamp = System.currentTimeMillis();
-    BinaryDataStore dataStore = new RemoteBinaryDataStore(client, new ViewComputationCacheKey("View1", "Config1", timestamp));
+    BinaryDataStore dataStore = new RemoteBinaryDataStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
 
     // Single value
     final byte[] inputValue1 = new byte[256];
@@ -259,7 +259,7 @@ public class RemoteCacheRequestResponseTest {
     conduit.connectEnd2 (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     final long timestamp = System.currentTimeMillis();
-    BinaryDataStore dataStore = new RemoteBinaryDataStore(client, new ViewComputationCacheKey("View1", "Config1", timestamp));
+    BinaryDataStore dataStore = new RemoteBinaryDataStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
     final byte[] inputValue = new byte[256];
     for (int i = 0; i < inputValue.length; i++) {
       inputValue[i] = (byte) i;

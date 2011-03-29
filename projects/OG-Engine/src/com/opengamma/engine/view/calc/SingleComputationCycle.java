@@ -8,6 +8,7 @@ package com.opengamma.engine.view.calc;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,136 +27,97 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewInternal;
-import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Holds all data and actions for a single pass through a computation cycle.
- * In general, each invocation of {@link ViewRecalculationJob#runOneCycle()}
- * will create an instance of this class.
- * <p/>
- * At the moment, the concurrency metaphor is:
- * <ul>
- *   <li>Each distinct security has its own execution plan</li>
- *   <li>The cycle will schedule each node in the execution plan sequentially</li>
- *   <li>If there are shared sub-graphs that aren't security specific, they'll be captured at execution time.</li>
- * </ul>
- * This is, of course, not optimal, and later on we can fix that.
- *
- * @author kirk
+ * Holds all data and actions for a single computation pass. The view cycle may be executed at most once.
+ * <p>
+ * The cycle is thread-safe for readers, for example obtaining the current state or the result, but is only designed
+ * for a single executor.
  */
-public class SingleComputationCycle {
+public class SingleComputationCycle implements ViewCycleInternal {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
-  // Injected Inputs:
-  private final ViewInternal _view;
+  
+  // Injected inputs
+  private final UniqueIdentifier _cycleId;
+  private final UniqueIdentifier _viewProcessId;
+  private final ViewProcessContext _viewProcessContext;
   private final ViewEvaluationModel _viewEvaluationModel;
-  private final LiveDataSnapshotProvider _snapshotProvider;
-  private final Instant _valuationTime;
+  private final Instant _evaluationTime;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
 
-  // State:
-
-  /** Current state of the cycle */
-  private enum State {
-    CREATED, INPUTS_PREPARED, EXECUTING, EXECUTION_INTERRUPTED, FINISHED, CLEANED
-  }
-
-  private State _state;
+  private volatile ViewCycleState _state = ViewCycleState.AWAITING_EXECUTION;
 
   /**
    * Nanoseconds, see System.nanoTime()
    */
-  private long _startTime;
+  private volatile long _startTime;
 
   /**
    * Nanoseconds, see System.nanoTime()
    */
-  private long _endTime;
+  private volatile long _endTime;
 
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration = new HashMap<String, ViewComputationCache>();
 
-  // Outputs:
+  // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(ViewInternal view,
-      ViewEvaluationModel viewEvaluationModel,
-      LiveDataSnapshotProvider snapshotProvider,
-      long valuationTime) {
-    ArgumentChecker.notNull(view, "view");
+  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId, ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, Instant evaluationTime) {
+    ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
-    ArgumentChecker.notNull(snapshotProvider, "snapshotProvider");
 
-    _view = view;
+    _cycleId = cycleId;
+    _viewProcessId = viewProcessId;
+    _viewProcessContext = viewProcessContext;
     _viewEvaluationModel = viewEvaluationModel;
-    _snapshotProvider = snapshotProvider;
     
-    _valuationTime = Instant.ofEpochMillis(valuationTime);
+    _evaluationTime = evaluationTime;
 
     _resultModel = new InMemoryViewComputationResultModel();
-    _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet());
-
+    _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getAllCalculationConfigurationNames());
     if (getViewEvaluationModel().getPortfolio() != null) {
       _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
     }
+    _resultModel.setViewCycleId(cycleId);
+    _resultModel.setViewProcessId(getViewProcessId());
+    _resultModel.setEvaluationTime(evaluationTime);
 
-    _dependencyGraphExecutor = getProcessingContext().getDependencyGraphExecutorFactory().createExecutor(this);
-    _statisticsGatherer = getProcessingContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(view);
-
-    _state = State.CREATED;
-  }
-
-  public ViewInternal getView() {
-    return _view;
+    _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
+    _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
   
-  public LiveDataSnapshotProvider getSnapshotProvider() {
-    return _snapshotProvider;
-  }
-
-  public Instant getValuationTime() {
-    return _valuationTime;
+  //-------------------------------------------------------------------------
+  public Instant getEvaluationTime() {
+    return _evaluationTime;
   }
 
   public long getFunctionInitId() {
     return getViewEvaluationModel().getFunctionInitId();
-  }
-
-  /**
-   * @return the viewName
-   */
-  public String getViewName() {
-    return getView().getName();
-  }
-
-  /**
-   * @return the processingContext
-   */
-  public ViewProcessingContext getProcessingContext() {
-    return getView().getProcessingContext();
   }
 
   /**
@@ -173,28 +135,10 @@ public class SingleComputationCycle {
   }
 
   /**
-   * @return How many nanoseconds the cycle took
-   */
-  public long getDurationNanos() {
-    return getEndTime() - getStartTime();
-  }
-
-  /**
-   * @return the resultModel
-   */
-  public InMemoryViewComputationResultModel getResultModel() {
-    return _resultModel;
-  }
-
-  public ViewComputationCache getComputationCache(String calcConfigName) {
-    return _cachesByCalculationConfiguration.get(calcConfigName);
-  }
-
-  /**
    * @return the viewDefinition
    */
   public ViewDefinition getViewDefinition() {
-    return getView().getDefinition();
+    return getViewEvaluationModel().getViewDefinition();
   }
 
   public DependencyGraphExecutor<?> getDependencyGraphExecutor() {
@@ -203,7 +147,7 @@ public class SingleComputationCycle {
 
   public GraphExecutorStatisticsGatherer getStatisticsGatherer() {
     return _statisticsGatherer;
-  }
+  } 
 
   public Map<String, ViewComputationCache> getCachesByCalculationConfiguration() {
     return Collections.unmodifiableMap(_cachesByCalculationConfiguration);
@@ -212,171 +156,85 @@ public class SingleComputationCycle {
   public ViewEvaluationModel getViewEvaluationModel() {
     return _viewEvaluationModel;
   }
+  
+  public ViewProcessContext getViewProcessContext() {
+    return _viewProcessContext;
+  }
 
   public Set<String> getAllCalculationConfigurationNames() {
-    return getViewEvaluationModel().getDependencyGraphsByConfiguration().keySet();
-  }
-
-  // --------------------------------------------------------------------------
-  
-  public void execute() {
-    prepareInputs();
-    try {
-      executePlans();
-    } catch (InterruptedException e) {
-      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
-    }
-    releaseResources();
+    return new HashSet<String>(getViewEvaluationModel().getAllCalculationConfigurationNames());
   }
   
-  public ViewComputationResultModel executeWithResult() {
-    prepareInputs();
-    try {
-      executePlans();
-    } catch (InterruptedException e) {
-      s_logger.warn("Interrupted while attempting to run a single computation cycle. No results will be output.");
-      releaseResources();
-      return null;
-    }
+  //-------------------------------------------------------------------------
+  @Override
+  public UniqueIdentifier getUniqueId() {
+    return _cycleId;
+  }
 
-    populateResultModel();
-    releaseResources();
-    
-    return getResultModel();
+  @Override
+  public UniqueIdentifier getViewProcessId() {
+    return _viewProcessId;
   }
   
-  // --------------------------------------------------------------------------
-  
-  public void prepareInputs() {
-    if (_state != State.CREATED) {
-      throw new IllegalStateException("State must be " + State.CREATED);
-    }
-
-    _startTime = System.nanoTime();
-
-    getResultModel().setViewName(getViewName());
-    getResultModel().setValuationTime(getValuationTime());
-
-    createAllCaches();
-
-    Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
-    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
-    
-    getSnapshotProvider().snapshot(getValuationTime().toEpochMillisLong());
-
-    Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
-    for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
-      // REVIEW 2010-10-22 Andrew
-      // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
-      // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
-      // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
-      // we should be querying with a "specification" and not a requirement.
-      Object data = getSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
-      if (data == null) {
-        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
-        missingLiveData.add(liveDataRequirement.getValue());
-      } else {
-        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
-        addToAllCaches(dataAsValue);
-        getResultModel().addLiveData(dataAsValue);
-      }
-    }
-    if (!missingLiveData.isEmpty()) {
-      s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
-    }
-    
-
-    _state = State.INPUTS_PREPARED;
+  @Override
+  public ViewCycleState getState() {
+    return _state;
   }
 
-  protected static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
-    StringBuilder sb = new StringBuilder();
-    for (ValueSpecification spec : missingLiveData) {
-      sb.append("[").append(spec.getValueName()).append(" on ");
-      sb.append(spec.getTargetSpecification().getType());
-      if (spec.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-        sb.append("-").append(spec.getTargetSpecification().getIdentifier().getScheme().getName());
-      }
-      sb.append(":").append(spec.getTargetSpecification().getIdentifier().getValue()).append("] ");
+  
+  @Override
+  public long getDurationNanos() {
+    ViewCycleState state = getState();
+    if (state == ViewCycleState.AWAITING_EXECUTION || state == ViewCycleState.EXECUTION_INTERRUPTED) {
+      return -1;
     }
-    return sb.toString();
+    long startTime = getStartTime();
+    long endTime = getEndTime();
+    return endTime == 0 ? System.nanoTime() - startTime : endTime - startTime;
   }
   
-  /**
-   * 
-   */
-  private void createAllCaches() {
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getValuationTime().toEpochMillisLong());
-      _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
+  @Override
+  public InMemoryViewComputationResultModel getResultModel() {
+    return _resultModel;
+  }
+  
+  @Override
+  public Collection<Pair<ValueSpecification, Object>> query(String calcConfigName,
+      Collection<ValueSpecification> specifications) {
+    ViewComputationCache cache = getComputationCache(calcConfigName);
+    if (cache == null) {
+      throw new DataNotFoundException("No computation cache for calculation configuration '" + calcConfigName
+          + "' was found.");
     }
+    return cache.getValues(specifications);
   }
 
-  /**
-   * @param dataAsValue
-   */
-  private void addToAllCaches(ComputedValue dataAsValue) {
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      getComputationCache(calcConfigurationName).putSharedValue(dataAsValue);
-    }
-  }
-
-  // --------------------------------------------------------------------------
-
-  /**
-   * Determine which live data inputs have changed between iterations, and:
-   * <ul>
-   * <li>Copy over all values that can be demonstrated to be the same from the previous iteration (because no input has changed)
-   * <li>Only recompute the values that could have changed based on live data inputs
-   * </ul> 
-   * 
-   * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
-   */
-  public void computeDelta(SingleComputationCycle previousCycle) {
-    if (_state != State.INPUTS_PREPARED) {
-      throw new IllegalStateException("State must be " + State.INPUTS_PREPARED);
-    }
-    if (previousCycle._state != State.FINISHED) {
-      throw new IllegalArgumentException("State of previous cycle must be " + State.FINISHED);
-    }
-
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
-
-      ViewComputationCache cache = getComputationCache(calcConfigurationName);
-      ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
-
-      LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
-      deltaCalculator.computeDelta();
-
-      s_logger.info("Computed delta for calc conf {}. Of {} nodes, {} require recomputation.", new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator.getChangedNodes().size()});
-
-      for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
-        markExecuted(unchangedNode);
-
-        for (ValueSpecification spec : unchangedNode.getOutputValues()) {
-          Object previousValue = previousCache.getValue(spec);
-          if (previousValue != null) {
-            cache.putSharedValue(new ComputedValue(spec, previousValue));
-          }
-        }
-      }
-    }
-  }
-
+  //--------------------------------------------------------------------------  
+  // REVIEW jonathan 2011-03-18 -- The following comment should be given some sort of 'listed' status for preservation :-)
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   /**
-   * Synchronously runs the computation cycle.
+   * Synchronously runs the cycle.
    * 
+   * @param previousCycle  the previous cycle from which a delta cycle should be performed, or {@code null} to perform
+   *                       a full cycle
    * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
    *                               Execution of any outstanding jobs will be cancelled, but {@link #releaseResources()}
-   *                               still must be called. 
+   *                               still must be called.
    */
-  public void executePlans() throws InterruptedException {
-    if (_state != State.INPUTS_PREPARED) {
-      throw new IllegalStateException("State must be " + State.INPUTS_PREPARED);
+  @Override
+  public void execute(ViewCycleInternal previousCycle) throws InterruptedException {    
+    if (_state != ViewCycleState.AWAITING_EXECUTION) {
+      throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
-    _state = State.EXECUTING;
+    _startTime = System.nanoTime();
+    _state = ViewCycleState.EXECUTING;
+
+    createAllCaches();    
+    prepareInputs();
+    
+    if (previousCycle != null) {
+      computeDelta(previousCycle);
+    }
 
     LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
 
@@ -404,7 +262,7 @@ public class SingleComputationCycle {
         for (Future<?> incompleteFuture : futures) {
           incompleteFuture.cancel(true);
         }
-        _state = State.EXECUTION_INTERRUPTED;
+        _state = ViewCycleState.EXECUTION_INTERRUPTED;
         s_logger.info("Execution interrupted before completion.");
         throw e;
       } catch (ExecutionException e) {
@@ -414,9 +272,139 @@ public class SingleComputationCycle {
       }
     }
 
-    _state = State.FINISHED;
+    populateResultModel();
+    
+    _state = ViewCycleState.EXECUTED;
+    _endTime = System.nanoTime();
+  }
+  
+  @Override
+  public ViewComputationCache getComputationCache(String calcConfigName) {
+    return _cachesByCalculationConfiguration.get(calcConfigName);
+  }
+  
+  //-------------------------------------------------------------------------
+  private void prepareInputs() {
+    Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getEvaluationTime());
+    
+    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getEvaluationTime().toEpochMillisLong());
+
+    Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
+    for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
+      // REVIEW 2010-10-22 Andrew
+      // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
+      // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
+      // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
+      // we should be querying with a "specification" and not a requirement.
+      Object data = getViewProcessContext().getLiveDataSnapshotProvider().querySnapshot(getEvaluationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      if (data == null) {
+        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getEvaluationTime());
+        missingLiveData.add(liveDataRequirement.getValue());
+      } else {
+        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
+        addToAllCaches(dataAsValue);
+        getResultModel().addLiveData(dataAsValue);
+      }
+    }
+    if (!missingLiveData.isEmpty()) {
+      s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
+    }
+  }
+  
+  private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
+    StringBuilder sb = new StringBuilder();
+    for (ValueSpecification spec : missingLiveData) {
+      sb.append("[").append(spec.getValueName()).append(" on ");
+      sb.append(spec.getTargetSpecification().getType());
+      if (spec.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+        sb.append("-").append(spec.getTargetSpecification().getIdentifier().getScheme().getName());
+      }
+      sb.append(":").append(spec.getTargetSpecification().getIdentifier().getValue()).append("] ");
+    }
+    return sb.toString();
+  }
+  
+  /**
+   * 
+   */
+  private void createAllCaches() {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      ViewComputationCache cache = getViewProcessContext().getComputationCacheSource().getCache(
+          getViewProcessId(), calcConfigurationName, getEvaluationTime().toEpochMillisLong());
+      _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
+    }
   }
 
+  /**
+   * @param dataAsValue
+   */
+  private void addToAllCaches(ComputedValue dataAsValue) {
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      getComputationCache(calcConfigurationName).putSharedValue(dataAsValue);
+    }
+  }
+  
+  /**
+   * Determine which live data inputs have changed between iterations, and:
+   * <ul>
+   * <li>Copy over all values that can be demonstrated to be the same from the previous iteration (because no input has changed)
+   * <li>Only recompute the values that could have changed based on live data inputs
+   * </ul> 
+   * 
+   * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
+   */
+  private void computeDelta(ViewCycleInternal previousCycle) {
+    if (previousCycle.getState() != ViewCycleState.EXECUTED) {
+      throw new IllegalArgumentException("State of previous cycle must be " + ViewCycleState.EXECUTED);
+    }
+
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
+
+      ViewComputationCache cache = getComputationCache(calcConfigurationName);
+      ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
+
+      LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
+      deltaCalculator.computeDelta();
+
+      s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
+          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator.getChangedNodes().size()});
+
+      for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
+        markExecuted(unchangedNode);
+
+        for (ValueSpecification spec : unchangedNode.getOutputValues()) {
+          Object previousValue = previousCache.getValue(spec);
+          if (previousValue != null) {
+            cache.putSharedValue(new ComputedValue(spec, previousValue));
+          }
+        }
+      }
+    }
+  }
+  
+  private void populateResultModel() {
+    getResultModel().setResultTimestamp(Instant.now());
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
+      populateResultModel(calcConfigurationName, depGraph);
+    }
+  }
+
+  private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
+    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputValues(), CacheSelectHint.allShared())) {
+      if (value.getValue() == null) {
+        continue;
+      }
+      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
+        continue;
+      }
+      getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
+    }
+  }
+  
   private DependencyGraph getDependencyGraph(String calcConfName) {
     DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfName);
     return depGraph;
@@ -443,46 +431,21 @@ public class SingleComputationCycle {
     return dependencyGraph;
   }
 
-  // --------------------------------------------------------------------------
-
-  public void populateResultModel() {
-    Instant resultTimestamp = Instant.now();
-    getResultModel().setResultTimestamp(resultTimestamp);
-
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
-      populateResultModel(calcConfigurationName, depGraph);
-    }
-
-    _endTime = System.nanoTime();
-  }
-
-  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
-    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputValues(), CacheSelectHint.allShared())) {
-      if (value.getValue() == null) {
-        continue;
-      }
-      if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
-        continue;
-      }
-      getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
-    }
-  }
-
+  //--------------------------------------------------------------------------
   public void releaseResources() {
-    if (_state != State.FINISHED && _state != State.EXECUTION_INTERRUPTED) {
-      throw new IllegalStateException("State must be " + State.FINISHED + " or " + State.EXECUTION_INTERRUPTED);
+    if (getState() == ViewCycleState.DESTROYED) {
+      throw new IllegalStateException("View cycle " + getUniqueId() +  " has already been released");
     }
-
+    
     if (getViewDefinition().isDumpComputationCacheToDisk()) {
       dumpComputationCachesToDisk();
     }
 
-    getSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong()); // BUG - what if 2 cycles use the same snapshot provider with the same valuation time?
-    getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getValuationTime().toEpochMillisLong());
+    // [PLAT-1124] BUG - what if 2 cycles use the same snapshot provider with the same evaluation time?
+    getViewProcessContext().getLiveDataSnapshotProvider().releaseSnapshot(getEvaluationTime().toEpochMillisLong());
+    getViewProcessContext().getComputationCacheSource().releaseCaches(getViewProcessId(), getEvaluationTime().toEpochMillisLong());
 
-    _state = State.CLEANED;
+    _state = ViewCycleState.DESTROYED;
   }
 
   public void dumpComputationCachesToDisk() {
@@ -508,8 +471,7 @@ public class SingleComputationCycle {
     }
   }
 
-  // --------------------------------------------------------------------------
-
+  //--------------------------------------------------------------------------
   public boolean isExecuted(DependencyNode node) {
     if (node == null) {
       return true;
@@ -557,4 +519,5 @@ public class SingleComputationCycle {
       _nodeExecutionLock.writeLock().unlock();
     }
   }
+
 }

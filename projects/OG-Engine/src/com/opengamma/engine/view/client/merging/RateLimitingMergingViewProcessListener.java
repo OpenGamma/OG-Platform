@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,15 +10,15 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.opengamma.engine.view.ViewProcessListener;
+import com.opengamma.engine.view.calc.ViewCycleManager;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Merges updates to satisfy a specified maximum downstream update rate (given in terms of a minimum period between
- * updates). This maximum rate can be adjusted on-the-fly.
- * 
- * @param <T>  the type of the updates
+ * Merges view process results to satisfy a specified maximum downstream update rate (given in terms of a minimum
+ * period between updates). This maximum rate can be adjusted on-the-fly.
  */
-public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<T> {
+public class RateLimitingMergingViewProcessListener extends MergingViewProcessListener {
 
   private static final long MIN_PERIOD = 50;
   
@@ -28,50 +28,17 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
   
   private boolean _isPaused;
   
-  private AtomicLong _minimumUpdatePeriodMillis;
+  private AtomicLong _minimumUpdatePeriodMillis = new AtomicLong(0);
   
   /**
    * The time at which an update was last triggered.
    */
   private AtomicLong _lastUpdateTimeMillis = new AtomicLong();
   
-  /**
-   * Constructs an instance, with rate-limiting disabled initially.
-   * 
-   * @param merger  the merger, not null
-   * @param timer  the timer with which to schedule tasks, not null
-   */
-  public RateLimitingMergingUpdateProvider(IncrementalMerger<T> merger, Timer timer) {
-    this(merger, 0, timer);
-  }
-  
-  /**
-   * Constructs an instance.
-   * 
-   * @param merger  the merger, not null
-   * @param minimumUpdatePeriodMillis  the minimum period which must have elapsed since the last update before an
-   *                                   update is triggered, in milliseconds. If 0, updates will be passed to listeners
-   *                                   immediately and synchronously (unless paused).
-   */
-  public RateLimitingMergingUpdateProvider(IncrementalMerger<T> merger, long minimumUpdatePeriodMillis) {
-    this(merger, minimumUpdatePeriodMillis, new Timer());
-  }
-  
-  /**
-   * Constructs an instance.
-   * 
-   * @param merger  the merger, not null
-   * @param minimumUpdatePeriodMillis  the minimum period which must have elapsed since the last update before an
-   *                                   update is triggered, in milliseconds. If 0, updates will be passed to listeners
-   *                                   immediately and synchronously (unless paused).
-   * @param timer  the timer with which to schedule tasks, not null
-   */ 
-  public RateLimitingMergingUpdateProvider(IncrementalMerger<T> merger, long minimumUpdatePeriodMillis, Timer timer) {
-    super(merger);
+  public RateLimitingMergingViewProcessListener(ViewProcessListener underlying, ViewCycleManager cycleManager, Timer timer) {
+    super(underlying, cycleManager);
     ArgumentChecker.notNull(timer, "timer");
     _timer = timer;
-    _minimumUpdatePeriodMillis = new AtomicLong();
-    setMinimumUpdatePeriodMillis(minimumUpdatePeriodMillis);
   }
   
   public void shutdown() {
@@ -146,11 +113,11 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
   }
   
   //-------------------------------------------------------------------------
-  private boolean triggerUpdateIfRequired() {    
+  private boolean drainIfRequired() {    
     
     long currentTime = System.currentTimeMillis();
     long lastUpdateTime = _lastUpdateTimeMillis.get();
-    long lastResultTime = getLastResultTimeMillis();
+    long lastResultTime = getLastUpdateTimeMillis();
     if (lastResultTime < lastUpdateTime) {
       // No more results since the last output
       return false;
@@ -166,7 +133,7 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
       return false;
     }
     
-    triggerUpdate();
+    drain();
     return true;
   }
   
@@ -178,7 +145,7 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
       _asyncUpdateCheckerTask = new TimerTask() {
         @Override
         public void run() {
-          triggerUpdateIfRequired();
+          drainIfRequired();
         }
       };
       _timer.schedule(_asyncUpdateCheckerTask, minimumUpdatePeriodMillis, minimumUpdatePeriodMillis);
@@ -191,4 +158,5 @@ public class RateLimitingMergingUpdateProvider<T> extends MergingUpdateProvider<
       _asyncUpdateCheckerTask = null;
     }
   }
+  
 }

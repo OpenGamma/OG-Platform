@@ -13,7 +13,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.springframework.jms.core.JmsTemplate;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -38,8 +38,8 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
   
   @Override
-  public View getView(String name, UserPrincipal credentials) {
-    View view = new RemoteView(DataViewProcessorResource.uriView(_baseUri, name), _jmsTemplate);
+  public ViewProcess getView(String name, UserPrincipal credentials) {
+    ViewProcess view = new RemoteView(DataViewProcessorResource.uriView(_baseUri, name), _jmsTemplate);
     try {
       // Attempt to access something lightweight on the view to check it exists 
       view.getName();

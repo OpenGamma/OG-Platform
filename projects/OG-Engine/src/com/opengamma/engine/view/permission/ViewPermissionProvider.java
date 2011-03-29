@@ -5,38 +5,32 @@
  */
 package com.opengamma.engine.view.permission;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
-// REVIEW jonathan 2010-08-18 -- went with 'permission' rather than 'entitlement' for this to avoid confusion with live
-// data entitlements.
-
 /**
- * Provides the ability to determine permissions on views.
+ * Provides the ability to determine permissions on a view.
  */
 @PublicAPI
 public interface ViewPermissionProvider {
 
   /**
-   * Determines whether a user has a permission on a view.
+   * Checks that a user has a permission on a view process, and throws an exception if this is not the case.
    * 
-   * @param permission  the permission
-   * @param user  the user
-   * @param view  the view
-   * @return  <code>true</code> if the user has the given permission on the view, <code>false</code> otherwise.
+   * @param user  the user, not null
+   * @param viewEvaluationModel  the view compilation output to which access is being determined, not null
+   * @return {@code true} if the user may access the compilation output, {@code false} otherwise.
    */
-  boolean hasPermission(ViewPermission permission, UserPrincipal user, View view);
+  boolean canAccessCompilationOutput(UserPrincipal user, ViewEvaluationModel viewEvaluationModel);
 
   /**
-   * Checks that a user has a permission on a view, and throws an exception if this is not the case.
+   * Determines whether a user has a permission on a view process.
    * 
-   * @param permission  the permission
-   * @param user  the user
-   * @param view  the view
-   * 
-   * @throws ViewPermissionException  if the user does not have the given permission on the specified view.
+   * @param user  the user, not null
+   * @param viewEvaluationModel  the view compilation from which computation results would be produced, not null 
+   * @return {@code true} if the user may access results produced from the view compilation, {@code false} otherwise.
    */
-  void assertPermission(ViewPermission permission, UserPrincipal user, View view);
+  boolean canAccessComputationResults(UserPrincipal user, ViewEvaluationModel viewEvaluationModel);
   
 }

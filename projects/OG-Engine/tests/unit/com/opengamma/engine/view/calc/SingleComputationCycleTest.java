@@ -17,13 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.test.TestComputationResultListener;
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -43,14 +44,8 @@ public class SingleComputationCycleTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
-    view.init();
-    
-    ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
-    TestComputationResultListener resultListener = new TestComputationResultListener();
-    client.setResultListener(resultListener);
-    client.startLive();  // Performs an initial cycle
+    ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
     
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
     assertTrue (executor.awaitFirstRun(TIMEOUT));
@@ -59,8 +54,9 @@ public class SingleComputationCycleTest {
     assertFalse(executor.wasInterrupted());
     
     // Interrupting should cause everything to terminate gracefully
-    ViewRecalculationJob recalcJob = env.getCurrentRecalcJob(view);
-    Thread recalcThread = env.getCurrentRecalcThread(view);
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    ViewComputationJob recalcJob = env.getCurrentRecalcJob(viewProcess);
+    Thread recalcThread = env.getCurrentRecalcThread(viewProcess);
     recalcJob.terminate();
     recalcThread.interrupt();
     recalcThread.join(TIMEOUT);

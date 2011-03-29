@@ -18,7 +18,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.springframework.jms.core.JmsTemplate;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
@@ -55,7 +55,7 @@ public class DataViewProcessorResource {
   @GET
   @Path(PATH_VIEW_NAMES)
   public Response getViewNames() {
-    return Response.ok(_viewProcessor.getViewNames()).build();
+    return Response.ok(_viewProcessor.getViewProcesses()).build();
   }
   
   @Path("views/{viewName}")
@@ -63,7 +63,7 @@ public class DataViewProcessorResource {
     // TODO: authentication of the remote user while still providing RESTful access.
     UserPrincipal user = UserPrincipal.getLocalUser();
     
-    View view = _viewProcessor.getView(viewName, user);
+    ViewProcess view = _viewProcessor.getView(viewName, user);
     if (view == null) {
       return null;
     }

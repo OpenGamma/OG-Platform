@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.management;
 
+import com.opengamma.id.UniqueIdentifier;
+
 
 /**
  * A management bean for a GrapExecutionStatistics
@@ -12,7 +14,9 @@ package com.opengamma.engine.management;
  */
 public interface GraphExecutionStatisticsMBean {
 
-  String getViewName();
+  UniqueIdentifier getViewProcessId();
+  
+  String getViewDefinitionName();
 
   String getCalcConfigName();
 

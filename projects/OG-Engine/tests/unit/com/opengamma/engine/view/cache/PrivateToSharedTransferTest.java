@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.MissingValueLoader;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
@@ -32,6 +33,8 @@ import com.opengamma.util.tuple.Pair;
 
 public class PrivateToSharedTransferTest {
 
+  private static final UniqueIdentifier s_testViewProcessId = UniqueIdentifier.of("Test", "ViewProcess");
+  
   private ValueSpecification[] createValueSpecifications(final int count) {
     final ValueSpecification[] specs = new ValueSpecification[count];
     for (int i = 0; i < specs.length; i++) {
@@ -44,7 +47,7 @@ public class PrivateToSharedTransferTest {
   public void testMissingValueLoader_noCallback() {
     final IdentifierMap identifiers = new InMemoryIdentifierMap();
     final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers, FudgeContext.GLOBAL_DEFAULT, new InMemoryBinaryDataStoreFactory());
-    final ViewComputationCache cache = source.getCache("Test View", "Default", System.currentTimeMillis());
+    final ViewComputationCache cache = source.getCache(s_testViewProcessId, "Default", System.currentTimeMillis());
     final ValueSpecification[] specs = createValueSpecifications(4);
     cache.putPrivateValue(new ComputedValue(specs[0], "Zero"));
     cache.putSharedValue(new ComputedValue(specs[1], "One"));
@@ -68,7 +71,7 @@ public class PrivateToSharedTransferTest {
 
       @Override
       public byte[] findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
-        assertEquals("Test View", cache.getViewName());
+        assertEquals(s_testViewProcessId, cache.getViewProcessId());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
         int i = Integer.parseInt(spec.getValueName());
@@ -96,7 +99,7 @@ public class PrivateToSharedTransferTest {
       }
 
     });
-    final ViewComputationCache cache = source.getCache("Test View", "Default", System.currentTimeMillis());
+    final ViewComputationCache cache = source.getCache(s_testViewProcessId, "Default", System.currentTimeMillis());
     final ValueSpecification[] specs = createValueSpecifications(4);
     cache.putPrivateValue(new ComputedValue(specs[0], "Zero"));
     cache.putSharedValue(new ComputedValue(specs[1], "One"));
@@ -147,10 +150,10 @@ public class PrivateToSharedTransferTest {
         .createCacheManager());
     // Populate the test caches
     final ValueSpecification[] specs = createValueSpecifications(10);
-    final ViewComputationCache serverCache = serverCacheSource.getCache("Test View", "Default", 1L);
-    final ViewComputationCache remoteCache1 = remoteCacheSource1.getCache("Test View", "Default", 1L);
-    final ViewComputationCache remoteCache2 = remoteCacheSource2.getCache("Test View", "Default", 1L);
-    final ViewComputationCache remoteCache3 = remoteCacheSource3.getCache("Test View", "Default", 1L);
+    final ViewComputationCache serverCache = serverCacheSource.getCache(s_testViewProcessId, "Default", 1L);
+    final ViewComputationCache remoteCache1 = remoteCacheSource1.getCache(s_testViewProcessId, "Default", 1L);
+    final ViewComputationCache remoteCache2 = remoteCacheSource2.getCache(s_testViewProcessId, "Default", 1L);
+    final ViewComputationCache remoteCache3 = remoteCacheSource3.getCache(s_testViewProcessId, "Default", 1L);
     serverCache.putSharedValue(new ComputedValue(specs[0], "Zero"));
     serverCache.putPrivateValue(new ComputedValue(specs[1], "One"));
     remoteCache1.putPrivateValue(new ComputedValue(specs[2], "Two"));

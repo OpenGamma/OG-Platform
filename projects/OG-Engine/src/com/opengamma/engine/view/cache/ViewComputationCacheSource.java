@@ -5,44 +5,43 @@
  */
 package com.opengamma.engine.view.cache;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
- * Generates and manages the lifecycle of {@link ViewCalculationCache} instances. 
- *
+ * Generates, and manages the lifecycle of, {@link ViewComputationCache} instances.
  */
 public interface ViewComputationCacheSource {
   
   /**
-   * Generate a new source, or return the existing one for the
-   * specified timestamp.
+   * Generates a new computation cache, or returns the existing one, for the given identifying arguments.
    * 
-   * @param viewName The name of the view.
-   * @param calculationConfigurationName The name of the calculation configuration within that view. 
-   * @param timestamp The timestamp for the computation cache.
-   * @return The cache for that timestamp.
+   * @param viewProcessId  the unique identifier of the view process
+   * @param calculationConfigurationName  the name of the view calculation configuration 
+   * @param evaluationTime  the view evaluation time
+   * @return the computation cache for the given arguments
    */
-  ViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp);
+  ViewComputationCache getCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long evaluationTime);
   
   // REVIEW kirk 2010-08-07 -- This might be better suited with another method. It's not currently
   // being called by anything.
   /**
-   * Take a deep copy of a cache, usually, to pass it over to a viewer
-   * or other tool.  This doens't need to be released once you're through 
-   * with it.
+   * Takes a deep copy of the cache identified by the arguments, usually to pass it over to a viewer or other tool. The
+   * clone does not need to be released after use.
    * 
-   * @param viewName The name of the view.
-   * @param calculationConfigurationName The name of the calculation configuration within that view. 
-   * @param timestamp The timestamp for the computation cache
-   * @return The closed cache
+   * @param viewProcessId  the unique identifier of the view process
+   * @param calculationConfigurationName  the name of the view calculation configuration 
+   * @param evaluationTime  the view evaluation time
+   * @return the cloned cache
    */
-  ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp);
+  ViewComputationCache cloneCache(UniqueIdentifier viewProcessId, String calculationConfigurationName, long evaluationTime);
   
   /**
-   * Release all caches previously generated using {@link #getCache(String, String, long)}
-   * for the view name specified.
+   * Releases all caches previously generated using {@link #getCache(UniqueIdentifier, String, long)} for the given
+   * view and evaluation time.
    * 
-   * @param viewName The name of the view.
-   * @param timestamp The timestamp for the cache.
+   * @param viewProcessId  the unique identifier of the view process
+   * @param evaluationTime  the view evaluation time
    */
-  void releaseCaches(String viewName, long timestamp);
+  void releaseCaches(UniqueIdentifier viewProcessId, long evaluationTime);
   
 }

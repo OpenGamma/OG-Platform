@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
@@ -25,44 +26,44 @@ public class CalculationJobSpecificationTest {
   
   @Test
   public void testHashCode() {
-    CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
-    CalculationJobSpecification spec2 = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec1 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
+    CalculationJobSpecification spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     
     assertEquals(spec1.hashCode(), spec2.hashCode());
     
-    spec2 = new CalculationJobSpecification("view2", "config", 1L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess2"), "config", 1L, 1L);
     assertFalse(spec1.hashCode() == spec2.hashCode());
-    spec2 = new CalculationJobSpecification("view", "config2", 1L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config2", 1L, 1L);
     assertFalse(spec1.hashCode() == spec2.hashCode());
-    spec2 = new CalculationJobSpecification("view", "config", 2L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 2L, 1L);
     assertFalse(spec1.hashCode() == spec2.hashCode());
-    spec2 = new CalculationJobSpecification("view", "config", 1L, 2L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 2L);
     assertFalse(spec1.hashCode() == spec2.hashCode());
   }
 
   @Test
   public void testEquals() {
-    CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec1 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     assertTrue(spec1.equals(spec1));
     assertFalse(spec1.equals(null));
     assertFalse(spec1.equals("Kirk"));
-    CalculationJobSpecification spec2 = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     assertTrue(spec1.equals(spec2));
     
-    spec2 = new CalculationJobSpecification("view2", "config", 1L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess2"), "config", 1L, 1L);
     assertFalse(spec1.equals(spec2));
-    spec2 = new CalculationJobSpecification("view", "config2", 1L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config2", 1L, 1L);
     assertFalse(spec1.equals(spec2));
-    spec2 = new CalculationJobSpecification("view", "config", 2L, 1L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 2L, 1L);
     assertFalse(spec1.equals(spec2));
-    spec2 = new CalculationJobSpecification("view", "config", 1L, 2L);
+    spec2 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 2L);
     assertFalse(spec1.equals(spec2));
   }
   
   @Test
   public void fudgeEncoding() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
-    CalculationJobSpecification spec1 = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec1 = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(context);
     MutableFudgeFieldContainer inMsg = serializationContext.objectToFudgeMsg(spec1);
     FudgeFieldContainer outMsg = context.deserialize(context.toByteArray(inMsg)).getMessage();

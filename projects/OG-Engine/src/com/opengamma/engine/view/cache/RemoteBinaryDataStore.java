@@ -42,13 +42,14 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
   @Override
   public void delete() {
     // [ENG-256] Don't need the delete messages if we propogate at the releaseCaches level
-    final DeleteRequest request = new DeleteRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp());
+    final DeleteRequest request = new DeleteRequest(getCacheKey().getViewProcessId(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp());
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
   @Override
   public byte[] get(long identifier) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier));
+    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(),
+        getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier));
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
     final byte[] data = response.getData().get(0);
     if (data.length > 0) {
@@ -60,7 +61,7 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
 
   @Override
   public Map<Long, byte[]> get(Collection<Long> identifiers) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers);
+    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers);
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
     final Map<Long, byte[]> result = new HashMap<Long, byte[]>();
     final List<byte[]> values = response.getData();
@@ -76,7 +77,8 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
 
   @Override
   public void put(long identifier, byte[] data) {
-    final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier),
+    final PutRequest request = new PutRequest(getCacheKey().getViewProcessId(),
+        getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier),
         Collections.singleton(data));
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
@@ -89,7 +91,8 @@ public class RemoteBinaryDataStore implements BinaryDataStore {
       identifiers.add(entry.getKey());
       values.add(entry.getValue());
     }
-    final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers, values);
+    final PutRequest request = new PutRequest(getCacheKey().getViewProcessId(),
+        getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers, values);
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 

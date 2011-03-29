@@ -33,12 +33,10 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     view.start();
     
     assertEquals(env.getViewDefinition().getName(), view.getName());
-    
-    view.init();
     
     // Repeated call should be ignored
     view.init();
@@ -53,7 +51,7 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     assertTrue(view.isRunning());
     view.start();
     assertTrue(view.isRunning());
@@ -68,7 +66,7 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     view.init();
     
     view.assertAccessToLiveDataRequirements(ViewProcessorTestEnvironment.TEST_USER);
@@ -84,7 +82,7 @@ public class ViewTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewImpl view = (ViewImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     view.start();
     view.init();
     
@@ -106,7 +104,7 @@ public class ViewTest {
     env.init ();
     final ViewProcessorImpl vp = env.getViewProcessor ();
     vp.start ();
-    final ViewImpl view = (ViewImpl)vp.getView(env.getViewDefinition ().getName (), ViewProcessorTestEnvironment.TEST_USER);
+    final ViewProcessImpl view = (ViewProcessImpl)vp.getView(env.getViewDefinition ().getName (), ViewProcessorTestEnvironment.TEST_USER);
     view.init ();
     ViewEvaluationModel originalModel = view.getViewEvaluationModel();
     assertNotNull (originalModel);

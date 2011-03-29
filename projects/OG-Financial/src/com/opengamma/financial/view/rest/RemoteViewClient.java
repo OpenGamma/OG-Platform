@@ -23,7 +23,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -42,7 +42,7 @@ public class RemoteViewClient implements ViewClient {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
   
-  private final View _view;
+  private final ViewProcess _view;
   private final URI _baseUri;
   private final FudgeRestClient _client;
   
@@ -55,7 +55,7 @@ public class RemoteViewClient implements ViewClient {
   private final FudgeContext _fudgeContext;
   private final JmsTemplate _jmsTemplate;
   
-  public RemoteViewClient(View view, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
+  public RemoteViewClient(ViewProcess view, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
     _view = view;
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
@@ -79,7 +79,7 @@ public class RemoteViewClient implements ViewClient {
   }
   
   @Override
-  public View getView() {
+  public ViewProcess getView() {
     return _view;
   }
   

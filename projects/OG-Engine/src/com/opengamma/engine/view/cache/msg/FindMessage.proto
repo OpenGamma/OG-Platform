@@ -8,7 +8,7 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message FindMessage extends CacheMessage {
   
-    required string viewName;
+    required id.UniqueIdentifier viewProcessId;
     required string calculationConfigurationName;
     required long snapshotTimestamp;
   

@@ -36,9 +36,9 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
-import com.opengamma.engine.view.ViewInternal;
-import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewProcessInternal;
+import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
@@ -81,7 +81,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   /**
    * View associated with this batch
    */
-  private ViewInternal _view;
+  private ViewProcessInternal _view;
   
   /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
@@ -346,13 +346,13 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionCompilationService);
-    ViewProcessingContext vpc = new ViewProcessingContext(
+    ViewProcessContext vpc = new ViewProcessContext(
         new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider,
         functionCompilationService, functionResolver, positionSource, securitySource, computationTargetResolver, computationCache,
         jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
         new DiscardingGraphStatisticsGathererProvider());
 
-    ViewImpl view = new ViewImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
+    ViewProcessImpl view = new ViewProcessImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
     view.init(getValuationTime());
     setView(view);
     
@@ -361,11 +361,11 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     }
   }
   
-  public void setView(ViewInternal view) {
+  public void setView(ViewProcessInternal view) {
     _view = view;
   }
 
-  public ViewInternal getView() {
+  public ViewProcessInternal getView() {
     return _view;
   }
   

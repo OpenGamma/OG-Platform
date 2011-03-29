@@ -26,8 +26,8 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
-import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
@@ -49,7 +49,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class ViewTestUtils {
 
-  public static ViewImpl getMockView() {
+  public static ViewProcessImpl getMockView() {
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
     
@@ -77,13 +77,13 @@ public class ViewTestUtils {
 //    ThreadFactory threadFactory = new NamedThreadPoolFactory("ViewTestUtils-" + System.currentTimeMillis(), true);
 //    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, 1, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
     
-    ViewProcessingContext vpc = new ViewProcessingContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionCompilation,
+    ViewProcessContext vpc = new ViewProcessContext(new TestLiveDataClient(), new FixedLiveDataAvailabilityProvider(), new InMemoryLKVSnapshotProvider(), functionCompilation,
         new DefaultFunctionResolver(functionCompilation), positionSource, securitySource, targetResolver, computationCache, jobDispatcher, viewProcessorQueryReceiver, new SingleNodeExecutorFactory(),
         new DefaultViewPermissionProvider(), new DiscardingGraphStatisticsGathererProvider());
     
     ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
     
-    ViewImpl viewImpl = new ViewImpl(viewDefinition, vpc, new Timer("Test view timer"));
+    ViewProcessImpl viewImpl = new ViewProcessImpl(viewDefinition, vpc, new Timer("Test view timer"));
     viewImpl.init();
     
     return viewImpl;

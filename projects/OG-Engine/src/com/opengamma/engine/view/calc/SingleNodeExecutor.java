@@ -40,7 +40,7 @@ import com.opengamma.util.Cancellable;
  * on a single calculation node in a single thread. Whether that node 
  * is the local machine or a remote machine on the grid depends on the
  * the {@link com.opengamma.engine.view.calcnode.JobRequestSender} configured in 
- * {@link com.opengamma.engine.view.ViewProcessingContext}.
+ * {@link com.opengamma.engine.view.ViewProcessContext}.
  * 
  */
 public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJobResult>, JobResultReceiver {
@@ -59,7 +59,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   @Override
   public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewName(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewProcessId(), graph.getCalcConfName(), _cycle.getEvaluationTime().toEpochMillisLong(), jobId);
 
     List<DependencyNode> order = graph.getExecutionOrder();
 
@@ -114,8 +114,8 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);
     _executingSpecifications.put(jobSpec, future);
-    _cycle.getProcessingContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
-    Cancellable cancel = _cycle.getProcessingContext().getComputationJobDispatcher()
+    _cycle.getViewProcessContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
+    Cancellable cancel = _cycle.getViewProcessContext().getComputationJobDispatcher()
         .dispatchJob(new CalculationJob(jobSpec, _cycle.getFunctionInitId(), null, items, cacheHint), this);
     future.setCancel(cancel);
 

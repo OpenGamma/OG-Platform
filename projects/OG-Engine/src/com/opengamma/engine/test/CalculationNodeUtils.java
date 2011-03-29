@@ -15,6 +15,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -47,7 +48,7 @@ public class CalculationNodeUtils {
   public static CalculationJob getCalculationJob(MockFunction function) {
 
     long iterationTimestamp = System.currentTimeMillis();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", CALC_CONF_NAME, iterationTimestamp, 1L);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), CALC_CONF_NAME, iterationTimestamp, 1L);
 
     CalculationJobItem calculationJobItem = new CalculationJobItem(function.getUniqueId(), function.getDefaultParameters(), function.getTarget().toSpecification(), function.getRequirements(),
         function.getResultRequirements());

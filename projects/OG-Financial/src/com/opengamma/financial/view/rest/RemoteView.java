@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.client.ViewClient;
@@ -35,9 +35,9 @@ import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
- * Provides access to a remote {@link View}.
+ * Provides access to a remote {@link ViewProcess}.
  */
-public class RemoteView implements View {
+public class RemoteView implements ViewProcess {
 
   private final URI _baseUri;
   private final FudgeRestClient _client;

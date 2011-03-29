@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ComputedValue;
 /**
  * A simple implementation of the calculation result model.
  */
-/* package */abstract class AbstractResultModel<T> implements Serializable {
+/*package*/ abstract class AbstractResultModel<T> implements Serializable {
 
   private final Map<T, Map<String, ComputedValue>> _valuesByName = new HashMap<T, Map<String, ComputedValue>>();
   private final Map<T, Set<ComputedValue>> _allValues = new HashMap<T, Set<ComputedValue>>();

@@ -37,7 +37,7 @@ public class ViewProcessorTest {
     vp.start();
 
     assertTrue(vp.isRunning());
-    assertEquals(Collections.singleton(env.getViewDefinition().getName()), vp.getViewNames());
+    assertEquals(Collections.singleton(env.getViewDefinition().getName()), vp.getViewProcesses());
     vp.stop();
   }
 
@@ -67,7 +67,7 @@ public class ViewProcessorTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
 
-    View view = vp.getView("Something random", ViewProcessorTestEnvironment.TEST_USER);
+    ViewProcess view = vp.getView("Something random", ViewProcessorTestEnvironment.TEST_USER);
     assertNull(view);
   }
 
@@ -77,7 +77,7 @@ public class ViewProcessorTest {
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
-    final ViewInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    final ViewProcessInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
     assertNotNull(resume);
     final CountDownLatch latch = new CountDownLatch(1);
@@ -104,7 +104,7 @@ public class ViewProcessorTest {
     Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
     assertNotNull(resume);
     // View must start off in a suspended state
-    final ViewInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
+    final ViewProcessInternal v = vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
     final CountDownLatch latch = new CountDownLatch(1);
     Thread tryAndInit = new Thread() {
       @Override

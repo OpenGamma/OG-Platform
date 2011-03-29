@@ -8,14 +8,17 @@ package com.opengamma.engine.view;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A callback for code that only wants to receive delta updates
- * on view recomputation.
- *
- * @author kirk
+ * Provides a callback for receiving delta computation results. Delta results contain only the values which have
+ * changed since the previous computation cycle.
  */
 @PublicAPI
 public interface DeltaComputationResultListener extends ComputationListener {
 
+  /**
+   * Called to indicate that a new delta result is available.
+   * 
+   * @param deltaModel  the new delta result
+   */
   void deltaResultAvailable(ViewDeltaResultModel deltaModel);
   
 }

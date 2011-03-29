@@ -19,7 +19,7 @@ public class ViewComputationResultModelMergerTest {
 
   @Test
   public void testMerger() {
-    ViewComputationResultModelMerger merger = new ViewComputationResultModelMerger();
+    ReplacementMerger merger = new ReplacementMerger();
     assertEquals(null, merger.consume());
     
     ViewComputationResultModel result1 = mock(ViewComputationResultModel.class);

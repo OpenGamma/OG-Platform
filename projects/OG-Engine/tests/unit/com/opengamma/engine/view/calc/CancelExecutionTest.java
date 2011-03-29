@@ -21,6 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,10 +51,11 @@ import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.test.MockSecuritySource;
-import com.opengamma.engine.test.MockView;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
@@ -67,6 +70,8 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGath
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.transport.InMemoryRequestConduit;
@@ -152,11 +157,11 @@ public class CancelExecutionTest {
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
     final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
         viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
-    final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
+    final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider(securitySource, liveDataEntitlementChecker);
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
-    final ViewProcessingContext vpc = new ViewProcessingContext(liveDataEntitlementChecker, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
+    final ViewProcessContext vpc = new ViewProcessContext(viewPermissionProvider, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, _factory, viewPermissionProvider, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, _factory, graphExecutorStatisticsProvider);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -168,16 +173,17 @@ public class CancelExecutionTest {
       graph.addDependencyNode(node);
       previous = node;
     }
-    final MockView view = new MockView("Test View");
-    view.setProcessingContext(vpc);
+    ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
+    viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalcConfName(), graph);
-    view.setViewEvaluationModel(new ViewEvaluationModel(graphs, new PortfolioImpl("Test Portfolio"), 0));
+    ViewEvaluationModel viewEvaluationModel = new ViewEvaluationModel(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
     final SingleComputationCycle cycle = new SingleComputationCycle(
-        view, 
-        view.getViewEvaluationModel(), 
-        liveData, 
-        1L);
+        UniqueIdentifier.of("Test", "Cycle1"),
+        UniqueIdentifier.of("Test", "ViewProcess1"),
+        vpc, 
+        viewEvaluationModel, 
+        Instant.ofEpochMillis(1));
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

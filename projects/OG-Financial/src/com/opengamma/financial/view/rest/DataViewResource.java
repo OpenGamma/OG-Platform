@@ -28,7 +28,7 @@ import org.fudgemsg.FudgeContext;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
@@ -38,11 +38,11 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * RESTful resource for a {@link View}.
+ * RESTful resource for a {@link ViewProcess}.
  */
 public class DataViewResource {
 
-  private final View _view;
+  private final ViewProcess _view;
   private final JmsTemplate _jmsTemplate;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final String _jmsTopicPrefix;
@@ -76,7 +76,7 @@ public class DataViewResource {
    * @param fudgeContext  the Fudge context
    * @param executorService  the executor service
    */
-  public DataViewResource(View view, JmsTemplate jmsTemplate, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext,
+  public DataViewResource(ViewProcess view, JmsTemplate jmsTemplate, JmsByteArrayMessageSenderService jmsMessageSenderService, String jmsTopicPrefix, FudgeContext fudgeContext,
       ExecutorService executorService) {
     ArgumentChecker.notNull(view, "view");
     _view = view;

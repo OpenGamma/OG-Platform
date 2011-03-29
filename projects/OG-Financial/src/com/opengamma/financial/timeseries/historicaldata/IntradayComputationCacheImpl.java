@@ -29,7 +29,7 @@ import com.opengamma.engine.historicaldata.IntradayComputationCache;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
@@ -348,7 +348,7 @@ public class IntradayComputationCacheImpl implements IntradayComputationCache, C
       String viewName = entry.getKey();
       ViewComputationResultModel lastResult = entry.getValue();
       
-      View view = _viewProcessor.getView(viewName, getUser());
+      ViewProcess view = _viewProcessor.getView(viewName, getUser());
       if (view == null || !view.isLiveComputationRunning()) {
         s_logger.debug("View {} not running, not writing any history", viewName);
         it.remove(); // help garbage-collect the ViewComputationResultModel

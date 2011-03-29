@@ -25,6 +25,8 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
 
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
@@ -70,7 +72,7 @@ public class ManagementServiceTest {
   public void testRegistrationService() throws Exception {
     ViewProcessorImpl vp = _env.getViewProcessor();
     vp.start();
-    ManagementService.registerMBeans(vp, ViewProcessorTestEnvironment.TEST_USER, _statisticsProvider, _mBeanServer);
+    ManagementService.registerMBeans(vp, _statisticsProvider, _mBeanServer);
     assertEquals(MBEANS_IN_TEST_VIEWPROCESSOR, _mBeanServer.queryNames(new ObjectName("com.opengamma:*"), null).size());
   }
   
@@ -78,7 +80,7 @@ public class ManagementServiceTest {
   public void testRegistrationServiceListensForViewAdded() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     viewProcessor.start();
-    ManagementService.registerMBeans(viewProcessor, ViewProcessorTestEnvironment.TEST_USER, _statisticsProvider, _mBeanServer);
+    ManagementService.registerMBeans(viewProcessor, _statisticsProvider, _mBeanServer);
     assertEquals(MBEANS_IN_TEST_VIEWPROCESSOR, _mBeanServer.queryNames(new ObjectName("com.opengamma:*"), null).size());
     addAnotherView(viewProcessor);
     s_logger.debug("after adding new views");
@@ -90,8 +92,8 @@ public class ManagementServiceTest {
     ViewDefinition anotherDefinition = new ViewDefinition(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
-    //creates a new view
-    viewprocessor.getView(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
+    ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(ANOTHER_TEST_VIEW, RealTimeViewProcessExecutionOptions.INSTANCE, false);
   }
   
   

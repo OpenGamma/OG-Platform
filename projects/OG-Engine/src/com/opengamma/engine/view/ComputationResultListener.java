@@ -8,14 +8,17 @@ package com.opengamma.engine.view;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Allows code to register callbacks for when new computation results
- * are available.
- *
- * @author kirk
+ * Provides a callback for receiving full computation results. Full results contain every requested value on every 
+ * computation cycle.
  */
 @PublicAPI
 public interface ComputationResultListener extends ComputationListener {
   
+  /**
+   * Called to indicate that a new result is available.
+   * 
+   * @param resultModel  the new result
+   */
   void computationResultAvailable(ViewComputationResultModel resultModel);
   
 }
