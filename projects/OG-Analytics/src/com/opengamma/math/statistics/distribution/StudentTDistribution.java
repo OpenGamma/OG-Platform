@@ -20,7 +20,7 @@ import com.opengamma.math.function.special.InverseIncompleteBetaFunction;
  * Student's T-distribution is a continuous probability distribution with probability density function
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
- * f(x) = \\frac{\\Gamma\\left(\\frac{\\nu + 1}{2}\\right)}{\\sqrt{\\nu\\pi}\\Gamma(\\left\\frac{\\nu}{2}\\right)} \\left(1 + \\frac{x^2}{\\nu}\\right)^{-\\frac{1}{2}(\\nu + 1)}
+ * f(x) = \\frac{\\Gamma\\left(\\frac{\\nu + 1}{2}\\right)}{\\sqrt{\\nu\\pi}\\Gamma(\\left(\\frac{\\nu}{2}\\right)}\\left(1 + \\frac{x^2}{\\nu}\\right)^{-\\frac{1}{2}(\\nu + 1)}
  * \\end{align*}
  * }
  * where {@latex.inline $\\nu$} is the number of degrees of freedom and {@latex.inline $\\Gamma$} is the Gamma function ({@link com.opengamma.math.function.special.GammaFunction}).

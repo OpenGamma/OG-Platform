@@ -8,7 +8,7 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NonCentralChiSquareDistribution;
+import com.opengamma.math.statistics.distribution.NonCentralChiSquaredDistribution;
 
 /**
  * 
@@ -45,15 +45,15 @@ public class CEVPriceFunction implements OptionPriceFunction<CEVFunctionData> {
         final double a = Math.pow(k, 2 * (1 - beta)) * x;
         final double c = Math.pow(f, 2 * (1 - beta)) * x;
         if (beta < 1) {
-          final NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(b + 2, c);
-          final NonCentralChiSquareDistribution chiSq2 = new NonCentralChiSquareDistribution(b, a);
+          final NonCentralChiSquaredDistribution chiSq1 = new NonCentralChiSquaredDistribution(b + 2, c);
+          final NonCentralChiSquaredDistribution chiSq2 = new NonCentralChiSquaredDistribution(b, a);
           if (isCall) {
             return discountFactor * (f * (1 - chiSq1.getCDF(a)) - k * chiSq2.getCDF(c));
           }
           return discountFactor * (k * (1 - chiSq2.getCDF(c)) - f * chiSq1.getCDF(a));
         }
-        final NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(-b, a);
-        final NonCentralChiSquareDistribution chiSq2 = new NonCentralChiSquareDistribution(2 - b, c);
+        final NonCentralChiSquaredDistribution chiSq1 = new NonCentralChiSquaredDistribution(-b, a);
+        final NonCentralChiSquaredDistribution chiSq2 = new NonCentralChiSquaredDistribution(2 - b, c);
         if (isCall) {
           return discountFactor * (f * (1 - chiSq1.getCDF(c)) - k * chiSq2.getCDF(a));
         }
