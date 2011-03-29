@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.view.client;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.livedata.AbstractLiveDataSnapshotProvider;
@@ -423,69 +424,33 @@ public class ViewClientTest {
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
-    view.init();
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     
-    ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
     
-    client.startLive();
-    
-    ViewComputationJob recalcJob1 = env.getCurrentRecalcJob(view);
-    Thread recalcThread1 = env.getCurrentRecalcThread(view);
+    ViewComputationJob recalcJob1 = env.getCurrentRecalcJob(viewProcess1);
+    Thread recalcThread1 = env.getCurrentRecalcThread(viewProcess1);
     assertFalse(recalcJob1.isTerminated());
     assertTrue(recalcThread1.isAlive());
     
-    client.stopLive();
-    client.startLive();
+    client.detachFromViewProcess();
+    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
+    ViewComputationJob recalcJob2 = env.getCurrentRecalcJob(viewProcess2);
+    Thread recalcThread2 = env.getCurrentRecalcThread(viewProcess2);
     
-    ViewComputationJob recalcJob2 = env.getCurrentRecalcJob(view);
-    Thread recalcThread2 = env.getCurrentRecalcThread(view);
-    
+    assertFalse(viewProcess1 == viewProcess2);
     assertTrue(recalcJob1.isTerminated());
     assertFalse(recalcJob2.isTerminated());
 
-    recalcThread1.join(5000);
+    recalcThread1.join(TIMEOUT);
     assertFalse(recalcThread1.isAlive());
     assertTrue(recalcThread2.isAlive());
     
     vp.stop();
-  }
-  
-  @Test
-  public void runOneCycle() {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
-    snapshotProvider.addValue(env.getPrimitive1(), 0);
-    snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
-    env.init();
     
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    
-    ViewProcessImpl view = (ViewProcessImpl) vp.getView(env.getViewDefinition().getName(), ViewProcessorTestEnvironment.TEST_USER);
-    view.start();
-    view.init();
-    
-    ViewClient client = view.createClient(ViewProcessorTestEnvironment.TEST_USER);
-    
-    // PURE BATCH MODE
-    
-    ViewComputationResultModel result1 = client.runOneCycle(1000);
-    assertNotNull(result1);
-    assertEquals(2, result1.getAllResults().size());
-    
-    // MIXED BACH/LIVE MODE
-    
-    client.startLive();
-
-    ViewComputationResultModel result2 = client.runOneCycle(1000);
-    assertNotNull(result2);
-    assertEquals(2, result2.getAllResults().size());
-    
-    client.stopLive();
-    vp.stop();
+    assertTrue(recalcJob2.isTerminated());
   }
  
   private void assertComputationResult(Map<ValueRequirement, Object> expected, ViewCalculationResultModel result) {

@@ -25,7 +25,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
   private final ReentrantLock _mergerLock = new ReentrantLock();
   private final ViewProcessListener _underlying;
   
-  private boolean _isPassThrough;
+  private boolean _isPassThrough = true;
   private boolean _isLatestResultCycleRetained;
   private ViewCycleRetainer _cycleRetainer;
   
