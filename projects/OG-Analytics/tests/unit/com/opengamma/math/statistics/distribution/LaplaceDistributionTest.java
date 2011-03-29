@@ -6,7 +6,10 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
 import com.opengamma.math.statistics.descriptive.SampleFisherKurtosisCalculator;
@@ -16,7 +19,7 @@ import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;
   private static final double B = 0.5;
-  private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B, ENGINE);
+  private static final LaplaceDistribution LAPLACE = new LaplaceDistribution(MU, B, ENGINE);
   private static final double[] DATA;
   private static final double EPS1 = 0.05;
   static {
@@ -45,6 +48,19 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInverseCDFWithHigh() {
     LAPLACE.getInverseCDF(6.7);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(LAPLACE.getB(), B, 0);
+    assertEquals(LAPLACE.getMu(), MU, 0);
+    LaplaceDistribution other = new LaplaceDistribution(MU, B);
+    assertEquals(LAPLACE, other);
+    assertEquals(LAPLACE.hashCode(), other.hashCode());
+    other = new LaplaceDistribution(MU + 1, B);
+    assertFalse(LAPLACE.equals(other));
+    other = new LaplaceDistribution(MU, B + 1);
+    assertFalse(LAPLACE.equals(other));
   }
 
   @Test

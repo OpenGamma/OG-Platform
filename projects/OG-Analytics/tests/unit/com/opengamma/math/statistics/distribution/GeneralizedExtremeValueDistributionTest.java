@@ -6,6 +6,7 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -14,7 +15,7 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
   private static final double MU = 1.5;
   private static final double SIGMA = 0.6;
   private static final double KSI = 0.7;
-  private static final ProbabilityDistribution<Double> DIST = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
+  private static final GeneralizedExtremeValueDistribution DIST = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
   private static final double LARGE_X = 1e10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -26,6 +27,22 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
   public void testBadInputs() {
     assertCDFWithNull(DIST);
     assertPDFWithNull(DIST);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(MU, DIST.getMu(), 0);
+    assertEquals(SIGMA, DIST.getSigma(), 0);
+    assertEquals(KSI, DIST.getKsi(), 0);
+    GeneralizedExtremeValueDistribution other = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new GeneralizedExtremeValueDistribution(MU + 1, SIGMA, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedExtremeValueDistribution(MU, SIGMA + 1, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI + 1);
+    assertFalse(other.equals(DIST));
   }
 
   @Test

@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.CompareUtils;
 
 /**
  * 
@@ -31,7 +31,25 @@ import com.opengamma.util.ArgumentChecker;
  * x\\geq\\mu\\quad\\quad\\quad(\\xi\\geq 0)\\\\
  * \\mu\\leq x\\leq\\mu-\\frac{\\sigma}{\\xi}\\quad(\\xi<0)
  * \\end{eqnarray*}}
- * 
+ * The cdf is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * F(z)&=1-\\left(1 + \\xi z\\right)^{-\\frac{1}{\\xi}}\\\\
+ * z&=\\frac{x-\\mu}{\\sigma}
+ * \\end{align*}}
+ * and the pdf is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * f(z)&=\\frac{\\left(1+\\xi z\\right)^{-\\left(\\frac{1}{\\xi} + 1\\right)}}{\\sigma}\\\\
+ * z&=\\frac{x-\\mu}{\\sigma}
+ * \\end{align*}}
+ * Given a uniform random number variable {@latex.inline $U$} drawn from the interval {@latex.inline $(0,1]$}, a
+ * Pareto-distributed random variable with parameters {@latex.inline $\\mu$}, {@latex.inline $\\sigma$} and
+ * {@latex.inline $\\xi$} is given by
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * X=\\mu + \\frac{\\sigma\\left(U^{-\\xi}-1\\right)}{\\xi}\\sim GPD(\\mu,\\sigma,\\xi)
+ * \\end{align*}}
  */
 public class GeneralizedParetoDistribution implements ProbabilityDistribution<Double> {
   // TODO check cdf, pdf for support
@@ -39,48 +57,28 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   private final double _sigma;
   private final double _ksi;
   // TODO better seed
-  private RandomEngine _engine = new MersenneTwister64(new Date());
+  private final RandomEngine _engine;
 
   /**
    * 
-   * @param mu
-   *          The location parameter
-   * @param sigma
-   *          The scale parameter
-   * @param ksi
-   *          The shape parameter
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $\\sigma < 0$}
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $\\xi = 0$}
+   * @param mu The location parameter
+   * @param sigma The scale parameter, not negative or zero
+   * @param ksi The shape parameter, not zero
    */
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi) {
-    ArgumentChecker.notNegative(sigma, "sigma");
-    ArgumentChecker.notZero(ksi, 1e-15, "ksi");
-    _mu = mu;
-    _sigma = sigma;
-    _ksi = ksi;
+    this(mu, sigma, ksi, new MersenneTwister64(new Date()));
   }
 
   /**
    * 
-   * @param mu
-   *          The location parameter
-   * @param sigma
-   *          The scale parameter
-   * @param ksi
-   *          The shape parameter
-   * @param engine
-   *          A <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">RandomEngine</a>, a uniform random number
-   *          generator
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $\\sigma < 0$}
-   * @throws IllegalArgumentException
-   *           If the random number generator was null
+   * @param mu The location parameter
+   * @param sigma The scale parameter
+   * @param ksi The shape parameter
+   * @param engine A uniform random number generator, not null
    */
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi, final RandomEngine engine) {
-    ArgumentChecker.notNegative(sigma, "sigma");
-    ArgumentChecker.notNegativeOrZero(ksi, "ksi");
+    Validate.isTrue(sigma > 0, "sigma must be > 0");
+    Validate.isTrue(!CompareUtils.closeEquals(ksi, 0, 1e-15), "ksi cannot be zero");
     Validate.notNull(engine);
     _mu = mu;
     _sigma = sigma;
@@ -88,33 +86,30 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
     _engine = engine;
   }
 
+  /**
+   * @return The location parameter
+   */
   public double getMu() {
     return _mu;
   }
 
+  /**
+   * @return The scale parameter
+   */
   public double getSigma() {
     return _sigma;
   }
 
+  /**
+   * @return The shape parameter
+   */
   public double getKsi() {
     return _ksi;
   }
 
   /**
-   *
-   * Returns the cdf:
-   * <p>
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{eqnarray*}
-   * F(z, \\mu, \\sigma, \\xi)&=&1-\\left(1 + \\xi z\\right)^{-\\frac{1}{\\xi}}\\quad\\text{where}\\\\
-   * z&=&\\frac{x-\\mu}{\\sigma}
-   * \\end{eqnarray*}}
-   * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
-   * @param x {@latex.inline $x$}
-   * @return The CDF of {@latex.inline $x$}
-   * @throws IllegalArgumentException
-   *           If {@latex.inline $x$} was null
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
    */
   @Override
   public double getCDF(final Double x) {
@@ -123,12 +118,8 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   }
 
   /**
-   * 
-   * This method is not implemented.
-   * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
-   * @param p {@latex.inline $p$}
-   * @return This method is not implemented
+   * {@inheritDoc}
+   * @return Not supported
    * @throws NotImplementedException
    */
   @Override
@@ -137,20 +128,8 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   }
 
   /**
-  *
-  * Returns the pdf:
-  * <p>
-  * {@latex.ilb %preamble{\\usepackage{amsmath}}
-  * \\begin{eqnarray*}
-  * f(z, \\mu, \\sigma, \\xi)&=&\\frac{\\left(1+\\xi z\\right)^{-\\left(\\frac{1}{\\xi} + 1\\right)}}{\\sigma}\\quad\\text{where}\\\\
-  * z&=&\\frac{x-\\mu}{\\sigma}
-  * \\end{eqnarray*}}
-  * 
-  * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
-  * @param x {@latex.inline $x$}
-  * @return The PDF of {@latex.inline $x$}
-  * @throws IllegalArgumentException
-  *           If {@latex.inline $x$} was null
+  * {@inheritDoc} 
+  * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
   */
   @Override
   public double getPDF(final Double x) {
@@ -159,15 +138,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   }
 
   /**
-   * 
-   * If {@latex.inline $U$} is uniformly distributed on {@latex.inline $(0,1]$} then
-   * <p>
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{equation*}
-   * X=\\mu + \\frac{\\sigma\\left(U^{-\\xi}-1\\right)}{\\xi}\\sim GPD(\\mu,\\sigma,\\xi)
-   * \\end{equation*}}
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
-   * @return The next random number drawn from the distribution
+   * {@inheritDoc} 
    */
   @Override
   public double nextRandom() {
@@ -183,4 +154,40 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
     }
     return (x - _mu) / _sigma;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_ksi);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_mu);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_sigma);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final GeneralizedParetoDistribution other = (GeneralizedParetoDistribution) obj;
+    if (Double.doubleToLongBits(_ksi) != Double.doubleToLongBits(other._ksi)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_mu) != Double.doubleToLongBits(other._mu)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_sigma) == Double.doubleToLongBits(other._sigma);
+  }
+
 }

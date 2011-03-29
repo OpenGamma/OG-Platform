@@ -7,10 +7,6 @@ package com.opengamma.util.db;
 
 import java.util.Collection;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -176,39 +172,6 @@ public final class Paging {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[page=" + _page + ", pagingSize=" + _pagingSize + ", totalItems=" + _totalItems + "]";
-  }
-
-  //-------------------------------------------------------------------------
-  /** Field name. */
-  private static final String PAGE_FIELD_NAME = "page";
-  /** Field name. */
-  private static final String PAGING_SIZE_FIELD_NAME = "pagingSize";
-  /** Field name. */
-  private static final String TOTAL_FIELD_NAME = "totalItems";
-
-  /**
-   * Serializes to a Fudge message.
-   * @param messageFactory Fudge context, not null
-   * @return the Fudge message, not null
-   */
-  public FudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
-    MutableFudgeFieldContainer msg = messageFactory.newMessage();
-    msg.add(PAGE_FIELD_NAME, _page);
-    msg.add(PAGING_SIZE_FIELD_NAME, _pagingSize);
-    msg.add(TOTAL_FIELD_NAME, _totalItems);
-    return msg;
-  }
-
-  /**
-   * Deserializes this pair from a Fudge message.
-   * @param msg  the Fudge message, not null
-   * @return the pair, not null
-   */
-  public static Paging fromFudgeMsg(final FudgeFieldContainer msg) {
-    int page = msg.getInt(PAGE_FIELD_NAME);
-    int pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
-    int totalItems = msg.getInt(TOTAL_FIELD_NAME);
-    return new Paging(page, pagingSize, totalItems);
   }
 
 }
