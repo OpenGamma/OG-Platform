@@ -22,8 +22,10 @@ import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefi
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborAnnuityCalculator;
+import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -108,7 +110,7 @@ public class SwaptionPhysicalFixedIborTest {
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     double sigmaBlack = 0.20;
     double forward = PRC.visit(SWAP_PAYER, CURVES);
-    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityPhysical(SWAP_PAYER, CURVE_5);
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
     Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
@@ -140,7 +142,7 @@ public class SwaptionPhysicalFixedIborTest {
     double rho = -0.25;
 
     double forward = PRC.visit(SWAP_PAYER, CURVES);
-    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityPhysical(SWAP_PAYER, CURVE_5);
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
 
     SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
 
@@ -210,5 +212,22 @@ public class SwaptionPhysicalFixedIborTest {
     double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, CURVES);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
+    double expectedPriceLongPayer = 1724302.173;
+    assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
+    // Non-constant fixed rate/strike
+    AnnuityCouponFixed annuity = SWAP_PAYER.getFixedLeg();
+    CouponFixed[] coupon = new CouponFixed[annuity.getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
+      // Step-up by 10bps
+      coupon[loopcpn] = new CouponFixed(annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
+          * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
+    }
+    AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
+    FixedCouponSwap<Payment> swapStepup = new FixedCouponSwap<Payment>(annuityStepUp, SWAP_PAYER.getSecondLeg());
+    SwaptionPhysicalFixedIbor swaptionStepUp = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), swapStepup, IS_LONG);
+    double priceLongPayerStepUp = PVC.visit(swaptionStepUp, sabrBundle);
+    double expectedPriceLongPayerSteUp = 1496701.997;
+    assertEquals(expectedPriceLongPayerSteUp, priceLongPayerStepUp, 1E-2);
+
   }
 }

@@ -6,14 +6,14 @@ package com.opengamma.financial.instrument.payment;
 public interface CapFloor {
 
   /**
-   * Gets the _strike field.
-   * @return the strike
+   * Gets the strike.
+   * @return The strike
    */
   double geStrike();
 
   /**
-   * Gets the isCap field.
-   * @return the isCap
+   * Gets the isCap flag.
+   * @return Flag indicating a Cap (true) or Floor (false)
    */
   boolean isCap();
 
@@ -23,7 +23,5 @@ public interface CapFloor {
    * @return The pay-off
    */
   double payOff(double fixing);
-  //    double omega = (_isCap) ? 1 : -1;
-  //    return Math.max(omega * (fixing - _strike), 0);
 
 }

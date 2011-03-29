@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import com.opengamma.financial.instrument.payment.CapFloor;
+
 /**
  * Class describing a cap/floor on Ibor.
  */
-public class CapFloorIbor extends CouponIbor {
+public class CapFloorIbor extends CouponIbor implements CapFloor {
 
   /**
    * The cap/floor strike.
@@ -40,20 +42,19 @@ public class CapFloorIbor extends CouponIbor {
     _isCap = isCap;
   }
 
-  /**
-   * Gets the _strike field.
-   * @return The strike
-   */
   public double getStrike() {
     return _strike;
   }
 
-  /**
-   * Gets the _isCap field.
-   * @return The cap (true) / floor (false) flag.
-   */
+  @Override
   public boolean isCap() {
     return _isCap;
+  }
+
+  @Override
+  public double payOff(double fixing) {
+    double omega = (_isCap) ? 1.0 : -1.0;
+    return Math.max(omega * (fixing - _strike), 0);
   }
 
   @Override
@@ -86,6 +87,11 @@ public class CapFloorIbor extends CouponIbor {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public double geStrike() {
+    return 0;
   }
 
 }

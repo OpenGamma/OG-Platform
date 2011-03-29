@@ -87,19 +87,11 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
         couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap);
   }
 
-  /**
-   * Gets the _strike field.
-   * @return The strike
-   */
   @Override
   public double geStrike() {
     return _strike;
   }
 
-  /**
-   * Gets the _isCap field.
-   * @return the _isCap
-   */
   @Override
   public boolean isCap() {
     return _isCap;

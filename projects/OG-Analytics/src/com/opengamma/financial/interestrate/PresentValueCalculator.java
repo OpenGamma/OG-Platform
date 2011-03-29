@@ -14,13 +14,16 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSReplicationSABRMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponCMSReplicationSABRMethod;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborAnnuityCalculator;
+import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -31,6 +34,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -112,8 +116,9 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
-    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    double pvbp = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     double strike = annuityFixed.getNthPayment(0).getFixedRate();
+    // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     // FIXME: A better notion of maturity is required
     double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
     if (annuityFixed.getNumberOfPayments() >= 2) {
@@ -137,17 +142,19 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
-    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityPhysical(swaption.getUnderlyingSwap(), curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
-    double strike = annuityFixed.getNthPayment(0).getFixedRate();
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, curves);
     // FIXME: A better notion of maturity is required
     double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
     if (annuityFixed.getNumberOfPayments() >= 2) {
       maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
     }
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    // Implementation: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
     double volatility = sabr.getSABRParameter().getVolatility(new DoublesPair(swaption.getTimeToExpiry(), maturity), strike, forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
-    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
+    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return price;
   }
@@ -235,17 +242,32 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  /**
-   * Pricing by discounting (no convexity adjustment).
-   */
   public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+      return replication.price(payment, sabrBundle);
+    }
+    // Implementation comment: if not SABR data, price without convexity adjustment is used.
     ParRateCalculator parRate = ParRateCalculator.getInstance();
     double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;
+  }
+
+  @Override
+  public Double visitCapFloorCMS(CapFloorCMS payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      CapFloorCMSReplicationSABRMethod replication = new CapFloorCMSReplicationSABRMethod();
+      return replication.price(payment, sabrBundle);
+    }
+    throw new UnsupportedOperationException("The PresentValueCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
   }
 
 }
