@@ -6,13 +6,17 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.interestrate.NelsonSiegelBondCurveModel;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -59,12 +63,25 @@ public class MathCurveTest extends AnalyticsTestBase {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testFunctionalCurve() {
+  public void testFunctionalCurve_1() {
     final Function1D<Double, Double> f = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
     Curve<Double, Double> c1 = FunctionalDoublesCurve.from(f);
     Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
     assertEquals(c1, c2);
     c1 = FunctionalDoublesCurve.from(f, "NAME");
+    c2 = cycleObject(Curve.class, c1);
+    assertEquals(c1, c2);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testFunctionalCurve_2 () {
+    final NelsonSiegelBondCurveModel curveBondModel = new NelsonSiegelBondCurveModel();
+    final Function<Double, Double> func = curveBondModel.getParameterizedFunction().asFunctionOfArguments(new DoubleMatrix1D(new double[] {1, 2, 3, 4 }));
+    Curve<Double, Double> c1 = FunctionalDoublesCurve.from(func);
+    Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
+    assertEquals(c1, c2);
+    c1 = FunctionalDoublesCurve.from(func, "NAME");
     c2 = cycleObject(Curve.class, c1);
     assertEquals(c1, c2);
   }
