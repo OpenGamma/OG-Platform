@@ -67,12 +67,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Constructs an instance.
    * 
-   * @param viewProcessId  the unique identifier of the view, not null
+   * @param viewProcessId  the unique identifier of the view process, not null
    * @param definition  the view definition, not null
    * @param executionOptions  the view execution options, not null
-   * @param viewProcessContext  the processing context, a wrapper around the data structures required by the view
-   *                               which allows a view to exist without a view processor
-   * @param viewCycleManager  the view cycle manager
+   * @param viewProcessContext  the process context, not null
+   * @param viewCycleManager  the view cycle manager, not null
    * @param cycleObjectId  the object identifier of cycles, not null
    * @param isBatchProcess {@code true} if the process is for a batch computation, {@code false} otherwise 
    */
@@ -155,7 +154,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   @Override
   public void suspend() {
-    s_logger.info("Suspending view {}", getUniqueId());
+    s_logger.info("Suspending view process {}", getUniqueId());
     lock();
     if (getComputationJob() != null) {
       s_logger.debug("Suspending calculation job");
@@ -171,24 +170,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
         getComputationThread().wait();
       } catch (InterruptedException e) {
         s_logger.warn("Interrupted waiting for calculation thread");
-        throw new OpenGammaRuntimeException("Couldn't suspend view", e);
+        throw new OpenGammaRuntimeException("Couldn't suspend view process", e);
       } finally {
         setComputationThread(null);
       }
     }
-    s_logger.info("View {} suspended", getUniqueId());
+    s_logger.info("View process {} suspended", getUniqueId());
   }
 
   @Override
   public void resume() {
-    s_logger.info("Resuming view {}", getUniqueId());
+    s_logger.info("Resuming view process {}", getUniqueId());
     unlock();
   }
 
   // -------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "View[" + getUniqueId() + " on " + getDefinitionName() + "]";
+    return "ViewProcess[" + getUniqueId() + " on " + getDefinitionName() + "]";
   }
 
   //-------------------------------------------------------------------------
@@ -393,11 +392,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   /**
-   * Starts the background job responsible for running computation cycles for this view.
+   * Starts the background job responsible for running computation cycles for this view process.
    */
   private void startComputationJob() {
     // Caller MUST hold the semaphore
-    s_logger.info("Starting computation on view {}...", this);
+    s_logger.info("Starting computation on view process {}...", this);
     switch (getState()) {
       case STOPPED:
         // Normal state of play. Continue as normal.
@@ -405,7 +404,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       case RUNNING:
         throw new IllegalStateException("Already running.");
       case TERMINATED:
-        throw new IllegalStateException("A terminated view cannot be used.");
+        throw new IllegalStateException("A terminated view process cannot be used.");
     }
     
     ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
@@ -425,7 +424,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    */
   private void stopComputationJob() {
     // Caller MUST hold the semaphore
-    s_logger.info("Stopping computation on view {}...", this);
+    s_logger.info("Stopping computation on view process {}...", this);
     if (getState() != ViewProcessState.RUNNING) {
       throw new IllegalStateException("Cannot stop the computation job from state " + getState());
     }
@@ -467,9 +466,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
 
     // Let go of the job/thread and allow it to die on its own. A computation cycle might be taking place on this
-    // thread, but it will not update the view with its result because it has been terminated. As far as the view is
-    // concerned, live computation has now stopped, and it may be started again immediately in a new thread. There is
-    // no need to slow things down by waiting for the thread to die.
+    // thread, but it will not update the view process with its result because it has been terminated. As far as the
+    // view process is concerned, live computation has now stopped, and it may be started again immediately in a new
+    // thread. There is no need to slow things down by waiting for the thread to die.
     setComputationJob(null);
     setComputationThread(null);
   }

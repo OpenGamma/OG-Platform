@@ -311,23 +311,23 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       UniqueIdentifier viewProcessId = UniqueIdentifier.of(PROCESS_SCHEME, idValue);
       ObjectIdentifier cycleObjectId = ObjectIdentifier.of(CYCLE_SCHEME, idValue);
       ViewProcessContext viewProcessContext = createViewProcessContext();
-      ViewProcessImpl view = new ViewProcessImpl(viewProcessId, definition, executionOptions, viewProcessContext,
+      ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definition, executionOptions, viewProcessContext,
           getViewCycleManager(), cycleObjectId, isBatchView);
       
       // The view must be created in a locked state if this view processor is suspended
       _lifecycleLock.lock();
       try {
         if (_isSuspended) {
-          view.suspend();
+          viewProcess.suspend();
         }
       } finally {
         _lifecycleLock.unlock();
       }
       
-      _allProcessesById.put(viewProcessId, view);
+      _allProcessesById.put(viewProcessId, viewProcess);
       _viewProcessorEventListenerRegistry.notifyViewProcessAdded(viewProcessId);
       
-      return view;
+      return viewProcess;
     } finally {
       _processLock.unlock();
     }
