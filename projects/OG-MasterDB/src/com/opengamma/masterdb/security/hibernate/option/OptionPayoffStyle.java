@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 package com.opengamma.masterdb.security.hibernate.option;
-
+ 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.PayoffStyleVisitor;
 

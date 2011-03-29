@@ -40,7 +40,7 @@
 
 	<target name="fudge-proto-present" depends="resolve">
 		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
-		<available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" />
+		<!--available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" /-->
 	</target>
 
 	<target name="fudge-proto-gitignore" depends="fudge-proto-present" unless="fudge.proto.gitignore.exists">
@@ -48,7 +48,7 @@
 		<property name="fudge.proto.gitIgnore" value="true" />
 	</target>
 
-	<target name="fudge-proto-compile" depends="fudge-proto-gitignore" if="fudge.proto.present">
+	<target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present"> <!-- depends="fudge-proto-gitignore" -->
 		 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
 		 <fudgeproto
 			srcdir="${src.dir}"
@@ -59,8 +59,7 @@
 			hashCode="${fudge.proto.hashCode}"
 			verbose="${build.verbose}"
 			fudgeContext="${fudge.proto.fudgeContext}"
-			rebuildAll="${fudge.proto.rebuildall}"
-			gitIgnore="${fudge.proto.gitIgnore}">
+			rebuildAll="${fudge.proto.rebuildall}">
 			<fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
 			<fileFooter>///CLOVER:ON
@@ -71,7 +70,7 @@
 	<target name="fudge-proto" depends="fudge-proto-compile" 
 		description="--> compile any Fudge .proto files">
 	</target>
-
+	
     <target name="joda-bean-present">
         <available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
     </target>

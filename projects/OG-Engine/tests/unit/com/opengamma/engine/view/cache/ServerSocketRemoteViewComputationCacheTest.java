@@ -33,7 +33,7 @@ import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
 
 /**

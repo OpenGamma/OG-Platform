@@ -30,7 +30,7 @@ import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 

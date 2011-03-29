@@ -1,15 +1,11 @@
 <ivy-module version="2.0">
     <info organisation="com.opengamma" module="og-masterdb" status="integration"/>
-    <configurations>
-      <conf name="core"/>
-      <conf name="opengamma" extends="core"/>
-    </configurations>
     
     <publications>
       <artifact name="og-masterdb" type="jar"/>
     </publications>
     <dependencies>
-        <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-financial" rev="latest.integration" />
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
