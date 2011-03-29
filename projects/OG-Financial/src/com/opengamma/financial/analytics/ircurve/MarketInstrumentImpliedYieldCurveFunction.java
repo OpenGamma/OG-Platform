@@ -51,7 +51,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FutureSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.analytics.swap.FixedFloatSwapSecurityToSwapConverter;
 import com.opengamma.financial.analytics.swap.TenorSwapSecurityToTenorSwapConverter;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -402,8 +401,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
         return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(
             _forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
-            new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), new ComputedValue(
-                _forwardCurveSpecResult, _forwardCurveSpecification));
+            new ComputedValue(_fundingCurveSpecResult, specificationWithSecurities), new ComputedValue(
+                _forwardCurveSpecResult, specificationWithSecurities));
       }
 
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
@@ -567,8 +566,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
       return Sets.newHashSet(new ComputedValue(_fundingCurveResult, fundingCurve), new ComputedValue(
           _forwardCurveResult, forwardCurve), new ComputedValue(_jacobianResult, jacobianMatrix.getData()),
-          new ComputedValue(_fundingCurveSpecResult, _fundingCurveSpecification), new ComputedValue(
-              _forwardCurveSpecResult, _forwardCurveSpecification));
+          new ComputedValue(_fundingCurveSpecResult, fundingCurveSpecificationWithSecurities), new ComputedValue(
+              _forwardCurveSpecResult, forwardCurveSpecificationWithSecurities));
 
     }
 
