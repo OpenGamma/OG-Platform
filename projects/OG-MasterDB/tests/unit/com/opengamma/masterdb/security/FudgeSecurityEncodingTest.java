@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 @Test
 public class FudgeSecurityEncodingTest extends SecurityTestCase {

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.fudge;
+package com.opengamma.util.fudgemsg;
 
 import java.util.List;
 import java.util.Map;
