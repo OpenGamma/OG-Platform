@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
-import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,8 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 public final class ValueConversionContext {
 
   private final SessionContext _sessionContext;
-  private Set<JavaTypeInfo<?>> _visited;
+  private Set<Object> _visited;
   private int _cost;
+  private int _costLimit;
   private boolean _hasResult;
   private boolean _hasFailed;
   private Object _result;
@@ -29,11 +29,12 @@ public final class ValueConversionContext {
   public ValueConversionContext(final SessionContext sessionContext) {
     ArgumentChecker.notNull(sessionContext, "sessionContext");
     _sessionContext = sessionContext;
+    _costLimit = Integer.MAX_VALUE;
   }
 
-  public Set<JavaTypeInfo<?>> getVisited() {
+  public Set<Object> getVisited() {
     if (_visited == null) {
-      _visited = new HashSet<JavaTypeInfo<?>>();
+      _visited = new HashSet<Object>();
     }
     return _visited;
   }
@@ -105,6 +106,14 @@ public final class ValueConversionContext {
         throw new IllegalStateException("Neither result nor failure set");
       }
     }
+  }
+
+  public int getCostLimit() {
+    return _costLimit;
+  }
+
+  public void setCostLimit(final int costLimit) {
+    _costLimit = costLimit;
   }
 
 }

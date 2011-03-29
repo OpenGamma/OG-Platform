@@ -47,7 +47,7 @@ public class PrimitiveConverter implements TypeConverter {
   private static final List<JavaTypeInfo<?>> TO_INTEGER = JavaTypeInfo.asList(BOOLEAN, BYTE, SHORT, LONG, FLOAT, DOUBLE, STRING);
   private static final List<JavaTypeInfo<?>> TO_LONG = JavaTypeInfo.asList(BOOLEAN, BYTE, INTEGER, SHORT, FLOAT, DOUBLE, STRING);
   private static final List<JavaTypeInfo<?>> TO_SHORT = JavaTypeInfo.asList(BOOLEAN, BYTE, INTEGER, LONG, FLOAT, DOUBLE, STRING);
-  private static final List<JavaTypeInfo<?>> TO_STRING = JavaTypeInfo.asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
+  private static final List<JavaTypeInfo<?>> TO_STRING = JavaTypeInfo.asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT);
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {
@@ -144,27 +144,27 @@ public class PrimitiveConverter implements TypeConverter {
       if (value instanceof Double) {
         final double v = ((Double) value).doubleValue();
         if ((v >= (double) Byte.MIN_VALUE) && (v <= (double) Byte.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (byte) v);
         }
       } else if (value instanceof Float) {
         final float v = ((Float) value).floatValue();
         if ((v >= (float) Byte.MIN_VALUE) && (v <= (float) Byte.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (byte) v);
         }
       } else if (value instanceof Integer) {
         final int v = ((Integer) value).intValue();
         if ((v >= (int) Byte.MIN_VALUE) && (v <= (int) Byte.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (byte) v);
         }
       } else if (value instanceof Long) {
         final long v = ((Long) value).longValue();
         if ((v >= (long) Byte.MIN_VALUE) && (v <= (long) Byte.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (byte) v);
         }
       } else if (value instanceof Short) {
         final short v = ((Short) value).shortValue();
         if ((v >= (short) Byte.MIN_VALUE) && (v <= (short) Byte.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (byte) v);
         }
       }
     } else if (value instanceof String) {
@@ -228,17 +228,17 @@ public class PrimitiveConverter implements TypeConverter {
       if (value instanceof Double) {
         final double v = ((Double) value).doubleValue();
         if ((v >= (double) Integer.MIN_VALUE) && (v <= (double) Integer.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (int) v);
         }
       } else if (value instanceof Float) {
         final float v = ((Float) value).floatValue();
         if ((v >= (float) Integer.MIN_VALUE) && (v <= (float) Integer.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (int) v);
         }
       } else if (value instanceof Long) {
         final long v = ((Long) value).longValue();
         if ((v >= (long) Integer.MIN_VALUE) && (v <= (long) Integer.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (int) v);
         }
       } else {
         return conversionContext.setResult(ZERO_LOSS, ((Number) value).intValue());
@@ -260,12 +260,12 @@ public class PrimitiveConverter implements TypeConverter {
       if (value instanceof Double) {
         final double v = ((Double) value).doubleValue();
         if ((v >= (double) Long.MIN_VALUE) && (v <= (double) Long.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (long) v);
         }
       } else if (value instanceof Float) {
         final float v = ((Float) value).floatValue();
         if ((v >= (float) Long.MIN_VALUE) && (v <= (float) Long.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (long) v);
         }
       } else {
         return conversionContext.setResult(ZERO_LOSS, ((Number) value).longValue());
@@ -287,22 +287,22 @@ public class PrimitiveConverter implements TypeConverter {
       if (value instanceof Double) {
         final double v = ((Double) value).doubleValue();
         if ((v >= (double) Short.MIN_VALUE) && (v <= (double) Short.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (short) v);
         }
       } else if (value instanceof Float) {
         final float v = ((Float) value).floatValue();
         if ((v >= (float) Short.MIN_VALUE) && (v <= (float) Short.MAX_VALUE)) {
-          return conversionContext.setResult(MINOR_LOSS, v);
+          return conversionContext.setResult(MINOR_LOSS, (short) v);
         }
       } else if (value instanceof Integer) {
         final int v = ((Integer) value).intValue();
         if ((v >= (int) Short.MIN_VALUE) && (v <= (int) Short.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (short) v);
         }
       } else if (value instanceof Long) {
         final long v = ((Long) value).longValue();
         if ((v >= (long) Short.MIN_VALUE) && (v <= (long) Short.MAX_VALUE)) {
-          return conversionContext.setResult(ZERO_LOSS, v);
+          return conversionContext.setResult(ZERO_LOSS, (short) v);
         }
       } else {
         return conversionContext.setResult(ZERO_LOSS, ((Number) value).shortValue());

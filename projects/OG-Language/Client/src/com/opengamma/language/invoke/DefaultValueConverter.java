@@ -71,6 +71,8 @@ public class DefaultValueConverter extends ValueConverter {
     return converters;
   }
 
+  // TODO: This is not an efficient algorithm; the state space it explores can be pretty huge and it will insist on attempting parts of it to near completion 
+
   private static String s_indent = "";
 
   public void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type) {
@@ -106,41 +108,51 @@ public class DefaultValueConverter extends ValueConverter {
           return;
         }
       }
-      final Set<JavaTypeInfo<?>> visited = conversionContext.getVisited();
+      final Set<Object> visited = conversionContext.getVisited();
       visited.add(type);
       Object bestResult = null;
       int bestResultCost = 0;
+      final int previousCostLimit = conversionContext.getCostLimit();
       for (TypeConverter converter : converters) {
-        final List<JavaTypeInfo<?>> alternativeTypes = converter.getConversionsTo(type);
-        if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
-          for (JavaTypeInfo<?> alternativeType : alternativeTypes) {
-            if (visited.add(alternativeType)) {
-              final int originalCost = conversionContext.getCost();
-              s_logger.debug(s_indent + "Trying via {} for {}", alternativeType, converter);
-              convertValue(conversionContext, value, alternativeType);
-              if (!conversionContext.isFailed()) {
-                final Object alternativeValue = conversionContext.getResult();
-                s_logger.debug(s_indent + "Trying alternative {} to {}", alternativeValue, type);
-                converter.convertValue(conversionContext, alternativeValue, type);
-                final int totalCost = conversionContext.getAndSetCost(originalCost);
-                if (!conversionContext.isFailed()) {
-                  s_logger.debug(s_indent + "Used converter {} converter with alternative value {}", converter, alternativeValue);
-                  s_logger.debug(s_indent + "Original cost = {}, total cost = {}", originalCost, totalCost);
-                  final Object result = conversionContext.getResult();
-                  if ((bestResult == null) || (totalCost < bestResultCost)) {
-                    bestResult = result;
-                    bestResultCost = totalCost;
-                    conversionContext.setCostLimit(totalCost);
+        if (visited.add(converter)) {
+          final List<JavaTypeInfo<?>> alternativeTypes = converter.getConversionsTo(type);
+          if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
+            for (JavaTypeInfo<?> alternativeType : alternativeTypes) {
+              if (visited.add(alternativeType)) {
+                final int originalCost = conversionContext.getCost();
+                s_logger.debug(s_indent + "Trying via {} for {}", alternativeType, converter);
+                convertValue(conversionContext, value, alternativeType);
+                final boolean tooExpensive = (conversionContext.getCost() > conversionContext.getCostLimit());
+                if (!conversionContext.isFailed() && !tooExpensive) {
+                  final Object alternativeValue = conversionContext.getResult();
+                  s_logger.debug(s_indent + "Trying alternative {} to {}", alternativeValue, type);
+                  converter.convertValue(conversionContext, alternativeValue, type);
+                  final int totalCost = conversionContext.getAndSetCost(originalCost);
+                  if (!conversionContext.isFailed()) {
+                    s_logger.debug(s_indent + "Used converter {} converter with alternative value {}", converter, alternativeValue);
+                    s_logger.debug(s_indent + "Original cost = {}, total cost = {}", originalCost, totalCost);
+                    final Object result = conversionContext.getResult();
+                    if ((bestResult == null) || (totalCost < bestResultCost)) {
+                      bestResult = result;
+                      bestResultCost = totalCost;
+                      conversionContext.setCostLimit(totalCost);
+                    }
                   }
+                } else {
+                  if (tooExpensive) {
+                    s_logger.debug(s_indent + "Via {} failed at cost {}", alternativeType, conversionContext.getCost());
+                    conversionContext.getResult();
+                  }
+                  conversionContext.setCost(originalCost);
                 }
-              } else {
-                conversionContext.setCost(originalCost);
+                visited.remove(alternativeType);
               }
-              visited.remove(alternativeType);
             }
           }
+          visited.remove(converter);
         }
       }
+      conversionContext.setCostLimit(previousCostLimit);
       visited.remove(type);
       if (bestResult == null) {
         s_logger.debug(s_indent + "Conversion of {} to {} failed", value, type);
