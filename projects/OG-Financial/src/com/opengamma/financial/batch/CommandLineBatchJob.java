@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -38,6 +37,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -126,7 +126,7 @@ public class CommandLineBatchJob {
    * Given a range of days, used to decide which days to run the batch for. Optional.
    * If not given, all days for which there is a snapshot are used.
    */
-  private CurrencyUnit _holidayCurrency;
+  private Currency _holidayCurrency;
   
   /**
    * Used to populate the batch DB with market data in real time while the batch is running.
@@ -292,11 +292,11 @@ public class CommandLineBatchJob {
     _holidaySource = holidaySource;
   }
   
-  public CurrencyUnit getHolidayCurrency() {
+  public Currency getHolidayCurrency() {
     return _holidayCurrency;
   }
 
-  public void setHolidayCurrency(CurrencyUnit holidayCurrency) {
+  public void setHolidayCurrency(Currency holidayCurrency) {
     _holidayCurrency = holidayCurrency;
   }
   

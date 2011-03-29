@@ -12,7 +12,7 @@ import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Class for finding the real root of a function within a range of <it>x</it>-values using the one-dimensional version of Newton's method.
+ * Class for finding the real root of a function within a range of <i>x</i>-values using the one-dimensional version of Newton's method.
  * <p>
  * For a function {@latex.inline $f(x)$}, the Taylor series expansion is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
@@ -26,26 +26,20 @@ import com.opengamma.math.function.Function1D;
  * \\delta = -\\frac{f(x)}{f'(x)}
  * \\end{align*}
  * }
- * when {@latex.inline $f(x + \\delta) = 0$.
+ * when {@latex.inline $f(x + \\delta) = 0$}.
  * <p>
  * There are several well-known problems with Newton's method, in particular when the range of values given includes a local
  * maximum or minimum. In this situation, the next iterative step can shoot off to {@latex.inline $\\pm\\infty$}. This implementation
- * currently does not attempt to correct for this: if the value of <it>x</it> goes beyond the initial range of values <it>x<sub>low</sub></it>
- * and <it>x<sub>high</sub></it>, an exception is thrown.
+ * currently does not attempt to correct for this: if the value of <i>x</i> goes beyond the initial range of values <i>x<sub>low</sub></i>
+ * and <i>x<sub>high</sub></i>, an exception is thrown.
  * <p>
  * If the function that is provided does not override the {@link com.opengamma.math.function.DoubleFunction1D#derivative()} method, then 
  * the derivative is approximated using finite difference. This is undesirable for several reasons: (i) the extra function evaluations will lead
  * to slower convergence; and (ii) the choice of shift size is very important (too small and the result will be dominated by rounding errors, too large
  * and convergence will be even slower). Use of another root-finder is recommended in this case.
  */
-/**
- * 
- */
-/**
- * 
- */
 public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
-  private static final int MAX_ITER = 1000;
+  private static final int MAX_ITER = 10000;
   private final double _accuracy;
 
   /**
@@ -70,13 +64,19 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    */
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
-    checkInputs(function, x1, x2);
+    Validate.notNull(function, "function");
+    return getRoot(DoubleFunction1D.from(function), x1, x2);
+  }
+
+  public Double getRoot(final Function1D<Double, Double> function, final Double x) {
+    Validate.notNull(function, "function");
+    Validate.notNull(x, "x");
     final DoubleFunction1D f = DoubleFunction1D.from(function);
-    return getRoot(f, f.derivative(), x1, x2);
+    return getRoot(f, f.derivative(), x);
   }
 
   /**
-   * Uses the {@link com.opengamma.math.function.DoubleFunction1D#derivative()} method. <it>x<sub>1</sub></it> and <it>x<sub>2</sub></it> do not have to be increasing.
+   * Uses the {@link com.opengamma.math.function.DoubleFunction1D#derivative()} method. <i>x<sub>1</sub></i> and <i>x<sub>2</sub></i> do not have to be increasing.
    * @param function The function, not null
    * @param x1 The first bound of the root, not null
    * @param x2 The second bound of the root, not null
@@ -84,8 +84,20 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
    * @throws MathException If the root is not found in 1000 attempts; if the Newton step takes the estimate for the root outside the original bounds.
    */
   public Double getRoot(final DoubleFunction1D function, final Double x1, final Double x2) {
-    checkInputs(function, x1, x2);
+    Validate.notNull(function, "function");
     return getRoot(function, function.derivative(), x1, x2);
+  }
+
+  /**
+   * Uses the {@link com.opengamma.math.function.DoubleFunction1D#derivative()} method. This method uses an initial guess for the root, rather than bounds. 
+   * @param function The function, not null
+   * @param x The initial guess for the root, not null
+   * @return The root
+   * @throws MathException If the root is not found in 1000 attempts.
+   */
+  public Double getRoot(final DoubleFunction1D function, final Double x) {
+    Validate.notNull(function, "function");
+    return getRoot(function, function.derivative(), x);
   }
 
   /**
@@ -101,6 +113,18 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
     checkInputs(function, x1, x2);
     Validate.notNull(derivative, "derivative");
     return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x1, x2);
+  }
+
+  /**
+   * Uses the function and its derivative. This method uses an initial guess for the root, rather than bounds.
+   * @param function The function, not null
+   * @param derivative The derivative, not null
+   * @param x The initial guess for the root, not null
+   * @return The root
+   * @throws MathException If the root is not found in 1000 attempts.
+   */
+  public Double getRoot(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final Double x) {
+    return getRoot(DoubleFunction1D.from(function), DoubleFunction1D.from(derivative), x);
   }
 
   /**
@@ -145,6 +169,31 @@ public class NewtonRaphsonSingleRootFinder extends RealSingleRootFinder {
       } else {
         x4 = x;
       }
+    }
+    throw new MathException("Could not find root in " + MAX_ITER + " attempts");
+  }
+
+  /**
+   * Uses the function and its derivative. This method uses an initial guess for the root, rather than bounds.
+   * @param function The function, not null
+   * @param derivative The derivative, not null
+   * @param x The initial guess for the root, not null
+   * @return The root
+   * @throws MathException If the root is not found in 1000 attempts.
+   */
+  public Double getRoot(final DoubleFunction1D function, final DoubleFunction1D derivative, final Double x) {
+    Validate.notNull(function, "function");
+    Validate.notNull(derivative, "derivative function");
+    Validate.notNull(x, "x");
+    double root = x;
+    for (int i = 0; i < MAX_ITER; i++) {
+      final double y = function.evaluate(root);
+      final double dy = derivative.evaluate(root);
+      final double dx = y / dy;
+      if (Math.abs(dx) <= _accuracy) {
+        return root - dx;
+      }
+      root -= dx;
     }
     throw new MathException("Could not find root in " + MAX_ITER + " attempts");
   }

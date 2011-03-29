@@ -5,8 +5,8 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.LinkedList;
 import java.util.TimeZone;
@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -38,6 +38,7 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.time.Expiry;
 
@@ -50,20 +51,21 @@ public class DbSecurityMasterTest extends DBTest {
 
   private DbSecurityMaster _secMaster;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbSecurityMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
     _secMaster = null;
@@ -81,7 +83,7 @@ public class DbSecurityMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_equity() throws Exception {
-    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", CurrencyUnit.GBP);
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
     sec.setGicsCode(GICSCode.getInstance(2));
     sec.setShortName("OG");
@@ -99,7 +101,7 @@ public class DbSecurityMasterTest extends DBTest {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
     DateTimeWithZone dtwz = new DateTimeWithZone(zdt, zdt.getZone().getID());
     GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
-        CurrencyUnit.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         dtwz, dtwz, dtwz, 129d, 1324d, 12d, 1d, 2d, 3d);
     SecurityDocument addDoc = new SecurityDocument(sec);

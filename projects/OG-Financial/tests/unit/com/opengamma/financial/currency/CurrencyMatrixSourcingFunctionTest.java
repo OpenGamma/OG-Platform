@@ -5,17 +5,14 @@
  */
 package com.opengamma.financial.currency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Collections;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -27,22 +24,23 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test the {@link CurrencyMatrixSourcingFunction}.
  */
 public class CurrencyMatrixSourcingFunctionTest {
 
-  private CurrencyUnit _currencyUSD = CurrencyUnit.USD;
-  private CurrencyUnit _currencyGBP = CurrencyUnit.GBP;
-  private CurrencyUnit _currencyEUR = CurrencyUnit.EUR;
+  private Currency _currencyUSD = Currency.USD;
+  private Currency _currencyGBP = Currency.GBP;
+  private Currency _currencyEUR = Currency.EUR;
   private double _rateUSD_GBP = 1.6;
   private double _rateEUR_GBP = 1.1;
   private FunctionExecutionContext _functionExecutionContext;
   private FunctionCompilationContext _functionCompilationContext;
   private CurrencyMatrixSourcingFunction _function;
 
-  @Before
+  @BeforeMethod
   public void setupContexts() {
     _functionExecutionContext = new FunctionExecutionContext();
     _functionCompilationContext = new FunctionCompilationContext();

@@ -24,7 +24,6 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
@@ -54,7 +53,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(
@@ -63,6 +61,12 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
+    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("configs/configs.ftl", out);
+  }
+
+  @SuppressWarnings("unchecked")
+  private FlexiBean search(int page, int pageSize, String name, String type, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -84,26 +88,43 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
     }
-    return getFreemarker().build("configs/configs.ftl", out);
+    return out;
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(
-      @FormParam("name") String name) {
+      @FormParam("name") String name,
+      @FormParam("configxml") String xml) {
     name = StringUtils.trimToNull(name);
-    if (name == null) {
+    xml = StringUtils.trimToNull(xml);
+    if (name == null || xml == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
+      if (xml == null) {
+        out.put("err_xmlMissing", true);
+      }
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    ConfigDocument<?> doc = new ConfigDocument<Object>();
+    ConfigDocument<Object> doc = new ConfigDocument<Object>();
     doc.setName(name);
-    // doc.setValue((T) "PLACEHOLDER");
+    doc.setValue(parseXML(xml));
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
@@ -111,7 +132,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   //-------------------------------------------------------------------------
   @Path("{configId}")
-  public WebConfigResource findConfig(@PathParam("configId") String idStr) {
+  public AbstractWebConfigResource findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
     UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
     try {

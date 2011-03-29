@@ -9,18 +9,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Contains methods for performing shifts on {@link Curve} without needing to know the exact type of the curve.
  */
 public class CurveShiftFunctionFactory {
-  /** */
+  /** Shift function for {@link ConstantDoublesCurve} */
   public static final ConstantCurveShiftFunction CONSTANT = new ConstantCurveShiftFunction();
-  /** */
+  /** Shift function for {@link FunctionalDoublesCurve} */
   public static final FunctionalCurveShiftFunction FUNCTIONAL = new FunctionalCurveShiftFunction();
-  /** */
+  /** Shift function for {@link InterpolatedDoublesCurve} */
   public static final InterpolatedCurveShiftFunction INTERPOLATED = new InterpolatedCurveShiftFunction();
-  /** */
+  /** Shift function for {@link NodalDoublesCurve} */
   public static final NodalCurveShiftFunction NODAL = new NodalCurveShiftFunction();
-  /** */
+  /** Shift function for {@link SpreadDoublesCurve} */
   public static final SpreadCurveShiftFunction SPREAD = new SpreadCurveShiftFunction();
   private static final Map<Class<?>, CurveShiftFunction<?>> s_instances = new HashMap<Class<?>, CurveShiftFunction<?>>();
 
@@ -32,6 +32,12 @@ public class CurveShiftFunctionFactory {
     s_instances.put(SpreadCurveShiftFunction.class, SPREAD);
   }
 
+  /**
+   * Gets the function for a class type.
+   * @param clazz The class
+   * @return The function
+   * @throws IllegalArgumentException If the function is not one of the static instances
+   */
   public static CurveShiftFunction<?> getFunction(final Class<?> clazz) {
     final CurveShiftFunction<?> f = s_instances.get(clazz);
     if (f == null) {
@@ -40,6 +46,13 @@ public class CurveShiftFunctionFactory {
     return f;
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
+   * @param curve The original curve
+   * @param shift The shift
+   * @return A shifted curve with automatically-generated name
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double shift) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, shift);
@@ -59,6 +72,14 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a curve shifted at one point.
+   * @param curve The original curve
+   * @param x The <i>x</i> value of the shift
+   * @param shift The shift
+   * @return A shifted curve with automatically-generated name
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift);
@@ -78,6 +99,14 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
+   * @param curve The original curve
+   * @param x An array of <i>x</i> values to shift 
+   * @param y The shifts
+   * @return A shifted curve with automatically-generated name
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y);
@@ -97,6 +126,14 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
+   * @param curve The original curve
+   * @param shift The shift
+   * @param newName The name of the shifted curve
+   * @return A shifted curve 
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double shift, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, shift, newName);
@@ -116,6 +153,15 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a curve shifted at one point.
+   * @param curve The original curve
+   * @param x The <i>x</i> value of the shift
+   * @param shift The shift
+   * @param newName The name of the shifted curve
+   * @return A shifted curve 
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double x, final double shift, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, shift, newName);
@@ -135,6 +181,15 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
+  /**
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
+   * @param curve The original curve
+   * @param x An array of <i>x</i> values to shift 
+   * @param y The shifts
+   * @param newName The name of the shifted curve
+   * @return A shifted curve 
+   * @throws IllegalArgumentException If the curve type is not constant, functional, interpolated, nodal or spread
+   */
   public static Curve<Double, Double> getShiftedCurve(final Curve<Double, Double> curve, final double[] x, final double[] y, final String newName) {
     if (curve instanceof ConstantDoublesCurve) {
       return CONSTANT.evaluate((ConstantDoublesCurve) curve, x, y, newName);

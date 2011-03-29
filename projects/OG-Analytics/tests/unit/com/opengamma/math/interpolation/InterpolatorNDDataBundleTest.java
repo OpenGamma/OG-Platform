@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -19,18 +18,18 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterpolatorNDDataBundleTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new InterpolatorNDDataBundle(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyData() {
     List<Pair<double[], Double>> data = new ArrayList<Pair<double[], Double>>();
     new InterpolatorNDDataBundle(data);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyData2() {
     List<Pair<double[], Double>> data = new ArrayList<Pair<double[], Double>>();
     double[] temp = new double[] {};

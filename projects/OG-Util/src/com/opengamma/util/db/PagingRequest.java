@@ -10,10 +10,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -26,7 +22,7 @@ public final class PagingRequest {
   /**
    * A default size for paging.
    */
-  private static final int DEFAULT_PAGING_SIZE = 20;
+  public static final int DEFAULT_PAGING_SIZE = 20;
   /**
    * Singleton constant to request all items (no paging).
    */
@@ -187,23 +183,6 @@ public final class PagingRequest {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[page=" + _page + ", pagingSize=" + _pagingSize + "]";
-  }
-
-  // -------------------------------------------------------------------------
-  /** Field name. */
-  private static final String PAGE_KEY = "page";
-  /** Field name. */
-  private static final String PAGING_SIZE_KEY = "pagingSize";
-
-  public FudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = messageFactory.newMessage();
-    message.add(PAGE_KEY, getPage());
-    message.add(PAGING_SIZE_KEY, getPagingSize());
-    return message;
-  }
-
-  public static PagingRequest fromFudgeMsg(final FudgeFieldContainer message) {
-    return new PagingRequest(message.getInt(PAGE_KEY), message.getInt(PAGING_SIZE_KEY));
   }
 
 }

@@ -5,17 +5,19 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
@@ -25,6 +27,7 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerGetTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryHolidayDbHolidayMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -32,12 +35,12 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getHoliday_nullUID() {
     _holMaster.get(null);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getHoliday_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
     _holMaster.get(uid);
@@ -72,7 +75,7 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getHoliday_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0");
     _holMaster.get(uid);

@@ -20,12 +20,19 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.SwapFixedIborAnnuityCalculator;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -85,16 +92,64 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final double pvPay = visit(swap.getPayLeg(), curves);
-    final double pvReceive = visit(swap.getReceiveLeg(), curves);
-    return pvReceive - pvPay;
+    final double pvFirst = visit(swap.getFirstLeg(), curves);
+    final double pvSecond = visit(swap.getSecondLeg(), curves);
+    return pvSecond + pvFirst;
   }
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
     return visitSwap(swap, curves);
+  }
+
+  @Override
+  public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    ParRateCalculator prc = ParRateCalculator.getInstance();
+    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
+    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    double strike = annuityFixed.getNthPayment(0).getFixedRate();
+    // FIXME: A better notion of maturity is required
+    double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
+    if (annuityFixed.getNumberOfPayments() >= 2) {
+      maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
+    }
+    BlackPriceFunction blackFunction = new BlackPriceFunction();
+    double volatility = sabr.getSABRParameter().getVolatility(new DoublesPair(swaption.getTimeToExpiry(), maturity), strike, forward);
+    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
+    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
+    double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
+    return price;
+  }
+
+  @Override
+  public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    ParRateCalculator prc = ParRateCalculator.getInstance();
+    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
+    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityPhysical(swaption.getUnderlyingSwap(), curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    double strike = annuityFixed.getNthPayment(0).getFixedRate();
+    // FIXME: A better notion of maturity is required
+    double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
+    if (annuityFixed.getNumberOfPayments() >= 2) {
+      maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
+    }
+    BlackPriceFunction blackFunction = new BlackPriceFunction();
+    double volatility = sabr.getSABRParameter().getVolatility(new DoublesPair(swaption.getTimeToExpiry(), maturity), strike, forward);
+    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
+    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
+    double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
+    return price;
   }
 
   @Override
@@ -104,12 +159,12 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     return visitSwap(swap, curves);
   }
 
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(frn);
-    return visitSwap(frn, curves);
-  }
+  //  @Override
+  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    Validate.notNull(curves);
+  //    Validate.notNull(frn);
+  //    return visitSwap(frn, curves);
+  //  }
 
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
@@ -187,7 +242,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(curves);
     Validate.notNull(payment);
     ParRateCalculator parRate = ParRateCalculator.getInstance();
-    double swapRate = parRate.visitFixedFloatSwap(payment.getUnderlyingSwap(), curves);
+    double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;

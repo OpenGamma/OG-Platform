@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -43,7 +43,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
     TS = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -59,15 +59,15 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   public void testMasked() {
     final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[11]);
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
-    test(result, 9);
+    assertTimeSeries(result, 9);
   }
 
   @Test
   public void test() {
-    test(FILTER.evaluate(TS), 498);
+    assertTimeSeries(FILTER.evaluate(TS), 498);
   }
 
-  private void test(final FilteredTimeSeries result, final int size) {
+  private void assertTimeSeries(final FilteredTimeSeries result, final int size) {
     assertEquals(result.getFilteredTS().size(), size);
     final DoubleTimeSeries<Long> rejected = result.getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.getTime(0), 0, EPS);

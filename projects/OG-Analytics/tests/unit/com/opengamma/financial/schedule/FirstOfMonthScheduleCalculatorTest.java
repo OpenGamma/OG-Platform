@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.FirstOfMonthScheduleCalculator;
 import com.opengamma.financial.schedule.Schedule;
@@ -28,12 +26,12 @@ public class FirstOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCa
     return CALCULATOR;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid1() {
     CALCULATOR.getSchedule(LocalDate.of(2001, 2, 3), LocalDate.of(2001, 2, 3), false, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid2() {
     CALCULATOR.getSchedule(DateUtil.getUTCDate(2001, 2, 3), DateUtil.getUTCDate(2001, 2, 3), false, true);
   }

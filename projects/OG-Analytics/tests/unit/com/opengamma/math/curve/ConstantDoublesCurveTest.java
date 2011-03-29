@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -23,7 +21,7 @@ public class ConstantDoublesCurveTest {
   private static final String NAME2 = "b";
   private static final ConstantDoublesCurve CURVE = new ConstantDoublesCurve(Y1, NAME1);
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetXData() {
     CURVE.getXData();
   }
@@ -66,10 +64,10 @@ public class ConstantDoublesCurveTest {
     final double[] x = new double[] {0, 1, 2};
     final double[] y = new double[] {Y1, Y1, Y1};
     final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    DoublesCurve other = CURVE.toNodalDoubleDoubleCurve(x);
+    DoublesCurve other = CURVE.toNodalDoublesCurve(x);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
-    other = CURVE.toInterpolatedDoubleDoubleCurve(x, interpolator);
+    other = CURVE.toInterpolatedDoublesCurve(x, interpolator);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
   }

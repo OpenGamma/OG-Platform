@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.swap.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -31,57 +29,57 @@ public class FixedFloatSwapTest {
   private static final double[] INDEX_MATURITY = new double[] {1.5, 2, 3., 4., 5., 6., 7., 8., 9, 10., 11., 12.};
   private static final double[] YEAR_FRACS = new double[] {1.5, 0.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+  private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedPayments() {
-    new FixedFloatSwap(null, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    new FixedFloatSwap(null, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFloatPayments() {
-    new FixedFloatSwap(FIXED_PAYMENTS, null, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, null, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurveName() {
-    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, null, FUNDING_CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, null, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborCurveName() {
-    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, null);
+    new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, null, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyFixedPayments() {
-    new FixedFloatSwap(new double[0], FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    new FixedFloatSwap(new double[0], FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyFloatPayments() {
-    new FixedFloatSwap(FIXED_PAYMENTS, new double[0], COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    new FixedFloatSwap(FIXED_PAYMENTS, new double[0], COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
   }
 
   @Test
   public void testHashCodeAndEquals() {
     FixedFloatSwap other = new FixedFloatSwap(Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length), Arrays.copyOf(FLOAT_PAYMENTS, FLOAT_PAYMENTS.length), COUPON_RATE, FUNDING_CURVE_NAME,
-        LIBOR_CURVE_NAME);
+        LIBOR_CURVE_NAME, true);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
-    other = new FixedFloatSwap(new double[] {1, 2, 3, 4, 5, 6}, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(new double[] {1, 2, 3, 4, 5, 6}, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, COUPON_RATE, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, 0.03, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, 0.03, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, LIBOR_CURVE_NAME, LIBOR_CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, LIBOR_CURVE_NAME, LIBOR_CURVE_NAME, true);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
+    other = new FixedFloatSwap(FIXED_PAYMENTS, FLOAT_PAYMENTS, COUPON_RATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME, true);
     assertFalse(other.equals(SWAP));
 
-    AnnuityCouponFixed fixed = new AnnuityCouponFixed(FIXED_PAYMENTS, 1.0, COUPON_RATE, FUNDING_CURVE_NAME);
-    AnnuityCouponIbor floating = new AnnuityCouponIbor(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+    AnnuityCouponFixed fixed = new AnnuityCouponFixed(FIXED_PAYMENTS, 1.0, COUPON_RATE, FUNDING_CURVE_NAME, true);
+    AnnuityCouponIbor floating = new AnnuityCouponIbor(FLOAT_PAYMENTS, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACS, 1.0, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, false);
     other = new FixedFloatSwap(fixed, floating);
     assertEquals(other.getFixedLeg(), SWAP.getFixedLeg());
     assertEquals(other.getFloatingLeg().getNthPayment(0), SWAP.getFloatingLeg().getNthPayment(0));

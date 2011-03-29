@@ -16,11 +16,21 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
+ * This class defines a mean-corrected (or drift-corrected) characteristic function. For a characteristic function {@latex.inline $\\phi_X(u)$}, the corrected
+ * function is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\widehat{\\phi_X}(u) = e^{iu\\omega t}\\phi_X(u)
+ * \\end{align*}
+ * }
  */
 public class MeanCorrectedCharacteristicExponent implements CharacteristicExponent {
   private final CharacteristicExponent _base;
 
+  /**
+   * 
+   * @param base The function to correct, not null
+   */
   public MeanCorrectedCharacteristicExponent(final CharacteristicExponent base) {
     Validate.notNull(base);
     _base = base;
@@ -42,11 +52,19 @@ public class MeanCorrectedCharacteristicExponent implements CharacteristicExpone
     };
   }
 
+  /**
+   * 
+   * @return The largest allowable value of {@latex.inline $\\alpha$} of the original function
+   */
   @Override
   public double getLargestAlpha() {
     return _base.getLargestAlpha();
   }
 
+  /**
+   * 
+   * @return The smallest allowable value of {@latex.inline $\\alpha$} of the original function
+   */
   @Override
   public double getSmallestAlpha() {
     return _base.getSmallestAlpha();

@@ -25,6 +25,8 @@ static FILE *_OpenSettings (const TCHAR *pszSettingsLocation, const TCHAR *pszBa
 	FILE *f = fopen (szPath, TEXT ("rt"));
 	if (!f) {
 		LOGWARN (TEXT ("Couldn't open ") << szPath << TEXT (", error ") << GetLastError ());
+	} else {
+		LOGDEBUG (TEXT ("Reading from ") << szPath);
 	}
 	return f;
 }
@@ -60,12 +62,17 @@ CAbstractSettings::CAbstractSettings () {
 		LOGWARN ("Couldn't open HKEY_CURRENT_USER\\Software registry key, error " << hr);
 	}
 #else /* ifdef _WIN32 */
-	// TODO: the default paths should be configurable from the build
-	FILE *f = _OpenSettings (szSettingsLocation, getenv ("HOME"), TEXT ("/etc/"));
+#ifndef DEFAULT_CONFIG_FOLDER
+#define DEFAULT_CONFIG_FOLDER	"/etc/"
+#endif /* ifndef DEFAULT_CONFIG_FOLDER */
+#ifndef DEFAULT_CONFIG_BASE
+#define DEFAULT_CONFIG_BASE		"/usr/local"
+#endif /* ifndef DEFAULT_CONFIG_BASE */
+	FILE *f = _OpenSettings (szSettingsLocation, getenv ("HOME"), TEXT (DEFAULT_CONFIG_FOLDER));
 	if (!f) {
-		f = _OpenSettings (szSettingsLocation, TEXT ("/usr/local"), TEXT ("/etc/"));
+		f = _OpenSettings (szSettingsLocation, TEXT (DEFAULT_CONFIG_BASE), TEXT (DEFAULT_CONFIG_FOLDER));
 		if (!f) {
-			f = _OpenSettings (szSettingsLocation, TEXT (""), TEXT ("/etc/"));
+			f = _OpenSettings (szSettingsLocation, TEXT (""), TEXT (DEFAULT_CONFIG_FOLDER));
 			if (!f) {
 				LOGWARN (TEXT ("Couldn't open configuration file"));
 				return;
@@ -93,7 +100,7 @@ CAbstractSettings::CAbstractSettings () {
 		CachePut (pszKey, pszValue);
 	}
 	fclose (f);
-	LOGINFO (TEXT ("Configuration file read, ") << nLine << TEXT (" lines"));
+	LOGDEBUG (TEXT ("Configuration file read, ") << nLine << TEXT (" lines"));
 #endif /* ifdef _WIN32 */
 }
 

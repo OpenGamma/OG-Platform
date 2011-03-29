@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -26,32 +24,32 @@ public class ActualThreeSixtyFiveLongTest {
   protected static final int PAYMENTS = 4;
   private static final ActualThreeSixtyFiveLong DC = new ActualThreeSixtyFiveLong();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate() {
     DC.getAccruedInterest(null, D2, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondDate() {
     DC.getAccruedInterest(D1, null, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThirdDate() {
     DC.getAccruedInterest(D1, D2, null, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder1() {
     DC.getAccruedInterest(D2, D1, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder2() {
     DC.getAccruedInterest(D1, D3, D2, COUPON, PAYMENTS);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testGetDayCount() {
     DC.getDayCountFraction(D1, D2);
   }

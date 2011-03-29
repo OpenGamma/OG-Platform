@@ -19,7 +19,7 @@
 			failonerror="false">
 			<includepath>
 				<pathelement path="${solution.dir}" />
-				<pathelement path="${solution.dir}/lib/include" />
+				<pathelement path="${lib.dir}/include" />
 				<pathelement path="${jni.base.include.dir}" />
 				<pathelement path="${jni.native.include.dir}" />
 			</includepath>
@@ -44,22 +44,33 @@
 			runtime="${cc.runtime}"
 			subsystem="${cc.subsystem}"
 			outfile="${build.dir}/${cc.configuration}/${ant.project.name}">
+			<compilerarg value="${cc.cflags}" if="cc.cflags" />
 			<defineset>
 				<define name="_DEBUG" if="cc.isDebug" />
 				<define name="NDEBUG" if="cc.isRelease" />
 				<define name="HAVE_PTHREAD" if="cc.library.have_pthread" />
+				<define name="DEFAULT_CONFIG_FOLDER" value="TEXT (QUOTE (${defaults.config.folder}))" if="defaults.config.folder" />
+				<define name="DEFAULT_CONFIG_BASE" value="TEXT (QUOTE (${defaults.config.base}))" if="defaults.config.base" />
+				<define name="DEFAULT_JVM_LIBRARY" value="TEXT (QUOTE (${defaults.jvm.library}))" if="defaults.jvm.library" />
+				<define name="DEFAULT_PIPE_FOLDER" value="TEXT (QUOTE (${defaults.pipe.folder}))" if="defaults.pipe.folder" />
 			</defineset>
 			<includepath>
 				<pathelement path="${solution.dir}" />
-				<pathelement path="${solution.dir}/lib/include" />
+				<pathelement path="${lib.dir}/include" />
+				<pathelement path="${jni.base.include.dir}" />
+				<pathelement path="${jni.native.include.dir}" />
 			</includepath>
 			<fileset dir="${basedir}">
 				<include name="*.c" />
 				<include name="*.cpp" />
 			</fileset>
 			<libset dir="${build.dir}/${cc.configuration}" libs="${cc.libInternal}" if="cc.libInternal" />
-			<libset dir="${solution.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
+			<libset dir="${lib.dir}/lib/${cc.configuration}" libs="${cc.libExternal}" if="cc.libExternal" />
+			<libset libs="${cc.libDefault}" if="cc.libDefault" />
 		</cpptasks:cc>
+		<antcall target="compile-after">
+			<param name="compile.type" value="${cc.configuration}" />
+		</antcall>
 	</target>
 	<target name="compile-debug" if="cpptask.ok">
 		<antcall target="compile-impl">
@@ -79,17 +90,21 @@
 	</target>
 	<target name="compile" depends="cpptask,cpptask-none,compile-debug,compile-release" description="--> compile project" />
 
+	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
 	<target name="tests-impl-none" unless="cpptask.ok">
 		<echo>Did not run ${ant.project.name}</echo>
-		<echo file="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log">Did not run</echo>
+		<echo file="${tests.results.dir}/${ant.project.name}-${cc.configuration}.log">Did not run</echo>
 	</target>
 	<target name="tests-impl" depends="tests-impl-none" if="cpptask.ok">
 		<echo>Running tests - ${ant.project.name}</echo>
 		<exec	executable="./${ant.project.name}"
 			dir="${build.dir}/${cc.configuration}"
-			failonerror="true"
-			output="${solution.dir}/TestResults/${ant.project.name}-${cc.configuration}.log" />
-		<echo>TESTS SUCCESSFUL</echo>
+			failonerror="false"
+			output="${tests.results.dir}/${ant.project.name}-${cc.configuration}.log" />
+		<java classname="com.opengamma.util.test.CPPLogToJUnit" classpathref="run.path.id" fork="true">
+			<arg value="${tests.results.dir}/${ant.project.name}-${cc.configuration}.log" />
+			<arg value="${tests.results.dir}" />
+		</java>
 	</target>
 	<target name="tests-debug" depends="compile-debug">
 		<antcall target="tests-impl">

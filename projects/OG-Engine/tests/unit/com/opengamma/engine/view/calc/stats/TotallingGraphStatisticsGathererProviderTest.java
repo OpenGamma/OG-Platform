@@ -5,25 +5,31 @@
  */
 package com.opengamma.engine.view.calc.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.List;
 
-import org.junit.Test;
+import java.util.Set;
 
+import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
  */
+@Test
 public class TotallingGraphStatisticsGathererProviderTest {
   
   private TotallingGraphStatisticsGathererProvider _provider = new TotallingGraphStatisticsGathererProvider();
   
-  @Test
   public void testBasicOperation () {
     UniqueIdentifier vp1Id = UniqueIdentifier.of("Test", "ViewProcess1");
     UniqueIdentifier vp2Id = UniqueIdentifier.of("Test", "ViewProcess2");
@@ -55,11 +61,11 @@ public class TotallingGraphStatisticsGathererProviderTest {
             mask |= 4;
             assertEquals (vp2Id, graphStats.getViewProcessId());
           } else {
-            fail ();
+            Assert.fail ();
           }
         }
       } else {
-        fail ();
+        Assert.fail ();
       }
     }
     assertEquals (7, mask);

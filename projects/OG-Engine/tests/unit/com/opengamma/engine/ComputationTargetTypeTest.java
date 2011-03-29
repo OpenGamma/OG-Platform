@@ -5,15 +5,13 @@
  */
 package com.opengamma.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import javax.time.calendar.OffsetDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -32,6 +30,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test ComputationTargetType.
  */
+@Test
 public class ComputationTargetTypeTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
@@ -42,7 +41,6 @@ public class ComputationTargetTypeTest {
   private static final Trade TRADE = new TradeImpl(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
       new CounterpartyImpl(Identifier.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
 
-  @Test
   public void determine() {
     
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.determineFromTarget(NODE));
@@ -58,7 +56,6 @@ public class ComputationTargetTypeTest {
     assertEquals(ComputationTargetType.PRIMITIVE, ComputationTargetType.determineFromTarget("Kirk Wylie"));
   }
 
-  @Test
   public void compatible() {
     assertTrue(ComputationTargetType.PORTFOLIO_NODE.isCompatible(NODE));
     assertTrue(ComputationTargetType.PORTFOLIO_NODE.isCompatible(PORTFOLIO));
@@ -72,7 +69,6 @@ public class ComputationTargetTypeTest {
     assertTrue(ComputationTargetType.PRIMITIVE.isCompatible(null));
   }
 
-  @Test
   public void notCompatible() {
     assertFalse(ComputationTargetType.PORTFOLIO_NODE.isCompatible(POSITION));
     assertFalse(ComputationTargetType.PORTFOLIO_NODE.isCompatible(SECURITY));

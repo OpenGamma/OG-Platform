@@ -15,7 +15,7 @@ import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.util.wrapper.ColtMathWrapper;
 
 /**
- * Wrapper for results of Colt implementation of SVD
+ * Wrapper for results of the Colt implementation of singular value decomposition {@link SVDecompositionColt}).
  */
 public class SVDecompositionColtResult implements SVDecompositionResult {
   private final double _condition;
@@ -28,6 +28,9 @@ public class SVDecompositionColtResult implements SVDecompositionResult {
   private final DoubleMatrix2D _uTranspose;
   private final DoubleMatrix2D _vTranspose;
 
+  /**
+   * @param svd The result of the SV decomposition, not null
+   */
   public SVDecompositionColtResult(final SingularValueDecomposition svd) {
     Validate.notNull(svd);
     _condition = svd.cond();
@@ -41,57 +44,90 @@ public class SVDecompositionColtResult implements SVDecompositionResult {
     _singularValues = svd.getSingularValues();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getConditionNumber() {
     return _condition;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getNorm() {
     return _norm;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getRank() {
     return _rank;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getS() {
     return _s;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] getSingularValues() {
     return _singularValues;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getU() {
     return _u;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getUT() {
     return _uTranspose;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getV() {
     return _v;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getVT() {
     return _vTranspose;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
     return new DoubleMatrix1D(solve(b.getData()));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] solve(final double[] b) {
     Validate.notNull(b);
@@ -126,6 +162,9 @@ public class SVDecompositionColtResult implements SVDecompositionResult {
     return res;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D solve(final com.opengamma.math.matrix.DoubleMatrix2D b) {
     Validate.notNull(b);

@@ -5,15 +5,13 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Collections;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -33,6 +31,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
+@Test
 public class LiveDataDeltaCalculatorTest {
   
   FunctionCompilationContext _context = new FunctionCompilationContext();
@@ -47,7 +46,7 @@ public class LiveDataDeltaCalculatorTest {
   ViewComputationCache _previousCache;
   LiveDataDeltaCalculator _deltaCalculator;
   
-  @Before
+  @BeforeMethod
   public void setUp() {
     final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource (FudgeContext.GLOBAL_DEFAULT);
     _cache = source.getCache ("Test", "Default", 2); 
@@ -112,7 +111,6 @@ public class LiveDataDeltaCalculatorTest {
     return graph;
   }
   
-  @Test
   public void noChangeA() {
     put(_cache, _node0, 6.0);
     put(_previousCache, _node0, 6.0);
@@ -123,7 +121,6 @@ public class LiveDataDeltaCalculatorTest {
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
   
-  @Test
   public void noChangeB() {
     put(_cache, _node1, 6.0);
     put(_previousCache, _node1, 6.0);
@@ -134,7 +131,6 @@ public class LiveDataDeltaCalculatorTest {
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
   
-  @Test
   public void noChangeC() {
     put(_cache, _node3, 6.0);
     put(_previousCache, _node3, 6.0);
@@ -145,7 +141,6 @@ public class LiveDataDeltaCalculatorTest {
     assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
   
-  @Test
   public void changeA() {
     put(_cache, _node0, 6.0);
     put(_previousCache, _node0, 7.0);
@@ -156,7 +151,6 @@ public class LiveDataDeltaCalculatorTest {
     assertEquals(Sets.newHashSet(_node0), _deltaCalculator.getChangedNodes());
   }
   
-  @Test
   public void changeB() {
     put(_cache, _node1, 6.0);
     put(_previousCache, _node1, 7.0);
@@ -167,7 +161,6 @@ public class LiveDataDeltaCalculatorTest {
     assertEquals(Sets.newHashSet(_node0, _node1), _deltaCalculator.getChangedNodes());
   }
   
-  @Test
   public void changeC() {
     put(_cache, _node3, 6.0);
     put(_previousCache, _node3, 7.0);

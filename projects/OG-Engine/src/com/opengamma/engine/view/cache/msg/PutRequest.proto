@@ -13,7 +13,7 @@ namespace com.opengamma.engine.view.cache.msg {
     required long snapshotTimestamp;
   
     required repeated long identifier;
-    required repeated byte[] data;
+    required repeated message data;
   
     binding Java {
       body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitPutRequest (this); }";

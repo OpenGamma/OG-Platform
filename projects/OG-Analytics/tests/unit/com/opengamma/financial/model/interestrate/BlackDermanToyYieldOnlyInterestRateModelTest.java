@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
@@ -24,17 +22,17 @@ import com.opengamma.util.tuple.Triple;
  */
 public class BlackDermanToyYieldOnlyInterestRateModelTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadNodes() {
     new BlackDermanToyYieldOnlyInterestRateModel(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
     new BlackDermanToyYieldOnlyInterestRateModel(3).getTrees(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new BlackDermanToyYieldOnlyInterestRateModel(5).getTrees(DateUtil.getUTCDate(2010, 8, 1)).evaluate((StandardDiscountBondModelDataBundle) null);
   }
@@ -47,8 +45,9 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     final StandardDiscountBondModelDataBundle data = new StandardDiscountBondModelDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), new VolatilityCurve(ConstantDoublesCurve.from(0.1)), date);
     final BlackDermanToyYieldOnlyInterestRateModel model = new BlackDermanToyYieldOnlyInterestRateModel(steps);
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);
-    final Triple[][] result = tree.getNodes();
-    final Triple[][] expected = new Triple[4][4];
+    final Triple<Double, Double, Double>[][] result = tree.getNodes();
+    @SuppressWarnings("unchecked")
+    final Triple<Double, Double, Double>[][] expected = (Triple<Double, Double, Double>[][])new Triple[4][4];
     expected[0][0] = new Triple<Double, Double, Double>(0.05, 0.9524, 1.0);
     expected[1][0] = new Triple<Double, Double, Double>(0.045, 0.9569, 0.4762);
     expected[1][1] = new Triple<Double, Double, Double>(0.055, 0.9479, 0.4762);
@@ -64,16 +63,16 @@ public class BlackDermanToyYieldOnlyInterestRateModelTest {
     for (int i = 0; i < expected.length; i++) {
       for (int j = 0; j < expected[0].length; j++) {
         if (expected[i][j] == null) {
-          final Triple triple = result[i][j];
-          assertEquals((Double) triple.getFirst(), 0, 1e-16);
-          assertEquals((Double) triple.getSecond(), 0, 1e-16);
-          assertEquals((Double) triple.getThird(), 0, 1e-16);
+          final Triple<Double, Double, Double> triple = result[i][j];
+          assertEquals(triple.getFirst(), 0, 1e-16);
+          assertEquals(triple.getSecond(), 0, 1e-16);
+          assertEquals(triple.getThird(), 0, 1e-16);
         } else {
-          final Triple triple1 = result[i][j];
-          final Triple triple2 = expected[i][j];
-          assertEquals((Double) triple1.getFirst(), (Double) triple2.getFirst(), 1e-4);
-          assertEquals((Double) triple1.getSecond(), (Double) triple2.getSecond(), 1e-4);
-          assertEquals((Double) triple1.getThird(), (Double) triple2.getThird(), 1e-4);
+          final Triple<Double, Double, Double> triple1 = result[i][j];
+          final Triple<Double, Double, Double> triple2 = expected[i][j];
+          assertEquals((Double) triple1.getFirst(), triple2.getFirst(), 1e-4);
+          assertEquals((Double) triple1.getSecond(), triple2.getSecond(), 1e-4);
+          assertEquals((Double) triple1.getThird(), triple2.getThird(), 1e-4);
         }
       }
     }

@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -29,7 +29,7 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
-public class AnalyticOptionModelTest {
+public abstract class AnalyticOptionModelTest {
   protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle>() {
 
@@ -47,17 +47,17 @@ public class AnalyticOptionModelTest {
       15., DATE);
   private static final double EPS = 1e-2;
 
-  public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
+  protected <S extends OptionDefinition, T extends StandardOptionDataBundle> void assertInputs(final AnalyticOptionModel<S, T> model, final S definition) {
     try {
       model.getPricingFunction(null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
 
     try {
       model.getPricingFunction(definition).evaluate((T) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -73,13 +73,13 @@ public class AnalyticOptionModelTest {
     greekTypes.remove(Greek.ZETA_BLEED);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
     GreekResultCollection finiteDifference = DUMMY_MODEL.getGreeks(PUT, DATA, greekTypes);
-    testResults(finiteDifference, bsm);
+    assertResults(finiteDifference, bsm);
     bsm = BSM.getGreeks(CALL, DATA, greekTypes);
     finiteDifference = DUMMY_MODEL.getGreeks(CALL, DATA, greekTypes);
-    testResults(finiteDifference, bsm);
+    assertResults(finiteDifference, bsm);
   }
 
-  protected void testResults(final GreekResultCollection results, final GreekResultCollection expected) {
+  protected void assertResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
     for (final Pair<Greek, Double> entry : results) {
       final Double result2 = expected.get(entry.getKey());

@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -49,25 +49,25 @@ public class WeightedLeastSquaresRegressionTest {
     final OrdinaryLeastSquaresRegression olsRegression = new OrdinaryLeastSquaresRegression();
     try {
       wlsRegression.regress(x, (double[]) null, yNoIntercept, false);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     LeastSquaresRegressionResult wls = wlsRegression.regress(x, w1, yIntercept, true);
     LeastSquaresRegressionResult ols = olsRegression.regress(x, yIntercept, true);
-    testRegressions(n, 4, wls, ols);
+    assertRegressions(n, 4, wls, ols);
     wls = wlsRegression.regress(x, w1, yNoIntercept, false);
     ols = olsRegression.regress(x, yNoIntercept, false);
-    testRegressions(n, 3, wls, ols);
+    assertRegressions(n, 3, wls, ols);
     wls = wlsRegression.regress(x, w2, yIntercept, true);
     ols = olsRegression.regress(x, yIntercept, true);
-    testRegressions(n, 4, wls, ols);
+    assertRegressions(n, 4, wls, ols);
     wls = wlsRegression.regress(x, w2, yNoIntercept, false);
     ols = olsRegression.regress(x, yNoIntercept, false);
-    testRegressions(n, 3, wls, ols);
+    assertRegressions(n, 3, wls, ols);
   }
 
-  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
+  private void assertRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
       final LeastSquaresRegressionResult regression2) {
     final double[] r1 = regression1.getResiduals();
     final double[] r2 = regression2.getResiduals();

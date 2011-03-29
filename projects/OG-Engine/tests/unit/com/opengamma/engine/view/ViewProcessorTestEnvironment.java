@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -20,22 +18,30 @@ public class TopHatFunctionTest {
   private static final double Y = 10;
   private static final Function1D<Double, Double> F = new TopHatFunction(X1, X2, Y);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder() {
     new TopHatFunction(X2, X1, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     F.evaluate((Double) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testX1() {
+    F.evaluate(X1);    
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testX2() {
+    F.evaluate(X2);    
   }
 
   @Test
   public void test() {
     assertEquals(F.evaluate(X1 - 1e-15), 0, 0);
     assertEquals(F.evaluate(X2 + 1e-15), 0, 0);
-    assertEquals(F.evaluate(X1), Y, 0);
-    assertEquals(F.evaluate(X2), Y, 0);
     assertEquals(F.evaluate((X1 + X2) / 2), Y, 0);
   }
 }

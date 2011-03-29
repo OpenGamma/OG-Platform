@@ -16,13 +16,15 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -30,8 +32,9 @@ import com.opengamma.util.tuple.Pair;
  * and computed.
  */
 @PublicAPI
-public class ViewDefinition implements Serializable {
+public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
+  private UniqueIdentifier _uniqueIdentifier;
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
@@ -43,7 +46,7 @@ public class ViewDefinition implements Serializable {
 
   private Long _minFullCalculationPeriod;
   private Long _maxFullCalculationPeriod;
-  private CurrencyUnit _defaultCurrency;
+  private Currency _defaultCurrency;
 
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName = new TreeMap<String, ViewCalculationConfiguration>();
 
@@ -180,7 +183,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @return the currency
    */
-  public CurrencyUnit getDefaultCurrency() {
+  public Currency getDefaultCurrency() {
     return _defaultCurrency;
   }
 
@@ -189,7 +192,7 @@ public class ViewDefinition implements Serializable {
    * 
    * @param currency The default currency
    */
-  public void setDefaultCurrency(CurrencyUnit currency) {
+  public void setDefaultCurrency(Currency currency) {
     _defaultCurrency = currency;
   }
 
@@ -458,6 +461,16 @@ public class ViewDefinition implements Serializable {
     }
 
     return true;
+  }
+
+  @Override
+  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
+  }
+
+  @Override
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueIdentifier;
   }
 
 }

@@ -5,19 +5,18 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
-
-import org.junit.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
  * Tests ViewComputationResultModelMerger
  */
+@Test
 public class ViewComputationResultModelMergerTest {
 
-  @Test
   public void testMerger() {
     ReplacementMerger merger = new ReplacementMerger();
     assertEquals(null, merger.consume());

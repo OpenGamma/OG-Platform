@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public class IncompleteGammaFunctionTest {
@@ -17,22 +15,22 @@ public class IncompleteGammaFunctionTest {
   private static final double EPS = 1e-9;
   private static final int MAX_ITER = 10000;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeA1() {
     new IncompleteGammaFunction(-A);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeA2() {
     new IncompleteGammaFunction(-A, MAX_ITER, EPS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeIter() {
     new IncompleteGammaFunction(A, -MAX_ITER, EPS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeEps() {
     new IncompleteGammaFunction(A, MAX_ITER, -EPS);
   }

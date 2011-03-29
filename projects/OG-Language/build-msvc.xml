@@ -8,6 +8,9 @@
 			<arg value="/p:Configuration=${msbuild.config}" />
 			<arg value="/p:Platform=${msbuild.platform}" />
 		</exec>
+		<antcall target="compile-after">
+			<param name="compile.type" value="${msbuild.config}${msbuild.platform}" />
+		</antcall>
 	</target>
 	<target name="compile-win32" if="msvc.win32">
 		<antcall target="run-msbuild">
@@ -51,6 +54,10 @@
 		</exec>
 		<copy file="${log4cxx.logfile}" tofile="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.log" failonerror="false" />
 		<delete file="${log4cxx.logfile}" failonerror="false" />
+		<java classname="com.opengamma.util.test.MSTestToJUnit" classpathref="run.path.id" fork="true">
+			<arg value="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" />
+			<arg value="${tests.results.dir}" />
+		</java>
 	</target>
 	<target name="tests-win32" depends="compile-win32" if="msvc.win32">
 		<antcall target="run-mstest">

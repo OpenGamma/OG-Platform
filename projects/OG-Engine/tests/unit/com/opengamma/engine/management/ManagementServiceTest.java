@@ -6,8 +6,10 @@
 package com.opengamma.engine.management;
 
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.Set;
 
 import javax.management.MBeanServer;
@@ -15,9 +17,6 @@ import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +30,7 @@ import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
  */
+@Test
 public class ManagementServiceTest {
   
   private static final String ANOTHER_TEST_VIEW = "ANOTHER_TEST_VIEW";
@@ -43,7 +43,7 @@ public class ManagementServiceTest {
   /**
    * @throws java.lang.Exception
    */
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     _env = new ViewProcessorTestEnvironment();
     _env.init();
@@ -54,7 +54,7 @@ public class ManagementServiceTest {
   /**
    * @throws java.lang.Exception
    */
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     if (viewProcessor.isRunning()) {
@@ -68,7 +68,6 @@ public class ManagementServiceTest {
     return MBeanServerFactory.createMBeanServer("SimpleAgent");
   }
   
-  @Test
   public void testRegistrationService() throws Exception {
     ViewProcessorImpl vp = _env.getViewProcessor();
     vp.start();
@@ -76,7 +75,6 @@ public class ManagementServiceTest {
     assertEquals(MBEANS_IN_TEST_VIEWPROCESSOR, _mBeanServer.queryNames(new ObjectName("com.opengamma:*"), null).size());
   }
   
-  @Test
   public void testRegistrationServiceListensForViewAdded() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     viewProcessor.start();

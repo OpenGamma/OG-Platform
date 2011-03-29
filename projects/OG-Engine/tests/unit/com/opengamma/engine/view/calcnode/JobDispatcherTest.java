@@ -5,12 +5,12 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +32,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * 
  */
+@Test
 public class JobDispatcherTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcherTest.class);
@@ -256,7 +256,7 @@ public class JobDispatcherTest {
     @Override
     public boolean notifyWhenAvailable(final JobInvokerRegister callback) {
       // shouldn't get called
-      fail();
+      Assert.fail();
       return true;
     }
 
@@ -337,7 +337,7 @@ public class JobDispatcherTest {
     @Override
     public boolean notifyWhenAvailable(JobInvokerRegister callback) {
       // Shouldn't get called
-      fail ();
+      Assert.fail ();
       return false;
     }
 

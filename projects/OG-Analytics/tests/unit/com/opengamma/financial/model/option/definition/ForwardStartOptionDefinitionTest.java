@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.Moneyness;
@@ -39,27 +37,27 @@ public class ForwardStartOptionDefinitionTest {
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT,
       DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartTime() {
     new ForwardStartOptionDefinition(EXPIRY, true, null, PERCENT, MONEYNESS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePercent() {
     new ForwardStartOptionDefinition(EXPIRY, true, START, -PERCENT, MONEYNESS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMoneyness() {
     new ForwardStartOptionDefinition(EXPIRY, true, START, PERCENT, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongStartTime() {
     new ForwardStartOptionDefinition(START, true, EXPIRY, PERCENT, MONEYNESS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPayoffTime() {
     ATM_CALL.getPayoffFunction().getPayoff(DATA.withDate(DateUtil.getUTCDate(2009, 1, 1)), 0.);
   }

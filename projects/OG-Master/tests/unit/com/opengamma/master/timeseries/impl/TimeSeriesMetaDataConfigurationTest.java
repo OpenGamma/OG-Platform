@@ -7,7 +7,8 @@ package com.opengamma.master.timeseries.impl;
 
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,20 +18,18 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataConfiguration;
-import com.opengamma.master.timeseries.impl.TimeSeriesMetaDataRating;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * Test TimeSeriesMetaDataConfiguration to/from fudge message.
  */
+@Test
 public class TimeSeriesMetaDataConfigurationTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  @Test
   public void fudgeEncoding() {
     List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>();
     rules.add(new TimeSeriesMetaDataRating(DATA_SOURCE_NAME, "BLOOMBERG", 2));

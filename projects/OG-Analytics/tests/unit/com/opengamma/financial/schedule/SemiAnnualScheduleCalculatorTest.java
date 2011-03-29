@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.SemiAnnualScheduleCalculator;

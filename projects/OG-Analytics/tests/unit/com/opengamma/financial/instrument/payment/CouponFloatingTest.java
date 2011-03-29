@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -20,6 +19,7 @@ import com.opengamma.util.time.DateUtil;
  */
 public class CouponFloatingTest {
 
+  private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 5);
@@ -30,27 +30,33 @@ public class CouponFloatingTest {
 
   private static final ZonedDateTime FAKE_DATE = DateUtil.getUTCDate(0, 1, 1);
 
-  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
-  private static final CouponFloatingDefinition FLOAT_COUPON = new CouponFloatingDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE);
+  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
+  private static final CouponFloatingDefinition FLOAT_COUPON = new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE);
   private static final CouponFloatingDefinition FLOAT_COUPON_2 = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCurrency() {
+    new CouponFloatingDefinition(null, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentDate() {
-    new CouponFloatingDefinition(null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE);
+    new CouponFloatingDefinition(CUR, null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixingDate() {
-    new CouponFloatingDefinition(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, null);
+    new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
     CouponFloatingDefinition.from(null, FIXING_DATE);
   }
 
   @Test
   public void test() {
+    assertEquals(FLOAT_COUPON.getCurrency(), CUR);
     assertEquals(FLOAT_COUPON.getPaymentDate(), COUPON.getPaymentDate());
     assertEquals(FLOAT_COUPON.getAccrualStartDate(), COUPON.getAccrualStartDate());
     assertEquals(FLOAT_COUPON.getAccrualEndDate(), COUPON.getAccrualEndDate());

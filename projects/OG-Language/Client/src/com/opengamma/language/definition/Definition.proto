@@ -1,0 +1,46 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.definition {
+
+  /**
+   * Base message for a definition. Definitions are described in terms of their wire format
+   * for transmission to clients. Additional metadata about the underlying object will
+   * probably be available.
+   */
+  message Definition {
+  
+    /**
+     * Primary name of the entity described, obeying syntactic rules of the bound language.
+     */
+    required string name;
+    
+    /**
+     * Brief (1 paragraph) description of the entity. The description should be language
+     * agnostic and generic (unless the object is only published to a specific language
+     * binding).
+     */
+    optional string description;
+    
+    /**
+     * Alternative names for the entity, obeying syntactic rules of the bound language.
+     */
+    optional repeated string alias;
+    
+    /**
+     * Category, grouping, or namespace of the entity. This is only used if appropriate to
+     * the bound language, and may be overridden or ignored based on local client settings.
+     */
+    optional string category;
+    
+    /**
+     * Definition parameters (e.g. for invocation, or general access).
+     */
+    optional repeated Parameter parameter;
+  
+  }
+
+}

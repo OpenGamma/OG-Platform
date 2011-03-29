@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -14,6 +14,6 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
   @Test
   public void test() {
-    super.test(new BjerksundStenslandModel(), 1e-4);
+    super.assertValid(new BjerksundStenslandModel(), 1e-4);
   }
 }

@@ -6,19 +6,17 @@
 
 package com.opengamma.engine.view;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.COMPUTED_VALUE;
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.PORTFOLIO;
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.PORTFOLIO_ROOT_NODE;
 import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.SPEC;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.HashMap;
 import java.util.Set;
 
 import javax.time.Instant;
-
-import org.junit.Test;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -28,17 +26,17 @@ import com.opengamma.engine.value.ComputedValue;
 /**
  * 
  */
+@Test
 public class ViewComputationResultModelImplTest {
   
-  @Test
   public void test() {
     InMemoryViewComputationResultModel model = new InMemoryViewComputationResultModel();
     checkModel(model);
   }
 
-  public static void checkModel(InMemoryViewResultModel model) {
-    model.setEvaluationTime(Instant.ofEpochMillis(400));
-    assertEquals(Instant.ofEpochMillis(400), model.getEvaluationTime());
+  static void checkModel(InMemoryViewResultModel model) {
+    model.setValuationTime(Instant.ofEpochMillis(400));
+    assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
     model.setResultTimestamp(Instant.ofEpochMillis(500));
     assertEquals(Instant.ofEpochMillis(500), model.getResultTimestamp());
     

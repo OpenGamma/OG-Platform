@@ -8,16 +8,23 @@ package com.opengamma.math.curve;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link ConstantDoublesCurve}. Only parallel shifts of the curve are supported - the other methods would result in a curve that was
+ * not constant in <i>y</i>.
  */
 public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -25,21 +32,41 @@ public class ConstantCurveShiftFunction implements CurveShiftFunction<ConstantDo
     return ConstantDoublesCurve.from(y + shift, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double x, final double shift) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double x, final double shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double[] xShift, final double[] yShift) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public ConstantDoublesCurve evaluate(final ConstantDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
     throw new UnsupportedOperationException();

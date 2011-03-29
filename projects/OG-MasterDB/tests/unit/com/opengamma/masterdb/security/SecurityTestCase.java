@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -29,12 +29,10 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.RegionUtils;
@@ -106,6 +104,7 @@ import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.tuple.Pair;
@@ -113,9 +112,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Creates random securities.
  */
-@Ignore("Abstract class")
 @SuppressWarnings("unchecked")
-abstract public class SecurityTestCase implements SecurityTestCaseMethods {
+public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
 
@@ -239,10 +237,10 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
             RandomStringUtils.randomAlphanumeric(16))));
       }
     });
-    s_dataProviders.put(CurrencyUnit.class, new TestDataProvider<CurrencyUnit>() {
+    s_dataProviders.put(Currency.class, new TestDataProvider<Currency>() {
       @Override
-      public void getValues(final Collection<CurrencyUnit> values) {
-        values.add(CurrencyUnit.of(RandomStringUtils.randomAlphabetic(3).toUpperCase(Locale.ENGLISH)));
+      public void getValues(final Collection<Currency> values) {
+        values.add(Currency.of(RandomStringUtils.randomAlphabetic(3).toUpperCase(Locale.ENGLISH)));
       }
     });
     s_dataProviders.put(YieldConvention.class, new TestDataProvider<YieldConvention>() {
@@ -475,7 +473,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     return permuteTestObjects(clazz, getBiggestConstructor(clazz));
   }
 
-  protected abstract <T extends ManageableSecurity> void testSecurity(final Class<T> securityClass, final T security);
+  protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
 
   public <T extends ManageableSecurity> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
     String securityType = null;
@@ -492,7 +490,7 @@ abstract public class SecurityTestCase implements SecurityTestCaseMethods {
     for (final T security : securities) {
       // Force the security type to be a valid string; they're random nonsense otherwise
       security.setSecurityType(securityType);
-      testSecurity(securityClass, security);
+      assertSecurity(securityClass, security);
     }
   }
 

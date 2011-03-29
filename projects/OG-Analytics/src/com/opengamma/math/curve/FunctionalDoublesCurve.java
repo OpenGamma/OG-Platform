@@ -13,13 +13,13 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * A curve that is defined by a function 
+ * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
  */
 public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param function The function that defines the curve
+   * @param function The function that defines the curve, not null
    * @return A functional curve with an automatically-generated name
    */
   public static FunctionalDoublesCurve from(final Function<Double, Double> function) {
@@ -28,7 +28,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param function The function that defines the curve
+   * @param function The function that defines the curve, not null
    * @param name Name of the curve 
    * @return A functional curve
    */
@@ -40,7 +40,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param function The function that defines the curve
+   * @param function The function that defines the curve, not null
    */
   public FunctionalDoublesCurve(final Function<Double, Double> function) {
     super();
@@ -50,7 +50,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param function The function that defines the curve
+   * @param function The function that defines the curve, not null
    * @param name The name of the curve
    */
   public FunctionalDoublesCurve(final Function<Double, Double> function, final String name) {
@@ -94,9 +94,9 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
 
   /**
    * 
-   * @param x An array of x values
+   * @param x An array of <i>x</i> values
    * @param interpolator An interpolator
-   * @return An interpolated curve with values {@latex.inline $(x, F(x))$} 
+   * @return An interpolated curve with values <i>(x, f(x))</i>
    */
   public InterpolatedDoublesCurve toInterpolatedDoubleDoubleCurve(final double[] x, final Interpolator1D<? extends Interpolator1DDataBundle> interpolator) {
     Validate.notNull(x, "x");
@@ -112,7 +112,7 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
   /**
    * 
    * @param x An array of x values
-   * @return A nodal curve with values {@latex.inline $(x, F(x))$} 
+   * @return A nodal curve with values <i>(x, f(x))</i>
    */
   public NodalDoublesCurve toNodalDoubleDoubleCurve(final double[] x) {
     Validate.notNull(x, "x");

@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.function.resolver;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Before;
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -23,6 +21,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
+@Test
 public class DefaultFunctionResolverTest {
 
   private ComputationTarget _target;
@@ -32,7 +31,7 @@ public class DefaultFunctionResolverTest {
   private ParameterizedFunction _parameterizedF2;
   private DefaultCompiledFunctionResolver _resolver;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     _target = new ComputationTarget(UniqueIdentifier.of("scheme", "test_target"));
 
@@ -47,7 +46,6 @@ public class DefaultFunctionResolverTest {
     _resolver = new DefaultCompiledFunctionResolver(new FunctionCompilationContext());
   }
 
-  @Test
   public void globalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
@@ -57,7 +55,6 @@ public class DefaultFunctionResolverTest {
     assertEquals(_parameterizedF2, result.getFirst());
   }
 
-  @Test
   public void nonGlobalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, new ApplyToSubtree(_target.toSpecification()), 200));

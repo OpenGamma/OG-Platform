@@ -5,8 +5,6 @@
  */
 package com.opengamma.web.config;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -19,26 +17,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgWriter;
-import org.fudgemsg.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
 /**
  * RESTful resource for a configuration document.
@@ -46,11 +30,6 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
-
-  /**
-   * The Fudge context.
-   */
-  protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
   /**
    * Creates the resource.
@@ -66,6 +45,13 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String get() {
     FlexiBean out = createRootData();
     return getFreemarker().build("configs/config.ftl", out);
+  }
+  
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("configs/jsonconfig.ftl", out);
   }
 
   @PUT
@@ -92,8 +78,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
     
-    // System.out.println(xml);  // cannot parse to Fudge yet
-    URI uri = updateConfig(name);
+    URI uri = updateConfig(name, parseXML(xml));
     return Response.seeOther(uri).build();
   }
   
@@ -112,17 +97,16 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (name == null || xml == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    
-    updateConfig(name);
+    updateConfig(name, parseXML(xml));
     return Response.ok().build();
   }
 
-  private URI updateConfig(String name) {
+  private URI updateConfig(String name, Object newConfig) {
     ConfigDocument<?> oldDoc = data().getConfig();
     ConfigDocument doc = new ConfigDocument();
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
-    doc.setValue(oldDoc.getValue());
+    doc.setValue(newConfig);
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
     URI uri = WebConfigResource.uri(data());
@@ -163,28 +147,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     ConfigDocument<?> doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getValue());
-    
-    // get xml and pretty print it
-    FudgeMsgEnvelope msg = FUDGE_CONTEXT.toFudgeMsg(doc.getValue());
-    StringWriter buf = new StringWriter(1024);
-    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(FUDGE_CONTEXT, buf));
-    writer.writeMessageEnvelope(msg);
-    try {
-      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document xmlDoc = db.parse(new InputSource(new StringReader(buf.toString())));
-      xmlDoc.getDocumentElement().normalize();
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      DOMSource source = new DOMSource(xmlDoc);
-      buf = new StringWriter(1024);
-      StreamResult result =  new StreamResult(buf);
-      transformer.transform(source, result);
-      String str = buf.toString();
-      out.put("configXml", str);
-    } catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
-    
+    out.put("configXml", createXML(doc));
     out.put("deleted", !doc.isLatest());
     return out;
   }

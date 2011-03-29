@@ -16,7 +16,9 @@ public class InMemoryViewComputationCacheSource extends DefaultViewComputationCa
    * @param fudgeContext Fudge context to use for serialization
    */
   public InMemoryViewComputationCacheSource(final FudgeContext fudgeContext) {
-    super(new InMemoryIdentifierMap(), fudgeContext, new InMemoryBinaryDataStoreFactory(), new InMemoryBinaryDataStoreFactory());
+    super(new InMemoryIdentifierMap(), fudgeContext, new DefaultFudgeMessageStoreFactory(
+        new InMemoryBinaryDataStoreFactory(), fudgeContext), new DefaultFudgeMessageStoreFactory(
+        new InMemoryBinaryDataStoreFactory(), fudgeContext));
   }
 
 }

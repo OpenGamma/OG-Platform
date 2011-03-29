@@ -5,7 +5,9 @@
  */
 package com.opengamma.livedata.resolver;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,9 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Test;
-
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -26,11 +25,10 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * 
- *
  */
 public class EHCachingDistributionSpecificationResolverTest {
   
-  @After
+  @AfterMethod
   public void cleanUp() {
     EHCacheUtils.clearAll();
   }

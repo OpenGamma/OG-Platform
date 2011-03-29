@@ -5,8 +5,7 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.TimeZone;
@@ -14,18 +13,21 @@ import java.util.TimeZone;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.testng.Assert;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyHolidayDbHolidayMasterWorker.
@@ -35,6 +37,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyHolidayDbHolidayMasterWorkerUpdateTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyHolidayDbHolidayMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -42,41 +45,41 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_updateHoliday_nullDocument() {
     _holMaster.update(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noHolidayId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101");
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument();
     doc.setHoliday(holiday);
     _holMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noHoliday() {
     HolidayDocument doc = new HolidayDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbHol", "101", "0"));
     _holMaster.update(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "0", "0");
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _holMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "201", "0");
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument doc = new HolidayDocument(holiday);
     _holMaster.update(doc);
@@ -88,7 +91,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
     HolidayDocument base = _holMaster.get(uid);
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     
@@ -123,12 +126,12 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     };
     final HolidayDocument base = _holMaster.get(UniqueIdentifier.of("DbHol", "101", "0"));
     UniqueIdentifier uid = UniqueIdentifier.of("DbHol", "101", "0");
-    ManageableHoliday holiday = new ManageableHoliday(CurrencyUnit.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
+    ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     holiday.setUniqueId(uid);
     HolidayDocument input = new HolidayDocument(holiday);
     try {
       w.update(input);
-      fail();
+      Assert.fail();
     } catch (BadSqlGrammarException ex) {
       // expected
     }

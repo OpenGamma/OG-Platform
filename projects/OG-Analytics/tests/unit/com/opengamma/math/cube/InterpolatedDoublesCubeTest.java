@@ -5,13 +5,11 @@
  */
 package com.opengamma.math.cube;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.List;
-
-import org.junit.Test;
 
 import com.opengamma.math.interpolation.InterpolatorND;
 import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
@@ -117,37 +115,37 @@ public class InterpolatedDoublesCubeTest extends DoublesCubeTest {
     assertEquals(CUBE.getValue(new Triple<Double, Double, Double>(3., 0., 0.01)), 0.01, eps);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX1() {
     CUBE.getValue(null, 2., 5.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY1() {
     CUBE.getValue(1., null, 1.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullZ1() {
     CUBE.getValue(1., 1., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullXYZ() {
     CUBE.getValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX2() {
     CUBE.getValue(new Triple<Double, Double, Double>(null, 2., 5.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY2() {
     CUBE.getValue(new Triple<Double, Double, Double>(1., null, 1.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullZ2() {
     CUBE.getValue(new Triple<Double, Double, Double>(1., 1., null));
   }

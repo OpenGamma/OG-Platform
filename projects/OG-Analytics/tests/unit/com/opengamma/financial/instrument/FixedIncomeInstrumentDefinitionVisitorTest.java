@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.instrument;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -27,6 +25,7 @@ import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -228,6 +227,26 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponIbor(CouponIborDefinition payment) {
       return "CouponIbor2";
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment, T data) {
+      return "CouponCMS1";
+    }
+
+    @Override
+    public String visitCouponCMS(CouponCMSDefinition payment) {
+      return "CouponCMS2";
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+      return "CouponIborSpread1";
+    }
+
+    @Override
+    public String visitCouponIborSpread(CouponIborDefinition payment) {
+      return "CouponIborSpread2";
     }
   }
 }

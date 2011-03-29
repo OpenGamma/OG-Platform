@@ -10,14 +10,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -28,14 +26,11 @@ import com.opengamma.util.db.PostgreSQLDbHelper;
 import com.opengamma.util.test.DBTool.TableCreationCallback;
 
 /**
- * 
- *
+ * Base DB test.
  */
-@RunWith(Parameterized.class)
-abstract public class DBTest implements TableCreationCallback {
-  
+public abstract class DBTest implements TableCreationCallback {
+
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
-  
   private static final Map<String, DbHelper> s_dbHelpers = new HashMap<String, DbHelper>();
 
   static {
@@ -60,7 +55,7 @@ abstract public class DBTest implements TableCreationCallback {
    * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
    * such a good idea.
    */
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
@@ -73,7 +68,7 @@ abstract public class DBTest implements TableCreationCallback {
     _dbtool.clearTestTables();
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
   }
@@ -99,10 +94,25 @@ abstract public class DBTest implements TableCreationCallback {
     return getParameters (databaseType, previousVersionCount);
   }
 
-  @Parameters
   public static Collection<Object[]> getParameters() {
     int previousVersionCount = getPreviousVersionCount();
     return getParameters (previousVersionCount);
+  }
+
+  @DataProvider(name = "databases")
+  public static Object[][] data_databases() {
+    Collection<Object[]> parameters = getParameters();
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  @DataProvider(name = "databasesMoreVersions")
+  public static Object[][] data_databasesMoreVersions() {
+    Collection<Object[]> parameters = getParameters(3);
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
   }
 
   protected static int getPreviousVersionCount() {

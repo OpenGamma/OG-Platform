@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
@@ -55,7 +53,7 @@ public class CurveShiftFunctionFactoryTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongClass() {
     CurveShiftFunctionFactory.getFunction(String.class);
   }
@@ -69,12 +67,12 @@ public class CurveShiftFunctionFactoryTest {
     assertEquals(SpreadCurveShiftFunction.class, CurveShiftFunctionFactory.getFunction(SpreadCurveShiftFunction.class).getClass());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType1() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType2() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, "M");
   }
@@ -128,42 +126,42 @@ public class CurveShiftFunctionFactoryTest {
     assertEquals(shifted.getName(), expected.getName());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType3() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType4() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, 1, 1, "J");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift1() {
     CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, 1, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift2() {
     CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, 1, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift3() {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, 1, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift4() {
     CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, 1, 1, "L");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift5() {
     CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, 1, 1, "P");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift6() {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, 1, 1, "O");
   }
@@ -192,42 +190,42 @@ public class CurveShiftFunctionFactoryTest {
     assertEquals(shifted, expected);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType5() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType6() {
     CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1}, "N");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift7() {
     CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift8() {
     CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift9() {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift10() {
     CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1}, "L");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift11() {
     CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1}, "K");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift12() {
     CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1}, "J");
   }

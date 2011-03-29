@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -15,7 +14,7 @@ import org.junit.Test;
 public class DiracDeltaFunctionTest {
   private static final DiracDeltaFunction F = new DiracDeltaFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     F.evaluate((Double) null);
   }

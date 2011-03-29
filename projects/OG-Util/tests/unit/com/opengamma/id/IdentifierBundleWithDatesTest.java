@@ -5,10 +5,10 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,13 +23,14 @@ import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 
 /**
  * Test IdentifierBundleWithDates
  */
+@Test
 public class IdentifierBundleWithDatesTest {
 
   private final Identifier _id11 = Identifier.of("D1", "V1");
@@ -41,133 +42,116 @@ public class IdentifierBundleWithDatesTest {
   private final Identifier _id22 = Identifier.of("D2", "V2");
   private final IdentifierWithDates _idwd22 = IdentifierWithDates.of(_id22, null, LocalDate.of(2010, MonthOfYear.DECEMBER, 30));
   
-  @Test
   public void singleton_empty() {
     assertEquals(0, IdentifierBundleWithDates.EMPTY.size());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void factory_of_varargs_noIdentifiers() {
     IdentifierBundleWithDates test = IdentifierBundleWithDates.of();
     assertEquals(0, test.size());
   }
 
-  @Test
   public void factory_of_varargs_oneIdentifier() {
     IdentifierBundleWithDates test = IdentifierBundleWithDates.of(_idwd11);
     assertEquals(1, test.size());
     assertEquals(Sets.newHashSet(_idwd11), test.getIdentifiers());
   }
 
-  @Test
   public void factory_of_varargs_twoIdentifiers() {
     IdentifierBundleWithDates test = IdentifierBundleWithDates.of(_idwd11, _idwd12);
     assertEquals(2, test.size());
     assertEquals(Sets.newHashSet(_idwd11, _idwd12), test.getIdentifiers());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void factory_of_varargs_null() {
     IdentifierBundleWithDates.of((IdentifierWithDates[]) null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void factory_of_varargs_noNulls() {
     IdentifierBundleWithDates.of(_idwd11, null, _idwd12);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void constructor_noargs() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates();
     assertEquals(0, test.size());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void constructor_Identifier() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11);
     assertEquals(1, test.size());
     assertEquals(Sets.newHashSet(_idwd11), test.getIdentifiers());
   }
 
-  @Test
   public void constructor_Identifier_null() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates((IdentifierWithDates) null);
     assertEquals(0, test.size());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void constructor_varargs_empty() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(new IdentifierWithDates[0]);
     assertEquals(0, test.size());
   }
 
-  @Test
   public void constructor_varargs_two() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals(2, test.size());
     assertEquals(Sets.newHashSet(_idwd11, _idwd12), test.getIdentifiers());
   }
 
-  @Test
   public void constructor_varargs_null() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates((IdentifierWithDates[]) null);
     assertEquals(0, test.size());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructor_varargs_noNulls() {
     new IdentifierBundleWithDates(_idwd11, null, _idwd12);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void constructor_Collection_empty() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(new ArrayList<IdentifierWithDates>());
     assertEquals(0, test.size());
   }
 
-  @Test
   public void constructor_Collection_two() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(Arrays.asList(_idwd11, _idwd12));
     assertEquals(2, test.size());
     assertEquals(Sets.newHashSet(_idwd11, _idwd12), test.getIdentifiers());
   }
 
-  @Test
   public void constructor_Collection_null() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates((Collection<IdentifierWithDates>) null);
     assertEquals(0, test.size());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void constructor_Collection_noNulls() {
     new IdentifierBundleWithDates(Arrays.asList(_idwd11, null, _idwd12));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void singleIdentifierDifferentConstructors() {
     assertTrue(new IdentifierBundleWithDates(_idwd11).equals(new IdentifierBundleWithDates(Collections.singleton(_idwd11))));
   }
 
-  @Test
   public void singleVersusMultipleIdentifier() {
     assertFalse(new IdentifierBundleWithDates(_idwd11).equals(new IdentifierBundleWithDates(_idwd11, _idwd12)));
     assertFalse(new IdentifierBundleWithDates(_idwd11, _idwd12).equals(new IdentifierBundleWithDates(_idwd11)));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void asIdentifierBundle() {
     IdentifierBundleWithDates bundleWithDates = new IdentifierBundleWithDates(_idwd11, _idwd22);
     assertEquals(IdentifierBundle.of(_id11, _id22), bundleWithDates.asIdentifierBundle());
   }
 
-  @Test
   public void withIdentifier() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates test = base.withIdentifier(_idwd21);
@@ -177,13 +161,12 @@ public class IdentifierBundleWithDatesTest {
     assertTrue(test.getIdentifiers().contains(_idwd21));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void withIdentifier_null() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     base.withIdentifier(null);
   }
 
-  @Test
   public void withoutIdentifier_match() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates test = base.withoutIdentifier(_idwd11);
@@ -191,7 +174,6 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(0, test.size());
   }
 
-  @Test
   public void withoutIdentifier_noMatch() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates test = base.withoutIdentifier(_idwd12);
@@ -200,7 +182,6 @@ public class IdentifierBundleWithDatesTest {
     assertTrue(test.getIdentifiers().contains(_idwd11));
   }
 
-  @Test
   public void withoutIdentifier_null() {
     IdentifierBundleWithDates base = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates test = base.withoutIdentifier(null);
@@ -210,7 +191,6 @@ public class IdentifierBundleWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_size() {
     assertEquals(0, new IdentifierBundleWithDates().size());
     assertEquals(1, new IdentifierBundleWithDates(_idwd11).size());
@@ -218,7 +198,6 @@ public class IdentifierBundleWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_iterator() {
     Set<IdentifierWithDates> expected = new HashSet<IdentifierWithDates>();
     expected.add(_idwd11);
@@ -234,7 +213,6 @@ public class IdentifierBundleWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_containsAny() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals(true, test.containsAny(new IdentifierBundleWithDates(_idwd11, _idwd12)));
@@ -244,14 +222,13 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(false, test.containsAny(new IdentifierBundleWithDates()));
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_containsAny_null() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     test.containsAny(null);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_contains() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals(true, test.contains(_idwd11));
@@ -259,27 +236,23 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(false, test.contains(_idwd21));
   }
 
-  @Test
   public void test_contains_null() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals(false, test.contains(null));
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toStringList() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals(Arrays.asList(_idwd11.toString(), _idwd12.toString()), test.toStringList());
   }
 
-  @Test
   public void test_toStringList_empty() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates();
     assertEquals(new ArrayList<String>(), test.toStringList());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_compareTo_differentSizes() {
     IdentifierBundleWithDates a1 = new IdentifierBundleWithDates();
     IdentifierBundleWithDates a2 = new IdentifierBundleWithDates(_idwd11);
@@ -290,7 +263,6 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(true, a2.compareTo(a2) == 0);
   }
 
-  @Test
   public void test_compareTo_sameSizes() {
     IdentifierBundleWithDates a1 = new IdentifierBundleWithDates(_idwd11);
     IdentifierBundleWithDates a2 = new IdentifierBundleWithDates(_idwd12);
@@ -302,7 +274,6 @@ public class IdentifierBundleWithDatesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals_same_empty() {
     IdentifierBundleWithDates a1 = new IdentifierBundleWithDates();
     IdentifierBundleWithDates a2 = new IdentifierBundleWithDates();
@@ -313,7 +284,6 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(true, a2.equals(a2));
   }
 
-  @Test
   public void test_equals_same_nonEmpty() {
     IdentifierBundleWithDates a1 = new IdentifierBundleWithDates(_idwd11, _idwd12);
     IdentifierBundleWithDates a2 = new IdentifierBundleWithDates(_idwd11, _idwd12);
@@ -324,7 +294,6 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(true, a2.equals(a2));
   }
 
-  @Test
   public void test_equals_different() {
     IdentifierBundleWithDates a = new IdentifierBundleWithDates();
     IdentifierBundleWithDates b = new IdentifierBundleWithDates(_idwd11, _idwd12);
@@ -338,7 +307,6 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(false, b.equals(null));
   }
 
-  @Test
   public void test_hashCode() {
     IdentifierBundleWithDates a = new IdentifierBundleWithDates(_idwd11, _idwd12);
     IdentifierBundleWithDates b = new IdentifierBundleWithDates(_idwd11, _idwd12);
@@ -346,20 +314,17 @@ public class IdentifierBundleWithDatesTest {
     assertEquals(a.hashCode(), b.hashCode());
   }
 
-  @Test
   public void test_toString_empty() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates();
     assertEquals("BundleWithDates[]", test.toString());
   }
 
-  @Test
   public void test_toString_nonEmpty() {
     IdentifierBundleWithDates test = new IdentifierBundleWithDates(_idwd11, _idwd12);
     assertEquals("BundleWithDates[" + _idwd11.toString() + ", " + _idwd12.toString() + "]", test.toString());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void fudgeEncoding() {
     IdentifierBundleWithDates input = new IdentifierBundleWithDates(_idwd11, _idwd12);
     FudgeFieldContainer msg = input.toFudgeMsg(new FudgeContext());

@@ -22,29 +22,29 @@ import com.opengamma.transport.FudgeMessageReceiver;
 
 /**
  * Composite server class for dispatching calls to a {@link IdentifierMapServer} and 
- * {@link BinaryDataStoreServer} within the same JVM.
+ * {@link FudgeMessageStoreServer} within the same JVM.
  */
 public class ViewComputationCacheServer implements FudgeConnectionReceiver, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationCacheServer.class);
 
   private final IdentifierMapServer _identifierMap;
-  private final BinaryDataStoreServer _binaryDataStore;
+  private final FudgeMessageStoreServer _binaryDataStore;
 
-  public ViewComputationCacheServer(final IdentifierMapServer identifierMap, final BinaryDataStoreServer binaryDataStore) {
+  public ViewComputationCacheServer(final IdentifierMapServer identifierMap, final FudgeMessageStoreServer binaryDataStore) {
     _identifierMap = identifierMap;
     _binaryDataStore = binaryDataStore;
   }
 
   public ViewComputationCacheServer(final DefaultViewComputationCacheSource cacheSource) {
-    this(new IdentifierMapServer(cacheSource.getIdentifierMap()), new BinaryDataStoreServer(cacheSource));
+    this(new IdentifierMapServer(cacheSource.getIdentifierMap()), new FudgeMessageStoreServer(cacheSource));
   }
 
   protected IdentifierMapServer getIdentifierMap() {
     return _identifierMap;
   }
 
-  protected BinaryDataStoreServer getBinaryDataStore() {
+  protected FudgeMessageStoreServer getBinaryDataStore() {
     return _binaryDataStore;
   }
 

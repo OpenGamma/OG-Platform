@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 /**
  * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or
@@ -13,25 +14,36 @@ import org.apache.commons.lang.NotImplementedException;
  */
 public class OGMatrixAlgebra extends MatrixAlgebra {
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public double getCondition(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public double getDeterminant(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final double[] a = ((DoubleMatrix1D) m1).getData();
       final double[] b = ((DoubleMatrix1D) m2).getData();
       final int l = a.length;
-      if (b.length != l) {
-        throw new IllegalArgumentException("Matrix size mismatch");
-      }
+      Validate.isTrue(l == b.length, "Matrix size mismacth");
       double sum = 0.0;
       for (int i = 0; i < l; i++) {
         sum += a[i] * b[i];
@@ -41,18 +53,32 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public double getNorm1(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   * This is only implemented for {@link DoubleMatrix1D}.
+   * @throws IllegalArgumentException If the matrix is not a {@link DoubleMatrix1D}
+   */
   @Override
   public double getNorm2(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix1D) {
       final double[] a = ((DoubleMatrix1D) m).getData();
       final int l = a.length;
@@ -64,16 +90,25 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     } else if (m instanceof DoubleMatrix2D) {
       throw new NotImplementedException();
     }
-    throw new IllegalArgumentException("Can only find  Norm2 of a DoubleMatrix1D; have " + m.getClass());
+    throw new IllegalArgumentException("Can only find norm2 of a DoubleMatrix1D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public double getNormInfinity(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final double[] a = ((DoubleMatrix1D) m1).getData();
       final double[] b = ((DoubleMatrix1D) m2).getData();
@@ -91,30 +126,40 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getTrace(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final double[][] data = ((DoubleMatrix2D) m).getData();
       final int rows = data.length;
-      if (rows != data[0].length) {
-        throw new IllegalArgumentException("Matrix not square");
-      }
+      Validate.isTrue(rows == data[0].length, "Matrix not square");
       double sum = 0.0;
       for (int i = 0; i < rows; i++) {
         sum += data[i][i];
       }
       return sum;
     }
-    throw new IllegalArgumentException("Can only take transpose of DoubleMatrix2D; Have " + m.getClass());
+    throw new IllegalArgumentException("Can only take the trace of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
+    Validate.notNull(m, "m");
     if (m instanceof DoubleMatrix2D) {
       final double[][] data = ((DoubleMatrix2D) m).getData();
       final int rows = data.length;
@@ -128,11 +173,22 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
       return new DoubleMatrix2D(res);
     }
-    throw new IllegalArgumentException("Can only take transpose of DoubleMatrix2D; Have " + m.getClass());
+    throw new IllegalArgumentException("Can only take transpose of DoubleMatrix2D; have " + m.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * The following combinations of input matrices m1 and m2 are allowed:
+   * <ul>
+   * <li> m1 = 2-D matrix, m2 = 2-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{AB}$}
+   * <li> m1 = 2-D matrix, m2 = 1-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{A}b$}
+   * <li> m1 = 1-D matrix, m2 = 2-D matrix, returns {@latex.inline $\\mathbf{C} = a^T\\mathbf{B}$}
+   * </ul>
+   */
   @Override
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
+    Validate.notNull(m1, "m1");
+    Validate.notNull(m2, "m2");
     if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
       return multiply((DoubleMatrix2D) m1, (DoubleMatrix2D) m2);
     } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
@@ -140,10 +196,14 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
       return multiply((DoubleMatrix1D) m1, (DoubleMatrix2D) m2);
     }
-    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. Have " + m1.getClass() + " and "
+    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. have " + m1.getClass() + " and "
         + m2.getClass());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws NotImplementedException
+   */
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final double p) {
     throw new NotImplementedException();
@@ -153,9 +213,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     final double[][] a = m1.getData();
     final double[][] b = m2.getData();
     final int p = b.length;
-    if (a[0].length != p) {
-      throw new IllegalArgumentException("Matrix size mismatch");
-    }
+    Validate.isTrue(a[0].length == p, "Matrix size mismatch");
     final int m = a.length;
     final int n = b[0].length;
     double sum;
@@ -173,19 +231,11 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     return new DoubleMatrix2D(res);
   }
 
-  /**
-   * A matrix M times a column vector v, i.e M*v
-   * @param matrix A matrix
-   * @param vector A column vector
-   * @return A column vector
-   */
   private DoubleMatrix1D multiply(final DoubleMatrix2D matrix, final DoubleMatrix1D vector) {
     final double[][] a = matrix.getData();
     final double[] b = vector.getData();
     final int n = b.length;
-    if (a[0].length != n) {
-      throw new IllegalArgumentException("Matrix/vector size mismatch");
-    }
+    Validate.isTrue(a[0].length == n, "Matrix/vector size mismatch");
     final int m = a.length;
     final double[] res = new double[m];
     int i, j;
@@ -200,19 +250,11 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     return new DoubleMatrix1D(res);
   }
 
-  /**
-   * A row vector times a matrix i.e v<sup>T</sup>*M
-   * @param vector A row vector
-   * @param matrix A matrix
-   * @return A row vector
-   */
   private DoubleMatrix1D multiply(final DoubleMatrix1D vector, final DoubleMatrix2D matrix) {
     final double[] a = vector.getData();
     final double[][] b = matrix.getData();
     final int n = a.length;
-    if (b.length != n) {
-      throw new IllegalArgumentException("Matrix/vector size mismatch");
-    }
+    Validate.isTrue(b.length == n, "Matrix/vector size mismatch");
     final int m = b[0].length;
     final double[] res = new double[m];
     int i, j;

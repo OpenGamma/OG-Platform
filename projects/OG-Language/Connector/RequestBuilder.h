@@ -18,11 +18,21 @@ private:
 	CConnector *m_poConnector;
 	CConnector::CCall *m_poQuery;
 protected:
+	void *m_pResponse;
 	bool SendMsg (FudgeMsg msg);
 	FudgeMsg RecvMsg (long lTimeout);
 	virtual void Init () { }
 	virtual void Done () { }
+	virtual void _Done () { }
+	virtual bool SendOk () { return true; }
+public:
+	CRequestBuilder (CConnector *poConnector);
+    virtual ~CRequestBuilder ();
+    static long GetDefaultTimeout ();
+    CConnector *GetConnector () { m_poConnector->Retain (); return m_poConnector; }
 #define REQUESTBUILDER_REQUEST(_objtype_) \
+protected: \
+	_objtype_ m_request; \
 	bool Send (_objtype_ *obj) { \
 		if (!obj) return false; \
 		FudgeMsg msg; \
@@ -30,28 +40,27 @@ protected:
 		bool bResult = SendMsg (msg); \
 		FudgeMsg_release (msg); \
 		return bResult; \
-	}
-public:
-	CRequestBuilder (CConnector *poConnector);
-	virtual ~CRequestBuilder ();
-	virtual bool Send () = 0;
-	static long GetDefaultTimeout ();
+	} \
+	void Init () { \
+		memset (&m_request, 0, sizeof (m_request)); \
+	} \
+public: \
+	bool Send () { return SendOk () ? Send (&m_request) : false; }
 #define REQUESTBUILDER_RESPONSE(_objtype_) \
-private: \
-	_objtype_ *m_pResponse; \
 protected: \
-	void Init () { m_pResponse = NULL; } \
-	void Done () { if (m_pResponse) _objtype_##_free (m_pResponse); } \
+	void _Done () { \
+		if (m_pResponse) { _objtype_##_free ((_objtype_*)m_pResponse); m_pResponse = NULL; } \
+	} \
 public: \
 	_objtype_ *Recv (long lTimeout) { \
-		if (m_pResponse) return m_pResponse; \
+		if (m_pResponse) return (_objtype_*)m_pResponse; \
 		FudgeMsg msg = RecvMsg (lTimeout); \
 		if (!msg) return NULL; \
-		if (_objtype_##_fromFudgeMsg (msg, &m_pResponse) != FUDGE_OK) { \
+		if (_objtype_##_fromFudgeMsg (msg, (_objtype_**)&m_pResponse) != FUDGE_OK) { \
 			m_pResponse = NULL; \
 		} \
 		FudgeMsg_release (msg); \
-		return m_pResponse; \
+		return (_objtype_*)m_pResponse; \
 	} \
 	_objtype_ *DetachResponse () { \
 		_objtype_ *pResponse = Recv (GetDefaultTimeout ()); \
@@ -59,5 +68,13 @@ public: \
 		return pResponse; \
 	}
 };
+
+#define REQUESTBUILDER_BEGIN(_class_) \
+	class _class_ : public CRequestBuilder { \
+	public: \
+		_class_ (CConnector *poConnector) : CRequestBuilder (poConnector) { Init (); } \
+		~_class_ () { _Done (); Done (); }
+
+#define REQUESTBUILDER_END };
 
 #endif /* ifndef __inc_og_language_connector_requestbuilder_h */

@@ -15,22 +15,36 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * Analytic pricing model for powered options. This model is only valid for
- * options with an integer power.
+ * Analytic pricing model for powered options. <b>This model is only valid for options with an integer power.</b>
+ * <p>
+ * The price of a powered option is
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\sum_{j=0}^i \\frac{i!}{j!(i-j)!}S^{i-j}(-K)^j e^{(i-j-1)(r + (i-j)\\frac{\\sigma^2}{2})T - (i-j)(r-b)T}N(d_{i,j})\\\\
+ * p &= \\sum_{j=0}^i \\frac{i!}{j!(i-j)!}(-S)^{i-j}K^j e^{(i-j-1)(r + (i-j)\\frac{\\sigma^2}{2})T - (i-j)(r-b)T}N(-d_{i,j})\\\\
+ * \\end{align*}
+ * }
+ * where
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_{i,j} = \\frac{\\ln(\\frac{S}{K}) + (b + (i - j - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
+ * \\end{align*}
+ * }
  * 
  */
 public class PoweredOptionModel extends AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final PoweredOptionDefinition definition) {
     Validate.notNull(definition);
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       /**
-       * 
-       * @throws IllegalArgumentException
-       *           If the power is not an integer.
+       * @throws OptionPricingException If the power is not an integer.
        */
       @SuppressWarnings("synthetic-access")
       @Override

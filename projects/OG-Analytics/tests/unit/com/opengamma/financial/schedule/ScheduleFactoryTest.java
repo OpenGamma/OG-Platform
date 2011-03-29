@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -30,22 +28,22 @@ public class ScheduleFactoryTest {
   private static final ZonedDateTime END2 = DateUtil.getUTCDate(2002, 1, 31);
   private static final Frequency QUARTERLY = SimpleFrequencyFactory.INSTANCE.getFrequency(4);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartDate1() {
     ScheduleFactory.getSchedule(null, END1, QUARTERLY, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEndDate1() {
     ScheduleFactory.getSchedule(START1, null, QUARTERLY, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency1() {
     ScheduleFactory.getSchedule(START1, END1, null, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadFrequency1() {
     final Frequency frequency = new Frequency() {
 
@@ -57,37 +55,37 @@ public class ScheduleFactoryTest {
     ScheduleFactory.getSchedule(START1, END1, frequency, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPeriodsPerYear1() {
     ScheduleFactory.getSchedule(START1, END1, 5, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWeeklyWithEOMAdjustment1() {
     ScheduleFactory.getSchedule(START1, END1, 52, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDailyWithEOMAdjustment1() {
     ScheduleFactory.getSchedule(START1, END1, 365, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStartDate2() {
     ScheduleFactory.getSchedule(null, END2, QUARTERLY, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEndDate2() {
     ScheduleFactory.getSchedule(START2, null, QUARTERLY, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFrequency2() {
     ScheduleFactory.getSchedule(START2, END2, null, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadFrequency2() {
     final Frequency frequency = new Frequency() {
 
@@ -99,17 +97,17 @@ public class ScheduleFactoryTest {
     ScheduleFactory.getSchedule(START2, END2, frequency, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadPeriodsPerYear2() {
     ScheduleFactory.getSchedule(START2, END2, 5, true, false, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWeeklyWithEOMAdjustment2() {
     ScheduleFactory.getSchedule(START2, END2, 52, true, true, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDailyWithEOMAdjustment2() {
     ScheduleFactory.getSchedule(START2, END2, 365, true, true, false);
   }

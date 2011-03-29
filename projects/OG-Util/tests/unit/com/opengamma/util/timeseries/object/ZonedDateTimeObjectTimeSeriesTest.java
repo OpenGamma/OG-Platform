@@ -9,14 +9,9 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Ignore;
-
 /**
- * 
- *
  * @author jim
  */
-@Ignore
 public abstract class ZonedDateTimeObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<ZonedDateTime> {
   
   public ZonedDateTime makeDate(int year, int month, int day) {

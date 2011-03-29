@@ -8,15 +8,9 @@ package com.opengamma.util.timeseries.object;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Ignore;
-
-
 /**
  * 
- *
- * @author jim
  */
-@Ignore
 public abstract class DateObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<Date> {
   @Override
   public Date[] testTimes() {

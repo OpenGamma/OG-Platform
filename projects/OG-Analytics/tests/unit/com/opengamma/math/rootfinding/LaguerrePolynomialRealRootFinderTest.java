@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -25,12 +23,12 @@ public class LaguerrePolynomialRealRootFinderTest {
   private static final RealPolynomialFunction1D CLOSE_ROOTS = new RealPolynomialFunction1D(new double[] {9 + 3 * 1e-6, -6 - 1e-6, 1});
   private static final RealPolynomialFunction1D NO_REAL_ROOTS = new RealPolynomialFunction1D(new double[] {12, 0, 1});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     ROOT_FINDER.getRoots(null);
   }
 
-  @Test(expected = MathException.class)
+  @Test(expectedExceptions = MathException.class)
   public void testNoRealRoots() {
     ROOT_FINDER.getRoots(NO_REAL_ROOTS);
   }

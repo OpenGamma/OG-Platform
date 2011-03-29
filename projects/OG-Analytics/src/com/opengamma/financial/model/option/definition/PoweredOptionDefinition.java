@@ -11,12 +11,16 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * Definition for a powered option. The exercise style is European.
+ * Definition for a powered option. 
  * <p>
- * When the spot price is <i>S</i>, an option with strike <i>K</i> and power
- * <i>i</i> has payoff <i>max(0, S - K)<sup>i</sup></i> for a call and <i>max(0,
- * K - S)<sup>i</sup></i> for a put.
- * 
+ * The exercise style is European. The payoff of these options is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c &= \\max(S - K, 0)^i\\\\
+ * p &= \\max(K - S, 0)^i
+ * \\end{align*}
+ * }
+ * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power and {@latex.inline $S$} is the spot. 
  */
 public class PoweredOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
@@ -45,18 +49,24 @@ public class PoweredOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @return The value of the power.
+   * @return The power.
    */
   public double getPower() {
     return _power;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {

@@ -6,13 +6,11 @@
 package com.opengamma.financial.fudgemsg;
 
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
-import com.opengamma.core.common.CurrencyUnit;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -26,7 +24,7 @@ public class VolatilitySurfaceDefinitionTest extends FinancialTestBase {
     for (int i=1; i<=10; i++) {
       oneToTenYears[i-1] = Tenor.ofYears(i);
     }
-    VolatilitySurfaceDefinition<Tenor, Tenor> def = new VolatilitySurfaceDefinition<Tenor, Tenor>("US", CurrencyUnit.USD, Interpolator1DFactory.NATURAL_CUBIC_SPLINE, oneToTenYears, oneToTenYears);
+    VolatilitySurfaceDefinition<Tenor, Tenor> def = new VolatilitySurfaceDefinition<Tenor, Tenor>("US", Currency.USD, Interpolator1DFactory.NATURAL_CUBIC_SPLINE, oneToTenYears, oneToTenYears);
     assertEquals(def, cycleObject(VolatilitySurfaceDefinition.class, def));
   }
 }

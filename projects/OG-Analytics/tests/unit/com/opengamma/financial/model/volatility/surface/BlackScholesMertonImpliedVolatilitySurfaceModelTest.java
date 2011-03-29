@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -42,17 +40,17 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final double EPS = 1e-3;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPrices() {
     MODEL.getSurface(null, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPrices() {
     MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(new EuropeanVanillaOptionDefinition(RANDOM.nextDouble(), new Expiry(DATE), true), 2.3), null);
   }

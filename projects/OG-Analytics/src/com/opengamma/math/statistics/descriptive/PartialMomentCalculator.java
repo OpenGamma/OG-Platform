@@ -12,15 +12,15 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The partial moment of a series of asset return data can be used as a measure of the risk of that asset. However, in many instances 
+ * The second moment of a series of asset return data can be used as a measure of the risk of that asset. However, in many instances 
  * a large positive return is not regarded as a risk. The partial moment can be used as an alternative.
  * <p>
  * The lower (higher) partial moment considers only those values that are below (above) a threshold. Given a series of data {@latex.inline $x_1, x_2, \\dots, x_n$} sorted 
  * from lowest to highest, the first (last) {@latex.inline $k$} values are below (above) the threshold {@latex.inline $x_0$}. The partial moment is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}} 
- * \\begin{eqnarray*}
- * \\pm = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
- * \\end{eqnarray*}}
+ * \\begin{align*}
+ * \\text{pm} = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
+ * \\end{align*}}
  */
 public class PartialMomentCalculator extends Function1D<double[], Double> {
   private final double _threshold;
@@ -44,13 +44,13 @@ public class PartialMomentCalculator extends Function1D<double[], Double> {
   }
 
   /**
-   * @param x The array of data
+   * @param x The array of data, not null or empty
    * @return The partial moment
-   * @throws IllegalArgumentException If the array is null
    */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
+    Validate.isTrue(x.length > 0, "x cannot be empty");
     final int n = x.length;
     final double[] copyX = Arrays.copyOf(x, n);
     Arrays.sort(copyX);

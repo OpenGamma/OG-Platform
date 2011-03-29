@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.MonthlyScheduleOnDayCalculator;
 import com.opengamma.util.time.DateUtil;
@@ -27,23 +25,23 @@ public class MonthlyScheduleOnDayCalculatorTest extends ScheduleCalculatorTestCa
     return CALCULATOR;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDays() {
     new MonthlyScheduleOnDayCalculator(-10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighDays() {
     new MonthlyScheduleOnDayCalculator(36);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid1() {
     final LocalDate date = LocalDate.of(2001, 2, 13);
     CALCULATOR.getSchedule(date, date, false, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid2() {
     final ZonedDateTime date = DateUtil.getUTCDate(2001, 2, 13);
     CALCULATOR.getSchedule(date, date, false, true);

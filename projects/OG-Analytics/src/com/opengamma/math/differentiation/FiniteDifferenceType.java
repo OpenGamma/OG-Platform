@@ -6,13 +6,13 @@
 package com.opengamma.math.differentiation;
 
 /**
- * Differencing type:
+ * Enum representing the various differencing types that can be used to estimate the gradient of a function:
  * <p>
- * Forward: [f(x + eps) - f(x)] / eps
+ * Forward: {@latex.inline $\\frac{f(x + \\epsilon) - f(x)}{\\epsilon}$}
  * <p>
- * Central: [f(x + eps) - f(x - eps)] / (2 * eps)
+ * Central: {@latex.inline $\\frac{f(x + \\epsilon) - f(x - \\epsilon)}{2 * \\epsilon}$}
  * <p>
- * Backward: [f(x) - f(x - eps)] / eps
+ * Backward: {@latex.inline $\\frac{f(x) - f(x - \\epsilon)}{\\epsilon}$}
  */
 public enum FiniteDifferenceType {
   /**

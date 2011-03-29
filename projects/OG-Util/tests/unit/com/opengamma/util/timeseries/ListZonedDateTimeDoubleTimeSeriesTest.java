@@ -11,9 +11,12 @@ import java.util.List;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
+@Test
 public class ListZonedDateTimeDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest {
 
   @Override

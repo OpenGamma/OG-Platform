@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.model.tree;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  * 
@@ -21,32 +19,32 @@ public class RecombiningTreeTest {
   private static final Double[][] DATA2 = new Double[][] {new Double[] {1.5}, new Double[] {2.5, 3.5}, new Double[] {4.5, 5.5, 6.5}};
   private static final RecombiningTree<Double> TREE = new DummyTree(DATA1);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new DummyTree(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyData() {
     new DummyTree(new Double[0][0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStep() {
     TREE.getNode(-2, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNode() {
     TREE.getNode(0, -34);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongStep() {
     TREE.getNode(6, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNode() {
     TREE.getNode(2, 10);
   }

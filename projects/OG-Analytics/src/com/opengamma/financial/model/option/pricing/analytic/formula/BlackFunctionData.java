@@ -15,13 +15,20 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
  */
 public class BlackFunctionData {
   private final double _f;
-  private final double _df;
+  private final double _numeraire;
   private final double _sigma;
 
-  public BlackFunctionData(final double f, final double df, final double sigma) {
-    Validate.isTrue(df <= 1 && df > 0, "discount factor must be <= 1 and > 0");
-    _f = f;
-    _df = df;
+  /**
+   * Data bundle for pricing in a Black framework. That is, the forward value of the underlying assert is a martingale in the chosen numeraire measure. 
+   * @param forward The forward value of the underlying assert (i.e. the forward value of a stock, the forward Libor rate, etc)
+   * @param numeraire The present value of the instrument used to discount the payoff (e.g. the zero coupon bond in the T-forward measure, the swap annuity for pricing 
+   * swaptions, etc)
+   * @param sigma The Black volatility 
+   */
+  public BlackFunctionData(final double forward, final double numeraire, final double sigma) {
+   // Validate.isTrue(numeraire <= 1 && numeraire > 0, "discount factor must be <= 1 and > 0");
+    _f = forward;
+    _numeraire = numeraire;
     _sigma = sigma;
   }
 
@@ -30,7 +37,7 @@ public class BlackFunctionData {
   }
 
   public double getDiscountFactor() {
-    return _df;
+    return _numeraire;
   }
 
   public double getBlackVolatility() {
@@ -50,7 +57,7 @@ public class BlackFunctionData {
     final int prime = 31;
     int result = 1;
     long temp;
-    temp = Double.doubleToLongBits(_df);
+    temp = Double.doubleToLongBits(_numeraire);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_f);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -71,7 +78,7 @@ public class BlackFunctionData {
       return false;
     }
     final BlackFunctionData other = (BlackFunctionData) obj;
-    if (Double.doubleToLongBits(_df) != Double.doubleToLongBits(other._df)) {
+    if (Double.doubleToLongBits(_numeraire) != Double.doubleToLongBits(other._numeraire)) {
       return false;
     }
     if (Double.doubleToLongBits(_f) != Double.doubleToLongBits(other._f)) {

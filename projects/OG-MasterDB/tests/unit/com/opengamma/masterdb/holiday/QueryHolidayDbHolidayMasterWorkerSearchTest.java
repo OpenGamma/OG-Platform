@@ -5,16 +5,16 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -23,6 +23,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryHolidayDbHolidayMasterWorker.
@@ -32,6 +34,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryHolidayDbHolidayMasterWorkerSearchTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryHolidayDbHolidayMasterWorkerSearchTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -209,7 +212,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_noMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.USD);
+    request.setCurrency(Currency.USD);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -218,7 +221,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_oneMatch() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.EUR);
+    request.setCurrency(Currency.EUR);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -228,7 +231,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_currency_twoMatches() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setCurrency(CurrencyUnit.GBP);
+    request.setCurrency(Currency.GBP);
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -259,7 +262,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
     assert202(test.getDocuments().get(1));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_search_holidayIds_badSchemeValidOid() {
     HolidaySearchRequest request = new HolidaySearchRequest();
     request.addHolidayId(ObjectIdentifier.of("Rubbish", "120"));

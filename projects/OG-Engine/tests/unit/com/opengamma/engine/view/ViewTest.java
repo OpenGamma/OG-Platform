@@ -5,17 +5,15 @@
  */
 package com.opengamma.engine.view;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
-
-import org.junit.Test;
 
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.client.ViewClientState;
@@ -24,9 +22,9 @@ import com.opengamma.engine.view.compilation.ViewEvaluationModel;
 /**
  * Tests View
  */
+@Test
 public class ViewTest {
 
-  @Test
   public void testLifecycle() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
@@ -44,7 +42,6 @@ public class ViewTest {
     view.stop();
   }
   
-  @Test
   public void testLifecycleWithoutIniting() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
@@ -59,7 +56,6 @@ public class ViewTest {
     assertFalse(view.isRunning());
   }
   
-  @Test
   public void testViewAccessors() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
@@ -75,7 +71,6 @@ public class ViewTest {
     assertEquals(Collections.emptySet(), view.getAllSecurityTypes());
   }
   
-  @Test
   public void testCreateClient() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     env.init();
@@ -98,7 +93,6 @@ public class ViewTest {
     assertEquals(ViewClientState.TERMINATED, client.getState());
   }
   
-  @Test
   public void testGraphRebuild () {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment ();
     env.init ();

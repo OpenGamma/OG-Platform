@@ -10,16 +10,23 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link NodalDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original curve, then the curve cannot be shifted.
  */
 public class NodalCurveShiftFunction implements CurveShiftFunction<NodalDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -33,12 +40,20 @@ public class NodalCurveShiftFunction implements CurveShiftFunction<NodalDoublesC
     return NodalDoublesCurve.fromSorted(xData, shiftedY, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the point to shift is not a nodal point of the curve 
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double x, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, x, shift, "SINGLE_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the point to shift is not a nodal point of the curve 
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double x, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -53,12 +68,20 @@ public class NodalCurveShiftFunction implements CurveShiftFunction<NodalDoublesC
     return NodalDoublesCurve.fromSorted(xData, shiftedY, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the points to shift are not nodal points of the curve
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double[] xShift, final double[] yShift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, xShift, yShift, "MULTIPLE_POINT_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the points to shift are not nodal points of the curve
+   */
   @Override
   public NodalDoublesCurve evaluate(final NodalDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
     Validate.notNull(curve, "curve");

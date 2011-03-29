@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -37,37 +35,37 @@ public class GreekDataBundleTest {
     DATA = new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRiskFactors() {
     new GreekDataBundle(null, UNDERLYING_DATA, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingData() {
     new GreekDataBundle(GREEK_RESULTS, null, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
     new GreekDataBundle(new GreekResultCollection(), UNDERLYING_DATA, OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyUnderlyingData() {
     new GreekDataBundle(GREEK_RESULTS, Collections.<UnderlyingType, Double> emptyMap(), OPTION_TRADE_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTradeData() {
     new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetRiskFactorResults() {
     DATA.getGreekResultForGreek(Greek.GAMMA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetUnderlyingData() {
     DATA.getUnderlyingDataForType(UnderlyingType.BOND_YIELD);
   }

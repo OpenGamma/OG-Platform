@@ -9,6 +9,7 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
+import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
@@ -71,4 +72,12 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitCouponIbor(CouponIborDefinition payment, T data);
 
   U visitCouponIbor(CouponIborDefinition payment);
+
+  U visitCouponIborSpread(CouponIborDefinition payment, T data);
+
+  U visitCouponIborSpread(CouponIborDefinition payment);
+
+  U visitCouponCMS(CouponCMSDefinition payment, T data);
+
+  U visitCouponCMS(CouponCMSDefinition payment);
 }

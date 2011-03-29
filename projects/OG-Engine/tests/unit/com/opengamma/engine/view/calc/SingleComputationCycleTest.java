@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -14,7 +14,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -30,11 +30,11 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests SingleComputationCycle
  */
+@Test
 public class SingleComputationCycleTest {
 
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
   
-  @Test
   public void testInterruptCycle() throws InterruptedException {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     BlockingDependencyGraphExecutorFactory dgef = new BlockingDependencyGraphExecutorFactory(TIMEOUT);
@@ -61,7 +61,6 @@ public class SingleComputationCycleTest {
     recalcThread.interrupt();
     recalcThread.join(TIMEOUT);
     for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted (); i++) {
-      System.out.println ("waiting for executor interrupt");
       Thread.sleep (10);
     }
     assertTrue(executor.wasInterrupted());

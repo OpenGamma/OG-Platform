@@ -24,7 +24,6 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.UniqueIdentifier;
@@ -32,6 +31,7 @@ import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Loads a CSV formatted region file
@@ -210,7 +210,7 @@ public class RegionFileReader {
           region.addIdentifier(RegionUtils.financialRegionId(countryISO));  // TODO: looks odd
         }
         if (currencyISO != null) {
-          region.setCurrency(CurrencyUnit.of(currencyISO));
+          region.setCurrency(Currency.of(currencyISO));
         }
         if (sovereignity != null) {
           ManageableRegion parent = regions.get(sovereignity);

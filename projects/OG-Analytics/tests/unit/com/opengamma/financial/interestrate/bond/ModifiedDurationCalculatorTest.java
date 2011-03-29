@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 
 /**
@@ -19,22 +17,22 @@ public class ModifiedDurationCalculatorTest {
   private static final ModifiedDurationCalculator MDC = new ModifiedDurationCalculator();
   private static final String CURVE_NAME = "Test Curve";
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
     MDC.calculate(null, 1.0, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDirtyPrice() {
     MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.02, CURVE_NAME), -100, 4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCompoundingFrequency() {
     MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.02, CURVE_NAME), 100, -3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroPrice() {
     final int n = 10;
     final double[] paymentTimes = new double[n];
@@ -46,7 +44,7 @@ public class ModifiedDurationCalculatorTest {
     MDC.calculate(bond, 0.0, 2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroCompondFreq() {
     final int n = 10;
     final double[] paymentTimes = new double[n];

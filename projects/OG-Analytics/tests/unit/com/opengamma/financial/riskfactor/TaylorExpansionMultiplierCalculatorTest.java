@@ -5,18 +5,16 @@
  */
 package com.opengamma.financial.riskfactor;
 
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator.getMultiplier;
 import static com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator.getTimeSeries;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.financial.greeks.NthOrderUnderlying;
@@ -73,47 +71,47 @@ public class TaylorExpansionMultiplierCalculatorTest {
     MIXED_ORDER = new MixedOrderUnderlying(Arrays.asList(new NthOrderUnderlying(4, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(5, UnderlyingType.IMPLIED_VOLATILITY)));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOrder1() {
     getMultiplier(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUnderlyingType1() {
     getMultiplier(NEW_TYPE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
     getTimeSeries(UNDERLYING_DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMap() {
     getTimeSeries(null, FIRST_ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyMap() {
     getTimeSeries(Collections.<UnderlyingType, DoubleTimeSeries<?>> emptyMap(), FIRST_ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUnderlyingType2() {
     getTimeSeries(UNDERLYING_DATA, NEW_TYPE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKey() {
     getTimeSeries(Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(null, X), FIFTH_ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     getTimeSeries(Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, null), FIFTH_ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongTSLength() {
     final DoubleTimeSeries<?> z = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
     final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
@@ -122,7 +120,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
     getTimeSeries(m, MIXED_ORDER);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongTSTimes() {
     final int n = 100;
     final long[] t = new long[n];

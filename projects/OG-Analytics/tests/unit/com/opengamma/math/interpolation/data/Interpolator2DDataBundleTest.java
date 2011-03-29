@@ -5,11 +5,10 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -19,27 +18,27 @@ public class Interpolator2DDataBundleTest {
   private static final double[] Y = new double[] {10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
   private static final double[] Z = new double[] {20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX() {
     new Interpolator2DDataBundle(null, Y, Z);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY() {
     new Interpolator2DDataBundle(X, null, Z);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullZ() {
     new Interpolator2DDataBundle(X, Y, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY() {
     new Interpolator2DDataBundle(X, new double[] {1, 2, 3}, Z);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ() {
     new Interpolator2DDataBundle(X, Y, new double[] {1, 2, 3});
   }

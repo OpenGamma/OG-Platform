@@ -11,17 +11,28 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 
 /**
- * 
+ * Class that calculates the real roots of a quadratic function. 
+ * <p>
+ * The roots can be found analytically. For a quadratic {@latex.inline $ax^2 + bx + c = 0$}, the roots are given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * x_{1, 2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+ * \\end{align*}
+ * }
+ * If no real roots exist (i.e. {@latex.inline $b^2 - 4ac < 0$}) then an exception is thrown.
  */
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the function is not a quadratic
+   * @throws MathException If the roots are not real
+   */
   @Override
   public Double[] getRoots(final RealPolynomialFunction1D function) {
     Validate.notNull(function, "function");
     final double[] coefficients = function.getCoefficients();
-    if (coefficients.length != 3) {
-      throw new IllegalArgumentException("Function is not a quadratic");
-    }
+    Validate.isTrue(coefficients.length == 3, "Function is not a quadratic");
     final double c = coefficients[0];
     final double b = coefficients[1];
     final double a = coefficients[2];

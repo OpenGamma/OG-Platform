@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -16,20 +15,20 @@ import org.junit.Test;
 public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis(0.05);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new DifferenceSignIIDHypothesis(-0.1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new DifferenceSignIIDHypothesis(1.5);
   }
 
   @Test
   public void test() {
-    super.testNullTS(DIFFERENCE_SIGN);
-    super.testEmptyTS(DIFFERENCE_SIGN);
+    super.assertNullTS(DIFFERENCE_SIGN);
+    super.assertEmptyTS(DIFFERENCE_SIGN);
     assertTrue(DIFFERENCE_SIGN.evaluate(RANDOM));
     assertTrue(DIFFERENCE_SIGN.evaluate(SIGNAL));
     assertFalse(DIFFERENCE_SIGN.evaluate(INCREASING));

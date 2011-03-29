@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Suite" parallel="false">
+  <test name="Test" preserve-order="false">
+    <classes>
+      <class name="com.opengamma.livedata.LiveDataSpecificationTest"/>
+      <class name="com.opengamma.livedata.client.DistributedLiveDataClientTest"/>
+      <class name="com.opengamma.livedata.client.DistributedSpecificationResolverTest"/>
+      <class name="com.opengamma.livedata.client.HeartbeatSenderTest"/>
+      <class name="com.opengamma.livedata.client.SubscriptionHandleTest"/>
+      <class name="com.opengamma.livedata.client.ValueDistributorTest"/>
+      <class name="com.opengamma.livedata.entitlement.DistributedEntitlementCheckerTest"/>
+      <class name="com.opengamma.livedata.entitlement.UserEntitlementCheckerTest"/>
+      <class name="com.opengamma.livedata.msg.LiveDataSubscriptionResponseTest"/>
+      <class name="com.opengamma.livedata.normalization.FieldFilterTest"/>
+      <class name="com.opengamma.livedata.normalization.FieldNameChangeTest"/>
+      <class name="com.opengamma.livedata.normalization.ImpliedVolatilityCalculatorTest"/>
+      <class name="com.opengamma.livedata.normalization.MarketValueCalculatorTest"/>
+      <class name="com.opengamma.livedata.normalization.NormalizationRuleSetTest"/>
+      <class name="com.opengamma.livedata.normalization.RequiredFieldFilterTest"/>
+      <class name="com.opengamma.livedata.normalization.StandardRulesTest"/>
+      <class name="com.opengamma.livedata.normalization.StandardRuleResolverTest"/>
+      <class name="com.opengamma.livedata.normalization.UnitChangeTest"/>
+      <class name="com.opengamma.livedata.resolver.EHCachingDistributionSpecificationResolverTest"/>
+      <class name="com.opengamma.livedata.server.ExpirationManagerTest"/>
+      <class name="com.opengamma.livedata.server.MockLiveDataServerTest"/>
+      <class name="com.opengamma.livedata.server.MongoDBPersistentSubscriptionManagerTest"/>
+      <class name="com.opengamma.livedata.server.ReconnectManagerTest"/>
+      <class name="com.opengamma.livedata.server.distribution.JmsSenderTest"/>
+      <class name="com.opengamma.livedata.server.distribution.MarketDataDistributorTest"/>
+    </classes>
+  </test>
+</suite>

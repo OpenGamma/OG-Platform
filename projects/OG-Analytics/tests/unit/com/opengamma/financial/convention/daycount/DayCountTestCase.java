@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
-
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -26,17 +25,17 @@ public abstract class DayCountTestCase {
 
   protected abstract DayCount getDayCount();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate() {
     getDayCount().getDayCountFraction(null, D2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondDate() {
     getDayCount().getDayCountFraction(D1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testWrongOrder() {
     getDayCount().getDayCountFraction(D2, D1);
   }

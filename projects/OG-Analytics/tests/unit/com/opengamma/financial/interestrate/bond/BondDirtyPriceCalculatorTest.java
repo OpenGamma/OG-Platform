@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -25,17 +23,17 @@ public class BondDirtyPriceCalculatorTest {
   private static final double CLEAN_PRICE = 1.03;
   private static final Bond BOND = new Bond(new double[] {1, 2, 3}, new double[] {0.02, 0.02, 0.02}, new double[] {1, 1, 1}, ACCRUED_INTEREST, "A");
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond1() {
     CALCULATOR.calculate(null, 100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond2() {
     CALCULATOR.calculate(null, CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves() {
     CALCULATOR.calculate(BOND, null);
   }

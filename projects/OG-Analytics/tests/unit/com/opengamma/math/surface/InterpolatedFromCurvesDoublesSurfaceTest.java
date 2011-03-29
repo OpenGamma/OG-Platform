@@ -5,11 +5,11 @@
  */
 package com.opengamma.math.surface;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.Curve;
@@ -254,329 +252,329 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
     assertArrayEquals(SURFACE.getCurves(), CURVES_SORTED);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetX() {
     SURFACE.getXData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetY() {
     SURFACE.getYData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetZ() {
     SURFACE.getZData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSize() {
     SURFACE.size();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX1() {
     SURFACE.getZValue(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY1() {
     SURFACE.getZValue(1., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
     SURFACE.getZValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX2() {
     SURFACE.getZValue(Pair.of((Double) null, 2.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY2() {
     SURFACE.getZValue(Pair.of(1., (Double) null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     new InterpolatedFromCurvesDoublesSurface(true, (double[]) null, CURVES, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, (Curve<Double, Double>[]) null, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, CURVES, null, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, new Curve[] {C1, C2, C3, C4, C5, null}, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     new InterpolatedFromCurvesDoublesSurface(true, (Double[]) null, CURVES, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[] {1., 2., 3., 4., 5., null}, CURVES, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull7() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, (Curve<Double, Double>[]) null, INTERPOLATOR, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull8() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, new Curve[] {C1, C2, C3, C4, C5, null}, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull9() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, CURVES, null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull10() {
     new InterpolatedFromCurvesDoublesSurface(true, (List<Double>) null, CURVES_LIST, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull11() {
     new InterpolatedFromCurvesDoublesSurface(true, Arrays.asList(1., 2., 3., 4., 5., null), CURVES_LIST, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull12() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_LIST, (List<Curve<Double, Double>>) null, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull13() {
     new InterpolatedFromCurvesDoublesSurface(true, (Map<Double, Curve<Double, Double>>) null, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull14() {
     final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
     m.put(null, C1);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull15() {
     final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
     m.put(2., null);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull16() {
     new InterpolatedFromCurvesDoublesSurface(true, MAP, null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull17() {
     new InterpolatedFromCurvesDoublesSurface(true, (double[]) null, CURVES, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull18() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, (Curve<Double, Double>[]) null, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull19() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, CURVES, null, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull20() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, new Curve[] {C1, C2, C3, C4, C5, null}, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull21() {
     new InterpolatedFromCurvesDoublesSurface(true, (Double[]) null, CURVES, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull22() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[] {1., 2., 3., 4., 5., null}, CURVES, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull23() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, (Curve<Double, Double>[]) null, INTERPOLATOR, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull24() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, new Curve[] {C1, C2, C3, C4, C5, null}, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull25() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, CURVES, null, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull26() {
     new InterpolatedFromCurvesDoublesSurface(true, (List<Double>) null, CURVES_LIST, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull27() {
     new InterpolatedFromCurvesDoublesSurface(true, Arrays.asList(1., 2., 3., 4., 5., null), CURVES_LIST, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull28() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_LIST, (List<Curve<Double, Double>>) null, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull29() {
     new InterpolatedFromCurvesDoublesSurface(true, (Map<Double, Curve<Double, Double>>) null, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull30() {
     final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
     m.put(null, C1);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull31() {
     final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
     m.put(2., null);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull32() {
     new InterpolatedFromCurvesDoublesSurface(true, MAP, null, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty1() {
     new InterpolatedFromCurvesDoublesSurface(true, new double[0], new Curve[0], INTERPOLATOR, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty2() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[0], new Curve[0], INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty3() {
     new InterpolatedFromCurvesDoublesSurface(true, new ArrayList<Double>(), new ArrayList<Curve<Double, Double>>(), INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty4() {
     new InterpolatedFromCurvesDoublesSurface(true, Collections.<Double, Curve<Double, Double>> emptyMap(), INTERPOLATOR, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty5() {
     new InterpolatedFromCurvesDoublesSurface(true, new double[0], new Curve[0], INTERPOLATOR, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty6() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[0], new Curve[0], INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty7() {
     new InterpolatedFromCurvesDoublesSurface(true, new ArrayList<Double>(), new ArrayList<Curve<Double, Double>>(), INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty8() {
     new InterpolatedFromCurvesDoublesSurface(true, Collections.<Double, Curve<Double, Double>> emptyMap(), INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength1() {
     new InterpolatedFromCurvesDoublesSurface(true, new double[] {1}, CURVES, INTERPOLATOR, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength2() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, new Curve[] {C1}, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength3() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[] {1.}, CURVES, INTERPOLATOR, false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength4() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, new Curve[] {C1}, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength5() {
     new InterpolatedFromCurvesDoublesSurface(true, Arrays.asList(2.), CURVES_LIST, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength6() {
     final List<Curve<Double, Double>> l = new ArrayList<Curve<Double, Double>>();
     l.add(C1);
     new InterpolatedFromCurvesDoublesSurface(true, POINT_LIST, l, INTERPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength7() {
     new InterpolatedFromCurvesDoublesSurface(true, new double[] {1}, CURVES, INTERPOLATOR, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength8() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_PRIMITIVE, new Curve[] {C1}, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength9() {
     new InterpolatedFromCurvesDoublesSurface(true, new Double[] {1.}, CURVES, INTERPOLATOR, false, NAME);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength10() {
     new InterpolatedFromCurvesDoublesSurface(true, POINT_OBJECT, new Curve[] {C1}, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength11() {
     new InterpolatedFromCurvesDoublesSurface(true, Arrays.asList(2.), CURVES_LIST, INTERPOLATOR, false, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength12() {
     final List<Curve<Double, Double>> l = new ArrayList<Curve<Double, Double>>();
     l.add(C1);

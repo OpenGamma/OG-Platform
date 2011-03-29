@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.BitSet;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,18 +96,20 @@ public class HestonFitterTest {
 
   @Test
   public void testExactFit() {
-    testExactFit(FFT_VOLS, "FFT vols", ERRORS);
-    testExactFit(FFT_VOLS, "FFT vols", null);
+    assertExactFit(FFT_VOLS, "FFT vols", ERRORS);
+    assertExactFit(FFT_VOLS, "FFT vols", null);
     final double[] pErrors = new double[N];
     for (int i = 0; i < N; i++) {
       pErrors[i] = ERRORS[i] * BLACK_PRICE.getVegaFunction(OPTIONS[i]).evaluate(BLACK_VOLS[i]);
     }
-    testExactFit(FFT_PRICE, "FFT price", pErrors);
-    testExactFit(FOURIER, "Fourier", ERRORS);
-    testExactFit(FOURIER, "Fourier", null);
+    assertExactFit(FFT_PRICE, "FFT price", pErrors);
+    assertExactFit(FOURIER, "Fourier", ERRORS);
+    assertExactFit(FOURIER, "Fourier", null);
   }
-
-  private void testExactFit(final LeastSquareSmileFitter fitter, final String name, final double[] errors) {
+  
+  //FIXME: tests don't pass at all
+  @SuppressWarnings("unused")
+  private void assertExactFit(final LeastSquareSmileFitter fitter, final String name, final double[] errors) {
     final double[] temp = new double[] {1.0, 0.04, VOL0, 0.2, 0.0};
     for (int i = 0; i < _hotspotWarmupCycles; i++) {
       final LeastSquareResults results = fitter.getFitResult(OPTIONS, BLACK_VOLS, errors, temp, new BitSet());

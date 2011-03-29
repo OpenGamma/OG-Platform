@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.surface;
 
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.surface.SurfaceShiftFunctionFactory.getFunction;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.math.function.Function;
@@ -74,37 +72,37 @@ public class SurfaceShiftFunctionFactoryTest {
       new Curve[] {NodalDoublesCurve.from(new double[] {1, 2 }, new double[] {3, 4 }) }, LINEAR);
   private static final NodalDoublesSurface NODAL = NodalDoublesSurface.from(new double[] {1, 2 }, new double[] {1, 2 }, new double[] {1.2, 3.4 });
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongClass() {
     SurfaceShiftFunctionFactory.getFunction(Double.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType1() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, .2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType2() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, 1, 2, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType3() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1 }, new double[] {2 }, new double[] {3 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType4() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, .2, "N");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType5() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, 1, 2, 3, "N");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType6() {
     SurfaceShiftFunctionFactory.getShiftedSurface(DUMMY, new double[] {1 }, new double[] {2 }, new double[] {3 }, "N");
   }
@@ -166,22 +164,22 @@ public class SurfaceShiftFunctionFactoryTest {
     assertEquals(shifted.getName(), expected.getName());
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported1() {
     SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, 1, 1, 2);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported2() {
     SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, 1, 1, 2, "M");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported3() {
     SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, 1, 1, 2);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported4() {
     SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, 1, 1, 2, "M");
   }
@@ -219,22 +217,22 @@ public class SurfaceShiftFunctionFactoryTest {
     assertEquals(shifted, expected);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported5() {
     SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1 }, new double[] {1 }, new double[] {2 });
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported6() {
     SurfaceShiftFunctionFactory.getShiftedSurface(CONSTANT, new double[] {1 }, new double[] {1 }, new double[] {2 }, "M");
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported7() {
     SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1 }, new double[] {1 }, new double[] {2 });
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetShiftedSurfaceUnsupported8() {
     SurfaceShiftFunctionFactory.getShiftedSurface(FUNCTIONAL, new double[] {1 }, new double[] {1 }, new double[] {2 }, "M");
   }

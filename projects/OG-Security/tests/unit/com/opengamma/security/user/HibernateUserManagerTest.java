@@ -5,14 +5,21 @@
  */
 package com.opengamma.security.user;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
@@ -22,6 +29,7 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
 
   private HibernateUserManager _userManager;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
@@ -31,20 +39,24 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     return new HibernateUserManagerFiles().getHibernateMappingFiles();
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    
     _userManager = new HibernateUserManager(getSessionFactory());
     
     System.err.println("User Manager initialization complete:" + _userManager);
   }
-  
+
+  @AfterMethod
+  public void tearDown() throws Exception {
+    super.tearDown();
+  }
+
   @Test
   public void testUserManagement() {
     // Try to get non-existent
     User user = _userManager.getUser("nonexistentuser");
-    Assert.assertNull(user);
+    assertNull(user);
     
     // Clear DB as necessary
     user = _userManager.getUser("testuser");
@@ -69,13 +81,13 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     user.setPassword("modifiedtestpw");
     _userManager.updateUser(user);
     user = _userManager.getUser("testuser"); 
-    Assert.assertNotNull(user);
-    Assert.assertTrue(user.checkPassword("modifiedtestpw"));
+    assertNotNull(user);
+    assertTrue(user.checkPassword("modifiedtestpw"));
     
     // Delete
     _userManager.deleteUser(user);
     user = _userManager.getUser("testuser");
-    Assert.assertNull(user);
+    assertNull(user);
   }
 
   private User getTestUser() {
@@ -86,12 +98,12 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     user.setLastLogin(new Date());
     return user;
   }
-  
+
   @Test
   public void testUserGroupManagement() {
     // Try to get non-existent
     UserGroup userGroup = _userManager.getUserGroup("nonexistentusergroup");
-    Assert.assertNull(userGroup);
+    assertNull(userGroup);
     
     // Clear DB as necessary
     userGroup = _userManager.getUserGroup("testusergroup");
@@ -127,20 +139,20 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     userGroup.getAuthorities().add(additionalAuthority);
     _userManager.updateUserGroup(userGroup);
     userGroup = _userManager.getUserGroup("testusergroup");
-    Assert.assertNotNull(userGroup);
-    Assert.assertTrue(userGroup.getAuthorities().contains(additionalAuthority));
+    assertNotNull(userGroup);
+    assertTrue(userGroup.getAuthorities().contains(additionalAuthority));
     
     // Delete
     _userManager.deleteUserGroup(userGroup);
     userGroup  = _userManager.getUserGroup("testusergroup");
-    Assert.assertNull(userGroup);
+    assertNull(userGroup);
   }
 
-  @Test 
+  @Test
   public void testAuthorityManagement() {
     // Try to get non-existent
     Authority authority = _userManager.getAuthority("nonexistentauthority");
-    Assert.assertNull(authority);
+    assertNull(authority);
     
     // Clear DB as necessary
     authority = _userManager.getAuthority("authority");
@@ -156,14 +168,15 @@ public class HibernateUserManagerTest extends TransactionalHibernateTest {
     authority.setRegex("newregex");
     _userManager.updateAuthority(authority);
     authority = _userManager.getAuthority("regex");
-    Assert.assertNull(authority);
+    assertNull(authority);
     authority = _userManager.getAuthority("newregex");
-    Assert.assertNotNull(authority);
-    Assert.assertEquals("newregex", authority.getRegex());
+    assertNotNull(authority);
+    assertEquals("newregex", authority.getRegex());
     
     // Delete
     _userManager.deleteAuthority(authority);
     authority = _userManager.getAuthority("newregex");
-    Assert.assertNull(authority);
+    assertNull(authority);
   }
+
 }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.var;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
@@ -38,37 +36,37 @@ public class NormalLinearVaRCalculatorTest {
   };
   private static final NormalLinearVaRCalculator<Double> CALCULATOR = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN_CALCULATOR, STD_CALCULATOR);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new NormalLinearVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, MEAN_CALCULATOR, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePeriod() {
     new NormalLinearVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, MEAN_CALCULATOR, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQuantile() {
     new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, -QUANTILE, MEAN_CALCULATOR, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighQuantile() {
     new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, 1 + QUANTILE, MEAN_CALCULATOR, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
     new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null, STD_CALCULATOR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
     new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN_CALCULATOR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.evaluate((Double[]) null);
   }

@@ -5,19 +5,18 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -35,13 +34,14 @@ public class DbConfigMasterTest extends DBTest {
 
   private DbConfigMaster _cfgMaster;
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public DbConfigMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
@@ -49,12 +49,11 @@ public class DbConfigMasterTest extends DBTest {
     _cfgMaster = master;
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
-    super.tearDown();
     _cfgMaster = null;
+    super.tearDown();
   }
-
 
   //-------------------------------------------------------------------------
   @Test
@@ -102,7 +101,7 @@ public class DbConfigMasterTest extends DBTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_type() throws Exception {
     ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>();
     identifierDoc.setName("Identifier test");

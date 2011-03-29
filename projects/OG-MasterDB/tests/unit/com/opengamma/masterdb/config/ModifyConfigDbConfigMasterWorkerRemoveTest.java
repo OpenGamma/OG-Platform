@@ -5,20 +5,22 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -28,6 +30,7 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerRemoveTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyConfigDbConfigMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -35,7 +38,7 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_removeConfig_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     _cfgMaster.remove(uid);

@@ -5,8 +5,8 @@
  */
 package com.opengamma.masterdb.batch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -19,9 +19,10 @@ import java.util.Set;
 
 import javax.time.Instant;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.impl.PositionImpl;
@@ -47,13 +48,14 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.HibernateTest;
 
 /**
- * 
+ * Test command line.
  */
 public class CommandLineBatchResultWriterTest extends HibernateTest {
-  
+
   private RiskRun _riskRun;
   private ObservationDateTime _observationDateTime;
   private ObservationTime _observationTime;
@@ -73,15 +75,15 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
   private CalculationJob _calcJob;
   
   private HibernateTemplate _hibernateTemplate;
-  
+
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public CommandLineBatchResultWriterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
-  @Before
+
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    
     Instant now = Instant.now();
     
     _hibernateTemplate = new HibernateTemplate(getSessionFactory());
@@ -165,11 +167,8 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
 
     getSessionFactory().getCurrentSession().getTransaction().commit();
   }
-  
-  
-  // --------------------------------------------------------------------------
-  
-  
+
+  //-------------------------------------------------------------------------
   private CommandLineBatchResultWriter getSuccessResultWriter() {
     CalculationJobResultItem item = new CalculationJobResultItem(_calcJob.getJobItems().get(0));
     CalculationJobResult result = new CalculationJobResult(

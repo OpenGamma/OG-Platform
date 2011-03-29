@@ -5,20 +5,22 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryConfigDbConfigMasterWorker.
@@ -28,6 +30,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerHistoryTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryConfigDbConfigMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -35,7 +38,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
   }
   
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_invalid_historyRequest() {
     ConfigHistoryRequest<Identifier> request = new ConfigHistoryRequest<Identifier>();
     _cfgMaster.history(request);

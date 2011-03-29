@@ -14,12 +14,12 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.region.Region;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.money.Currency;
 
 /**
  * Temporary adapter to make the existing Calendar interface work with the holiday repository.  THIS MUST BE REFACTORED.
@@ -32,7 +32,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   private final HolidaySource _holidaySource;
   private Set<Region> _regions;
   private Exchange _exchange;
-  private CurrencyUnit _currency;
+  private Currency _currency;
   private final HolidayType _type;
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
@@ -57,7 +57,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     _type = type;
   }
 
-  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final CurrencyUnit currency) {
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency currency) {
     Validate.notNull(holidaySource);
     Validate.notNull(currency);
     _holidaySource = holidaySource;

@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -18,17 +17,17 @@ public class BondFutureDeliverableBasketDataBundleTest {
   private static final double[] CLEAN_PRICES = new double[] {101., 102., 103., 104.};
   private static final double[] REPO_RATES = new double[] {0.03, 0.04, 0.04, 0.01};
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCleanPrices() {
     new BondFutureDeliverableBasketDataBundle(null, REPO_RATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRepoRates() {
     new BondFutureDeliverableBasketDataBundle(CLEAN_PRICES, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testArrays() {
     new BondFutureDeliverableBasketDataBundle(new double[] {100., 103.}, REPO_RATES);
   }

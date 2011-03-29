@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
@@ -42,13 +43,22 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class YieldCurveFittingFromMarketDataTest extends YieldCurveFittingSetup {
+  private static final Logger LOGGER = LoggerFactory.getLogger(YieldCurveFittingFromMarketDataTest.class);
+  private static final int WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
 
-  public YieldCurveFittingFromMarketDataTest() {
-    _logger = LoggerFactory.getLogger(YieldCurveFittingFromMarketDataTest.class);
-    _hotspotWarmupCycles = 0;
-    _benchmarkCycles = 1;
+  protected Logger getLogger() {
+    return LOGGER;
   }
-
+  
+  protected int getWarmupCycles() {
+    return WARMUP_CYCLES;
+  }
+  
+  protected int getBenchmarkCycles() {
+    return BENCHMARK_CYCLES;
+  }
+  
   @Test
   public void testNewton() {
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);

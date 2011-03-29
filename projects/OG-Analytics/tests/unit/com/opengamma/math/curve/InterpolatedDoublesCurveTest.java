@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.ExponentialInterpolator1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -199,13 +197,13 @@ public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
     assertEquals(curve.getInterpolator(), EXPONENTIAL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonExtrapolatingInterpolator1() {
     final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(MAP, LINEAR, NAME1);
     curve.getYValue(-20.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonExtrapolatingInterpolator2() {
     final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(MAP, LINEAR, NAME1);
     curve.getYValue(120.);

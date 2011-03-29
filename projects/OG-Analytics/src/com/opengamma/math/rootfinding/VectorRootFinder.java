@@ -11,11 +11,32 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
- * The most common type of multi-dimensional root finding where one has a vector function (i.e maps a DoubleMatrix1D to a DoubleMatrix1D)
- * and wishes to find the vector root
+ * Parent class for root-finders that calculate a root for a vector function (i.e. {@latex.inline $\\mathbf{y} = f(\\mathbf{x})$}, where 
+ * {@latex.inline $\\mathbf{x}$} and {@latex.inline $\\mathbf{y}$} are vectors). 
  */
-public abstract class VectorRootFinder implements MultiDimensionalRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
+public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
 
+  /**
+   * {@inheritDoc}
+   * Vector root finders only need a single starting point; if more than one is provided, the first is used and any other points ignored.
+   */
+  @Override
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DoubleMatrix1D... startingPoint) {
+    Validate.notNull(startingPoint, "starting point");
+    return getRoot(function, startingPoint[0]);
+  }
+
+  /**
+   * @param function The (vector) function, not null
+   * @param x0 The starting point, not null
+   * @return The vector root of this function
+   */
+  public abstract DoubleMatrix1D getRoot(Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DoubleMatrix1D x0);
+
+  /**
+   * @param function The function, not null
+   * @param x0 The starting point, not null
+   */
   protected void checkInputs(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D x0) {
     Validate.notNull(function);
     Validate.notNull(x0);

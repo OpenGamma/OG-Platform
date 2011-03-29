@@ -27,15 +27,17 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * 
- *   Wraps an OpenGamma class in the analogous Commons Math class.
- *
+ * Utility class for converting OpenGamma mathematical objects into <a href="http://commons.apache.org/math/api-2.1/index.html">Commons</a> objects and vice versa.
  */
 public final class CommonsMathWrapper {
 
   private CommonsMathWrapper() {
   }
 
+  /**
+   * @param f An OG 1-D function mapping doubles onto doubles, not null 
+   * @return A Commons univariate real function
+   */
   public static UnivariateRealFunction wrapUnivariate(final Function1D<Double, Double> f) {
     Validate.notNull(f);
     return new UnivariateRealFunction() {
@@ -47,6 +49,10 @@ public final class CommonsMathWrapper {
     };
   }
 
+  /**
+   * @param f An OG 1-D function mapping vectors of doubles onto doubles, not null
+   * @return A Commons multivariate real function
+   */
   public static MultivariateRealFunction wrapMultivariate(final Function1D<DoubleMatrix1D, Double> f) {
     Validate.notNull(f);
     return new MultivariateRealFunction() {
@@ -59,6 +65,10 @@ public final class CommonsMathWrapper {
     };
   }
 
+  /**
+   * @param f An OG n-D function mapping doubles onto doubles, not null
+   * @return A Commons multivariate real function
+   */
   public static MultivariateRealFunction wrap(final FunctionND<Double, Double> f) {
     Validate.notNull(f);
     return new MultivariateRealFunction() {
@@ -75,11 +85,19 @@ public final class CommonsMathWrapper {
     };
   }
 
+  /**
+   * @param x An OG 2-D matrix of doubles, not null
+   * @return A Commons matrix
+   */
   public static RealMatrix wrap(final DoubleMatrix2D x) {
     Validate.notNull(x);
     return new Array2DRowRealMatrix(x.getData());
   }
 
+  /**
+   * @param x An OG 1-D vector of doubles, not null
+   * @return A Commons matrix 
+   */
   public static RealMatrix wrapAsMatrix(final DoubleMatrix1D x) {
     Validate.notNull(x);
     final int n = x.getNumberOfElements();
@@ -90,26 +108,46 @@ public final class CommonsMathWrapper {
     return new Array2DRowRealMatrix(x.getData());
   }
 
+  /**
+   * @param x A Commons matrix, not null
+   * @return An OG 2-D matrix of doubles
+   */
   public static DoubleMatrix2D unwrap(final RealMatrix x) {
     Validate.notNull(x);
     return new DoubleMatrix2D(x.getData());
   }
 
+  /**
+   * @param x An OG vector of doubles, not null
+   * @return A Commons vector
+   */
   public static RealVector wrap(final DoubleMatrix1D x) {
     Validate.notNull(x);
     return new ArrayRealVector(x.getData());
   }
 
+  /**
+   * @param x A Commons vector, not null
+   * @return An OG 1-D matrix of doubles
+   */
   public static DoubleMatrix1D unwrap(final RealVector x) {
     Validate.notNull(x);
     return new DoubleMatrix1D(x.getData());
   }
 
+  /**
+   * @param z An OG complex number, not null
+   * @return A Commons complex number
+   */
   public static Complex wrap(final ComplexNumber z) {
     Validate.notNull(z);
     return new Complex(z.getReal(), z.getImaginary());
   }
 
+  /**
+   * @param lagrange A Commons polynomial in Lagrange form, not null
+   * @return An OG 1-D function mapping doubles to doubles
+   */
   public static Function1D<Double, Double> unwrap(final PolynomialFunctionLagrangeForm lagrange) {
     Validate.notNull(lagrange);
     return new Function1D<Double, Double>() {
@@ -126,11 +164,19 @@ public final class CommonsMathWrapper {
     };
   }
 
+  /**
+   * @param x A Commons pair of <i>(x, f(x))</i>, not null
+   * @return A matrix of double with the <i>x</i> as the first element and <i>f(x)</i> the second
+   */
   public static double[] unwrap(final RealPointValuePair x) {
     Validate.notNull(x);
     return x.getPoint();
   }
 
+  /**
+   * @param f An OG 1-D function mapping doubles to doubles, not null
+   * @return A Commons differentiable univariate real function
+   */
   public static DifferentiableUnivariateRealFunction wrapDifferentiable(final DoubleFunction1D f) {
     Validate.notNull(f);
     return new DifferentiableUnivariateRealFunction() {

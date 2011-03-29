@@ -14,12 +14,39 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
+ * The Jarrow-Rudd option pricing formula extends the Black-Scholes-Merton model for non-normal skewness and kurtosis in the underlying
+ * price distribution.
+ * <p>
+ * The price of a call option is given by
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c = c_{BSM} + \\lambda_1 Q_3 + \\lambda_2 Q_4
+ * \\end{align*}
+ * }
+ * {@latex.inline $c_{BSM}$} is the Black-Scholes-Merton call price (see {@link BlackScholesMertonModel}) and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * d_1 &= \\frac{\\ln(\\frac{S}{K} + (r + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}\\\\
+ * d_2 &= d_1 - \\sigma\\sqrt{T}\\\\
+ * Q_3 &= -\\frac{(Se^{-rT})^3(e^{\\sigma^2 T} - 1)^{\\frac{3}{2}} e^{-rT}}{6}\\frac{da(X)}{dS}\\\\
+ * Q_4 &= \\frac{(Se^{-rT})^4(e^{\\sigma^2 T} - 1)^2 e^{-rT}}{24}\\frac{d^2a(X)}{dS^2}\\\\
+ * \\lambda_1 &= \\gamma_1(F) - \\gamma_1(A)\\\\
+ * \\lambda_2 &= \\gamma_2(F) - \\gamma_2(A)\\\\
+ * a(X) &= \\frac{e^{-\\frac{d_2^2}{2}}}{2\\pi K\\sigma\\sqrt{T}}
+ * \\end{align*}
+ * }
+ * The skewness ({@latex.inline $\\gamma_1(A)$}) and kurtosis ({@latex.inline $\\gamma_2(A)$}) of a lognormal distribution are {@latex.inline $\\gamma_1 = 3y + y^3$} 
+ * and {@latex.inline $\\gamma_2 = 16y^2 + 15y^4 + 6y^6 + y^8$} where {@latex.inline $y = \\sqrt{e^{\\sigma^2 T} - 1}$}. {@latex.inline $\\gamma_1(F)$} are {@latex.inline $\\gamma_2(F)$} are the
+ * observed skewness and kurtosis of the underlying price distribution.
+ * <p>
+ * Put options are priced using put-call parity.
  */
-
 public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);

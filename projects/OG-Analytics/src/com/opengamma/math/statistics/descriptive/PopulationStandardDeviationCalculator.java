@@ -13,15 +13,13 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class PopulationStandardDeviationCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _variance = new PopulationVarianceCalculator();
+  private static final Function1D<double[], Double> VARIANCE = new PopulationVarianceCalculator();
 
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least two points to calculate standard deviation");
-    }
-    return Math.sqrt(_variance.evaluate(x));
+    Validate.isTrue(x.length > 1, "Need at least two points to calculate standard deviation");
+    return Math.sqrt(VARIANCE.evaluate(x));
   }
 
 }

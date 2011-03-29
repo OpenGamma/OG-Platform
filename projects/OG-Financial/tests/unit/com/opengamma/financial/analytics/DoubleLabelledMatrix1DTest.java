@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  * 
@@ -175,7 +173,7 @@ public class DoubleLabelledMatrix1DTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddSameTimesNoTolerance() {
     final LabelledMatrix1D<Double, Double> sum = M1.addIgnoringLabel(M5);
     final Double[] times = sum.getKeys();
@@ -188,7 +186,7 @@ public class DoubleLabelledMatrix1DTest {
     M1.add(new DoubleLabelledMatrix1D(TIMES2, labels, VALUES2));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddNewTimes() {
     LabelledMatrix1D<Double, Double> sum = M1.add(M3);
     Double[] times = sum.getKeys();

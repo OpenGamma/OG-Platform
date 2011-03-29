@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics.timeseries.sampling;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.schedule.DailyScheduleCalculator;
@@ -39,12 +37,12 @@ public class HolidayDateRemovalFunctionTest {
   private static final LocalDate END = LocalDate.of(2010, 1, 1);
   private static final LocalDate[] SCHEDULE = DAILY.getSchedule(START, END, true, false);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates() {
     F.getStrippedSchedule(null, WEEKEND_CALENDAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullHolidays() {
     F.getStrippedSchedule(SCHEDULE, null);
   }

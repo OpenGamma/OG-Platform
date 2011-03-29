@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
 
 
 /**
@@ -21,13 +21,13 @@ public class SABRPaulotVolatilityFunctionTest extends SABRVolatilityFunctionTest
   }
 
   @Override
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testApproachingLogNormalEquivalent2() {
     getFunction().getVolatilityFunction(OPTION).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT2);
   }
 
   @Override
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testApproachingLogNormalEquivalent3() {
     getFunction().getVolatilityFunction(OPTION).evaluate(APPROACHING_LOG_NORMAL_EQUIVALENT3);
   }

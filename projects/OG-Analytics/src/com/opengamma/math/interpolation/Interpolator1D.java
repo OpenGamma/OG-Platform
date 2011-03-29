@@ -20,6 +20,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  */
 
 public abstract class Interpolator1D<T extends Interpolator1DDataBundle> implements Interpolator<T, Double>, Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * Default accuracy
    */

@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -24,17 +23,17 @@ public class NormalPriceFunctionTest {
   private static final BlackFunctionData ZERO_VOL_DATA = new BlackFunctionData(F, DF, 0);
   private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption1() {
     FUNCTION.getPriceFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption2() {
     FUNCTION.getPriceFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     FUNCTION.getPriceFunction(ITM_CALL).evaluate((BlackFunctionData) null);
   }

@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.instrument.bond;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -38,97 +36,97 @@ public class BondDefinitionTest {
   private static final BondDefinition DEFINITION = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDates1() {
     new BondDefinition(null, SETTLEMENT_DATES, COUPON, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDate1() {
     new BondDefinition(new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1), null}, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyNominalDates1() {
     new BondDefinition(new LocalDate[] {}, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDates1() {
     new BondDefinition(NOMINAL_DATES, null, COUPON, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDate1() {
     new BondDefinition(NOMINAL_DATES, new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1), null}, COUPON, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDateArrayLength1() {
     new BondDefinition(NOMINAL_DATES, new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1)}, COUPON, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCouponsPerYear1() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON, NOTIONAL, -COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention1() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON, NOTIONAL, COUPONS_PER_YEAR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDates2() {
     new BondDefinition(null, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDate2() {
     new BondDefinition(new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1), null}, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyNominalDates2() {
     new BondDefinition(new LocalDate[] {}, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDates2() {
     new BondDefinition(NOMINAL_DATES, null, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDate2() {
     new BondDefinition(NOMINAL_DATES, new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1), null}, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDateArrayLength2() {
     new BondDefinition(NOMINAL_DATES, new LocalDate[] {LocalDate.of(2010, 1, 1), LocalDate.of(2010, 2, 1)}, COUPONS, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, null, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCouponArrayLength() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, new double[] {0.04, 0.04}, NOTIONAL, COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCouponsPerYear2() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, -COUPONS_PER_YEAR, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention2() {
     new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConvertAfterExpiry() {
     DEFINITION.toDerivative(SETTLEMENT_DATES[SETTLEMENT_DATES.length - 1].plusMonths(1), "A");
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public class RungeKuttaIntegrator1DTest {
@@ -68,17 +66,17 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeAbsTol() {
     new RungeKuttaIntegrator1D(-1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRelTol() {
     new RungeKuttaIntegrator1D(1e-7, -1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLessTahnOneStep() {
     new RungeKuttaIntegrator1D(0);
   }
@@ -87,7 +85,7 @@ public class RungeKuttaIntegrator1DTest {
   public void test() {
     final double eps = 1e-9;
     final int minSteps = 10;
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+    final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
 
     double lower = 0;
     double upper = 2.0;
@@ -107,7 +105,7 @@ public class RungeKuttaIntegrator1DTest {
 
     final double eps = 1e-9;
     final int minSteps = 10;
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+    final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
     final double lower = -1.0;
     final double upper = 1.0;
     assertEquals(0.0, integrator.integrate(SIN_INV_X, lower, upper), eps);

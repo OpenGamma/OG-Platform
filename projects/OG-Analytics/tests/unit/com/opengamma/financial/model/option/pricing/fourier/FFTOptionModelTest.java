@@ -1,14 +1,12 @@
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashSet;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -47,57 +45,57 @@ public class FFTOptionModelTest {
   private static final OptionModel<OptionDefinition, StandardOptionDataBundle> BSM_MODEL = new BlackScholesMertonModel();
   private static final double EPS = 1e-2;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent1() {
     new FFTOptionModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent2() {
     new FFTOptionModel(null, 100, 10, -0.5, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNStrikes() {
     new FFTOptionModel(GAUSSIAN, -100, 10, -0.5, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDelta() {
     new FFTOptionModel(GAUSSIAN, 100, -10, -0.5, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha() {
     new FFTOptionModel(GAUSSIAN, 100, 10, 0, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAlpha() {
     new FFTOptionModel(GAUSSIAN, 100, 10, -1, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance() {
     new FFTOptionModel(GAUSSIAN, 100, 10, -1, 1e-8);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     FFT_MODEL.getGreeks(null, BLACK_DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     FFT_MODEL.getGreeks(ITM_CALL, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreeks() {
     FFT_MODEL.getGreeks(ITM_CALL, BLACK_DATA, null);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testWrongGreeks() {
     FFT_MODEL.getGreeks(ITM_CALL, BLACK_DATA, Sets.newHashSet(Greek.DELTA, Greek.GAMMA));
   }

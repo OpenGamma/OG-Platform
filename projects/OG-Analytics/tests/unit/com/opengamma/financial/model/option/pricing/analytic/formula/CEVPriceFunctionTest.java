@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.formula;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -90,56 +88,53 @@ public class CEVPriceFunctionTest {
       }
     }
   }
-  
+
   @Test
-  public void funnySmileTest(){
-  
+  public void funnySmileTest() {
+
     final double beta = 0.4;
     final double t = 5.0;
     final double r = 0.0;
     final double spot = 100;
-    final double k = spot*Math.exp(-r*t);
-   
+    final double k = spot * Math.exp(-r * t);
+
     final double atmVol = 0.20;
-    final double volBeta = atmVol*Math.pow(k,1-beta);
-    
+    final double volBeta = atmVol * Math.pow(k, 1 - beta);
+
     final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
- 
-    
-    for(int i=0;i<101;i++){
-      double f = 350.0 + 1.0*i;
+
+    for (int i = 0; i < 101; i++) {
+      final double f = 350.0 + 1.0 * i;
       final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, volBeta, beta);
-      double cevPrice =CEV.getPriceFunction(option).evaluate(cevData);
-      double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
-      
+      final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+      @SuppressWarnings("unused")
+      final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+
       // System.out.println(f +"\t"+cevPrice+"\t"+cevVol);
     }
-  
+
   }
 
-
   @Test
-  public void testDebug(){
-  
+  public void testDebug() {
+
     final double beta = 0.4;
     final double t = 5.0;
     final double r = 0.1;
     final double forward = 163.10;
     final double k = 164.87;
-   
-   
+
     final double volBeta = 4.298;
-    
+
     final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
- 
-   
-      final CEVFunctionData cevData = new CEVFunctionData(forward, Math.exp(-r*t), volBeta, beta);
-      double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
-      double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
-      
-       System.out.println(cevPrice+"\t"+cevVol);
-    
-  
+
+    final CEVFunctionData cevData = new CEVFunctionData(forward, Math.exp(-r * t), volBeta, beta);
+    final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
+    @SuppressWarnings("unused")
+    final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+
+    //System.out.println(cevPrice+"\t"+cevVol);
+
   }
-  
+
 }

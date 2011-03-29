@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -40,22 +38,22 @@ public class NaturalCubicSplineInterpolator1DTest {
     MODEL = INTERPOLATOR.getDataBundle(data);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInputMap() {
     INTERPOLATOR.interpolate((Interpolator1DCubicSplineDataBundle) null, 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullInterpolateValue() {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(MODEL, 15.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -12.);
   }

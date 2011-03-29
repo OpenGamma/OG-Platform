@@ -5,17 +5,18 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNull;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.test.DBTest;
 
@@ -28,23 +29,24 @@ public class DbFunctionCostsMasterTest extends DBTest {
 
   private DbFunctionCostsMaster _costsMaster;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbFunctionCostsMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _costsMaster = (DbFunctionCostsMaster) context.getBean(getDatabaseType() + "DbFunctionCostsMaster");
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
-    super.tearDown();
     _costsMaster = null;
+    super.tearDown();
   }
 
   //-------------------------------------------------------------------------

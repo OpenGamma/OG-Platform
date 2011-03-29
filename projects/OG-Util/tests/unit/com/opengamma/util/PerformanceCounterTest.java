@@ -5,18 +5,16 @@
  */
 package com.opengamma.util;
 
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.*;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
- * 
- *
- * @author pietari
+ * Test PerformanceCounter.
  */
+@Test
 public class PerformanceCounterTest {
   
-  @Test
   public void oneSecCounter() {
     PerformanceCounter counter = new PerformanceCounter(1, 5000);
     
@@ -39,7 +37,6 @@ public class PerformanceCounterTest {
     assertEquals(3.0, counter.getHitsPerSecondAsOfLastHit(1), 0.001);
   }
   
-  @Test
   public void sixtySecondCounter() {
     PerformanceCounter counter = new PerformanceCounter(60, 3000);
     
@@ -93,7 +90,6 @@ public class PerformanceCounterTest {
     assertEquals(0 / 60.0, counter.getHitsPerSecond(60, 2000000), 0.001);
   }
   
-  @Test
   public void clockGoingBackwards() {
     PerformanceCounter counter = new PerformanceCounter(60, 0);
     
@@ -111,12 +107,12 @@ public class PerformanceCounterTest {
     assertEquals(1 / 60.0, counter.getHitsPerSecond(60, 7000), 0.001);
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void zeroCounter() {
     new PerformanceCounter(0);    
   }
   
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeCounter() {
     new PerformanceCounter(-8);    
   }

@@ -27,7 +27,15 @@ public class FixedCouponSwap<R extends Payment> extends Swap<CouponFixed, R> {
   }
 
   public AnnuityCouponFixed getFixedLeg() {
-    return (AnnuityCouponFixed) getPayLeg();
+    return (AnnuityCouponFixed) getFirstLeg();
+  }
+
+  /**
+   * Check if the payments of of the other leg is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
+   * @return The check.
+   */
+  public boolean isIborOrFixed() {
+    return getSecondLeg().isIborOrFixed();
   }
 
   @Override

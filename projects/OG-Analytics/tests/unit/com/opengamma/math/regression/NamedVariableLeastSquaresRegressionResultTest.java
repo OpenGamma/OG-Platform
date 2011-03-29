@@ -5,17 +5,15 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -27,18 +25,18 @@ public class NamedVariableLeastSquaresRegressionResultTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNames() {
     new NamedVariableLeastSquaresRegressionResult(null, new LeastSquaresRegressionResult(null, null, 0, null, 0, 0,
         null, null, false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRegression() {
     new NamedVariableLeastSquaresRegressionResult(new ArrayList<String>(), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonMatchingInputs() {
     final List<String> names = Arrays.asList("A", "B");
     final double[] array = new double[] { 1. };
@@ -86,7 +84,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
         .regress(x, null, y2, true));
     try {
       result1.getPredictedValue((Map<String, Double>) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
@@ -95,7 +93,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
       final Map<String, Double> map = new HashMap<String, Double>();
       map.put("1", 0.);
       result1.getPredictedValue(map);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

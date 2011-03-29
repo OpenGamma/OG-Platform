@@ -8,7 +8,6 @@ package com.opengamma.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -16,10 +15,8 @@ import com.opengamma.financial.interestrate.future.definition.InterestRateFuture
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
@@ -89,50 +86,49 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   }
 
   /**
-   * @param swap 
-   * @param curves 
-   *  @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
-   * 
+   * Computes the par rate of a swap with one fixed leg.
+   * @param swap The Fixed coupon swap.
+   * @param curves The curves.
+   * @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
    */
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    final double pvReceive = PVC.visit(swap.getReceiveLeg(), curves);
+    final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
     final double pvFixed = PVC.visit(REPLACE_RATE.visit(swap.getFixedLeg(), 1.0), curves);
-    return pvReceive / pvFixed;
+    return -pvSecond / pvFixed;
   }
 
   /**
-   * The assumption is that spread is received (i.e. the spread, if any, is on the received leg only)
-   * If the spread is paid (i.e. on the pay leg), swap the legs around and take the negative of the returned value.
-   *@param swap 
-   * @param curves 
-   *@return  The spread on the receive leg of a basis swap 
+   * The assumption is that spread is on the second leg.
+   * @param swap The tenor swap.
+   * @param curves The valuation curves.
+   * @return The spread on the second leg of a basis swap 
    */
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIbor pay = (AnnuityCouponIbor) swap.getPayLeg();
-    final AnnuityCouponIbor receive = (AnnuityCouponIbor) swap.getReceiveLeg();
-    final double pvPay = PVC.visit(pay.withZeroSpread(), curves);
-    final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
-    final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
+    final AnnuityCouponIbor firstLeg = (AnnuityCouponIbor) swap.getFirstLeg();
+    final AnnuityCouponIbor secondLeg = (AnnuityCouponIbor) swap.getSecondLeg();
+    final double pvFirst = PVC.visit(firstLeg.withZeroSpread(), curves);
+    final double pvSecond = PVC.visit(secondLeg.withZeroSpread(), curves);
+    final double pvSpread = PVC.visit(secondLeg.withUnitCoupons(), curves);
     if (pvSpread == 0.0) {
       throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
     }
-    return (pvPay - pvReceive) / pvSpread;
+    return (-pvFirst - pvSecond) / pvSpread;
   }
 
-  @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    final GenericAnnuity<PaymentFixed> pay = frn.getPayLeg();
-    final AnnuityCouponIbor receive = (AnnuityCouponIbor) frn.getReceiveLeg();
-    final double pvPay = PVC.visit(pay, curves);
-    final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
-    final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
-    if (pvSpread == 0.0) {
-      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
-    }
-    return (pvPay - pvReceive) / pvSpread;
-  }
+  //  @Override
+  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    final GenericAnnuity<PaymentFixed> pay = frn.getFirstLeg();
+  //    final AnnuityCouponIbor receive = (AnnuityCouponIbor) frn.getSecondLeg();
+  //    final double pvPay = PVC.visit(pay, curves);
+  //    final double pvReceive = PVC.visit(receive.withZeroSpread(), curves);
+  //    final double pvSpread = PVC.visit(receive.withUnitCoupons(), curves);
+  //    if (pvSpread == 0.0) {
+  //      throw new IllegalArgumentException("Cannot calculate spread. Please check setup");
+  //    }
+  //    return (pvPay - pvReceive) / pvSpread;
+  //  }
 
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)

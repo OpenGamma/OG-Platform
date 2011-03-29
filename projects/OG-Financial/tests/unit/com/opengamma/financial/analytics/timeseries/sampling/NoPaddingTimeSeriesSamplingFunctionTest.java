@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.timeseries.sampling;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -14,8 +14,6 @@ import java.util.Map.Entry;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.schedule.DailyScheduleCalculator;
@@ -72,12 +70,12 @@ public class NoPaddingTimeSeriesSamplingFunctionTest {
     TS_MISSING_DATA_POINT = new ArrayLocalDateDoubleTimeSeries(t2, d2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     F.getSampledTimeSeries(null, DAILY_SCHEDULE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSchedule() {
     F.getSampledTimeSeries(TS_NO_MISSING_DATA, null);
   }

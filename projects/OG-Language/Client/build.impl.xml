@@ -14,7 +14,9 @@
 			<arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/Available.proto" />
+			<arg value="${src.dir}/com/opengamma/language/function/Invoke.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/QueryAvailable.proto" />
+			<arg value="${src.dir}/com/opengamma/language/function/Result.proto" />
 			<arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
 			<arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
 			<arg value="${src.dir}/com/opengamma/language/procedure/Available.proto" />

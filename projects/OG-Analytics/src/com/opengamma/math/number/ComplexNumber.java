@@ -6,34 +6,48 @@
 package com.opengamma.math.number;
 
 /**
- * 
+ * Class defining a complex number. Note that it extends {@link java.lang.Number}.
  */
 public class ComplexNumber extends Number {
-  /** Defining <it>i</it>*/
+  private static final long serialVersionUID = 1L;
+  /** Defining <i>i</i>*/
   public static final ComplexNumber I = new ComplexNumber(0, 1);
-  /** Defining <it>-i</it>*/
+  /** Defining <i>-i</i>*/
   public static final ComplexNumber MINUS_I = new ComplexNumber(0, -1);
-  /** Defining 0 + 0<it>i</it> */
+  /** Defining 0 + 0<i>i</i> */
   public static final ComplexNumber ZERO = new ComplexNumber(0);
 
   private final double _real;
   private final double _imaginary;
 
-  // Implicit
+  /**
+   * Sets the imaginary part to zero.
+   * @param real The real part
+   */
   public ComplexNumber(final double real) {
     _real = real;
     _imaginary = 0.0;
   }
 
+  /**
+   * @param real The real part
+   * @param imaginary The imaginary part
+   */
   public ComplexNumber(final double real, final double imaginary) {
     _real = real;
     _imaginary = imaginary;
   }
 
+  /**
+   * @return The real part
+   */
   public double getReal() {
     return _real;
   }
 
+  /**
+   * @return The imaginary part
+   */
   public double getImaginary() {
     return _imaginary;
   }
@@ -78,21 +92,37 @@ public class ComplexNumber extends Number {
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException
+   */
   @Override
   public double doubleValue() {
     throw new UnsupportedOperationException("Cannot get the doubleValue of a ComplexNumber");
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException
+   */
   @Override
   public float floatValue() {
     throw new UnsupportedOperationException("Cannot get the floatValue of a ComplexNumber");
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException
+   */
   @Override
   public int intValue() {
     throw new UnsupportedOperationException("Cannot get the intValue of a ComplexNumber");
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException
+   */
   @Override
   public long longValue() {
     throw new UnsupportedOperationException("Cannot get the longValue of a ComplexNumber");

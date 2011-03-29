@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.EndOfMonthSemiAnnualScheduleCalculator;
 import com.opengamma.util.time.DateUtil;
@@ -22,22 +20,22 @@ import com.opengamma.util.time.DateUtil;
 public class EndOfMonthSemiAnnualScheduleCalculatorTest {
   private static final EndOfMonthSemiAnnualScheduleCalculator CALCULATOR = new EndOfMonthSemiAnnualScheduleCalculator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart1() {
     CALCULATOR.getSchedule(null, LocalDate.of(2011, 1, 1), true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart2() {
     CALCULATOR.getSchedule(null, DateUtil.getUTCDate(2010, 1, 1), true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEnd1() {
     CALCULATOR.getSchedule(LocalDate.of(2000, 1, 1), null, true, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEnd2() {
     CALCULATOR.getSchedule(DateUtil.getUTCDate(2000, 1, 1), null, true, true);
   }

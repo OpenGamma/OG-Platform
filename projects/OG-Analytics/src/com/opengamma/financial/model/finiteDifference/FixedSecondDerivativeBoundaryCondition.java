@@ -1,5 +1,13 @@
+/**
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.finiteDifference;
 
+/**
+ * 
+ */
 public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition {
 
   private final double _secondDev;
@@ -11,17 +19,17 @@ public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, final double t) {
+  public double getConstant(final PDEDataBundle data, final double t) {
     return _secondDev;
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, final double t) {
+  public double[] getLeftMatrixCondition(final PDEDataBundle data, final double t) {
     return new double[] {1, -2, 1};
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, final double t) {
+  public double[] getRightMatrixCondition(final PDEDataBundle data, final double t) {
     return new double[0];
   }
 

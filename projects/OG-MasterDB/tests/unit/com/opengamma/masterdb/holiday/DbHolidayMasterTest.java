@@ -5,25 +5,26 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 import java.util.TimeZone;
 
 import javax.time.calendar.LocalDate;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -35,20 +36,21 @@ public class DbHolidayMasterTest extends DBTest {
 
   private DbHolidayMaster _holMaster;
 
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbHolidayMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _holMaster = (DbHolidayMaster) context.getBean(getDatabaseType() + "DbHolidayMaster");
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
     _holMaster = null;
@@ -66,7 +68,7 @@ public class DbHolidayMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_example() throws Exception {
-    ManageableHoliday hol = new ManageableHoliday(CurrencyUnit.GBP, Arrays.asList(LocalDate.of(2010, 2, 3)));
+    ManageableHoliday hol = new ManageableHoliday(Currency.GBP, Arrays.asList(LocalDate.of(2010, 2, 3)));
     HolidayDocument addDoc = new HolidayDocument(hol);
     HolidayDocument added = _holMaster.add(addDoc);
     

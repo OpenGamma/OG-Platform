@@ -5,16 +5,16 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test ObjectIdentifierSupplier. 
  */
+@Test
 public class ObjectIdentifierSupplierTest {
 
-  @Test
   public void test_basics() {
     ObjectIdentifierSupplier test = new ObjectIdentifierSupplier("Scheme");
     assertEquals(ObjectIdentifier.parse("Scheme::1"), test.get());
@@ -22,17 +22,16 @@ public class ObjectIdentifierSupplierTest {
     assertEquals(ObjectIdentifier.parse("Scheme::3"), test.get());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullScheme() {
     new ObjectIdentifierSupplier((String) null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_emptyScheme() {
     new ObjectIdentifierSupplier("");
   }
 
-  @Test
   public void test_prefix() {
     ObjectIdentifierSupplier test = new ObjectIdentifierSupplier("Prefixing");
     assertEquals(ObjectIdentifier.parse("Prefixing::A-1"), test.getWithValuePrefix("A-"));

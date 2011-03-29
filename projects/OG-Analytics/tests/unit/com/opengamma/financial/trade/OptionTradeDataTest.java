@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.trade;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -19,7 +18,7 @@ public class OptionTradeDataTest {
   private static final double PV1 = 25;
   private static final double PV2 = 10;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePointValue() {
     new OptionTradeData(N1, -PV1);
   }

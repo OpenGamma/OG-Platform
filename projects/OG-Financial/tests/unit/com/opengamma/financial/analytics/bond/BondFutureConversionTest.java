@@ -5,18 +5,15 @@
  */
 package com.opengamma.financial.analytics.bond;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
-
-import com.opengamma.core.common.CurrencyUnit;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -51,6 +48,7 @@ import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -94,7 +92,7 @@ public class BondFutureConversionTest {
     for (int i = 0; i < N_BONDS; i++) {
       final ZonedDateTime accrualDate = MATURITY_DATE[i].minusYears(11);
       final ZonedDateTime firstCouponDate = MATURITY_DATE[i].minusYears(11).plusMonths(6);
-      DELIVERABLE_BONDS[i] = new GovernmentBondSecurity("US", "Government", "US", "Treasury", CurrencyUnit.USD,
+      DELIVERABLE_BONDS[i] = new GovernmentBondSecurity("US", "Government", "US", "Treasury", Currency.USD,
           YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(MATURITY_DATE[i]), "", COUPON[i] * 100,
           SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), new DateTimeWithZone(accrualDate),
           new DateTimeWithZone(accrualDate), new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
@@ -118,7 +116,7 @@ public class BondFutureConversionTest {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_BOND_FUTURE_DELIVERABLE_CONVENTION");
     final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
     final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, CurrencyUnit.USD);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.USD);
     final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
         "USD_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(deliverables, C_FACTOR, convention, LAST_DELIVERY_DATE.toLocalDate());
@@ -148,7 +146,7 @@ public class BondFutureConversionTest {
     final ZonedDateTime firstCouponDate = settlementDate.minusDays(64);
     assertEquals(daysToDelivery, DateUtil.getDaysBetween(settlementDate, deliveryDate), 0);
     final DayCount bondDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", CurrencyUnit.GBP,
+    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), bondDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
         new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
@@ -168,7 +166,7 @@ public class BondFutureConversionTest {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION");
     final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
     final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, CurrencyUnit.GBP);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.GBP);
     final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
@@ -204,7 +202,7 @@ public class BondFutureConversionTest {
     assertEquals(daysToDelivery, DateUtil.getDaysBetween(settlementDate, deliveryDate), 0);
     final DayCount accruedInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
     assertEquals(accruedInterestForBond, accruedInterestDayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-6);
-    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", CurrencyUnit.GBP,
+    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
         new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
@@ -223,7 +221,7 @@ public class BondFutureConversionTest {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION");
     final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
     final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, CurrencyUnit.GBP);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.GBP);
     final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
@@ -256,7 +254,7 @@ public class BondFutureConversionTest {
     final double coupon = 0.08;
     final double repoRate = 0.049;
     final DayCount accruedInterestDayCount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", CurrencyUnit.GBP,
+    final BondSecurity bondSecurity = new GovernmentBondSecurity("UK", "Government", "UK", "Treasury", Currency.GBP,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(maturityDate), "", coupon * 100,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
         new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
@@ -272,7 +270,7 @@ public class BondFutureConversionTest {
     final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION");
     final ConventionBundle conventionBundle = CONVENTION_SOURCE.getConventionBundle(id);
     final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, CurrencyUnit.GBP);
+    final Calendar calendar = new HolidaySourceCalendarAdapter(HOLIDAY_SOURCE, Currency.GBP);
     final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
@@ -292,7 +290,7 @@ public class BondFutureConversionTest {
   private static class MyHolidaySource implements HolidaySource {
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final CurrencyUnit currency) {
+    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
       return dateToCheck.getDayOfWeek() == DayOfWeek.SATURDAY || dateToCheck.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
 

@@ -5,11 +5,13 @@
  */
 package com.opengamma.livedata.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -18,10 +20,6 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.test.CollectingLiveDataListener;
@@ -29,17 +27,16 @@ import com.opengamma.transport.CollectingByteArrayMessageSender;
 
 /**
  *
- * @author kirk
  */
 public class HeartbeatSenderTest {
   private Timer _timer = null;
 
-  @Before
+  @BeforeMethod
   public void startTimer() {
     _timer = new Timer("HeartbeatSenderTest Timer");
   }
   
-  @After
+  @AfterMethod
   public void shutdownTimer() {
     _timer.cancel();
     _timer = null;

@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
@@ -25,7 +23,7 @@ public class LogLinearInterpolator1DTest {
 
     @Override
     public Double evaluate(final Double x) {
-      return 2 * x - 7;
+      return 2 * x + 7;
     }
   };
   private static final Interpolator1DDataBundle MODEL;
@@ -45,22 +43,22 @@ public class LogLinearInterpolator1DTest {
     TRANSFORMED_MODEL = INTERPOLATOR.getDataBundle(transformedData);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 3.4);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowValue() {
     INTERPOLATOR.interpolate(MODEL, -2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighValue() {
     INTERPOLATOR.interpolate(MODEL, 12.);
   }
@@ -77,6 +75,6 @@ public class LogLinearInterpolator1DTest {
 
   @Test
   public void test() {
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
+    assertEquals(Math.log(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
   }
 }

@@ -6,21 +6,19 @@
 package com.opengamma.master.timeseries.impl;
 
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_PROVIDER_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.DATA_SOURCE_NAME;
 import static com.opengamma.master.timeseries.impl.TimeSeriesMetaDataFieldNames.STAR_VALUE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.IdentifierBundle;
@@ -39,6 +37,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Test DefaultTimeSeriesResolver.
  */
+@Test
 public class DefaultTimeSeriesMetaDataResolverTest {
 
   private static final int TS_DATASET_SIZE = 1;
@@ -54,7 +53,7 @@ public class DefaultTimeSeriesMetaDataResolverTest {
   private DefaultTimeSeriesMetaDataResolver<LocalDate> _metaDataResolver;
   private TimeSeriesMaster<LocalDate> _tsMaster = new InMemoryLocalDateTimeSeriesMaster();
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
@@ -86,14 +85,13 @@ public class DefaultTimeSeriesMetaDataResolverTest {
     return config;
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _metaDataResolver = null;
     _tsMaster = null;
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test() throws Exception {
     addAndTestTimeSeries();
     List<IdentifierBundleWithDates> identifiers = _tsMaster.getAllIdentifiers();

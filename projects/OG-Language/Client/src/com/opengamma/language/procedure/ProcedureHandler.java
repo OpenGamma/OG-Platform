@@ -6,6 +6,11 @@
 
 package com.opengamma.language.procedure;
 
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.language.connector.Procedure;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -18,6 +23,8 @@ import com.opengamma.language.custom.CustomVisitors;
  */
 public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, SessionContext>,
     CustomProcedureVisitorRegistry<UserMessagePayload, SessionContext> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ProcedureHandler.class);
 
   private final CustomVisitors<UserMessagePayload, SessionContext> _customVisitors = new CustomVisitors<UserMessagePayload, SessionContext>();
 
@@ -38,8 +45,21 @@ public class ProcedureHandler implements ProcedureVisitor<UserMessagePayload, Se
 
   @Override
   public UserMessagePayload visitQueryAvailable(final QueryAvailable message, final SessionContext data) {
-    // TODO:
-    return null;
+    final Set<MetaProcedure> definitions = data.getProcedureProvider().getDefinitions();
+    final ProcedureRepository repository = data.getProcedureRepository();
+    s_logger.info("{} procedures available", definitions.size());
+    final Available available = new Available();
+    for (MetaProcedure definition : definitions) {
+      Definition logical = data.getGlobalContext().getProcedureDefinitionFilter().createDefinition(definition);
+      if (logical != null) {
+        final int identifier = repository.add(definition);
+        s_logger.debug("Publishing {} as {}", logical, identifier);
+        available.addProcedure(new Available.Entry(identifier, logical));
+      } else {
+        s_logger.debug("Discarding {} after applying filter", definition);
+      }
+    }
+    return available;
   }
 
   @Override

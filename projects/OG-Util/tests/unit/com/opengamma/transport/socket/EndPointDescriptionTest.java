@@ -5,8 +5,8 @@
  */
 package com.opengamma.transport.socket;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -16,10 +16,14 @@ import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Test.
+ */
+@Test
 public class EndPointDescriptionTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EndPointDescriptionTest.class);
@@ -58,17 +62,14 @@ public class EndPointDescriptionTest {
     server.stop();
   }
 
-  @Test
   public void testEndPointsBound() throws IOException {
     testEndPoints(true);
   }
 
-  @Test
   public void testEndPointsUnbound() throws IOException {
     testEndPoints(false);
   }
 
-  @Test
   public void testConnectToEndPoint() throws IOException {
     final AbstractServerSocketProcess server = new AbstractServerSocketProcess() {
 

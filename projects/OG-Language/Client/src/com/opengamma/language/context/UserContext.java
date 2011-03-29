@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.language.function.AggregatingFunctionProvider;
+import com.opengamma.language.livedata.AggregatingLiveDataProvider;
+import com.opengamma.language.procedure.AggregatingProcedureProvider;
 
 /**
  * An information context shared by any client instances running for a given user. 
@@ -25,6 +29,9 @@ public abstract class UserContext extends AbstractContext {
   /* package */UserContext(final GlobalContext globalContext, final String userName) {
     _globalContext = globalContext;
     _userName = userName;
+    setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
+    setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
+    setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
   }
 
   public GlobalContext getGlobalContext() {

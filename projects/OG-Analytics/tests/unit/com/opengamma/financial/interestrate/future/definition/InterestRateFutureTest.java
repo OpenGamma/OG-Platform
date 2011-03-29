@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -17,52 +16,52 @@ public class InterestRateFutureTest {
   public static final String CURVE_NAME = "test";
   public static final double PRICE = 96;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlementDate() {
     new InterestRateFuture(-2, 1.0, 0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeFixingDate() {
     new InterestRateFuture(0.423, -0.2332, 1.0, 0.25, 0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeMaturity() {
     new InterestRateFuture(0.423, 0.425, -1.0, 0.25, 0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testYearFraction() {
     new InterestRateFuture(1, 2, -0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeValueYearFrac() {
     new InterestRateFuture(0.423, 0.425, 1.0, 0.25, -0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePrice() {
     new InterestRateFuture(3, 3.5, 0.25, -87, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidPrice() {
     new InterestRateFuture(3, 3.25, 0.25, 101, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSettlementBeforeFixing() {
     new InterestRateFuture(0.423, 0.424, 1.0, 0.25, 0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFixingAfterMaturity() {
     new InterestRateFuture(0.423, 0.425, 0.4, 0.25, 0.25, PRICE, CURVE_NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
     new InterestRateFuture(0.423, 0.425, 1.0, 0.25, 0.25, PRICE, null);
   }

@@ -14,9 +14,12 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.ZoneOffset;
 
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
 import com.opengamma.master.timeseries.TimeSeriesMaster;
-import com.opengamma.masterdb.timeseries.DateTimeDbTimeSeriesMaster;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -24,8 +27,10 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 /**
  * Test DateTimeDbTimeSeriesMaster.
  */
+@Test
 public class DateTimeDbTimeSeriesMasterTest extends TimeSeriesMasterTest<Date> {
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public DateTimeDbTimeSeriesMasterTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
   }

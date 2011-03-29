@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.math.BigDecimal;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -24,6 +22,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * Test ComputationTarget.
  */
+@Test
 public class ComputationTargetTest {
 
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
@@ -31,14 +30,12 @@ public class ComputationTargetTest {
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("Test", "1"), new BigDecimal(1), IdentifierBundle.EMPTY);
   private static final Security SECURITY = new MockSecurity(UniqueIdentifier.of("Test", "SEC"), "Test security", "EQUITY", IdentifierBundle.EMPTY);
 
-  @Test
   public void test_constructor_Object_Portfolio() {
     ComputationTarget test = new ComputationTarget(PORTFOLIO);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
     assertEquals(PORTFOLIO, test.getValue());
   }
 
-  @Test
   public void test_constructor_Object_null() {
     ComputationTarget test = new ComputationTarget(null);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
@@ -46,7 +43,6 @@ public class ComputationTargetTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_constructor_Type_Object_ok() {
     new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, PORTFOLIO);
     new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
@@ -56,18 +52,17 @@ public class ComputationTargetTest {
     new ComputationTarget(ComputationTargetType.PRIMITIVE, "String");
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_Type_Object_nullType() {
     new ComputationTarget(null, POSITION);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions=IllegalArgumentException.class)
   public void test_constructor_Type_Object_invalidObjectForType() {
     new ComputationTarget(ComputationTargetType.POSITION, NODE);
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getters_PortfolioNode() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, NODE);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE, test.getType());
@@ -76,13 +71,12 @@ public class ComputationTargetTest {
     assertEquals(NODE, test.getPortfolioNode());
   }
 
-  @Test(expected=IllegalStateException.class)
+  @Test(expectedExceptions=IllegalStateException.class)
   public void test_getPortfolioNode_notNode() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     test.getPortfolioNode();
   }
 
-  @Test
   public void test_getters_Position() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     assertEquals(ComputationTargetType.POSITION, test.getType());
@@ -91,13 +85,12 @@ public class ComputationTargetTest {
     assertEquals(POSITION, test.getPosition());
   }
 
-  @Test(expected=IllegalStateException.class)
+  @Test(expectedExceptions=IllegalStateException.class)
   public void test_getPosition_notPosition() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.SECURITY, SECURITY);
     test.getPosition();
   }
 
-  @Test
   public void test_getters_Security() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.SECURITY, SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
@@ -106,13 +99,12 @@ public class ComputationTargetTest {
     assertEquals(SECURITY, test.getSecurity());
   }
 
-  @Test(expected=IllegalStateException.class)
+  @Test(expectedExceptions=IllegalStateException.class)
   public void test_getSecurity_notSecurity() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     test.getSecurity();
   }
 
-  @Test
   public void test_getters_Primitive() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.PRIMITIVE, "Str");
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
@@ -121,7 +113,6 @@ public class ComputationTargetTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toSpecification() {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     ComputationTargetSpecification expected = new ComputationTargetSpecification(ComputationTargetType.POSITION, POSITION.getUniqueId());
@@ -129,7 +120,6 @@ public class ComputationTargetTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals_similar() {
     ComputationTarget a1 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     ComputationTarget a2 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
@@ -140,7 +130,6 @@ public class ComputationTargetTest {
     assertEquals(true, a2.equals(a2));
   }
 
-  @Test
   public void test_equals_different() {
     ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     ComputationTarget b = new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
@@ -159,14 +148,12 @@ public class ComputationTargetTest {
     assertEquals(true, c.equals(c));
   }
 
-  @Test
   public void test_equals_other() {
     ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     assertEquals(false, a.equals(null));
     assertEquals(false, a.equals("Rubbish"));
   }
 
-  @Test
   public void test_hashCode() {
     ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     ComputationTarget b = new ComputationTarget(ComputationTargetType.POSITION, POSITION);

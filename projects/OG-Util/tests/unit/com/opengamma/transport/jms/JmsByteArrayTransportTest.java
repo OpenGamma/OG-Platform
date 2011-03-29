@@ -5,14 +5,14 @@
  */
 package com.opengamma.transport.jms;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Random;
 
 import javax.jms.ConnectionFactory;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -24,10 +24,9 @@ import com.opengamma.util.test.ActiveMQTestUtil;
 import com.opengamma.util.test.Timeout;
 
 /**
- * 
- *
- * @author kirk
+ * Test.
  */
+@Test
 public class JmsByteArrayTransportTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
@@ -81,7 +80,6 @@ public class JmsByteArrayTransportTest {
     container.destroy();
   }
 
-  @Test
   public void topicConduit() throws Exception {
     try {
       topicConduitImpl ();
@@ -96,7 +94,6 @@ public class JmsByteArrayTransportTest {
     }
   }
   
-  @Test
   public void requestConduit() throws Exception {
     String topicName = "JmsByteArrayTransportTest-requestConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();

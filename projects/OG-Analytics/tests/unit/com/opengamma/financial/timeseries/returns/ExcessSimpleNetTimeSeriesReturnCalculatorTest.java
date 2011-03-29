@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -23,17 +21,17 @@ public class ExcessSimpleNetTimeSeriesReturnCalculatorTest {
   private static final DoubleTimeSeries<?> TS2 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
   private static final TimeSeriesReturnCalculator RETURNS = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testSmallArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries<?>[] {TS1, TS2});
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengths() {
     CALCULATOR.evaluate(new DoubleTimeSeries<?>[] {TS1, null, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1}, new double[] {1}), null});
   }

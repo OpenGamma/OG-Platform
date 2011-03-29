@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.VasicekDataBundle;
@@ -27,17 +25,17 @@ public class VasicekInterestRateModelTest {
   private static final ZonedDateTime MATURITY = DateUtil.getDateOffsetWithYearFraction(START, 10);
   private static final VasicekInterestRateModel MODEL = new VasicekInterestRateModel();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTime() {
     MODEL.getDiscountBondFunction(null, MATURITY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     MODEL.getDiscountBondFunction(START, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getDiscountBondFunction(START, MATURITY).evaluate((VasicekDataBundle) null);
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.fft;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.function.Function1D;
@@ -93,62 +91,62 @@ public class JTransformsWrapperTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     JTransformsWrapper.transform1DComplex(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     JTransformsWrapper.inverseTransform1DComplex(null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     JTransformsWrapper.fullTransform1DReal(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     JTransformsWrapper.fullInverseTransform1DReal(null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     JTransformsWrapper.transform1DReal(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     JTransformsWrapper.inverseTransform1DReal(null, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty1() {
     JTransformsWrapper.transform1DComplex(new ComplexNumber[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty2() {
     JTransformsWrapper.inverseTransform1DComplex(new ComplexNumber[0], false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty3() {
     JTransformsWrapper.fullTransform1DReal(new double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty4() {
     JTransformsWrapper.fullInverseTransform1DReal(new double[0], false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty5() {
     JTransformsWrapper.transform1DReal(new double[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmpty6() {
     JTransformsWrapper.inverseTransform1DReal(new double[0], false);
   }
@@ -193,10 +191,10 @@ public class JTransformsWrapperTest {
       realTransform[i] = transform[i].getReal();
       assertComplexEquals(transform[i], transformFull[i]);
     }
-    final ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DReal(realTransform, true);
-    for (final ComplexNumber element : inverse) {
+    //final ComplexNumber[] inverse = JTransformsWrapper.inverseTransform1DReal(realTransform, true);
+    //for (final ComplexNumber element : inverse) {
       // TODO fix test assertEquals(inverse[i].getReal(), A[i], EPS);
-    }
+    //}
   }
 
   // @Test

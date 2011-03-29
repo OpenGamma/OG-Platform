@@ -5,17 +5,18 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.testng.Assert;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -23,6 +24,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyConfigDbConfigMasterWorker.
@@ -32,6 +34,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
 
   private static final Logger s_logger = LoggerFactory.getLogger(ModifyConfigDbConfigMasterWorkerUpdateTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyConfigDbConfigMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -39,12 +42,12 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_updateConfig_nullDocument() {
     _cfgMaster.update(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_noConfigId() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setName("Name");
@@ -52,7 +55,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     _cfgMaster.update(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
@@ -62,7 +65,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     _cfgMaster.update(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_update_notLatestVersion() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "201", "0");
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
@@ -83,7 +86,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));
     
-    ConfigDocument<Identifier> updated = (ConfigDocument<Identifier>) _cfgMaster.update(input);
+    ConfigDocument<Identifier> updated = _cfgMaster.update(input);
     assertEquals(false, base.getUniqueId().equals(updated.getUniqueId()));
     assertEquals(now, updated.getVersionFromInstant());
     assertEquals(null, updated.getVersionToInstant());
@@ -122,7 +125,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
     input.setValue(Identifier.of("A", "B"));
     try {
       w.update(input);
-      fail();
+      Assert.fail();
     } catch (BadSqlGrammarException ex) {
       // expected
     }

@@ -14,10 +14,14 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for Commons implementation of QR Decomposition
+ * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/linear/QRDecompositionImpl.html">Commons Math library implementation</a> 
+ * of QR decomposition.
  */
 public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public QRDecompositionResult evaluate(final DoubleMatrix2D x) {
     Validate.notNull(x);

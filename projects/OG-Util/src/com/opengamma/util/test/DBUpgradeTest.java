@@ -5,16 +5,14 @@
  */
 package com.opengamma.util.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.Triple;
 
@@ -40,11 +38,6 @@ abstract public class DBUpgradeTest extends DBTest {
   
   protected DBUpgradeTest(String databaseType, String databaseVersion) {
     super (databaseType, databaseVersion);
-  }
-
-  @Parameters
-  public static Collection<Object[]> getParameters() {
-    return getParameters(3);  // MAX_VALUE to test all upgrades
   }
 
   @Test

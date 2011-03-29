@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -133,9 +133,9 @@ public class PresentValueCouponSensitivityCalculatorTest {
     }
     final double swapRate = 0.04;
 
-    final FixedFloatSwap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final FixedFloatSwap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final FixedFloatSwap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final FixedFloatSwap swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final FixedFloatSwap swapUp = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final FixedFloatSwap swapDown = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
 
     final double pvUp = PVC.visit(swapUp, CURVES);
     final double pvDown = PVC.visit(swapDown, CURVES);
@@ -166,15 +166,17 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final AnnuityCouponIbor payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final AnnuityCouponIbor receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final AnnuityCouponIbor receiveLegUp = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME);
-    final AnnuityCouponIbor receiveLegDown = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME,
-        ZERO_PC_CURVE_NAME);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
+        ZERO_PC_CURVE_NAME, false);
+    final GenericAnnuity<CouponIbor> receiveLegUp = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME,
+        ZERO_PC_CURVE_NAME, false);
+    final GenericAnnuity<CouponIbor> receiveLegDown = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0, FIVE_PC_CURVE_NAME,
+        ZERO_PC_CURVE_NAME, false);
 
-    final TenorSwap swap = new TenorSwap(payLeg, receiveLeg);
-    final TenorSwap swapUp = new TenorSwap(payLeg, receiveLegUp);
-    final TenorSwap swapDown = new TenorSwap(payLeg, receiveLegDown);
+    final TenorSwap<?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
+    final TenorSwap<?> swapUp = new TenorSwap<CouponIbor>(payLeg, receiveLegUp);
+    final TenorSwap<?> swapDown = new TenorSwap<CouponIbor>(payLeg, receiveLegDown);
     final double pvUp = PVC.visit(swapUp, CURVES);
     final double pvDown = PVC.visit(swapDown, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;

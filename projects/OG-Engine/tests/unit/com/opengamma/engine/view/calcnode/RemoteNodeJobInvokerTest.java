@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Random;
 import java.util.concurrent.Executors;
@@ -15,7 +15,9 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Execute;
@@ -32,12 +34,13 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests the RemoteNodeJobInvoker
  */
+@Test
 public class RemoteNodeJobInvokerTest {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeJobInvokerTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
-  @Test
   public void simpleInvocation() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(1);
@@ -50,10 +53,10 @@ public class RemoteNodeJobInvokerTest {
       @Override
       public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
         final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(fudgeContext);
-        System.out.println(msgEnvelope.getMessage());
+        s_logger.debug("message = {}", msgEnvelope.getMessage());
         final RemoteCalcNodeMessage message = dcontext.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());
         assertNotNull(message);
-        System.out.println(message);
+        s_logger.debug("request = {}", message);
         assertTrue(message instanceof Execute);
         final Execute job = (Execute) message;
         final Result result = new Result(JobDispatcherTest.createTestJobResult(job.getJob().getSpecification(), 0, "Test"));
@@ -65,7 +68,6 @@ public class RemoteNodeJobInvokerTest {
     assertNotNull(resultReceiver.waitForResult(TIMEOUT));
   }
 
-  @Test
   public void saturate() {
     final JobDispatcher jobDispatcher = new JobDispatcher();
     final Ready initialMessage = new Ready(3);

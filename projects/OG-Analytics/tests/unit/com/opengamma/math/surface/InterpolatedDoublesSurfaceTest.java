@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.surface;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -196,27 +194,27 @@ public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
     assertEquals(SURFACE.getZValue(2.5, 1.), 10., eps);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX1() {
     SURFACE.getZValue(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY1() {
     SURFACE.getZValue(1., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     SURFACE.getZValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX2() {
     SURFACE.getZValue(Pair.of((Double) null, 2.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY2() {
     SURFACE.getZValue(Pair.of(1., (Double) null));
   }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.curve;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -35,17 +33,17 @@ public class FXVannaVolgaVolatilityCurveModelTest {
   private static final FXVannaVolgaVolatilityCurveDataBundle MARKET_DATA = new FXVannaVolgaVolatilityCurveDataBundle(0.25, RR, ATM, VWB, MATURITY);
   private static final FXVannaVolgaVolatilityCurveModel MODEL = new FXVannaVolgaVolatilityCurveModel();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMarketQuotes() {
     MODEL.getCurve(null, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getCurve(MARKET_DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
     MODEL.getCurve(MARKET_DATA, DATA).getVolatility(null);
   }

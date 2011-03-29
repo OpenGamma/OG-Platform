@@ -5,17 +5,16 @@
  */
 package com.opengamma.math.rootfinding;
 
-import org.junit.Test;
 
 /**
  * 
  */
 public class VanWijngaardenDekkerBrentSingleRootFinderTest extends RealSingleRootFinderTestCase {
-  private static final RealSingleRootFinder FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private static final RealSingleRootFinder FINDER = new BrentSingleRootFinder();
 
-  @Test
-  public void test() {
-    testInputs(FINDER);
-    test(FINDER);
+  @Override
+  protected RealSingleRootFinder getRootFinder() {
+    return FINDER;
   }
+
 }

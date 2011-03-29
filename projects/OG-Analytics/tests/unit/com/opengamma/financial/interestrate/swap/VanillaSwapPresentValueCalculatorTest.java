@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.swap;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
@@ -25,22 +23,22 @@ public class VanillaSwapPresentValueCalculatorTest {
   private static final YieldAndDiscountCurve CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(new double[] {0, 5}, new double[] {1, 0.5}, new LinearInterpolator1D()));
   private static final VanillaSwapPresentValueCalculator CALCULATOR = new VanillaSwapPresentValueCalculator();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedTimes() {
     CALCULATOR.getPresentValue(null, FIXED_PAYMENT, FLOAT_TIME, FLOAT_PAYMENT, CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedPayment() {
     CALCULATOR.getPresentValue(FIXED_TIMES, null, FLOAT_TIME, FLOAT_PAYMENT, CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
     CALCULATOR.getPresentValue(FIXED_TIMES, FIXED_PAYMENT, FLOAT_TIME, FLOAT_PAYMENT, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongTimes() {
     CALCULATOR.getPresentValue(new double[] {1, 2, 3, 4}, FIXED_PAYMENT, FLOAT_TIME, FLOAT_PAYMENT, CURVE);
   }

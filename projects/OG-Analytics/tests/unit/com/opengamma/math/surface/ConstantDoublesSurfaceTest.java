@@ -5,13 +5,11 @@
  */
 package com.opengamma.math.surface;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -24,12 +22,12 @@ public class ConstantDoublesSurfaceTest {
   private static final String NAME2 = "s";
   private static final ConstantDoublesSurface SURFACE = new ConstantDoublesSurface(Z1, NAME1);
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetXData() {
     SURFACE.getXData();
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetYData() {
     SURFACE.getYData();
   }

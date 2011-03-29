@@ -5,12 +5,10 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.sensitivity.CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactory.getSensitivityCalculator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -18,32 +16,32 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorFactoryTest {
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName1() {
     getSensitivityCalculator("Wrong name", false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName2() {
     getSensitivityCalculator("Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadInterpolatorName3() {
     getSensitivityCalculator("Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName1() {
     getSensitivityCalculator(Interpolator1DFactory.LINEAR, "Wrong name", false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName2() {
     getSensitivityCalculator(Interpolator1DFactory.LINEAR, "Wrong name", Interpolator1DFactory.FLAT_EXTRAPOLATOR, false);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadExtrapolatorName3() {
     getSensitivityCalculator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, "Wrong name", false);
   }

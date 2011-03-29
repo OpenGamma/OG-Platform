@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.twoasset.EuropeanExchangeAssetOptionDefinition;
@@ -39,12 +37,12 @@ public class EuropeanExchangeAssetOptionModelTest {
   private static final EuropeanExchangeAssetOptionDefinition OPTION1 = new EuropeanExchangeAssetOptionDefinition(EXPIRY1, Q1, Q2);
   private static final EuropeanExchangeAssetOptionDefinition OPTION2 = new EuropeanExchangeAssetOptionDefinition(EXPIRY2, Q1, Q2);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(new EuropeanExchangeAssetOptionDefinition(EXPIRY1, Q1, Q2)).evaluate((StandardTwoAssetOptionDataBundle) null);
   }

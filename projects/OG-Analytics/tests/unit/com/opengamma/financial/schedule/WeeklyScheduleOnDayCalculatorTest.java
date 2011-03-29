@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.WeeklyScheduleOnDayCalculator;
@@ -29,13 +27,13 @@ public class WeeklyScheduleOnDayCalculatorTest extends ScheduleCalculatorTestCas
     return CALCULATOR;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid1() {
     final LocalDate date = LocalDate.of(2001, 2, 13);
     CALCULATOR.getSchedule(date, date, false, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStartAndEndSameButInvalid2() {
     final ZonedDateTime date = DateUtil.getUTCDate(2001, 2, 13);
     CALCULATOR.getSchedule(date, date, false, true);

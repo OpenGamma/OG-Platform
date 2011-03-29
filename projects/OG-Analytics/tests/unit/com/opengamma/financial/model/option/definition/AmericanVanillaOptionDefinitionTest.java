@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -36,27 +34,27 @@ public class AmericanVanillaOptionDefinitionTest {
       STRIKE, DATE);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataInPayoff() {
     CALL.getPayoffFunction().getPayoff(null, LOW_PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOptionPriceInPayoff() {
     CALL.getPayoffFunction().getPayoff(DATA, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOptionPriceInPayoff() {
     CALL.getPayoffFunction().getPayoff(DATA, -LOW_PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataInExercise() {
     CALL.getExerciseFunction().shouldExercise(null, LOW_PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOptionPriceInExercise() {
     CALL.getExerciseFunction().shouldExercise(DATA, -LOW_PRICE);
   }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition.twoasset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -30,27 +28,27 @@ public class EuropeanExchangeAssetOptionDefinitionTest {
       ConstantDoublesSurface.from(0.2)), new VolatilitySurface(ConstantDoublesSurface.from(0.15)), S1, S2, 0.5, DATE);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.4));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
     new EuropeanExchangeAssetOptionDefinition(null, 10, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroQ1() {
     new EuropeanExchangeAssetOptionDefinition(EXPIRY, 0, 10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroQ2() {
     new EuropeanExchangeAssetOptionDefinition(EXPIRY, 10, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQ1() {
     new EuropeanExchangeAssetOptionDefinition(EXPIRY, -2, 10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQ2() {
     new EuropeanExchangeAssetOptionDefinition(EXPIRY, 10, -6);
   }

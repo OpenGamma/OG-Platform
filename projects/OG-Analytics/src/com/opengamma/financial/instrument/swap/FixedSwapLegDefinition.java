@@ -126,8 +126,8 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
   @Override
   public GenericAnnuity<CouponFixed> toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" 
-        + _settlementDates[_settlementDates.length - 1] + ")"); //TODO
+    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1].toLocalDate()), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
+    //TODO
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
     s_logger.info("Using the first yield curve name as the funding curve name");
@@ -139,7 +139,8 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
-    return new AnnuityCouponFixed(paymentTimes, _notional, _rate, yearFractions, yieldCurveNames[0]);
+    //TODO: the payer/receiver flag should be stored at the leg level!
+    return new AnnuityCouponFixed(paymentTimes, Math.abs(_notional), _rate, yearFractions, yieldCurveNames[0], _notional < 0);
   }
 
   @Override

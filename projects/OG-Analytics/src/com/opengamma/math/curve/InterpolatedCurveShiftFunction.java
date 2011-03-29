@@ -12,16 +12,23 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts an {@link InterpolatedDoublesCurve}. If the <i>x</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original curve, they are added (with shift) to the nodal points of the new curve. 
  */
 public class InterpolatedCurveShiftFunction implements CurveShiftFunction<InterpolatedDoublesCurve> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -35,12 +42,18 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
     return InterpolatedDoublesCurve.fromSorted(xData, shiftedY, curve.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, x, shift, "SINGLE_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double x, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
@@ -64,12 +77,18 @@ public class InterpolatedCurveShiftFunction implements CurveShiftFunction<Interp
     return InterpolatedDoublesCurve.from(newX, newY, curve.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, xShift, yShift, "MULTIPLE_POINT_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesCurve evaluate(final InterpolatedDoublesCurve curve, final double[] xShift, final double[] yShift, final String newName) {
     Validate.notNull(curve, "curve");

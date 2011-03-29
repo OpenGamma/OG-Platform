@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
@@ -30,17 +28,17 @@ public class BondForwardDirtyPriceCalculatorTest {
       new CouponFixed(2.5, CURVE_NAME, 1, 0.05), new CouponFixed(1.5, CURVE_NAME, 1, 0.05), new CouponFixed(0.5, CURVE_NAME, 1, 0.05)});
   private static final double EPS = 1e-10;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForward() {
     CALCULATOR.calculate(null, DIRTY_PRICE, FUNDING_RATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDirtyPrice() {
     CALCULATOR.calculate(FORWARD1, -DIRTY_PRICE, FUNDING_RATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeFundingRate() {
     CALCULATOR.calculate(FORWARD1, DIRTY_PRICE, -FUNDING_RATE);
   }

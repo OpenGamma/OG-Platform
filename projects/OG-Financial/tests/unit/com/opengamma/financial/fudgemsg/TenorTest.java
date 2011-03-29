@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.fudgemsg.FudgeMsgField;
 import org.fudgemsg.types.StringFieldType;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.time.Tenor;
 

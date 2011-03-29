@@ -25,6 +25,8 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
 
 /**
  * 
@@ -51,7 +53,11 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitFixedFloatSwap(FixedFloatSwap swap, S data);
 
-  T visitFloatingRateNote(FloatingRateNote frn, S data);
+  T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, S data);
+
+  T visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, S data);
+
+  //  T visitFloatingRateNote(FloatingRateNote frn, S data);
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
@@ -90,6 +96,10 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(FixedCouponSwap<?> swap);
 
   T visitFixedFloatSwap(FixedFloatSwap swap);
+
+  T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption);
+
+  T visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption);
 
   T visitFloatingRateNote(FloatingRateNote frn);
 

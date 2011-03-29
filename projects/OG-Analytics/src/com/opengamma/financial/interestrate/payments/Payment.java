@@ -15,6 +15,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
  */
 public abstract class Payment implements InterestRateDerivative {
 
+  //TODO: add currency
   private final double _paymentTime;
   private final String _fundingCurveName;
 
@@ -44,6 +45,25 @@ public abstract class Payment implements InterestRateDerivative {
    */
   public String getFundingCurveName() {
     return _fundingCurveName;
+  }
+
+  /**
+   * Return a reference amount. For coupon it is the notional, for simple payments it is the paid amount. Used mainly to assess if the amount is paid or received.
+   * @return The amount.
+   */
+  public abstract double getReferenceAmount();
+
+  /**
+   * Check if the payment is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
+   * @return The check.
+   */
+  public boolean isIborOrFixed() {
+    return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
+  }
+
+  @Override
+  public String toString() {
+    return "\n Payment time = " + _paymentTime + ", Funding curve = " + _fundingCurveName;
   }
 
   @Override

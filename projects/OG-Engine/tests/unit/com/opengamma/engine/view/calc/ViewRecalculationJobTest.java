@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.test.TestComputationResultListener;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -21,11 +19,11 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests ViewRecalculationJob
  */
+@Test
 public class ViewRecalculationJobTest {
 
   private static final long TIMEOUT = 10L * Timeout.standardTimeoutMillis();
   
-  @Test
   public void testInterruptJobBetweenCycles() throws InterruptedException {
     // Due to all the dependencies between components for execution to take place, it's easiest to test it in a
     // realistic environment. In its default configuration, only live data can trigger a computation cycle (after the

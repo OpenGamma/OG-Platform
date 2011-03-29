@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory.getReturnCalculator;
 import static com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory.getReturnCalculatorName;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
-
 import com.opengamma.util.CalculationMode;
 
 /**
@@ -19,12 +17,12 @@ import com.opengamma.util.CalculationMode;
  */
 public class TimeSeriesReturnCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCalculatorName1() {
     getReturnCalculator("x");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCalculatorName2() {
     getReturnCalculator("x", CalculationMode.STRICT);
   }

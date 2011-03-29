@@ -25,6 +25,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 
 /**
  * Get the last date (time in years from now) on a yield curve for which an instrument will be sensitive - any change in the yield curve behold this point cannot affect the present value
@@ -97,8 +98,8 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
 
   @Override
   public Double visitSwap(final Swap<?, ?> swap) {
-    final double a = visit(swap.getPayLeg());
-    final double b = visit(swap.getReceiveLeg());
+    final double a = visit(swap.getFirstLeg());
+    final double b = visit(swap.getSecondLeg());
     return Math.max(a, b);
   }
 
@@ -125,6 +126,11 @@ public final class LastDateCalculator extends AbstractInterestRateDerivativeVisi
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap) {
     return visitSwap(swap);
+  }
+
+  @Override
+  public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
+    return visitSwap(swaption.getUnderlyingSwap());
   }
 
   @Override

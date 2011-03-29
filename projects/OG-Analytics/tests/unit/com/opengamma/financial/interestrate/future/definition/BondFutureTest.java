@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.future.definition;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -26,27 +24,27 @@ public class BondFutureTest {
   private static final double[] CONVERSION_FACTORS = new double[] {1.23, 3.45, 5.67};
   private static final double PRICE = 130;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBonds() {
     new BondFuture(null, CONVERSION_FACTORS, PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConversionFactors() {
     new BondFuture(DELIVERABLES, null, PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
     new BondFuture(new BondForward[] {null}, CONVERSION_FACTORS, PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyBonds() {
     new BondFuture(new BondForward[] {}, new double[] {}, PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthArrays() {
     new BondFuture(DELIVERABLES, new double[] {1, 2, 3, 4, 5}, PRICE);
   }

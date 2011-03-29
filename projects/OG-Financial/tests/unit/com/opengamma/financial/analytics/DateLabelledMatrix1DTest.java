@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.analytics;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.util.time.DateUtil;
 
@@ -75,7 +73,7 @@ public class DateLabelledMatrix1DTest {
     assertArrayEquals(newValues, newMatrix.getValues(), 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void addSingleValueExistingDate1() {
     LocalDate d = LocalDate.of(2011, 1, 1);
     final double v = 10;
@@ -97,7 +95,7 @@ public class DateLabelledMatrix1DTest {
     LD1.add(d, d, v, TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void addSingleValueExistingDate2() {
     ZonedDateTime d = DateUtil.getUTCDate(2011, 1, 1);
     final double v = 10;
@@ -123,7 +121,7 @@ public class DateLabelledMatrix1DTest {
     ZDT1.add(d, d, v, TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddMatrixAllExisting1() {
     LabelledMatrix1D<LocalDate, Period> sum = LD1.add(LD2);
     assertArrayEquals(sum.getKeys(), D1);
@@ -146,7 +144,7 @@ public class DateLabelledMatrix1DTest {
     LD1.add(LD4, TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddMatrixAllExisting2() {
     LabelledMatrix1D<ZonedDateTime, Period> sum = ZDT1.add(ZDT2);
     assertArrayEquals(sum.getKeys(), Z1);
@@ -169,7 +167,7 @@ public class DateLabelledMatrix1DTest {
     ZDT1.add(ZDT4, TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddMatrixSomeExisting1() {
     LocalDate[] expectedDates = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2011, 2, 1), LocalDate.of(2011, 3, 1), LocalDate.of(2011, 4, 1), LocalDate.of(2011, 5, 1),
         LocalDate.of(2011, 7, 1)};
@@ -190,7 +188,7 @@ public class DateLabelledMatrix1DTest {
     LD1.add(LD5, TOLERANCE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddMatrixSomeExisting2() {
     ZonedDateTime[] expectedDates = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 2, 1), DateUtil.getUTCDate(2011, 3, 1), DateUtil.getUTCDate(2011, 4, 1),
         DateUtil.getUTCDate(2011, 5, 1), DateUtil.getUTCDate(2011, 7, 1)};

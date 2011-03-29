@@ -5,14 +5,12 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -46,17 +44,17 @@ public class Interpolator1DCubicSplineDataBundleTest {
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(X, Y));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new Interpolator1DCubicSplineDataBundle(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetNegativeIndex() {
     DATA.setYValueAtIndex(-2, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetHighIndex() {
     DATA.setYValueAtIndex(100, 4);
   }

@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
 
@@ -28,18 +26,19 @@ public class SVIVolatilityFunctionTest {
   private static final Function1D<SVIFormulaData, Double> VOL = F.getVolatilityFunction(OPTION);
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption() {
     F.getVolatilityFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     VOL.evaluate((SVIFormulaData) null);
   }
 
   //@Test(expected = IllegalArgumentException.class)
   //TODO fix me
+  @Test
   public void testNoArbitrageNegativeVerticalSpread() {
     final double t = 4 / (B * (1 + Math.abs(RHO))) + 10;
     F.getVolatilityFunction(new EuropeanVanillaOption(K, t, true)).evaluate(new SVIFormulaData(A, B, RHO, SIGMA, M));

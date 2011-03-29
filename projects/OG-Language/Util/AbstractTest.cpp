@@ -25,9 +25,10 @@ static int g_nTests = 0;
 static int g_nSuccessfulTests = 0;
 static CAbstractTest *g_poTests[MAX_TESTS];
 
-CAbstractTest::CAbstractTest (const TCHAR *pszName) {
+CAbstractTest::CAbstractTest (bool bAutomatic, const TCHAR *pszName) {
 	ASSERT (g_nTests < MAX_TESTS);
 	m_pszName = pszName;
+	m_bAutomatic = bAutomatic;
 	g_poTests[g_nTests++] = this;
 }
 
@@ -73,6 +74,11 @@ void CAbstractTest::Main (int argc, TCHAR **argv) {
 				LOGINFO (TEXT ("Skipping test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
 				continue;
 			}
+		} else {
+			if (!g_poTests[nTest]->m_bAutomatic) {
+				LOGINFO (TEXT ("Skipping test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
+				continue;
+			}
 		}
 		LOGINFO (TEXT ("Running test ") << (nTest + 1) << TEXT (" - ") << g_poTests[nTest]->m_pszName);
 		g_poTests[nTest]->BeforeAll ();
@@ -100,6 +106,8 @@ void CAbstractTest::Fail () {
 #endif /* ifdef __cplusplus_cli */
 }
 
+void LoggingInitImpl (const TCHAR *pszLogConfiguration);
+
 void CAbstractTest::InitialiseLogs () {
 	static bool bFirst = true;
 	if (bFirst) {
@@ -109,16 +117,9 @@ void CAbstractTest::InitialiseLogs () {
 	}
 #ifdef _WIN32
 	TCHAR szConfigurationFile[MAX_PATH];
-	if (GetEnvironmentVariable (TEXT ("LOG4CXX_CONFIGURATION"), szConfigurationFile, MAX_PATH) != 0) {
-#define pszConfigurationFile szConfigurationFile
-#else
-	char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
-	if (pszConfigurationFile) {
-#endif
-		::log4cxx::PropertyConfigurator::configure (pszConfigurationFile);
-		LOGDEBUG (TEXT ("Logging initialised from ") << pszConfigurationFile);
-	} else {
-		::log4cxx::BasicConfigurator::configure ();
-		LOGDEBUG (TEXT ("Logging using default configuration"));
-	}
+	const TCHAR *pszConfigurationFile = (GetEnvironmentVariable (TEXT ("LOG4CXX_CONFIGURATION"), szConfigurationFile, MAX_PATH) != 0) ? szConfigurationFile : NULL;
+#else /* ifdef _WIN32 */
+	const char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
+#endif /* ifdef _WIN32 */
+	LoggingInitImpl (pszConfigurationFile);
 }

@@ -12,18 +12,23 @@ import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Class that calculates the roots of a cubic equation. 
+ * <p>
+ * As the polynomial has real coefficients, the roots of the cubic can be found using the method described
+ * <a href="http://mathworld.wolfram.com/CubicFormula.html">here</a>.
  */
 public class CubicRootFinder implements Polynomial1DRootFinder<ComplexNumber> {
   private static final double TWO_PI = 2 * Math.PI;
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If the function is not cubic
+   */
   @Override
   public ComplexNumber[] getRoots(final RealPolynomialFunction1D function) {
     Validate.notNull(function, "function");
     final double[] coefficients = function.getCoefficients();
-    if (coefficients.length != 4) {
-      throw new IllegalArgumentException("Function is not a cubic");
-    }
+    Validate.isTrue(coefficients.length == 4, "Function is not a cubic");
     final double divisor = coefficients[3];
     final double a = coefficients[2] / divisor;
     final double b = coefficients[1] / divisor;

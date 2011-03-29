@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -50,37 +48,37 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
     DATA = new ArrayInterpolator1DDataBundle(X, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator1() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator2() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null, LEFT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator3() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(null, LEFT, RIGHT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExtrapolator() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeftExtrapolator() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, null, RIGHT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRightExtrapolator() {
     new CombinedInterpolatorExtrapolatorNodeSensitivityCalculator<Interpolator1DDataBundle>(LINEAR, LEFT, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     COMBINED1.calculate(null, 2.3);
   }
@@ -91,12 +89,12 @@ public class CombinedInterpolatorExtrapolatorNodeSensitivityCalculatorTest {
     assertArrayEquals(COMBINED1.calculate(DATA, x), LINEAR.calculate(DATA, x), 1e-15);
     try {
       COMBINED1.calculate(DATA, x - 100);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
     }
     try {
       COMBINED1.calculate(DATA, x + 100);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
     }
   }

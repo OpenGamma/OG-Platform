@@ -5,10 +5,11 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
@@ -19,40 +20,59 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
   private static final double MU = 0.4;
   private static final double SIGMA = 1.4;
   private static final double KSI = 0.2;
-  private static final ProbabilityDistribution<Double> DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
+  private static final GeneralizedParetoDistribution DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
   private static final double LARGE_X = 1e20;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadSigma() {
     new GeneralizedParetoDistribution(MU, -SIGMA, KSI);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroKsi() {
     new GeneralizedParetoDistribution(MU, SIGMA, 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEngine() {
     new GeneralizedParetoDistribution(MU, SIGMA, KSI, null);
   }
 
   @Test
   public void testBadInputs() {
-    testCDFWithNull(DIST);
-    testPDFWithNull(DIST);
+    assertCDFWithNull(DIST);
+    assertPDFWithNull(DIST);
+  }
+
+  @Test
+  public void testObject() {
+    assertEquals(KSI, DIST.getKsi(), 0);
+    assertEquals(MU, DIST.getMu(), 0);
+    assertEquals(SIGMA, DIST.getSigma(), 0);
+    GeneralizedParetoDistribution other = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new GeneralizedParetoDistribution(MU, SIGMA, KSI);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new GeneralizedParetoDistribution(MU + 1, SIGMA, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedParetoDistribution(MU, SIGMA + 1, KSI);
+    assertFalse(other.equals(DIST));
+    other = new GeneralizedParetoDistribution(MU, SIGMA, KSI + 1);
+    assertFalse(other.equals(DIST));
   }
 
   @Test
   public void testSupport() {
     ProbabilityDistribution<Double> dist = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
-    testLimit(dist, MU - EPS);
+    assertLimit(dist, MU - EPS);
     assertEquals(dist.getCDF(MU + EPS), 0, EPS);
     assertEquals(dist.getCDF(LARGE_X), 1, EPS);
     dist = new GeneralizedParetoDistribution(MU, SIGMA, -KSI);
     final double limit = MU + SIGMA / KSI;
-    testLimit(dist, MU - EPS);
-    testLimit(dist, limit + EPS);
+    assertLimit(dist, MU - EPS);
+    assertLimit(dist, limit + EPS);
     assertEquals(dist.getCDF(MU + EPS), 0, EPS);
     assertEquals(dist.getCDF(limit - 1e-15), 1, EPS);
   }
@@ -76,16 +96,16 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
     assertEquals(varianceCalculator.evaluate(data), variance, eps);
   }
 
-  private void testLimit(final ProbabilityDistribution<Double> dist, final double limit) {
+  private void assertLimit(final ProbabilityDistribution<Double> dist, final double limit) {
     try {
       dist.getCDF(limit);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       dist.getPDF(limit);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

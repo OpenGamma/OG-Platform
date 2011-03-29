@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.time;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
@@ -16,7 +16,14 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
+import org.testng.annotations.Test;
+
+import com.opengamma.util.fudge.ExpiryBuilder;
+
+/**
+ * Test Expiry.
+ */
+@Test
 public class ExpiryTest {
 
   private static final FudgeContext s_fudgeContext = new FudgeContext();
@@ -42,14 +49,12 @@ public class ExpiryTest {
     assertEquals(expiry.getExpiry().getZone(), result.getExpiry().getZone());
   }
 
-  @Test
   public void testFudgeMessageUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
       testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.UTC), accuracy));
     }
   }
 
-  @Test
   public void testFudgeMessageNonUTC() {
     for (ExpiryAccuracy accuracy : ExpiryAccuracy.values()) {
       testExpiry(new Expiry(ZonedDateTime.of(LocalDateTime.now(), TimeZone.of("GMT+02:00")), accuracy));

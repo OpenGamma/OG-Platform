@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -46,7 +44,7 @@ public class MathCurveTest extends AnalyticsTestBase {
     assertEquals(c1, c2);
   }
 
-  @Test(expected = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testWrongFunctionType() {
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 

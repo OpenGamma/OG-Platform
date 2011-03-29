@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.junit.Test;
 
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -93,110 +91,110 @@ public class NodalObjectObjectCurveTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    final NodalObjectObjectCurve<Float, Double> curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
-    NodalObjectObjectCurve<Float, Double> other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
+    final NodalObjectsCurve<Float, Double> curve = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
+    NodalObjectsCurve<Float, Double> other = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false);
+    other = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false);
     assertFalse(curve.equals(other));
     final Float[] temp1 = Arrays.copyOf(X_OBJECT, 10);
     temp1[0] = 1000f;
-    other = new NodalObjectObjectCurve<Float, Double>(temp1, Y_OBJECT, false, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(temp1, Y_OBJECT, false, NAME1);
     assertFalse(curve.equals(other));
     final Double[] temp2 = Arrays.copyOf(Y_OBJECT, 10);
     temp2[0] = 1e14;
-    other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, temp2, false, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(X_OBJECT, temp2, false, NAME1);
     assertFalse(curve.equals(other));
-    other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, true, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, true, NAME1);
     assertFalse(curve.equals(other));
-    other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME2);
+    other = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME2);
     assertFalse(curve.equals(other));
-    other = new NodalObjectObjectCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(MAP, false, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(MAP, false, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(MAP_SORTED, true, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(MAP_SORTED, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(PAIR_SET, false, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(PAIR_SET, false, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(PAIR_SET_SORTED, true, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(PAIR_SET_SORTED, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(X_LIST, Y_LIST, false, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(X_LIST, Y_LIST, false, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
-    other = new NodalObjectObjectCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, true, NAME1);
+    other = new NodalObjectsCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, true, NAME1);
     assertEquals(curve, other);
     assertEquals(curve.hashCode(), other.hashCode());
   }
 
   @Test
   public void testStaticConstruction() {
-    NodalObjectObjectCurve<Float, Double> curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
-    NodalObjectObjectCurve<Float, Double> other = NodalObjectObjectCurve.from(X_OBJECT, Y_OBJECT, NAME1);
+    NodalObjectsCurve<Float, Double> curve = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false, NAME1);
+    NodalObjectsCurve<Float, Double> other = NodalObjectsCurve.from(X_OBJECT, Y_OBJECT, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true, NAME1);
+    other = NodalObjectsCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(MAP, false, NAME1);
-    other = NodalObjectObjectCurve.from(MAP, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(MAP, false, NAME1);
+    other = NodalObjectsCurve.from(MAP, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(MAP_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.fromSorted(MAP_SORTED, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(MAP_SORTED, true, NAME1);
+    other = NodalObjectsCurve.fromSorted(MAP_SORTED, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET, false, NAME1);
-    other = NodalObjectObjectCurve.from(PAIR_SET, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(PAIR_SET, false, NAME1);
+    other = NodalObjectsCurve.from(PAIR_SET, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_LIST, Y_LIST, false, NAME1);
-    other = NodalObjectObjectCurve.from(X_LIST, Y_LIST, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(X_LIST, Y_LIST, false, NAME1);
+    other = NodalObjectsCurve.from(X_LIST, Y_LIST, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, false, NAME1);
-    other = NodalObjectObjectCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, false, NAME1);
+    other = NodalObjectsCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET_SORTED, true, NAME1);
-    other = NodalObjectObjectCurve.fromSorted(PAIR_SET_SORTED, NAME1);
+    curve = new NodalObjectsCurve<Float, Double>(PAIR_SET_SORTED, true, NAME1);
+    other = NodalObjectsCurve.fromSorted(PAIR_SET_SORTED, NAME1);
     assertEquals(curve, other);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT, Y_OBJECT, false);
-    other = NodalObjectObjectCurve.from(X_OBJECT, Y_OBJECT);
+    curve = new NodalObjectsCurve<Float, Double>(X_OBJECT, Y_OBJECT, false);
+    other = NodalObjectsCurve.from(X_OBJECT, Y_OBJECT);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true);
-    other = NodalObjectObjectCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED);
+    curve = new NodalObjectsCurve<Float, Double>(X_OBJECT_SORTED, Y_OBJECT_SORTED, true);
+    other = NodalObjectsCurve.fromSorted(X_OBJECT_SORTED, Y_OBJECT_SORTED);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(MAP, false);
-    other = NodalObjectObjectCurve.from(MAP);
+    curve = new NodalObjectsCurve<Float, Double>(MAP, false);
+    other = NodalObjectsCurve.from(MAP);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(MAP_SORTED, true);
-    other = NodalObjectObjectCurve.fromSorted(MAP_SORTED);
+    curve = new NodalObjectsCurve<Float, Double>(MAP_SORTED, true);
+    other = NodalObjectsCurve.fromSorted(MAP_SORTED);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET, false);
-    other = NodalObjectObjectCurve.from(PAIR_SET);
+    curve = new NodalObjectsCurve<Float, Double>(PAIR_SET, false);
+    other = NodalObjectsCurve.from(PAIR_SET);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(PAIR_SET_SORTED, true);
-    other = NodalObjectObjectCurve.fromSorted(PAIR_SET_SORTED);
+    curve = new NodalObjectsCurve<Float, Double>(PAIR_SET_SORTED, true);
+    other = NodalObjectsCurve.fromSorted(PAIR_SET_SORTED);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_LIST, Y_LIST, false);
-    other = NodalObjectObjectCurve.from(X_LIST, Y_LIST);
+    curve = new NodalObjectsCurve<Float, Double>(X_LIST, Y_LIST, false);
+    other = NodalObjectsCurve.from(X_LIST, Y_LIST);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
-    curve = new NodalObjectObjectCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, true);
-    other = NodalObjectObjectCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED);
+    curve = new NodalObjectsCurve<Float, Double>(X_LIST_SORTED, Y_LIST_SORTED, true);
+    other = NodalObjectsCurve.fromSorted(X_LIST_SORTED, Y_LIST_SORTED);
     assertFalse(curve.equals(other));
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
@@ -204,20 +202,20 @@ public class NodalObjectObjectCurveTest {
 
   @Test
   public void testGetters() {
-    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.from(PAIR_SET, NAME1);
+    final NodalObjectsCurve<Float, Double> curve = NodalObjectsCurve.from(PAIR_SET, NAME1);
     assertEquals(curve.getName(), NAME1);
     assertArrayEquals(curve.getXData(), X_OBJECT_SORTED);
     assertArrayEquals(curve.getYData(), Y_OBJECT_SORTED);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalPoint() {
-    NodalObjectObjectCurve.from(MAP).getYValue(3.1f);
+    NodalObjectsCurve.from(MAP).getYValue(3.1f);
   }
 
   @Test
   public void testGetYValue() {
-    final NodalObjectObjectCurve<Float, Double> curve = NodalObjectObjectCurve.from(MAP_SORTED, NAME1);
+    final NodalObjectsCurve<Float, Double> curve = NodalObjectsCurve.from(MAP_SORTED, NAME1);
     for (int i = 0; i < 10; i++) {
       assertEquals(curve.getYValue(X_OBJECT[i]), Y_OBJECT[i], 0);
     }

@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public abstract class Integrator1DTestCase {
@@ -31,34 +30,26 @@ public abstract class Integrator1DTestCase {
   private static final Double UPPER = 12.;
   private static final double EPS = 1e-5;
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    try {
-      getIntegrator().integrate(null, LOWER, UPPER);
-      fail();
-    } catch (final IllegalArgumentException e) {
-    }
+    getIntegrator().integrate(null, LOWER, UPPER);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLowerBound() {
-    try {
-      getIntegrator().integrate(DF, null, UPPER);
-      fail();
-    } catch (final IllegalArgumentException e) {
-    }
+    getIntegrator().integrate(DF, null, UPPER);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUpperBound() {
-    try {
-      getIntegrator().integrate(DF, LOWER, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-    }
+    getIntegrator().integrate(DF, LOWER, null);
   }
 
+  @Test
   public void test() {
     assertEquals(getIntegrator().integrate(DF, LOWER, UPPER), F.evaluate(UPPER) - F.evaluate(LOWER), EPS);
     assertEquals(getIntegrator().integrate(DF, UPPER, LOWER), -getIntegrator().integrate(DF, LOWER, UPPER), EPS);
   }
 
-  public abstract Integrator1D<Double, Function1D<Double, Double>, Double> getIntegrator();
+  public abstract Integrator1D<Double, Double> getIntegrator();
 }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.financial.security.equity.GICSCode;
 
 /**
@@ -18,32 +16,32 @@ import com.opengamma.financial.security.equity.GICSCode;
  */
 public class GICSCodeTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalid1() {
     GICSCode.getInstance(0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalid2() {
     GICSCode.getInstance(100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalid3() {
     GICSCode.getInstance(10100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalid4() {
     GICSCode.getInstance(1010100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidString1() {
     GICSCode.getInstance("Kirk Wylie");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInvalidString2() {
     GICSCode.getInstance("-5");
   }

@@ -5,22 +5,27 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
  */
+@Test
 public class RateLimitingMergingUpdateProviderTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingUpdateProviderTest.class);
 
   @Test
   public void testPassThrough() {
@@ -77,7 +82,7 @@ public class RateLimitingMergingUpdateProviderTest {
 
   private void assertCorrectUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     provider.setMinimumUpdatePeriodMillis(period);
-    testUpdateRate(provider, testListener, period);
+    assertUpdateRate(provider, testListener, period);
 
     // If the provider is paused then all updates should be merged regardless of the time elapsed or the rate
     provider.setPaused(true);
@@ -91,10 +96,10 @@ public class RateLimitingMergingUpdateProviderTest {
     assertEquals(1, testListener.consumeResults().size());
 
     // Once unpaused, everything should be back to normal
-    testUpdateRate(provider, testListener, period);
+    assertUpdateRate(provider, testListener, period);
   }
 
-  private void testUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
+  private void assertUpdateRate(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, TestMergingUpdateListener testListener, int period) throws InterruptedException {
     testListener.resetShortestDelay();
     for (int i = 0; i < 100; i++) {
       Thread.sleep(10);
@@ -105,7 +110,7 @@ public class RateLimitingMergingUpdateProviderTest {
     // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
     assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - period / 10));
     assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
-    System.out.println ("size = " + testListener.consumeResults ().size ());
+    s_logger.info("Size = {}", testListener.consumeResults().size());
   }
 
   private void addResults(RateLimitingMergingUpdateProvider<ViewComputationResultModel> provider, int count) {

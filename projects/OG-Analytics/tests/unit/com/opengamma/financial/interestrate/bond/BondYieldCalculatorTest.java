@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -58,9 +56,9 @@ public class BondYieldCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * alpha;
     }
-    double coupon = 0.05;
+    final double coupon = 0.05;
 
-    Bond bond = new Bond(paymentTimes, coupon, "blah");
+    final Bond bond = new Bond(paymentTimes, coupon, "blah");
     double price, yield;
 
     for (int i = 0; i < 50; i++) {
@@ -68,7 +66,6 @@ public class BondYieldCalculatorTest {
       yield = CALCULATOR.calculate(bond, price);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
       // TODO real test
-      // System.out.println(price + "\t" + yield);
     }
 
   }

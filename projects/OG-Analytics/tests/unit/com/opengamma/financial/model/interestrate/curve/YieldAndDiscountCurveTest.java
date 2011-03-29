@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.curve.InterpolatedCurveShiftFunction;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
@@ -25,12 +23,12 @@ public class YieldAndDiscountCurveTest {
   private static final YieldAndDiscountCurve YIELD = new YieldCurve(R);
   private static final YieldAndDiscountCurve DISCOUNT = new DiscountCurve(DF);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     new YieldCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     new DiscountCurve(null);
   }

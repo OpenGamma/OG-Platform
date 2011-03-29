@@ -5,16 +5,14 @@
  */
 package com.opengamma.master.config.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.annotations.BeforeMethod;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -31,6 +29,7 @@ import com.opengamma.master.config.ConfigSearchResult;
 /**
  * Test InMemoryConfigMaster.
  */
+@Test
 public class InMemoryConfigMasterTest {
 
   private static final UniqueIdentifier OTHER_UID = UniqueIdentifier.of("U", "1");
@@ -46,7 +45,7 @@ public class InMemoryConfigMasterTest {
   private ConfigDocument<IdentifierBundle> _doc3;
   private ConfigDocument<IdentifierBundle> _doc4;
 
-  @Before
+  @BeforeMethod
   public void setUp() {
     _testEmpty = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
     _testPopulated = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
@@ -69,12 +68,11 @@ public class InMemoryConfigMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullSupplier() {
     new InMemoryConfigMaster((Supplier<ObjectIdentifier>) null);
   }
 
-  @Test
   public void test_defaultSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster();
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
@@ -84,7 +82,6 @@ public class InMemoryConfigMasterTest {
     assertEquals("MemCfg", added.getUniqueId().getScheme());
   }
 
-  @Test
   public void test_alternateSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Hello"));
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
@@ -95,7 +92,6 @@ public class InMemoryConfigMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_search_emptyMaster() {
     ConfigSearchRequest<Object> request = new ConfigSearchRequest<Object>();
     ConfigSearchResult<Object> result = _testEmpty.search(request);
@@ -103,7 +99,6 @@ public class InMemoryConfigMasterTest {
     assertEquals(0, result.getDocuments().size());
   }
 
-  @Test
   public void test_search_populatedMaster_all() {
     ConfigSearchRequest<Object> request = new ConfigSearchRequest<Object>();
     ConfigSearchResult<Object> result = _testPopulated.search(request);
@@ -116,7 +111,6 @@ public class InMemoryConfigMasterTest {
     assertEquals(true, docs.contains(_doc4));
   }
 
-  @Test
   public void test_search_populatedMaster_filterByName() {
     ConfigSearchRequest<Object> request = new ConfigSearchRequest<Object>();
     request.setName("ONE");
@@ -126,7 +120,6 @@ public class InMemoryConfigMasterTest {
     assertEquals(true, result.getDocuments().contains(_doc1));
   }
   
-  @Test
   public void test_search_populatedMaster_filterByType() {
     ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
     request.setType(Identifier.class);
@@ -138,12 +131,11 @@ public class InMemoryConfigMasterTest {
   }
   
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_emptyMaster() {
     assertNull(_testEmpty.get(OTHER_UID, Identifier.class));
   }
 
-  @Test
   public void test_get_populatedMaster() {
     assertSame(_doc1, _testPopulated.get(_doc1.getUniqueId()));
     assertSame(_doc2, _testPopulated.get(_doc2.getUniqueId()));
@@ -151,7 +143,6 @@ public class InMemoryConfigMasterTest {
     assertSame(_doc4, _testPopulated.get(_doc4.getUniqueId()));
   }
   
-  @Test
   public void test_get_typed_populatedMaster() {
     ConfigDocument<Identifier> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), Identifier.class);
     assertSame(_doc1, storedDoc1);
@@ -164,7 +155,7 @@ public class InMemoryConfigMasterTest {
     assertSame(_doc4, storedDoc4);
   }
   
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_typed_populatedMaster() {
     ConfigDocument<IdentifierBundle> storedDoc1 = _testPopulated.get(_doc1.getUniqueId(), IdentifierBundle.class);
     assertSame(_doc1, storedDoc1);
@@ -173,6 +164,7 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    doc.setName("Test");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = _testEmpty.add(doc);
     assertNotNull(added.getVersionFromInstant());
@@ -181,7 +173,7 @@ public class InMemoryConfigMasterTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
     ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
     doc.setValue(VAL1);
@@ -197,16 +189,14 @@ public class InMemoryConfigMasterTest {
     assertEquals(_doc1.getUniqueId(), updated.getUniqueId());
     assertNotNull(_doc1.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
-    assertEquals(false, _doc1.getVersionFromInstant().equals(updated.getVersionFromInstant()));
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_remove_emptyMaster() {
     _testEmpty.remove(OTHER_UID);
   }
 
-  @Test
   public void test_remove_populatedMaster() {
     _testPopulated.remove(_doc1.getUniqueId());
     ConfigSearchRequest<Object> request = new ConfigSearchRequest<Object>();
@@ -219,7 +209,6 @@ public class InMemoryConfigMasterTest {
     assertEquals(true, docs.contains(_doc4));
   }
   
-  @Test
   public void test_getTypes() {
     List<String> types = _testPopulated.getTypes();
     assertNotNull(types);

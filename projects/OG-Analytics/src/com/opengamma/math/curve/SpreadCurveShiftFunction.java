@@ -8,17 +8,23 @@ package com.opengamma.math.curve;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts a {@link SpreadDoublesCurve}. Only parallel shifts are supported.
  */
 public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDoublesCurve> {
   private static final CurveSpreadFunction SPREAD_FUNCTION = new AddCurveSpreadFunction();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift) {
     Validate.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift, final String newName) {
@@ -33,21 +39,41 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
     return SpreadDoublesCurve.from(curves, SPREAD_FUNCTION, newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double x, final double shift) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double x, final double shift, final String newName) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double[] x, final double[] y) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws UnsupportedOperationException
+   */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double[] x, final double[] y, final String newName) {
     throw new UnsupportedOperationException();

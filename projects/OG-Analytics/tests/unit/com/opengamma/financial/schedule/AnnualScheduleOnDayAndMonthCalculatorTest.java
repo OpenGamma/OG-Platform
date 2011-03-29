@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.schedule;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.schedule.AnnualScheduleOnDayAndMonthCalculator;
 import com.opengamma.financial.schedule.Schedule;
@@ -31,23 +29,23 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
     return CALCULATOR;
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDay() {
     new AnnualScheduleOnDayAndMonthCalculator(-DAY_OF_MONTH, MONTH_OF_YEAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadDay() {
     new AnnualScheduleOnDayAndMonthCalculator(31, MonthOfYear.FEBRUARY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSameDayBadDates1() {
     final LocalDate date = LocalDate.of(2001, MONTH_OF_YEAR.getValue(), 12);
     CALCULATOR.getSchedule(date, date, false, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSameDayBadDates2() {
     final ZonedDateTime date = DateUtil.getUTCDate(2001, MONTH_OF_YEAR.getValue(), 12);
     CALCULATOR.getSchedule(date, date, false, true);

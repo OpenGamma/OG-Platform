@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.model.future.pricing;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -43,17 +41,17 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new YieldCurve(ConstantDoublesCurve.from(R)), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     FUTURE_MODEL.getGreeks(null, FUTURE_DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGreekSet() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, null);
   }

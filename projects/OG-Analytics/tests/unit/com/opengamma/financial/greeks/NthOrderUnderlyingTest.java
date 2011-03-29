@@ -5,23 +5,21 @@
  */
 package com.opengamma.financial.greeks;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.pnl.UnderlyingType;
 
 public class NthOrderUnderlyingTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOrder() {
     new NthOrderUnderlying(-2, UnderlyingType.SPOT_PRICE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUnderlyingType() {
     new NthOrderUnderlying(1, null);
   }

@@ -134,11 +134,11 @@ static void StartStop () {
 	// No-op; the fun is in the StartConnector and StopConnector methods
 }
 
-static void SyncCall (int nTimeoutFactor = 1) {
+static void SyncCall (long lTimeout = TIMEOUT_CALL) {
 	FudgeMsg msgToSend;
 	FudgeMsg msgReceived;
 	CreateTestMessage (&msgToSend, ECHO_REQUEST);
-	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, nTimeoutFactor * TIMEOUT_CALL));
+	ASSERT (g_poConnector->Call (msgToSend, &msgReceived, lTimeout));
 	ASSERT (msgReceived);
 	CheckTestResponse (msgReceived, ECHO_RESPONSE);
 	FudgeMsg_release (msgReceived);
@@ -195,7 +195,7 @@ static void JVMCrash () {
 	ASSERT (tEnd - tStart < TIMEOUT_CALL);
 	FudgeMsg_release (msgToSend);
 	// And now it should be operational again
-	SyncCall (3);
+	SyncCall (TIMEOUT_STARTUP);
 }
 
 static void JVMHang () {
@@ -209,7 +209,7 @@ static void JVMHang () {
 	ASSERT (tEnd - tStart < 3 * TIMEOUT_CALL);
 	FudgeMsg_release (msgToSend);
 	// And now it should be operational again
-	SyncCall (4);
+	SyncCall (TIMEOUT_STARTUP);
 }
 
 BEGIN_TESTS (ConnectorTest)

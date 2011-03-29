@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +17,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -34,10 +32,10 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * 
  */
+@Test
 public class CalculationJobTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  @Test
   public void fudgeEncodingNoInputsOutputs() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
@@ -71,7 +69,6 @@ public class CalculationJobTest {
     assertEquals("1", outputItem.getFunctionUniqueIdentifier());
   }
 
-  @Test
   public void fudgeEncodingOneInputOneOutput() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap();
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);

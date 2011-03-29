@@ -5,17 +5,13 @@
  */
 package com.opengamma.livedata.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
- *
- * @author pietari
  */
 public class ReconnectManagerTest {
   
@@ -27,7 +23,7 @@ public class ReconnectManagerTest {
     
     try {
       server.subscribe("foo");
-      fail("Not connected yet");
+      Assert.fail("Not connected yet");
     } catch (RuntimeException e) {
       // ok
     }

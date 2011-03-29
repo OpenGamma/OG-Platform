@@ -5,22 +5,22 @@
  */
 package com.opengamma.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Test Identifier. 
  */
+@Test
 public class IdentifierTest {
 
   private static final IdentificationScheme SCHEME = IdentificationScheme.of("Scheme");
   private static final IdentificationScheme OTHER_SCHEME = IdentificationScheme.of("Other");
 
-  @Test
   public void test_factory_IdentificationScheme_String() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals("Scheme", test.getScheme().getName());
@@ -28,22 +28,21 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_IdentificationScheme_String_nullScheme() {
     Identifier.of((IdentificationScheme) null, "value");
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_IdentificationScheme_String_nullValue() {
     Identifier.of(SCHEME, (String) null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_IdentificationScheme_String_emptyValue() {
     Identifier.of(SCHEME, "");
   }
 
-  @Test
   public void test_factory_String_String() {
     Identifier test = Identifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme().getName());
@@ -51,23 +50,22 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_nullScheme() {
     Identifier.of((String) null, "value");
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_nullValue() {
     Identifier.of(SCHEME, (String) null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_String_String_emptyValue() {
     Identifier.of(SCHEME, "");
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_parse() {
     Identifier test = Identifier.parse("Scheme::value");
     assertEquals(SCHEME, test.getScheme());
@@ -75,13 +73,12 @@ public class IdentifierTest {
     assertEquals("Scheme::value", test.toString());
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat() {
     Identifier.parse("Scheme:value");
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_isScheme_IdentificationScheme() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(true, test.isScheme(SCHEME));
@@ -89,7 +86,6 @@ public class IdentifierTest {
     assertEquals(false, test.isScheme((IdentificationScheme) null));
   }
 
-  @Test
   public void test_isNotScheme_IdentificationScheme() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(false, test.isNotScheme(SCHEME));
@@ -97,7 +93,6 @@ public class IdentifierTest {
     assertEquals(true, test.isNotScheme((IdentificationScheme) null));
   }
 
-  @Test
   public void test_isScheme_String() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(true, test.isScheme("Scheme"));
@@ -105,7 +100,6 @@ public class IdentifierTest {
     assertEquals(false, test.isScheme((String) null));
   }
 
-  @Test
   public void test_isNotScheme_String() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(false, test.isNotScheme("Scheme"));
@@ -114,21 +108,18 @@ public class IdentifierTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_getIdentityKey() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(test, test.getIdentityKey());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_toBundle() {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals(IdentifierBundle.of(test), test.toBundle());
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_equals() {
     Identifier d1a = Identifier.of(SCHEME, "d1");
     Identifier d1b = Identifier.of(SCHEME, "d1");
@@ -150,7 +141,6 @@ public class IdentifierTest {
     assertEquals(false, d1b.equals(null));
   }
 
-  @Test
   public void test_hashCode() {
     Identifier d1a = Identifier.of(SCHEME, "d1");
     Identifier d1b = Identifier.of(SCHEME, "d1");
@@ -159,7 +149,6 @@ public class IdentifierTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_fudgeEncoding() {
     Identifier test = Identifier.of("id1", "value1");
     FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());

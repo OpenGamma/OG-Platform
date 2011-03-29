@@ -7,11 +7,14 @@ package com.opengamma.util.test;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.junit.After;
-import org.junit.Before;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.util.db.DbSource;
 
+/**
+ * DB test involving Hibernate.
+ */
 public abstract class HibernateTest extends DBTest {
   
   private SessionFactory _sessionFactory;
@@ -31,7 +34,7 @@ public abstract class HibernateTest extends DBTest {
   
   public abstract Class<?>[] getHibernateMappingClasses();
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     
@@ -45,15 +48,15 @@ public abstract class HibernateTest extends DBTest {
 
     testCount++;
   }
-  
-  @After
+
+  @AfterMethod
   public void tearDown() throws Exception {
     if (_sessionFactory != null) {
       _sessionFactory.close();
     }
     super.tearDown();
   }
-  
+
   @Override
   public DbSource getDbSource() {
     DbSource source = super.getDbSource();
@@ -65,5 +68,5 @@ public abstract class HibernateTest extends DBTest {
         source.getTransactionDefinition(),
         source.getTransactionManager());
   }
-  
+
 }

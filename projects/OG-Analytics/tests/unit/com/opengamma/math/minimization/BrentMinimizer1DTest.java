@@ -5,45 +5,43 @@
  */
 package com.opengamma.math.minimization;
 
-import org.junit.Test;
-
-import com.opengamma.math.function.Function1D;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class BrentMinimizer1DTest extends Minimizer1DTestCase {
   private static final ScalarMinimizer MINIMIZER = new BrentMinimizer1D();
-  private static final Function1D<Double, Double> NO_MIN = new Function1D<Double, Double>() {
+//  private static final Function1D<Double, Double> NO_MIN = new Function1D<Double, Double>() {
+//
+//    @Override
+//    public Double evaluate(final Double x) {
+//      return x;
+//    }
+//
+//  };
+//  private static final Function1D<Double, Double> NON_NEGATIVE = new Function1D<Double, Double>() {
+//
+//    @Override
+//    public Double evaluate(final Double x) {
+//      return Math.sqrt(x);
+//    }
+//
+//  };
 
-    @Override
-    public Double evaluate(final Double x) {
-      return x;
-    }
-
-  };
-  private static final Function1D<Double, Double> NON_NEGATIVE = new Function1D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x) {
-      return Math.sqrt(x);
-    }
-
-  };
-
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction1() {
     MINIMIZER.minimize(null, 2., 1., 4.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction2() {
     MINIMIZER.minimize(null, 2.);
   }
 
   @Test
   public void test() {
-    super.testInputs(MINIMIZER);
-    super.test(MINIMIZER);
+    super.assertInputs(MINIMIZER);
+    super.assertMinimizer(MINIMIZER);
   }
 }
