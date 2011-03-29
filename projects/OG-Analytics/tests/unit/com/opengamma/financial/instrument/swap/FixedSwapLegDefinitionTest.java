@@ -6,13 +6,11 @@
 package com.opengamma.financial.instrument.swap;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -47,52 +45,52 @@ public class FixedSwapLegDefinitionTest {
   private static final double RATE = 0.05;
   private static final FixedSwapLegDefinition DEFINITION = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate() {
     new FixedSwapLegDefinition(null, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDates() {
     new FixedSwapLegDefinition(EFFECTIVE_DATE, null, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDates() {
     new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, null, NOTIONAL, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRate() {
     new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, -RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDatesLength() {
     new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, new ZonedDateTime[] {}, NOTIONAL, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     DEFINITION.toDerivative(null, new String[] {"B"});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNames() {
     DEFINITION.toDerivative(LocalDate.of(2011, 2, 1), (String[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyNames() {
     DEFINITION.toDerivative(LocalDate.of(2011, 2, 1), new String[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAfterLastPayment() {
     DEFINITION.toDerivative(LocalDate.of(2100, 1, 1), new String[] {"S"});
   }
@@ -131,7 +129,7 @@ public class FixedSwapLegDefinitionTest {
     assertEquals(n, SETTLEMENT_DATES.length - offset);
     for (int i = 0; i < n; i++) {
       final CouponFixed nthPayment = annuity.getNthPayment(i);
-      assertEquals(nthPayment.getNotional(), NOTIONAL, 0);
+      assertEquals(NOTIONAL, nthPayment.getNotional(), 0);
       assertEquals(nthPayment.getFundingCurveName(), yieldCurveName);
       final double paymentTime = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA").getDayCountFraction(DATE, SETTLEMENT_DATES[i + offset]);
       assertEquals(nthPayment.getPaymentTime(), paymentTime, 0);

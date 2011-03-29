@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -41,7 +39,7 @@ public class LinearInterpolator1DNodeSensitivityCalculatorTest {
     DATA = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.calculate(null, 1.);
   }

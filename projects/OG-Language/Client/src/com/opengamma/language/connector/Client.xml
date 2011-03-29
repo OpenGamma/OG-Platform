@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+  Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ 
+  Please see distribution for license.
+-->
 <beans>
 
   <!-- System properties -->
@@ -35,20 +40,24 @@
       </bean>
     </property>
   </bean>
-  <bean id="sessionContextFactory" class="com.opengamma.language.context.SessionContextFactoryBean"> <!-- Extension point - SessionContextFactoryBean -->
-    <property name="userContextFactory">
-      <bean id="userContextFactory" class="com.opengamma.language.context.UserContextFactoryBean"> <!-- Extension point - UserContextFactoryBean -->
-        <property name="globalContextFactory">
-          <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
-            <property name="globalContextEventHandler">
-              <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
-                <property name="systemSettings" ref="systemSettings" />
-              </bean>
-            </property>
-          </bean>
-        </property>
-      </bean>
+	 <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
+	   <property name="globalContextEventHandler">
+	     <bean class="com.opengamma.language.context.DefaultGlobalContextEventHandler">
+	       <property name="systemSettings" ref="systemSettings" />
+	     </bean>
+	   </property>
+	 </bean>
+  <bean id="userContextFactory" class="com.opengamma.language.context.UserContextFactoryBean"> <!-- Extension point - UserContextFactoryBean -->
+    <property name="userContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultUserContextEventHandler" />
     </property>
+    <property name="globalContextFactory" ref="globalContextFactory" />
+  </bean>
+  <bean id="sessionContextFactory" class="com.opengamma.language.context.SessionContextFactoryBean"> <!-- Extension point - SessionContextFactoryBean -->
+    <property name="sessionContextEventHandler">
+      <bean class="com.opengamma.language.context.DefaultSessionContextEventHandler" />
+    </property>
+    <property name="userContextFactory" ref="userContextFactory" />
   </bean>
   <bean id="liveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
@@ -56,54 +65,97 @@
     <property name="entitlementTopic" value="${opengamma.livedata.entitlement}" />
     <property name="heartbeatTopic" value="${opengamma.livedata.heartbeat}" />
   </bean>
+  
+  <!-- Standard conditionals -->
+  <bean id="isDebugClient" class="com.opengamma.language.connector.Conditional" factory-method="isDebugClient" />
+  <bean id="isDebugStack" class="com.opengamma.language.connector.Conditional" factory-method="isDebugStack" />
 
   <!-- Debug items for testing-->
-  <bean id="debugFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: debug functions --> 
-      </list>
-    </property>
+  <bean id="debugFunctionsLoader" class="com.opengamma.language.function.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="functions">
+      <bean class="com.opengamma.language.function.FunctionProviderBean">
+        <property name="functions">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugFunctionIncrement" />
+            <bean class="com.opengamma.language.debug.DebugFunctionLiteral">
+              <constructor-arg value="DebugFunctionLiteral" />
+              <constructor-arg value="42" />
+            </bean>
+            <bean class="com.opengamma.language.debug.DebugFunctionMessage" />
+          </list>
+        </property>
+      </bean>
+		</property>
+    <property name="condition" ref="isDebugClient" />
   </bean>
-  <bean id="debugProcedures" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: debug procedures  --> 
-      </list>
-    </property>
+  <bean id="debugLiveDataLoader" class="com.opengamma.language.livedata.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="liveData">
+      <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
+        <property name="liveData">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugLiveDataRandom" />
+          </list>
+        </property>
+      </bean>
+		</property>
+    <property name="condition" ref="isDebugClient" />
   </bean>
-  <bean id="debugLiveData" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: debug livedata --> 
-      </list>
-    </property>
+  <bean id="debugProceduresLoader" class="com.opengamma.language.procedure.Loader">
+    <property name="sessionContextFactory" ref="sessionContextFactory" />
+    <property name="procedures">
+      <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
+        <property name="procedures">
+          <list>
+            <bean class="com.opengamma.language.debug.DebugProcedureIncrement" />
+          </list>
+        </property>
+      </bean>
+		</property>
+    <property name="condition" ref="isDebugClient" />
   </bean>
   
   <!-- Standard functions, procedures and livedata -->
-  <bean id="standardFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: standard functions -->
-      </list>
+  <bean id="defaultFunctionsLoader" class="com.opengamma.language.function.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="functions">
+      <bean class="com.opengamma.language.function.FunctionProviderBean">
+        <property name="functions">
+          <list>
+            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults --> 
+            <bean class="com.opengamma.language.debug.DebugFunctionMessage" />
+          </list>
+        </property>
+      </bean>
     </property>
   </bean>
-  <bean id="standardProcedures" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: standard procedures -->
-      </list>
+  <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="liveData">
+      <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
+        <property name="liveData">
+          <list>
+            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults -->
+            <bean class="com.opengamma.language.debug.DebugLiveDataRandom" />
+          </list>
+        </property> 
+      </bean>
     </property>
-  </bean> 
-  <bean id="standardLiveData" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: standard live data -->
-      </list>
+  </bean>
+  <bean id="defaultProceduresLoader" class="com.opengamma.language.procedure.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="procedures">
+      <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
+        <property name="procedures">
+          <list>
+            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults --> 
+            <bean class="com.opengamma.language.debug.DebugProcedureIncrement" />
+          </list>
+        </property>
+      </bean>
     </property>
-  </bean> 
-  
-  <!-- TODO: use the context extension hooks to register the built in functions -->
+  </bean>
   
   <!-- TODO: hooks into the argument processing -->
   

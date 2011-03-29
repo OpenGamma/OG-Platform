@@ -5,19 +5,17 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.junit.Test;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -43,6 +41,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Tests RemoteNodeClient
  */
+@Test
 public class RemoteNodeClientTest {
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
@@ -52,7 +51,6 @@ public class RemoteNodeClientTest {
     return new CalculationJob(JobDispatcherTest.createTestJobSpec(), 0L, null, JobDispatcherTest.createTestJobItems(), CacheSelectHint.allShared());
   }
 
-  @Test
   public void simpleInvocation() {
     final IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
@@ -86,7 +84,6 @@ public class RemoteNodeClientTest {
     assertEquals(job.getSpecification(), result.getResult().getSpecification());
   }
   
-  @Test
   public void isAlive () {
     final IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);
@@ -117,7 +114,6 @@ public class RemoteNodeClientTest {
     assertNull (messages.waitForMessage(TIMEOUT));
   }
 
-  @Test
   public void errorInvocation() {
     final IdentifierMap identifierMap = new InMemoryIdentifierMap ();
     final DirectFudgeConnection conduit = new DirectFudgeConnection(s_fudgeContext);

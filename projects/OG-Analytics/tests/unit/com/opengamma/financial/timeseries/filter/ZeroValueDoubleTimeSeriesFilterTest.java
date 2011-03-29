@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -25,17 +23,17 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
   private static final ZeroValueDoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();
   private static final ZeroValueDoubleTimeSeriesFilter LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter(1e-3);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     SMALL_ZERO_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeZero() {
     new ZeroValueDoubleTimeSeriesFilter(-1e-12);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetNegativeZero() {
     SMALL_ZERO_FILTER.setZero(-1e-12);
   }

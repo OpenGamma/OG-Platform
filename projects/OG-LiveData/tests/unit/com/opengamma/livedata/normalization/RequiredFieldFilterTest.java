@@ -5,20 +5,16 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
-
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
  * 
- *
- * @author kirk
  */
 public class RequiredFieldFilterTest {
 

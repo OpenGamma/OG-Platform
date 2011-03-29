@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -26,7 +24,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
   private static final TimeSeriesFilter FILTER = new NegativeValueDoubleTimeSeriesFilter();
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }

@@ -25,7 +25,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Utility to calculate schedules.
@@ -182,10 +181,6 @@ public final class ScheduleCalculator {
     return false;
   }
 
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
-    return getAdjustedDateSchedule(dates, convention, calendar, 0);
-  }
-
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
     Validate.notNull(date);
     Validate.notNull(convention);
@@ -202,15 +197,15 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonth, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     // Adjusted to month-end: when start date is last calendar date of the month, the end date is the last business date of the month.
     // Month-end-rule applies only to year and month periods, not days or weeks.
-    if ((tenor.getPeriod().getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
+    if ((tenor.getDays() == 0) & (endOfMonth) & (startDate == startDate.with(DateAdjusters.lastDayOfMonth()))) {
       BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
       return preceding.adjustDate(calendar, endDate.with(DateAdjusters.lastDayOfMonth()));
     }
@@ -226,13 +221,17 @@ public final class ScheduleCalculator {
    * @param tenor The period tenor.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Tenor tenor) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final BusinessDayConvention convention, final Calendar calendar, final Period tenor) {
     Validate.notNull(startDate);
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor.getPeriod()); // Unadjusted date.
+    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
+  }
+
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar) {
+    return getAdjustedDateSchedule(dates, convention, calendar, 0);
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
@@ -254,6 +253,102 @@ public final class ScheduleCalculator {
       result[i] = date.plusDays(adjustDays);
     }
     return result;
+  }
+
+  /**
+   * Construct an array of dates according the a start date, an end date, the period between dates and the conventions. 
+   * The start date is not included in the array. The date are constructed forward and the stub period, if any, is last. 
+   * The end date is always included in the schedule.
+   * @param startDate The reference initial date for the construction.
+   * @param endDate The end date. Usually unadjusted.
+   * @param period The period between payments.
+   * @param businessDayConvention The business day convention.
+   * @param calendar The applicable calendar.
+   * @param isEOM The end-of-month rule flag.
+   * @param stubShort Flag indicating if the stub, if any, is short (true) or long (false).
+   * @return The array of dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
+      boolean isEOM, boolean stubShort) {
+    boolean eomApply = (isEOM && startDate == startDate.with(DateAdjusters.lastDayOfMonth()));
+    // When the end-of-month rule applies and the start date is on month-end, the dates are the last business day of the month.
+    BusinessDayConvention actualBDC;
+    final List<ZonedDateTime> adjustedDates = new ArrayList<ZonedDateTime>();
+    ZonedDateTime date = startDate;
+    if (eomApply) {
+      actualBDC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+      date = date.plus(period).with(DateAdjusters.lastDayOfMonth());
+      while (date.isBefore(endDate)) { // date is strictly before endDate
+        adjustedDates.add(actualBDC.adjustDate(calendar, date));
+        date = date.plus(period).with(DateAdjusters.lastDayOfMonth());
+      }
+    } else {
+      actualBDC = businessDayConvention;
+      date = date.plus(period);
+      while (date.isBefore(endDate)) { // date is strictly before endDate
+        adjustedDates.add(businessDayConvention.adjustDate(calendar, date));
+        date = date.plus(period);
+      }
+    }
+    // For long stub the last date before end date, if any, is removed.
+    if (!stubShort && adjustedDates.size() >= 1) {
+      adjustedDates.remove(adjustedDates.size() - 1);
+    }
+    adjustedDates.add(actualBDC.adjustDate(calendar, endDate)); // the end date
+    return adjustedDates.toArray(EMPTY_ARRAY);
+  }
+
+  /**
+   * Construct an array of dates according the a start date, an end date, the period between dates and the conventions. 
+   * The start date is not included in the array. The date are constructed forward and the stub period, if any, is last
+   * and short. The end date is always included in the schedule.
+   * @param startDate The reference initial date for the construction.
+   * @param endDate The end date. Usually unadjusted.
+   * @param period The period between payments.
+   * @param businessDayConvention The business day convention.
+   * @param calendar The applicable calendar.
+   * @param isEOM The end-of-month rule flag.
+   * @return The array of dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
+      boolean isEOM) {
+    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
+  }
+
+  /**
+   * Construct an array of dates according the a start date, an end date, the period between dates and the conventions. 
+   * The start date is not included in the array. The date are constructed forward and the stub period, if any, is last. 
+   * The end date is always included in the schedule.
+   * @param startDate The reference initial date for the construction.
+   * @param tenor The annuity tenor.
+   * @param period The period between payments.
+   * @param businessDayConvention The business day convention.
+   * @param calendar The applicable calendar.
+   * @param isEOM The end-of-month rule flag.
+   * @param shortStub Flag indicating if the stub, if any, is short (true) or long (false).
+   * @return The array of dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenor, Period period, BusinessDayConvention businessDayConvention, Calendar calendar, boolean isEOM,
+      boolean shortStub) {
+    ZonedDateTime endDate = startDate.plus(tenor);
+    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, shortStub);
+  }
+
+  /**
+   * Construct an array of dates according the a start date, an end date, the period between dates and the conventions. 
+   * The start date is not included in the array. The date are constructed forward and the stub period, if any, is short
+   * and last. The end date is always included in the schedule.
+   * @param startDate The reference initial date for the construction.
+   * @param tenor The annuity tenor.
+   * @param period The period between payments.
+   * @param businessDayConvention The business day convention.
+   * @param calendar The applicable calendar.
+   * @param isEOM The end-of-month rule flag.
+   * @return The array of dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenor, Period period, BusinessDayConvention businessDayConvention, Calendar calendar, boolean isEOM) {
+    ZonedDateTime endDate = startDate.plus(tenor);
+    return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
   }
 
   public static ZonedDateTime[] getSettlementDateSchedule(final ZonedDateTime[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {

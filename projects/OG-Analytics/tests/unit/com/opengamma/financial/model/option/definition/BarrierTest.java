@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 
@@ -18,17 +16,17 @@ import com.opengamma.financial.model.option.definition.Barrier.KnockType;
  */
 public class BarrierTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKnock() {
     new Barrier(null, BarrierType.DOWN, 100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBarrierType() {
     new Barrier(KnockType.IN, null, 100);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeLevel() {
     new Barrier(KnockType.IN, BarrierType.DOWN, -100);
   }

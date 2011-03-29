@@ -43,8 +43,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
     return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0))),
-        optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(10))))
-        .getVolatilitySurface();
+        optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(10)))).getVolatilitySurface();
   }
 
   private static class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
@@ -61,7 +60,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
 
     @Override
-    public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle lowVolData, final StandardOptionDataBundle highVolData) {
+    public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle... volData) {
+      StandardOptionDataBundle lowVolData = volData[0];
+      StandardOptionDataBundle highVolData = volData[1];
       final Double lowPrice = function.evaluate(lowVolData) - _price;
       if (Math.abs(lowPrice) < ACCURACY) {
         return lowVolData;

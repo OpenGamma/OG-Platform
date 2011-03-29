@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -27,32 +26,32 @@ public class ContinuouslyMonitoredAverageRatePaymentTest {
   ContinuouslyMonitoredAverageRatePayment CONT = new ContinuouslyMonitoredAverageRatePayment(PAYMENT_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, START_TIME, END_TIME,
       SPREAD, FORWARD_CURVE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
     new ContinuouslyMonitoredAverageRatePayment(-PAYMENT_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, START_TIME, END_TIME, SPREAD, FORWARD_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStartTime() {
     new ContinuouslyMonitoredAverageRatePayment(PAYMENT_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, -START_TIME, END_TIME, SPREAD, FORWARD_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEndBeforeStart() {
     new ContinuouslyMonitoredAverageRatePayment(PAYMENT_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, END_TIME, START_TIME, SPREAD, FORWARD_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEndTimeBeforePaymentTime() {
     new ContinuouslyMonitoredAverageRatePayment(END_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, START_TIME, PAYMENT_TIME, SPREAD, FORWARD_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingCurveName() {
     new ContinuouslyMonitoredAverageRatePayment(PAYMENT_TIME, null, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, START_TIME, END_TIME, SPREAD, FORWARD_CURVE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardCurveName() {
     new ContinuouslyMonitoredAverageRatePayment(PAYMENT_TIME, FUNDING_CURVE, PAYMENT_YEAR_FRACTION, NOTIONAL, RATE_YEAR_FRACTION, START_TIME, END_TIME, SPREAD, null);
   }

@@ -6,16 +6,14 @@
 package com.opengamma.financial.schedule;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.DateProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
-import com.opengamma.financial.schedule.DailyScheduleCalculator;
-import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -54,7 +52,7 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
     final LocalDate startDate = LocalDate.of(2000, 1, 1);
     final LocalDate endDate = LocalDate.of(2002, 2, 9);
     final LocalDate[] forward = CALCULATOR.getSchedule(startDate, endDate);
-    test(startDate, endDate, forward);
+    assertCalculator(startDate, endDate, forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, false, true), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, true), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, false, false), forward);
@@ -66,14 +64,14 @@ public class DailyScheduleCalculatorTest extends ScheduleCalculatorTestCase {
     final ZonedDateTime startDate = DateUtil.getUTCDate(2000, 1, 1);
     final ZonedDateTime endDate = DateUtil.getUTCDate(2002, 2, 9);
     final ZonedDateTime[] forward = CALCULATOR.getSchedule(startDate, endDate);
-    test(startDate, endDate, forward);
+    assertCalculator(startDate, endDate, forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, false, true), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, true), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, false, false), forward);
     assertArrayEquals(CALCULATOR.getSchedule(startDate, endDate, true, false), forward);
   }
 
-  private <T extends DateProvider> void test(final T startDate, final T endDate, final T[] forward) {
+  private <T extends DateProvider> void assertCalculator(final T startDate, final T endDate, final T[] forward) {
     final int days = 771;
     assertEquals(forward.length, days);
     assertEquals(forward[0], startDate);

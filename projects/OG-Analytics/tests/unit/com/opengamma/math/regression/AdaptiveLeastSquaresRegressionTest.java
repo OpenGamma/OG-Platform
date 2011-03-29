@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.regression;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -33,7 +31,7 @@ public class AdaptiveLeastSquaresRegressionTest {
   };
   private static final double EPS = 1e-2;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs() {
     new AdaptiveLeastSquaresRegression(null, 0.05);
   }
@@ -46,7 +44,7 @@ public class AdaptiveLeastSquaresRegressionTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLevel() {
     new AdaptiveLeastSquaresRegression(new LeastSquaresRegression() {
 

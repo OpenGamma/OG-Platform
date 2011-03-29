@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
@@ -25,12 +23,12 @@ public class TimeChangeCharacteristicExponentTest {
   private static final CharacteristicExponent TIME_CHANGE = new MyCharacteristicExponent(SMALL_ALPHA2, LARGE_ALPHA2);
   private static final TimeChangedCharacteristicExponent EXPONENT = new TimeChangedCharacteristicExponent(BASE, TIME_CHANGE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirst() {
     new TimeChangedCharacteristicExponent(null, TIME_CHANGE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecond() {
     new TimeChangedCharacteristicExponent(BASE, null);
   }

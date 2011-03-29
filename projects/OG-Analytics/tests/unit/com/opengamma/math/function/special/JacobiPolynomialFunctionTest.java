@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**
@@ -45,17 +43,17 @@ public class JacobiPolynomialFunctionTest {
   private static final JacobiPolynomialFunction JACOBI = new JacobiPolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testNoAlphaBeta() {
     JACOBI.getPolynomials(3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
     JACOBI.getPolynomials(-3, ALPHA, BETA);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetPolynomials() {
     JACOBI.getPolynomialsAndFirstDerivative(3);
   }

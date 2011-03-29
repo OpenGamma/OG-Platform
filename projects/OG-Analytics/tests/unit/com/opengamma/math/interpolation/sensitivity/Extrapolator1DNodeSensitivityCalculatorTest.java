@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -62,27 +60,27 @@ public class Extrapolator1DNodeSensitivityCalculatorTest {
     DATA = new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(t, r));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator() {
     new LinearExtrapolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     LINEAR_CALCULATOR.calculate(null, 102);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
     FLAT_CALCULATOR.calculate(null, 105);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWithinRange1() {
     LINEAR_CALCULATOR.calculate(DATA, 20.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWithinRange2() {
     FLAT_CALCULATOR.calculate(DATA, 20);
   }

@@ -5,14 +5,12 @@
  */
 package com.opengamma.math.interpolation.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 /**
  * 
@@ -25,42 +23,42 @@ public abstract class Interpolator1DDataBundleTestCase {
 
   protected abstract Interpolator1DDataBundle createDataBundle(double[] keys, double[] values);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowLowerBoundKey() {
     DATA.getLowerBoundKey(0.5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLowerBoundKey() {
     DATA.getLowerBoundKey(10.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowLowerBoundIndex() {
     DATA.getLowerBoundIndex(0.5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLowerBoundIndex() {
     DATA.getLowerBoundIndex(10.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowHigherKey() {
     DATA.higherKey(0.5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighHigherKey() {
     DATA.higherKey(10.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetNegativeIndex() {
     DATA.setYValueAtIndex(-2, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetHighIndex() {
     DATA.setYValueAtIndex(100, 4);
   }

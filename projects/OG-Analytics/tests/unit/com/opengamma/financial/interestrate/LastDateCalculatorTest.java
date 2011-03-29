@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -61,7 +59,7 @@ public class LastDateCalculatorTest {
 
   @Test
   public void testFixedCouponAnnuity() {
-    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "");
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, 1.0, "", true);
     assertEquals(10, LDC.visit(annuity), 1e-12);
   }
 
@@ -83,7 +81,7 @@ public class LastDateCalculatorTest {
       yearFracs[i] = yearFrac;
       spreads[i] = spread;
     }
-    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben");
+    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, Math.E, "Bill", "Ben", true);
     assertEquals(n * alpha + 0.1, LDC.visit(annuity), 1e-12);
   }
 
@@ -116,7 +114,7 @@ public class LastDateCalculatorTest {
     }
     final double swapRate = 0.045;
 
-    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "");
+    final Swap<?, ?> swap = new FixedFloatSwap(fixedPaymentTimes, floatPaymentTimes, swapRate, "", "", true);
     assertEquals(n * 0.5, LDC.visit(swap), 1e-12);
   }
 
@@ -138,8 +136,8 @@ public class LastDateCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, "", "");
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, "", "");
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexMaturity, yearFracs, 1.0, "", "", true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, "", "", false);
 
     final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
 

@@ -5,13 +5,13 @@
  */
 package com.opengamma.engine.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecurity;
@@ -21,11 +21,11 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * Test ComputedValue.
  */
+@Test
 public class ComputedValueTest {
   
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  @Test
   public void test_constructor_Object_Portfolio() {
     ValueRequirement vreq = new ValueRequirement("DATA", new MockSecurity(""));
     ValueSpecification vspec = new ValueSpecification(vreq, "mockFunctionid");
@@ -72,7 +72,6 @@ public class ComputedValueTest {
     assertNotNull(fme);
     final FudgeFieldContainer msg = fme.getMessage();
     assertNotNull(msg);
-    System.out.println(msg);
     final ComputedValue cycledValue = s_fudgeContext.fromFudgeMsg(ComputedValue.class, msg);
     assertNotNull(cycledValue);
     assertEquals(value, cycledValue);
@@ -84,14 +83,12 @@ public class ComputedValueTest {
         "mockFunctionId");
   }
 
-  @Test
   public void testDouble() {
-    cycleComputedValue(new ComputedValue(createValueSpecification(), (Double) 3.1412));
+    cycleComputedValue(new ComputedValue(createValueSpecification(), 3.1412d));
   }
 
-  @Test
   public void testInteger() {
-    cycleComputedValue(new ComputedValue(createValueSpecification(), (Integer) 12345678));
+    cycleComputedValue(new ComputedValue(createValueSpecification(), 12345678));
   }
 
   @Test

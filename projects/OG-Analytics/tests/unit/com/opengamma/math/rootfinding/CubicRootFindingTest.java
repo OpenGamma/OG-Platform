@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.math.number.ComplexNumber;
 
@@ -23,22 +21,22 @@ public class CubicRootFindingTest {
   private static final RealPolynomialFunction1D THREE_ROOTS = new RealPolynomialFunction1D(new double[] {-6, 11, -6, 1});
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction1() {
     CUBIC.getRoots(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonCubic1() {
     CUBIC.getRoots(new RealPolynomialFunction1D(new double[] {1, 1, 1, 1, 1}));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction2() {
     REAL_ONLY_CUBIC.getRoots(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonCubic2() {
     REAL_ONLY_CUBIC.getRoots(new RealPolynomialFunction1D(new double[] {1, 1, 1, 1, 1}));
   }

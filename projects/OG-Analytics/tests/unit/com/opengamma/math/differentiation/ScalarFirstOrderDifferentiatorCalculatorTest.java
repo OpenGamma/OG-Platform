@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.differentiation;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 
 public class ScalarFirstOrderDifferentiatorCalculatorTest {
@@ -33,12 +31,12 @@ public class ScalarFirstOrderDifferentiatorCalculatorTest {
   private static final ScalarFirstOrderDifferentiator CENTRAL = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFirstOrderDifferentiator BACKWARD = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDifferenceType() {
     new ScalarFirstOrderDifferentiator(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
     CENTRAL.derivative((Function1D<Double, Double>) null);
   }

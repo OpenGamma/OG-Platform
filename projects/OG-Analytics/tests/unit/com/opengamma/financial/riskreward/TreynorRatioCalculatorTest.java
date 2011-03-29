@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.riskreward;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -33,22 +31,22 @@ public class TreynorRatioCalculatorTest {
   });
   private static final TreynorRatioCalculator TREYNOR = new TreynorRatioCalculator(EXPECTED_RETURN, EXPECTED_RETURN);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAssetReturnCalculator() {
     new TreynorRatioCalculator(null, EXPECTED_RETURN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRiskFreeReturnCalculator() {
     new TreynorRatioCalculator(EXPECTED_RETURN, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
     TREYNOR.evaluate(null, RISK_FREE, BETA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS2() {
     TREYNOR.evaluate(ASSET_RETURN, null, BETA);
   }

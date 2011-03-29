@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.util.time.DateUtil;
 
@@ -28,37 +26,37 @@ public class ActualActualICMATest {
   private static final ActualActualICMA DC1 = new ActualActualICMA();
   private static final ActualActualICMANormal DC2 = new ActualActualICMANormal();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate1() {
     DC1.getAccruedInterest(null, D2, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondDate1() {
     DC1.getAccruedInterest(D1, null, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThirdDate1() {
     DC1.getAccruedInterest(D1, D2, null, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder1() {
     DC1.getAccruedInterest(D2, D1, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder2() {
     DC1.getAccruedInterest(D1, D3, D2, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStubType1() {
     DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, null);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testGetDayCount1() {
     DC1.getDayCountFraction(D1, D2);
   }
@@ -74,37 +72,37 @@ public class ActualActualICMATest {
     assertEquals(DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate2() {
     DC2.getAccruedInterest(null, D2, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondDate2() {
     DC2.getAccruedInterest(D1, null, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThirdDate2() {
     DC2.getAccruedInterest(D1, D2, null, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder3() {
     DC2.getAccruedInterest(D2, D1, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongOrder4() {
     DC2.getAccruedInterest(D1, D3, D2, COUPON, PAYMENTS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStubType2() {
     DC2.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, null);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testGetDayCount2() {
     DC2.getDayCountFraction(D1, D2);
   }

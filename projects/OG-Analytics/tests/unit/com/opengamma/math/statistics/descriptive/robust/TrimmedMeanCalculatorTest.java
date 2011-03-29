@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.statistics.descriptive.robust;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 
@@ -22,22 +20,22 @@ public class TrimmedMeanCalculatorTest {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowGamma() {
     new WinsorizedMeanCalculator(-0.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighGamma() {
     new WinsorizedMeanCalculator(1.3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((double[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new double[0]);
   }

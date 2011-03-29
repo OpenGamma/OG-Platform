@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -49,12 +47,12 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final double[] TEST_STRIKE = new double[] {85, 95, 104};
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPriceInput() {
     MODEL.getSurface(null, new StandardOptionDataBundle(null, 0, null, 0, null));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDataInput() {
     MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), null);
   }
@@ -67,7 +65,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     final StandardOptionDataBundle data = new StandardOptionDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), SPOT, DATE);
     try {
       MODEL.getSurface(prices, data);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

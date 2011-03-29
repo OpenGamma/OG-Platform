@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
@@ -45,47 +43,47 @@ public class ComplexChooserOptionDefinitionTest {
   private static final Set<Greek> PRICE = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double EPS = 1e-15;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
     new ComplexChooserOptionDefinition(null, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCallStrike() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, -CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, PUT_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCallExpiry() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, null, PUT_STRIKE, PUT_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePutStrike() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, -PUT_STRIKE, PUT_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPutExpiry() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCallExpiry() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)), PUT_STRIKE, PUT_EXPIRY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPutExpiry() {
     new ComplexChooserOptionDefinition(CHOOSE_DATE, CALL_STRIKE, CALL_EXPIRY, PUT_STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(CHOOSE_DATE.getExpiry(), -1)));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCallExpiryTime() {
     CHOOSER.getTimeToCallExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPutExpiryTime() {
     CHOOSER.getTimeToPutExpiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5));
   }

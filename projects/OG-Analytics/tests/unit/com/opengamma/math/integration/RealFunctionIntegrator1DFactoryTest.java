@@ -5,17 +5,16 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class RealFunctionIntegrator1DFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName() {
     RealFunctionIntegrator1DFactory.getIntegrator("a");
   }

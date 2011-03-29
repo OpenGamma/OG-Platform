@@ -5,19 +5,18 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotSame;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 
 /**
  * Tests the function statistics gatherer.
  */
+@Test
 public class InMemoryFunctionCostsMasterTest {
 
-  @Test
   public void test_master() {
     FunctionCostsDocument doc1 = new FunctionCostsDocument();
     doc1.setConfigurationName("Conf1");

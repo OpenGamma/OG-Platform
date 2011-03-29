@@ -5,12 +5,10 @@
  */
 package com.opengamma.livedata.server.distribution;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
-
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -19,8 +17,6 @@ import com.opengamma.livedata.server.Subscription;
 
 /**
  * 
- *
- * @author pietari
  */
 public class MarketDataDistributorTest {
   

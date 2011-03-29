@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteTwoFactorDataBundle;
@@ -40,17 +38,17 @@ public class HullWhiteTwoFactorInterestRateModelTest {
   private static final HullWhiteTwoFactorInterestRateModel MODEL = new HullWhiteTwoFactorInterestRateModel();
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     MODEL.getDiscountBondFunction(null, MATURITY);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     MODEL.getDiscountBondFunction(START, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getDiscountBondFunction(START, MATURITY).evaluate((HullWhiteTwoFactorDataBundle) null);
   }

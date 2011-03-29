@@ -6,12 +6,10 @@
 package com.opengamma.financial.fudgemsg;
 
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.math.interpolation.Interpolator1DFactory;

@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -36,12 +34,12 @@ public class ProductOptionModelTest {
   private static final Expiry EXPIRY2 = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final double EPS = 1e-4;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(new ProductOptionDefinition(0.1, EXPIRY1, true)).evaluate((StandardTwoAssetOptionDataBundle) null);
   }

@@ -13,7 +13,8 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.ColtMathWrapper;
 
 /**
- * Wrapper for Colt implementation of SVD
+ * This class is a wrapper for the <a href="http://acs.lbl.gov/software/colt/api/cern/colt/matrix/linalg/SingularValueDecomposition.html">Colt Math library implementation</a> 
+ * of singular value decomposition.
  */
 public class SVDecompositionColt extends Decomposition<SVDecompositionResult> {
 

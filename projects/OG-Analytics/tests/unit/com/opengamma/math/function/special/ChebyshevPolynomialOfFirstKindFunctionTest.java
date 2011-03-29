@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**
@@ -102,12 +100,12 @@ public class ChebyshevPolynomialOfFirstKindFunctionTest {
   private static final ChebyshevPolynomialOfFirstKindFunction CHEBYSHEV = new ChebyshevPolynomialOfFirstKindFunction();
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN() {
     CHEBYSHEV.getPolynomials(-3);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testGetPolynomials() {
     CHEBYSHEV.getPolynomialsAndFirstDerivative(3);
   }

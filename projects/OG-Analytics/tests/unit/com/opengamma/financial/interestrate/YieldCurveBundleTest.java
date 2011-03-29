@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -36,37 +34,37 @@ public class YieldCurveBundleTest {
     BUNDLE = new YieldCurveBundle(NAMES, CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNameArray() {
     new YieldCurveBundle(null, CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveArray() {
     new YieldCurveBundle(NAMES, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNameArrayLength() {
     new YieldCurveBundle(new String[] {"A", "B"}, CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveArrayLength() {
     new YieldCurveBundle(NAMES, new YieldAndDiscountCurve[] {CURVES[0], CURVES[1]});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNameInArray() {
     new YieldCurveBundle(new String[] {"A", "B", null}, CURVES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveInArray() {
     new YieldCurveBundle(NAMES, new YieldAndDiscountCurve[] {CURVES[0], CURVES[1], null});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNameInMap() {
     final Map<String, YieldAndDiscountCurve> map = new HashMap<String, YieldAndDiscountCurve>();
     for (int i = 0; i < 2; i++) {
@@ -76,7 +74,7 @@ public class YieldCurveBundleTest {
     new YieldCurveBundle(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveInMap() {
     final Map<String, YieldAndDiscountCurve> map = new HashMap<String, YieldAndDiscountCurve>();
     for (int i = 0; i < 2; i++) {
@@ -86,27 +84,27 @@ public class YieldCurveBundleTest {
     new YieldCurveBundle(map);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetNullName() {
     BUNDLE.setCurve(null, CURVES[1]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetNullCurve() {
     BUNDLE.setCurve("D", null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddPreviousCurve() {
     BUNDLE.setCurve(NAMES[0], CURVES[2]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetNonExistentCurve() {
     BUNDLE.getCurve("D");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testReplaceNonExistentCurve() {
     BUNDLE.replaceCurve("E", CURVES[1]);
   }

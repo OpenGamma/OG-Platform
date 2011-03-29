@@ -14,7 +14,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,12 +22,15 @@ import com.opengamma.util.time.Expiry;
  * certain time. The exercise style of the option, once the choice has been
  * made, is European.
  * <p>
- * The payoff from the option with strike <i>K</i> and spot <i>S</i> is
- * <i>max(c<sub>BSM</i>(S, K, T), p<sub>BSM</sub>(S, K, T)</i>, where
- * <i>C<sub>BSM</sub></i> is the Black-Scholes-Merton call price,
- * <i>P<sub>BSM</sub></i> is the Black-Scholes-Merton put price and <i>T</i> is
- * the time to maturity of the put or call.
- * 
+ * The payoff of this option is:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mathrm{payoff} = \\max(c_{BSM}(S, K, T_2), p_{BSM}(S, K, T_2))
+ * \\end{align*}
+ * }
+ * where {@latex.inline $c_{BSM}$} is the general Black-Scholes Merton call price, {@latex.inline $c_{BSM}$} is the general Black-Scholes Merton 
+ * put price (see {@link BlackScholesMertonModel}), {@latex.inline $K$} is the strike, {@latex.inline $S$} is the spot and {@latex.inline $T_2$}
+ * is the time to expiry of the underlying option.
  */
 
 public class SimpleChooserOptionDefinition extends OptionDefinition {
@@ -52,14 +54,14 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
   private static final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
 
   /**
-   * @param chooseDate The date when the choice is to be made (i.e. the option expiry)
+   * @param chooseDate The date when the choice is to be made (i.e. the chooser option expiry)
    * @param underlyingStrike The strike of the underlying option
    * @param underlyingExpiry The expiry of the underlying European option
    */
   public SimpleChooserOptionDefinition(final Expiry chooseDate, final double underlyingStrike, final Expiry underlyingExpiry) {
     super(null, chooseDate, null);
     Validate.notNull(underlyingExpiry);
-    ArgumentChecker.notNegative(underlyingStrike, "underlying strike");
+    Validate.isTrue(underlyingStrike > 0, "underlying strike");
     if (underlyingExpiry.getExpiry().isBefore(chooseDate.getExpiry())) {
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
     }
@@ -69,28 +71,46 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
     _putDefinition = new EuropeanVanillaOptionDefinition(underlyingStrike, underlyingExpiry, false);
   }
 
+  /**
+   * @return The underlying call definition
+   */
   public OptionDefinition getCallDefinition() {
     return _callDefinition;
   }
 
+  /**
+   * @return The underlying put definition
+   */
   public OptionDefinition getPutDefinition() {
     return _putDefinition;
   }
 
+  /**
+   * @return The strike of the underlying option
+   */
   public double getUnderlyingStrike() {
     return _underlyingStrike;
   }
 
+  /**
+   * @return The expiry of the underlying option
+   */
   public Expiry getUnderlyingExpiry() {
     return _underlyingExpiry;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {

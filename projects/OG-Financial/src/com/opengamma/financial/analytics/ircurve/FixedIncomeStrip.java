@@ -24,16 +24,20 @@ import com.opengamma.util.time.Tenor;
  * A fixed income strip.
  */
 public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
+
+  private static final long serialVersionUID = 1L;
+
   private final StripInstrumentType _instrumentType;
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
-  private int _nthFutureFromTenor;
+  private final int _nthFutureFromTenor;
 
   /**
-   * Creates a strip for non-future instruments
-   * @param instrumentType the instrument type
-   * @param curveNodePointTime the time of the curve node point
-   * @param conventionName the name of the convention to use to resolve the strip into a security
+   * Creates a strip for non-future instruments.
+   * 
+   * @param instrumentType  the instrument type
+   * @param curveNodePointTime  the time of the curve node point
+   * @param conventionName  the name of the convention to use to resolve the strip into a security
    */
   public FixedIncomeStrip(StripInstrumentType instrumentType, Tenor curveNodePointTime, String conventionName) {
     Validate.notNull(instrumentType, "InstrumentType");
@@ -42,17 +46,18 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     Validate.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
     _curveNodePointTime = curveNodePointTime;
+    _nthFutureFromTenor = 0;
     _conventionName = conventionName;
   }
-  
+
   /**
-   * Creates a future strip
-   * @param instrumentType the instrument type
-   * @param curveNodePointTime the time of the curve node point
-   * @param conventionName the name of the convention to use to resolve the strip into a security
-   * @param nthFutureFromTenor how many futures to step through from the curveDate + the tenor. 1-based, must be >0.
+   * Creates a future strip.
+   * 
+   * @param instrumentType  the instrument type
+   * @param curveNodePointTime  the time of the curve node point
+   * @param conventionName  the name of the convention to use to resolve the strip into a security
+   * @param nthFutureFromTenor  how many futures to step through from the curveDate + the tenor. 1-based, must be >0.
    *   e.g. 3 (tenor = 1YR) => 3rd quarterly future after curveDate +  1YR.
-   *   
    */
   public FixedIncomeStrip(StripInstrumentType instrumentType, Tenor curveNodePointTime, int nthFutureFromTenor, String conventionName) {
     Validate.isTrue(instrumentType == StripInstrumentType.FUTURE);
@@ -64,26 +69,31 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _nthFutureFromTenor = nthFutureFromTenor;
     _conventionName = conventionName;
   }
-  
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * @return an enum describing the instrument type used to construct this strip
+   * Gets the instrument type used to construct this strip.
+   * 
+   * @return the instrument type, not null
    */
   public StripInstrumentType getInstrumentType() {
     return _instrumentType;
   }
-  
+
   /**
-   * @return a tenor representing the time of the curve node point
+   * Gets the curve node point in time.
+   * 
+   * @return a tenor representing the time of the curve node point, not null
    */
   public Tenor getCurveNodePointTime() {
     return _curveNodePointTime;
   }
-  
+
   /**
    * Get the number of the quarterly IR futures after the tenor to choose.  
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
-   * @return number of futures after the tenor
+   * 
+   * @return the number of futures after the tenor
    * @throws IllegalStateException if called on a non-future strip
    */
   public int getNumberOfFuturesAfterTenor() {
@@ -92,14 +102,33 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     }
     return _nthFutureFromTenor;
   }
-  
+
   /**
-   * @return the name of the convention used to resolve this strip definition into a security
+   * Gets the name of the convention used to resolve this strip definition into a security.
+   * 
+   * @return the name, not null
    */
   public String getConventionName() {
     return _conventionName;
   }
-  
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int compareTo(FixedIncomeStrip other) {
+    int result = getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration());
+    if (result != 0) {
+      return result;
+    }
+    result = getInstrumentType().ordinal() - other.getInstrumentType().ordinal(); 
+    if (result != 0) {
+      return result;
+    } 
+    if (getInstrumentType() == StripInstrumentType.FUTURE) {
+      result = getNumberOfFuturesAfterTenor() - other.getNumberOfFuturesAfterTenor();
+    }
+    return result;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -124,22 +153,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  @Override
-  public int compareTo(FixedIncomeStrip o) {
-    int result = (int) getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(o.getCurveNodePointTime().getPeriod().toPeriodFields().toEstimatedDuration());
-    if (result != 0) {
-      return result;
-    }
-    result = getInstrumentType().ordinal() - o.getInstrumentType().ordinal(); 
-    if (result != 0) {
-      return result;
-    } 
-    if (getInstrumentType() == StripInstrumentType.FUTURE) {
-      result = getNumberOfFuturesAfterTenor() - o.getNumberOfFuturesAfterTenor();
-    }
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
     FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
@@ -148,9 +162,11 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       message.add(field);
     }
   }
+
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
     return builder.buildObject(context, message);
   }
+
 }

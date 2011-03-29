@@ -30,12 +30,8 @@ public abstract class OptionDefinition {
   /**
    * 
    * @param strike The strike
-   * @param expiry The expiry
+   * @param expiry The expiry, not null
    * @param isCall Is the option a put or call
-   * @throws IllegalArgumentException
-   *          If the strike is negative
-   * @throws IllegalArgumentException
-   *          If the expiry is null                   
    */
   public OptionDefinition(final Double strike, final Expiry expiry, final Boolean isCall) {
     if (strike != null) {
@@ -99,7 +95,7 @@ public abstract class OptionDefinition {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_expiry == null) ? 0 : _expiry.hashCode());
+    result = prime * result + _expiry.hashCode();
     result = prime * result + ((_isCall == null) ? 0 : _isCall.hashCode());
     result = prime * result + ((_strike == null) ? 0 : _strike.hashCode());
     return result;

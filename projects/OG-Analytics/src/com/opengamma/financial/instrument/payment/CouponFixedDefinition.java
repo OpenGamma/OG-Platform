@@ -77,7 +77,7 @@ public class CouponFixedDefinition extends CouponDefinition {
 
   @Override
   public String toString() {
-    return super.toString() + ", Rate = " + _rate + ", Amount = " + _amount;
+    return super.toString() + " *Fixed coupon* Rate = " + _rate + ", Amount = " + _amount;
   }
 
   @Override

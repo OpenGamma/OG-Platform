@@ -5,9 +5,8 @@
  */
 package com.opengamma.engine.depgraph;
 
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.testng.annotations.Test;
+import org.testng.AssertJUnit;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.IdentificationScheme;
@@ -16,9 +15,9 @@ import com.opengamma.id.Identifier;
 /**
  * Test DependencyNode.
  */
+@Test
 public class DependencyNodeTest {
   
-  @Test
   public void testDependentNodes() {
     IdentificationScheme domain = IdentificationScheme.of("test");
     
@@ -38,15 +37,15 @@ public class DependencyNodeTest {
 
     node4.addInputNode(node3);
     
-    Assert.assertEquals(0, node5.getDependentNodes().size());
-    Assert.assertEquals(1, node2.getDependentNodes().size());
-    Assert.assertTrue(node2.getDependentNodes().contains(node0));
-    Assert.assertEquals(2, node1.getDependentNodes().size());
-    Assert.assertTrue(node1.getDependentNodes().contains(node0));
-    Assert.assertTrue(node1.getDependentNodes().contains(node2));
-    Assert.assertEquals(3, node3.getDependentNodes().size());
-    Assert.assertTrue(node3.getDependentNodes().contains(node0));
-    Assert.assertTrue(node3.getDependentNodes().contains(node2));
-    Assert.assertTrue(node3.getDependentNodes().contains(node4));
+    AssertJUnit.assertEquals(0, node5.getDependentNodes().size());
+    AssertJUnit.assertEquals(1, node2.getDependentNodes().size());
+    AssertJUnit.assertTrue(node2.getDependentNodes().contains(node0));
+    AssertJUnit.assertEquals(2, node1.getDependentNodes().size());
+    AssertJUnit.assertTrue(node1.getDependentNodes().contains(node0));
+    AssertJUnit.assertTrue(node1.getDependentNodes().contains(node2));
+    AssertJUnit.assertEquals(3, node3.getDependentNodes().size());
+    AssertJUnit.assertTrue(node3.getDependentNodes().contains(node0));
+    AssertJUnit.assertTrue(node3.getDependentNodes().contains(node2));
+    AssertJUnit.assertTrue(node3.getDependentNodes().contains(node4));
   }
 }

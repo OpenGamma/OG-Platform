@@ -6,10 +6,8 @@
 package com.opengamma.financial.fudgemsg;
 
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
+import org.testng.annotations.Test;
+import org.testng.AssertJUnit;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.util.money.Currency;
@@ -23,6 +21,6 @@ public class VolatilitySurfaceSpecificationTest extends FinancialTestBase {
   public void testCycle() {
     BloombergSwaptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
     VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, instrumentProvider);
-    assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
+    AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
   }
 }

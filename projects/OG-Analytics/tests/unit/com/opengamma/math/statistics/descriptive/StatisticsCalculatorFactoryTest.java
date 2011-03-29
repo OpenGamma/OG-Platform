@@ -5,17 +5,16 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
 public class StatisticsCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName() {
     StatisticsCalculatorFactory.getCalculator("x");
   }

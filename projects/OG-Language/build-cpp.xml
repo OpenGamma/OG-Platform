@@ -26,4 +26,8 @@
 		</copy>
 	</target>
 
+	<target name="compile-after">
+		<!-- Dummy hook that the slaves will invoke after a compilation with ${compile.type} set -->
+	</target>
+
 </project>

@@ -6,11 +6,9 @@
 package com.opengamma.math.surface;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -186,37 +184,37 @@ public class NodalDoublesSurfaceTest extends DoublesSurfaceTestCase {
     assertEquals(SURFACE.getZValue(1., 1.), 4., eps);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX1() {
     SURFACE.getZValue(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY1() {
     SURFACE.getZValue(1., null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     SURFACE.getZValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalX1() {
     SURFACE.getZValue(1.1, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalY1() {
     SURFACE.getZValue(1., 3.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalX2() {
     SURFACE.getZValue(DoublesPair.of(1.1, 2.));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNonNodalY2() {
     SURFACE.getZValue(DoublesPair.of(1., 3.4));
   }

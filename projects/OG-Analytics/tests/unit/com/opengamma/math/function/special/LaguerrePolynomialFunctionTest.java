@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.tuple.Pair;
@@ -79,12 +77,12 @@ public class LaguerrePolynomialFunctionTest {
   private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
   private static final double EPS = 1e-12;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN1() {
     LAGUERRE.getPolynomials(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN2() {
     LAGUERRE.getPolynomials(-3, 1);
   }

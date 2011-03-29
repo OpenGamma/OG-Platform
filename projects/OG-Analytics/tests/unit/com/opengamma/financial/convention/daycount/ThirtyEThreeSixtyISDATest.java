@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.junit.Test;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.time.DateUtil;
 
@@ -27,27 +25,27 @@ public class ThirtyEThreeSixtyISDATest {
   protected static final double COUPON = 0.01;
   protected static final int PAYMENTS = 4;
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testNoMaturityValue1() {
     DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS);
   }
 
-  @Test(expected = NotImplementedException.class)
+  @Test(expectedExceptions = NotImplementedException.class)
   public void testNoMaturityValue2() {
     DC.getDayCountFraction(D1, D2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFirstDate() {
     DC.getDayCountFraction(null, D2, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSecondDate() {
     DC.getDayCountFraction(D1, null, true);
   }
 
-  @Test(expected = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testWrongOrder() {
     DC.getDayCountFraction(D2, D1, true);
   }

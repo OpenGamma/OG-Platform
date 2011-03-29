@@ -5,13 +5,11 @@
  */
 package com.opengamma.livedata.server;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Timer;
 
 import org.fudgemsg.FudgeContext;
-import org.junit.Test;
-
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;

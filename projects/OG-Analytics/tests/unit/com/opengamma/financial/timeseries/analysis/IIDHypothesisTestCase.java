@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
-import static org.junit.Assert.fail;
+import org.testng.Assert;
+
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -17,7 +18,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 /**
  * 
  */
-public class IIDHypothesisTestCase {
+public abstract class IIDHypothesisTestCase {
   protected static final DoubleTimeSeries<Long> RANDOM;
   protected static final DoubleTimeSeries<Long> SIGNAL;
   protected static final DoubleTimeSeries<Long> INCREASING;
@@ -40,19 +41,19 @@ public class IIDHypothesisTestCase {
     INCREASING = new FastArrayLongDoubleTimeSeries(ENCODING, dates, increasing);
   }
 
-  public void testNullTS(final IIDHypothesis h) {
+  public void assertNullTS(final IIDHypothesis h) {
     try {
       h.evaluate((DoubleTimeSeries<Long>) null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
-  public void testEmptyTS(final IIDHypothesis h) {
+  public void assertEmptyTS(final IIDHypothesis h) {
     try {
       h.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }

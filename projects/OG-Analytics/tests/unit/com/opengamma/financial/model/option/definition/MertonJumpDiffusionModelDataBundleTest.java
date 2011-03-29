@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -41,22 +39,22 @@ public class MertonJumpDiffusionModelDataBundleTest {
   private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2011, 5, 1);
   private static final MertonJumpDiffusionModelDataBundle DATA = new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBundle() {
     new MertonJumpDiffusionModelDataBundle(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroLambda1() {
     new MertonJumpDiffusionModelDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0, GAMMA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroLambda2() {
     new MertonJumpDiffusionModelDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), 0, GAMMA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroLambda3() {
     DATA.withLambda(0);
   }

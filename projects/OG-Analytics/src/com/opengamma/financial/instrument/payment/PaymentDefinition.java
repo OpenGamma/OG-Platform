@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a generic payment. 
+ * Class describing a generic payment. The payments can be positive (receiving) or negative (paying).
  */
 public abstract class PaymentDefinition implements FixedIncomeInstrumentDefinition<Payment> {
 
@@ -55,6 +55,12 @@ public abstract class PaymentDefinition implements FixedIncomeInstrumentDefiniti
   public ZonedDateTime getPaymentDate() {
     return _paymentDate;
   }
+
+  /**
+   * Return a reference amount. For coupon it is the notional, for simple payments it is the paid amount. Used mainly to assess if the amount is paid or received.
+   * @return The amount.
+   */
+  public abstract double getReferenceAmount();
 
   @Override
   public String toString() {

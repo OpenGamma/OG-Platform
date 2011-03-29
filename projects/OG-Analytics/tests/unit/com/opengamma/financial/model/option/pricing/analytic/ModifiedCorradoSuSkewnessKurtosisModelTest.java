@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -43,12 +41,12 @@ public class ModifiedCorradoSuSkewnessKurtosisModelTest {
   private static final OptionDefinition PUT_100 = new EuropeanVanillaOptionDefinition(100, EXPIRY, false);
   private static final double EPS = 1e-4;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     CORRADO_SU.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CORRADO_SU.getPricingFunction(CALL_100).evaluate((SkewKurtosisOptionDataBundle) null);
   }

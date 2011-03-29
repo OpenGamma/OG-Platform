@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 
 /**
@@ -16,12 +15,12 @@ public class SABRConjugateGradientLeastSquareFitterTest extends LeastSquareSmile
   private static final SABRConjugateGradientLeastSquareFitter FITTER = new SABRConjugateGradientLeastSquareFitter(new SABRHaganVolatilityFunction());
   private static final double[] INITIAL_VALUES = new double[] {0.5, 1, 0.2, 0};
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSABRFormula() {
     new SABRConjugateGradientLeastSquareFitter(null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testNullErrors() {
     FITTER.getFitResult(null, null, null, null);
   }

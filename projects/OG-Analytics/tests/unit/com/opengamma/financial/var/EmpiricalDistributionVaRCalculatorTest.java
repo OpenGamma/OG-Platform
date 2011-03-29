@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.var;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -23,37 +21,37 @@ public class EmpiricalDistributionVaRCalculatorTest {
   private static final double QUANTILE = 0.9;
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new EmpiricalDistributionVaRCalculator(-HORIZON, PERIODS, QUANTILE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePeriods() {
     new EmpiricalDistributionVaRCalculator(HORIZON, -PERIODS, QUANTILE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighQuantile() {
     new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE + 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowQuantile() {
     new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE - 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries<?>[0]);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS2() {
     CALCULATOR.evaluate(new DoubleTimeSeries<?>[] {null});
   }

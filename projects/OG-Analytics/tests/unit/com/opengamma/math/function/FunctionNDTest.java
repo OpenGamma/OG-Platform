@@ -1,24 +1,23 @@
 package com.opengamma.math.function;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 public class FunctionNDTest {
   private static final FunctionND<Double, Double> F = new MyFunction(3);
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDimension() {
     new MyFunction(-4);
   }
  
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooFewArguments() {
     F.evaluate(1., 2.);
   }
   
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooManyArguments() {
     F.evaluate(1., 2., 3., 4., 5., 6.);
   }

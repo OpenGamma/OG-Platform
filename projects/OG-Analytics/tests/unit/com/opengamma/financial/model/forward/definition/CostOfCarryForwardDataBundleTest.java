@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.forward.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -28,42 +26,42 @@ public class CostOfCarryForwardDataBundleTest {
   private static final double STORAGE = 2;
   private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(YIELD, CURVE, SPOT, DATE, STORAGE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveConstructor() {
     new StandardForwardDataBundle(YIELD, null, SPOT, DATE, STORAGE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSpotConstructor() {
     new StandardForwardDataBundle(YIELD, CURVE, -SPOT, DATE, STORAGE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateConstructor() {
     new StandardForwardDataBundle(YIELD, CURVE, SPOT, null, STORAGE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStorageConstructor() {
     new StandardForwardDataBundle(YIELD, CURVE, SPOT, DATE, -STORAGE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveBuilder() {
     DATA.withDiscountCurve(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSpotBuilder() {
     DATA.withSpot(-SPOT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateBuilder() {
     DATA.withDate(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStorageCostBuilder() {
     DATA.withStorageCost(-2);
   }

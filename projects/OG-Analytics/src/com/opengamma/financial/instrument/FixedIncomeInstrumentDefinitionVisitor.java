@@ -73,6 +73,10 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitCouponIbor(CouponIborDefinition payment);
 
+  U visitCouponIborSpread(CouponIborDefinition payment, T data);
+
+  U visitCouponIborSpread(CouponIborDefinition payment);
+
   U visitCouponCMS(CouponCMSDefinition payment, T data);
 
   U visitCouponCMS(CouponCMSDefinition payment);

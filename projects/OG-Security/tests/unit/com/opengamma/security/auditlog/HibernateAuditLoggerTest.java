@@ -5,34 +5,48 @@
  */
 package com.opengamma.security.auditlog;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.net.InetAddress;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
+import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.HibernateTest;
 
 /**
- *
- * 
+ * Test HibernateAuditLogger.
  */
 public class HibernateAuditLoggerTest extends HibernateTest {
-  
+
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
-  
+
+  @BeforeMethod
+  public void setUp() throws Exception {
+    super.setUp();
+  }
+
+  @AfterMethod
+  public void tearDown() throws Exception {
+    super.tearDown();
+  }
+
   @Override
   public Class<?>[] getHibernateMappingClasses() {
     return new Class[] { AuditLogEntry.class };
   }  
-  
+
   @Test
   public void testLogging() throws Exception {
     HibernateAuditLogger logger = new HibernateAuditLogger(5, 1);
@@ -68,6 +82,6 @@ public class HibernateAuditLoggerTest extends HibernateTest {
         fail("Unexpected object ID");
       }
     }
-    
   }
+
 }

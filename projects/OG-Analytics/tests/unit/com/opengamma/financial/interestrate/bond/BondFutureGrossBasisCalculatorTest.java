@@ -6,10 +6,8 @@
 package com.opengamma.financial.interestrate.bond;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -30,17 +28,17 @@ public class BondFutureGrossBasisCalculatorTest {
   private static final double FUTURE_PRICE = 105;
   private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS, FUTURE_PRICE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBondFuture() {
     CALCULATOR.calculate(null, BASKET_DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBasketData() {
     CALCULATOR.calculate(FUTURE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongBasketSize() {
     CALCULATOR.calculate(new BondFuture(new BondForward[] {DELIVERABLES[0]}, new double[] {0.78}, FUTURE_PRICE), BASKET_DATA);
   }

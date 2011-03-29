@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 
@@ -15,7 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,14 +50,17 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
   private static final int WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
 
+  @Override
   protected Logger getLogger() {
     return LOGGER;
   }
-  
+
+  @Override
   protected int getWarmupCycles() {
     return WARMUP_CYCLES;
   }
-  
+
+  @Override
   protected int getBenchmarkCycles() {
     return BENCHMARK_CYCLES;
   }
@@ -127,8 +130,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
 
   @Test
   public void testJacobian() {
-    testJacobian(getSingleCurveSetup());
-    testJacobian(getDoubleCurveSetup());
+    assertJacobian(getSingleCurveSetup());
+    assertJacobian(getDoubleCurveSetup());
   }
 
   private YieldCurveFittingTestDataBundle getSingleCurveSetup() {

@@ -11,6 +11,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
@@ -29,11 +30,14 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewComputationCacheSource.class);
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final CacheManager cacheManager) {
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
+      final FudgeMessageStoreFactory privateDataStoreFactory, final CacheManager cacheManager) {
     this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager);
   }
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final CacheManager cacheManager, final int maxLocalCachedElements) {
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
+      final FudgeMessageStoreFactory privateDataStoreFactory, final CacheManager cacheManager,
+      final int maxLocalCachedElements) {
     this(client, privateDataStoreFactory, client.getFudgeContext(), cacheManager, maxLocalCachedElements);
   }
 
@@ -44,14 +48,19 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
    *                     one attached to the client's transport or different.
    * @param cacheManager the EH cache manager to use for the remote binary data store
    */
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext, final CacheManager cacheManager) {
-    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, cacheManager, -1));
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
+      final FudgeMessageStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext,
+      final CacheManager cacheManager) {
+    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createFudgeMessageStoreFactory(client,
+        cacheManager, -1));
     client.setAsynchronousMessageReceiver(this);
   }
 
-  public RemoteViewComputationCacheSource(final RemoteCacheClient client, final BinaryDataStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext, final CacheManager cacheManager,
-      final int maxLocalCachedElements) {
-    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createDataStoreFactory(client, cacheManager, maxLocalCachedElements));
+  public RemoteViewComputationCacheSource(final RemoteCacheClient client,
+      final FudgeMessageStoreFactory privateDataStoreFactory, final FudgeContext fudgeContext,
+      final CacheManager cacheManager, final int maxLocalCachedElements) {
+    super(createIdentifierMap(client), fudgeContext, privateDataStoreFactory, createFudgeMessageStoreFactory(client,
+        cacheManager, maxLocalCachedElements));
     client.setAsynchronousMessageReceiver(this);
   }
 
@@ -59,12 +68,13 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
     return new CachingIdentifierMap(new RemoteIdentifierMap(client));
   }
 
-  private static BinaryDataStoreFactory createDataStoreFactory(final RemoteCacheClient client, final CacheManager cacheManager, final int maxLocalCachedElements) {
-    final RemoteBinaryDataStoreFactory remote = new RemoteBinaryDataStoreFactory(client);
+  private static FudgeMessageStoreFactory createFudgeMessageStoreFactory(final RemoteCacheClient client,
+      final CacheManager cacheManager, final int maxLocalCachedElements) {
+    final RemoteFudgeMessageStoreFactory remote = new RemoteFudgeMessageStoreFactory(client);
     if (maxLocalCachedElements >= 0) {
-      return new CachingBinaryDataStoreFactory(remote, cacheManager, maxLocalCachedElements);
+      return new CachingFudgeMessageStoreFactory(remote, cacheManager, maxLocalCachedElements);
     } else {
-      return new CachingBinaryDataStoreFactory(remote, cacheManager);
+      return new CachingFudgeMessageStoreFactory(remote, cacheManager);
     }
   }
 
@@ -81,22 +91,23 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
     @Override
     protected CacheMessage visitFindMessage(final FindMessage message) {
-      final DefaultViewComputationCache cache = findCache(message.getViewName(), message.getCalculationConfigurationName(), message.getSnapshotTimestamp());
+      final DefaultViewComputationCache cache = findCache(message.getViewName(), message
+          .getCalculationConfigurationName(), message.getSnapshotTimestamp());
       if (cache != null) {
         final List<Long> identifiers = message.getIdentifier();
         s_logger.debug("Searching for {} identifiers to send to shared cache", identifiers.size());
         if (identifiers.size() == 1) {
           final long identifier = identifiers.get(0);
-          final byte[] data = cache.getPrivateDataStore().get(identifier);
+          final FudgeFieldContainer data = cache.getPrivateDataStore().get(identifier);
           if (data != null) {
             s_logger.debug("Found identifier {} in private cache", identifier);
             cache.getSharedDataStore().put(identifier, data);
           }
         } else {
-          final Map<Long, byte[]> data = cache.getPrivateDataStore().get(identifiers);
+          final Map<Long, FudgeFieldContainer> data = cache.getPrivateDataStore().get(identifiers);
           if (data.size() == 1) {
             s_logger.debug("Found 1 of {} identifiers in private cache", identifiers.size());
-            final Map.Entry<Long, byte[]> entry = data.entrySet().iterator().next();
+            final Map.Entry<Long, FudgeFieldContainer> entry = data.entrySet().iterator().next();
             cache.getSharedDataStore().put(entry.getKey(), entry.getValue());
           } else if (data.size() > 1) {
             s_logger.debug("Found {} of {} identifiers in private cache", data.size(), identifiers.size());

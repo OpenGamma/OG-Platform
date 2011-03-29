@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.timeseries.model;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
@@ -63,47 +61,47 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new AutoregressiveMovingAverageTimeSeriesModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPhi() {
     MODEL.getSeries(null, P, THETA, Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeP() {
     MODEL.getSeries(PHI, -P, THETA, Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongP() {
     MODEL.getSeries(PHI, 2 * P, THETA, Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTheta() {
     MODEL.getSeries(PHI, P, null, Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeQ() {
     MODEL.getSeries(PHI, P, THETA, -Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongQ() {
     MODEL.getSeries(PHI, P, THETA, 2 * Q, DATES);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates() {
     MODEL.getSeries(PHI, P, THETA, Q, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDates() {
     MODEL.getSeries(PHI, P, THETA, Q, new long[0]);
   }

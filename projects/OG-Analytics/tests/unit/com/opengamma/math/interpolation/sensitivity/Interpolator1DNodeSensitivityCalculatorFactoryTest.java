@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.sensitivity.Interpolator1DNodeSensitivityCalculatorFactory.getSensitivityCalculator;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
@@ -17,7 +15,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  */
 public class Interpolator1DNodeSensitivityCalculatorFactoryTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadName() {
     getSensitivityCalculator("a", false);
   }

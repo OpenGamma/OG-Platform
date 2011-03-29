@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -25,7 +23,7 @@ public abstract class SVDecompositionCalculationTestCase {
 
   protected abstract MatrixAlgebra getAlgebra();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
     getSVD().evaluate((DoubleMatrix2D) null);
   }

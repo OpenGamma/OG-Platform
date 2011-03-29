@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
@@ -33,12 +31,12 @@ public class EuropeanStandardBarrierOptionDefinitionTest {
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       100, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBarrier() {
     new EuropeanStandardBarrierOptionDefinition(STRIKE, EXPIRY, true, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRebate() {
     new EuropeanStandardBarrierOptionDefinition(STRIKE, EXPIRY, true, BARRIER, -3);
   }

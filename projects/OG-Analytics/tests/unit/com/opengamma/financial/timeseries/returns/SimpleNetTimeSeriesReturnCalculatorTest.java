@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -31,17 +29,17 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_DDMMYYYY;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((DoubleTimeSeries<Long>[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries[0]);
   }
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expectedExceptions = TimeSeriesException.class)
   public void testWithShortTS() {
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {14022000}, new double[] {4});
     CALCULATOR.evaluate(ts);
@@ -93,7 +91,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     final DoubleTimeSeries<Long>[] tsArray = new DoubleTimeSeries[] {priceTS};
     try {
       strict.evaluate(tsArray);
-      fail();
+      Assert.fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }

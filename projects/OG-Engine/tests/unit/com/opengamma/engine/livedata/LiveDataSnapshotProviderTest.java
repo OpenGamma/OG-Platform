@@ -5,14 +5,12 @@
  */
 package com.opengamma.engine.livedata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.Test;
-
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,6 +24,7 @@ import com.opengamma.livedata.test.TestLiveDataClient;
 /**
  * Test LiveDataSnapshotProvider.
  */
+@Test
 public class LiveDataSnapshotProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
@@ -37,7 +36,6 @@ public class LiveDataSnapshotProviderTest {
     return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("testdomain", ticker));
   }
   
-  @Test
   public void snapshotting() {
     TestLiveDataClient client = new TestLiveDataClient();
     LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client, new MockSecuritySource());

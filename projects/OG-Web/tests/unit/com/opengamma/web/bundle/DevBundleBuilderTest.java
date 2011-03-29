@@ -5,24 +5,20 @@
  */
 package com.opengamma.web.bundle;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.io.File;
 import java.util.List;
 
-import org.junit.Test;
-
 /**
- * Test DevBundleBuilder
+ * Test DevBundleBuilder.
  */
+@Test
 public class DevBundleBuilderTest {
 
-  @Test
   public void test_builder() throws Exception {
-       
     BundleManager bundleManager = new BundleManager();
     
     Bundle testBundle = new Bundle("A.css");
@@ -46,7 +42,6 @@ public class DevBundleBuilderTest {
     assertEquals(testBundle.getAllFragment(), bundle.getAllFragment());
   }
 
-
   private void assertBundleNode(BundleNode bundleNode) {
     if (bundleNode instanceof Bundle) {
       Bundle testBundle = (Bundle) bundleNode;
@@ -57,5 +52,5 @@ public class DevBundleBuilderTest {
       }
     }
   }
-  
+
 }

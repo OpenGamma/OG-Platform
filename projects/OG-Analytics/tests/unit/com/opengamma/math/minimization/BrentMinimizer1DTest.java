@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -29,19 +29,19 @@ public class BrentMinimizer1DTest extends Minimizer1DTestCase {
 //
 //  };
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction1() {
     MINIMIZER.minimize(null, 2., 1., 4.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction2() {
     MINIMIZER.minimize(null, 2.);
   }
 
   @Test
   public void test() {
-    super.testInputs(MINIMIZER);
-    super.test(MINIMIZER);
+    super.assertInputs(MINIMIZER);
+    super.assertMinimizer(MINIMIZER);
   }
 }

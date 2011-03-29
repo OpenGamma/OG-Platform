@@ -6,8 +6,8 @@
 package com.opengamma.math.util.wrapper;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
@@ -16,8 +16,6 @@ import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.optimization.RealPointValuePair;
-import org.junit.Test;
-
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.FunctionND;
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -51,47 +49,47 @@ public class CommonsMathWrapperTest {
   private static final RealPolynomialFunction1D OG_POLYNOMIAL = new RealPolynomialFunction1D(new double[] {3, 4, -1, 5,
       -3});
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DMatrix() {
     CommonsMathWrapper.wrap((DoubleMatrix1D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullVector() {
     CommonsMathWrapper.unwrap((RealVector) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1DFunction() {
     CommonsMathWrapper.wrapUnivariate((Function1D<Double, Double>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNDFunction() {
     CommonsMathWrapper.wrap((FunctionND<Double, Double>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMatrix() {
     CommonsMathWrapper.wrap((DoubleMatrix2D) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRealMatrix() {
     CommonsMathWrapper.unwrap((RealMatrix) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullComplexNumber() {
     CommonsMathWrapper.wrap((ComplexNumber) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLagrange() {
     CommonsMathWrapper.unwrap((PolynomialFunctionLagrangeForm) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRealPointVectorPair() {
     CommonsMathWrapper.unwrap((RealPointValuePair) null);
   }

@@ -5,9 +5,8 @@
  */
 package com.opengamma.language.connector;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 
 /**
  * Simulates the Main class being loaded up within the JVM service wrapper. This is

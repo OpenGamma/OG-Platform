@@ -10,26 +10,29 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 /**
- * A minimal implementation of a vector (in the mathematical sense) that contains doubles
+ * A minimal implementation of a vector (in the mathematical sense) that contains doubles.
  */
 public class DoubleMatrix1D implements Matrix<Double> {
   private final double[] _data;
   private final int _elements;
-  /**
-   * Empty matrix
-   */
+  /** Empty vector */
   public static final DoubleMatrix1D EMPTY_MATRIX = new DoubleMatrix1D(new double[0]);
 
+  /**
+   * @param data The data, not null
+   */
   public DoubleMatrix1D(final Double[] data) {
     Validate.notNull(data);
     _elements = data.length;
     _data = new double[_elements];
     for (int i = 0; i < _elements; i++) {
       _data[i] = data[i];
-
     }
   }
 
+  /**
+   * @param data The data, not null
+   */
   public DoubleMatrix1D(final double[] data) {
     Validate.notNull(data);
     _elements = data.length;
@@ -40,9 +43,9 @@ public class DoubleMatrix1D implements Matrix<Double> {
   }
 
   /**
-   * Returns the underlying vector data. If this is changed so is the vector
-   * @see #toArray to get clone of data
-   * @return array containing the vector elements 
+   * Returns the underlying vector data. If this is changed so is the vector.
+   * @see #toArray to get a copy of data
+   * @return An array containing the vector elements 
    */
   public double[] getData() {
     return _data;
@@ -50,21 +53,24 @@ public class DoubleMatrix1D implements Matrix<Double> {
 
   /**
    * Convert the vector to a double array. 
-   * The array is independent from vector data, its elements are copied.
-   * @return array containing a copy of vector elements
+   * As its elements are copied, the array is independent from the vector data.
+   * @return An array containing a copy of vector elements
    */
   public double[] toArray() {
     return Arrays.copyOf(_data, _elements);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getNumberOfElements() {
     return _elements;
   }
 
   /**
-   * @param index 
-   * @return the element at the index
+   * {@inheritDoc}
+   * This method expects one index - any subsequent indices will be ignored.
    */
   @Override
   public Double getEntry(final int... index) {

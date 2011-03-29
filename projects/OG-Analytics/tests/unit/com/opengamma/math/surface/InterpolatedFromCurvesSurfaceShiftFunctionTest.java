@@ -6,12 +6,10 @@
 package com.opengamma.math.surface;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
@@ -34,52 +32,52 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
   private static final InterpolatedFromCurvesDoublesSurface SURFACE2 = InterpolatedFromCurvesDoublesSurface.fromSorted(false, POINTS, CURVES, INTERPOLATOR, NAME);
   private static final InterpolatedFromCurvesSurfaceShiftFunction F = new InterpolatedFromCurvesSurfaceShiftFunction();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull1() {
     F.evaluate(null, 3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull2() {
     F.evaluate(null, 3, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull3() {
     F.evaluate(null, 3, 4, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull4() {
     F.evaluate(null, 3, 4, 5, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull5() {
     F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
     F.evaluate(null, new double[] {3}, new double[] {4}, new double[] {5}, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY1() {
     F.evaluate(SURFACE1, new double[] {1}, new double[] {2, 3}, new double[] {4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthY2() {
     F.evaluate(SURFACE1, new double[] {1}, new double[] {2, 3}, new double[] {4}, "M");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ1() {
     F.evaluate(SURFACE1, new double[] {1}, new double[] {2}, new double[] {3, 4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthZ2() {
     F.evaluate(SURFACE1, new double[] {1}, new double[] {2}, new double[] {3, 4}, "L");
   }
@@ -93,11 +91,11 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     assertTrue(surface.isXZCurves());
     Curve<Double, Double>[] curves = surface.getCurves();
     Curve<Double, Double> shifted = curves[0];
-    testParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
     shifted = curves[1];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
     shifted = curves[2];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
     assertEquals(surface.getName(), "PARALLEL_SHIFT_" + NAME);
     final String newName = "T";
     surface = F.evaluate(SURFACE1, shift, newName);
@@ -106,11 +104,11 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     assertTrue(surface.isXZCurves());
     curves = surface.getCurves();
     shifted = curves[0];
-    testParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
     shifted = curves[1];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
     shifted = curves[2];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
     assertEquals(surface.getName(), newName);
     surface = F.evaluate(SURFACE1, shift);
     assertEquals(surface.getInterpolator(), INTERPOLATOR);
@@ -118,11 +116,11 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     assertTrue(surface.isXZCurves());
     curves = surface.getCurves();
     shifted = curves[0];
-    testParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
     shifted = curves[1];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
     shifted = curves[2];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
     assertEquals(surface.getName(), "PARALLEL_SHIFT_" + NAME);
     surface = F.evaluate(SURFACE1, shift, newName);
     assertEquals(surface.getInterpolator(), INTERPOLATOR);
@@ -130,15 +128,15 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     assertTrue(surface.isXZCurves());
     curves = surface.getCurves();
     shifted = curves[0];
-    testParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, NODAL, NodalDoublesCurve.class);
     shifted = curves[1];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED1, InterpolatedDoublesCurve.class);
     shifted = curves[2];
-    testParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
+    assertParallelShiftedCurves(shift, shifted, INTERPOLATED2, InterpolatedDoublesCurve.class);
     assertEquals(surface.getName(), newName);
   }
 
-  private void testParallelShiftedCurves(final double shift, final Curve<Double, Double> shifted, final Curve<Double, Double> original, final Class<?> clazz) {
+  private void assertParallelShiftedCurves(final double shift, final Curve<Double, Double> shifted, final Curve<Double, Double> original, final Class<?> clazz) {
     Double[] yData1;
     Double[] yData2;
     assertEquals(shifted.getClass(), clazz);
@@ -150,12 +148,12 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSingleShiftNoX() {
     F.evaluate(SURFACE2, 1.2, 2, 0.3);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testSingleShiftNoY() {
     F.evaluate(SURFACE1, 1, 1.2, 0.2);
   }
@@ -224,12 +222,12 @@ public class InterpolatedFromCurvesSurfaceShiftFunctionTest {
     assertEquals(surface.getName(), newName);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testMultipleShiftNoX() {
     F.evaluate(SURFACE2, new double[] {1, 1.2}, new double[] {1, 2}, new double[] {0.3, 0.3});
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testMultipleShiftShiftNoY() {
     F.evaluate(SURFACE1, new double[] {1, 2}, new double[] {1, 1.2}, new double[] {0.3, 0.3});
   }

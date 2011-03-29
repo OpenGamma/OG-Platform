@@ -26,7 +26,6 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.CompareUtils;
@@ -119,7 +118,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final AnnuityCouponFixed unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
-    final GenericAnnuity<?> recieveAnnuity = swap.getReceiveLeg();
+    final GenericAnnuity<?> recieveAnnuity = swap.getSecondLeg();
     final double a = PV_CALCULATOR.visit(unitCouponAnnuity, curves);
     final double b = PV_CALCULATOR.visit(recieveAnnuity, curves);
     final double bOveraSq = b / a / a;
@@ -134,7 +133,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
         flag = true;
         for (final DoublesPair pair : senseA.get(name)) {
           final double t = pair.getFirst();
-          final DoublesPair newPair = new DoublesPair(t, -bOveraSq * pair.getSecond());
+          final DoublesPair newPair = new DoublesPair(t, bOveraSq * pair.getSecond());
           temp.add(newPair);
         }
       }
@@ -142,7 +141,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
         flag = true;
         for (final DoublesPair pair : senseB.get(name)) {
           final double t = pair.getFirst();
-          final DoublesPair newPair = new DoublesPair(t, pair.getSecond() / a);
+          final DoublesPair newPair = new DoublesPair(t, -pair.getSecond() / a);
           temp.add(newPair);
         }
       }
@@ -162,8 +161,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
    */
   @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIbor payLeg = ((AnnuityCouponIbor) swap.getPayLeg()).withZeroSpread();
-    final AnnuityCouponIbor receiveLeg = ((AnnuityCouponIbor) swap.getReceiveLeg()).withZeroSpread();
+    final AnnuityCouponIbor payLeg = ((AnnuityCouponIbor) swap.getFirstLeg()).withZeroSpread();
+    final AnnuityCouponIbor receiveLeg = ((AnnuityCouponIbor) swap.getSecondLeg()).withZeroSpread();
     final AnnuityCouponFixed spreadLeg = receiveLeg.withUnitCoupons();
 
     final double a = PV_CALCULATOR.visit(receiveLeg, curves);
@@ -175,7 +174,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     final Map<String, List<DoublesPair>> senseC = SENSITIVITY_CALCULATOR.visit(spreadLeg, curves);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
 
-    final double factor = -(b - a) / c / c;
+    final double factor = (b + a) / c / c;
 
     for (final String name : curves.getAllNames()) {
       boolean flag = false;
@@ -189,7 +188,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
       if (senseB.containsKey(name)) {
         flag = true;
         for (final DoublesPair pair : senseB.get(name)) {
-          temp.add(new DoublesPair(pair.getFirst(), pair.getSecond() / c));
+          temp.add(new DoublesPair(pair.getFirst(), -pair.getSecond() / c));
         }
       }
       if (senseC.containsKey(name)) {
@@ -205,10 +204,10 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     return result;
   }
 
-  @Override
-  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-    return visitSwap(frn, curves);
-  }
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
+  //    return visitSwap(frn, curves);
+  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {

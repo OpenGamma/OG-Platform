@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.statistics.leastsquare;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
@@ -25,27 +23,27 @@ public class LeastSquareResultTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeChiSq() {
     new LeastSquareResults(-1, PARAMS, COVAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParams() {
     new LeastSquareResults(1, null, COVAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCovar() {
     new LeastSquareResults(1, PARAMS, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWrongSize() {
     new LeastSquareResults(1, new DoubleMatrix1D(new double[] {1.2}), COVAR);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotSquare() {
     new LeastSquareResults(1, PARAMS, new DoubleMatrix2D(new double[][] {{0.2, 0.3}}));
   }

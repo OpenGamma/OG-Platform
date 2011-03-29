@@ -43,6 +43,11 @@ public class Coupon extends Payment {
   }
 
   @Override
+  public double getReferenceAmount() {
+    return _notional;
+  }
+
+  @Override
   public String toString() {
     return "Coupon : time = " + getPaymentTime() + ", yearFraction = " + getPaymentYearFraction() + ", notional = " + _notional;
   }

@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.RealPolynomialFunction1D;
 
@@ -25,19 +23,19 @@ public class QuadraticRealRootFinderTest {
   public void test() {
     try {
       FINDER.getRoots(null);
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       FINDER.getRoots(new RealPolynomialFunction1D(new double[] {1., 2., 3., 4.}));
-      fail();
+      Assert.fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       FINDER.getRoots(new RealPolynomialFunction1D(new double[] {12., 1., 12.}));
-      fail();
+      Assert.fail();
     } catch (final MathException e) {
       // Expected
     }

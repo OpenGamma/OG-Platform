@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
@@ -24,12 +22,12 @@ public class BondConvexityCalculatorTest {
   private static final BondConvexityCalculator CC = new BondConvexityCalculator();
   private static final String CURVE_NAME = "Test Curve";
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
     CC.calculate(null, 1.0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePrice() {
     CC.calculate(new Bond(new double[] {1, 2, 3}, 0.04, CURVE_NAME), -102);
   }

@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
-import org.junit.Test;
-
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;

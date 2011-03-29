@@ -5,14 +5,12 @@
  */
 package com.opengamma.engine.view.calc.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import org.testng.annotations.Test;
+import org.testng.Assert;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.livedata.LiveDataInjector;
@@ -28,6 +26,7 @@ import com.opengamma.livedata.UserPrincipal;
 /**
  * 
  */
+@Test
 public class TotallingGraphStatisticsGathererProviderTest {
   
   private static class TestView implements View {
@@ -99,7 +98,6 @@ public class TotallingGraphStatisticsGathererProviderTest {
   
   private TotallingGraphStatisticsGathererProvider _provider = new TotallingGraphStatisticsGathererProvider();
   
-  @Test
   public void testBasicOperation () {
     final View testView1 = new TestView ("View 1");
     final View testView2 = new TestView ("View 2");
@@ -131,11 +129,11 @@ public class TotallingGraphStatisticsGathererProviderTest {
             mask |= 4;
             assertEquals ("View 2", graphStats.getViewName ());
           } else {
-            fail ();
+            Assert.fail ();
           }
         }
       } else {
-        fail ();
+        Assert.fail ();
       }
     }
     assertEquals (7, mask);

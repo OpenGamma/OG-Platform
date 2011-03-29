@@ -6,11 +6,9 @@
 package com.opengamma.math.regression;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -58,22 +56,22 @@ public class LeastSquaresRegressionResultTest {
     INTERCEPT = REGRESSION.regress(x, null, y2, true);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs() {
     new LeastSquaresRegressionResult(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
     NO_INTERCEPT.getPredictedValue(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLongArray() {
     NO_INTERCEPT.getPredictedValue(new double[] {2.4, 2.5, 3.4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortArray() {
     NO_INTERCEPT.getPredictedValue(new double[] {2.4});
   }

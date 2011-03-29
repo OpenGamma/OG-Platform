@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.interestrate.fra.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -23,67 +22,67 @@ public class ForwardRateAgreementTest {
   private static final double FORWARD_YEAR_FRACTION = 0.5;
   private static final double DISCOUNT_YEAR_FRACTION = 0.51;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlement1() {
     new ForwardRateAgreement(-SETTLEMENT, 2, FWD_RATE, CURVE_NAME1, CURVE_NAME2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlement2() {
     new ForwardRateAgreement(-SETTLEMENT, 2, FWD_RATE, FIXING_DATE, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, CURVE_NAME1, CURVE_NAME2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeMaturity1() {
     new ForwardRateAgreement(SETTLEMENT, -2, FWD_RATE, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeMaturity2() {
     new ForwardRateAgreement(SETTLEMENT, -2, FWD_RATE, FIXING_DATE, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSettlementAfterMaturity1() {
     new ForwardRateAgreement(SETTLEMENT + 1, 2, FWD_RATE, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSettlementAfterMaturity2() {
     new ForwardRateAgreement(SETTLEMENT + 1, 2, FWD_RATE, FIXING_DATE, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFixingDateAfterSettlement1() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, SETTLEMENT + 0.1, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, FWD_RATE, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction1() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, SETTLEMENT, -FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, FWD_RATE, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction2() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, SETTLEMENT, FORWARD_YEAR_FRACTION, -DISCOUNT_YEAR_FRACTION, FWD_RATE, CURVE_NAME1, CURVE_NAME1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName1() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, FWD_RATE, null, CURVE_NAME2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName2() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, FWD_RATE, CURVE_NAME1, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName3() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, FIXING_DATE, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, FWD_RATE, null, CURVE_NAME2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName4() {
     new ForwardRateAgreement(SETTLEMENT, MATURITY, FIXING_DATE, FORWARD_YEAR_FRACTION, DISCOUNT_YEAR_FRACTION, FWD_RATE, CURVE_NAME1, null);
   }

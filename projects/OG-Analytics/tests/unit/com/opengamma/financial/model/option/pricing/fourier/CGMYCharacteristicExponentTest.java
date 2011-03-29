@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,22 +19,22 @@ public class CGMYCharacteristicExponentTest {
   private static final double Y = 1;
   private static final CGMYCharacteristicExponent EXPONENT = new CGMYCharacteristicExponent(C, G, M, Y);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongC() {
     new CGMYCharacteristicExponent(-C, G, M, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongG() {
     new CGMYCharacteristicExponent(C, -G, M, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongM() {
     new CGMYCharacteristicExponent(C, G, -M, Y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongY() {
     new CGMYCharacteristicExponent(C, G, M, Y + 10);
   }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.option.definition.twoasset;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -36,27 +34,27 @@ public class StandardTwoAssetOptionDataBundleTest {
   private static final ZonedDateTime DATE2 = DateUtil.getDateOffsetWithYearFraction(DATE, 1);
   private static final StandardTwoAssetOptionDataBundle DATA = new StandardTwoAssetOptionDataBundle(CURVE1, B1, B2, SURFACE1, SURFACE2, SPOT1, SPOT2, RHO, DATE);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     new StandardTwoAssetOptionDataBundle(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowCorrelation() {
     new StandardTwoAssetOptionDataBundle(CURVE1, B1, B2, SURFACE1, SURFACE2, SPOT1, SPOT2, -1 - RHO, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighCorrelation() {
     new StandardTwoAssetOptionDataBundle(CURVE1, B1, B2, SURFACE1, SURFACE2, SPOT1, SPOT2, 1 + RHO, DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetLowCorrelation() {
     DATA.withCorrelation(-1 - RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSetHighCorrelation() {
     DATA.withCorrelation(1 + RHO);
   }

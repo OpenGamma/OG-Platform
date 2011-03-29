@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -31,32 +29,32 @@ public class IRFutureConventionTest {
   private static final String NAME = "CONVENTION";
   private static final IRFutureConvention CONVENTION = new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, NAME);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeSettlementDays() {
     new IRFutureConvention(-SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDayCount() {
     new IRFutureConvention(SETTLEMENT_DAYS, null, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBusinessDayConvention() {
     new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, null, CALENDAR, YEAR_FRACTION, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalendar() {
     new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, null, YEAR_FRACTION, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeYearFraction() {
     new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, -YEAR_FRACTION, NAME);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
     new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, null);
   }

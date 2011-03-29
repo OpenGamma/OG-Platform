@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.pricing.montecarlo;
 
-import static org.junit.Assert.assertTrue;
-
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
@@ -46,12 +44,12 @@ public class EuropeanMonteCarloOptionModelTest {
       GENERATOR);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getPricingFunction(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getPricingFunction(CALL1).evaluate((StandardOptionDataBundle) null);
   }

@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
+import org.testng.annotations.Test;
 import java.util.BitSet;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;

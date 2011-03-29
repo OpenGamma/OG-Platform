@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.instrument.fra;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -20,7 +18,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.util.time.DateUtil;
 
@@ -40,32 +37,32 @@ public class FRADefinitionTest {
   private static final double RATE = 0.05;
   private static final FRADefinition DEFINITION = new FRADefinition(START, MATURITY, RATE, CONVENTION);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStart() {
     new FRADefinition(null, MATURITY, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturity() {
     new FRADefinition(START, null, RATE, CONVENTION);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new FRADefinition(START, MATURITY, RATE, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     DEFINITION.toDerivative(null, new String[] {"A"});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveNames() {
     DEFINITION.toDerivative(DATE, (String[]) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyCurveNames() {
     DEFINITION.toDerivative(DATE, new String[0]);
   }
@@ -91,13 +88,13 @@ public class FRADefinitionTest {
 
   @Test
   public void testConversion() {
-    String fundingCurveName = "A";
-    String indexCurveName = "B";
-    ForwardRateAgreement fra = DEFINITION.toDerivative(DATE, fundingCurveName, indexCurveName);
+    final String fundingCurveName = "A";
+    final String indexCurveName = "B";
+    final ForwardRateAgreement fra = DEFINITION.toDerivative(DATE, fundingCurveName, indexCurveName);
     assertEquals(fra.getFixingDate(), 90. / 365, 0);
-    assertEquals(fra.getSettlementDate(), 93. / 365, 0);
+    assertEquals(fra.getSettlementDate(), 92. / 365, 0);
     assertEquals(fra.getMaturity(), 181. / 365, 0);
-    assertEquals(fra.getDiscountingYearFraction(), 88. / 360, 0);
+    assertEquals(fra.getDiscountingYearFraction(), 89. / 360, 0);
     assertEquals(fra.getForwardYearFraction(), 91. / 360, 0);
     assertEquals(fra.getFundingCurveName(), fundingCurveName);
     assertEquals(fra.getIndexCurveName(), indexCurveName);

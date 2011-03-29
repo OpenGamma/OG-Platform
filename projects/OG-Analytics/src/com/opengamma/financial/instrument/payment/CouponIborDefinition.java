@@ -29,7 +29,7 @@ import com.opengamma.util.money.Currency;
 public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
-   * Ibor-like index on which the coupon fixes. The index currency should be th same as the index currency.
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
    */
   private final IborIndex _index;
   /**
@@ -150,7 +150,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   @Override
   public String toString() {
-    return super.toString() + ", Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
+    return super.toString() + " *Ibor coupon* Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override

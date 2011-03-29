@@ -5,8 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,22 +15,23 @@ import javax.time.Duration;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.transport.FudgeMessageSender;
 
 /**
  * Tests the function statistics sender.
  */
+@Test
 public class FunctionInvocationStatisticsSenderTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationStatisticsSenderTest.class);
   
   private FunctionCosts _cost = new FunctionCosts ();
   
-  @Test
   public void testBasicBehaviour () {
     final AtomicInteger messages = new AtomicInteger ();
     final FunctionInvocationStatisticsSender sender = new FunctionInvocationStatisticsSender ();
@@ -67,7 +67,7 @@ public class FunctionInvocationStatisticsSenderTest {
     t = (System.nanoTime () - t) / 1000000000;
     sender.flush ();
     if ((messages.get () < t) || (messages.get () > t + 2)) {
-      fail ("Unexpected number of messages (" + messages.get () + ") from " + t + "s execution");
+      Assert.fail ("Unexpected number of messages (" + messages.get () + ") from " + t + "s execution");
     }
     assertEquals (2.0, _cost.getStatistics ("A", "1").getInvocationCost (), 1e-5);
     assertEquals (3.0, _cost.getStatistics ("A", "1").getDataInputCost (), 1e-5);

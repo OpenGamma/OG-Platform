@@ -10,9 +10,9 @@ namespace com.opengamma.engine.view.cache.msg {
   
     /**
      * Data items in the same order as requested. If an item is not available,
-     * a zero-length array is included to keep the correct ordering.
+     * an empty message is included to keep the correct ordering.
      */
-    repeated required byte[] data;
+    repeated required message data;
   
     binding Java {
       body "public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitGetResponse (this); }";

@@ -5,11 +5,10 @@
  */
 package com.opengamma.math;
 
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static com.opengamma.math.FunctionUtils.fromTensorIndex;
 import static com.opengamma.math.FunctionUtils.toTensorIndex;
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
 
 /**
  * 
@@ -33,22 +32,22 @@ public class FunctionUtilsTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndices() {
     FunctionUtils.toTensorIndex(null, new int[] {1, 2, 3});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDimensions1() {
     FunctionUtils.toTensorIndex(new int[] {1, 2, 3}, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength() {
     FunctionUtils.toTensorIndex(new int[] {1, 2}, new int[] {1, 2, 3});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDimensions2() {
     FunctionUtils.fromTensorIndex(2, null);
   }
@@ -89,7 +88,7 @@ public class FunctionUtilsTest {
     assertEquals(indices[2], res[2], 0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfBounds() {
     final int[] indices = new int[] {2, 7, 1};
     final int[] dimensions = new int[] {5, 7, 3};

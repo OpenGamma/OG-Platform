@@ -16,14 +16,34 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
- * 
+ * The Corrado-Su option pricing formula extends the Black-Scholes-Merton model for non-normal skewness and kurtosis in the underlying
+ * return distribution.
+ * <p>
+ * The price of a call option is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * c = c_{BSM} + \\mu_3 Q_3 + (\\mu_4 - 3) Q_4
+ * \\end{align*}
+ * }
+ * where {@latex.inline $c_{BSM}$} is the Black-Scholes-Merton call price (see {@link BlackScholesMertonModel}), {@latex.inline $\\mu_3$} is the skewness, 
+ * {@latex.inline $\\mu_4$} is the Pearson kurtosis and
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * Q_3 &= \\frac{S\\sigma\\sqrt{T}(2\\sigma\\sqrt{T} - d)n(d)}{6(1 + w)}\\\\
+ * Q_4 &= \\frac{S\\sigma\\sqrt{T}(d^2 - 3d\\sigma\\sqrt{T} + 3\\sigma^2T - 1)n(d)}{24(1 + w)}\\\\
+ * d &= \\frac{\\ln(\\frac{S}{K}) + (b + \\frac{\\sigma^2}{2})T - \\ln(1 + w)}{\\sigma\\sqrt{T}}\\\\
+ * w &= \\frac{\\mu_3 \\sigma^3 T^{\\frac{3}{2}}}{6} + \\frac{\\mu_4 \\sigma^4 T^2}{24}
+ * \\end{align*}
+ * }
+ * Put options are priced using put-call parity.
  */
-
 public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);

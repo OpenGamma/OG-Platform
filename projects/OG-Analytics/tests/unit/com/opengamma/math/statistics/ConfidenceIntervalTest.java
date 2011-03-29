@@ -5,11 +5,10 @@
  */
 package com.opengamma.math.statistics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -20,27 +19,27 @@ public class ConfidenceIntervalTest {
   private static final double UPPER = 120;
   private static final double CONFIDENCE_LEVEL = 0.95;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowLevel() {
     new ConfidenceInterval(VALUE, LOWER, UPPER, -CONFIDENCE_LEVEL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighLevel() {
     new ConfidenceInterval(VALUE, LOWER, UPPER, 1 + CONFIDENCE_LEVEL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBounds() {
     new ConfidenceInterval(VALUE, UPPER, LOWER, CONFIDENCE_LEVEL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowerBound() {
     new ConfidenceInterval(UPPER + 1, LOWER, UPPER, CONFIDENCE_LEVEL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUpperBound() {
     new ConfidenceInterval(LOWER - 1, LOWER, UPPER, CONFIDENCE_LEVEL);
   }

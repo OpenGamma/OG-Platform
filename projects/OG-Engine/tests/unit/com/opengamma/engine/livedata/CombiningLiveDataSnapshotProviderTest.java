@@ -5,15 +5,15 @@
  */
 package com.opengamma.engine.livedata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
 
@@ -26,9 +26,9 @@ import com.opengamma.livedata.UserPrincipal;
 /**
  * Tests CombiningLiveDataSnapshotProvider
  */
+@Test
 public class CombiningLiveDataSnapshotProviderTest {
 
-  @Test
   public void testSubscriptionFailure() throws InterruptedException {
     MockLiveDataSnapshotProvider p1 = new MockLiveDataSnapshotProvider("p1", true, 1);
     MockLiveDataSnapshotProvider p2 = new MockLiveDataSnapshotProvider("p2", false, 1);
@@ -47,7 +47,6 @@ public class CombiningLiveDataSnapshotProviderTest {
     verify(listener, VerificationModeFactory.noMoreInteractions()).subscriptionFailed(Mockito.<ValueRequirement>anyObject(), Mockito.anyString());
   }
   
-  @Test
   public void testSubscriptionSuccess() throws InterruptedException {
     MockLiveDataSnapshotProvider p1 = new MockLiveDataSnapshotProvider("p1", true, 1);
     MockLiveDataSnapshotProvider p2 = new MockLiveDataSnapshotProvider("p2", true, 1);
@@ -70,7 +69,6 @@ public class CombiningLiveDataSnapshotProviderTest {
     verify(listener, VerificationModeFactory.times(2)).valueChanged(req);
   }
   
-  @Test
   public void testSnapshotNoOverrides() throws InterruptedException {
     ValueRequirement req1 = getRequirement(1);
     ValueRequirement req2 = getRequirement(2);
@@ -101,7 +99,6 @@ public class CombiningLiveDataSnapshotProviderTest {
     assertEquals("value1", provider.querySnapshot(1234, req1));
   }
   
-  @Test
   public void testSnapshotWithOverrides() throws InterruptedException {
     ValueRequirement req1 = getRequirement(1);
     

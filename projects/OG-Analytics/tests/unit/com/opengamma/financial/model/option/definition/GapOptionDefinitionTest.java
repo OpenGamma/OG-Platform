@@ -5,11 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -31,12 +29,12 @@ public class GapOptionDefinitionTest {
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.03)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       STRIKE, DateUtil.getUTCDate(2009, 1, 1));
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePayoffStrike() {
     new GapOptionDefinition(STRIKE, EXPIRY, IS_CALL, -PAYOFF_STRIKE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALL.getPayoffFunction().getPayoff(null, null);
   }

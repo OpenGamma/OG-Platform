@@ -5,10 +5,9 @@
  */
 package com.opengamma.math.minimization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -18,22 +17,22 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
   private static final double B = 1.0;
   private static final ParameterLimitsTransform RANGE_LIMITS = new DoubleRangeLimitTransform(A, B);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange1() {
     RANGE_LIMITS.transform(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange2() {
     RANGE_LIMITS.transform(1.01);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange3() {
     RANGE_LIMITS.transformGradient(-3);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOutOfRange4() {
     RANGE_LIMITS.transformGradient(1.01);
   }
@@ -43,13 +42,13 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
     for (int i = 0; i < 10; i++) {
       final double x = A + (B - A) * RANDOM.nextDouble();
       final double y = 5 * NORMAL.nextRandom();
-      testRoundTrip(RANGE_LIMITS, x);
-      testReverseRoundTrip(RANGE_LIMITS, y);
+      assertRoundTrip(RANGE_LIMITS, x);
+      assertReverseRoundTrip(RANGE_LIMITS, y);
 
-      testGradient(RANGE_LIMITS, x);
-      testInverseGradient(RANGE_LIMITS, y);
+      assertGradient(RANGE_LIMITS, x);
+      assertInverseGradient(RANGE_LIMITS, y);
 
-      testGradientRoundTrip(RANGE_LIMITS, x);
+      assertGradientRoundTrip(RANGE_LIMITS, x);
     }
   }
 

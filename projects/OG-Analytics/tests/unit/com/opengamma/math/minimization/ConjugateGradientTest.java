@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.minimization;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -18,21 +18,21 @@ public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiant
 
   @Test
   public void testSolvingRosenbrock() {
-    super.testSolvingRosenbrock(MINIMISER, EPS);
+    super.assertSolvingRosenbrock(MINIMISER, EPS);
   }
 
   @Test
   public void testSolvingRosenbrockWithoutGradient() {
-    super.testSolvingRosenbrockWithoutGradient(MINIMISER, 10 * EPS);
+    super.assertSolvingRosenbrockWithoutGradient(MINIMISER, 10 * EPS);
   }
 
   @Test
   public void testSolvingCoupledRosenbrock() {
-    super.testSolvingCoupledRosenbrock(MINIMISER, EPS);
+    super.assertSolvingCoupledRosenbrock(MINIMISER, EPS);
   }
 
   @Test
   public void testSolvingCoupledRosenbrockWithoutGradient() {
-    super.testSolvingCoupledRosenbrockWithoutGradient(MINIMISER, 100 * EPS);
+    super.assertSolvingCoupledRosenbrockWithoutGradient(MINIMISER, 100 * EPS);
   }
 }

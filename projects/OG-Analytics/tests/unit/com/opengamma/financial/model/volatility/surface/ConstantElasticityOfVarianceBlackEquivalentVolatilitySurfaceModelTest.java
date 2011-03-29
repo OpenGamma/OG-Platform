@@ -5,13 +5,11 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.Collections;
 
 import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -40,17 +38,17 @@ public class ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModelTe
   private static final ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel MODEL = new ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel();
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOptionData() {
     MODEL.getSurface(null, DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyOptionData() {
     MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), DATA);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(new EuropeanVanillaOptionDefinition(100, EXPIRY, true), 0.2), null);
   }

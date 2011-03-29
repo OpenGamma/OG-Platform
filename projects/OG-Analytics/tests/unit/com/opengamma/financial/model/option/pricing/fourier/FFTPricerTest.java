@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
@@ -37,127 +35,127 @@ public class FFTPricerTest {
   private static final double ALPHA = -0.5;
   private static final double TOL = 1e-8;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
     PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption1() {
     PRICER.price(DATA, null, CEF, 10, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent1() {
     PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance1() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNStrikes() {
     PRICER.price(DATA, OPTION, CEF, -10, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeMaxDeltaMoneyness() {
     PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeVol1() {
     PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha1() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, 0, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData2() {
     PRICER.price(null, OPTION, CEF, 10, 110, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption2() {
     PRICER.price(DATA, null, CEF, 10, 110, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent2() {
     PRICER.price(DATA, OPTION, null, 10, 110, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeTolerance2() {
     PRICER.price(DATA, OPTION, CEF, 10, 110, 10, ALPHA, -TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeVol2() {
     PRICER.price(new BlackFunctionData(FORWARD, DF, -0.5), OPTION, CEF, 10, 110, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha2() {
     PRICER.price(DATA, OPTION, CEF, 10, 110, 10, 0, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLowStrike() {
     PRICER.price(DATA, OPTION, CEF, FORWARD + 10, 110, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongHighStrike() {
     PRICER.price(DATA, OPTION, CEF, 10, FORWARD, 10, ALPHA, TOL);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData3() {
     PRICER.price(null, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullOption3() {
     PRICER.price(DATA, null, CEF, 10, 10, ALPHA, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCharacteristicExponent3() {
     PRICER.price(DATA, OPTION, null, 10, 10, ALPHA, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroAlpha3() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, 0, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesAboveATM() {
     PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrikesBelowATM() {
     PRICER.price(DATA, OPTION, CEF, 10, -10, ALPHA, 0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDelta() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, -0.5, 64, 20);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeM() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, -10);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongN() {
     PRICER.price(DATA, OPTION, CEF, 10, 10, ALPHA, 0.5, 64, 128);
   }

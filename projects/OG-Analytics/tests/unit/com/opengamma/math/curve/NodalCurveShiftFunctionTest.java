@@ -5,9 +5,8 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -29,64 +28,64 @@ public class NodalCurveShiftFunctionTest {
     CURVE = NodalDoublesCurve.fromSorted(X, Y, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingleShiftBadX1() {
     F.evaluate(CURVE, 2.4, SHIFT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSingleShiftBadX2() {
     F.evaluate(CURVE, 2.4, SHIFT, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve1() {
     F.evaluate(null, 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve2() {
     F.evaluate(null, 1, "B");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve3() {
     F.evaluate(null, 1, 5);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve4() {
     F.evaluate(null, 1, 5, "B");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve5() {
     F.evaluate(null, new double[] {1}, new double[] {1});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve6() {
     F.evaluate(null, new double[] {1}, new double[] {1}, "B");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUnequalArrayLength1() {
     F.evaluate(CURVE, new double[] {1}, new double[] {3, 4});
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testUnequalArrayLength2() {
     F.evaluate(CURVE, new double[] {1}, new double[] {3, 4}, "S");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMultipleShiftBadX1() {
     final double[] x = new double[] {1, 2, 3, 3.4, 4};
     final double[] y = new double[] {1, 1, 1, 1, 1};
     F.evaluate(CURVE, x, y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testMultipleShiftBadX2() {
     final double[] x = new double[] {1, 2, 3, 3.4, 4};
     final double[] y = new double[] {1, 1, 1, 1, 1};

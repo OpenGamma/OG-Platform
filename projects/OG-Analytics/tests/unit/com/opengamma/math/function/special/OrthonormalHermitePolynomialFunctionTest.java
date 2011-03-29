@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.function.special;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import org.apache.commons.math.util.MathUtils;
-import org.junit.Test;
-
 import com.opengamma.math.function.DoubleFunction1D;
 
 /**
@@ -20,7 +18,7 @@ public class OrthonormalHermitePolynomialFunctionTest {
   private static final OrthonormalHermitePolynomialFunction ORTHONORMAL = new OrthonormalHermitePolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadN() {
     ORTHONORMAL.getPolynomials(-3);
   }

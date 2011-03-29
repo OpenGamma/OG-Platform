@@ -6,12 +6,10 @@
 package com.opengamma.financial.instrument.future;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
-
-import org.junit.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -50,42 +48,42 @@ public class BondFutureDefinitionTest {
   private static final BondFutureDefinition BOND_FUTURE_DEFINITION = new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
   private static final double FUTURE_PRICE = 104;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDeliverables() {
     new BondFutureDefinition(null, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDeliverable() {
     new BondFutureDefinition(new BondDefinition[] {null}, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConversionFactors() {
     new BondFutureDefinition(DELIVERABLES, null, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
     new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, null, DELIVERY_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDeliveryDate() {
     new BondFutureDefinition(DELIVERABLES, CONVERSION_FACTORS, BOND_FUTURE_CONVENTION, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadArrayLength() {
     new BondFutureDefinition(DELIVERABLES, new double[] {1, 2, 3}, BOND_FUTURE_CONVENTION, DELIVERY_DATE);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToDerivativeNullDate() {
     BOND_FUTURE_DEFINITION.toDerivative(null, FUTURE_PRICE, "A");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToDerivativeNullNames() {
     BOND_FUTURE_DEFINITION.toDerivative(DELIVERY_DATE, FUTURE_PRICE, (String[]) null);
   }

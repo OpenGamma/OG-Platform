@@ -15,7 +15,7 @@ import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for results of Commons implementation of QR Decomposition
+ * Wrapper for results of the Commons implementation of QR Decomposition ({@link QRDecompositionCommons}).
  */
 public class QRDecompositionCommonsResult implements QRDecompositionResult {
   private final DoubleMatrix2D _h;
@@ -24,6 +24,9 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
   private final DoubleMatrix2D _qTranspose;
   private final DecompositionSolver _solver;
 
+  /**
+   * @param qr The result of the QR decomposition, not null
+   */
   public QRDecompositionCommonsResult(final QRDecomposition qr) {
     Validate.notNull(qr);
     _h = CommonsMathWrapper.unwrap(qr.getH());
@@ -33,38 +36,59 @@ public class QRDecompositionCommonsResult implements QRDecompositionResult {
     _solver = qr.getSolver();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getH() {
     return _h;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getQ() {
     return _q;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getQT() {
     return _qTranspose;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D getR() {
     return _r;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D solve(final DoubleMatrix1D b) {
     Validate.notNull(b);
     return CommonsMathWrapper.unwrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double[] solve(final double[] b) {
     Validate.notNull(b);
     return _solver.solve(b);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix2D solve(final DoubleMatrix2D b) {
     Validate.notNull(b);

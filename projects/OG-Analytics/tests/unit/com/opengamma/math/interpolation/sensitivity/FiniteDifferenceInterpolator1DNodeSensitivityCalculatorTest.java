@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import com.opengamma.math.interpolation.StepInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
@@ -32,12 +30,12 @@ public class FiniteDifferenceInterpolator1DNodeSensitivityCalculatorTest {
     DATA = STEP_INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullInterpolator() {
     new FiniteDifferenceInterpolator1DNodeSensitivityCalculator<Interpolator1DDataBundle>(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.calculate(null, 1.2);
   }

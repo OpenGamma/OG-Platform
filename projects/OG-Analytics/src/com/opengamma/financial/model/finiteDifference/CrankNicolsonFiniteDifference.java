@@ -20,18 +20,18 @@ public class CrankNicolsonFiniteDifference {
   private static final double THETA = 0.5; // TODO investigate adjusting this (Douglas schemes)
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
 
-  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, BoundaryCondition lowerBoundary,
-      BoundaryCondition upperBoundary) {
+  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary) {
     Validate.notNull(pdeData, "pde data");
-    double dt = tMax / (tSteps);
-    double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
-    double nu1 = dt / dx / dx;
-    double nu2 = dt / dx;
+    final double dt = tMax / (tSteps);
+    final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
+    final double nu1 = dt / dx / dx;
+    final double nu2 = dt / dx;
 
     double[] f = new double[xSteps + 1];
-    double[] x = new double[xSteps + 1];
-    double[] q = new double[xSteps + 1];
-    double[][] m = new double[xSteps + 1][xSteps + 1];
+    final double[] x = new double[xSteps + 1];
+    final double[] q = new double[xSteps + 1];
+    final double[][] m = new double[xSteps + 1][xSteps + 1];
 
     double currentX = lowerBoundary.getLevel();
 
@@ -40,7 +40,7 @@ public class CrankNicolsonFiniteDifference {
     for (int j = 0; j <= xSteps; j++) {
       currentX = lowerBoundary.getLevel() + j * dx;
       x[j] = currentX;
-      double value = pdeData.getInitialValue(currentX);
+      final double value = pdeData.getInitialValue(currentX);
       f[j] = value;
     }
 
@@ -92,14 +92,12 @@ public class CrankNicolsonFiniteDifference {
       }
       q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
 
-    
-
-      DoubleMatrix2D mM = new DoubleMatrix2D(m);
-      DecompositionResult res = DCOMP.evaluate(mM);
+      final DoubleMatrix2D mM = new DoubleMatrix2D(m);
+      final DecompositionResult res = DCOMP.evaluate(mM);
       f = res.solve(q);
     }
-    
-    double[][] res = new double[2][];
+
+    final double[][] res = new double[2][];
     res[0] = x;
     res[1] = f;
 

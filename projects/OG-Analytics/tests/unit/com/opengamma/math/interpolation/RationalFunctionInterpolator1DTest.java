@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.testng.AssertJUnit.assertEquals;
+import org.testng.annotations.Test;
 import java.util.TreeMap;
-
-import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.RealPolynomialFunction1D;
@@ -36,17 +34,17 @@ public class RationalFunctionInterpolator1DTest {
     MODEL = INTERPOLATOR.getDataBundle(data);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
     INTERPOLATOR.interpolate(null, 2.);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue() {
     INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
     new RationalFunctionInterpolator1D(10).interpolate(MODEL, 0.23);
   }
