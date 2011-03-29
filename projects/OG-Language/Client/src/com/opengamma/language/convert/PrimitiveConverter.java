@@ -6,12 +6,9 @@
 
 package com.opengamma.language.convert;
 
-import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
-import com.opengamma.language.invoke.InvalidConversionException;
 import com.opengamma.language.invoke.TypeConverter;
 
 /**
@@ -29,32 +26,28 @@ public class PrimitiveConverter implements TypeConverter {
   private static final JavaTypeInfo<Short> SHORT = JavaTypeInfo.builder(Short.class).get();
   private static final JavaTypeInfo<String> STRING = JavaTypeInfo.builder(String.class).get();
 
-  // TODO: test this class
+  /**
+   * Major loss of precision.
+   */
+  private static final Integer MAJOR_LOSS = 5;
+  /**
+   * Slight loss of precision.
+   */
+  private static final Integer MINOR_LOSS = 3;
+  /**
+   * No loss of precision; i.e. F-1 (F (x)) == x, although not always F (F-1 (x)) == x
+   */
+  private static final Integer ZERO_LOSS = 1;
 
-  @Override
-  public boolean canConvert(SessionContext sessionContext, Object fromValue, JavaTypeInfo<?> targetType) {
-    final Class<?> clazz = targetType.getRawClass();
-    if (clazz == Boolean.class) {
-      return toBoolean(fromValue) != null;
-    } else if (clazz == Byte.class) {
-      return toByte(fromValue) != null;
-    } else if (clazz == Character.class) {
-      return toCharacter(fromValue) != null;
-    } else if (clazz == Double.class) {
-      return toDouble(fromValue) != null;
-    } else if (clazz == Float.class) {
-      return toFloat(fromValue) != null;
-    } else if (clazz == Integer.class) {
-      return toInteger(fromValue) != null;
-    } else if (clazz == Long.class) {
-      return toLong(fromValue) != null;
-    } else if (clazz == Short.class) {
-      return toShort(fromValue) != null;
-    } else if (clazz == String.class) {
-      return toString(fromValue) != null;
-    }
-    return false;
-  }
+  private static final List<JavaTypeInfo<?>> TO_BOOLEAN = JavaTypeInfo.asList(BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
+  private static final List<JavaTypeInfo<?>> TO_BYTE = JavaTypeInfo.asList(BYTE, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
+  private static final List<JavaTypeInfo<?>> TO_CHARACTER = JavaTypeInfo.asList(BOOLEAN, STRING);
+  private static final List<JavaTypeInfo<?>> TO_DOUBLE = JavaTypeInfo.asList(BOOLEAN, FLOAT, BYTE, INTEGER, LONG, SHORT, STRING);
+  private static final List<JavaTypeInfo<?>> TO_FLOAT = JavaTypeInfo.asList(BOOLEAN, BYTE, DOUBLE, INTEGER, LONG, SHORT, STRING);
+  private static final List<JavaTypeInfo<?>> TO_INTEGER = JavaTypeInfo.asList(BOOLEAN, BYTE, SHORT, LONG, FLOAT, DOUBLE, STRING);
+  private static final List<JavaTypeInfo<?>> TO_LONG = JavaTypeInfo.asList(BOOLEAN, BYTE, INTEGER, SHORT, FLOAT, DOUBLE, STRING);
+  private static final List<JavaTypeInfo<?>> TO_SHORT = JavaTypeInfo.asList(BOOLEAN, BYTE, INTEGER, LONG, FLOAT, DOUBLE, STRING);
+  private static final List<JavaTypeInfo<?>> TO_STRING = JavaTypeInfo.asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {
@@ -82,161 +75,279 @@ public class PrimitiveConverter implements TypeConverter {
   }
 
   @Override
-  public <T> T convert(SessionContext sessionContext, Object fromValue, JavaTypeInfo<T> targetType) {
-    final Class<?> clazz = targetType.getRawClass();
-    if (clazz == Boolean.class) {
-      return (T) toBoolean(fromValue);
-    } else if (clazz == Byte.class) {
-      return (T) toByte(fromValue);
-    } else if (clazz == Character.class) {
-      return (T) toCharacter(fromValue);
-    } else if (clazz == Double.class) {
-      return (T) toDouble(fromValue);
-    } else if (clazz == Float.class) {
-      return (T) toFloat(fromValue);
-    } else if (clazz == Integer.class) {
-      return (T) toInteger(fromValue);
-    } else if (clazz == Long.class) {
-      return (T) toLong(fromValue);
-    } else if (clazz == Short.class) {
-      return (T) toShort(fromValue);
-    } else if (clazz == String.class) {
-      return (T) toString(fromValue);
-    }
-    throw new InvalidConversionException(fromValue, targetType);
-  }
-
-  @Override
   public List<JavaTypeInfo<?>> getConversionsTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
     if (clazz == Boolean.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
+      return TO_BOOLEAN;
     } else if (clazz == Byte.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT, STRING);
+      return TO_BYTE;
     } else if (clazz == Character.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, INTEGER, LONG, SHORT, STRING);
+      return TO_CHARACTER;
     } else if (clazz == Double.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, FLOAT, INTEGER, LONG, SHORT, STRING);
+      return TO_DOUBLE;
     } else if (clazz == Float.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, INTEGER, LONG, SHORT, STRING);
+      return TO_FLOAT;
     } else if (clazz == Integer.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, LONG, SHORT, STRING);
+      return TO_INTEGER;
     } else if (clazz == Long.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, SHORT, STRING);
+      return TO_LONG;
     } else if (clazz == Short.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, STRING);
+      return TO_SHORT;
     } else if (clazz == String.class) {
-      return Arrays.<JavaTypeInfo<?>> asList(BOOLEAN, BYTE, CHARACTER, DOUBLE, FLOAT, INTEGER, LONG, SHORT);
+      return TO_STRING;
     }
     return null;
   }
 
-  private Boolean toBoolean(final Object value) {
+  private static boolean isRealNumber(final Object value) {
     if (value instanceof Double) {
-      return ((Double) value).doubleValue() != 0;
+      final Double v = (Double) value;
+      return !v.isInfinite() && !v.isNaN();
     } else if (value instanceof Float) {
-      return ((Float) value).floatValue() != 0;
+      final Float v = (Float) value;
+      return !v.isInfinite() && !v.isNaN();
     } else if (value instanceof Number) {
-      return ((Number) value).intValue() != 0;
-    } else if (value instanceof Character) {
-      // TODO: check for T or F characters
-    } else if (value instanceof String) {
-      // TODO: checker for T/F/true/false etc
+      return true;
     }
-    return null;
+    return false;
   }
 
-  private Byte toByte(final Object value) {
-    if (value instanceof Number) {
-      return ((Number) value).byteValue();
+  private static boolean toBoolean(final ValueConversionContext conversionContext, final Object value) {
+    if (isRealNumber(value)) {
+      if (value instanceof Double) {
+        return conversionContext.setResult(MAJOR_LOSS, ((Number) value).doubleValue() != 0.0d);
+      } else if (value instanceof Float) {
+        return conversionContext.setResult(MAJOR_LOSS, ((Number) value).doubleValue() != 0.0f);
+      } else {
+        return conversionContext.setResult(MAJOR_LOSS, ((Number) value).longValue() != 0);
+      }
     } else if (value instanceof Character) {
-      // TODO: ?
+      final Character c = (Character) value;
+      if (c.equals('T') || c.equals('t')) {
+        return conversionContext.setResult(MINOR_LOSS, Boolean.TRUE);
+      } else if (c.equals('F') || c.equals('f')) {
+        return conversionContext.setResult(MINOR_LOSS, Boolean.FALSE);
+      }
     } else if (value instanceof String) {
-      // TODO: parse
+      final String str = (String) value;
+      if ("TRUE".equalsIgnoreCase(str) || "T".equalsIgnoreCase(str)) {
+        return conversionContext.setResult(MINOR_LOSS, Boolean.TRUE);
+      } else if ("FALSE".equalsIgnoreCase(str) || "F".equalsIgnoreCase(str)) {
+        return conversionContext.setResult(MINOR_LOSS, Boolean.FALSE);
+      }
+    }
+    return conversionContext.setFail();
+  }
+
+  private static boolean toByte(final ValueConversionContext conversionContext, final Object value) {
+    if (isRealNumber(value)) {
+      if (value instanceof Double) {
+        final double v = ((Double) value).doubleValue();
+        if ((v >= (double) Byte.MIN_VALUE) && (v <= (double) Byte.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Float) {
+        final float v = ((Float) value).floatValue();
+        if ((v >= (float) Byte.MIN_VALUE) && (v <= (float) Byte.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Integer) {
+        final int v = ((Integer) value).intValue();
+        if ((v >= (int) Byte.MIN_VALUE) && (v <= (int) Byte.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      } else if (value instanceof Long) {
+        final long v = ((Long) value).longValue();
+        if ((v >= (long) Byte.MIN_VALUE) && (v <= (long) Byte.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      } else if (value instanceof Short) {
+        final short v = ((Short) value).shortValue();
+        if ((v >= (short) Byte.MIN_VALUE) && (v <= (short) Byte.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      }
+    } else if (value instanceof String) {
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Byte.parseByte((String) value));
+      } catch (NumberFormatException e) {
+        // Ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? (byte) 1 : (byte) 0;
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? (byte) 1 : (byte) 0);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private Character toCharacter(final Object value) {
+  private static boolean toCharacter(final ValueConversionContext conversionContext, final Object value) {
     if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? 'T' : 'F';
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? 'T' : 'F');
+    } else if (value instanceof String) {
+      final String v = (String) value;
+      if (v.length() == 1) {
+        return conversionContext.setResult(ZERO_LOSS, v.charAt(0));
+      }
+    }
+    return conversionContext.setFail();
+  }
+
+  private static boolean toDouble(final ValueConversionContext conversionContext, final Object value) {
+    if (value instanceof Float) {
+      return conversionContext.setResult(ZERO_LOSS, ((Float) value).doubleValue());
     } else if (value instanceof Number) {
-      // TODO
+      return conversionContext.setResult(MINOR_LOSS, ((Number) value).doubleValue());
     } else if (value instanceof String) {
-      // TODO
-    }
-    return null;
-  }
-
-  private Double toDouble(final Object value) {
-    if (value instanceof Number) {
-      return ((Number) value).doubleValue();
-    } else if (value instanceof Character) {
-      // TODO
-    } else if (value instanceof String) {
-      // TODO
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Double.parseDouble((String) value));
+      } catch (NumberFormatException e) {
+        // ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? 1.0 : 0.0;
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? 1.0 : 0.0);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private Float toFloat(final Object value) {
+  private static boolean toFloat(final ValueConversionContext conversionContext, final Object value) {
     if (value instanceof Number) {
-      return ((Number) value).floatValue();
-    } else if (value instanceof Character) {
-      // TODO
+      return conversionContext.setResult(MINOR_LOSS, ((Number) value).floatValue());
     } else if (value instanceof String) {
-      // TODO
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Float.parseFloat((String) value));
+      } catch (NumberFormatException e) {
+        // ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? 1.0f : 0.0f;
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? 1.0f : 0.0f);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private Integer toInteger(final Object value) {
-    if (value instanceof Number) {
-      return ((Number) value).intValue();
-    } else if (value instanceof Character) {
-      // TODO
+  private static boolean toInteger(final ValueConversionContext conversionContext, final Object value) {
+    if (isRealNumber(value)) {
+      if (value instanceof Double) {
+        final double v = ((Double) value).doubleValue();
+        if ((v >= (double) Integer.MIN_VALUE) && (v <= (double) Integer.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Float) {
+        final float v = ((Float) value).floatValue();
+        if ((v >= (float) Integer.MIN_VALUE) && (v <= (float) Integer.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Long) {
+        final long v = ((Long) value).longValue();
+        if ((v >= (long) Integer.MIN_VALUE) && (v <= (long) Integer.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      } else {
+        return conversionContext.setResult(ZERO_LOSS, ((Number) value).intValue());
+      }
     } else if (value instanceof String) {
-      // TODO
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Integer.parseInt((String) value));
+      } catch (NumberFormatException e) {
+        // Ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? 1 : 0;
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? 1 : 0);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private Long toLong(final Object value) {
-    if (value instanceof Number) {
-      return ((Number) value).longValue();
-    } else if (value instanceof Character) {
-      // TODO
+  private static boolean toLong(final ValueConversionContext conversionContext, final Object value) {
+    if (isRealNumber(value)) {
+      if (value instanceof Double) {
+        final double v = ((Double) value).doubleValue();
+        if ((v >= (double) Long.MIN_VALUE) && (v <= (double) Long.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Float) {
+        final float v = ((Float) value).floatValue();
+        if ((v >= (float) Long.MIN_VALUE) && (v <= (float) Long.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else {
+        return conversionContext.setResult(ZERO_LOSS, ((Number) value).longValue());
+      }
     } else if (value instanceof String) {
-      // TODO
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Long.parseLong((String) value));
+      } catch (NumberFormatException e) {
+        // Ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? 1L : 0L;
+      return conversionContext.setResult(ZERO_LOSS, ((Boolean) value).booleanValue() ? 1L : 0L);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private Short toShort(final Object value) {
-    if (value instanceof Number) {
-      return ((Number) value).shortValue();
-    } else if (value instanceof Character) {
-      // TODO
+  private static boolean toShort(final ValueConversionContext conversionContext, final Object value) {
+    if (isRealNumber(value)) {
+      if (value instanceof Double) {
+        final double v = ((Double) value).doubleValue();
+        if ((v >= (double) Short.MIN_VALUE) && (v <= (double) Short.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Float) {
+        final float v = ((Float) value).floatValue();
+        if ((v >= (float) Short.MIN_VALUE) && (v <= (float) Short.MAX_VALUE)) {
+          return conversionContext.setResult(MINOR_LOSS, v);
+        }
+      } else if (value instanceof Integer) {
+        final int v = ((Integer) value).intValue();
+        if ((v >= (int) Short.MIN_VALUE) && (v <= (int) Short.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      } else if (value instanceof Long) {
+        final long v = ((Long) value).longValue();
+        if ((v >= (long) Short.MIN_VALUE) && (v <= (long) Short.MAX_VALUE)) {
+          return conversionContext.setResult(ZERO_LOSS, v);
+        }
+      } else {
+        return conversionContext.setResult(ZERO_LOSS, ((Number) value).shortValue());
+      }
     } else if (value instanceof String) {
-      // TODO
+      try {
+        return conversionContext.setResult(ZERO_LOSS, Short.parseShort((String) value));
+      } catch (NumberFormatException e) {
+        // Ignore
+      }
     } else if (value instanceof Boolean) {
-      return ((Boolean) value).booleanValue() ? (short) 1 : (short) 0;
+      return conversionContext.setResult(MINOR_LOSS, ((Boolean) value).booleanValue() ? (short) 1 : (short) 0);
     }
-    return null;
+    return conversionContext.setFail();
   }
 
-  private String toString(final Object value) {
-    return value.toString();
+  private static boolean toString(final ValueConversionContext conversionContext, final Object value) {
+    // Probably zero-loss, but the stringize is quite expensive so consider it a bit extreme
+    return conversionContext.setResult(MAJOR_LOSS, value.toString());
+  }
+
+  @Override
+  public void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type) {
+    final Class<?> clazz = type.getRawClass();
+    if (clazz == Boolean.class) {
+      toBoolean(conversionContext, value);
+    } else if (clazz == Byte.class) {
+      toByte(conversionContext, value);
+    } else if (clazz == Character.class) {
+      toCharacter(conversionContext, value);
+    } else if (clazz == Double.class) {
+      toDouble(conversionContext, value);
+    } else if (clazz == Float.class) {
+      toFloat(conversionContext, value);
+    } else if (clazz == Integer.class) {
+      toInteger(conversionContext, value);
+    } else if (clazz == Long.class) {
+      toLong(conversionContext, value);
+    } else if (clazz == Short.class) {
+      toShort(conversionContext, value);
+    } else if (clazz == String.class) {
+      toString(conversionContext, value);
+    } else {
+      conversionContext.setFail();
+    }
   }
 
 }

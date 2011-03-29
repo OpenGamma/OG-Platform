@@ -6,6 +6,7 @@
 
 package com.opengamma.language.invoke;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
@@ -23,35 +24,45 @@ public class DefaultValueConverterTest {
   private final SessionContext _sessionContext = ContextTest.createTestSessionContext();
   private final ValueConverter _valueConverter = new DefaultValueConverter();
 
+  private <T> T convert(final Object value, final JavaTypeInfo<T> type) {
+    return _valueConverter.convertValue(_sessionContext, value, type);
+  }
+
   @Test
   public void testDirectConversion() {
     final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder (Data.class).get ();
     final JavaTypeInfo<Value> valueType = JavaTypeInfo.builder (Value.class).get ();
     final JavaTypeInfo<Integer> intType = JavaTypeInfo.builder (Integer.class).get ();
-    Data d = _valueConverter.convertValue(_sessionContext, ValueUtil.of(42), dataType);
+    Data d = convert(ValueUtil.of(42), dataType);
     assertNotNull(d);
-    Integer i = _valueConverter.convertValue(_sessionContext, ValueUtil.of(42), intType);
+    assertEquals((Integer) 42, d.getSingle().getIntValue());
+    Integer i = convert(ValueUtil.of(42), intType);
     assertNotNull(i);
-    Value v = _valueConverter.convertValue(_sessionContext, DataUtil.of(42), valueType);
+    assertEquals((Integer) 42, i);
+    Value v = convert(DataUtil.of(42), valueType);
     assertNotNull(v);
-    v = _valueConverter.convertValue(_sessionContext, (Integer) 42, valueType);
+    assertEquals((Integer) 42, v.getIntValue());
+    v = convert((Integer) 42, valueType);
     assertNotNull(v);
+    assertEquals((Integer) 42, v.getIntValue());
   }
 
   @Test
   public void testChainConversion() {
     final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
-    final JavaTypeInfo<Integer> intType = JavaTypeInfo.builder(Integer.class).get();
-    Data d = _valueConverter.convertValue(_sessionContext, (Short) (short) 42, dataType);
+    final JavaTypeInfo<Long> longType = JavaTypeInfo.builder(Long.class).get();
+    Data d = convert((Short) (short) 42, dataType);
     assertNotNull(d);
-    Integer i = _valueConverter.convertValue(_sessionContext, DataUtil.of(42), intType);
-    assertNotNull(i);
+    assertEquals((Integer) 42, d.getSingle().getIntValue());
+    /*Long l = convert(DataUtil.of(42), longType);
+    assertNotNull(l);
+    assertEquals((Long) 42L, l);*/
   }
 
   @Test(expectedExceptions = InvalidConversionException.class)
   public void testFailedConversion() {
     final JavaTypeInfo<int[]> intArrayType = JavaTypeInfo.builder(int[].class).get();
-    _valueConverter.convertValue(_sessionContext, DataUtil.of(42), intArrayType);
+    convert(DataUtil.of(42), intArrayType);
   }
 
 }

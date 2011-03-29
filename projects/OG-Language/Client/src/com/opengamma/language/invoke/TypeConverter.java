@@ -8,7 +8,7 @@ package com.opengamma.language.invoke;
 
 import java.util.List;
 
-import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 
 /**
@@ -25,34 +25,22 @@ public interface TypeConverter {
   boolean canConvertTo(JavaTypeInfo<?> targetType);
 
   /**
-   * Returns the list of types the converter will attempt to convert directly into the given type.
+   * Returns the set of types the converter will attempt to convert directly into the given type.
    * 
    * @param targetType the desired type, not {@code null}. This will only be invoked for types that return {@code true} from {@link #canConvertTo}.
-   * @return the list of types it can convert, not {@code null} 
+   * @return the list of types it can convert to the target type, not {@code null} and not empty 
    */
   List<JavaTypeInfo<?>> getConversionsTo(JavaTypeInfo<?> targetType);
 
   /**
-   * Tests whether the type converter can convert the value to the the given type. This will only
-   * be invoked for types that return {@code true} from {@link #canConvertTo}.
+   * Converts a value to a specified type if possible. If the conversion is not possible indicates the
+   * failure within the {@code conversionContext}.
    * 
-   * @param sessionContext the client session context, not {@code null}
-   * @param fromValue the value to convert, not {@code null}
-   * @param targetType the type to convert to, not {@code null}
-   * @return {@code true} if the conversion is valid, {@code false} otherwise
+   * @param conversionContext the value conversion context
+   * @param value the value to convert from
+   * @param type the type to convert to
+   * for the type.
    */
-  boolean canConvert(SessionContext sessionContext, Object fromValue, JavaTypeInfo<?> targetType);
-
-  /**
-   * Converts a value to a given type. This will only be invoked for types and values that return {@code true}
-   * from {@link #canConvert}.
-   * 
-   * @param <T> the raw type expected of the conversion
-   * @param sessionContext the client session context, not {@code null}
-   * @param fromValue the value to convert, not {@code null}
-   * @param targetType the type to convert to, not {@code null}
-   * @return the converted value, {@code null} if that is the valid conversion 
-   */
-  <T> T convert(SessionContext sessionContext, Object fromValue, JavaTypeInfo<T> targetType);
+  void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type);
 
 }
