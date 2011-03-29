@@ -11,7 +11,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.PrimitiveFieldTypes;
 
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -19,12 +18,6 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public class ValueSnapshot {
-
-  /**
-   * The security from which the {@link getMarketValue} was taken
-   */
-  private final UniqueIdentifier _security;
-
   /**
    * The value sampled from the market
    */
@@ -35,18 +28,10 @@ public class ValueSnapshot {
    */
   private Double _overrideValue;
 
-  public ValueSnapshot(double marketValue, Double overrideValue, UniqueIdentifier security) {
+  public ValueSnapshot(double marketValue, Double overrideValue) {
     super();
     _marketValue = marketValue;
     _overrideValue = overrideValue;
-    _security = security;
-  }
-
-  /**
-   * @return The security from which the {@link getMarketValue} was taken
-   */
-  public UniqueIdentifier getSecurity() {
-    return _security;
   }
 
   /**
@@ -72,7 +57,7 @@ public class ValueSnapshot {
 
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     
-    final MutableFudgeFieldContainer msg = context.objectToFudgeMsg(getSecurity());
+    final MutableFudgeFieldContainer msg = context.newMessage();
     msg.add("marketValue", null, PrimitiveFieldTypes.DOUBLE_TYPE, getMarketValue());
     if (getOverrideValue() != null) {
       msg.add("overrideValue", null, PrimitiveFieldTypes.DOUBLE_TYPE, getOverrideValue().doubleValue());
@@ -81,8 +66,7 @@ public class ValueSnapshot {
   }
 
   public static ValueSnapshot fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
-    return new ValueSnapshot(msg.getDouble("marketValue"),
-        msg.hasField("overrideValue") ? Double.valueOf(msg.getDouble("overrideValue")) : null,
-        context.fudgeMsgToObject(UniqueIdentifier.class, msg));
+    return new ValueSnapshot(msg.getDouble("marketValue"), msg.hasField("overrideValue") ? Double.valueOf(msg
+        .getDouble("overrideValue")) : null);
   }
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.math;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import org.testng.annotations.Test;
 import java.util.Arrays;
 

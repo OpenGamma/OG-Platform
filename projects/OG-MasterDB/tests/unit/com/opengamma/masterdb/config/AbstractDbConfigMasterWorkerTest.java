@@ -7,8 +7,8 @@ package com.opengamma.masterdb.config;
 
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
 import java.util.TimeZone;
@@ -18,9 +18,6 @@ import javax.time.TimeSource;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -29,6 +26,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -41,7 +40,6 @@ import com.opengamma.util.test.DBTest;
 /**
  * Base tests for DbConfigMasterWorker via DbConfigMaster.
  */
-@Ignore
 public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbConfigMasterWorkerTest.class);
@@ -63,7 +61,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
@@ -122,7 +120,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DBTest {
     _totalIdentifierBundles = 3;
   }
   
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _cfgMaster = null;
     super.tearDown();

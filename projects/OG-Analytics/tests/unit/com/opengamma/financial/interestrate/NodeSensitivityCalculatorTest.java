@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;

@@ -18,7 +18,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
@@ -44,14 +43,15 @@ public class ZZZSwapIborIborDefinitionTest {
   private static final DayCount DAY_COUNT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final boolean IS_PAYER_1 = true;
   private static final IborIndex INDEX_1 = new IborIndex(CUR, INDEX_TENOR_1, SETTLEMENT_DAYS_1, CALENDAR, DAY_COUNT_1, BUSINESS_DAY, IS_EOM);
-  private static final AnnuityCouponIborDefinition IBOR_LEG_1 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_1, IS_PAYER_1);
+  private static final double SPREAD_1 = 0.0;
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_1, SPREAD_1, IS_PAYER_1);
   //Ibor leg: quarterly money
   private static final Period INDEX_TENOR_2 = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS_2 = 2;
   private static final DayCount DAY_COUNT_2 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex INDEX_2 = new IborIndex(CUR, INDEX_TENOR_2, SETTLEMENT_DAYS_2, CALENDAR, DAY_COUNT_2, BUSINESS_DAY, IS_EOM);
-  private static final double SPREAD = -0.001;
-  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_2, SPREAD, !IS_PAYER_1);
+  private static final double SPREAD_2 = -0.001;
+  private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_2, SPREAD_2, !IS_PAYER_1);
   // Swap
   private static final ZZZSwapIborIborDefinition TENOR_SWAP = new ZZZSwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
 

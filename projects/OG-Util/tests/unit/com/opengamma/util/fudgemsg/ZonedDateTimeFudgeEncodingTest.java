@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.time.fudgemsg;
+package com.opengamma.util.fudgemsg;
 
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -15,9 +15,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.util.fudge.OpenGammaFudgeContext;
 
@@ -26,18 +26,19 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
  */
 @Test
 public class ZonedDateTimeFudgeEncodingTest {
+
   private static final Logger s_logger = LoggerFactory.getLogger(ZonedDateTimeFudgeEncodingTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   public void test() {
     ZonedDateTime zdtUTC = ZonedDateTime.of(LocalDateTime.ofMidnight(2010, 7, 1), TimeZone.UTC);
     testFudgeMessage(zdtUTC);
-    ZonedDateTime zdtPST = ZonedDateTime.ofInstant(zdtUTC.toInstant(), TimeZone.of("EST"));
+    ZonedDateTime zdtPST = ZonedDateTime.ofInstant(zdtUTC.toInstant(), TimeZone.of("America/New_York"));
     assertTrue(zdtUTC.equalInstant(zdtPST));
     testFudgeMessage(zdtPST);
   }
 
-  private void testFudgeMessage (final ZonedDateTime zonedDateTime) {
+  private void testFudgeMessage(final ZonedDateTime zonedDateTime) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
     FudgeFieldContainer msg = context.objectToFudgeMsg(zonedDateTime);
     s_logger.debug("ZonedDateTime {}", zonedDateTime);
@@ -53,4 +54,5 @@ public class ZonedDateTimeFudgeEncodingTest {
       fail();
     }
   }
+
 }

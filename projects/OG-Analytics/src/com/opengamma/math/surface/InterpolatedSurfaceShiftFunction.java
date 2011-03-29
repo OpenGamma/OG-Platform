@@ -12,16 +12,23 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 /**
- * 
+ * Shifts an {@link InterpolatedDoublesSurface}. If the <i>(x, y)</i> value(s) of the shift(s) are not in the nodal points of the 
+ * original surface, they are added (with shift) to the nodal points of the new surface. 
  */
 public class InterpolatedSurfaceShiftFunction implements SurfaceShiftFunction<InterpolatedDoublesSurface> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, shift, "PARALLEL_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -35,12 +42,18 @@ public class InterpolatedSurfaceShiftFunction implements SurfaceShiftFunction<In
     return InterpolatedDoublesSurface.from(xData, yData, shiftedZ, surface.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double x, final double y, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, x, y, shift, "SINGLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double x, final double y, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -71,12 +84,18 @@ public class InterpolatedSurfaceShiftFunction implements SurfaceShiftFunction<In
     return InterpolatedDoublesSurface.from(newX, newY, newZ, surface.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, xShift, yShift, shift, "MULTIPLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedDoublesSurface evaluate(final InterpolatedDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     Validate.notNull(surface, "surface");

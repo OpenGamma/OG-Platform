@@ -13,16 +13,23 @@ import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
- * 
+ * Shifts an {@link InterpolatedFromCurvesSurfaceShiftFunction}. If an <i>x</i> (<i>y</i>) shift does not coincide with the one of the <i>x</i> (<i>y</i>) values 
+ * of the intersection of the curves with the axis, an exception is thrown.
  */
 public class InterpolatedFromCurvesSurfaceShiftFunction implements SurfaceShiftFunction<InterpolatedFromCurvesDoublesSurface> {
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, shift, "PARALLEL_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double shift, final String newName) {
@@ -38,12 +45,23 @@ public class InterpolatedFromCurvesSurfaceShiftFunction implements SurfaceShiftF
     return InterpolatedFromCurvesDoublesSurface.from(xzCurves, points, newCurves, surface.getInterpolator(), newName);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException If the <i>x</i> (<i>y</i>) position of the shift does not coincide with one of the <i>x</i> (<i>y</i>) intersections 
+   * of the curves with the axis
+   */
+
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double x, final double y, final double shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, x, y, shift, "SINGLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException If the <i>x</i> (<i>y</i>) position of the shift does not coincide with one of the <i>x</i> (<i>y</i>) intersections 
+   * of the curves with the axis
+   */
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double x, final double y, final double shift, final String newName) {
     Validate.notNull(surface, "surface");
@@ -69,12 +87,22 @@ public class InterpolatedFromCurvesSurfaceShiftFunction implements SurfaceShiftF
     throw new UnsupportedOperationException("Cannot get shift for x-value not in original list of curves: asked for " + x);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException If the <i>x</i> (<i>y</i>) positions of the shifts do not coincide with one of the <i>x</i> (<i>y</i>) intersections 
+   * of the curves with the axis
+   */
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift) {
     Validate.notNull(surface, "surface");
     return evaluate(surface, xShift, yShift, shift, "MULTIPLE_SHIFT_" + surface.getName());
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws UnsupportedOperationException If the <i>x</i> (<i>y</i>) positions of the shifts do not coincide with one of the <i>x</i> (<i>y</i>) intersections 
+   * of the curves with the axis
+   */
   @Override
   public InterpolatedFromCurvesDoublesSurface evaluate(final InterpolatedFromCurvesDoublesSurface surface, final double[] xShift, final double[] yShift, final double[] shift, final String newName) {
     Validate.notNull(surface, "surface");

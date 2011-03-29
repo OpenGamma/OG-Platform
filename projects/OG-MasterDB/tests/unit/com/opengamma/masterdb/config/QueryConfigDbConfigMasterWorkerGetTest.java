@@ -5,20 +5,22 @@
  */
 package com.opengamma.masterdb.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryConfigDbConfigMasterWorker.
@@ -28,6 +30,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerGetTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryConfigDbConfigMasterWorkerGetTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -35,12 +38,12 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getConfig_nullUID() {
     _cfgMaster.get(null, Object.class);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getConfig_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
     _cfgMaster.get(uid, Object.class);
@@ -75,7 +78,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getConfig_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0");
     _cfgMaster.get(uid, Object.class);
@@ -97,7 +100,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     if (test.getValue() instanceof Identifier) {
       assert101((ConfigDocument<Identifier>)test);
     } else {
-      fail();
+      Assert.fail();
     }
   }
 

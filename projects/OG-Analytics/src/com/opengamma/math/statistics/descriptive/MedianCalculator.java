@@ -10,17 +10,31 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Calculates the median of a series of data.
+ * <p>
+ * If the data are sorted from lowest to highest {@latex.inline $(x_1, x_2, \\dots, x_n)$}, the median is given by
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * m =
+ * \\begin{cases}
+ * x_{\\frac{n+1}{2}}\\quad & n \\text{ odd}\\\\
+ * \\frac{1}{2}\\left(x_{\\frac{n}{2}} + x_{\\frac{n}{2} + 1}\\right)\\quad & n \\text{ even}
+ * \\end{cases} 
+ * \\end{align*}
+ * }
  */
 public class MedianCalculator extends Function1D<double[], Double> {
 
+  /**
+   * @param x The array of data, not null or empty
+   * @return The median
+   */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x);
-    ArgumentChecker.notEmpty(x, "x");
+    Validate.isTrue(x.length > 0, "x cannot be empty");
     if (x.length == 1) {
       return x[0];
     }

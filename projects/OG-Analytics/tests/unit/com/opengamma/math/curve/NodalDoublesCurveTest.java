@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.curve;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;

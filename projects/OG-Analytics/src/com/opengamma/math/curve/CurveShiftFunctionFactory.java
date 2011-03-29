@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Contains methods for performing shifts on Curve<Double, Double> without needing to know the exact type of the curve.
+ * Contains methods for performing shifts on {@link Curve} without needing to know the exact type of the curve.
  */
 public class CurveShiftFunctionFactory {
   /** Shift function for {@link ConstantDoublesCurve} */
@@ -47,7 +47,7 @@ public class CurveShiftFunctionFactory {
   }
 
   /**
-   * For a curve of type Curve<Double, Double>, return a parallel-shifted curve.
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
    * @param shift The shift
    * @return A shifted curve with automatically-generated name
@@ -72,9 +72,8 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
-
   /**
-   * For a curve of type Curve<Double, Double>, return a curve shifted at one point.
+   * For a curve Curve<Double, Double>, return a curve shifted at one point.
    * @param curve The original curve
    * @param x The <i>x</i> value of the shift
    * @param shift The shift
@@ -100,9 +99,8 @@ public class CurveShiftFunctionFactory {
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
 
-
   /**
-   * For a curve of type Curve<Double, Double>, return a parallel-shifted curve.
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
    * @param x An array of <i>x</i> values to shift 
    * @param y The shifts
@@ -129,7 +127,7 @@ public class CurveShiftFunctionFactory {
   }
 
   /**
-   * For a curve of type Curve<Double, Double>, return a parallel-shifted curve.
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
    * @param shift The shift
    * @param newName The name of the shifted curve
@@ -154,9 +152,9 @@ public class CurveShiftFunctionFactory {
     }
     throw new IllegalArgumentException("Do not have a curve shift function for curve " + curve.getClass());
   }
-  
+
   /**
-   * For a curve of type Curve<Double, Double>, return a curve shifted at one point.
+   * For a curve Curve<Double, Double>, return a curve shifted at one point.
    * @param curve The original curve
    * @param x The <i>x</i> value of the shift
    * @param shift The shift
@@ -184,7 +182,7 @@ public class CurveShiftFunctionFactory {
   }
 
   /**
-   * For a curve of type Curve<Double, Double>, return a parallel-shifted curve.
+   * For a curve Curve<Double, Double>, return a parallel-shifted curve.
    * @param curve The original curve
    * @param x An array of <i>x</i> values to shift 
    * @param y The shifts

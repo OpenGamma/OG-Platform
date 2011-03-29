@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/engine/view/cache/msg/CacheMessage.proto:9(10)
 package com.opengamma.engine.view.cache.msg;
 public class CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { throw new UnsupportedOperationException (); }

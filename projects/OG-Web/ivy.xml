@@ -10,6 +10,6 @@
         <dependency name="og-engine" rev="latest.integration" />
         <dependency name="og-util" rev="latest.integration" />
         
-        <dependency org="org.junit" name="junit" rev="[4.7,5.0["/>
+        <exclude org="org.junit" />
     </dependencies>
 </ivy-module>

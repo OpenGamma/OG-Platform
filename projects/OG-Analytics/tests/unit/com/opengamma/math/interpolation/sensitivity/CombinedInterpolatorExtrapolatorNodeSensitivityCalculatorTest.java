@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation.sensitivity;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 import com.opengamma.math.function.Function1D;

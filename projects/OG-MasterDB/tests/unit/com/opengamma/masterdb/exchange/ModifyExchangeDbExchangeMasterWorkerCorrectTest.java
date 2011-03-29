@@ -5,15 +5,16 @@
  */
 package com.opengamma.masterdb.exchange;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TimeZone;
 
 import javax.time.Instant;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
@@ -23,6 +24,7 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
@@ -34,6 +36,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   private static final IdentifierBundle BUNDLE = IdentifierBundle.of(Identifier.of("A", "B"));
   private static final IdentifierBundle REGION = IdentifierBundle.of(Identifier.of("C", "D"));
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -41,12 +44,12 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correctExchange_nullDocument() {
     _exgMaster.correct(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noExchangeId() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "101");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
@@ -56,14 +59,14 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     _exgMaster.correct(doc);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noExchange() {
     ExchangeDocument doc = new ExchangeDocument();
     doc.setUniqueId(UniqueIdentifier.of("DbExg", "101", "0"));
     _exgMaster.correct(doc);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbExg", "0", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);

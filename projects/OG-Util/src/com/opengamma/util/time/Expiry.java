@@ -18,6 +18,7 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudge.ExpiryBuilder;
 
 /**
  * An indication of when something expires.
@@ -152,7 +153,9 @@ public class Expiry implements InstantProvider, Serializable {
    * 
    * @param factory  the Fudge message factory
    * @param message  the message to populate
+   * @deprecated Use builder
    */
+  @Deprecated
   public void toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
     ExpiryBuilder.toFudgeMsg(this, message);
   }
@@ -163,7 +166,9 @@ public class Expiry implements InstantProvider, Serializable {
    * 
    * @param message the message to decode
    * @return the expiry object
+   * @deprecated Use builder
    */
+  @Deprecated
   public static Expiry fromFudgeMsg(final FudgeFieldContainer message) {
     return ExpiryBuilder.fromFudgeMsg(message);
   }

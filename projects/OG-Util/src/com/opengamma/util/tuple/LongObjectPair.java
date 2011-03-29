@@ -21,6 +21,9 @@ import org.apache.http.util.LangUtils;
  */
 public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.Entry<T> {
 
+  /** Serialization. */
+  private static final long serialVersionUID = 1L;
+
   /** The first element. */
   public final long first; // CSIGNORE
   /** The second element. */
