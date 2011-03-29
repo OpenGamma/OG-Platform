@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
@@ -28,6 +29,7 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewDefinition;
 
 /**
  * Tests the behavior of ViewEvaluationModel.
@@ -173,56 +175,56 @@ public class ViewEvaluationModelTest {
     for (DependencyGraph graph : graphs) {
       map.put(graph.getCalcConfName(), graph);
     }
-    return new ViewEvaluationModel(map, null, 0);
+    return new ViewEvaluationModel(mock(ViewDefinition.class), map, null, 0);
   }
 
   @Test
   public void testNoValidityTimes() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes());
-    assertTrue(model.isValidFor(Long.MIN_VALUE));
-    assertTrue(model.isValidFor(Long.MAX_VALUE));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
   }
 
   @Test
   public void testNoStartTime1() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes(), graphOneEndTime(_time0), graphTwoEndTimes(_time1, _time2));
-    assertTrue(model.isValidFor(Long.MIN_VALUE));
-    assertTrue(model.isValidFor(_time0.toEpochMillisLong()));
-    assertFalse(model.isValidFor(_time1.toEpochMillisLong()));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
+    assertTrue(model.isValidFor(_time0));
+    assertFalse(model.isValidFor(_time1));
   }
 
   @Test
   public void testNoStartTime2() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes(), graphOneEndTime(_time1), graphTwoEndTimes(_time0, _time2));
-    assertTrue(model.isValidFor(Long.MIN_VALUE));
-    assertTrue(model.isValidFor(_time0.toEpochMillisLong()));
-    assertFalse(model.isValidFor(_time1.toEpochMillisLong()));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
+    assertTrue(model.isValidFor(_time0));
+    assertFalse(model.isValidFor(_time1));
   }
 
   @Test
   public void testNoEndTime1() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes(), graphOneStartTime(_time2), graphTwoStartTimes(_time0, _time1));
-    assertFalse(model.isValidFor(_time1.toEpochMillisLong()));
-    assertTrue(model.isValidFor(_time2.toEpochMillisLong()));
-    assertTrue(model.isValidFor(Long.MAX_VALUE));
+    assertFalse(model.isValidFor(_time1));
+    assertTrue(model.isValidFor(_time2));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
   }
 
   @Test
   public void testNoEndTime2() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes(), graphOneStartTime(_time1), graphTwoStartTimes(_time0, _time2));
-    assertFalse(model.isValidFor(_time1.toEpochMillisLong()));
-    assertTrue(model.isValidFor(_time2.toEpochMillisLong()));
-    assertTrue(model.isValidFor(Long.MAX_VALUE));
+    assertFalse(model.isValidFor(_time1));
+    assertTrue(model.isValidFor(_time2));
+    assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
   }
 
   @Test
   public void testStartEndTime() {
     final ViewEvaluationModel model = buildViewEvaluationModel(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2), graphOneEndTime(_time3), graphTwoEndTimes(
         _time4, _time5));
-    assertFalse(model.isValidFor(_time1.toEpochMillisLong()));
-    assertTrue(model.isValidFor(_time2.toEpochMillisLong()));
-    assertTrue(model.isValidFor(_time3.toEpochMillisLong()));
-    assertFalse(model.isValidFor(_time4.toEpochMillisLong()));
+    assertFalse(model.isValidFor(_time1));
+    assertTrue(model.isValidFor(_time2));
+    assertTrue(model.isValidFor(_time3));
+    assertFalse(model.isValidFor(_time4));
   }
 
 }
