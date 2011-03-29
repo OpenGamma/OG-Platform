@@ -234,8 +234,8 @@ public class ViewEvaluationModel {
   public boolean isValidFor(final InstantProvider evaluationTimeProvider) {
     ArgumentChecker.notNull(evaluationTimeProvider, "valuationTimeProvider");
     Instant evaluationTime = evaluationTimeProvider.toInstant();
-    return (_earliestValidity == null || evaluationTime.isAfter(_earliestValidity))
-        && (_latestValidity == null || evaluationTime.isAfter(_latestValidity));
+    return (_earliestValidity == null || !evaluationTime.isBefore(_earliestValidity))
+        && (_latestValidity == null || !evaluationTime.isAfter(_latestValidity));
   }
   
   // -------------------------------------------------------------------------
