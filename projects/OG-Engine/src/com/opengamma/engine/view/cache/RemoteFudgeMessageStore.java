@@ -44,14 +44,14 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
   @Override
   public void delete() {
     // [ENG-256] Don't need the delete messages if we propogate at the releaseCaches level
-    final DeleteRequest request = new DeleteRequest(getCacheKey().getViewName(), getCacheKey()
+    final DeleteRequest request = new DeleteRequest(getCacheKey().getViewProcessId(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp());
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
   @Override
   public FudgeFieldContainer get(long identifier) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey()
+    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier));
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
     final FudgeFieldContainer data = response.getData().get(0);
@@ -60,7 +60,7 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
 
   @Override
   public Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey()
+    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers);
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
     final Map<Long, FudgeFieldContainer> result = new HashMap<Long, FudgeFieldContainer>();
@@ -74,7 +74,7 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
 
   @Override
   public void put(long identifier, FudgeFieldContainer data) {
-    final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey()
+    final PutRequest request = new PutRequest(getCacheKey().getViewProcessId(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier),
         Collections.singleton(data));
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
@@ -88,7 +88,7 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
       identifiers.add(entry.getKey());
       values.add(entry.getValue());
     }
-    final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey()
+    final PutRequest request = new PutRequest(getCacheKey().getViewProcessId(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers, values);
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }

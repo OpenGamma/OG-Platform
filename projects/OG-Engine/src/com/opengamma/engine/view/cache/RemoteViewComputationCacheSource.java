@@ -91,7 +91,7 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
     @Override
     protected CacheMessage visitFindMessage(final FindMessage message) {
-      final DefaultViewComputationCache cache = findCache(message.getViewName(), message
+      final DefaultViewComputationCache cache = findCache(message.getViewProcessId(), message
           .getCalculationConfigurationName(), message.getSnapshotTimestamp());
       if (cache != null) {
         final List<Long> identifiers = message.getIdentifier();

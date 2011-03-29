@@ -7,18 +7,12 @@ package com.opengamma.engine.view.calc.stats;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.List;
 
-import java.util.Set;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.View;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
 import com.opengamma.id.UniqueIdentifier;
 
