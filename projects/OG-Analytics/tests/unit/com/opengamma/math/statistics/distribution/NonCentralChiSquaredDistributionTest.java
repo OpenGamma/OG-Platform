@@ -6,25 +6,27 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.Test;
 
 /**
  * 
  */
-public class NonCentralChiSquareDistributionTest {
+public class NonCentralChiSquaredDistributionTest {
   private static final double DOF = 3;
   private static final double NON_CENTRALITY = 1.5;
-  private static final NonCentralChiSquareDistribution DIST = new NonCentralChiSquareDistribution(DOF, NON_CENTRALITY);
+  private static final NonCentralChiSquaredDistribution DIST = new NonCentralChiSquaredDistribution(DOF, NON_CENTRALITY);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDOF() {
-    new NonCentralChiSquareDistribution(-DOF, NON_CENTRALITY);
+    new NonCentralChiSquaredDistribution(-DOF, NON_CENTRALITY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeNonCentrality() {
-    new NonCentralChiSquareDistribution(DOF, -NON_CENTRALITY);
+    new NonCentralChiSquaredDistribution(DOF, -NON_CENTRALITY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -56,6 +58,18 @@ public class NonCentralChiSquareDistributionTest {
     assertEquals(DIST.getCDF(5.), 0.649285, 1e-6);
   }
 
+  @Test
+  public void testObject() {
+    assertEquals(DIST.getDegrees(), DOF, 0);
+    assertEquals(DIST.getNonCentrality(), NON_CENTRALITY, 0);
+    NonCentralChiSquaredDistribution other = new NonCentralChiSquaredDistribution(DOF, NON_CENTRALITY);
+    assertEquals(DIST, other);
+    assertEquals(DIST.hashCode(), other.hashCode());
+    other = new NonCentralChiSquaredDistribution(DOF + 1, NON_CENTRALITY);
+    assertFalse(other.equals(DIST));
+    other = new NonCentralChiSquaredDistribution(DOF, NON_CENTRALITY + 1);
+    assertFalse(other.equals(DIST));
+  }
   /**
    * Numbers computed from R
    */
@@ -64,20 +78,20 @@ public class NonCentralChiSquareDistributionTest {
     double x = 123;
     double dof = 6.4;
     double nonCent = 100.34;
-    NonCentralChiSquareDistribution dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    NonCentralChiSquaredDistribution dist = new NonCentralChiSquaredDistribution(dof, nonCent);
     assertEquals(0.7930769, dist.getCDF(x), 1e-6);
 
     x = 455.038;
     dof = 12;
     nonCent = 444.44;
 
-    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    dist = new NonCentralChiSquaredDistribution(dof, nonCent);
     assertEquals(0.4961805, dist.getCDF(x), 1e-6);
 
     x = 999400;
     dof = 500;
     nonCent = 1000000;
-    dist = new NonCentralChiSquareDistribution(dof, nonCent);
+    dist = new NonCentralChiSquaredDistribution(dof, nonCent);
     assertEquals(0.2913029, dist.getCDF(x), 1e-6);
 
   }
@@ -87,12 +101,12 @@ public class NonCentralChiSquareDistributionTest {
    */
   @Test
   public void debugTest() {
-    double dof = 3.666;
-    double nonCentrality = 75;
-    double x = 13.89;
+    final double dof = 3.666;
+    final double nonCentrality = 75;
+    final double x = 13.89;
 
-    NonCentralChiSquareDistribution chiSq1 = new NonCentralChiSquareDistribution(dof, nonCentrality);
-    double y1 = Math.log(chiSq1.getCDF(x));
+    final NonCentralChiSquaredDistribution chiSq1 = new NonCentralChiSquaredDistribution(dof, nonCentrality);
+    final double y1 = Math.log(chiSq1.getCDF(x));
     assertEquals(-15.92129, y1, 1e-5);
   }
 

@@ -7,33 +7,41 @@ package com.opengamma.math.statistics.descriptive;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * For a series of data {@latex.inline $x_1, x_2, \\dots, x_n$}, the percentile is the value {@latex.inline $x$} below which a certain percentage of
+ * the data fall. 
  */
 public class PercentileCalculator extends Function1D<double[], Double> {
   private double _percentile;
 
+  /**
+   * @param percentile The percentile, must be between 0 and 1
+   */
   public PercentileCalculator(final double percentile) {
-    if (!ArgumentChecker.isInRangeExclusive(0, 1, percentile)) {
-      throw new IllegalArgumentException("Percentile must be between 0 and 1");
-    }
+    Validate.isTrue(percentile > 0 && percentile < 1, "Percentile must be between 0 and 1");
     _percentile = percentile;
   }
 
+  /**
+   * @param percentile The percentile, must be between 0 and 1
+   */
   public void setPercentile(final double percentile) {
-    if (!ArgumentChecker.isInRangeExclusive(0, 1, percentile)) {
-      throw new IllegalArgumentException("Percentile must be between 0 and 1");
-    }
+    Validate.isTrue(percentile > 0 && percentile < 1, "Percentile must be between 0 and 1");
     _percentile = percentile;
   }
 
+  /**
+   * @param x The data, not null or empty
+   * @return The percentile
+   */
   @Override
   public Double evaluate(final double[] x) {
-    ArgumentChecker.notNull(x, "x");
-    ArgumentChecker.notEmpty(x, "x");
+    Validate.notNull(x, "x");
+    Validate.isTrue(x.length > 0, "x cannot be empty");
     final int length = x.length;
     final double[] copy = Arrays.copyOf(x, length);
     Arrays.sort(copy);

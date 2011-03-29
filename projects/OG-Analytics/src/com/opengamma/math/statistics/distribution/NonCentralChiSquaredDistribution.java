@@ -13,9 +13,20 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.special.GammaFunction;
 
 /**
- * 
+ * The non-central chi-squared distribution is a continuous probability distribution with probability
+ * density function
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * f_r(x) = \\frac{e^-\\frac{x + \\lambda}{2}x^{\\frac{r}{2} - 1}}{2^{\\frac{r}{2}}}\\sum_{k=0}^\\infty \\frac{(\\lambda k)^k}{2^{2k}k!\\Gamma(k + \\frac{r}{2})}
+ * \\end{align*} 
+ * }
+ * where {@latex.inline $r$} is the number of degrees of freedom, {@latex.inline $\\lambda$} is the non-centrality parameter and {@latex.inline $\\Gamma$} is the Gamma
+ * function ({@link com.opengamma.math.function.special.GammaFunction}).
+ * <p>
+ * For the case where {@latex.inline $r + \\lambda > 2000$}, the implementation of the cdf is taken from <i>"An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.</i> 
+ * (<a href="fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from <i>"Computing the Non-Central Chi-Squared Distribution Function", Ding</i>.
  */
-public class NonCentralChiSquareDistribution implements ProbabilityDistribution<Double> {
+public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
   private final double _lambdaOverTwo;
   private final int _k;
   private final double _dofOverTwo;
@@ -23,7 +34,11 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
   private final double _gammaStart;
   private final double _eps = 1e-16;
 
-  public NonCentralChiSquareDistribution(final double degrees, final double nonCentrality) {
+  /**
+   * @param degrees The number of degrees of freedom, not negative or zero
+   * @param nonCentrality The non-centrality parameter, not negative
+   */
+  public NonCentralChiSquaredDistribution(final double degrees, final double nonCentrality) {
     Validate.isTrue(degrees > 0, "degrees of freedom must be > 0, have " + degrees);
     Validate.isTrue(nonCentrality >= 0, "non-centrality must be >= 0, have " + nonCentrality);
     _dofOverTwo = degrees / 2.0;
@@ -48,6 +63,9 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     return (new NormalDistribution(0, 1)).getCDF(z);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double getCDF(final Double x) {
     Validate.notNull(x, "x");
@@ -105,27 +123,77 @@ public class NonCentralChiSquareDistribution implements ProbabilityDistribution<
     return sum;
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws NotImplementedException
+   */
   @Override
   public double getInverseCDF(final Double p) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws NotImplementedException
+   */
   @Override
   public double getPDF(final Double x) {
     throw new NotImplementedException();
   }
 
+  /**
+   * {@inheritDoc}
+   * @return Not supported
+   * @throws NotImplementedException
+   */
   @Override
   public double nextRandom() {
     throw new NotImplementedException();
   }
 
+  /**
+   * @return The number of degrees of freedom
+   */
   public double getDegrees() {
     return _dofOverTwo * 2.0;
   }
 
+  /**
+   * @return The non-centrality parameter
+   */
   public double getNonCentrality() {
     return _lambdaOverTwo * 2.0;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_dofOverTwo);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lambdaOverTwo);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final NonCentralChiSquaredDistribution other = (NonCentralChiSquaredDistribution) obj;
+    if (Double.doubleToLongBits(_dofOverTwo) != Double.doubleToLongBits(other._dofOverTwo)) {
+      return false;
+    }
+    return Double.doubleToLongBits(_lambdaOverTwo) == Double.doubleToLongBits(other._lambdaOverTwo);
+  }
 }

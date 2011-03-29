@@ -3,13 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.util.time;
+package com.opengamma.util.fudge;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
@@ -22,9 +21,11 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * Expiry builder.
+ * Fudge builder for {@code Expiry}.
  */
 @FudgeBuilderFor(Expiry.class)
 public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
@@ -33,7 +34,6 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
    * Field name for the date & time component.
    */
   public static final String DATETIME_KEY = "datetime";
-
   /**
    * Field name for the timezone component.
    */
@@ -44,6 +44,7 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
    */
   @FudgeSecondaryType
   public static final SecondaryFieldType<Expiry, FudgeFieldContainer> SECONDARY_TYPE_INSTANCE = new SecondaryFieldType<Expiry, FudgeFieldContainer>(FudgeMsgFieldType.INSTANCE, Expiry.class) {
+    private static final long serialVersionUID = 1L;
 
     @Override
     public FudgeFieldContainer secondaryToPrimary(final Expiry object) {
@@ -54,7 +55,6 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
     public Expiry primaryToSecondary(final FudgeFieldContainer message) {
       return fromFudgeMsg(message);
     }
-
   };
 
   protected static FudgeDateTime expiryToDateTime(final Expiry object) {
@@ -96,24 +96,23 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
     }
   }
 
-  protected static MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory context, final Expiry expiry) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    toFudgeMsg(expiry, message);
-    return message;
-  }
-
-  protected static void toFudgeMsg(final Expiry expiry, final MutableFudgeFieldContainer message) {
+  public static void toFudgeMsg(final Expiry expiry, final MutableFudgeFieldContainer message) {
     message.add(DATETIME_KEY, expiryToDateTime(expiry));
     message.add(TIMEZONE_KEY, expiry.getExpiry().getZone().getID());
   }
 
-  protected static Expiry fromFudgeMsg(final FudgeFieldContainer message) {
-    return dateTimeToExpiry(message.getFieldValue(FudgeDateTime.class, message.getByName(DATETIME_KEY)), message.getFieldValue(String.class, message.getByName(TIMEZONE_KEY)));
+  public static Expiry fromFudgeMsg(final FudgeFieldContainer message) {
+    return dateTimeToExpiry(
+        message.getFieldValue(FudgeDateTime.class, message.getByName(DATETIME_KEY)),
+        message.getFieldValue(String.class, message.getByName(TIMEZONE_KEY)));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final Expiry expiry) {
-    return toFudgeMsg(context, expiry);
+    final MutableFudgeFieldContainer message = context.newMessage();
+    toFudgeMsg(expiry, message);
+    return message;
   }
 
   @Override
