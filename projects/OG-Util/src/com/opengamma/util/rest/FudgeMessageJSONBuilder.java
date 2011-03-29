@@ -9,8 +9,8 @@ import java.io.CharArrayWriter;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgWriter;
-import org.fudgemsg.json.FudgeJSONStreamWriter;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudge.OpenGammaFudgeContext;

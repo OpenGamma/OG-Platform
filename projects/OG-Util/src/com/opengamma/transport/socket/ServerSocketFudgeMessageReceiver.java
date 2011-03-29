@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

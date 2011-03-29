@@ -18,8 +18,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgWriter;
-import org.fudgemsg.xml.FudgeXMLStreamWriter;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
 /**
  * Register as a JAX-RS provider to support REST responses that are XML encoded messages. 

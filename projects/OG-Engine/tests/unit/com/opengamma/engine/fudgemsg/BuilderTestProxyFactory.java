@@ -11,11 +11,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataInputStreamReader;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
+import org.fudgemsg.wire.FudgeDataInputStreamReader;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
