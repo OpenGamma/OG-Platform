@@ -18,7 +18,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.fudge.ZonedDateTimeBuilder;
+import com.opengamma.util.fudgemsg.ZonedDateTimeBuilder;
 import com.opengamma.util.time.Tenor;
 
 /**
