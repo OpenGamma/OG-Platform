@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -44,6 +45,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public String get() {
     FlexiBean out = createRootData();
+    ConfigDocument<?> doc = data().getConfig();
+    out.put("configXml", createXML(doc));
     return getFreemarker().build("configs/config.ftl", out);
   }
   
@@ -51,6 +54,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
+    ConfigDocument<?> doc = data().getConfig();
+    out.put("configXml", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     return getFreemarker().build("configs/jsonconfig.ftl", out);
   }
 
@@ -147,7 +152,6 @@ public class WebConfigResource extends AbstractWebConfigResource {
     ConfigDocument<?> doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getValue());
-    out.put("configXml", createXML(doc));
     out.put("deleted", !doc.isLatest());
     return out;
   }
