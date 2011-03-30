@@ -8,20 +8,29 @@ package com.opengamma.engine.view.execution;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.time.Instant;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Provides a finite sequence of view cycle execution details for known valuation times.
  */
 public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSequence {
 
-  private final Queue<Instant> _batchTimes;
+  private final Queue<ViewCycleExecutionOptions> _executionSequence;
   
-  public ArbitraryViewCycleExecutionSequence(Collection<Instant> valuationTimes) {
-    _batchTimes = new LinkedList<Instant>(valuationTimes);
+  public ArbitraryViewCycleExecutionSequence(Collection<ViewCycleExecutionOptions> executionSequence) {
+    ArgumentChecker.notNull(executionSequence, "executionSequence");
+    _executionSequence = new LinkedList<ViewCycleExecutionOptions>(executionSequence);
+  }
+  
+  public static ArbitraryViewCycleExecutionSequence of(Instant valuationTime, Instant snapshotTime) {
+    return new ArbitraryViewCycleExecutionSequence(Collections.singletonList(new ViewCycleExecutionOptions(valuationTime, snapshotTime)));
   }
   
   public static ArbitraryViewCycleExecutionSequence of(long... valuationTimesEpochMillis) {
@@ -37,20 +46,24 @@ public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSe
   }
   
   public static ArbitraryViewCycleExecutionSequence of(Collection<Instant> valuationTimes) {
-    return new ArbitraryViewCycleExecutionSequence(valuationTimes);
+    ArgumentChecker.notNull(valuationTimes, "valuationTimes");
+    List<ViewCycleExecutionOptions> executionSequence = new ArrayList<ViewCycleExecutionOptions>(valuationTimes.size());
+    for (Instant valuationTime : valuationTimes) {
+      executionSequence.add(new ViewCycleExecutionOptions(valuationTime, valuationTime));
+    }
+    return new ArbitraryViewCycleExecutionSequence(executionSequence);
   }
   
   @Override
   public ViewCycleExecutionOptions getNext() {
-    Instant nextValuationTime = _batchTimes.poll();
-    return new ViewCycleExecutionOptions(nextValuationTime, nextValuationTime);
+    return _executionSequence.poll();
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_batchTimes == null) ? 0 : _batchTimes.hashCode());
+    result = prime * result + ((_executionSequence == null) ? 0 : _executionSequence.hashCode());
     return result;
   }
 
@@ -66,12 +79,12 @@ public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSe
       return false;
     }
     ArbitraryViewCycleExecutionSequence other = (ArbitraryViewCycleExecutionSequence) obj;
-    return _batchTimes.equals(other._batchTimes);
+    return _executionSequence.equals(other._executionSequence);
   }
 
   @Override
   public boolean isEmpty() {
-    return _batchTimes.isEmpty();
+    return _executionSequence.isEmpty();
   }
  
 }
