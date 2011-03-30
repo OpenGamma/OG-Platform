@@ -5,12 +5,13 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeMessageBuilder;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.serialization.InnerClassSubstitution;
 
 /**
  * Partial implementation of {@link FudgeMessageBuilder}.
@@ -51,9 +52,14 @@ import com.opengamma.util.serialization.InnerClassSubstitution;
       clazz = clazz.getEnclosingClass();
       while (clazz != null) {
         try {
-          final InnerClassSubstitution serialization = (InnerClassSubstitution) clazz.getDeclaredField("s_serialization").get(null);
-          return serialization.getSubstitution(object);
-        } catch (Exception e) {
+          return clazz.getDeclaredMethod("innerClassSubstitute", Object.class).invoke(null, object);
+        } catch (IllegalAccessException e) {
+          throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object, e);
+        } catch (InvocationTargetException e) {
+          if (e.getTargetException() instanceof RuntimeException) {
+            throw (RuntimeException) e.getTargetException();
+          }
+        } catch (NoSuchMethodException e) {
           // Ignore
           //e.printStackTrace();
         }
