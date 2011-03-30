@@ -30,7 +30,7 @@ import com.opengamma.math.surface.Surface;
    * Fudge builder for {@code VolatilitySurface}.
    */
   @FudgeBuilderFor(VolatilitySurface.class)
-  public static final class VolatilitySurfaceBuilder extends FudgeBuilderBase<VolatilitySurface> {
+  public static final class VolatilitySurfaceBuilder extends AbstractFudgeBuilder<VolatilitySurface> {
     private static final String SURFACE_FIELD_NAME = "sigma";
 
     @Override

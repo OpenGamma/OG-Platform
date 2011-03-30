@@ -49,7 +49,7 @@ public class MathCurveTest extends AnalyticsTestBase {
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testWrongFunctionType() {
+  public void testFunctionalCurve_Unserializable() {
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override
@@ -61,28 +61,37 @@ public class MathCurveTest extends AnalyticsTestBase {
     cycleObject(Curve.class, FunctionalDoublesCurve.from(f));
   }
 
-  @SuppressWarnings("unchecked")
-  @Test
-  public void testFunctionalCurve_1() {
-    final Function1D<Double, Double> f = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
-    Curve<Double, Double> c1 = FunctionalDoublesCurve.from(f);
-    Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
-    assertEquals(c1, c2);
-    c1 = FunctionalDoublesCurve.from(f, "NAME");
-    c2 = cycleObject(Curve.class, c1);
-    assertEquals(c1, c2);
+  private void assertCurveEquals(final Curve<Double, Double> c1, final Curve<Double, Double> c2) {
+    if (c1 != c2) {
+      assertEquals(c1.getName(), c2.getName());
+      for (double x = 0.1d; x < 100.0d; x += 5.00000001d) {
+        assertEquals(c1.getYValue(x), c2.getYValue(x));
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testFunctionalCurve_2 () {
+  public void testFunctionalCurve_NSS() {
+    final Function1D<Double, Double> f = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
+    Curve<Double, Double> c1 = FunctionalDoublesCurve.from(f);
+    Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
+    assertCurveEquals(c1, c2);
+    c1 = FunctionalDoublesCurve.from(f, "NAME");
+    c2 = cycleObject(Curve.class, c1);
+    assertCurveEquals(c1, c2);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testFunctionalCurve_NS() {
     final NelsonSiegelBondCurveModel curveBondModel = new NelsonSiegelBondCurveModel();
     final Function<Double, Double> func = curveBondModel.getParameterizedFunction().asFunctionOfArguments(new DoubleMatrix1D(new double[] {1, 2, 3, 4 }));
     Curve<Double, Double> c1 = FunctionalDoublesCurve.from(func);
     Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
-    assertEquals(c1, c2);
+    assertCurveEquals(c1, c2);
     c1 = FunctionalDoublesCurve.from(func, "NAME");
     c2 = cycleObject(Curve.class, c1);
-    assertEquals(c1, c2);
+    assertCurveEquals(c1, c2);
   }
 }

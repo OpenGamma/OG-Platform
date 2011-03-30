@@ -14,14 +14,17 @@ import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.TransformParameters;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 
 /**
  * 
  */
 public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Double> {
+
+  // TODO: Note that if you rewrite this to match the structure of things like NelsonSiegelBondCurveModel, the builder will be wrong
+
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
     new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
@@ -85,6 +88,7 @@ public class NelsonSiegelSvennsonBondCurveModel extends Function1D<Double, Doubl
           }
         };
       }
+
     };
   }
 

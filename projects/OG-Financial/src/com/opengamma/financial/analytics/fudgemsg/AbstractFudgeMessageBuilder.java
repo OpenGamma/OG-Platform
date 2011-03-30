@@ -6,13 +6,16 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeMessageBuilder;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.serialization.InnerClassSubstitution;
+
 /**
- * Base class for the builder pattern.
+ * Partial implementation of {@link FudgeMessageBuilder}.
  */
-/* package */ abstract class FudgeBuilderBase<T> implements FudgeBuilder<T> {
+/* package */abstract class AbstractFudgeMessageBuilder<T> implements FudgeMessageBuilder<T> {
 
   /**
    * Builds the message by serializing the specified object.
@@ -38,5 +41,26 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
    * @param object  the object being serialized
    */
   protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
+
+  protected static Object substituteObject(final Object object) {
+    Class<?> clazz = object.getClass();
+    if (clazz.isAnonymousClass()) {
+      clazz = clazz.getEnclosingClass();
+      while (clazz != null) {
+        try {
+          final InnerClassSubstitution serialization = (InnerClassSubstitution) clazz.getDeclaredField("s_serialization").get(null);
+          return serialization.getSubstitution(object);
+        } catch (Exception e) {
+          // Ignore
+          //e.printStackTrace();
+        }
+        clazz = clazz.getEnclosingClass();
+      }
+      throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object);
+    } else {
+      System.err.println("Object " + object + " is not anonymous class");
+    }
+    return object;
+  }
 
 }

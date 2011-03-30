@@ -5,10 +5,13 @@
  */
 package com.opengamma.financial.interestrate;
 
+import java.lang.reflect.Method;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.serialization.InnerClassSubstitution;
 
 /**
  * 
@@ -32,6 +35,32 @@ public class NelsonSiegelBondCurveModel {
         return beta0 + beta1 * x2 + beta2 * (x2 - Math.exp(-x1));
       }
 
+      public Object writeReplace() {
+        return new NelsonSiegelBondCurveModel.SerializedForm();
+      }
+
     };
   }
+
+  /**
+   * Serialized form of the anonymous inner classes
+   */
+  public static final class SerializedForm {
+
+    private SerializedForm() {
+    }
+
+  }
+
+  // TODO: drop this fragment in with instrumentation
+  /**
+   * 
+   */
+  public static final InnerClassSubstitution s_serialization = new InnerClassSubstitution() {
+    @Override
+    protected Object invoke(Method method, Object object) throws Exception {
+      return method.invoke(object);
+    }
+  };
+
 }
