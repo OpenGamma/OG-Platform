@@ -40,7 +40,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceF
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -98,8 +97,6 @@ public class SwaptionCashFixedIborTest {
   // Volatility and pricing functions
   SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  //Interpolation method
-  private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
 
   @Test
   public void testPriceBlack() {
