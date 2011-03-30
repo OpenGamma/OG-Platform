@@ -128,19 +128,19 @@ public abstract class AbstractContext<ParentContext extends AbstractContext<?>> 
   }
 
   protected <T> T getCascadedValueImpl(final String key) {
-    T value = getValue(key);
+    T value = this.<T>getValue(key);
     if (value == null) {
       if (getParentContext() != null) {
-        value = getParentContext().getCascadedValueImpl(key);
+        value = getParentContext().<T>getCascadedValueImpl(key);
       }
     }
     return value;
   }
 
   protected <T> T getCascadedValue(final String key) {
-    T value = getValue(key);
+    T value = this.<T>getValue(key);
     if (value == null) {
-      value = getCascadedValueImpl(key);
+      value = this.<T>getCascadedValueImpl(key);
       replaceValue(key, value);
     }
     return value;

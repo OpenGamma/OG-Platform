@@ -32,7 +32,7 @@ public abstract class ValueConverter {
     if (conversionContext.isFailed()) {
       throw new InvalidConversionException(value, type);
     }
-    return conversionContext.getResult();
+    return conversionContext.<T>getResult();
   }
 
   /**
