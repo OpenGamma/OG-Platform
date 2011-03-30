@@ -218,7 +218,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     ViewCycleExecutionOptions executionOptions = getExecutionOptions().getExecutionSequence().getNext();
     s_logger.debug("Next cycle execution options: {}", executionOptions);
     
-    ViewCycleReferenceImpl cycleReference = createCycle(executionOptions.getValuationTime());
+    ViewCycleReferenceImpl cycleReference = createCycle(executionOptions);
     ViewCycleInternal cycle = cycleReference.getCycle();
     
     if (doFullRecalc) {
@@ -293,11 +293,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   //-------------------------------------------------------------------------
-  private ViewCycleReferenceImpl createCycle(Instant valuationTime) {
+  private ViewCycleReferenceImpl createCycle(ViewCycleExecutionOptions executionOptions) {
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
-    ViewEvaluationModel evaluationModel = getOrCompileViewEvaluationModel(valuationTime);
+    ViewEvaluationModel evaluationModel = getOrCompileViewEvaluationModel(executionOptions.getValuationTime());
     return getCycleManager().createViewCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(),
-        evaluationModel, valuationTime);
+        evaluationModel, executionOptions);
   }
   
   private ViewEvaluationModel getOrCompileViewEvaluationModel(Instant valuationTime) {

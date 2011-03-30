@@ -44,6 +44,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -62,7 +63,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private final UniqueIdentifier _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
   private final ViewEvaluationModel _viewEvaluationModel;
-  private final Instant _valuationTime;
+  private final ViewCycleExecutionOptions _executionOptions;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
@@ -87,7 +88,8 @@ public class SingleComputationCycle implements ViewCycleInternal {
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId, ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, Instant valuationTime) {
+  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId,
+      ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, ViewCycleExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
 
@@ -96,7 +98,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     _viewProcessContext = viewProcessContext;
     _viewEvaluationModel = viewEvaluationModel;
     
-    _valuationTime = valuationTime;
+    _executionOptions = executionOptions;
 
     _resultModel = new InMemoryViewComputationResultModel();
     _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getAllCalculationConfigurationNames());
@@ -105,7 +107,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     }
     _resultModel.setViewCycleId(cycleId);
     _resultModel.setViewProcessId(getViewProcessId());
-    _resultModel.setValuationTime(valuationTime);
+    _resultModel.setValuationTime(executionOptions.getValuationTime());
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
@@ -113,7 +115,11 @@ public class SingleComputationCycle implements ViewCycleInternal {
   
   //-------------------------------------------------------------------------
   public Instant getValuationTime() {
-    return _valuationTime;
+    return _executionOptions.getValuationTime();
+  }
+  
+  public Instant getInputDataTime() {
+    return _executionOptions.getInputDataTime();
   }
 
   public long getFunctionInitId() {
@@ -288,7 +294,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
-    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getValuationTime().toEpochMillisLong());
+    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getInputDataTime().toEpochMillisLong());
 
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
     for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {

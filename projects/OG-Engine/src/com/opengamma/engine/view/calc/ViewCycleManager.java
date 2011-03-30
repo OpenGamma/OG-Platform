@@ -8,10 +8,9 @@ package com.opengamma.engine.view.calc;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,17 +28,18 @@ public class ViewCycleManager {
    * @param processId  the unique identifier of the view process, not null
    * @param processContext  the view process context, not null
    * @param evaluationModel  the view evaluation model, not null
-   * @param evaluationTime  the view evaluation time, not null
+   * @param executionOptions  the view cycle execution options, not null
    * @return a reference wrapper to the computation cycle, not null
    * @throws IllegalArgumentException  if a cycle with the same ID is already under management
    */
-  public ViewCycleReferenceImpl createViewCycle(UniqueIdentifier cycleId, UniqueIdentifier processId, ViewProcessContext processContext, ViewEvaluationModel evaluationModel, Instant evaluationTime) {
+  public ViewCycleReferenceImpl createViewCycle(UniqueIdentifier cycleId, UniqueIdentifier processId,
+      ViewProcessContext processContext, ViewEvaluationModel evaluationModel, ViewCycleExecutionOptions executionOptions) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(processId, "processId");
     ArgumentChecker.notNull(processContext, "processContext");
     ArgumentChecker.notNull(evaluationModel, "evaluationModel");
-    ArgumentChecker.notNull(evaluationTime, "evaluationTime");
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, processId, processContext, evaluationModel, evaluationTime);
+    ArgumentChecker.notNull(executionOptions, "executionOptions");
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, processId, processContext, evaluationModel, executionOptions);
     ReferenceCountedComputationCycle refCountedCycle = new ReferenceCountedComputationCycle(cycle);
     if (_cycleMap.put(cycleId, refCountedCycle) != null) {
       throw new IllegalArgumentException("A cycle with ID " + cycleId + " is already being managed");
@@ -49,7 +49,7 @@ public class ViewCycleManager {
   
   /**
    * Increments the reference count for a computation cycle which ensures it is retained. A call to this method must be
-   * paired with a subsequent call to {@link #decrementCycleReferenceCount(UUID)} to avoid resource leaks. 
+   * paired with a subsequent call to {@link #decrementCycleReferenceCount(UniqueIdentifier)} to avoid resource leaks. 
    * 
    * @param cycleId  the unique identifier of the cycle to retain, not null
    * @return {@code true} if the operation was successful, {@code false} if the cycle was not found
@@ -80,7 +80,7 @@ public class ViewCycleManager {
   
   /**
    * Decrements the reference count for a computation cycle which may allow it to be released. A call to this method
-   * must only follow a previous call to {@link #incrementCycleReferenceCount(UUID)}.
+   * must only follow a previous call to {@link #incrementCycleReferenceCount(UniqueIdentifier)}.
    * 
    * @param cycleId  the uniqueIdentifier of the cycle to release, not null
    * @return {@code true} if the operation was successful, {@code false} if the cycle was not found
