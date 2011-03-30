@@ -38,6 +38,10 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
@@ -45,13 +49,13 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 
 public class CouponCMSTest {
-  //Swap 2Y
+  //Swap 5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.ofYears(2);
-  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2011, 3, 17);
+  private static final Period ANNUITY_TENOR = Period.ofYears(5);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2014, 3, 17);
   //Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
@@ -123,7 +127,7 @@ public class CouponCMSTest {
       throw new RuntimeException(e);
     }
     double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON.getNotional() * CMS_COUPON.getPaymentYearFraction();
-    assertEquals(10183.770, priceCMS, 1E-2);
+    assertEquals(10161.601, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
 
     CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod(integrationInterval);
@@ -131,8 +135,9 @@ public class CouponCMSTest {
     assertEquals(priceCMS, priceCMS_method, 2E-1); // Different precision in integration.
     double priceCMS_calculator = PVC.visit(CMS_COUPON, sabrBundle);
     assertEquals(priceCMS_method, priceCMS_calculator, 2E-1);// Different precision in integration.
-    double priceCMS_noConvexity = PVC.visit(CMS_COUPON, curves);
-    assertEquals(priceCMS_calculator, priceCMS_noConvexity, 20.0);// Price without convexity adjustment.
+    double priceCMS_noConvexity = PVC.visit(CMS_COUPON, curves);// Price without convexity adjustment.
+    assertEquals(priceCMS_calculator, priceCMS_noConvexity, 50.0);
+    assertEquals(priceCMS_calculator > priceCMS_noConvexity, true);
 
     //    // Performance analysis.
     //    long startTime, endTime;
@@ -167,6 +172,41 @@ public class CouponCMSTest {
     //    }
     //    endTime = System.currentTimeMillis();
     //    System.out.println(nbTest + " CMS swap by replication (" + integrationInterval + "): " + (endTime - startTime) + " ms / price: " + priceCMS_calculator);
+  }
+
+  @Test
+  public void testPriceChangeSABRFormula() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    // SABR Hagan volatility function
+    SABRInterestRateParameter sabrParameterHagan = TestsDataSets.createSABR1(new SABRHaganVolatilityFunction());
+    SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
+    double priceHagan = PVC.visit(CMS_COUPON, sabrHaganBundle);
+    // From previous run
+    assertEquals(10161.737, priceHagan, 1E-2);
+    // No convexity adjustment
+    double priceNoConvexity = PVC.visit(CMS_COUPON, curves);
+    assertEquals(priceHagan, priceNoConvexity, 50.0);
+    // SABR Hagan alternative volatility function
+    SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
+    SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);
+    double priceHaganAlt = PVC.visit(CMS_COUPON, sabrHaganAltBundle);
+    assertEquals(priceHagan, priceHaganAlt, 1);
+    // SABR Berestycki volatility function
+    SABRInterestRateParameter sabrParameterBerestycki = TestsDataSets.createSABR1(new SABRBerestyckiVolatilityFunction());
+    SABRInterestRateDataBundle sabrBerestyckiBundle = new SABRInterestRateDataBundle(sabrParameterBerestycki, curves);
+    double priceBerestycki = PVC.visit(CMS_COUPON, sabrBerestyckiBundle);
+    assertEquals(priceHagan, priceBerestycki, 1);
+    // SABR Johnson volatility function
+    //    SABRInterestRateParameter sabrParameterJohnson = TestsDataSets.createSABR1(new SABRJohnsonVolatilityFunction());
+    //    SABRInterestRateDataBundle sabrJohnsonBundle = new SABRInterestRateDataBundle(sabrParameterJohnson, curves);
+    //    double priceJohnson = PVC.visit(CMS_COUPON, sabrJohnsonBundle);
+    //    assertEquals(priceHagan, priceJohnson, 1);
+    // SABR Paulot volatility function ! Does not work well !
+    SABRInterestRateParameter sabrParameterPaulot = TestsDataSets.createSABR1(new SABRPaulotVolatilityFunction());
+    SABRInterestRateDataBundle sabrPaulotBundle = new SABRInterestRateDataBundle(sabrParameterPaulot, curves);
+    double pricePaulot = PVC.visit(CMS_COUPON, sabrPaulotBundle);
+    assertEquals(priceHagan, pricePaulot, 1);
+
   }
 
   private class CMSIntegrant extends Function1D<Double, Double> {

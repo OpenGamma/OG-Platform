@@ -8,6 +8,9 @@ package com.opengamma.financial.interestrate;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -25,11 +28,11 @@ public class TestsDataSets {
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
 
   /**
-   * Create a set of SABR parameter surface (linearly interpolated). Expiry is between 0 and 5 years, maturity between 1 and 5. Beta is 0.5. 
+   * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 5 years, maturity between 1 and 5. Beta is 0.5. 
    * Alpha 0.05 at 1Y and 0.06 at 5Y. Rho 0.50 at 1Y and 0.30 at 5Y. Nu -0.25 at 1Y and 0.00 at 5Y. 
    * @return The SABE parameters parameters.
    */
-  public static SABRInterestRateParameter createSABR1() {
+  public static SABRInterestRateParameter createSABR1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
     InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.05,
         0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
@@ -42,7 +45,16 @@ public class TestsDataSets {
     InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {-0.25,
         -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility);
+    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, sabrFunction);
+  }
+
+  /**
+   * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Expiry is between 0 and 5 years, maturity between 1 and 5. Beta is 0.5. 
+   * Alpha 0.05 at 1Y and 0.06 at 5Y. Rho 0.50 at 1Y and 0.30 at 5Y. Nu -0.25 at 1Y and 0.00 at 5Y. 
+   * @return The SABE parameters parameters.
+   */
+  public static SABRInterestRateParameter createSABR1() {
+    return createSABR1(new SABRHaganVolatilityFunction());
   }
 
   /**

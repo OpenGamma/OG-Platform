@@ -23,20 +23,16 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -113,23 +109,8 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    ParRateCalculator prc = ParRateCalculator.getInstance();
-    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
-    double pvbp = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
-    double strike = annuityFixed.getNthPayment(0).getFixedRate();
-    // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
-    // FIXME: A better notion of maturity is required
-    double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
-    if (annuityFixed.getNumberOfPayments() >= 2) {
-      maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
-    }
-    BlackPriceFunction blackFunction = new BlackPriceFunction();
-    double volatility = sabr.getSABRParameter().getVolatility(new DoublesPair(swaption.getTimeToExpiry(), maturity), strike, forward);
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
-    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
-    double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return price;
+    SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
+    return method.price(swaption, sabr);
   }
 
   @Override
@@ -139,24 +120,8 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    ParRateCalculator prc = ParRateCalculator.getInstance();
-    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    double forward = prc.visit(swaption.getUnderlyingSwap(), curves);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
-    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, curves);
-    // FIXME: A better notion of maturity is required
-    double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
-    if (annuityFixed.getNumberOfPayments() >= 2) {
-      maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
-    }
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation: option required to pass the strike (in case the swap has non-constant coupon).
-    BlackPriceFunction blackFunction = new BlackPriceFunction();
-    double volatility = sabr.getSABRParameter().getVolatility(new DoublesPair(swaption.getTimeToExpiry(), maturity), strike, forward);
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
-    Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
-    double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return price;
+    SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
+    return method.price(swaption, sabr);
   }
 
   @Override
