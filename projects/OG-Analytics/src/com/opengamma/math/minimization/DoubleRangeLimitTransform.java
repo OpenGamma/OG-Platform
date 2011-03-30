@@ -11,10 +11,23 @@ import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.TrigonometricFunctionUtils;
 
 /**
- * 
+ * If a model parameter {@latex.inline $x$} is constrained to be between two values {@latex.inline $a \\geq x \\geq b$}, the function to transform it to an unconstrained
+ * variable is {@latex.inline $y$} is given by
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * y &= \\tanh^{-1}\\left(\\frac{x - m}{s}\\right)\\\\
+ * m &= \\frac{a + b}{2}\\\\
+ * s &= \\frac{b - a}{2}
+ * \\end{align*}
+ * }
+ * with the inverse transform
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * x &= s\\tanh(y) + m\\\\
+ * \\end{align*}
+ * }
  */
 public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
-
   private static final double TANH_MAX = 25.0;
   private final double _lower;
   private final double _upper;
@@ -22,10 +35,9 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   private final double _mid;
 
   /**
-   * * If a model parameter,<i>x</i>, is constrained to be between limited <i>lower</i> and <i>upper</i> then this will transform it to an unconstrained variable <i>y</i> using a
-   * tanh function
-   * @param lower Limit
-   * @param upper Limit
+   * @param lower Lower limit
+   * @param upper Upper limit
+   * @throws IllegalArgumentException If the upper limit is not greater than the lower limit
    */
   public DoubleRangeLimitTransform(final double lower, final double upper) {
     Validate.isTrue(upper > lower, "upper limit must be greater than lower");
@@ -35,6 +47,10 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     _scale = (upper - lower) / 2;
   }
 
+  /**
+   * If {@latex.inline $y > 25$}, this returns {@latex.inline $b$}. If {@latex.inline $y < -25$} returns {@latex.inline $a$}.
+   * {@inheritDoc}
+   */
   @Override
   public double inverseTransform(final double y) {
     if (y > TANH_MAX) {
@@ -45,6 +61,10 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     return _mid + _scale * TrigonometricFunctionUtils.tanh(y);
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If {@latex.inline $x > b$} or {@latex.inline $x < a$}
+   */
   @Override
   public double transform(final double x) {
     Validate.isTrue(x <= _upper && x >= _lower, "parameter out of range");
@@ -56,6 +76,10 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     return TrigonometricFunctionUtils.atanh((x - _mid) / _scale);
   }
 
+  /**
+   * If {@latex.inline $|y| > 25$}, this returns 0.
+   * {@inheritDoc}
+   */
   @Override
   public double inverseTransformGradient(final double y) {
     if (y > TANH_MAX || y < -TANH_MAX) {
@@ -64,6 +88,10 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     return _scale * (1 - FunctionUtils.square(TrigonometricFunctionUtils.tanh(y)));
   }
 
+  /**
+   * {@inheritDoc}
+   * @throws IllegalArgumentException If {@latex.inline $x > b$} or {@latex.inline $x < a$}
+   */
   @Override
   public double transformGradient(final double x) {
     Validate.isTrue(x <= _upper && x >= _lower, "parameter out of range");

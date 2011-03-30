@@ -16,6 +16,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -126,6 +127,11 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
+  public T visitCapFloorCMS(final CapFloorCMS payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
   public T visitForwardRateAgreement(final ForwardRateAgreement fra, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForwardRateAgreement()");
   }
@@ -232,6 +238,11 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
 
   @Override
   public T visitCouponCMS(final CouponCMS payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
+  }
+
+  @Override
+  public T visitCapFloorCMS(final CapFloorCMS payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponCMS()");
   }
 

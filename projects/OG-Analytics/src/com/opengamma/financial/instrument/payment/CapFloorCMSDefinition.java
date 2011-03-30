@@ -5,18 +5,27 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a caplet/floorlet on CMS rate.
  */
-public class CapFloorCMSDefinition extends CouponCMSDefinition {
+public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFloor {
 
   /**
    * The cap/floor strike.
@@ -28,7 +37,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
   private final boolean _isCap;
 
   /**
-   * Constructor from all the cap/floor details.
+   * Cap/floor CMS constructor from all the cap/floor details.
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -39,7 +48,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
    * @param underlyingSwap The underlying swap.
    * @param cmsIndex The CMS index associated to the cap/floor.
    * @param strike The strike
-   * @param isCap The cap/floor flag.
+   * @param isCap The cap (true) /floor (false) flag.
    */
   public CapFloorCMSDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
       ZonedDateTime fixingDate, ZZZSwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
@@ -49,7 +58,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
   }
 
   /**
-   * Builder from all the cap/floor details.
+   * Cap/floor CMS builder from all the cap/floor details.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
@@ -59,29 +68,42 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
    * @param underlyingSwap The underlying swap.
    * @param cmsIndex The CMS index associated to the cap/floor.
    * @param strike The strike
-   * @param isCap The cap/floor flag.
+   * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS cap/floor.
    */
-  public CapFloorCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
+  public static CapFloorCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
       ZZZSwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
     Validate.notNull(underlyingSwap, "underlying swap");
     return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex, strike, isCap);
   }
 
   /**
-   * Gets the _strike field.
-   * @return The strike
+   * Cap/floor CMS builder from a CMS coupon and the option details.
+   * @param coupon The CMS coupon.
+   * @param strike The strike.
+   * @param isCap The cap (true) /floor (false) flag.
+   * @return The CMS cap/floor.
    */
+  public static CapFloorCMSDefinition from(CouponCMSDefinition coupon, double strike, boolean isCap) {
+    Validate.notNull(coupon);
+    return new CapFloorCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+        coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCmsIndex(), strike, isCap);
+  }
+
+  @Override
   public double geStrike() {
     return _strike;
   }
 
-  /**
-   * Gets the _isCap field.
-   * @return the isCap flag.
-   */
+  @Override
   public boolean isCap() {
     return _isCap;
+  }
+
+  @Override
+  public double payOff(double fixing) {
+    double omega = (_isCap) ? 1.0 : -1.0;
+    return Math.max(omega * (fixing - _strike), 0);
   }
 
   @Override
@@ -114,6 +136,24 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
+      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
+    } else { // CMS is not fixed yet, all the details are required.
+      CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
+      return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+    }
   }
 
 }

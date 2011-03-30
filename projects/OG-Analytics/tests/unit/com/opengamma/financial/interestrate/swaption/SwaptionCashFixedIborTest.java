@@ -28,7 +28,7 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedIborAnnuityCalculator;
+import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -111,7 +111,7 @@ public class SwaptionCashFixedIborTest {
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     double sigmaBlack = 0.20;
     double forward = PRC.visit(SWAP_PAYER, CURVES);
-    double pvbp = SwapFixedIborAnnuityCalculator.getAnnuityCash(SWAP_PAYER, forward);
+    double pvbp = SwapFixedIborMethod.getAnnuityCash(SWAP_PAYER, forward);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
     Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);

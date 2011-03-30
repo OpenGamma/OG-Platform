@@ -15,89 +15,74 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
- * 
+ * This implementation of the conjugate gradient method is taken from <i>"An Introduction to the Conjugate Gradient Method Without the Agonizing Pain", Shewchuk</i>.
  */
-public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGradient {
+public class ConjugateGradientVectorMinimizer implements Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D>,
+    MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
 
   private static final double SMALL = 1e-25;
   private static final double DEFAULT_TOL = 1e-8;
   private static final int DEFAULT_MAX_STEPS = 100;
   private final double _relTol;
   private final double _absTol;
-  private final int _maxInterations;
+  private final int _maxIterations;
   private final LineSearch _lineSearch;
 
+  /**
+   * Constructs the object with default values for relative and absolute tolerance (10<sup>-8</sup>) and the number of iterations (100)
+   * @param minimizer The minimizer, not null
+   */
   public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer) {
     this(minimizer, DEFAULT_TOL, DEFAULT_MAX_STEPS);
   }
 
+  /**
+   * Constructs the object with equal relative and absolute values of tolerance.
+   * @param minimizer The minimizer, not null
+   * @param tolerance The tolerance, greater than 10<sup>-25</sup> and less than one
+   * @param maxInterations The number of iterations, greater than one
+   */
   public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, final double tolerance, final int maxInterations) {
     this(minimizer, tolerance, tolerance, maxInterations);
   }
 
-  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, final double relativeTolerance, final double absoluteTolerance, final int maxInterations) {
+  /**
+   * @param minimizer The minimizer, not null
+   * @param relativeTolerance The relative tolerance, greater than zero and less than one
+   * @param absoluteTolerance The absolute tolerance, greater than 10<sup>-25</sup>
+   * @param maxIterations The number of iterations, greater than one
+   */
+  public ConjugateGradientVectorMinimizer(final ScalarMinimizer minimizer, final double relativeTolerance, final double absoluteTolerance, final int maxIterations) {
     Validate.notNull(minimizer, "minimizer");
-    if (relativeTolerance < 0.0 || relativeTolerance > 1.0) {
-      throw new IllegalArgumentException("relativeTolerance must be greater than " + 0.0 + " and less than 1.0");
-    }
-    if (absoluteTolerance < SMALL) {
-      throw new IllegalArgumentException("absoluteTolerance must be greater than " + SMALL);
-    }
-    if (maxInterations < 1) {
-      throw new IllegalArgumentException("Need at lest one interation");
-    }
+    Validate.isTrue(relativeTolerance > 0.0 || relativeTolerance < 1.0, "relative tolerance must be greater than 0.0 and less than 1.0");
+    Validate.isTrue(absoluteTolerance > SMALL, "absolute tolerance must be greater than " + SMALL);
+    Validate.isTrue(maxIterations >= 1, "Need at least one iteration");
     _lineSearch = new LineSearch(minimizer);
     _relTol = relativeTolerance;
     _absTol = absoluteTolerance;
-    _maxInterations = maxInterations;
+    _maxIterations = maxIterations;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
+    Validate.notNull(function, "function");
+    Validate.notNull(startPosition, "start position");
     final ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.derivative(function);
     return minimize(function, grad, startPosition);
   }
 
-  // private double[] preCon(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D x) {
-  // int n = x.getNumberOfElements();
-  // double[] res = new double[n];
-  // boolean nonPos = false;
-  // for (int i = 0; i < n; i++) {
-  // double secondDev = getSecondDev(function, x, i, i);
-  //
-  // if (res[i] <= 0.0) {
-  // nonPos = true;
-  // break;
-  // }
-  // res[i] = 1.0 / secondDev;
-  // }
-  //
-  // if (nonPos) {// set to identity if diagonal
-  // for (int i = 0; i < n; i++) {
-  // res[i] = 1.0;
-  // }
-  // }
-  // return res;
-  // }
-  //
-  // private double getSecondDev(final Function1D<DoubleMatrix1D, Double> function, DoubleMatrix1D x, int i, int j) {
-  // double eps = 1e-5;
-  // if (i == j) {
-  // double f_x = function.evaluate(x);
-  // double[] temp = x.toArray();
-  // temp[i] += eps;
-  // double f_p = function.evaluate(new DoubleMatrix1D(temp));
-  // temp[i] -= 2 * eps;
-  // double f_m = function.evaluate(new DoubleMatrix1D(temp));
-  // return (f_p + f_m - 2 * f_x) / eps / eps;
-  // }
-  // return 0.0;
-  // }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DoubleMatrix1D minimize(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
-
+    Validate.notNull(function, "function");
+    Validate.notNull(grad, "grad");
+    Validate.notNull(startPosition, "start position");
     final int n = startPosition.getNumberOfElements();
     DoubleMatrix1D x = startPosition;
     DoubleMatrix1D deltaX;
@@ -110,7 +95,7 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
     double lambda = 0.0;
     int resetCount = 0;
 
-    for (int count = 0; count < _maxInterations; count++, resetCount++) {
+    for (int count = 0; count < _maxIterations; count++, resetCount++) {
 
       lambda = _lineSearch.minimise(function, d, x);
 
@@ -139,7 +124,6 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         }
       }
       final double beta = (deltaNew - deltaMid) / deltaOld;
-      // final double beta = deltaNew / deltaOld;
 
       if (beta < 0 || resetCount == n) {
         d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
@@ -150,12 +134,11 @@ public class ConjugateGradientVectorMinimizer implements VectorMinimizerWithGrad
         if (sanity > 0) {
           d = (DoubleMatrix1D) OG_ALGEBRA.scale(g, -1.0);
           resetCount = 0;
-          // throw new MathException();
         }
       }
     }
-    double value = function.evaluate(x);
-    throw new MathException("ConjugateGradient Failed to converge after " + _maxInterations + " interations, with a tolerance of " + _relTol + " Final value: " + value
-        + " Final position reached was " + x.toString());
+    final double value = function.evaluate(x);
+    throw new MathException("ConjugateGradient failed to converge after " + _maxIterations + " iterations, with a tolerance of " + _relTol + ". Final value: " + value
+        + ". Final position reached was " + x.toString());
   }
 }

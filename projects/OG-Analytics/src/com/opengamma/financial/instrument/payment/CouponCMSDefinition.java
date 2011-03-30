@@ -30,7 +30,6 @@ import com.opengamma.util.money.Currency;
  */
 public class CouponCMSDefinition extends CouponFloatingDefinition {
 
-  //TODO: add a CMS index (history, ...)
   //TODO: change to a swap skeleton?
   /**
    * The swap underlying the CMS coupon.
