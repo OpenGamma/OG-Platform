@@ -19,6 +19,10 @@ public class ViewCycleExecutionOptions {
   
   // TODO [PLAT-1153] Correction time
   
+  public ViewCycleExecutionOptions(Instant time) {
+    this(time, time);
+  }
+  
   public ViewCycleExecutionOptions(Instant valuationTime, Instant inputDataTime) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(inputDataTime, "inputDataTime");
