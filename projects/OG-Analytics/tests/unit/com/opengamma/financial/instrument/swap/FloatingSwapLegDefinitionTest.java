@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -23,12 +25,14 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class FloatingSwapLegDefinitionTest {
+  private static final Currency CUR = Currency.USD;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -53,52 +57,52 @@ public class FloatingSwapLegDefinitionTest {
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
   private static final double SPREAD = 0.01;
-  private static final FloatingSwapLegDefinition DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD,
+  private static final FloatingSwapLegDefinition DEFINITION = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD,
       CONVENTION);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate() {
-    new FloatingSwapLegDefinition(null, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, null, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, null, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, null, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, null, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, null, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthSettlementDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, new ZonedDateTime[0], RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, new ZonedDateTime[0], RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullResetDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, null, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, null, MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthResetDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, new ZonedDateTime[0], MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, new ZonedDateTime[0], MATURITY_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMaturityDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, null, NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, null, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthMaturityDates() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, new ZonedDateTime[0], NOTIONAL, RATE, CONVENTION);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, new ZonedDateTime[0], NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
-    new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, null);
+    new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -132,26 +136,26 @@ public class FloatingSwapLegDefinitionTest {
     assertArrayEquals(DEFINITION.getResetDates(), RESET_DATES);
     assertArrayEquals(DEFINITION.getSettlementDates(), SETTLEMENT_DATES);
     assertEquals(DEFINITION.getSpread(), SPREAD, 0);
-    FloatingSwapLegDefinition other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    FloatingSwapLegDefinition other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertEquals(other, DEFINITION);
     assertEquals(other.hashCode(), DEFINITION.hashCode());
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE.minusDays(1), NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE.minusDays(1), NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, SETTLEMENT_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, SETTLEMENT_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, NOMINAL_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, NOMINAL_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOMINAL_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOMINAL_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, NOMINAL_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, NOMINAL_DATES, NOTIONAL, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL + 1, RATE, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL + 1, RATE, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 1, SPREAD, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 1, SPREAD, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD + 1, CONVENTION);
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD + 1, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, new SwapConvention(SETTLEMENT_DAYS + 1, DAY_COUNT,
+    other = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE, SPREAD, new SwapConvention(SETTLEMENT_DAYS + 1, DAY_COUNT,
         BUSINESS_DAY, CALENDAR, IS_EOM, NAME));
     assertFalse(other.equals(DEFINITION));
   }

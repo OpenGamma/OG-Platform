@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -19,12 +21,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class TenorSwapDefinitionTest {
+  private static final Currency CUR = Currency.USD;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -49,9 +53,9 @@ public class TenorSwapDefinitionTest {
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
   private static final double SPREAD = 0.01;
-  private static final FloatingSwapLegDefinition PAY_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE, 0,
+  private static final FloatingSwapLegDefinition PAY_DEFINITION = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE, 0,
       CONVENTION);
-  private static final FloatingSwapLegDefinition RECEIVE_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE,
+  private static final FloatingSwapLegDefinition RECEIVE_DEFINITION = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE,
       SPREAD, CONVENTION);
   private static final TenorSwapDefinition SWAP = new TenorSwapDefinition(PAY_DEFINITION, RECEIVE_DEFINITION);
 
@@ -82,7 +86,7 @@ public class TenorSwapDefinitionTest {
     TenorSwapDefinition other = new TenorSwapDefinition(PAY_DEFINITION, RECEIVE_DEFINITION);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
-    other = new TenorSwapDefinition(new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 0.01, 0, CONVENTION),
+    other = new TenorSwapDefinition(new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 0.01, 0, CONVENTION),
         RECEIVE_DEFINITION);
     assertFalse(other.equals(SWAP));
     other = new TenorSwapDefinition(PAY_DEFINITION, PAY_DEFINITION);

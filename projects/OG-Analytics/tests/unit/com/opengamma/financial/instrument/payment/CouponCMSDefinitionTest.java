@@ -158,8 +158,9 @@ public class CouponCMSDefinitionTest {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
     double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
+    double settlementTime = actAct.getDayCountFraction(zonedDate, SWAP_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     FixedCouponSwap<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    CouponCMS couponCMS = new CouponCMS(paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap);
+    CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
     assertEquals(couponCMS, CMS_COUPON);
   }
 }

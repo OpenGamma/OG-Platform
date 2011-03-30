@@ -37,6 +37,10 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
    * Flag indicating if the option is long (true) or short (false).
    */
   private final boolean _isLong;
+  /**
+   * The cash settlement date of the swaption.
+   */
+  private final ZonedDateTime _settlementDate;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flqg.
@@ -53,6 +57,7 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
+    _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
   }
 
   /**
@@ -78,8 +83,9 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, getExpiry().getExpiry());
+    final double settlementTime = actAct.getDayCountFraction(zonedDate, _settlementDate);
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, _isLong);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 
   /**
@@ -96,6 +102,14 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the swaption settlement date.
+   * @return The settlement date.
+   */
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
   }
 
   @Override

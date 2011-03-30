@@ -124,7 +124,8 @@ public class TenorSwapSecurityToTenorSwapConverter {
 
     final CouponIbor[] payments = new CouponIbor[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
-      payments[i] = new  CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
+      payments[i] = new CouponIbor(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i],
+          maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
     }
 
     //TODO need to handle paymentYearFraction differently from forwardYearFraction 

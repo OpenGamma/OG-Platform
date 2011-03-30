@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
 public abstract class PaymentDefinition implements FixedIncomeInstrumentDefinition<Payment> {
 
   /**
-   * The index currency.
+   * The payment currency.
    */
   private final Currency _currency;
   /**

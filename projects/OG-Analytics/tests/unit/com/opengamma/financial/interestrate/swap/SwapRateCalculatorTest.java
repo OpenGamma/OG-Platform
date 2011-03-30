@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.swap;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -14,6 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -26,6 +28,7 @@ public class SwapRateCalculatorTest {
   private static final String FUNDING_CURVE_NAME = "Bill";
   private static final String FORWARD_CURVE_NAME = "Ben";
   private static final FixedFloatSwap SWAP;
+  private static final Currency CUR = Currency.USD;
 
   static {
     final double[] t1 = new double[] {0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5};
@@ -36,7 +39,7 @@ public class SwapRateCalculatorTest {
       forward[i] = Math.pow(DF_1, t1[i]);
     }
     FORWARD_CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(t1, forward, new LinearInterpolator1D()));
-    SWAP = new FixedFloatSwap(t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
+    SWAP = new FixedFloatSwap(CUR, t2, t2, 0.0, FUNDING_CURVE_NAME, FORWARD_CURVE_NAME, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

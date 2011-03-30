@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.payments;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -15,8 +16,8 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 public class PaymentFixed extends Payment {
   private final double _amount;
 
-  public PaymentFixed(final double paymentTime, final double paymentAmount, final String fundingCurve) {
-    super(paymentTime, fundingCurve);
+  public PaymentFixed(final Currency currency, final double paymentTime, final double paymentAmount, final String fundingCurve) {
+    super(currency, paymentTime, fundingCurve);
     Validate.notNull(fundingCurve);
     _amount = paymentAmount;
   }

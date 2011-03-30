@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -20,12 +22,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class FixedSwapLegDefinitionTest {
+  private static final Currency CUR = Currency.USD;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -43,36 +47,36 @@ public class FixedSwapLegDefinitionTest {
       DateUtil.getUTCDate(2015, 1, 5), DateUtil.getUTCDate(2015, 7, 3)};
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
-  private static final FixedSwapLegDefinition DEFINITION = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+  private static final FixedSwapLegDefinition DEFINITION = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEffectiveDate() {
-    new FixedSwapLegDefinition(null, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+    new FixedSwapLegDefinition(CUR, null, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominalDates() {
-    new FixedSwapLegDefinition(EFFECTIVE_DATE, null, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+    new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, null, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettlementDates() {
-    new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, null, NOTIONAL, RATE, CONVENTION);
+    new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, null, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConvention() {
-    new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, null);
+    new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeRate() {
-    new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, -RATE, CONVENTION);
+    new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, -RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDatesLength() {
-    new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, new ZonedDateTime[] {}, NOTIONAL, RATE, CONVENTION);
+    new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, new ZonedDateTime[] {}, NOTIONAL, RATE, CONVENTION);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -103,20 +107,20 @@ public class FixedSwapLegDefinitionTest {
     assertEquals(DEFINITION.getNotional(), NOTIONAL, 0);
     assertEquals(DEFINITION.getRate(), RATE, 0);
     assertArrayEquals(DEFINITION.getSettlementDates(), SETTLEMENT_DATES);
-    FixedSwapLegDefinition other = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+    FixedSwapLegDefinition other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
     assertEquals(other, DEFINITION);
     assertEquals(other.hashCode(), DEFINITION.hashCode());
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE.plusDays(1), NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE.plusDays(1), NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE, SETTLEMENT_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, SETTLEMENT_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, NOMINAL_DATES, NOTIONAL, RATE, CONVENTION);
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, NOMINAL_DATES, NOTIONAL, RATE, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL + 1, RATE, CONVENTION);
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL + 1, RATE, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE + 1, CONVENTION);
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE + 1, CONVENTION);
     assertFalse(other.equals(DEFINITION));
-    other = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, new SwapConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, !IS_EOM, NAME));
+    other = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, new SwapConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, !IS_EOM, NAME));
     assertFalse(other.equals(DEFINITION));
   }
 

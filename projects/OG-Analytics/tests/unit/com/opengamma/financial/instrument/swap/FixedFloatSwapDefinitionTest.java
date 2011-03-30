@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -19,12 +21,14 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class FixedFloatSwapDefinitionTest {
+  private static final Currency CUR = Currency.USD;
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -48,9 +52,9 @@ public class FixedFloatSwapDefinitionTest {
       DateUtil.getUTCDate(2015, 7, 3), DateUtil.getUTCDate(2016, 1, 4)};
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.05;
-  private static final FixedSwapLegDefinition FIXED_DEFINITION = new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
+  private static final FixedSwapLegDefinition FIXED_DEFINITION = new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE, CONVENTION);
   private static final double SPREAD = 0.01;
-  private static final FloatingSwapLegDefinition FLOAT_DEFINITION = new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE,
+  private static final FloatingSwapLegDefinition FLOAT_DEFINITION = new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, -NOTIONAL, RATE,
       SPREAD, CONVENTION);
   private static final FixedFloatSwapDefinition SWAP = new FixedFloatSwapDefinition(FIXED_DEFINITION, FLOAT_DEFINITION);
 
@@ -71,10 +75,10 @@ public class FixedFloatSwapDefinitionTest {
     FixedFloatSwapDefinition other = new FixedFloatSwapDefinition(FIXED_DEFINITION, FLOAT_DEFINITION);
     assertEquals(other, SWAP);
     assertEquals(other.hashCode(), SWAP.hashCode());
-    other = new FixedFloatSwapDefinition(new FixedSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE + 0.01, CONVENTION), FLOAT_DEFINITION);
+    other = new FixedFloatSwapDefinition(new FixedSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, NOTIONAL, RATE + 0.01, CONVENTION), FLOAT_DEFINITION);
     assertFalse(other.equals(SWAP));
-    other = new FixedFloatSwapDefinition(FIXED_DEFINITION, new FloatingSwapLegDefinition(EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 0.02, SPREAD,
-        CONVENTION));
+    other = new FixedFloatSwapDefinition(FIXED_DEFINITION, new FloatingSwapLegDefinition(CUR, EFFECTIVE_DATE, NOMINAL_DATES, SETTLEMENT_DATES, RESET_DATES, MATURITY_DATES, NOTIONAL, RATE + 0.02,
+        SPREAD, CONVENTION));
     assertFalse(other.equals(SWAP));
   }
 

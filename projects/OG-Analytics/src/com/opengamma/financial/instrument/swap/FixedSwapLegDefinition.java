@@ -24,6 +24,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -36,9 +37,13 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
   private final double _notional;
   private final double _rate;
   private final SwapConvention _convention;
+  /**
+   * The leg currency.
+   */
+  private final Currency _currency;
 
-  public FixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final double notional, final double rate,
-      final SwapConvention convention) {
+  public FixedSwapLegDefinition(Currency currency, final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final double notional,
+      final double rate, final SwapConvention convention) {
     Validate.notNull(effectiveDate, "effective date");
     Validate.notNull(nominalDates, "nominal dates");
     Validate.notNull(settlementDates, "settlement dates");
@@ -51,6 +56,15 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
     _notional = notional;
     _rate = rate;
     _convention = convention;
+    _currency = currency;
+  }
+
+  /**
+   * Gets the _currency field.
+   * @return the _currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   public ZonedDateTime getEffectiveDate() {
@@ -140,7 +154,7 @@ public class FixedSwapLegDefinition implements FixedIncomeInstrumentDefinition<G
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
     //TODO: the payer/receiver flag should be stored at the leg level!
-    return new AnnuityCouponFixed(paymentTimes, Math.abs(_notional), _rate, yearFractions, yieldCurveNames[0], _notional < 0);
+    return new AnnuityCouponFixed(_currency, paymentTimes, Math.abs(_notional), _rate, yearFractions, yieldCurveNames[0], _notional < 0);
   }
 
   @Override

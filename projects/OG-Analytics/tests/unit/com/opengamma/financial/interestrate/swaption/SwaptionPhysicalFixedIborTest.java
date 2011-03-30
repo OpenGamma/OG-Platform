@@ -225,7 +225,7 @@ public class SwaptionPhysicalFixedIborTest {
     CouponFixed[] coupon = new CouponFixed[annuity.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
       // Step-up by 10bps
-      coupon[loopcpn] = new CouponFixed(annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
+      coupon[loopcpn] = new CouponFixed(CUR, annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
           * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
     }
     AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
@@ -245,7 +245,7 @@ public class SwaptionPhysicalFixedIborTest {
     SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     double priceHagan = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganBundle);
     // From previous run
-    assertEquals(2045655.258, priceHagan, 1E-2);
+    assertEquals(2034257.554, priceHagan, 1E-2);
     // SABR Hagan alternative volatility function
     SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);

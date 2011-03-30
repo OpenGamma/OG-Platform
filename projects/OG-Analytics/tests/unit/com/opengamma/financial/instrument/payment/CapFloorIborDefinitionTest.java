@@ -136,15 +136,15 @@ public class CapFloorIborDefinitionTest {
     String fundingCurve = "Funding";
     String forwardCurve = "Forward";
     String[] curves = {fundingCurve, forwardCurve};
-    CapFloorIbor expectedCapIbor = new CapFloorIbor(paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING, forwardCurve,
-        STRIKE, IS_CAP);
+    CapFloorIbor expectedCapIbor = new CapFloorIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING,
+        forwardCurve, STRIKE, IS_CAP);
     CapFloorIbor convertedCapIborDefinition = (CapFloorIbor) IBOR_CAP.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expectedCapIbor, convertedCapIborDefinition);
     CapFloorIborDefinition fixedIborCap = CapFloorIborDefinition.from(IBOR_COUPON_2, STRIKE, IS_CAP);
     double paymentTimeFixed = actAct.getDayCountFraction(zonedDate, IBOR_COUPON_2.getPaymentDate());
     double fixingRate = 0.04;
     fixedIborCap.fixingProcess(fixingRate);
-    CouponFixed expectedFixedCoupon = new CouponFixed(paymentTimeFixed, fundingCurve, IBOR_COUPON_2.getPaymentYearFraction(), NOTIONAL, fixingRate - STRIKE);
+    CouponFixed expectedFixedCoupon = new CouponFixed(CUR, paymentTimeFixed, fundingCurve, IBOR_COUPON_2.getPaymentYearFraction(), NOTIONAL, fixingRate - STRIKE);
     CouponFixed convertedCapIborFixed = (CouponFixed) fixedIborCap.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expectedFixedCoupon, convertedCapIborFixed);
 

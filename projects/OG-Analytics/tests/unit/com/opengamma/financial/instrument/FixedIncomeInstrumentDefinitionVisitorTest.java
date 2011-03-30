@@ -6,9 +6,11 @@
 package com.opengamma.financial.instrument;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -34,12 +36,14 @@ import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
 import com.opengamma.financial.instrument.swap.SwapConvention;
 import com.opengamma.financial.instrument.swap.TenorSwapDefinition;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class FixedIncomeInstrumentDefinitionVisitorTest {
+  private static final Currency CUR = Currency.USD;
   private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final Calendar C = new MondayToFridayCalendar("F");
@@ -48,16 +52,16 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final IRFutureConvention IRF_CONVENTION = new IRFutureConvention(2, DC, BD, C, 0.25, "A");
   private static final LocalDate[] LOCAL_DATES = new LocalDate[] {LocalDate.of(2011, 1, 1), LocalDate.of(2012, 1, 1)};
   private static final ZonedDateTime[] ZONED_DATES = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 1, 1)};
-  private static final BondDefinition BOND = new BondDefinition(LOCAL_DATES, LOCAL_DATES, 0.02, 1, BOND_CONVENTION);
+  private static final BondDefinition BOND = new BondDefinition(CUR, LOCAL_DATES, LOCAL_DATES, 0.02, 1, BOND_CONVENTION);
   private static final BondForwardDefinition BOND_FORWARD = new BondForwardDefinition(BOND, LocalDate.of(2011, 7, 1), BOND_CONVENTION);
   private static final BondFutureDefinition BOND_FUTURE = new BondFutureDefinition(new BondDefinition[] {BOND}, new double[] {1}, BOND_CONVENTION, LocalDate.of(2010, 1, 1));
   private static final CashDefinition CASH = new CashDefinition(DateUtil.getUTCDate(2011, 1, 1), 0.04, BOND_CONVENTION);
-  private static final FixedSwapLegDefinition FIXED_SWAP_LEG = new FixedSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, 100, 0.03, SWAP_CONVENTION);
-  private static final FloatingSwapLegDefinition FLOATING_SWAP_LEG = new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.04, SWAP_CONVENTION);
+  private static final FixedSwapLegDefinition FIXED_SWAP_LEG = new FixedSwapLegDefinition(CUR, ZONED_DATES[0], ZONED_DATES, ZONED_DATES, 100, 0.03, SWAP_CONVENTION);
+  private static final FloatingSwapLegDefinition FLOATING_SWAP_LEG = new FloatingSwapLegDefinition(CUR, ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.04, SWAP_CONVENTION);
   private static final FRADefinition FRA = new FRADefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2012, 1, 1), 0.02, SWAP_CONVENTION);
   private static final IRFutureDefinition IR_FUTURE = new IRFutureDefinition(DateUtil.getUTCDate(2011, 1, 1), DateUtil.getUTCDate(2011, 4, 1), IRF_CONVENTION);
   private static final FixedFloatSwapDefinition FIXED_FLOAT_SWAP = new FixedFloatSwapDefinition(FIXED_SWAP_LEG, FLOATING_SWAP_LEG);
-  private static final TenorSwapDefinition TENOR_SWAP = new TenorSwapDefinition(new FloatingSwapLegDefinition(ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.06,
+  private static final TenorSwapDefinition TENOR_SWAP = new TenorSwapDefinition(new FloatingSwapLegDefinition(CUR, ZONED_DATES[0], ZONED_DATES, ZONED_DATES, ZONED_DATES, ZONED_DATES, 100, 0.06,
       SWAP_CONVENTION), FLOATING_SWAP_LEG);
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();

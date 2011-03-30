@@ -168,13 +168,14 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
     } else { // CMS is not fixed yet, all the details are required.
       final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+      final double settlementTime = actAct.getDayCountFraction(zonedDate, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
       FixedCouponSwap<Payment> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
       //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
       //TODO: Definition has no spread and time version has one: to be standardized.
-      return new CouponCMS(paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap);
+      return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
     }
   }
 

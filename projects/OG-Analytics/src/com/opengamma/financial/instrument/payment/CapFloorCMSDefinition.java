@@ -149,7 +149,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
     } else { // CMS is not fixed yet, all the details are required.
       CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
       return CapFloorCMS.from(cmsCoupon, _strike, _isCap);

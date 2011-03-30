@@ -26,6 +26,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -41,13 +42,17 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
   private final double _spread;
   private final double _initialRate;
   private final SwapConvention _convention;
+  /**
+   * The leg currency.
+   */
+  private final Currency _currency;
 
-  public FloatingSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final ZonedDateTime[] resetDates,
+  public FloatingSwapLegDefinition(Currency currency, final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final ZonedDateTime[] resetDates,
       final ZonedDateTime[] maturityDates, final double notional, final double initialRate, final SwapConvention convention) {
-    this(effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, 0, convention);
+    this(currency, effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, 0, convention);
   }
 
-  public FloatingSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final ZonedDateTime[] resetDates,
+  public FloatingSwapLegDefinition(Currency currency, final ZonedDateTime effectiveDate, final ZonedDateTime[] nominalDates, final ZonedDateTime[] settlementDates, final ZonedDateTime[] resetDates,
       final ZonedDateTime[] maturityDates, final double notional, final double initialRate, final double spread, final SwapConvention convention) {
     Validate.notNull(effectiveDate, "effective date");
     Validate.notNull(nominalDates, "nominal dates");
@@ -68,6 +73,15 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
     _spread = spread;
     _initialRate = initialRate;
     _convention = convention;
+    _currency = currency;
+  }
+
+  /**
+   * Gets the _currency field.
+   * @return the _currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   public ZonedDateTime getEffectiveDate() {
@@ -195,16 +209,18 @@ public class FloatingSwapLegDefinition implements FixedIncomeInstrumentDefinitio
     }
     final Payment[] payments = new Payment[paymentTimes.length];
     if (date.isBefore(_nominalDates[1].toLocalDate())) {
-      payments[0] = new CouponFixed(paymentTimes[0], fundingCurveName, yearFractions[0], _notional, _initialRate + _spread);
+      payments[0] = new CouponFixed(_currency, paymentTimes[0], fundingCurveName, yearFractions[0], _notional, _initialRate + _spread);
     } else {
       //TODO need to handle paymentYearFraction differently from forwardYearFraction 
       //TODO copied from original implementation
-      payments[0] = new CouponIbor(paymentTimes[0], fundingCurveName, yearFractions[0], _notional, resetTimes[0], resetTimes[0], maturityTimes[0], yearFractions[0], _spread, liborCurveName);
+      payments[0] = new CouponIbor(_currency, paymentTimes[0], fundingCurveName, yearFractions[0], _notional, resetTimes[0], resetTimes[0], maturityTimes[0], yearFractions[0], 
+          _spread, liborCurveName);
     }
     for (int i = 1; i < payments.length; i++) {
       //TODO need to handle paymentYearFraction differently from forwardYearFraction 
       //TODO copied from original implementation
-      payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], _notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], _spread, liborCurveName);
+      payments[i] = new CouponIbor(_currency, paymentTimes[i], fundingCurveName, yearFractions[i], _notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], 
+          _spread, liborCurveName);
     }
     //TODO: the payer/receiver flag should be stored at the leg level!
     return new GenericAnnuity<Payment>(payments);
