@@ -42,6 +42,9 @@ import com.opengamma.util.serialization.InnerClassSubstitution;
    */
   protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
 
+  /**
+   * Replaces an anonymous inner class with a serializable substitution.
+   */
   protected static Object substituteObject(final Object object) {
     Class<?> clazz = object.getClass();
     if (clazz.isAnonymousClass()) {
@@ -57,8 +60,6 @@ import com.opengamma.util.serialization.InnerClassSubstitution;
         clazz = clazz.getEnclosingClass();
       }
       throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object);
-    } else {
-      System.err.println("Object " + object + " is not anonymous class");
     }
     return object;
   }

@@ -64,7 +64,7 @@ final class MathCurve {
       context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
-    @SuppressWarnings( {"rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @Override
     public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
       final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));

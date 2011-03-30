@@ -73,7 +73,8 @@ public class MathCurveTest extends AnalyticsTestBase {
   @SuppressWarnings("unchecked")
   @Test
   public void testFunctionalCurve_NSS() {
-    final Function1D<Double, Double> f = new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6}));
+    final NelsonSiegelSvennsonBondCurveModel curveBondModel = new NelsonSiegelSvennsonBondCurveModel();
+    final Function1D<Double, Double> f = curveBondModel.getParameterizedFunction().asFunctionOfArguments(new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6 }));
     Curve<Double, Double> c1 = FunctionalDoublesCurve.from(f);
     Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
     assertCurveEquals(c1, c2);

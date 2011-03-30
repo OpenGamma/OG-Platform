@@ -71,7 +71,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
       message.add(RIGHT_EXTRAPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(object.getRightExtrapolator()));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @Override
     public CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
       final String interpolatorName = message.getString(INTERPOLATOR_FIELD_NAME);
