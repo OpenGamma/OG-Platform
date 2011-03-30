@@ -24,7 +24,7 @@ import com.opengamma.engine.view.calc.ViewCycleRetainer;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.ViewCompilationListener;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -162,12 +162,12 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
     attachToViewProcess(viewDefinitionName, executionOptions, false);
   }
   
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions, boolean newBatchProcess) {
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
     _clientLock.lock();
     try {
       checkNotTerminated();

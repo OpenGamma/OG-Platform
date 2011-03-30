@@ -42,7 +42,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProviderFactory;
 import com.opengamma.id.ObjectIdentifier;
@@ -183,7 +183,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueIdentifier clientId, ViewProcessListener listener, String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToSharedViewProcess(UniqueIdentifier clientId, ViewProcessListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
@@ -206,7 +206,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions  the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToBatchViewProcess(UniqueIdentifier clientId, ViewProcessListener listener, String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+  public ViewPermissionProvider attachClientToBatchViewProcess(UniqueIdentifier clientId, ViewProcessListener listener, String viewDefinitionName, ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionName, "viewDefinitionName");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ViewClientImpl client = getViewClient(clientId);
@@ -285,7 +285,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
   
-  private ViewProcessImpl getOrCreateViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+  private ViewProcessImpl getOrCreateViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
     _processLock.lock();
     try {
       ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionName, executionOptions);
@@ -300,7 +300,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions, boolean isBatchView) {
+  private ViewProcessImpl createViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean isBatchView) {
     _processLock.lock();
     try {
       ViewDefinition definition = getViewDefinitionRepository().getDefinition(viewDefinitionName);
@@ -555,9 +555,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final class ViewProcessDescription {
     
     private final String _viewDefinitionName;
-    private final ViewProcessExecutionOptions _executionOptions;
+    private final ViewExecutionOptions _executionOptions;
     
-    public ViewProcessDescription(String viewDefinitionName, ViewProcessExecutionOptions executionOptions) {
+    public ViewProcessDescription(String viewDefinitionName, ViewExecutionOptions executionOptions) {
       _viewDefinitionName = viewDefinitionName;
       _executionOptions = executionOptions;
     }

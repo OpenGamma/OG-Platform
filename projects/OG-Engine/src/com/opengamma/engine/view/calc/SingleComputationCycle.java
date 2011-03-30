@@ -62,7 +62,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private final UniqueIdentifier _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
   private final ViewEvaluationModel _viewEvaluationModel;
-  private final Instant _evaluationTime;
+  private final Instant _valuationTime;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
@@ -87,7 +87,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId, ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, Instant evaluationTime) {
+  public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId, ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, Instant valuationTime) {
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
 
@@ -96,7 +96,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     _viewProcessContext = viewProcessContext;
     _viewEvaluationModel = viewEvaluationModel;
     
-    _evaluationTime = evaluationTime;
+    _valuationTime = valuationTime;
 
     _resultModel = new InMemoryViewComputationResultModel();
     _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getAllCalculationConfigurationNames());
@@ -105,15 +105,15 @@ public class SingleComputationCycle implements ViewCycleInternal {
     }
     _resultModel.setViewCycleId(cycleId);
     _resultModel.setViewProcessId(getViewProcessId());
-    _resultModel.setEvaluationTime(evaluationTime);
+    _resultModel.setValuationTime(valuationTime);
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
   
   //-------------------------------------------------------------------------
-  public Instant getEvaluationTime() {
-    return _evaluationTime;
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
   public long getFunctionInitId() {
@@ -286,9 +286,9 @@ public class SingleComputationCycle implements ViewCycleInternal {
   //-------------------------------------------------------------------------
   private void prepareInputs() {
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
-    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getEvaluationTime());
+    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
-    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getEvaluationTime().toEpochMillisLong());
+    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getValuationTime().toEpochMillisLong());
 
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
     for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
@@ -297,9 +297,9 @@ public class SingleComputationCycle implements ViewCycleInternal {
       // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      Object data = getViewProcessContext().getLiveDataSnapshotProvider().querySnapshot(getEvaluationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      Object data = getViewProcessContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
       if (data == null) {
-        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getEvaluationTime());
+        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement.getValue());
       } else {
         ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
@@ -331,7 +331,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private void createAllCaches() {
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
       ViewComputationCache cache = getViewProcessContext().getComputationCacheSource().getCache(
-          getViewProcessId(), calcConfigurationName, getEvaluationTime().toEpochMillisLong());
+          getViewProcessId(), calcConfigurationName, getValuationTime().toEpochMillisLong());
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
     }
   }
@@ -442,8 +442,8 @@ public class SingleComputationCycle implements ViewCycleInternal {
     }
 
     // [PLAT-1124] BUG - what if 2 cycles use the same snapshot provider with the same evaluation time?
-    getViewProcessContext().getLiveDataSnapshotProvider().releaseSnapshot(getEvaluationTime().toEpochMillisLong());
-    getViewProcessContext().getComputationCacheSource().releaseCaches(getViewProcessId(), getEvaluationTime().toEpochMillisLong());
+    getViewProcessContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
+    getViewProcessContext().getComputationCacheSource().releaseCaches(getViewProcessId(), getValuationTime().toEpochMillisLong());
 
     _state = ViewCycleState.DESTROYED;
   }

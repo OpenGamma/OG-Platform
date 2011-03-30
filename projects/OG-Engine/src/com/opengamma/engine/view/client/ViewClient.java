@@ -11,7 +11,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.compilation.ViewCompilationListener;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -90,7 +90,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param executionOptions  the view execution options, not null
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions);
+  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions);
   
   /**
    * Attaches the client to a view process, which might involve creating a new process.
@@ -104,7 +104,7 @@ public interface ViewClient extends UniqueIdentifiable {
    *                         {@code false} to connect to a normal, shared process
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewProcessExecutionOptions executionOptions, boolean newBatchProcess);
+  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess);
   
   /**
    * Attaches the client to a specific, existing view process.

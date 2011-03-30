@@ -25,7 +25,7 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
@@ -91,7 +91,7 @@ public class ManagementServiceTest {
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(ANOTHER_TEST_VIEW, RealTimeViewProcessExecutionOptions.INSTANCE, false);
+    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.getRealTime(), false);
   }
   
   

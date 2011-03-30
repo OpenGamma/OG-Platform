@@ -23,7 +23,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleManager;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -38,7 +38,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   private final UniqueIdentifier _viewProcessId;
   private final ViewDefinition _definition;
-  private final ViewProcessExecutionOptions _executionOptions;
+  private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ObjectIdentifier _cycleObjectId;
   private final ViewCycleManager _viewCycleManager;
@@ -76,7 +76,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param isBatchProcess {@code true} if the process is for a batch computation, {@code false} otherwise 
    */
   public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
-      ViewProcessExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManager viewCycleManager,
+      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManager viewCycleManager,
       ObjectIdentifier cycleObjectId, boolean isBatchProcess) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(definition, "definition");
@@ -389,7 +389,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return !_listenerExecutionDemand.isEmpty();
   }
   
-  public ViewProcessExecutionOptions getExecutionOptions() {
+  public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
 

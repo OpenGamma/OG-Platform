@@ -38,7 +38,7 @@ public abstract class ViewResultModelBuilder {
   protected static MutableFudgeFieldContainer createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
-    message.add(FIELD_VALUATIONTS, resultModel.getEvaluationTime());
+    message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
     message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
     final MutableFudgeFieldContainer resultMsg = context.newMessage();
@@ -85,7 +85,7 @@ public abstract class ViewResultModelBuilder {
     }
     
     resultModel.setViewProcessId(viewProcessId);
-    resultModel.setEvaluationTime(inputDataTimestamp);
+    resultModel.setValuationTime(inputDataTimestamp);
     resultModel.setResultTimestamp(resultTimestamp);
     
     return resultModel;

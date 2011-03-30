@@ -8,13 +8,14 @@ package com.opengamma.engine.view.execution;
 import javax.time.Instant;
 
 /**
- * Provides an infinite sequence of evaluation times based on the current time.
+ * Provides an infinite sequence of view cycle execution options based on the current time.
  */
-public class RealTimeViewEvaluationTimeSequence implements ViewEvaluationTimeSequence {
+public class RealTimeViewCycleExecutionSequence implements ViewCycleExecutionSequence {
 
   @Override
-  public Instant getNextEvaluationTime() {
-    return Instant.now();
+  public ViewCycleExecutionOptions getNext() {
+    Instant now = Instant.now();
+    return new ViewCycleExecutionOptions(now, now);
   }
 
   @Override
@@ -27,7 +28,7 @@ public class RealTimeViewEvaluationTimeSequence implements ViewEvaluationTimeSeq
     if (other == null) {
       return false;
     }
-    return (other instanceof RealTimeViewEvaluationTimeSequence);
+    return (other instanceof RealTimeViewCycleExecutionSequence);
   }
 
   @Override

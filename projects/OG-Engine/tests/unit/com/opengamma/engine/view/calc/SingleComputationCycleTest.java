@@ -23,7 +23,7 @@ import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
@@ -45,7 +45,7 @@ public class SingleComputationCycleTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
-    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
     
     BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
     assertTrue (executor.awaitFirstRun(TIMEOUT));

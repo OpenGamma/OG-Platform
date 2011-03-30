@@ -28,7 +28,7 @@ public class ViewDeltaResultModelMerger implements IncrementalMerger<ViewDeltaRe
       _currentMergedResult.setPreviousResultTimestamp(newResult.getPreviousResultTimestamp());
       _currentMergedResult.setCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
     }
-    _currentMergedResult.setEvaluationTime(newResult.getEvaluationTime());
+    _currentMergedResult.setValuationTime(newResult.getValuationTime());
     _currentMergedResult.setResultTimestamp(newResult.getResultTimestamp());
     _currentMergedResult.ensureCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
     

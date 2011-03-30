@@ -35,8 +35,8 @@ public class ViewComputationResultModelImplTest {
   }
 
   static void checkModel(InMemoryViewResultModel model) {
-    model.setEvaluationTime(Instant.ofEpochMillis(400));
-    assertEquals(Instant.ofEpochMillis(400), model.getEvaluationTime());
+    model.setValuationTime(Instant.ofEpochMillis(400));
+    assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
     model.setResultTimestamp(Instant.ofEpochMillis(500));
     assertEquals(Instant.ofEpochMillis(500), model.getResultTimestamp());
     

@@ -77,7 +77,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalcConfName(), getCycle().getEvaluationTime().toEpochMillisLong(), JobIdSource.getId());
+    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalcConfName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
   }
 
   protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {

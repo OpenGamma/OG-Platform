@@ -27,7 +27,8 @@ import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
@@ -43,7 +44,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private static final long NANOS_PER_MILLISECOND = 1000000;
 
   private final ViewProcessImpl _viewProcess;
-  private final ViewProcessExecutionOptions _executionOptions;
+  private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
   private final ViewCycleManager _cycleManager;
   
@@ -70,7 +71,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    */
   private double _totalTimeNanos;
   
-  public ViewComputationJob(ViewProcessImpl viewProcess, ViewProcessExecutionOptions executionOptions,
+  public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
       ViewProcessContext processContext, ViewCycleManager cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -87,7 +88,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     return _viewProcess;
   }
   
-  private ViewProcessExecutionOptions getExecutionOptions() {
+  private ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
   
@@ -214,10 +215,10 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     // case another cycle will run straight away.
     updateComputationTimes(currentTime, !doFullRecalc);
     
-    Instant evaluationTime = getExecutionOptions().getEvaluationTimeSequence().getNextEvaluationTime();
-    s_logger.debug("Next evaluation time is: {}", evaluationTime);
+    ViewCycleExecutionOptions executionOptions = getExecutionOptions().getExecutionSequence().getNext();
+    s_logger.debug("Next cycle execution options: {}", executionOptions);
     
-    ViewCycleReferenceImpl cycleReference = createCycle(evaluationTime);
+    ViewCycleReferenceImpl cycleReference = createCycle(executionOptions.getValuationTime());
     ViewCycleInternal cycle = cycleReference.getCycle();
     
     if (doFullRecalc) {
@@ -254,7 +255,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     getViewProcess().cycleCompleted(cycle);
-    if (getExecutionOptions().getEvaluationTimeSequence().isEmpty()) {
+    if (getExecutionOptions().getExecutionSequence().isEmpty()) {
       s_logger.debug("Computation job completed for view process {}", getViewProcess());
       getViewProcess().jobCompleted();
       terminate();
@@ -292,22 +293,22 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   //-------------------------------------------------------------------------
-  private ViewCycleReferenceImpl createCycle(Instant evaluationTime) {
+  private ViewCycleReferenceImpl createCycle(Instant valuationTime) {
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
-    ViewEvaluationModel evaluationModel = getOrCompileViewEvaluationModel(evaluationTime);
+    ViewEvaluationModel evaluationModel = getOrCompileViewEvaluationModel(valuationTime);
     return getCycleManager().createViewCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(),
-        evaluationModel, evaluationTime);
+        evaluationModel, valuationTime);
   }
   
-  private ViewEvaluationModel getOrCompileViewEvaluationModel(Instant evaluationTime) {
+  private ViewEvaluationModel getOrCompileViewEvaluationModel(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
-    if (viewEvaluationModel != null && viewEvaluationModel.isValidFor(evaluationTime) && functionInitId == viewEvaluationModel.getFunctionInitId()) {
+    if (viewEvaluationModel != null && viewEvaluationModel.isValidFor(valuationTime) && functionInitId == viewEvaluationModel.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing evaluation times)
       return viewEvaluationModel;
     }
     
-    viewEvaluationModel = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), evaluationTime);
+    viewEvaluationModel = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
     setViewEvaluationModel(viewEvaluationModel);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.

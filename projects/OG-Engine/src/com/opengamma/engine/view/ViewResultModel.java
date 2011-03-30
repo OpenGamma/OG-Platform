@@ -42,7 +42,7 @@ public interface ViewResultModel {
    * 
    * @return the time for which the results were computed, not null
    */
-  Instant getEvaluationTime();
+  Instant getValuationTime();
 
   /**
    * Returns the time at which these results became available.

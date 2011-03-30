@@ -13,7 +13,7 @@ import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -37,7 +37,7 @@ public class ViewRecalculationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestComputationResultListener resultListener = new TestComputationResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
     
     resultListener.getResult(TIMEOUT);  // Consume the initial result
     

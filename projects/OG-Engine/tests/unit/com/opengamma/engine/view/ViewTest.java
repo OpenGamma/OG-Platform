@@ -7,12 +7,10 @@ package com.opengamma.engine.view;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
-
-import java.util.Arrays;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -25,10 +23,9 @@ import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.execution.ArbitraryViewEvaluationTimeSequence;
-import com.opengamma.engine.view.execution.RealTimeViewProcessExecutionOptions;
-import com.opengamma.engine.view.execution.ViewEvaluationTimeSequence;
-import com.opengamma.engine.view.execution.ViewProcessExecutionOptions;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -44,7 +41,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -62,7 +59,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -89,7 +86,7 @@ public class ViewTest {
     
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), RealTimeViewProcessExecutionOptions.INSTANCE);    
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());    
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
     
@@ -115,46 +112,19 @@ public class ViewTest {
     client.setResultListener(resultListener);
     
     final long time0 = System.currentTimeMillis();
-    final ViewEvaluationTimeSequence evaluationTimes = new ArbitraryViewEvaluationTimeSequence(Arrays.asList(
-        Instant.ofEpochMillis(time0),
-        Instant.ofEpochMillis(time0 + 10),
-        Instant.ofEpochMillis(time0 + 20),
-        Instant.ofEpochMillis(time0 + 30)));
-    ViewProcessExecutionOptions testExecutionOptions = new ViewProcessExecutionOptions() {
-      
-      @Override
-      public boolean isRunAsFastAsPossible() {
-        return false;
-      }
-      
-      @Override
-      public Integer getMaxSuccessiveDeltaCycles() {
-        return null;
-      }
-      
-      @Override
-      public String getInputDataSource() {
-        return RealTimeViewProcessExecutionOptions.REAL_TIME_INPUT_DATA_SOURCE;
-      }
-      
-      @Override
-      public ViewEvaluationTimeSequence getEvaluationTimeSequence() {
-        return evaluationTimes;
-      }
-      
-    };
+    final ViewExecutionOptions executionOptions = new ExecutionOptions(ArbitraryViewCycleExecutionSequence.of(time0, time0 + 10, time0 + 20, time0 + 30), false, false, null);
         
-    client.attachToViewProcess(env.getViewDefinition().getName(), testExecutionOptions);
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
     Thread computationThread = env.getCurrentComputationThread(viewProcess);
     
     ViewEvaluationModel compilationModel1 = compilationListener.getResult(Timeout.standardTimeoutMillis());
-    assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     
     computationJob.liveDataChanged();
-    assertEquals(time0 + 10, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    assertEquals(time0 + 10, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
@@ -170,19 +140,19 @@ public class ViewTest {
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.liveDataChanged();
     compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
-    assertEquals(time0 + 20, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    assertEquals(time0 + 20, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
 
     // time0 + 30 requires a rebuild
     computationJob.liveDataChanged();
     ViewEvaluationModel compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(dummy, compilationModel2);
-    assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getEvaluationTime().toEpochMillisLong());
+    assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     
     compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
     resultListener.assertNoResult(Timeout.standardTimeoutMillis());
     
-    assertTrue(evaluationTimes.isEmpty());
+    assertTrue(executionOptions.getExecutionSequence().isEmpty());
     
     // Job should have terminated automatically with no further evaluation times
     assertEquals(ViewProcessState.FINISHED, viewProcess.getState());

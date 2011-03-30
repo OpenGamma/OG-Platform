@@ -30,7 +30,7 @@ import com.opengamma.id.UniqueIdentifier;
 public abstract class InMemoryViewResultModel implements ViewResultModel, Serializable {
   private UniqueIdentifier _viewProcessId;
   private UniqueIdentifier _viewCycleId;
-  private Instant _evaluationTime;
+  private Instant _valuationTime;
   private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
@@ -55,12 +55,12 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   }
 
   @Override
-  public Instant getEvaluationTime() {
-    return _evaluationTime;
+  public Instant getValuationTime() {
+    return _valuationTime;
   }
 
-  public void setEvaluationTime(Instant evaluationTime) {
-    _evaluationTime = evaluationTime;
+  public void setValuationTime(Instant valuationTime) {
+    _valuationTime = valuationTime;
   }
 
   @Override
