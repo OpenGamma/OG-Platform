@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.Executors;
 
 import javax.time.Instant;
@@ -36,9 +35,8 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessImpl;
-import com.opengamma.engine.view.ViewProcessInternal;
-import com.opengamma.engine.view.ViewProcessContext;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
@@ -49,10 +47,15 @@ import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
+import com.opengamma.engine.view.compilation.ViewCompilationServices;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
+import com.opengamma.engine.view.permission.PermissiveViewPermissionProviderFactory;
+import com.opengamma.financial.view.AddViewDefinitionRequest;
+import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.position.impl.MasterPositionSource;
 import com.opengamma.master.security.impl.MasterSecuritySource;
@@ -79,9 +82,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   private final CommandLineBatchJob _job;
   
   /**
-   * View associated with this batch
+   * The view processor
    */
-  private ViewProcessInternal _view;
+  private ViewProcessor _viewProcessor;
+  
+  /**
+   * The view evaluation model
+   */
+  private ViewEvaluationModel _viewEvaluationModel;
   
   /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
@@ -311,7 +319,10 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     }
   }
 
-  public void createView() {
+  public void createViewProcessor() {
+    // REVIEW jonathan 2011-03-30 -- This implementation is way too tightly-coupled to the engine and does not map to
+    // the engine API well at all. See [PLAT-1156]. 
+    
     final CacheManager cacheManager = EHCacheUtils.createCacheManager();
     InMemoryLKVSnapshotProvider snapshotProvider = createSnapshotProvider();
 
@@ -346,27 +357,51 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionCompilationService);
-    ViewProcessContext vpc = new ViewProcessContext(
-        new PermissiveLiveDataEntitlementChecker(), snapshotProvider, snapshotProvider,
-        functionCompilationService, functionResolver, positionSource, securitySource, computationTargetResolver, computationCache,
-        jobDispatcher, viewProcessorQueryReceiver, dependencyGraphExecutorFactory, new DefaultViewPermissionProvider(),
-        new DiscardingGraphStatisticsGathererProvider());
 
-    ViewProcessImpl view = new ViewProcessImpl(_viewDefinitionConfig.getValue(), vpc, new Timer("Batch view timer"));
-    view.init(getValuationTime());
-    setView(view);
+    InMemoryViewDefinitionRepository viewDefinitionRepository = new InMemoryViewDefinitionRepository();
+    viewDefinitionRepository.addViewDefinition(new AddViewDefinitionRequest(_viewDefinitionConfig.getValue()));
+    
+    ViewProcessor viewProcessor = new ViewProcessorImpl(
+        UniqueIdentifier.of("Vp", "Batch"),
+        viewDefinitionRepository,
+        securitySource,
+        positionSource,
+        computationTargetResolver,
+        functionCompilationService,
+        functionResolver,
+        new TestLiveDataClient(),
+        snapshotProvider,
+        snapshotProvider,
+        computationCache,
+        jobDispatcher,
+        viewProcessorQueryReceiver,
+        dependencyGraphExecutorFactory,
+        new DiscardingGraphStatisticsGathererProvider(),
+        new PermissiveViewPermissionProviderFactory());
+        
+    setViewProcessor(viewProcessor);
+
+    // REVIEW jonathan 2011-03-30
+    // Total hack to restore the old functionality for now. There is no longer the concept of initialising a view as
+    // this is now done automatically as required for the next computation cycle. The compiled view is only required
+    // to initialise the database, so this logic probably belongs in the engine, as part of any 'batch' components, and
+    // can run before (and delay) the computation cycle.
+    
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver,
+        functionCompilationService.getFunctionCompilationContext(), computationTargetResolver, functionCompilationService.getExecutorService(), securitySource, positionSource);
+    _viewEvaluationModel = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
     
     for (ComputationTarget target : getViewEvaluationModel().getAllComputationTargets()) {
       _spec2Target.put(target.toSpecification(), target);
     }
   }
   
-  public void setView(ViewProcessInternal view) {
-    _view = view;
+  public void setViewProcessor(ViewProcessor viewProcessor) {
+    _viewProcessor = viewProcessor;
   }
 
-  public ViewProcessInternal getView() {
-    return _view;
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
   }
   
   @Override
@@ -394,11 +429,11 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   }
 
   public ViewDefinition getViewDefinition() {
-    return getView().getDefinition();
+    return _viewDefinitionConfig.getValue();
   }
 
   public ViewEvaluationModel getViewEvaluationModel() {
-    return getView().getViewEvaluationModel(); // current one OK in batch - the view's been init()'ed with the right valuation time above
+    return _viewEvaluationModel;
   }
   
 }

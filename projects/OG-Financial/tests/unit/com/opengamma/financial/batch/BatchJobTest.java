@@ -7,7 +7,7 @@ package com.opengamma.financial.batch;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+
 import java.util.HashSet;
 
 import javax.time.calendar.LocalDate;
@@ -16,14 +16,21 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.PosixParser;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
+import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessInternal;
-import com.opengamma.financial.ViewTestUtils;
+import com.opengamma.financial.security.MockFinancialSecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -228,13 +235,15 @@ public class BatchJobTest {
   }
 
   @Test
-  public void initView() throws Exception {
-    ViewProcessInternal testView = ViewTestUtils.getMockView();
+  public void initViewProcessor() throws Exception {
+    UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
     
     final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
     cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
-    cfgDocument.setValue(testView.getDefinition());
+    
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    cfgDocument.setValue(viewDefinition);
     MockConfigSource cfgSource = new MockConfigSource();
     cfgSource.add(cfgDocument);
     
@@ -247,9 +256,17 @@ public class BatchJobTest {
 
     CommandLineBatchJob job = new CommandLineBatchJob();
     job.setBatchDbManager(dbManager);
-    job.setPositionSource(testView.getProcessingContext().getPositionSource());
-    job.setSecuritySource(testView.getProcessingContext().getSecuritySource());
-    job.setFunctionCompilationService(testView.getProcessingContext().getFunctionCompilationService());
+    
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    job.setPositionSource(positionSource);
+    
+    job.setSecuritySource(new MockFinancialSecuritySource());
+    
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    CompiledFunctionService functionCompilationService = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
+    job.setFunctionCompilationService(functionCompilationService);
+    
     job.setFunctionExecutionContext(new FunctionExecutionContext());
     job.setConfigSource(cfgSource);
     
@@ -259,7 +276,7 @@ public class BatchJobTest {
     job.initialize(line, null);
     
     job.getRuns().get(0).createViewDefinition();
-    job.getRuns().get(0).createView();
+    job.getRuns().get(0).createViewProcessor();
   }
 
 }
