@@ -129,8 +129,9 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, getExpiry().getExpiry());
+    final double settlementTime = actAct.getDayCountFraction(zonedDate, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, _isLong);
+    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 
   @Override

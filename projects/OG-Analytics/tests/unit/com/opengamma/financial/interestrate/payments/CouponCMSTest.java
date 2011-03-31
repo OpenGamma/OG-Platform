@@ -47,7 +47,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.tuple.DoublesPair;
 
 public class CouponCMSTest {
   //Swap 5Y
@@ -301,7 +300,7 @@ public class CouponCMSTest {
 
     double bs(double strike, double forward) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, true);
-      double volatility = _sabrParameter.getVolatility(new DoublesPair(_timeToExpiry, _maturity), strike, forward);
+      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, forward);
       BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
       Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
