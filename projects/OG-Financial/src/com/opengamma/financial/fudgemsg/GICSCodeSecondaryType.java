@@ -6,8 +6,8 @@
 package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
-import org.fudgemsg.types.PrimitiveFieldTypes;
 import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.security.equity.GICSCode;
 
@@ -23,7 +23,7 @@ public final class GICSCodeSecondaryType extends SecondaryFieldType<GICSCode, In
   public static final GICSCodeSecondaryType INSTANCE = new GICSCodeSecondaryType();
 
   private GICSCodeSecondaryType() {
-    super(PrimitiveFieldTypes.INT_TYPE, GICSCode.class);
+    super(FudgeWireType.INT, GICSCode.class);
   }
 
   @Override

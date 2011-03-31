@@ -7,7 +7,7 @@ package com.opengamma.id;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
  * Defines a {@code ObjectIdentifier} as a Fudge type using a String.
@@ -30,7 +30,7 @@ public final class ObjectIdentifierFudgeType extends SecondaryFieldType<ObjectId
    * Creates an instance.
    */
   private ObjectIdentifierFudgeType() {
-    super(StringFieldType.INSTANCE, ObjectIdentifier.class);
+    super(FudgeWireType.STRING, ObjectIdentifier.class);
   }
 
   //-------------------------------------------------------------------------

@@ -9,7 +9,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.PrimitiveFieldTypes;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.util.PublicSPI;
 
@@ -58,9 +58,9 @@ public class ValueSnapshot {
   public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     
     final MutableFudgeFieldContainer msg = context.newMessage();
-    msg.add("marketValue", null, PrimitiveFieldTypes.DOUBLE_TYPE, getMarketValue());
+    msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue());
     if (getOverrideValue() != null) {
-      msg.add("overrideValue", null, PrimitiveFieldTypes.DOUBLE_TYPE, getOverrideValue().doubleValue());
+      msg.add("overrideValue", null, FudgeWireType.DOUBLE, getOverrideValue().doubleValue());
     }
     return msg;
   }

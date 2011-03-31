@@ -31,7 +31,7 @@ public class Data implements java.io.Serializable {
       try {
         final org.fudgemsg.FudgeFieldContainer fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
         final java.util.List<com.opengamma.language.Value> fudge2 = new java.util.ArrayList<com.opengamma.language.Value> ();
-        for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.types.IndicatorFieldType.INSTANCE)  {
+        for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
           try {
             final com.opengamma.language.Value fudge4;
             fudge4 = com.opengamma.language.Value.fromFudgeMsg (fudge1.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge3));
@@ -53,11 +53,11 @@ public class Data implements java.io.Serializable {
       try {
         final org.fudgemsg.FudgeFieldContainer fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
         final java.util.List<com.opengamma.language.Value[]> fudge2 = new java.util.ArrayList<com.opengamma.language.Value[]> ();
-        for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.types.IndicatorFieldType.INSTANCE)  {
+        for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
           try {
             final org.fudgemsg.FudgeFieldContainer fudge4 = fudge1.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge3);
             final java.util.List<com.opengamma.language.Value> fudge5 = new java.util.ArrayList<com.opengamma.language.Value> ();
-            for (org.fudgemsg.FudgeField fudge6 : fudge4)if (fudge6.getType() != org.fudgemsg.types.IndicatorFieldType.INSTANCE)  {
+            for (org.fudgemsg.FudgeField fudge6 : fudge4)if (fudge6.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
               try {
                 final com.opengamma.language.Value fudge7;
                 fudge7 = com.opengamma.language.Value.fromFudgeMsg (fudge4.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge6));

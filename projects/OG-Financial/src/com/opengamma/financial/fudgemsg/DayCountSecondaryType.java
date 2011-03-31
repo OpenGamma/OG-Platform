@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -24,7 +24,7 @@ public final class DayCountSecondaryType extends SecondaryFieldType<DayCount, St
   public static final DayCountSecondaryType INSTANCE = new DayCountSecondaryType();
 
   private DayCountSecondaryType() {
-    super(StringFieldType.INSTANCE, DayCount.class);
+    super(FudgeWireType.STRING, DayCount.class);
   }
 
   @Override
