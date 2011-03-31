@@ -6,10 +6,6 @@
 
 package com.opengamma.language.definition;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -162,13 +158,6 @@ public final class JavaTypeInfo<T> {
   public static <T> Builder<T> builder(final Class<T> rawClass) {
     ArgumentChecker.notNull(rawClass, "rawClass");
     return new Builder<T>(rawClass);
-  }
-
-  public static List<JavaTypeInfo<?>> asList(final JavaTypeInfo<?>... types) {
-    if (types.length == 1) {
-      return Collections.<JavaTypeInfo<?>>singletonList(types[0]);
-    }
-    return Arrays.asList(types);
   }
 
 }

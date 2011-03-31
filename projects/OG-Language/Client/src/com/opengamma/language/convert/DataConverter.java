@@ -6,7 +6,9 @@
 
 package com.opengamma.language.convert;
 
-import java.util.List;
+import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
+
+import java.util.Map;
 
 import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
@@ -24,8 +26,8 @@ public final class DataConverter implements TypeConverter {
   private static final JavaTypeInfo<Value[]> VALUE_1 = JavaTypeInfo.builder(Value[].class).get();
   private static final JavaTypeInfo<Value[][]> VALUE_2 = JavaTypeInfo.builder(Value[][].class).get();
 
-  private static final List<JavaTypeInfo<?>> TO_DATA = JavaTypeInfo.asList(VALUE, VALUE_1, VALUE_2);
-  private static final List<JavaTypeInfo<?>> FROM_DATA = JavaTypeInfo.asList(DATA);
+  private static final TypeMap TO_DATA = TypeMap.of(ZERO_LOSS, VALUE, VALUE_1, VALUE_2);
+  private static final TypeMap FROM_DATA = TypeMap.of(ZERO_LOSS, DATA);
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {
@@ -33,7 +35,7 @@ public final class DataConverter implements TypeConverter {
     if (clazz == Data.class) {
       return true;
     } else {
-      for (JavaTypeInfo<?> toData : TO_DATA) {
+      for (JavaTypeInfo<?> toData : TO_DATA.keySet()) {
         if (clazz == toData.getRawClass()) {
           return true;
         }
@@ -43,7 +45,7 @@ public final class DataConverter implements TypeConverter {
   }
 
   @Override
-  public List<JavaTypeInfo<?>> getConversionsTo(JavaTypeInfo<?> targetType) {
+  public Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
     if (clazz == Data.class) {
       return TO_DATA;
@@ -62,11 +64,11 @@ public final class DataConverter implements TypeConverter {
     final Class<?> clazz = type.getRawClass();
     if (clazz == Data.class) {
       if (value instanceof Value) {
-        conversionContext.setResult(1, DataUtil.of((Value) value));
+        conversionContext.setResult(DataUtil.of((Value) value));
       } else if (value instanceof Value[]) {
-        conversionContext.setResult(1, DataUtil.of((Value[]) value));
+        conversionContext.setResult(DataUtil.of((Value[]) value));
       } else if (value instanceof Value[][]) {
-        conversionContext.setResult(1, DataUtil.of((Value[][]) value));
+        conversionContext.setResult(DataUtil.of((Value[][]) value));
       } else {
         conversionContext.setFail();
       }
@@ -76,17 +78,17 @@ public final class DataConverter implements TypeConverter {
       final Data dataValue = (Data) value;
       if (clazz == Value.class) {
         if (dataValue.getSingle() != null) {
-          conversionContext.setResult(1, dataValue.getSingle());
+          conversionContext.setResult(dataValue.getSingle());
           return;
         }
       } else if (clazz == Value[].class) {
         if (dataValue.getLinear() != null) {
-          conversionContext.setResult(1, dataValue.getLinear());
+          conversionContext.setResult(dataValue.getLinear());
           return;
         }
       } else if (clazz == Value[][].class) {
         if (dataValue.getMatrix() != null) {
-          conversionContext.setResult(1, dataValue.getMatrix());
+          conversionContext.setResult(dataValue.getMatrix());
           return;
         }
       }

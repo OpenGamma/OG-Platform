@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
 
-import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ import com.opengamma.language.invoke.TypeConverter;
 
   protected <J> void assertConversionCount(final int expected, final TypeConverter converter,
       final JavaTypeInfo<J> target) {
-    final List<JavaTypeInfo<?>> conversions = converter.getConversionsTo(target);
+    final Map<JavaTypeInfo<?>, Integer> conversions = converter.getConversionsTo(target);
     assertNotNull(conversions);
     assertEquals(expected, conversions.size());
   }
