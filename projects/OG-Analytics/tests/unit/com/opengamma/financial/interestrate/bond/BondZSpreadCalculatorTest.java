@@ -6,13 +6,16 @@
 package com.opengamma.financial.interestrate.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -26,6 +29,7 @@ public class BondZSpreadCalculatorTest {
   private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(YIELD));
   private static final YieldCurveBundle BUNDLE = new YieldCurveBundle();
   private static final String CURVE_NAME = "Flat 5% curve";
+  private static final Currency CUR = Currency.USD;
   private static Bond BOND;
 
   static {
@@ -38,9 +42,9 @@ public class BondZSpreadCalculatorTest {
     BUNDLE.setCurve(CURVE_NAME, CURVE);
     BUNDLE.setCurve("6% curve", new YieldCurve(ConstantDoublesCurve.from(0.06)));
 
-    BOND = new Bond(paymentTimes, 0.0, "6% curve");
+    BOND = new Bond(CUR, paymentTimes, 0.0, "6% curve");
     final double rate = PRC.visit(BOND, BUNDLE);
-    BOND = new Bond(paymentTimes, rate, CURVE_NAME);
+    BOND = new Bond(CUR, paymentTimes, rate, CURVE_NAME);
   }
 
   @Test

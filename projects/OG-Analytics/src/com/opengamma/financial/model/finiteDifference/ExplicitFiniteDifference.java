@@ -5,16 +5,18 @@
  */
 package com.opengamma.financial.model.finiteDifference;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.math.surface.Surface;
 
 /**
- * Explicit solver for the PDE {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)V = 0$}
+ * Explicit solver for the PDE {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)f = 0$}
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use 
  */
-public class ExplicitFiniteDifference {
+public class ExplicitFiniteDifference implements ConvectionDiffusionPDESolver {
 
-  public double[] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
-
+  @Override
+  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
     final double dt = tMax / (tSteps);
     final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
     final double nu1 = dt / dx / dx;
@@ -50,7 +52,7 @@ public class ExplicitFiniteDifference {
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      double q = sum + lowerBoundary.getConstant(pdeData, t);
+      double q = sum + lowerBoundary.getConstant(pdeData, t, dx);
 
       sum = 0;
       temp = lowerBoundary.getLeftMatrixCondition(pdeData, t);
@@ -64,7 +66,7 @@ public class ExplicitFiniteDifference {
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xSteps + k + 1 - temp.length];
       }
-      q = sum + upperBoundary.getConstant(pdeData, t);
+      q = sum + upperBoundary.getConstant(pdeData, t, dx);
 
       sum = 0;
       temp = upperBoundary.getLeftMatrixCondition(pdeData, t);
@@ -79,7 +81,17 @@ public class ExplicitFiniteDifference {
       f = fNew;
     }
 
-    return f;
+    final double[][] res = new double[2][];
+    res[0] = x;
+    res[1] = f;
 
+    return res;
+
+  }
+
+  @Override
+  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
+    throw new NotImplementedException();
   }
 }

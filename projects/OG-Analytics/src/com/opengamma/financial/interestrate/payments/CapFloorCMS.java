@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.payments;
 import com.opengamma.financial.instrument.payment.CapFloor;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a caplet/floorlet on CMS rate.
@@ -25,16 +26,19 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
 
   /**
    * Constructor from floating coupon details and underlying swap.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
+   * @param settlementTime TODO
    * @param strike The strike.
    * @param isCap The cap (true) /floor (false) flag.
    */
-  public CapFloorCMS(double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double strike, boolean isCap) {
-    super(paymentTime, paymentYearFraction, notional, fixingTime, underlyingSwap);
+  public CapFloorCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime,
+      double strike, boolean isCap) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime, underlyingSwap, settlementTime);
     _strike = strike;
     _isCap = isCap;
   }
@@ -47,7 +51,8 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
    * @return The CMS cap/floor.
    */
   public static CapFloorCMS from(CouponCMS coupon, double strike, boolean isCap) {
-    return new CapFloorCMS(coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), coupon.getUnderlyingSwap(), strike, isCap);
+    return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), coupon.getUnderlyingSwap(),
+        coupon.getSettlementTime(), strike, isCap);
   }
 
   @Override

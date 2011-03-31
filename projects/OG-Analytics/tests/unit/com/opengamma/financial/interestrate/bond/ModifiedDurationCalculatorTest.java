@@ -7,8 +7,11 @@ package com.opengamma.financial.interestrate.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -16,6 +19,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 public class ModifiedDurationCalculatorTest {
   private static final ModifiedDurationCalculator MDC = new ModifiedDurationCalculator();
   private static final String CURVE_NAME = "Test Curve";
+  private static final Currency CUR = Currency.USD;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
@@ -24,12 +28,12 @@ public class ModifiedDurationCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDirtyPrice() {
-    MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.02, CURVE_NAME), -100, 4);
+    MDC.calculate(new Bond(CUR, new double[] {1, 2, 3}, 0.02, CURVE_NAME), -100, 4);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeCompoundingFrequency() {
-    MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.02, CURVE_NAME), 100, -3);
+    MDC.calculate(new Bond(CUR, new double[] {1, 2, 3}, 0.02, CURVE_NAME), 100, -3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -40,7 +44,7 @@ public class ModifiedDurationCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    final Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     MDC.calculate(bond, 0.0, 2);
   }
 
@@ -53,7 +57,7 @@ public class ModifiedDurationCalculatorTest {
       paymentTimes[i] = (i + 1) * tau;
     }
 
-    final Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     MDC.calculate(bond, 0.956, 0);
   }
 
@@ -66,7 +70,7 @@ public class ModifiedDurationCalculatorTest {
       paymentTimes[i] = (i + 1) * tau;
     }
 
-    final Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     final double duration = MDC.calculate(bond, 1.0, 4);
     assertEquals(n * tau, duration, 1e-8);
   }
@@ -85,7 +89,7 @@ public class ModifiedDurationCalculatorTest {
 
     final double yield = 0.5;
     final double coupon = (Math.pow(1 + yield / m, m * tau) - 1) / alpha;
-    final Bond bond = new Bond(paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
     final double duration = MDC.calculate(bond, 1.0, m);
 
     double sum = 0.0;
@@ -106,7 +110,7 @@ public class ModifiedDurationCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    final Bond bond = new Bond(paymentTimes, 0.05, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.05, CURVE_NAME);
     final double duration1 = MDC.calculate(bond, 0.889, 2);
     final double duration2 = MDC.calculate(bond, 0.789, 2);
     assertTrue(duration1 > duration2);

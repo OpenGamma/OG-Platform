@@ -13,6 +13,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -24,7 +25,7 @@ public class Bond implements InterestRateDerivative {
   private final PaymentFixed _principle;
   private final double _accruedInterest;
 
-  public Bond(final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
+  public Bond(Currency currency, final double[] paymentTimes, final double couponRate, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
@@ -33,29 +34,29 @@ public class Bond implements InterestRateDerivative {
     final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
       yearFraction = paymentTimes[i] - (i == 0 ? 0.0 : paymentTimes[i - 1]);
-      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFraction, couponRate);
+      payments[i] = new CouponFixed(currency, paymentTimes[i], yieldCurveName, yearFraction, couponRate);
     }
-    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _principle = new PaymentFixed(currency, paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = 0.0;
   }
 
   // TODO don't need this constructor
-  public Bond(final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
+  public Bond(Currency currency, final double[] paymentTimes, final double couponRate, final double yearFraction, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
     final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFraction, couponRate);
+      payments[i] = new CouponFixed(currency, paymentTimes[i], yieldCurveName, yearFraction, couponRate);
     }
-    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _principle = new PaymentFixed(currency, paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = accruedInterest;
   }
 
-  public Bond(final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final double accruedInterest, final String yieldCurveName) {
+  public Bond(Currency currency, final double[] paymentTimes, final double[] coupons, final double[] yearFractions, final double accruedInterest, final String yieldCurveName) {
     Validate.notNull(paymentTimes, "payment times");
     Validate.notNull(coupons, "coupons");
     Validate.notNull(yearFractions, "year fractions");
@@ -68,11 +69,19 @@ public class Bond implements InterestRateDerivative {
     Validate.isTrue(yearFractions.length == n, "Must have a payment for each payment time");
     final CouponFixed[] payments = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      payments[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFractions[i], coupons[i]);
+      payments[i] = new CouponFixed(currency, paymentTimes[i], yieldCurveName, yearFractions[i], coupons[i]);
     }
-    _principle = new PaymentFixed(paymentTimes[n - 1], 1.0, yieldCurveName);
+    _principle = new PaymentFixed(currency, paymentTimes[n - 1], 1.0, yieldCurveName);
     _coupons = new GenericAnnuity<CouponFixed>(payments);
     _accruedInterest = accruedInterest;
+  }
+
+  /**
+   * Gets the _currency field.
+   * @return the _currency
+   */
+  public Currency getCurrency() {
+    return _coupons.getCurrency();
   }
 
   /**

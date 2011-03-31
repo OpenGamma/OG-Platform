@@ -140,7 +140,7 @@ public class CouponIborDefinitionTest {
     String fundingCurve = "Funding";
     String forwardCurve = "Forward";
     String[] curves = {fundingCurve, forwardCurve};
-    CouponIbor couponIbor = new CouponIbor(paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING, forwardCurve);
+    CouponIbor couponIbor = new CouponIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING, forwardCurve);
     CouponIbor convertedDefinition = (CouponIbor) IBOR_COUPON.toDerivative(REFERENCE_DATE, curves);
     assertEquals(couponIbor, convertedDefinition);
   }

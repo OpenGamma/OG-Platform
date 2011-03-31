@@ -13,14 +13,12 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class SamplePearsonKurtosisCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _kurtosis = new SampleFisherKurtosisCalculator();
+  private static final Function1D<double[], Double> KURTOSIS = new SampleFisherKurtosisCalculator();
 
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least two points to calculate kurtosis");
-    }
-    return _kurtosis.evaluate(x) + 3;
+    Validate.isTrue(x.length >= 4, "Need at least four points to calculate kurtosis");
+    return KURTOSIS.evaluate(x) + 3;
   }
 }

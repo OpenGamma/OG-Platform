@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -30,18 +31,15 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.instrument.swap.FixedFloatSwapDefinition;
-import com.opengamma.financial.instrument.swap.FixedSwapLegDefinition;
-import com.opengamma.financial.instrument.swap.FloatingSwapLegDefinition;
-import com.opengamma.financial.instrument.swap.SwapConvention;
-import com.opengamma.financial.instrument.swap.TenorSwapDefinition;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -109,7 +107,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final double coupon = security.getCouponRate() / 100;
     final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-    return new BondDefinition(nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
+    return new BondDefinition(security.getCurrency(), nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
   }
 
   @Override
@@ -119,8 +117,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final Calendar calendar = getCalendar(regionId);
     final Currency currency = security.getCurrency();
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
-    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode()
-        + "_CASH_CONVENTION");
+    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
     //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
     return new CashDefinition(maturityDate, 0, convention);
   }
@@ -172,7 +169,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     }
   }
 
-  private FixedIncomeInstrumentDefinition<FixedCouponSwap<Payment>> getFixedFloatSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed) {
+  private SwapFixedIborSpreadDefinition getFixedFloatSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed) { //FixedIncomeInstrumentDefinition<FixedCouponSwap<Payment>>
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
@@ -183,12 +180,12 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final Calendar calendar = getCalendar(regionId);
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_SWAP"));
-    final FixedSwapLegDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions);
-    final FloatingSwapLegDefinition floatingLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, conventions);
-    return new FixedFloatSwapDefinition(fixedLegDefinition, floatingLegDefinition);
+    final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, currency, conventions, payFixed);
+    final AnnuityCouponIborSpreadDefinition floatingLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, conventions, !payFixed);
+    return new SwapFixedIborSpreadDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 
-  private FixedIncomeInstrumentDefinition<TenorSwap<Payment>> getTenorSwapDefinition(final SwapSecurity swapSecurity) {
+  private SwapIborIborDefinition getTenorSwapDefinition(final SwapSecurity swapSecurity) { //FixedIncomeInstrumentDefinition<TenorSwap<Payment>> 
     final ZonedDateTime effectiveDate = swapSecurity.getEffectiveDate().toZonedDateTime();
     final ZonedDateTime maturityDate = swapSecurity.getMaturityDate().toZonedDateTime();
     final SwapLeg payLeg = swapSecurity.getPayLeg();
@@ -198,36 +195,57 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final Calendar calendar = getCalendar(payLeg.getRegionIdentifier());
     final String currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
-    final FloatingSwapLegDefinition payLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatPayLeg, calendar, currency, conventions);
-    final FloatingSwapLegDefinition receiveLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatReceiveLeg, calendar, currency, conventions);
-    return new TenorSwapDefinition(payLegDefinition, receiveLegDefinition);
+    final AnnuityCouponIborSpreadDefinition payLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatPayLeg, calendar, currency, conventions, true);
+    final AnnuityCouponIborSpreadDefinition receiveLegDefinition = getFloatingSwapLegDefinition(effectiveDate, maturityDate, floatReceiveLeg, calendar, currency, conventions, false);
+    return new SwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
   }
 
-  private FixedSwapLegDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
-      final String currency, final ConventionBundle conventions) {
-    final ZonedDateTime[] nominalDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, fixedLeg.getFrequency());
-    //TODO are settlement days really 0 for swaps?    
-    final ZonedDateTime[] settlementDates = ScheduleCalculator.getAdjustedDateSchedule(nominalDates, fixedLeg.getBusinessDayConvention(), calendar, 0);
+  private AnnuityCouponFixedDefinition getFixedSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
+      final String currency, final ConventionBundle conventions, boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double fixedRate = fixedLeg.getRate();
-    final SwapConvention convention = new SwapConvention(0, conventions.getSwapFixedLegDayCount(), conventions.getBusinessDayConvention(), calendar, false, currency + "_FIXED_LEG_SWAP_CONVENTION");
-    return new FixedSwapLegDefinition(effectiveDate, nominalDates, settlementDates, notional, fixedRate, convention);
+    return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, maturityDate, fixedLeg.getFrequency(), calendar, fixedLeg.getDayCount(),
+        fixedLeg.getBusinessDayConvention(), conventions.isEOMConvention(), notional, fixedRate, isPayer);
   }
 
-  private FloatingSwapLegDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg, final Calendar calendar,
-      final String currency, final ConventionBundle conventions) {
-    final ZonedDateTime[] nominalDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
+  private AnnuityCouponIborSpreadDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg,
+      final Calendar calendar, final String currency, final ConventionBundle conventions, boolean isPayer) {
+    //    final ZonedDateTime[] nominalDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     //TODO are settlement days really 0 for swaps?    
-    final ZonedDateTime[] settlementDates = ScheduleCalculator.getAdjustedDateSchedule(nominalDates, floatLeg.getBusinessDayConvention(), calendar, 0);
-    final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar,
-        conventions.getSwapFloatingLegSettlementDays());
-    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
+    //    final ZonedDateTime[] settlementDates = ScheduleCalculator.getAdjustedDateSchedule(nominalDates, floatLeg.getBusinessDayConvention(), calendar, 0);
+    //    final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar,
+    //        conventions.getSwapFloatingLegSettlementDays());
+    //    final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), calendar, floatLeg.getFrequency());
     final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     final double initialRate = floatLeg.getInitialFloatingRate();
     final double spread = floatLeg.getSpread();
-    final SwapConvention convention = new SwapConvention(0, conventions.getSwapFloatingLegDayCount(), conventions.getSwapFloatingLegBusinessDayConvention(), calendar, false, currency
-        + "_FLOATING_LEG_SWAP_CONVENTION");
-    return new FloatingSwapLegDefinition(effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, spread, convention);
+    //    final SwapConvention convention = new SwapConvention(0, conventions.getSwapFloatingLegDayCount(), conventions.getSwapFloatingLegBusinessDayConvention(), calendar, false, currency
+    //        + "_FLOATING_LEG_SWAP_CONVENTION");
+    // TODO: index period can be different from leg period
+    // FIXME: convert frequency to period in a better way
+    Frequency freq = floatLeg.getFrequency();
+    Period tenor = Period.ofMonths(3);
+    if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
+      tenor = Period.ofMonths(12);
+    } else {
+      if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
+        tenor = Period.ofMonths(6);
+      } else {
+        if (freq.getConventionName() == Frequency.QUARTERLY_NAME) {
+          tenor = Period.ofMonths(3);
+        } else {
+          if (freq.getConventionName() == Frequency.MONTHLY_NAME) {
+            tenor = Period.ofMonths(1);
+          }
+        }
+      }
+    }
+
+    final IborIndex index = new IborIndex(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), tenor, conventions.getSettlementDays(), calendar, floatLeg.getDayCount(),
+        floatLeg.getBusinessDayConvention(), conventions.isEOMConvention());
+    AnnuityCouponIborSpreadDefinition annuity = AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer);
+    annuity.getNthPayment(0).fixingProcess(initialRate);
+    return annuity;
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {

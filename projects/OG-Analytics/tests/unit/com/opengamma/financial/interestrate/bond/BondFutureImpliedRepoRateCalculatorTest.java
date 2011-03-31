@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -19,6 +22,7 @@ public class BondFutureImpliedRepoRateCalculatorTest {
   private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
   private static final BondFutureImpliedRepoRateCalculator IRR_CALCULATOR = BondFutureImpliedRepoRateCalculator.getInstance();
   private static final String NAME = "A";
+  private static final Currency CUR = Currency.USD;
   private static final double[] COUPONS = new double[] {0.03, 0.04, 0.05};
   private static final double[] DELIVERY_TIMES = new double[] {1.5, 1.5, 1.5};
   private static final double[] CLEAN_PRICES = new double[] {97., 98., 99.};
@@ -27,9 +31,9 @@ public class BondFutureImpliedRepoRateCalculatorTest {
   private static final double[] REPO_RATES = new double[] {0.03, 0.02, 0.03};
   private static final BondFutureDeliverableBasketDataBundle BASKET_DATA = new BondFutureDeliverableBasketDataBundle(CLEAN_PRICES, REPO_RATES);
   private static final BondForward[] DELIVERABLES = new BondForward[] {
-      new BondForward(new Bond(new double[] {1, 2, 3}, COUPONS[0], NAME), DELIVERY_TIMES[0], ACCRUED_INTEREST[0], ACCRUED_INTEREST_AT_DELIVERY[0]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, COUPONS[1], NAME), DELIVERY_TIMES[1], ACCRUED_INTEREST[1], ACCRUED_INTEREST_AT_DELIVERY[1]),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, COUPONS[2], NAME), DELIVERY_TIMES[2], ACCRUED_INTEREST[2], ACCRUED_INTEREST_AT_DELIVERY[2])};
+      new BondForward(new Bond(CUR, new double[] {1, 2, 3}, COUPONS[0], NAME), DELIVERY_TIMES[0], ACCRUED_INTEREST[0], ACCRUED_INTEREST_AT_DELIVERY[0]),
+      new BondForward(new Bond(CUR, new double[] {1, 2, 3, 4, 5, 6}, COUPONS[1], NAME), DELIVERY_TIMES[1], ACCRUED_INTEREST[1], ACCRUED_INTEREST_AT_DELIVERY[1]),
+      new BondForward(new Bond(CUR, new double[] {1, 2, 3, 4, 5}, COUPONS[2], NAME), DELIVERY_TIMES[2], ACCRUED_INTEREST[2], ACCRUED_INTEREST_AT_DELIVERY[2])};
   private static final double[] CONVERSION_FACTORS = new double[] {1, 1, 1};
   private static final double FUTURE_PRICE = 105;
   private static final BondFuture FUTURE = new BondFuture(DELIVERABLES, CONVERSION_FACTORS, FUTURE_PRICE);

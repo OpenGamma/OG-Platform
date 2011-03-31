@@ -40,11 +40,22 @@ public class CouponCMSReplicationSABRMethod {
     _integrationInterval = 1.00;
   }
 
+  /**
+   * Constructor of the CMS replication method with the integration range. 
+   * @param integrationInterval Integration range.
+   */
   public CouponCMSReplicationSABRMethod(double integrationInterval) {
     _integrationInterval = integrationInterval;
   }
 
+  /**
+   * Compute the price of a CMS coupon by replication in SABR framework. 
+   * @param cmsCoupon The CMS coupon.
+   * @param sabrData The SABR and curve data.
+   * @return The coupon price.
+   */
   public double price(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
+    // TODO: implement CMS coupon as a cap with strike 0.
     SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
     FixedCouponSwap<? extends Payment> underlyingSwap = cmsCoupon.getUnderlyingSwap();
     double forward = PRC.visit(underlyingSwap, sabrData);
@@ -107,18 +118,13 @@ public class CouponCMSReplicationSABRMethod {
       _nbFixedPeriod = cmsCoupon.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCoupon.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
-      _delta = cmsCoupon.getPaymentTime() - cmsCoupon.getFixingTime();
-      //FIXME: The delta definition should be improved.
-      _eta = -_delta / _tau;
+      _delta = cmsCoupon.getPaymentTime() - cmsCoupon.getSettlementTime();
+      _eta = -_delta;
       _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCoupon.getFixingTime();
-      // FIXME: A better notion of maturity is required
+      // TODO: A better notion of maturity may be required (using period?)
       AnnuityCouponFixed annuityFixed = cmsCoupon.getUnderlyingSwap().getFixedLeg();
-      double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
-      if (annuityFixed.getNumberOfPayments() >= 2) {
-        maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
-      }
-      _maturity = maturity;
+      _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCoupon.getSettlementTime();
       _forward = forward;
     }
 
@@ -135,7 +141,7 @@ public class CouponCMSReplicationSABRMethod {
      * @return The discount factor.
      */
     private double h(double x) {
-      return Math.pow(1.0 + _tau * x, _eta);
+      return Math.pow(1.0 + x / _nbFixedPaymentYear, _eta);
     }
 
     /**
@@ -145,7 +151,7 @@ public class CouponCMSReplicationSABRMethod {
      */
     private double g(double x) {
       if (x >= EPS) {
-        double periodFactor = 1 + x / _nbFixedPaymentYear;
+        double periodFactor = 1 + _tau * x;
         double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
         return 1.0 / x * (1.0 - nPeriodDiscount);
       }
@@ -161,7 +167,7 @@ public class CouponCMSReplicationSABRMethod {
       double g;
       double h;
       if (x >= EPS) {
-        double periodFactor = 1 + x / _nbFixedPaymentYear;
+        double periodFactor = 1 + _tau * x;
         double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
         g = 1.0 / x * (1.0 - nPeriodDiscount);
         h = Math.pow(1.0 + _tau * x, _eta);
@@ -178,7 +184,7 @@ public class CouponCMSReplicationSABRMethod {
      * @return The derivative (first element is the first derivative, second element is second derivative.
      */
     private double[] kpkpp(double x) {
-      double periodFactor = 1 + x / _nbFixedPaymentYear;
+      double periodFactor = 1 + _tau * x;
       double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
       /**
        * The value of the annuity and its first and second derivative.

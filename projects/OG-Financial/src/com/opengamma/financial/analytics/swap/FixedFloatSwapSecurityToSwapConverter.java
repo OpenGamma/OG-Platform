@@ -126,7 +126,7 @@ public class FixedFloatSwapSecurityToSwapConverter {
     if (n >= paymentTimes.length) {
       //all payments are in the past - return a dummy annuity with zero notional a one payment (of zero) at zero and zero spread 
       //TODO may want to handle this case differently 
-      return new GenericAnnuity<Payment>(new Payment[] {new PaymentFixed(0, 0, fundingCurveName)});
+      return new GenericAnnuity<Payment>(new Payment[] {new PaymentFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), 0, 0, fundingCurveName)});
     }
 
     if (n > 0) {
@@ -141,10 +141,11 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final Payment[] payments = new Payment[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
       if (resetTimes[i] < 0.0) {
-        payments[i] = new CouponFixed(paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional, initialRate);
+        payments[i] = new CouponFixed(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional,
+            initialRate);
       } else {
-        payments[i] = new CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i],
-            spreads[i], liborCurveName);
+        payments[i] = new CouponIbor(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), paymentTimes[i], fundingCurveName, yearFractions[i], (isPayer ? -1.0 : 1.0) * notional,
+            resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
       }
     }
 
@@ -162,13 +163,13 @@ public class FixedFloatSwapSecurityToSwapConverter {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final int n = ScheduleCalculator.numberOfNegativeValues(paymentTimes);
     if (n >= paymentTimes.length) {
-      return new AnnuityCouponFixed(new double[] {0.0}, 0.0, 0.0, fundingCurveName, isPayer);
+      return new AnnuityCouponFixed(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), new double[] {0.0}, 0.0, 0.0, fundingCurveName, isPayer);
     }
     if (n > 0) {
       paymentTimes = ScheduleCalculator.removeFirstNValues(paymentTimes, n);
       yearFractions = ScheduleCalculator.removeFirstNValues(yearFractions, n);
     }
-    return new AnnuityCouponFixed(paymentTimes, notional, marketRate, yearFractions, fundingCurveName, isPayer);
+    return new AnnuityCouponFixed(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), paymentTimes, notional, marketRate, yearFractions, fundingCurveName, isPayer);
   }
 
 }

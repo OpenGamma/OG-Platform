@@ -27,20 +27,26 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * Flag indicating if the option is long (true) or short (false).
    */
   private final boolean _isLong;
+  /**
+   * The time (in years) to cash settlement.
+   */
+  private final double _settlementTime;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flqg.
    * @param expiryTime The expiry time.
    * @param strike The strike
    * @param underlyingSwap The underlying swap.
+   * @param settlementTime The time (in years) to cash settlement.
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionCashFixedIbor(double expiryTime, double strike, FixedCouponSwap<? extends Payment> underlyingSwap, boolean isCall, boolean isLong) {
+  private SwaptionCashFixedIbor(double expiryTime, double strike, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isCall, boolean isLong) {
     super(strike, expiryTime, isCall);
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
+    _settlementTime = settlementTime;
     _isLong = isLong;
   }
 
@@ -48,15 +54,15 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * Builder from the expiry date, the underlying swap and the long/short flqg.
    * @param expiryTime The expiry time.
    * @param underlyingSwap The underlying swap.
+   * @param settlementTime The time (in years) to cash settlement.
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionCashFixedIbor from(double expiryTime, FixedCouponSwap<? extends Payment> underlyingSwap, boolean isLong) {
+  public static SwaptionCashFixedIbor from(double expiryTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isLong) {
     Validate.notNull(underlyingSwap, "underlying swap");
-    // A swaption payer can be consider as a call on the swap rate.
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Is working only for swap with same rate on all coupons and standard conventions.
-    return new SwaptionCashFixedIbor(expiryTime, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
+    return new SwaptionCashFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
 
   /**
@@ -73,6 +79,14 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the swaption settlement time (in years).
+   * @return The settlement time.
+   */
+  public double getSettlementTime() {
+    return _settlementTime;
   }
 
   @Override

@@ -6,13 +6,16 @@
 package com.opengamma.financial.interestrate.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -26,6 +29,7 @@ public class BondYieldCalculatorTest {
   private static final YieldCurveBundle BUNDLE = new YieldCurveBundle();
   private static final String CURVE_NAME = "Flat 5% curve";
   private static Bond BOND;
+  private static final Currency CUR = Currency.USD;
 
   static {
     final int n = 15;
@@ -36,9 +40,9 @@ public class BondYieldCalculatorTest {
     }
     BUNDLE.setCurve(CURVE_NAME, CURVE);
 
-    BOND = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    BOND = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     final double rate = PRC.visit(BOND, BUNDLE);
-    BOND = new Bond(paymentTimes, rate, CURVE_NAME);
+    BOND = new Bond(CUR, paymentTimes, rate, CURVE_NAME);
   }
 
   @Test
@@ -58,7 +62,7 @@ public class BondYieldCalculatorTest {
     }
     final double coupon = 0.05;
 
-    final Bond bond = new Bond(paymentTimes, coupon, "blah");
+    final Bond bond = new Bond(CUR, paymentTimes, coupon, "blah");
     double price, yield;
 
     for (int i = 0; i < 50; i++) {

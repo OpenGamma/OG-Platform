@@ -9,14 +9,13 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * A wrapper class for a GenericAnnuity containing FixedCouponPayment.
  */
 public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
 
-  //TODO: How do we make sure that all the coupons have the same rate and notional.
-  // This may not be true if the constructor from payments is used.
   /**
    * Constructor from an array of fixed coupons.
    * @param payments The payments array.
@@ -25,16 +24,17 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     super(payments);
   }
 
-  public AnnuityCouponFixed(final double[] paymentTimes, final double couponRate, final String yieldCurveName, boolean isPayer) {
-    this(paymentTimes, 1.0, couponRate, yieldCurveName, isPayer);
+  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double couponRate, final String yieldCurveName, boolean isPayer) {
+    this(currency, paymentTimes, 1.0, couponRate, yieldCurveName, isPayer);
   }
 
-  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, boolean isPayer) {
-    this(paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName, isPayer);
+  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, boolean isPayer) {
+    this(currency, paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName, isPayer);
   }
 
   /**
    * Constructor from payment times and year fractions and unique notional and rate. 
+   * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.
    * @param couponRate The common coupon rate.
@@ -42,8 +42,9 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
    * @param yieldCurveName The discounting curve name.
    * @param isPayer TODO
    */
-  public AnnuityCouponFixed(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName, boolean isPayer) {
-    super(init(paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
+  public AnnuityCouponFixed(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName, 
+      boolean isPayer) {
+    super(init(currency, paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
   }
 
   public double getCouponRate() {
@@ -52,6 +53,7 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
 
   /**
    * A list of fixed coupon from payment times and year fractions and unique notional and rate. 
+   * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.
    * @param couponRate The common coupon rate.
@@ -59,7 +61,7 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
    * @param yieldCurveName The discounting curve name.
    * @return The array of fixed coupons.
    */
-  private static CouponFixed[] init(final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
+  private static CouponFixed[] init(Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
     Validate.notNull(paymentTimes);
     Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
     Validate.notNull(yearFractions);
@@ -69,7 +71,7 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     Validate.isTrue(yearFractions.length == n);
     final CouponFixed[] temp = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      temp[i] = new CouponFixed(paymentTimes[i], yieldCurveName, yearFractions[i], notional, couponRate);
+      temp[i] = new CouponFixed(currency, paymentTimes[i], yieldCurveName, yearFractions[i], notional, couponRate);
     }
     return temp;
   }
