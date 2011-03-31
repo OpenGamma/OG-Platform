@@ -1,8 +1,14 @@
+/**
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.finiteDifference;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
@@ -16,12 +22,15 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 
-public class HestonExplicitFiniteDifferenceTest {
+/**
+ * 
+ */
+public class HestonPDETestCase {
 
-  private static BoundaryCondition F_LOWER;
-  private static BoundaryCondition F_UPPER;
-  private static BoundaryCondition V_LOWER;
-  private static BoundaryCondition V_UPPER;
+  private static BoundaryCondition2D F_LOWER;
+  private static BoundaryCondition2D F_UPPER;
+  private static BoundaryCondition2D V_LOWER;
+  private static BoundaryCondition2D V_UPPER;
 
   private static final double F0 = 0.05;
   private static final double V0 = 0.01;
@@ -47,12 +56,32 @@ public class HestonExplicitFiniteDifferenceTest {
 
   static {
 
-    F_LOWER = new DirichletBoundaryCondition(0.0, 0.0);
-    F_UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5 * F0);
-    V_LOWER = new FixedSecondDerivativeBoundaryCondition(0.0, 0.0);
-    V_UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5 * V0);
+    final Function<Double, Double> volZeroBoundary = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        double x = tx[1];
+        return Math.max(x - STRIKE, 0);
+      }
+    };
 
-    // OPTION = new EuropeanVanillaOptionDefinition(1.0, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, T)), true);
+    final Function<Double, Double> volInfiniteBoundary = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        double x = tx[1];
+        return x;
+      }
+    };
+
+    F_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0); // option worth zero if spot is zero
+    F_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity
+    V_LOWER = new SecondDerivativeBoundaryCondition2D(0.0, 0.0);
+    V_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * V0);
+
+    // TODO these more sophisticated boundary conditions don't work
+    // V_LOWER = new DirichletBoundaryCondition2D(FunctionalDoublesSurface.from(volZeroBoundary), 0); // TODO should be solving the convection PDE on this boundary
+    // V_UPPER = new DirichletBoundaryCondition2D(FunctionalDoublesSurface.from(volInfiniteBoundary), 5 * V0); // option the same as underlying for vol -> infinity
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -128,19 +157,12 @@ public class HestonExplicitFiniteDifferenceTest {
     DATA = new ConvectionDiffusion2DPDEDataBundle(A, B, C, D, E, F, FunctionalDoublesSurface.from(payoff));
   }
 
-  @Test
-  public void testBlackScholesEquation() {
+  public void testCallPrice(ConvectionDiffusionPDESolver2D solver, int timeSteps, int spotSteps, int volSqrSteps) {
 
-    int timeSteps = 5000;
-    int xSteps = 80;
-    int ySteps = 80;
+    double deltaX = (F_UPPER.getLevel() - F_LOWER.getLevel()) / spotSteps;
+    double deltaY = (V_UPPER.getLevel() - V_LOWER.getLevel()) / volSqrSteps;
 
-    double deltaX = (F_UPPER.getLevel() - F_LOWER.getLevel()) / xSteps;
-    double deltaY = (V_UPPER.getLevel() - V_LOWER.getLevel()) / ySteps;
-
-    ExplicitFiniteDifference2D solver = new ExplicitFiniteDifference2D();
-
-    double[][] res = solver.solve(DATA, timeSteps, xSteps, ySteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER, null);
+    double[][] res = solver.solve(DATA, timeSteps, spotSteps, volSqrSteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER);
 
     // for (int j = 0; j <= ySteps; j++) {
     // System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
@@ -154,6 +176,7 @@ public class HestonExplicitFiniteDifferenceTest {
     // System.out.print("\n");
     // }
 
+    // TODO There is no guarantee that F0 and V0 are grid points (it depends on the chosen step sizes), so we should do a surface interpolation (what fun!)
     double pdfPrice = res[(int) (F0 / deltaX)][(int) (V0 / deltaY)];
 
     // System.out.print("\n");
@@ -189,4 +212,5 @@ public class HestonExplicitFiniteDifferenceTest {
     // }
 
   }
+
 }

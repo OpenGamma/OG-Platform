@@ -14,7 +14,7 @@ public interface BoundaryCondition {
 
   double[] getRightMatrixCondition(final PDEDataBundle data, final double t);
 
-  double getConstant(final PDEDataBundle data, final double t);
+  double getConstant(final PDEDataBundle data, final double t, final double dx);
 
   double getLevel();
 
