@@ -21,11 +21,6 @@ import org.testng.annotations.Test;
  */
 public class ContextTest {
 
-  public static SessionContext createTestSessionContext() {
-    final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();
-    return contextFactory.createSessionContext("test", false);
-  }
-
   @Test
   public void testCreateSessions() {
     final SessionContextFactoryBean contextFactory = new SessionContextFactoryBean();

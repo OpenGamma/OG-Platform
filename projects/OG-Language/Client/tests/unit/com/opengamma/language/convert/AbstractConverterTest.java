@@ -15,16 +15,35 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.language.context.ContextTest;
+import com.opengamma.language.context.AbstractGlobalContextEventHandler;
+import com.opengamma.language.context.GlobalContextFactoryBean;
+import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.context.SessionContextFactoryBean;
+import com.opengamma.language.context.UserContextFactoryBean;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.invoke.TypeConverter;
 
-/* package */class AbstractConverterTest {
+public class AbstractConverterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractConverterTest.class);
 
-  private final SessionContext _sessionContext = ContextTest.createTestSessionContext();
+  public static SessionContext createTestSessionContext() {
+    final GlobalContextFactoryBean globalContextFactory = new GlobalContextFactoryBean();
+    globalContextFactory.setGlobalContextEventHandler(new AbstractGlobalContextEventHandler(globalContextFactory.getGlobalContextEventHandler()) {
+
+      @Override
+      protected void initContextImpl(final MutableGlobalContext context) {
+        context.getTypeConverterProvider().addTypeConverterProvider(new Converters());
+      }
+
+    });
+    final UserContextFactoryBean userContextFactory = new UserContextFactoryBean(globalContextFactory);
+    final SessionContextFactoryBean sessionContextFactory = new SessionContextFactoryBean(userContextFactory);
+    return sessionContextFactory.createSessionContext("test", false);
+  }
+
+  private final SessionContext _sessionContext = createTestSessionContext();
 
   protected SessionContext getSessionContext() {
     return _sessionContext;

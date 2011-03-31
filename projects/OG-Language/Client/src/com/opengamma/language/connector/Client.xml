@@ -157,6 +157,12 @@
     </property>
   </bean>
   
-  <!-- TODO: hooks into the argument processing -->
+  <!-- Standard type conversions -->
+  <bean id="defaultTypeConversions" class="com.opengamma.language.convert.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="typeConversions">
+      <bean class="com.opengamma.language.convert.Converters" />
+    </property>
+  </bean>
   
 </beans>

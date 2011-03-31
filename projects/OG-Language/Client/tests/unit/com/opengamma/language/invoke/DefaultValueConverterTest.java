@@ -18,8 +18,8 @@ import com.opengamma.language.Data;
 import com.opengamma.language.DataUtil;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtil;
-import com.opengamma.language.context.ContextTest;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.convert.AbstractConverterTest;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.util.tuple.Pair;
 
@@ -27,7 +27,7 @@ public class DefaultValueConverterTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultValueConverterTest.class);
 
-  private final SessionContext _sessionContext = ContextTest.createTestSessionContext();
+  private final SessionContext _sessionContext = AbstractConverterTest.createTestSessionContext();
   private ValueConverter _valueConverter = new DefaultValueConverter();
 
   private <T> T convert(final Object value, final JavaTypeInfo<T> type) {

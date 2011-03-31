@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionDefinitionFilter;
+import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
 import com.opengamma.language.invoke.ParameterConverter;
 import com.opengamma.language.invoke.ResultConverter;
 import com.opengamma.language.invoke.ValueConverter;
@@ -99,6 +100,11 @@ public class MutableGlobalContext extends GlobalContext {
   public void setValueConverter(final ValueConverter valueConverter) {
     ArgumentChecker.notNull(valueConverter, "valueConverter");
     replaceValue(VALUE_CONVERTER, valueConverter);
+  }
+
+  @Override
+  public AggregatingTypeConverterProvider getTypeConverterProvider() {
+    return getTypeConverterProviderImpl();
   }
 
   // Arbitrary values

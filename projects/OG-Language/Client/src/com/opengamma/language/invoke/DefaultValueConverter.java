@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.language.convert.Converters;
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
 
@@ -130,35 +129,19 @@ public class DefaultValueConverter extends ValueConverter {
 
   }
 
-  private final List<TypeConverter> _typeConverters;
   private final ConcurrentMap<JavaTypeInfo<?>, List<TypeConverter>> _convertersByTarget = new ConcurrentHashMap<JavaTypeInfo<?>, List<TypeConverter>>();
   private final ConcurrentMap<Class<?>, ConcurrentMap<JavaTypeInfo<?>, Queue<State>>> _validChains = new ConcurrentHashMap<Class<?>, ConcurrentMap<JavaTypeInfo<?>, Queue<State>>>();
 
   public DefaultValueConverter() {
-    _typeConverters = new ArrayList<TypeConverter>();
-    Converters.populateList(_typeConverters);
   }
 
-  public DefaultValueConverter(final DefaultValueConverter copyFrom) {
-    _typeConverters = new ArrayList<TypeConverter>(copyFrom.getTypeConverters());
-  }
-
-  /**
-   * Returns a modifiable list of the type converters available.
-   * 
-   * @return the list of type converters
-   */
-  public List<TypeConverter> getTypeConverters() {
-    return _typeConverters;
-  }
-
-  protected List<TypeConverter> getConvertersTo(final JavaTypeInfo<?> type) {
+  protected List<TypeConverter> getConvertersTo(final ValueConversionContext conversionContext, final JavaTypeInfo<?> type) {
     List<TypeConverter> converters = _convertersByTarget.get(type);
     if (converters != null) {
       return converters;
     }
     converters = new ArrayList<TypeConverter>();
-    for (TypeConverter converter : getTypeConverters()) {
+    for (TypeConverter converter : conversionContext.getGlobalContext().getTypeConverterProvider().getTypeConverters()) {
       if (converter.canConvertTo(type)) {
         converters.add(converter);
       }
@@ -236,7 +219,7 @@ public class DefaultValueConverter extends ValueConverter {
     } while (true);
   }
 
-  // TODO: the "already visited" record should be in the context as that needs to survive re-entrance calls
+  // TODO: the "already visited" record should be in the context as that may need to survive re-entrance calls
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
@@ -272,7 +255,7 @@ public class DefaultValueConverter extends ValueConverter {
     int statesLoaded = 1;
     int statesStored = 0;
     do {
-      final List<TypeConverter> converters = getConvertersTo(explore.getTargetType());
+      final List<TypeConverter> converters = getConvertersTo(conversionContext, explore.getTargetType());
       for (TypeConverter converter : converters) {
         if (!explore.visited(converter)) {
           final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
