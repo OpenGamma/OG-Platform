@@ -8,6 +8,7 @@ package com.opengamma.financial.instrument.annuity;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 
@@ -60,5 +61,15 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
     return new AnnuityCouponIborSpreadDefinition(coupons);
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitAnnuityCouponIborSpreadDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitAnnuityCouponIborSpreadDefinition(this);
   }
 }

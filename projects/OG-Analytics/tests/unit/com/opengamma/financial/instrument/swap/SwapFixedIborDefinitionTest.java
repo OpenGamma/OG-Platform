@@ -29,7 +29,10 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
-public class ZZZSwapFixedIborDefinitionTest {
+/**
+ * Class testing the Fixed vs Ibor swap definition.
+ */
+public class SwapFixedIborDefinitionTest {
 
   // Swap 2Y
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -84,7 +87,7 @@ public class ZZZSwapFixedIborDefinitionTest {
     }
     AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
     //Swap
-    ZZZSwapFixedIborDefinition swap = new ZZZSwapFixedIborDefinition(fixedAnnuity, iborAnnuity);
+    SwapFixedIborDefinition swap = new SwapFixedIborDefinition(fixedAnnuity, iborAnnuity);
     assertEquals(swap.getFixedLeg(), fixedAnnuity);
     assertEquals(swap.getIborLeg(), iborAnnuity);
     assertEquals(swap.getFirstLeg(), fixedAnnuity);
@@ -92,7 +95,7 @@ public class ZZZSwapFixedIborDefinitionTest {
 
     // CMS index builder
     CMSIndex cmsIndex = new CMSIndex(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
-    ZZZSwapFixedIborDefinition swapFromCMSIndex = ZZZSwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER);
+    SwapFixedIborDefinition swapFromCMSIndex = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER);
     assertEquals(swap, swapFromCMSIndex);
   }
 
@@ -112,7 +115,7 @@ public class ZZZSwapFixedIborDefinitionTest {
     }
     AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
 
-    new ZZZSwapFixedIborDefinition(null, iborAnnuity);
+    new SwapFixedIborDefinition(null, iborAnnuity);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -127,7 +130,9 @@ public class ZZZSwapFixedIborDefinitionTest {
     }
     AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
 
-    new ZZZSwapFixedIborDefinition(fixedAnnuity, null);
+    new SwapFixedIborDefinition(fixedAnnuity, null);
   }
+
+  // TODO: test to derivative
 
 }

@@ -20,8 +20,8 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborSpreadDefinition;
-import com.opengamma.financial.instrument.swap.ZZZSwapIborIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
+import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -79,7 +79,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     throw new OpenGammaRuntimeException("Can only handle fixed / floating swaps and tenor swaps");
   }
 
-  private ZZZSwapFixedIborSpreadDefinition getSwapFixedIborSpreadDefinition(final SwapSecurity swapSecurity, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency,
+  private SwapFixedIborSpreadDefinition getSwapFixedIborSpreadDefinition(final SwapSecurity swapSecurity, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency,
       final boolean payFixed) {
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
@@ -91,10 +91,10 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     // FIXME: The pay/receiver is missing in the description.
     final AnnuityCouponFixedDefinition fixedLegDefinition = visitor.visitFixedInterestRateLeg(fixedLeg);
     final AnnuityCouponIborSpreadDefinition floatingLegDefinition = visitor.visitFloatingInterestRateLeg(floatLeg);
-    return new ZZZSwapFixedIborSpreadDefinition(fixedLegDefinition, floatingLegDefinition);
+    return new SwapFixedIborSpreadDefinition(fixedLegDefinition, floatingLegDefinition);
   }
 
-  private ZZZSwapIborIborDefinition getSwapIborIborDefinition(final SwapSecurity swapSecurity, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency) {
+  private SwapIborIborDefinition getSwapIborIborDefinition(final SwapSecurity swapSecurity, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Currency currency) {
     final SwapLeg payLeg = swapSecurity.getPayLeg();
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FloatingInterestRateLeg floatPayLeg = (FloatingInterestRateLeg) payLeg;
@@ -105,7 +105,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     // FIXME: The pay/receiver is missing in the description.
     final AnnuityCouponIborSpreadDefinition payLegDefinition = visitor.visitFloatingInterestRateLeg(floatPayLeg);
     final AnnuityCouponIborSpreadDefinition receiveLegDefinition = visitor.visitFloatingInterestRateLeg(floatReceiveLeg);
-    return new ZZZSwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
+    return new SwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
   }
 
   private class MySwapLegVisitor implements SwapLegVisitor<FixedIncomeInstrumentDefinition<?>> {

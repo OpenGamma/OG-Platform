@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
@@ -91,6 +92,16 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
       coupons[loopcpn] = CouponIborDefinition.from(annuity.getNthPayment(loopcpn));
     }
     return new AnnuityCouponIborDefinition(coupons);
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitAnnuityCouponIborDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitAnnuityCouponIborDefinition(this);
   }
 
 }

@@ -9,6 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
@@ -22,13 +23,13 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ZZZSwapFixedIborSpreadDefinition extends ZZZSwapDefinition<CouponFixedDefinition, CouponIborSpreadDefinition> {
+public class SwapFixedIborSpreadDefinition extends SwapDefinition<CouponFixedDefinition, CouponIborSpreadDefinition> {
   /**
    * Constructor of the fixed-ibor swap from its two legs.
    * @param fixedLeg The fixed leg.
    * @param iborLeg The ibor leg.
    */
-  public ZZZSwapFixedIborSpreadDefinition(AnnuityCouponFixedDefinition fixedLeg, AnnuityCouponIborSpreadDefinition iborLeg) {
+  public SwapFixedIborSpreadDefinition(AnnuityCouponFixedDefinition fixedLeg, AnnuityCouponIborSpreadDefinition iborLeg) {
     super(fixedLeg, iborLeg);
     Validate.isTrue(fixedLeg.getCurrency() == iborLeg.getCurrency(), "legs should have the same currency");
   }
@@ -59,9 +60,20 @@ public class ZZZSwapFixedIborSpreadDefinition extends ZZZSwapDefinition<CouponFi
 
   @SuppressWarnings("unchecked")
   @Override
+  // TODO: review this!
   public FixedCouponSwap<Payment> toDerivative(LocalDate date, String... yieldCurveNames) {
     final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
     final GenericAnnuity<? extends Payment> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);
     return new FixedCouponSwap<Payment>(fixedLeg, (GenericAnnuity<Payment>) iborLeg);
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitSwapFixedIborSpreadDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitSwapFixedIborSpreadDefinition(this);
   }
 }

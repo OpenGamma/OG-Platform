@@ -26,7 +26,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class ZZZSwapIborIborDefinitionTest {
+public class SwapIborIborDefinitionTest {
 
   // Swap 2Y
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -53,16 +53,16 @@ public class ZZZSwapIborIborDefinitionTest {
   private static final double SPREAD_2 = -0.001;
   private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_2, SPREAD_2, !IS_PAYER_1);
   // Swap
-  private static final ZZZSwapIborIborDefinition TENOR_SWAP = new ZZZSwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
+  private static final SwapIborIborDefinition TENOR_SWAP = new SwapIborIborDefinition(IBOR_LEG_1, IBOR_LEG_2);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeg1() {
-    new ZZZSwapIborIborDefinition(null, IBOR_LEG_2);
+    new SwapIborIborDefinition(null, IBOR_LEG_2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLeg2() {
-    new ZZZSwapIborIborDefinition(IBOR_LEG_1, null);
+    new SwapIborIborDefinition(IBOR_LEG_1, null);
   }
 
   @Test
@@ -71,4 +71,5 @@ public class ZZZSwapIborIborDefinitionTest {
     assertEquals(TENOR_SWAP.getLegWithSpread(), IBOR_LEG_2);
   }
 
+  // TODO: test to derivatives
 }

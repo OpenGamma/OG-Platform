@@ -23,12 +23,12 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  * @param <P2> The payment type on second leg.
  *
  */
-public class ZZZSwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<Swap<? extends Payment, ? extends Payment>> {
+public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<Swap<? extends Payment, ? extends Payment>> {
 
   private final AnnuityDefinition<P1> _firstLeg;
   private final AnnuityDefinition<P2> _secondLeg;
 
-  public ZZZSwapDefinition(AnnuityDefinition<P1> firstLeg, AnnuityDefinition<P2> secondLeg) {
+  public SwapDefinition(AnnuityDefinition<P1> firstLeg, AnnuityDefinition<P2> secondLeg) {
     Validate.notNull(firstLeg, "first leg");
     Validate.notNull(secondLeg, "second leg");
     Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
@@ -80,7 +80,7 @@ public class ZZZSwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ZZZSwapDefinition<?, ?> other = (ZZZSwapDefinition<?, ?>) obj;
+    SwapDefinition<?, ?> other = (SwapDefinition<?, ?>) obj;
     if (!ObjectUtils.equals(_firstLeg, other._firstLeg)) {
       return false;
     }
@@ -97,12 +97,12 @@ public class ZZZSwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentD
 
   @Override
   public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return null;
+    return visitor.visitSwapDefinition(this, data);
   }
 
   @Override
   public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    return visitor.visitSwapDefinition(this);
   }
 
 }

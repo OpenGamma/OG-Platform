@@ -139,12 +139,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
 
   @Override
   public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return null;
+    return visitor.visitAnnuityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    return visitor.visitAnnuityDefinition(this);
   }
 
 }
