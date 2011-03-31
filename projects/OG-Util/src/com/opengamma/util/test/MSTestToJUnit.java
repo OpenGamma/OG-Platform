@@ -136,7 +136,7 @@ public class MSTestToJUnit implements Runnable {
 
   }
 
-  private static double parseTime (final String time) {
+  private static double parseTime(final String time) {
     if (time == null) {
       return 0;
     } else {
@@ -222,11 +222,19 @@ public class MSTestToJUnit implements Runnable {
 
   private static String getTimestamp(final Collection<UnitTest> tests) {
     final Iterator<UnitTest> test = tests.iterator();
-    String earliest = test.next().getStartTime();
+    String earliest;
+    do {
+      earliest = test.next().getStartTime();
+    } while ((earliest == null) && test.hasNext());
+    if (earliest == null) {
+      return "";
+    }
     while (test.hasNext()) {
       final UnitTest nextTest = test.next();
-      if (earliest.compareTo(nextTest.getStartTime()) > 0) {
-        earliest = nextTest.getStartTime();
+      if (nextTest.getStartTime() != null) {
+        if (earliest.compareTo(nextTest.getStartTime()) > 0) {
+          earliest = nextTest.getStartTime();
+        }
       }
     }
     return earliest;
@@ -272,13 +280,13 @@ public class MSTestToJUnit implements Runnable {
           out.writeAttribute("name", test.getName());
           out.writeAttribute("time", Double.toString(test.getDuration()));
           out.writeAttribute("classname", testSuite.getKey());
-          if (!test.isPassed ()) {
-            out.writeStartElement ("error");
+          if (!test.isPassed()) {
+            out.writeStartElement("error");
             out.writeAttribute("message", test.getMessage());
             for (String text : test.getText()) {
               out.writeCharacters(text);
             }
-            out.writeEndElement ();
+            out.writeEndElement();
           }
           out.writeEndElement();
         }

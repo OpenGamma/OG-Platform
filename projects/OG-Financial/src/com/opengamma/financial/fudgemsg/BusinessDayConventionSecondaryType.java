@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -24,7 +24,7 @@ public final class BusinessDayConventionSecondaryType extends SecondaryFieldType
   public static final BusinessDayConventionSecondaryType INSTANCE = new BusinessDayConventionSecondaryType();
 
   private BusinessDayConventionSecondaryType() {
-    super(StringFieldType.INSTANCE, BusinessDayConvention.class);
+    super(FudgeWireType.STRING, BusinessDayConvention.class);
   }
 
   @Override

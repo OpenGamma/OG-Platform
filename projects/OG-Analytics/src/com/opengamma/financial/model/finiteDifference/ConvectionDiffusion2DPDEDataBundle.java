@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finiteDifference;
@@ -12,8 +12,8 @@ import com.opengamma.math.surface.Surface;
 
 /**
  * Describes a partial differential for a function V(t,x,y), with the initial condition V(0,x,y) = g(x,y)
- *  $\frac{\partial V}{\partial t} + a(t,x,y) \frac{\partial^2 V}{\partial x^2} + b(t,x,y) \frac{\partial V}{\partial x} + c(t,x,y)V 
- *  + d(t,x,y)\frac{\partial^2 V}{\partial y^2} + e(t,x,y) \frac{\partial^2 V}{\partial x \partial y} + f(t,x,y) \frac{\partial V}{\partial y}  = 0$
+ *  {@latex.inline $\\frac{\\partial V}{\\partial t} + a(t,x,y) \\frac{\\partial^2 V}{\\partial x^2} + b(t,x,y) \\frac{\\partial V}{\\partial x} + c(t,x,y)V 
+ *  + d(t,x,y)\\frac{\\partial^2 V}{\\partial y^2} + e(t,x,y) \\frac{\\partial^2 V}{\\partial x \\partial y} + f(t,x,y) \\frac{\\partial V}{\\partial y}  = 0$}
  */
 public class ConvectionDiffusion2DPDEDataBundle implements ParabolicPDEDataBundle {
 
@@ -27,8 +27,7 @@ public class ConvectionDiffusion2DPDEDataBundle implements ParabolicPDEDataBundl
   private final Surface<Double, Double, Double> _initialCondition;
 
   public ConvectionDiffusion2DPDEDataBundle(final Cube<Double, Double, Double, Double> a, final Cube<Double, Double, Double, Double> b, final Cube<Double, Double, Double, Double> c,
-      final Cube<Double, Double, Double, Double> d, final Cube<Double, Double, Double, Double> e, final Cube<Double, Double, Double, Double> f, 
-      final Surface<Double, Double, Double> initialCondition) {
+      final Cube<Double, Double, Double, Double> d, final Cube<Double, Double, Double, Double> e, final Cube<Double, Double, Double, Double> f, final Surface<Double, Double, Double> initialCondition) {
     Validate.notNull(a, "null a");
     Validate.notNull(b, "null b");
     Validate.notNull(c, "null c");

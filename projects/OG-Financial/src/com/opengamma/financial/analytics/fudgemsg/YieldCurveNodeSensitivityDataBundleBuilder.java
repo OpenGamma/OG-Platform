@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 @FudgeBuilderFor(YieldCurveNodeSensitivityDataBundle.class)
-public class YieldCurveNodeSensitivityDataBundleBuilder extends FudgeBuilderBase<YieldCurveNodeSensitivityDataBundle> {
+public class YieldCurveNodeSensitivityDataBundleBuilder extends AbstractFudgeBuilder<YieldCurveNodeSensitivityDataBundle> {
   private static final String MATRIX_NAME = "Matrix";
   private static final String CURRENCY_NAME = "Currency";
   private static final String CURVE_NAME = "CurveName";

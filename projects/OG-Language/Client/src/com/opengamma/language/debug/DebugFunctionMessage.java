@@ -47,7 +47,7 @@ public class DebugFunctionMessage implements PublishedFunction {
     final List<MetaParameter> args = Arrays
         .asList(new MetaParameter("foo", JavaTypeInfo.builder(Data.class).defaultValue(null).get()), new MetaParameter(
             "bar", JavaTypeInfo.builder(Data.class).defaultValue(null).get()));
-    final FunctionInvoker invoker = new AbstractFunctionInvoker() {
+    final FunctionInvoker invoker = new AbstractFunctionInvoker(args) {
       @Override
       public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         return execute((Data) parameters[0], (Data) parameters[1]);

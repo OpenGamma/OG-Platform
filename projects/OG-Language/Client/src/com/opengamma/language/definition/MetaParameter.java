@@ -29,14 +29,14 @@ public class MetaParameter extends Parameter {
     throw new NotSerializableException();
   }
 
-  private final JavaTypeInfo _javaTypeInfo;
+  private final JavaTypeInfo<?> _javaTypeInfo;
 
-  public MetaParameter(final String name, final JavaTypeInfo javaTypeInfo) {
+  public MetaParameter(final String name, final JavaTypeInfo<?> javaTypeInfo) {
     super(name, !javaTypeInfo.isAllowNull() && !javaTypeInfo.isDefaultValue());
     _javaTypeInfo = javaTypeInfo;
   }
 
-  public JavaTypeInfo getJavaTypeInfo() {
+  public JavaTypeInfo<?> getJavaTypeInfo() {
     return _javaTypeInfo;
   }
 

@@ -12,15 +12,14 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
- * 
+ * Fudge builders for com.opengamma.math.curve.* classes
  */
 final class MathCurve {
 
@@ -31,7 +30,7 @@ final class MathCurve {
    * Fudge builder for {@code ConstantDoublesCurve}
    */
   @FudgeBuilderFor(ConstantDoublesCurve.class)
-  public static final class ConstantDoublesCurveBuilder extends FudgeBuilderBase<ConstantDoublesCurve> {
+  public static final class ConstantDoublesCurveBuilder extends AbstractFudgeBuilder<ConstantDoublesCurve> {
     private static final String Y_VALUE_FIELD_NAME = "y value";
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
@@ -51,7 +50,7 @@ final class MathCurve {
    * Fudge builder for {@code InterpolatedDoublesCurve}
    */
   @FudgeBuilderFor(InterpolatedDoublesCurve.class)
-  public static final class InterpolatedDoublesCurveBuilder extends FudgeBuilderBase<InterpolatedDoublesCurve> {
+  public static final class InterpolatedDoublesCurveBuilder extends AbstractFudgeBuilder<InterpolatedDoublesCurve> {
     private static final String X_DATA_FIELD_NAME = "x data";
     private static final String Y_DATA_FIELD_NAME = "y data";
     private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
@@ -65,7 +64,7 @@ final class MathCurve {
       context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings("unchecked")
     @Override
     public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
       final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
@@ -78,29 +77,29 @@ final class MathCurve {
 
   /**
    * Fudge builder for {@code FunctionalDoublesCurve}
-   * 
    */
-  //TODO only works for the function from the Nelson-Siegel-Svennson model
   @FudgeBuilderFor(FunctionalDoublesCurve.class)
-  public static final class FunctionalDoublesCurveBuilder extends FudgeBuilderBase<FunctionalDoublesCurve> {
-    private static final String CURVE_PARAMETER_NAMES = "NSS parameters";
-    private static final String CURVE_NAME_FIELD_NAME = "curve name";
+  public static final class FunctionalDoublesCurveBuilder extends AbstractFudgeBuilder<FunctionalDoublesCurve> {
+    private static final String CURVE_FUNCTION_FIELD_NAME = "function";
+    private static final String CURVE_NAME_FIELD_NAME = "name";
 
+    @SuppressWarnings("unchecked")
     @Override
     public FunctionalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      final double[] parameters = context.fieldValueToObject(double[].class, message.getByName(CURVE_PARAMETER_NAMES));
       final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
-      return FunctionalDoublesCurve.from(new NelsonSiegelSvennsonBondCurveModel(new DoubleMatrix1D(parameters)), name);
+      final Object function = context.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
+      if (function instanceof Function) {
+        return FunctionalDoublesCurve.from((Function) function, name);
+      } else {
+        throw new OpenGammaRuntimeException("Expected serialized function, got " + function);
+      }
     }
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final FunctionalDoublesCurve object) {
-      if (object.getFunction() instanceof NelsonSiegelSvennsonBondCurveModel) {
-        context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
-        context.objectToFudgeMsg(message, CURVE_PARAMETER_NAMES, null, ((NelsonSiegelSvennsonBondCurveModel) object.getFunction()).getParameters().getData());
-        return;
-      }
-      throw new OpenGammaRuntimeException("Can only serialize NeslonSiegelSvennsonBondCurveModel at the moment");
+      context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+      context.objectToFudgeMsg(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
+      return;
     }
   }
 

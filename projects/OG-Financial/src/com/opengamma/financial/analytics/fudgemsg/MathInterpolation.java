@@ -58,7 +58,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
    * Fudge builder for {@code CombinedInterpolatorExtrapolator}.
    */
   @FudgeBuilderFor(CombinedInterpolatorExtrapolator.class)
-  public static final class CombinedInterpolatorExtrapolatorBuilder extends FudgeBuilderBase<CombinedInterpolatorExtrapolator<?>> {
+  public static final class CombinedInterpolatorExtrapolatorBuilder extends AbstractFudgeBuilder<CombinedInterpolatorExtrapolator<?>> {
     private static final String LEFT_EXTRAPOLATOR_FIELD_NAME = "leftExtrapolator";
     private static final String RIGHT_EXTRAPOLATOR_FIELD_NAME = "rightExtrapolator";
     private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
@@ -71,7 +71,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
       message.add(RIGHT_EXTRAPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(object.getRightExtrapolator()));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     @Override
     public CombinedInterpolatorExtrapolator<? extends Interpolator1DDataBundle> buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
       final String interpolatorName = message.getString(INTERPOLATOR_FIELD_NAME);
@@ -98,7 +98,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
    * Fudge builder for {@code GridInterpolator2D}.
    */
   @GenericFudgeBuilderFor(GridInterpolator2D.class)
-  public static final class GridInterpolator2DBuilder extends FudgeBuilderBase<GridInterpolator2D> {
+  public static final class GridInterpolator2DBuilder extends AbstractFudgeBuilder<GridInterpolator2D> {
     private static final String X_FIELD_NAME = "x";
     private static final String Y_FIELD_NAME = "y";
 

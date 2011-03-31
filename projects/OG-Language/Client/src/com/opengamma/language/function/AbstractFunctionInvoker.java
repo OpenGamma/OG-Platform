@@ -6,72 +6,55 @@
 
 package com.opengamma.language.function;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.DataUtil;
-import com.opengamma.language.Value;
+import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
-
-import edu.emory.mathcs.backport.java.util.Collections;
+import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.invoke.AbstractInvoker;
+import com.opengamma.language.invoke.ParameterConverter;
+import com.opengamma.language.invoke.ResultConverter;
 
 /**
- * Partial implementation of a {@link FunctionInvoker}.
+ * Partial implementation of a {@link FunctionInvoker} that converts the parameters and results using
+ * the converters bound to the invoking session context.
  */
-public abstract class AbstractFunctionInvoker implements FunctionInvoker {
+public abstract class AbstractFunctionInvoker extends AbstractInvoker implements FunctionInvoker {
+
+  protected AbstractFunctionInvoker(final List<MetaParameter> parameters) {
+    super(parameters);
+  }
 
   protected abstract Object invokeImpl(final SessionContext sessionContext, final Object[] parameters);
 
-  protected Object convertParameterImpl(final SessionContext sessionContext, final Data parameter) {
-    return parameter;
+  // AbstractInvoker
+
+  @Override
+  protected ResultConverter getResultConverter(final GlobalContext globalContext) {
+    return globalContext.getFunctionResultConverter();
   }
 
-  protected Object convertParameterImpl(final SessionContext sessionContext, final int index, final Data parameter) {
-    return convertParameterImpl(sessionContext, parameter);
+  @Override
+  protected ParameterConverter getParameterConverter(final GlobalContext globalContext) {
+    return globalContext.getParameterConverter();
   }
-
-  protected Data convertResultImpl(final SessionContext sessionContext, final Object result) {
-    if (result == null) {
-      return null;
-    } else if (result instanceof Data) {
-      return (Data) result;
-    } else if (result instanceof Value) {
-      return DataUtil.of((Value) result);
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  protected Result convertResult(final SessionContext sessionContext, final Object result) {
-    final Data dataResult = convertResultImpl(sessionContext, result);
-    return new Result(Collections.singleton(dataResult));
-  }
-
-  protected Object[] convertParameters(final SessionContext sessionContext, final List<Data> parameters) {
-    final Object[] result = new Object[parameters.size()];
-    for (int i = 0; i < parameters.size(); i++) {
-      result[i] = convertParameterImpl(sessionContext, i, parameters.get(i));
-    }
-    return result;
-  }
-
-  // TODO: abstract parameter and result conversion logics into external interfaces as they will need to be shared
-  // with procedure and live data invocations. The instances for convertParameter and convertResult will be pulled
-  // from the session context
-
-  // TODO: i.e. ParameterConverter (take MetaParameter list)
-  // TODO: i.e. ResultConverter (take JavaTypeInfo for result)
-  // TODO: i.e. fundamental DataToObject converter (extensible/replaceable)
-  // TODO: i.e. fundamental ObjectToData converter (extensible/replaceable)
 
   // FunctionInvoker
 
   @Override
   public final Result invoke(final SessionContext sessionContext, final List<Data> parameterValue) {
     final Object[] parameters = convertParameters(sessionContext, parameterValue);
-    final Object result = invokeImpl(sessionContext, parameters);
-    return (result != null) ? convertResult(sessionContext, result) : null;
+    final Object resultObject = invokeImpl(sessionContext, parameters);
+    if (resultObject == null) {
+      return null;
+    }
+    final Data resultData = convertResult(sessionContext, resultObject);
+    if (resultData == null) {
+      return null;
+    }
+    return new Result(Collections.singleton(resultData));
   }
 
 }

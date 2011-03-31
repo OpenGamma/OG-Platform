@@ -18,16 +18,15 @@ import com.opengamma.language.procedure.AggregatingProcedureProvider;
 /**
  * An information context shared by any client instances running for a given user. 
  */
-public abstract class UserContext extends AbstractContext {
+public abstract class UserContext extends AbstractContext<GlobalContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(UserContext.class);
 
-  private final GlobalContext _globalContext;
   private final Set<SessionContext> _sessionContexts = new HashSet<SessionContext>();
   private final String _userName;
 
   /* package */UserContext(final GlobalContext globalContext, final String userName) {
-    _globalContext = globalContext;
+    super(globalContext);
     _userName = userName;
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
@@ -35,7 +34,7 @@ public abstract class UserContext extends AbstractContext {
   }
 
   public GlobalContext getGlobalContext() {
-    return _globalContext;
+    return getParentContext();
   }
 
   public String getUserName() {

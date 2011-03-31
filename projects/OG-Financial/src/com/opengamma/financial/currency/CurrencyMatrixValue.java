@@ -9,7 +9,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.PrimitiveFieldTypes;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.engine.ComputationTargetType;
@@ -128,7 +128,7 @@ public abstract class CurrencyMatrixValue {
 
     public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
       final MutableFudgeFieldContainer msg = context.objectToFudgeMsg(getValueRequirement());
-      msg.add("reciprocal", null, PrimitiveFieldTypes.BOOLEAN_TYPE, isReciprocal());
+      msg.add("reciprocal", null, FudgeWireType.BOOLEAN, isReciprocal());
       return msg;
     }
 
