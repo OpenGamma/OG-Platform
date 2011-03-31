@@ -63,7 +63,7 @@ public class FixedIncomeStripWithIdentifier {
   public FixedIncomeStripWithIdentifier(StripInstrumentType instrumentType, Tenor maturity, int nthFutureFromTenor, Identifier security) {
     _instrumentType = instrumentType;
     if (_instrumentType != StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node " + toString());
+      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
     }
     _nthFutureFromTenor = nthFutureFromTenor;
     Validate.notNull(maturity);
@@ -75,7 +75,7 @@ public class FixedIncomeStripWithIdentifier {
   public FixedIncomeStripWithIdentifier(StripInstrumentType instrumentType, Tenor maturity, Identifier security) {
     _instrumentType = instrumentType;
     if (_instrumentType == StripInstrumentType.FUTURE) {
-      throw new IllegalStateException("Cannot set number of futures after tenor for a non future node type=" + instrumentType + " maturity=" + maturity + " security="+security);
+      throw new IllegalStateException("Cannot create future node type without a nthFutureFromTenor parameter, type=" + instrumentType + " maturity=" + maturity + " security=" + security);
     }
     Validate.notNull(maturity);
     _maturity = maturity;

@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class MultiDirectionalSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
   private static final double EPS = 1e-8;
-  final static SimplexMinimizer MINIMIZER = new MultiDirectionalSimplexMinimizer();
+  final static MultiDirectionalSimplexMinimizer MINIMIZER = new MultiDirectionalSimplexMinimizer();
 
   @Test
   public void test() {

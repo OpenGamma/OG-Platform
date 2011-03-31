@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
   private static final double EPS = 1e-8;
-  final static SimplexMinimizer MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
+  final static NelderMeadDownhillSimplexMinimizer MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
 
   @Test
   public void test() {

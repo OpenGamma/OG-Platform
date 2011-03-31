@@ -33,9 +33,8 @@ public class SemiStandardDeviationCalculator extends Function1D<double[], Double
   }
 
   /**
-   * @param x The array of data
+   * @param x The array of data, not null
    * @return The semi-standard deviation
-   * @throws IllegalArgumentException If the array is null
    */
   @Override
   public Double evaluate(final double[] x) {

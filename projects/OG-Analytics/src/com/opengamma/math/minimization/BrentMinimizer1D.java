@@ -17,13 +17,17 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/optimization/univariate/BrentOptimizer.html">Commons Math library implementation</a>
+ * of Brent minimization.
  */
-//TODO this class doesn't work properly
 public class BrentMinimizer1D implements ScalarMinimizer {
+  //TODO this class doesn't work properly - e.g. if the curve is flat, the bounded method returns one of the bounds and the unbounded method shoots off to +/-infinity
   private static final GoalType MINIMIZE = GoalType.MINIMIZE;
   private static final AbstractUnivariateRealOptimizer OPTIMIZER = new BrentOptimizer();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double minimize(final Function1D<Double, Double> function, final double startPosition, final double lowerBound, final double upperBound) {
     Validate.notNull(function, "function");
@@ -37,6 +41,9 @@ public class BrentMinimizer1D implements ScalarMinimizer {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double minimize(final Function1D<Double, Double> function, final Double startPosition) {
     Validate.notNull(function, "function");

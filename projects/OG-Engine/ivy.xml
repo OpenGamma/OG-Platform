@@ -1,16 +1,12 @@
 <ivy-module version="2.0">
     <info organisation="com.opengamma" module="og-engine" status="integration"/>
-    <configurations>
-      <conf name="core"/>
-      <conf name="opengamma" extends="core"/>
-    </configurations>
     
     <publications>
       <artifact name="og-engine" type="jar"/>
     </publications>
     <dependencies>
-    	<dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
-    	<dependency name="og-core" rev="latest.integration" conf="opengamma->*"/>
+    	<dependency name="og-livedata" rev="latest.integration" />
+    	<dependency name="og-core" rev="latest.integration" />
     	
         <dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
         <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>

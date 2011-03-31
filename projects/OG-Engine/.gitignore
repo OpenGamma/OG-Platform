@@ -10,7 +10,6 @@ temp/
 tests/classes/
 tests/output/
 .DS_Store
-/.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
 docs/

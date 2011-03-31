@@ -18,6 +18,7 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -31,6 +32,7 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -39,30 +41,31 @@ public class InterestRateDerivativeVisitorTest {
   private static final String CURVE_NAME = "Test";
   private static final AbstractInterestRateDerivativeVisitor<Object, Object> ABSTRACT_VISITOR = new AbstractInterestRateDerivativeVisitor<Object, Object>() {
   };
+  private static final Currency CUR = Currency.USD;
   private static final Cash CASH = new Cash(1, 0, CURVE_NAME);
   private static final ForwardRateAgreement FRA = new ForwardRateAgreement(0, 1, 0, CURVE_NAME, CURVE_NAME);
   private static final InterestRateFuture IR_FUTURE = new InterestRateFuture(0, 1, 1, 0, CURVE_NAME);
-  private static final Bond BOND = new Bond(new double[] {1}, 0, CURVE_NAME);
+  private static final Bond BOND = new Bond(CUR, new double[] {1}, 0, CURVE_NAME);
   private static final BondForward BOND_FORWARD = new BondForward(BOND, .5, 0, 0);
   private static final BondFuture BOND_FUTURE = new BondFuture(new BondForward[] {BOND_FORWARD}, new double[] {1}, 131);
-  private static final AnnuityCouponIbor FLOAT_LEG = new AnnuityCouponIbor(new double[] {1}, CURVE_NAME, CURVE_NAME, false);
-  private static final AnnuityCouponIbor FLOAT_LEG_2 = new AnnuityCouponIbor(new double[] {1}, CURVE_NAME, CURVE_NAME, true);
-  private static final AnnuityCouponFixed FIXED_LEG = new AnnuityCouponFixed(new double[] {1}, 0.0, CURVE_NAME, true);
+  private static final AnnuityCouponIbor FLOAT_LEG = new AnnuityCouponIbor(CUR, new double[] {1}, CURVE_NAME, CURVE_NAME, false);
+  private static final AnnuityCouponIbor FLOAT_LEG_2 = new AnnuityCouponIbor(CUR, new double[] {1}, CURVE_NAME, CURVE_NAME, true);
+  private static final AnnuityCouponFixed FIXED_LEG = new AnnuityCouponFixed(CUR, new double[] {1}, 0.0, CURVE_NAME, true);
   private static final FixedFloatSwap SWAP = new FixedFloatSwap(FIXED_LEG, FLOAT_LEG);
   private static final TenorSwap<CouponIbor> TENOR_SWAP = new TenorSwap<CouponIbor>(FLOAT_LEG, FLOAT_LEG_2);
   //  private static final FloatingRateNote FRN = new FloatingRateNote(FLOAT_LEG);
-  private static final PaymentFixed FIXED_PAYMENT = new PaymentFixed(1, 1, CURVE_NAME);
-  private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
-  private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(1, -1, CURVE_NAME);
-  private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
+  private static final PaymentFixed FIXED_PAYMENT = new PaymentFixed(CUR, 1, 1, CURVE_NAME);
+  private static final CouponIbor LIBOR_PAYMENT = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, 1, 1, 1, 1, 0, CURVE_NAME);
+  private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(CUR, 1, -1, CURVE_NAME);
+  private static final CouponIbor LIBOR_PAYMENT_2 = new CouponIbor(CUR, 1.0, CURVE_NAME, 0, -1, 1, 1, 1, 0, CURVE_NAME);
   //  (1.0, 0, 1, 1, 1, CURVE_NAME, CURVE_NAME);
   private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
   private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
   private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
-  private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(new double[] {1}, 0.05, CURVE_NAME, true);
-  private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME, true);
-  private static final CouponFixed FCP = new CouponFixed(1, CURVE_NAME, 1, 0.04);
-  private static final ContinuouslyMonitoredAverageRatePayment CM = new ContinuouslyMonitoredAverageRatePayment(3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
+  private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(CUR, new double[] {1}, 0.05, CURVE_NAME, true);
+  private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(CUR, new double[] {1}, 0.05, CURVE_NAME, CURVE_NAME, true);
+  private static final CouponFixed FCP = new CouponFixed(CUR, 1, CURVE_NAME, 1, 0.04);
+  private static final ContinuouslyMonitoredAverageRatePayment CM = new ContinuouslyMonitoredAverageRatePayment(CUR, 3, CURVE_NAME, 1, 100, 1, 1, 2, 0, CURVE_NAME);
   //(3, CURVE_NAME, 1, 2, 1, 1, 0, 1, CURVE_NAME);
   private static final Swap<Payment, Payment> FIXED_FIXED = new Swap<Payment, Payment>(GA, GA_2);
   private static final InterestRateDerivativeVisitor<Object, Class<?>> VISITOR = new InterestRateDerivativeVisitor<Object, Class<?>>() {
@@ -279,12 +282,22 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, Object data) {
-      return visit(swaption);
+      return visit(swaption, data);
     }
 
     @Override
     public Class<?> visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption) {
       return visit(swaption);
+    }
+
+    @Override
+    public Class<?> visitCapFloorCMS(CapFloorCMS payment, Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCapFloorCMS(CapFloorCMS payment) {
+      return visit(payment);
     }
   };
 

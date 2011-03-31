@@ -1,21 +1,17 @@
 <ivy-module version="2.0">
 	<info organisation="com.opengamma" module="og-util" status="integration"/>
-	<configurations>
-		<conf name="core"/>
-		<conf name="opengamma" extends="core"/>
-	</configurations>
 	<publications>
 		<artifact name="og-util" type="jar"/>
 	</publications>
 	<dependencies>
-		<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" conf="opengamma->core"/>
-		<dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" conf="opengamma->core"/>
+		<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" />
+		<dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" />
 		<dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
 		<dependency org="org.apache.commons" name="commons-dbcp" rev="[1.4,2.0["/>
 		<dependency org="org.apache.commons" name="commons-io" rev="1.4"/>
 		<dependency org="org.apache.commons" name="commons-cli" rev="1.2"/>
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" />
-		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" conf="core->*" />
+		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" />
         <dependency org="org.joda" name="joda-beans" rev="0.3.2" />
 		<dependency org="org.testng" name="testng" rev="6.0.1"/>
 		<dependency org="org.slf4j" name="slf4j" rev="[1.5.11,2.0[" conf="*->core,jcl-migration,log4j-migration"/>
@@ -39,7 +35,7 @@
 		<dependency org="org.mockito" name="mockito" rev="1.6"/>
 		<dependency org="it.unimi.dsi" name="fastutil" rev="5.1.5"/>
 		<dependency org="org.mongodb" name="java-driver" rev="2.1" />
-        <dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1[" conf="core->*"/>
+        <dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1[" />
         <exclude org="org.junit" />
 	</dependencies>
 </ivy-module>

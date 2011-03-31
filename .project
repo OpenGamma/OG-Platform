@@ -3,23 +3,30 @@
 	<name>OG Platform</name>
 	<comment></comment>
 	<projects>
-		<project>Fudge</project>
-		<project>Fudge-Proto</project>
-		<project>OG Analytics</project>
-		<project>OG Bloomberg</project>
-		<project>OG Config</project>
-		<project>OG Engine</project>
-		<project>OG Excel</project>
-		<project>OG Financial</project>
-		<project>OG Integration</project>
-		<project>OG LiveData</project>
-		<project>OG Reuters</project>
-		<project>OG Security</project>
-		<project>OG TimeSeries Storage</project>
-		<project>OG Util</project>
 	</projects>
 	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/ivy-load.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1300795110032</id>
+			<name></name>
+			<type>30</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-projects</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
