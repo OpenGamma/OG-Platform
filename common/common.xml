@@ -359,7 +359,7 @@
 	    <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="LICENSE.txt" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="README.txt" eol="lf" eof="remove" />
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
-		<ivy:retrieve type="jar" conf="opengamma" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
+		<ivy:retrieve type="jar" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">

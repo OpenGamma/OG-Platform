@@ -12,31 +12,28 @@ import com.opengamma.math.function.Function1D;
 /**
  * Calculates the sample variance of a series of data. 
  * <p> 
- * The unbiased sample variance {@latex.inline $VAR$} of a series {@latex.inline $x_1, x_2, \\dots, x_n$} is given by:
+ * The unbiased sample variance {@latex.inline $\\mathrm{var}$} of a series {@latex.inline $x_1, x_2, \\dots, x_n$} is given by:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * VAR = \\frac{1}{n-1}\\sum\\limits_{i=1}^{n}(x_i - \\overline{x})^2
- * \\end{eqnarray*}}
+ * \\begin{align*}
+ * \\text{var} = \\frac{1}{n-1}\\sum_{i=1}^{n}(x_i - \\overline{x})^2
+ * \\end{align*}}
  * where {@latex.inline $\\overline{x}$} is the sample mean. For the population variance, see {@link PopulationVarianceCalculator}.
  */
 public class SampleVarianceCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _meanCalculator = new MeanCalculator();
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
 
   /**
-   * @param x The array of data
+   * @param x The array of data, not null, must contain at least two elements
    * @return The sample variance
-   * @throws IllegalArgumentException If the array is null or contains fewer than two elements
    */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least two points to calculate the sample variance");
-    }
-    final Double mean = _meanCalculator.evaluate(x);
-    double diff, sum = 0;
+    Validate.isTrue(x.length >= 2, "Need at least two points to calculate the sample variance");
+    final Double mean = MEAN.evaluate(x);
+    double sum = 0;
     for (final Double value : x) {
-      diff = value - mean;
+      final double diff = value - mean;
       sum += diff * diff;
     }
     final int n = x.length;
