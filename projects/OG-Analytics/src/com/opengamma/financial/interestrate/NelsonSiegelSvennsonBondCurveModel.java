@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.serialization.InnerClassSubstitution;
 import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
@@ -43,10 +42,6 @@ public class NelsonSiegelSvennsonBondCurveModel {
       }
 
     };
-  }
-
-  public static Object innerClassSubstitute(Object object) throws Exception {
-    return InnerClassSubstitution.getMethod(object).invoke(object);
   }
 
 }

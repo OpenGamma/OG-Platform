@@ -14,7 +14,11 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Substitution representation of an inner class that is created as an invocation on the containing
- * class. 
+ * class. Call with an object instance if a specific instance is needed for the invocation. If the
+ * method is static or the containing object has no state pass the containing class. If an instance
+ * is passed, care must be taken in its serialized form such that it does not include the contained
+ * form (e.g. as an attribute) - doing so will create a loop in the graph which may prevent
+ * {@link #readReplace} from executing correctly.
  */
 public final class InvokedSerializedForm implements Serializable {
 

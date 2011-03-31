@@ -8,7 +8,6 @@ package com.opengamma.math.function;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.smile.fitting.SVINonLinearLeastSquareFitter;
-import com.opengamma.util.serialization.InnerClassSubstitution;
 import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
@@ -90,10 +89,6 @@ public abstract class ParameterizedFunction<S, T, U> {
       }
 
     };
-  }
-
-  public static Object innerClassSubstitute(Object object) throws Exception {
-    return InnerClassSubstitution.getMethod(object).invoke(object);
   }
 
 }

@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeMessageBuilder;
@@ -44,28 +48,48 @@ import com.opengamma.OpenGammaRuntimeException;
   protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
 
   /**
-   * Replaces an anonymous inner class with a serializable substitution.
+   * The cache of previously resolved (and forced accessible) {@code writeReplace} methods.
+   */
+  private static final ConcurrentMap<Class<?>, Method> s_writeReplace = new ConcurrentHashMap<Class<?>, Method>();
+
+  /**
+   * Replaces an anonymous inner class with a serializable substitution based on its {@code writeReplace}
+   * method.
+   * 
+   * @param object the object to substitute, not {@code null}
+   * @return the substitution object as returned by its {@code writeReplace} method
+   * @throws OpenGammaRuntimeException if no suitable method is defined or an error occurs in its execution
    */
   protected static Object substituteObject(final Object object) {
-    Class<?> clazz = object.getClass();
+    final Class<?> clazz = object.getClass();
     if (clazz.isAnonymousClass()) {
-      clazz = clazz.getEnclosingClass();
-      while (clazz != null) {
-        try {
-          return clazz.getDeclaredMethod("innerClassSubstitute", Object.class).invoke(null, object);
-        } catch (IllegalAccessException e) {
-          throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object, e);
-        } catch (InvocationTargetException e) {
-          if (e.getTargetException() instanceof RuntimeException) {
-            throw (RuntimeException) e.getTargetException();
+      Method method = s_writeReplace.get(clazz);
+      if (method == null) {
+        method = AccessController.doPrivileged(new PrivilegedAction<Method>() {
+
+          @Override
+          public Method run() {
+            try {
+              final Method mtd = clazz.getMethod("writeReplace");
+              mtd.setAccessible(true);
+              return mtd;
+            } catch (NoSuchMethodException e) {
+              // Ignore
+            }
+            return null;
           }
-        } catch (NoSuchMethodException e) {
-          // Ignore
-          //e.printStackTrace();
+
+        });
+        if (method == null) {
+          throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object);
         }
-        clazz = clazz.getEnclosingClass();
+        s_writeReplace.putIfAbsent(clazz, method);
       }
-      throw new OpenGammaRuntimeException("No serialization substitution available for anonymous inner class object " + object);
+      try {
+        return method.invoke(object);
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Couldn't call writeReplace on inner class", e);
+      }
     }
     return object;
   }
