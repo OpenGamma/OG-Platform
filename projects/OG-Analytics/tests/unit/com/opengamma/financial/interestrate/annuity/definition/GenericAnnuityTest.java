@@ -5,18 +5,21 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -26,6 +29,7 @@ public class GenericAnnuityTest {
   private static final List<CouponFixed> LIST_PAYMENTS;
   private static final Payment[] MIXED_PAYMENTS;
   private static final List<Payment> LIST_MIXED_PAYMENTS;
+  private static final Currency CUR = Currency.USD;
 
   static {
     final int n = 5;
@@ -36,11 +40,11 @@ public class GenericAnnuityTest {
     MIXED_PAYMENTS = new Payment[n];
     LIST_MIXED_PAYMENTS = new ArrayList<Payment>();
     for (int i = 0; i < n; i++) {
-      final CouponFixed temp = new CouponFixed((i + 1) * tau, "fg", tau, coupon);
+      final CouponFixed temp = new CouponFixed(CUR, (i + 1) * tau, "fg", tau, coupon);
       PAYMENTS[i] = temp;
       LIST_PAYMENTS.add(temp);
       if (i % 2 == 0) {
-        final PaymentFixed temp2 = new PaymentFixed((i + 1) * tau, 23.2, "fg");
+        final PaymentFixed temp2 = new PaymentFixed(CUR, (i + 1) * tau, 23.2, "fg");
         MIXED_PAYMENTS[i] = temp2;
         LIST_MIXED_PAYMENTS.add(temp2);
       } else {

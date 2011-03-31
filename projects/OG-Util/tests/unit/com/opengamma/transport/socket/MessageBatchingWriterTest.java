@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeSize;
+import org.fudgemsg.wire.FudgeSize;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

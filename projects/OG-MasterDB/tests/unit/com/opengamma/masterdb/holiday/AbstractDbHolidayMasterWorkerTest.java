@@ -8,8 +8,8 @@ package com.opengamma.masterdb.holiday;
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlDate;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 import java.util.TimeZone;
@@ -18,13 +18,12 @@ import javax.time.Instant;
 import javax.time.TimeSource;
 import javax.time.calendar.LocalDate;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
@@ -37,7 +36,6 @@ import com.opengamma.util.test.DBTest;
 /**
  * Base tests for DbHolidayMasterWorker via DbHolidayMaster.
  */
-@Ignore
 public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbHolidayMasterWorkerTest.class);
@@ -53,7 +51,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
@@ -106,7 +104,7 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DBTest {
         202, toSqlDate(LocalDate.of(2010, 2, 1)));
   }
 
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     _holMaster = null;
     super.tearDown();

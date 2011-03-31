@@ -5,20 +5,22 @@
  */
 package com.opengamma.masterdb.position;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.util.test.DBTest;
 
 /**
  * Tests QueryPositionDbPositionMasterWorker.
@@ -28,6 +30,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
 
   private static final Logger s_logger = LoggerFactory.getLogger(QueryPositionDbPositionMasterWorkerGetTradeTest.class);
 
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
   public QueryPositionDbPositionMasterWorkerGetTradeTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
@@ -35,12 +38,12 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_getTrade_nullUID() {
     _posMaster.get(null);
   }
 
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getTrade_versioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0", "0");
     _posMaster.get(uid);
@@ -99,7 +102,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
   }
 
   //-------------------------------------------------------------------------
-  @Test(expected = DataNotFoundException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getTradePosition_unversioned_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbPos", "0");
     _posMaster.get(uid);

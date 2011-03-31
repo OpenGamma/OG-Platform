@@ -8,7 +8,7 @@ package com.opengamma.transport.jaxrs;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Base class for the Fudge JAX-RS objects.

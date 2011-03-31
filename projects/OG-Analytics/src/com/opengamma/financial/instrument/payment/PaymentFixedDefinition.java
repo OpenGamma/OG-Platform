@@ -90,7 +90,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    return new PaymentFixed(paymentTime, _amount, fundingCurveName);
+    return new PaymentFixed(getCurrency(), paymentTime, _amount, fundingCurveName);
   }
 
   @Override

@@ -22,6 +22,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -35,12 +36,16 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
   private final double _notional;
   private final double _couponsPerYear;
   private final BondConvention _convention;
+  /**
+   * The bond currency.
+   */
+  private final Currency _currency;
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double couponsPerYear, final BondConvention convention) {
-    this(nominalDates, settlementDates, couponRate, 1, couponsPerYear, convention);
+  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double couponsPerYear, final BondConvention convention) {
+    this(currency, nominalDates, settlementDates, couponRate, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear, 
+  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear,
       final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
@@ -56,13 +61,14 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     _notional = notional;
     _couponsPerYear = couponsPerYear;
     _convention = convention;
+    _currency = currency;
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double couponsPerYear, final BondConvention convention) {
-    this(nominalDates, settlementDates, coupons, 1, couponsPerYear, convention);
+  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double couponsPerYear, final BondConvention convention) {
+    this(currency, nominalDates, settlementDates, coupons, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear, 
+  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear,
       final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
@@ -79,6 +85,15 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     _notional = notional;
     _couponsPerYear = couponsPerYear;
     _convention = convention;
+    _currency = currency;
+  }
+
+  /**
+   * Gets the _currency field.
+   * @return the _currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   public LocalDate[] getNominalDates() {
@@ -187,7 +202,7 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     for (int i = 1; i < paymentTimes.length; i++) {
       paymentTimes[i] = paymentTimes[i - 1] + timeBetweenCoupons;
     }
-    return new Bond(paymentTimes, coupon, timeBetweenCoupons, accruedInterest, yieldCurveNames[0]);
+    return new Bond(_currency, paymentTimes, coupon, timeBetweenCoupons, accruedInterest, yieldCurveNames[0]);
   }
 
   // TODO this only works for following

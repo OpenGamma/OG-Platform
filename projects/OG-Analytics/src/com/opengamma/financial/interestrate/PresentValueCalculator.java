@@ -14,8 +14,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSReplicationSABRMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponCMSReplicationSABRMethod;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -24,7 +27,12 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIborSABRMethod;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 
 /**
  * Calculates the present value of an instrument for a given YieldCurveBundle (set of yield curve that the instrument is sensitive to) 
@@ -91,9 +99,29 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
 
   @Override
   public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
     return visitSwap(swap, curves);
+  }
+
+  @Override
+  public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
+    return method.price(swaption, sabr);
+  }
+
+  @Override
+  public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
+    return method.price(swaption, sabr);
   }
 
   @Override
@@ -179,17 +207,32 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  /**
-   * Pricing by discounting (no convexity adjustment).
-   */
   public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+      return replication.price(payment, sabrBundle);
+    }
+    // Implementation comment: if not SABR data, price without convexity adjustment is used.
     ParRateCalculator parRate = ParRateCalculator.getInstance();
     double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;
+  }
+
+  @Override
+  public Double visitCapFloorCMS(CapFloorCMS payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      CapFloorCMSReplicationSABRMethod replication = new CapFloorCMSReplicationSABRMethod();
+      return replication.price(payment, sabrBundle);
+    }
+    throw new UnsupportedOperationException("The PresentValueCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
   }
 
 }

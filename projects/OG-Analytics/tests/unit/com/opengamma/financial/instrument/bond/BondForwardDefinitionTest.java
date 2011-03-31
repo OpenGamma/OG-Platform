@@ -5,24 +5,28 @@
  */
 package com.opengamma.financial.instrument.bond;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 public class BondForwardDefinitionTest {
+  private static final Currency CUR = Currency.USD;
   private static final LocalDate[] NOMINAL_DATES = new LocalDate[] {LocalDate.of(2000, 1, 12), LocalDate.of(2000, 1, 12), LocalDate.of(2000, 7, 12), LocalDate.of(2001, 1, 12),
       LocalDate.of(2001, 7, 12), LocalDate.of(2002, 1, 12), LocalDate.of(2002, 7, 12), LocalDate.of(2003, 1, 12), LocalDate.of(2003, 7, 12), LocalDate.of(2004, 1, 12), LocalDate.of(2004, 7, 12),
       LocalDate.of(2005, 1, 12), LocalDate.of(2005, 7, 12), LocalDate.of(2006, 1, 12), LocalDate.of(2006, 7, 12), LocalDate.of(2007, 1, 12), LocalDate.of(2007, 7, 12), LocalDate.of(2008, 1, 12),
@@ -37,7 +41,7 @@ public class BondForwardDefinitionTest {
   private static final double[] COUPONS = new double[NOMINAL_DATES.length - 1];
   private static final double COUPONS_PER_YEAR = 2;
   private static final double NOTIONAL = 100;
-  private static final BondDefinition BOND_DEFINITION = new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
+  private static final BondDefinition BOND_DEFINITION = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final LocalDate FORWARD_DATE = LocalDate.of(2000, 6, 30);
   private static final BondConvention BOND_FORWARD_CONVENTION;
   private static final BondForwardDefinition BOND_FORWARD_DEFINITION;
@@ -91,7 +95,7 @@ public class BondForwardDefinitionTest {
     BondForwardDefinition other = new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE, BOND_FORWARD_CONVENTION);
     assertEquals(BOND_FORWARD_DEFINITION, other);
     assertEquals(BOND_FORWARD_DEFINITION.hashCode(), other.hashCode());
-    other = new BondForwardDefinition(new BondDefinition(NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION), FORWARD_DATE, BOND_FORWARD_CONVENTION);
+    other = new BondForwardDefinition(new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPON + 1, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION), FORWARD_DATE, BOND_FORWARD_CONVENTION);
     assertFalse(BOND_FORWARD_DEFINITION.equals(other));
     other = new BondForwardDefinition(BOND_DEFINITION, FORWARD_DATE.plusDays(1), BOND_FORWARD_CONVENTION);
     assertFalse(BOND_FORWARD_DEFINITION.equals(other));

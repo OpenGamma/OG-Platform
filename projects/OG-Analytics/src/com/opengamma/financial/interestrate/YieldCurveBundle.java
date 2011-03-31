@@ -42,6 +42,15 @@ public class YieldCurveBundle {
     }
   }
 
+  /**
+   * Constructor from a bundle.
+   * @param bundle A bundle.
+   */
+  public YieldCurveBundle(YieldCurveBundle bundle) {
+    Validate.notNull(bundle);
+    _curves = bundle._curves;
+  }
+
   public YieldCurveBundle() {
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
   }

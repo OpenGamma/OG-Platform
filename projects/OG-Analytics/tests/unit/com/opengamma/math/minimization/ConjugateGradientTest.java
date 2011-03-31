@@ -10,11 +10,11 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradiantTestCase {
+public class ConjugateGradientTest extends MultidimensionalMinimizerWithGradientTestCase {
   private static double EPS = 1e-8;
 
   private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
-  private static VectorMinimizerWithGradient MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 100);
+  private static ConjugateGradientVectorMinimizer MINIMISER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER, EPS, 100);
 
   @Test
   public void testSolvingRosenbrock() {

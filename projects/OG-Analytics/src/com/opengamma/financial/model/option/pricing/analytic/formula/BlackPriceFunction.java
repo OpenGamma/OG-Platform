@@ -21,6 +21,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
   @Override
   public Function1D<BlackFunctionData, Double> getPriceFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
+    final double eps = 1E-16;
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     return new Function1D<BlackFunctionData, Double>() {
@@ -29,15 +30,18 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
       @Override
       public Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
-        final double sigma = data.getBlackVolatility();
         final double f = data.getForward();
         final double discountFactor = data.getDiscountFactor();
+        if (k < eps) {
+          return option.isCall() ? (discountFactor * f) : 0.0;
+        }
+        final double sigma = data.getBlackVolatility();
         final int sign = option.isCall() ? 1 : -1;
         final double sigmaRootT = sigma * Math.sqrt(t);
         if (f == k) {
           return discountFactor * f * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
         }
-        if (sigmaRootT < 1e-16) {
+        if (sigmaRootT < eps) {
           final double x = sign * (f - k);
           return (x > 0 ? discountFactor * x : 0.0);
         }

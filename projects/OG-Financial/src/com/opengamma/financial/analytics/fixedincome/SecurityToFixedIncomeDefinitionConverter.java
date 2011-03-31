@@ -109,7 +109,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final double coupon = security.getCouponRate() / 100;
     final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-    return new BondDefinition(nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
+    return new BondDefinition(security.getCurrency(), nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
   }
 
   @Override
@@ -119,8 +119,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final Calendar calendar = getCalendar(regionId);
     final Currency currency = security.getCurrency();
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
-    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode()
-        + "_CASH_CONVENTION");
+    final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
     //return new CashDefinition(maturityDate, cashSecurity.getRate(), convention);
     return new CashDefinition(maturityDate, 0, convention);
   }
@@ -211,7 +210,7 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double fixedRate = fixedLeg.getRate();
     final SwapConvention convention = new SwapConvention(0, conventions.getSwapFixedLegDayCount(), conventions.getBusinessDayConvention(), calendar, false, currency + "_FIXED_LEG_SWAP_CONVENTION");
-    return new FixedSwapLegDefinition(effectiveDate, nominalDates, settlementDates, notional, fixedRate, convention);
+    return new FixedSwapLegDefinition(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, nominalDates, settlementDates, notional, fixedRate, convention);
   }
 
   private FloatingSwapLegDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg, final Calendar calendar,
@@ -227,7 +226,8 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final double spread = floatLeg.getSpread();
     final SwapConvention convention = new SwapConvention(0, conventions.getSwapFloatingLegDayCount(), conventions.getSwapFloatingLegBusinessDayConvention(), calendar, false, currency
         + "_FLOATING_LEG_SWAP_CONVENTION");
-    return new FloatingSwapLegDefinition(effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, spread, convention);
+    return new FloatingSwapLegDefinition(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate,
+        spread, convention);
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {

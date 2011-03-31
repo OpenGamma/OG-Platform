@@ -11,7 +11,6 @@ tests/classes/
 tests/output/
 !src/com/opengamma/util/db/
 !tests/unit/com/opengamma/util/db/
-/.fudge-proto-gitignore
 /MANIFEST.MF
 .clover/
 build.number

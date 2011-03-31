@@ -18,6 +18,8 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.fudgemsg.ExpiryBuilder;
+
 /**
  * Test Expiry.
  */

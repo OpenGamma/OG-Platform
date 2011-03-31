@@ -5,13 +5,35 @@
  */
 package com.opengamma.web.config;
 
+import java.io.CharArrayReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -20,6 +42,11 @@ import com.opengamma.web.WebHomeUris;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractWebResource {
+  
+  /**
+   * The Fudge context.
+   */
+  protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
   /**
    * The backing bean.
@@ -83,6 +110,43 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
    */
   protected WebConfigData data() {
     return _data;
+  }
+  
+  /**
+   * Utility method to convert XML to configuration object
+   * @param xml the configuration xml
+   * @return the configuration object
+   */
+  protected Object parseXML(String xml) {
+    final CharArrayReader car = new CharArrayReader(xml.toCharArray());
+    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(FUDGE_CONTEXT, car));
+    FudgeFieldContainer message = fmr.nextMessage();
+    Object config = FUDGE_CONTEXT.fromFudgeMsg(message);
+    return config;
+  }
+
+  protected String createXML(ConfigDocument<?> doc) {
+    String configXML = null;
+    // get xml and pretty print it
+    FudgeMsgEnvelope msg = FUDGE_CONTEXT.toFudgeMsg(doc.getValue());
+    StringWriter buf = new StringWriter(1024);  
+    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(FUDGE_CONTEXT, buf));
+    writer.writeMessageEnvelope(msg);
+    try {
+      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+      Document xmlDoc = db.parse(new InputSource(new StringReader(buf.toString())));
+      xmlDoc.getDocumentElement().normalize();
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+      DOMSource source = new DOMSource(xmlDoc);
+      buf = new StringWriter(1024);
+      StreamResult result =  new StreamResult(buf);
+      transformer.transform(source, result);
+      configXML = buf.toString();
+    } catch (Exception ex) {
+      throw new IllegalStateException(ex);
+    }
+    return configXML;
   }
 
 }

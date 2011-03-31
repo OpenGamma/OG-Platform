@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -18,11 +21,12 @@ public class BondForwardTest {
   private static final double COUPON = 0.01;
   private static final double[] PAYMENT_TIMES = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   private static final String YIELD_CURVE_NAME = "A";
-  private static final Bond BOND = new Bond(PAYMENT_TIMES, COUPON, YIELD_CURVE_NAME);
+  private static final Currency CUR = Currency.USD;
+  private static final Bond BOND = new Bond(CUR, PAYMENT_TIMES, COUPON, YIELD_CURVE_NAME);
   private static final double FORWARD_DATE = 0.12;
   private static final double ACCRUED_INTEREST = 0.2;
   private static final double ACCRUED_INTEREST_AT_DELIVERY = 0.3;
-  private static final CouponFixed[] PAYMENTS = new CouponFixed[] {new CouponFixed(0.5, YIELD_CURVE_NAME, 0.5, 0.03)};
+  private static final CouponFixed[] PAYMENTS = new CouponFixed[] {new CouponFixed(CUR, 0.5, YIELD_CURVE_NAME, 0.5, 0.03)};
   private static final BondForward FORWARD = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -54,7 +58,7 @@ public class BondForwardTest {
     BondForward other = new BondForward(BOND, FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
     assertEquals(other, FORWARD);
     assertEquals(other.hashCode(), FORWARD.hashCode());
-    other = new BondForward(new Bond(new double[] {1, 2, 3, 4}, COUPON, YIELD_CURVE_NAME), FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
+    other = new BondForward(new Bond(CUR, new double[] {1, 2, 3, 4}, COUPON, YIELD_CURVE_NAME), FORWARD_DATE, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
     assertFalse(other.equals(FORWARD));
     other = new BondForward(BOND, FORWARD_DATE + 1, ACCRUED_INTEREST, ACCRUED_INTEREST_AT_DELIVERY, PAYMENTS);
     assertFalse(other.equals(FORWARD));

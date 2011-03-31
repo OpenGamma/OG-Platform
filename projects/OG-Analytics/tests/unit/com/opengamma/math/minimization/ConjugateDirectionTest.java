@@ -14,7 +14,7 @@ public class ConjugateDirectionTest extends MultidimensionalMinimizerTestCase {
   private static final double EPS = 1e-8;
 
   private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
-  private static VectorMinimizer MINIMIZER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER, EPS, 10000);
+  private static ConjugateDirectionVectorMinimizer MINIMIZER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER, EPS, 10000);
 
   @Test
   public void testSolvingRosenbrock() {

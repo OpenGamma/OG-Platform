@@ -29,7 +29,7 @@ import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A JMS LiveData client. This client is implemented using JMS's asynchronous

@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test ComputedValue.

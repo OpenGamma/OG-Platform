@@ -19,8 +19,8 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.json.FudgeJSONStreamReader;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.json.FudgeJSONStreamReader;
 
 /**
  * Register as a JAX-RS provider to support REST request payloads containing JSON encoded messages. 

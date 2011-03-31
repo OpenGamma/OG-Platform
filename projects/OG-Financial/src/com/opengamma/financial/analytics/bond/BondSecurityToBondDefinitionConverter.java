@@ -98,7 +98,7 @@ public class BondSecurityToBondDefinitionConverter {
     final double coupon = security.getCouponRate() / 100;
     final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-    return new BondDefinition(nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
+    return new BondDefinition(currency, nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
   }
 
   private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {

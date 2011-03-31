@@ -5,12 +5,13 @@
  */
 package com.opengamma.masterdb.security;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
 
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DBTest;
@@ -29,6 +30,7 @@ public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCa
    * @param databaseType
    * @param databaseVersion
    */
+  @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
   public DbSecurityMasterRandomTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running test for database={} version={}", databaseType, databaseVersion);
@@ -37,19 +39,19 @@ public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCa
   /**
    * @throws java.lang.Exception
    */
-  @Before
+  @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
     s_logger.debug("SecMaster initialization complete {}", secMaster);
-    _testCase = new SecurityMasterTestCase(secMaster);
+    _testCase = new SecurityMasterTestCase(secMaster) {};
   }
 
   /**
    * @throws java.lang.Exception
    */
-  @After
+  @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
   }

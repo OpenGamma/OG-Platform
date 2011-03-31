@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
@@ -32,7 +32,7 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
   /**
    * Swap underlying the swaption.
    */
-  private final ZZZSwapFixedIborDefinition _underlyingSwap;
+  private final SwapFixedIborDefinition _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
@@ -46,7 +46,7 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedIborDefinition(ZonedDateTime expiryDate, double strike, ZZZSwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
+  private SwaptionPhysicalFixedIborDefinition(ZonedDateTime expiryDate, double strike, SwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
     super(strike, new Expiry(expiryDate), isCall);
     // A swaption payer can be consider as a call on the swap rate.
     Validate.notNull(expiryDate, "expiry date");
@@ -63,7 +63,7 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedIborDefinition from(ZonedDateTime expiryDate, ZZZSwapFixedIborDefinition underlyingSwap, boolean isLong) {
+  public static SwaptionPhysicalFixedIborDefinition from(ZonedDateTime expiryDate, SwapFixedIborDefinition underlyingSwap, boolean isLong) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     // A swaption payer can be consider as a call on the swap rate.
@@ -76,16 +76,24 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    * Gets the _underlyingSwap field.
    * @return The underlying swap.
    */
-  public ZZZSwapFixedIborDefinition getUnderlyingSwap() {
+  public SwapFixedIborDefinition getUnderlyingSwap() {
     return _underlyingSwap;
   }
 
   /**
    * Gets the _isLong field.
-   * @return The Long (true)/Short (flase) flag.
+   * @return The Long (true)/Short (false) flag.
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  @Override
+  public String toString() {
+    String result = "European swaption physical delivery: \n";
+    result += "Expiry date: " + getExpiry().toString() + ", Long: " + _isLong;
+    result += "\nUnderlying swap: \n" + _underlyingSwap.toString();
+    return result;
   }
 
   @Override

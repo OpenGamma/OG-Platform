@@ -21,7 +21,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * RESTful resource for a view client.

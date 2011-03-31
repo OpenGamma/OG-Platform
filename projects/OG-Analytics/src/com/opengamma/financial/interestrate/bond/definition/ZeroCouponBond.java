@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
+import com.opengamma.util.money.Currency;
+
 /**
  * 
  */
 public class ZeroCouponBond extends Bond {
 
-  public ZeroCouponBond(final double paymentTime, final String yieldCurveName) {
-    super(new double[] {paymentTime}, 0, yieldCurveName);
+  public ZeroCouponBond(Currency currency, final double paymentTime, final String yieldCurveName) {
+    super(currency, new double[] {paymentTime}, 0, yieldCurveName);
   }
 
 }

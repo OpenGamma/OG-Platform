@@ -5,7 +5,6 @@
  */
 package com.opengamma.math.minimization;
 
-import org.testng.annotations.Test;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.COUPLED_ROSENBROCK_GRAD;
 import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBROCK;
@@ -13,6 +12,7 @@ import static com.opengamma.math.minimization.MinimizationTestFunctions.ROSENBRO
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -29,12 +29,12 @@ public class MultidimensionalMinimizerSpeedTest {
   private static double EPS = 1e-8;
 
   private static ScalarMinimizer LINE_MINIMIZER = new BrentMinimizer1D();
-  private final static VectorMinimizer SIMPLEX_MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
-  private static VectorMinimizer CONJUGATE_DIRECTION_MINIMIZER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER,
+  private final static NelderMeadDownhillSimplexMinimizer SIMPLEX_MINIMIZER = new NelderMeadDownhillSimplexMinimizer();
+  private static ConjugateDirectionVectorMinimizer CONJUGATE_DIRECTION_MINIMIZER = new ConjugateDirectionVectorMinimizer(LINE_MINIMIZER,
       EPS, 10000);
-  private static VectorMinimizer CONJUGATE_GRADIENT_MINIMIZER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER,
+  private static ConjugateGradientVectorMinimizer CONJUGATE_GRADIENT_MINIMIZER = new ConjugateGradientVectorMinimizer(LINE_MINIMIZER,
       EPS, 500);
-  private static VectorMinimizer QUASI_NEWTON_MINIMISER = new QuasiNewtonVectorMinimizer();
+  private static QuasiNewtonVectorMinimizer QUASI_NEWTON_MINIMISER = new QuasiNewtonVectorMinimizer();
 
   @Test
   public void TestWithoutGradientInfo1() {
@@ -56,7 +56,7 @@ public class MultidimensionalMinimizerSpeedTest {
 
   @Test
   public void TestWithoutGradientInfo2() {
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
+    final DoubleMatrix1D start = new DoubleMatrix1D(new double[] {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0});
     doHotSpot(SIMPLEX_MINIMIZER, "Simplex - coupled rosenbrock ", COUPLED_ROSENBROCK, null, start);
 
     //Conjugate direction takes too long
@@ -78,9 +78,9 @@ public class MultidimensionalMinimizerSpeedTest {
         start);
   }
 
-  private void doHotSpot(final VectorMinimizer minimizer, final String name,
+  private void doHotSpot(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final String name,
       final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad,
-      DoubleMatrix1D startPosition) {
+      final DoubleMatrix1D startPosition) {
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
       doTest(minimizer, function, grad, startPosition);
     }
@@ -93,12 +93,13 @@ public class MultidimensionalMinimizerSpeedTest {
     }
   }
 
-  private void doTest(final VectorMinimizer minimizer, final Function1D<DoubleMatrix1D, Double> function,
-      final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, DoubleMatrix1D startPosition) {
-    if (grad == null || !(minimizer instanceof VectorMinimizerWithGradient)) {
+  private void doTest(final Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D> minimizer, final Function1D<DoubleMatrix1D, Double> function,
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad, final DoubleMatrix1D startPosition) {
+    if (grad == null || !(minimizer instanceof MinimizerWithGradient)) {
       minimizer.minimize(function, startPosition);
     } else {
-      VectorMinimizerWithGradient minwithGrad = (VectorMinimizerWithGradient) minimizer;
+      @SuppressWarnings("unchecked")
+      final MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> minwithGrad = (MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D>) minimizer;
       minwithGrad.minimize(function, grad, startPosition);
     }
   }

@@ -1,22 +1,18 @@
 <ivy-module version="2.0">
     <info organisation="com.opengamma" module="og-analytics" status="integration"/>
     
-    <configurations>
-      <conf name="core"/>
-      <conf name="opengamma" extends="core"/>
-    </configurations>
-    
     <publications>
       <artifact name="og-analytics" type="jar"/>
     </publications>
     <dependencies>
-    	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
+      <dependency name="og-util" rev="latest.integration" />
     	
       <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
       <dependency org="cern" name="colt" rev="1.2.0"/>
       <dependency org="cern" name="parallelcolt" rev="0.9.1"/>
       <dependency org="latexlet" name="latexlet" rev="1.1"/>
       <dependency org="org.apache.commons" name="commons-math" rev="2.1"/>
+      <exclude org="org.junit" />
     </dependencies>
 </ivy-module>
 

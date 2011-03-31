@@ -5,8 +5,6 @@
  */
 package com.opengamma.util.test;
 
-import org.junit.After;
-import org.junit.Before;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -25,7 +23,6 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     super(databaseType, databaseVersion);
   }
 
-  @Before
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
@@ -43,7 +40,6 @@ abstract public class TransactionalHibernateTest extends HibernateTest {
     }        
   }
 
-  @After
   @AfterMethod
   public void tearDown() throws Exception {
     commit();

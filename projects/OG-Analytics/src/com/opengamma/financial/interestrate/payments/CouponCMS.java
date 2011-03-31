@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Constant Maturity Swap coupon.
@@ -20,32 +21,40 @@ public class CouponCMS extends CouponFloating {
    * Swap underlying the CMS definition. The rate and notional are not used. The swap should be of vanilla type.
    */
   private final FixedCouponSwap<? extends Payment> _underlyingSwap;
+  /**
+   * The time (in years) to swap settlement.
+   */
+  private final double _settlementTime;
 
   /**
    * Constructor from floating coupon details and underlying swap.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
+   * @param settlementTime TODO
    */
-  public CouponCMS(double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap) {
-    super(paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
+  public CouponCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime) {
+    super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
     _underlyingSwap = underlyingSwap;
+    _settlementTime = settlementTime;
   }
 
   /**
    * Builder from a floating coupon and an underlying swap.
    * @param coupon A floating coupon.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
+   * @param settlementTime TODO
    * @return The CMS coupon.
    */
-  public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap) {
+  public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap, double settlementTime) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
-    return new CouponCMS(coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap);
+    return new CouponCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap, settlementTime);
   }
 
   /**
@@ -54,6 +63,14 @@ public class CouponCMS extends CouponFloating {
    */
   public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
     return _underlyingSwap;
+  }
+
+  /**
+   * Gets the underlying swap settlement time.
+   * @return The swap settlement time.
+   */
+  public double getSettlementTime() {
+    return _settlementTime;
   }
 
   @Override

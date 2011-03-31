@@ -110,10 +110,23 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @return The Ibor coupon.
    */
   public static CouponIborDefinition from(CouponDefinition coupon, ZonedDateTime fixingDate, IborIndex index) {
+    Validate.notNull(coupon, "coupon");
     Validate.notNull(fixingDate, "fixing date");
     Validate.notNull(index, "index");
     return new CouponIborDefinition(index.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         fixingDate, index);
+  }
+
+  /**
+   * Builder from an Ibor coupon with spread. The spread is ignored.
+   * @param coupon The coupon with spread.
+   * @return The ibor coupon.
+   */
+  public static CouponIborDefinition from(CouponIborSpreadDefinition coupon) {
+    Validate.notNull(coupon, "coupon");
+    return new CouponIborDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+        coupon.getFixingDate(), coupon.getIndex());
+
   }
 
   /**
@@ -205,15 +218,15 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The Ibor coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate());
     }
     // Ibor is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CouponIbor(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(),
-        forwardCurveName);
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        getFixingPeriodAccrualFactor(), forwardCurveName);
   }
 
   @Override

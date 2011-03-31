@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.util.wrapper;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.apache.commons.math.FunctionEvaluationException;

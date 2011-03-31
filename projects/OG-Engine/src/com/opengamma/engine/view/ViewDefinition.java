@@ -18,6 +18,8 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -30,8 +32,9 @@ import com.opengamma.util.tuple.Pair;
  * and computed.
  */
 @PublicAPI
-public class ViewDefinition implements Serializable {
+public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
+  private UniqueIdentifier _uniqueIdentifier;
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
@@ -458,6 +461,16 @@ public class ViewDefinition implements Serializable {
     }
 
     return true;
+  }
+
+  @Override
+  public void setUniqueId(final UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
+  }
+
+  @Override
+  public UniqueIdentifier getUniqueId() {
+    return _uniqueIdentifier;
   }
 
 }

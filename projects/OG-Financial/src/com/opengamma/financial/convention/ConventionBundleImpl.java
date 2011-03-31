@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -27,6 +29,7 @@ public class ConventionBundleImpl implements ConventionBundle {
   private BusinessDayConvention _businessDayConvention;
   private Integer _settlementDays;
   private Frequency _frequency;
+  private Period _period;
 
   private DayCount _swapFixedLegDayCount;
   private BusinessDayConvention _swapFixedLegBusinessDayConvention;
@@ -74,6 +77,17 @@ public class ConventionBundleImpl implements ConventionBundle {
     _dayCount = dayCount;
     _businessDayConvention = businessDayConvention;
     _frequency = frequency;
+    _settlementDays = settlementDays;
+  }
+
+  // cash/general
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _period = period;
     _settlementDays = settlementDays;
   }
 
@@ -431,7 +445,13 @@ public class ConventionBundleImpl implements ConventionBundle {
     return _yieldConvention;
   }
 
+  @Override
   public boolean rollToSettlement() {
     return _rollToSettlement;
+  }
+
+  @Override
+  public Period getPeriod() {
+    return _period;
   }
 }

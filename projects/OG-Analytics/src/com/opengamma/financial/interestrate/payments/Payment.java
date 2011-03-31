@@ -9,24 +9,37 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a generic payment.
  */
 public abstract class Payment implements InterestRateDerivative {
 
-  //TODO: add currency
+  /**
+   * The index currency.
+   */
+  private final Currency _currency;
+  /**
+   * The payment time.
+   */
   private final double _paymentTime;
+  /**
+   * The funding curve name used in pricing.
+   */
   private final String _fundingCurveName;
 
   /**
    * Constructor for a Payment.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    */
-  public Payment(double paymentTime, String fundingCurveName) {
+  public Payment(Currency currency, double paymentTime, String fundingCurveName) {
+    Validate.notNull(currency, "currency");
     Validate.notNull(fundingCurveName, "funding curve name");
     Validate.isTrue(paymentTime >= 0.0, "payment time < 0");
+    _currency = currency;
     _paymentTime = paymentTime;
     _fundingCurveName = fundingCurveName;
   }
@@ -45,6 +58,14 @@ public abstract class Payment implements InterestRateDerivative {
    */
   public String getFundingCurveName() {
     return _fundingCurveName;
+  }
+
+  /**
+   * Gets the _currency field.
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   /**
@@ -70,6 +91,7 @@ public abstract class Payment implements InterestRateDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _currency.hashCode();
     result = prime * result + _fundingCurveName.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_paymentTime);
@@ -89,6 +111,9 @@ public abstract class Payment implements InterestRateDerivative {
       return false;
     }
     Payment other = (Payment) obj;
+    if (!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_fundingCurveName, other._fundingCurveName)) {
       return false;
     }

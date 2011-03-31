@@ -10,11 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -33,7 +28,6 @@ import com.opengamma.util.test.DBTool.TableCreationCallback;
 /**
  * Base DB test.
  */
-@RunWith(Parameterized.class)
 public abstract class DBTest implements TableCreationCallback {
 
   private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
@@ -61,7 +55,6 @@ public abstract class DBTest implements TableCreationCallback {
    * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
    * such a good idea.
    */
-  @Before
   @BeforeMethod
   public void setUp() throws Exception {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
@@ -75,7 +68,6 @@ public abstract class DBTest implements TableCreationCallback {
     _dbtool.clearTestTables();
   }
 
-  @After
   @AfterMethod
   public void tearDown() throws Exception {
     _dbtool.resetTestCatalog(); // avoids locking issues with Derby
@@ -102,7 +94,6 @@ public abstract class DBTest implements TableCreationCallback {
     return getParameters (databaseType, previousVersionCount);
   }
 
-  @Parameters
   public static Collection<Object[]> getParameters() {
     int previousVersionCount = getPreviousVersionCount();
     return getParameters (previousVersionCount);
@@ -111,6 +102,14 @@ public abstract class DBTest implements TableCreationCallback {
   @DataProvider(name = "databases")
   public static Object[][] data_databases() {
     Collection<Object[]> parameters = getParameters();
+    Object[][] array = new Object[parameters.size()][];
+    parameters.toArray(array);
+    return array;
+  }
+
+  @DataProvider(name = "databasesMoreVersions")
+  public static Object[][] data_databasesMoreVersions() {
+    Collection<Object[]> parameters = getParameters(3);
     Object[][] array = new Object[parameters.size()][];
     parameters.toArray(array);
     return array;

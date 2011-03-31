@@ -19,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Tests ViewDefinitionBuilder
  */
-@Test
+
 public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
   
   private static final UserPrincipal TEST_USER = UserPrincipal.getLocalUser();
@@ -30,8 +30,20 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
   
   private static final UniqueIdentifier FUNCTION_ID = UniqueIdentifier.of("AFunc", "B");
   
-  public void testEncoding() {
+  private static final UniqueIdentifier TEST_VIEW_DEFINITION_ID = UniqueIdentifier.of("AView", "B");
+  
+  @Test
+  public void test_viewDefinition_NoUniqueId() {
+    ViewDefinition testViewDefinition = getTestViewDefinition();
+    testViewDefinition.setUniqueId(null);
     assertEncodeDecodeCycle(ViewDefinition.class, getTestViewDefinition());
+  }
+  
+  @Test
+  public void test_viewDefinition_UniqueId() {
+    ViewDefinition testViewDefinition = getTestViewDefinition();
+    testViewDefinition.setUniqueId(TEST_VIEW_DEFINITION_ID);
+    assertEncodeDecodeCycle(ViewDefinition.class, testViewDefinition);
   }
 
   private ViewDefinition getTestViewDefinition() {

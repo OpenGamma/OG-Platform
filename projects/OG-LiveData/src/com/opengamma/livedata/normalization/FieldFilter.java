@@ -15,7 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Strips all fields out of the message except the ones you want to explicitly accept.

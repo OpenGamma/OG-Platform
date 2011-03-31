@@ -8,6 +8,8 @@ package com.opengamma.financial.convention;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.time.calendar.Period;
+
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -75,6 +77,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays, final double yearFraction) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, frequency, settlementDays, yearFraction);
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueId(uid);
+    return uid;
+  }
+
+  @Override
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Period period, final int settlementDays) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, period, settlementDays);
     final UniqueIdentifier uid = _mapper.add(bundle, convention);
     convention.setUniqueId(uid);
     return uid;
@@ -165,88 +176,107 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-    final Frequency freq = null;
+    //    final Frequency freq = null;
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR O/N")), "USD LIBOR O/N", act360, following, freq, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR T/N")), "USD LIBOR T/N", act360, following, freq, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 1w")), "USD LIBOR 1w", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 2w")), "USD LIBOR 2w", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 1m")), "USD LIBOR 1m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 2m")), "USD LIBOR 2m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m")), "USD LIBOR 3m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 4m")), "USD LIBOR 4m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 5m")), "USD LIBOR 5m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 6m")), "USD LIBOR 6m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 7m")), "USD LIBOR 7m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 8m")), "USD LIBOR 8m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 9m")), "USD LIBOR 9m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 10m")), "USD LIBOR 10m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 11m")), "USD LIBOR 11m", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 12m")), "USD LIBOR 12m", act360, following, freq, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR O/N")), "USD LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR T/N")), "USD LIBOR T/N", act360, following,
+        Period.ofDays(1), 1);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 1w")), "USD LIBOR 1w", act360, following,
+        Period.ofDays(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 2w")), "USD LIBOR 2w", act360, following,
+        Period.ofDays(14), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 1m")), "USD LIBOR 1m", act360, modified,
+        Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 2m")), "USD LIBOR 2m", act360, modified,
+        Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m")), "USD LIBOR 3m", act360, modified,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 4m")), "USD LIBOR 4m", act360, modified,
+        Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 5m")), "USD LIBOR 5m", act360, modified,
+        Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 6m")), "USD LIBOR 6m", act360, modified,
+        Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 7m")), "USD LIBOR 7m", act360, modified,
+        Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 8m")), "USD LIBOR 8m", act360, modified,
+        Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 9m")), "USD LIBOR 9m", act360, modified,
+        Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 10m")), "USD LIBOR 10m", act360, modified,
+        Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 11m")), "USD LIBOR 11m", act360, modified,
+        Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("US0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 12m")), "USD LIBOR 12m", act360, modified,
+        Period.ofMonths(12), 2);
 
     //TODO need to check that these are right for deposit rates
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1d")), "USD DEPOSIT 1d", act360, following, freq,
-        0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2d")), "USD DEPOSIT 2d", act360, following, freq,
-        0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3d")), "USD DEPOSIT 3d", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR7D Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1w")), "USD DEPOSIT 1w", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRJ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 10m")), "USD DEPOSIT 10m", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following, freq, 
-        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1d")), "USD DEPOSIT 1d", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2d")), "USD DEPOSIT 2d", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3T Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3d")), "USD DEPOSIT 3d", act360, following,
+        Period.ofDays(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR7D Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1w")), "USD DEPOSIT 1w", act360, following,
+        Period.ofDays(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2w")), "USD DEPOSIT 2w", act360, following,
+        Period.ofDays(14), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3Z Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3w")), "USD DEPOSIT 3w", act360, following,
+        Period.ofDays(21), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRA Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1m")), "USD DEPOSIT 1m", act360, following,
+        Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRB Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2m")), "USD DEPOSIT 2m", act360, following,
+        Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRC Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3m")), "USD DEPOSIT 3m", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRD Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4m")), "USD DEPOSIT 4m", act360, following,
+        Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRE Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5m")), "USD DEPOSIT 5m", act360, following,
+        Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 6m")), "USD DEPOSIT 6m", act360, following,
+        Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRG Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 7m")), "USD DEPOSIT 7m", act360, following,
+        Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRH Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 8m")), "USD DEPOSIT 8m", act360, following,
+        Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 9m")), "USD DEPOSIT 9m", act360, following,
+        Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRJ Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 10m")), "USD DEPOSIT 10m", act360, following,
+        Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following,
+        Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following,
+        Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following,
+        Period.ofYears(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following,
+        Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR3 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 3y")), "USD DEPOSIT 3y", act360, following,
+        Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR4 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 4y")), "USD DEPOSIT 4y", act360, following,
+        Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR5 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 5y")), "USD DEPOSIT 5y", act360, following,
+        Period.ofYears(5), 2);
 
     //TODO check that this is ok for FRA
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR00C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 3x3")), "USD FRA 3x3", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0CF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x9")), "USD FRA 6x9", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0FI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 9x12")), "USD FRA 9x12", act360, following, freq, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following, freq, 
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR011C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 15x18")), "USD FRA 15x18", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1C1F Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 18x21")), "USD FRA 18x21", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1F1I Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 21x24")), "USD FRA 21x24", act360, following, freq,
-        2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following, freq, 
-        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR00C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 3x3")), "USD FRA 3x3", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0CF Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 6x9")), "USD FRA 6x9", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0FI Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 9x12")), "USD FRA 9x12", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0I1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 12x15")), "USD FRA 12x15", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR011C Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 15x18")), "USD FRA 15x18", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1C1F Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 18x21")), "USD FRA 18x21", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1F1I Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 21x24")), "USD FRA 21x24", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR1I2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD FRA 24x27")), "USD FRA 24x27", act360, following,
+        Period.ofMonths(3), 2);
 
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
@@ -257,8 +287,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"),
         usgb, act360, modified, quarterly, 2, Identifier.of(SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb);
-
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, null, 2);
+    Period nullPeriod = null;
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, nullPeriod, 2);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IRFUTURE")), "USD_IRFUTURE", act360, following, null, 2, 0.25);
   }
@@ -272,22 +302,38 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR O/N")), "EUR LIBOR O/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR T/N")), "EUR LIBOR T/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 1w")), "EUR LIBOR 1w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 2w")), "EUR LIBOR 2w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 1m")), "EUR LIBOR 1m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 2m")), "EUR LIBOR 2m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m")), "EUR LIBOR 3m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 4m")), "EUR LIBOR 4m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 5m")), "EUR LIBOR 5m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m")), "EUR LIBOR 6m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 7m")), "EUR LIBOR 7m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 8m")), "EUR LIBOR 8m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 9m")), "EUR LIBOR 9m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 10m")), "EUR LIBOR 10m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 11m")), "EUR LIBOR 11m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m")), "EUR LIBOR 12m", act360, following, null, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR O/N")), "EUR LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR T/N")), "EUR LIBOR T/N", act360, following,
+        Period.ofDays(1), 1);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 1w")), "EUR LIBOR 1w", act360, following,
+        Period.ofDays(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 2w")), "EUR LIBOR 2w", act360, following,
+        Period.ofDays(14), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 1m")), "EUR LIBOR 1m", act360, modified,
+        Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 2m")), "EUR LIBOR 2m", act360, modified,
+        Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m")), "EUR LIBOR 3m", act360, modified,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 4m")), "EUR LIBOR 4m", act360, modified,
+        Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 5m")), "EUR LIBOR 5m", act360, modified,
+        Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m")), "EUR LIBOR 6m", act360, modified,
+        Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 7m")), "EUR LIBOR 7m", act360, modified,
+        Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 8m")), "EUR LIBOR 8m", act360, modified,
+        Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 9m")), "EUR LIBOR 9m", act360, modified,
+        Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 10m")), "EUR LIBOR 10m", act360, modified,
+        Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 11m")), "EUR LIBOR 11m", act360, modified,
+        Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 12m")), "EUR LIBOR 12m", act360, modified,
+        Period.ofMonths(12), 2);
 
     //TODO holiday associated with EUR swaps is TARGET
     final Identifier eu = RegionUtils.financialRegionId("EU");
@@ -304,22 +350,38 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR O/N")), "JPY LIBOR O/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR T/N")), "JPY LIBOR T/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 2w")), "JPY LIBOR 2w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1m")), "JPY LIBOR 1m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 2m")), "JPY LIBOR 2m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 4m")), "JPY LIBOR 4m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 5m")), "JPY LIBOR 5m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 7m")), "JPY LIBOR 7m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 8m")), "JPY LIBOR 8m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 9m")), "JPY LIBOR 9m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 10m")), "JPY LIBOR 10m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 11m")), "JPY LIBOR 11m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m")), "JPY LIBOR 12m", act360, following, null, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR O/N")), "JPY LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR T/N")), "JPY LIBOR T/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1w")), "JPY LIBOR 1w", act360, following,
+        Period.ofDays(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 2w")), "JPY LIBOR 2w", act360, following,
+        Period.ofDays(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 1m")), "JPY LIBOR 1m", act360, following,
+        Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 2m")), "JPY LIBOR 2m", act360, following,
+        Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 4m")), "JPY LIBOR 4m", act360, following,
+        Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 5m")), "JPY LIBOR 5m", act360, following,
+        Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following,
+        Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 7m")), "JPY LIBOR 7m", act360, following,
+        Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 8m")), "JPY LIBOR 8m", act360, following,
+        Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 9m")), "JPY LIBOR 9m", act360, following,
+        Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 10m")), "JPY LIBOR 10m", act360, following,
+        Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 11m")), "JPY LIBOR 11m", act360, following,
+        Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 12m")), "JPY LIBOR 12m", act360, following,
+        Period.ofMonths(12), 2);
 
     //TODO holiday associated with JPY swaps is Tokyo
     final Identifier jp = RegionUtils.financialRegionId("JP");
@@ -337,11 +399,16 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
     //TODO check daycount
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR01M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 1m")), "CDOR 1m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR02M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 2m")), "CDOR 2m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR03M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 3m")), "CDOR 3m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR06M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 6m")), "CDOR 6m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR12M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 12m")), "CDOR 12m", act360, following, null, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR01M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 1m")), "CDOR 1m", act360, following, Period.ofMonths(1),
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR02M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 2m")), "CDOR 2m", act360, following, Period.ofMonths(2),
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR03M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 3m")), "CDOR 3m", act360, following, Period.ofMonths(3),
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR06M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 6m")), "CDOR 6m", act360, following, Period.ofMonths(6),
+        2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("CDOR12M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CDOR 12m")), "CDOR 12m", act360, following,
+        Period.ofMonths(12), 2);
 
     //TODO holiday associated with CAD swaps is Toronto
     final Identifier ca = RegionUtils.financialRegionId("CA");
@@ -361,22 +428,38 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO looked at BSYM and the codes seem right but need to check
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR O/N")), "GBP LIBOR O/N", act365, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR T/N")), "GBP LIBOR T/N", act365, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 1w")), "GBP LIBOR 1w", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 2w")), "GBP LIBOR 2w", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 1m")), "GBP LIBOR 1m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 2m")), "GBP LIBOR 2m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m")), "GBP LIBOR 3m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 4m")), "GBP LIBOR 4m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 5m")), "GBP LIBOR 5m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m")), "GBP LIBOR 6m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 7m")), "GBP LIBOR 7m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 8m")), "GBP LIBOR 8m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 9m")), "GBP LIBOR 9m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 10m")), "GBP LIBOR 10m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 11m")), "GBP LIBOR 11m", act365, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m")), "GBP LIBOR 12m", act365, following, null, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR O/N")), "GBP LIBOR O/N", act365, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR T/N")), "GBP LIBOR T/N", act365, following,
+        Period.ofDays(1), 1);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 1w")), "GBP LIBOR 1w", act365, following,
+        Period.ofDays(7), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 2w")), "GBP LIBOR 2w", act365, following,
+        Period.ofDays(14), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 1m")), "GBP LIBOR 1m", act365, modified,
+        Period.ofMonths(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 2m")), "GBP LIBOR 2m", act365, modified,
+        Period.ofMonths(2), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m")), "GBP LIBOR 3m", act365, modified,
+        Period.ofMonths(3), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 4m")), "GBP LIBOR 4m", act365, modified,
+        Period.ofMonths(4), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 5m")), "GBP LIBOR 5m", act365, modified,
+        Period.ofMonths(5), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 6m")), "GBP LIBOR 6m", act365, modified,
+        Period.ofMonths(6), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 7m")), "GBP LIBOR 7m", act365, modified,
+        Period.ofMonths(7), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 8m")), "GBP LIBOR 8m", act365, modified,
+        Period.ofMonths(8), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 9m")), "GBP LIBOR 9m", act365, modified,
+        Period.ofMonths(9), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 10m")), "GBP LIBOR 10m", act365, modified,
+        Period.ofMonths(10), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 11m")), "GBP LIBOR 11m", act365, modified,
+        Period.ofMonths(11), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 12m")), "GBP LIBOR 12m", act365, modified,
+        Period.ofMonths(12), 0);
 
     //TODO holiday associated with GBP swaps is London
     final Identifier gb = RegionUtils.financialRegionId("GB");
@@ -396,7 +479,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     //TODO don't know if this is the right one - Australia also has Banker's Acceptance notes (like Canada) 
     //TODO check daycount
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("AU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill")), "AUD 3m Bill", act365, following, null, 2);
+
+    Period nullPeriod = null;
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("AU0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill")), "AUD 3m Bill", act365, following, nullPeriod,
+        2);
 
     //TODO holiday associated with AUD swaps is Sydney
     final Identifier au = RegionUtils.financialRegionId("AU");
@@ -418,22 +504,38 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
     //TODO check that it's actually libor that we need
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR O/N")), "CHF LIBOR O/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR T/N")), "CHF LIBOR T/N", act360, following, null, 0);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 1w")), "CHF LIBOR 1w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 2w")), "CHF LIBOR 2w", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 1m")), "CHF LIBOR 1m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 2m")), "CHF LIBOR 2m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 3m")), "CHF LIBOR 3m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 4m")), "CHF LIBOR 4m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 5m")), "CHF LIBOR 5m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m")), "CHF LIBOR 6m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 7m")), "CHF LIBOR 7m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 8m")), "CHF LIBOR 8m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 9m")), "CHF LIBOR 9m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 10m")), "CHF LIBOR 10m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 11m")), "CHF LIBOR 11m", act360, following, null, 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 12m")), "CHF LIBOR 12m", act360, following, null, 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00O/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR O/N")), "CHF LIBOR O/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF00T/N Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR T/N")), "CHF LIBOR T/N", act360, following,
+        Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0001W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 1w")), "CHF LIBOR 1w", act360, following,
+        Period.ofDays(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0002W Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 2w")), "CHF LIBOR 2w", act360, following,
+        Period.ofDays(14), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0001M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 1m")), "CHF LIBOR 1m", act360, following,
+        Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0002M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 2m")), "CHF LIBOR 2m", act360, following,
+        Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0003M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 3m")), "CHF LIBOR 3m", act360, following,
+        Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0004M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 4m")), "CHF LIBOR 4m", act360, following,
+        Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0005M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 5m")), "CHF LIBOR 5m", act360, following,
+        Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0006M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m")), "CHF LIBOR 6m", act360, following,
+        Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0007M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 7m")), "CHF LIBOR 7m", act360, following,
+        Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0008M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 8m")), "CHF LIBOR 8m", act360, following,
+        Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0009M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 9m")), "CHF LIBOR 9m", act360, following,
+        Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0010M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 10m")), "CHF LIBOR 10m", act360, following,
+        Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0011M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 11m")), "CHF LIBOR 11m", act360, following,
+        Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("SF0012M Index"), Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 12m")), "CHF LIBOR 12m", act360, following,
+        Period.ofMonths(12), 2);
 
     //TODO holiday associated with CHF swaps is Zurich
     final Identifier ch = RegionUtils.financialRegionId("CH");
