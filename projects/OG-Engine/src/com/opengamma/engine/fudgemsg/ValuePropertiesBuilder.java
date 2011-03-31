@@ -12,7 +12,6 @@ import java.util.Set;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.IndicatorType;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -20,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.types.FudgeMsgFieldType;
 import org.fudgemsg.types.IndicatorFieldType;
+import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.engine.value.ValueProperties;

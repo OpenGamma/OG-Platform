@@ -169,7 +169,7 @@ public class Data implements java.io.Serializable {
           fudge1.add (null, null, fudge3);
         }
         else {
-          fudge1.add (null, null, org.fudgemsg.IndicatorType.INSTANCE);
+          fudge1.add (null, null, org.fudgemsg.types.IndicatorType.INSTANCE);
         }
       }
       msg.add (null, LINEAR_ORDINAL, fudge1);
@@ -186,13 +186,13 @@ public class Data implements java.io.Serializable {
               fudge3.add (null, null, fudge5);
             }
             else {
-              fudge3.add (null, null, org.fudgemsg.IndicatorType.INSTANCE);
+              fudge3.add (null, null, org.fudgemsg.types.IndicatorType.INSTANCE);
             }
           }
           fudge1.add (null, null, fudge3);
         }
         else {
-          fudge1.add (null, null, org.fudgemsg.IndicatorType.INSTANCE);
+          fudge1.add (null, null, org.fudgemsg.types.IndicatorType.INSTANCE);
         }
       }
       msg.add (null, MATRIX_ORDINAL, fudge1);

@@ -11,13 +11,13 @@ import java.util.Map.Entry;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.IndicatorType;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.IndicatorFieldType;
+import org.fudgemsg.types.IndicatorType;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 /**
