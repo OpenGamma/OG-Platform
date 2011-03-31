@@ -22,18 +22,18 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  * 
  */
 public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
-  private ConfigSource _configSource;
+  private final ConfigSource _configSource;
   // REVIEW: maybe we shouldn't cache these and rely on the repo doing that, but this prevents changes flowing through while we're running.
-  private Map<String, CurveSpecificationBuilderConfiguration> _specBuilderCache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
-  
+  private final Map<String, CurveSpecificationBuilderConfiguration> _specBuilderCache = new HashMap<String, CurveSpecificationBuilderConfiguration>();
+
   public ConfigDBInterpolatedYieldCurveSpecificationBuilder(ConfigSource configSource) {
     _configSource = configSource;
   }
-  
+
   private void clearConfigCache() {
     _specBuilderCache.clear(); // specifically so if the config is changed, we don't cache stale values outside a single curve build.
   }
-  
+
   // this is factored out into a method so it's easier to remove if we want to disable caching.
   private CurveSpecificationBuilderConfiguration getBuilderConfig(String conventionName) {
     if (_specBuilderCache.containsKey(conventionName)) {
@@ -48,9 +48,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
       }
     }
   }
-  
 
-  
   @Override
   public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition) {
     clearConfigCache();
@@ -83,9 +81,13 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());
       }
-      securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
+      if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor(), identifier));
+      } else {
+        securities.add(new FixedIncomeStripWithIdentifier(strip.getInstrumentType(), strip.getCurveNodePointTime(), identifier));
+      }
     }
-    Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());  
+    Interpolator1D<?> interpolator = Interpolator1DFactory.getInterpolator(curveDefinition.getInterpolatorName());
     return new InterpolatedYieldCurveSpecification(curveDate, curveDefinition.getName(), curveDefinition.getCurrency(), interpolator, securities, curveDefinition.getRegion());
-  }  
+  }
 }
