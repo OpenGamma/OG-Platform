@@ -8,6 +8,7 @@ package com.opengamma.math.function;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.smile.fitting.SVINonLinearLeastSquareFitter;
+import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * This class defines a 1-D function that takes both its argument and parameters inputs into the {@link #evaluate} method. The
@@ -57,10 +58,16 @@ public abstract class ParameterizedFunction<S, T, U> {
   public Function1D<T, U> asFunctionOfParameters(final S x) {
     Validate.notNull(x);
     return new Function1D<T, U>() {
+
       @Override
       public final U evaluate(final T params) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ParameterizedFunction.this, "asFunctionOfParameters", x);
+      }
+
     };
   }
 
@@ -71,10 +78,16 @@ public abstract class ParameterizedFunction<S, T, U> {
   public Function1D<S, U> asFunctionOfArguments(final T params) {
     Validate.notNull(params);
     return new Function1D<S, U>() {
+
       @Override
       public U evaluate(final S x) {
         return ParameterizedFunction.this.evaluate(x, params);
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(ParameterizedFunction.this, "asFunctionOfArguments", params);
+      }
+
     };
   }
 

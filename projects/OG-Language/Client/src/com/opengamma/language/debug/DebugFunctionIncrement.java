@@ -65,7 +65,7 @@ public class DebugFunctionIncrement implements PublishedFunction {
   @Override
   public MetaFunction getMetaFunction() {
     final List<MetaParameter> args = Arrays.asList(new MetaParameter("x", JavaTypeInfo.builder(Data.class).get()));
-    final FunctionInvoker invoker = new AbstractFunctionInvoker() {
+    final FunctionInvoker invoker = new AbstractFunctionInvoker(args) {
       @Override
       public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
         if (parameters.length != 1) {

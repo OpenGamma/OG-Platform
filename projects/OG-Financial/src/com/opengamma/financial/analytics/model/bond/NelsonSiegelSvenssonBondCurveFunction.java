@@ -52,8 +52,8 @@ import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.minimization.NullTransform;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.money.Currency;
@@ -69,6 +69,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(NelsonSiegelSvenssonBondCurveFunction.class);
   private static final NonLinearLeastSquare MINIMISER = new NonLinearLeastSquare();
   private static final LastDateCalculator LAST_DATE = LastDateCalculator.getInstance();
+  private static final NelsonSiegelSvennsonBondCurveModel MODEL = new NelsonSiegelSvennsonBondCurveModel();
   private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
     new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
@@ -148,12 +149,10 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           ytm[i++] = ((Double) ytmObject / 100);
         }
         final DoubleMatrix1D initialValues = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 2, 3});
-        final NelsonSiegelSvennsonBondCurveModel model = new NelsonSiegelSvennsonBondCurveModel(initialValues);
-        final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = model.getParameterizedFunction();
-        final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, model.getTransform().transform(initialValues));
-        final DoubleMatrix1D parameters = model.getTransform().inverseTransform(result.getParameters());
-        final NelsonSiegelSvennsonBondCurveModel function = new NelsonSiegelSvennsonBondCurveModel(parameters);
-        final FunctionalDoublesCurve curve = FunctionalDoublesCurve.from(function);
+        final ParameterizedFunction<Double, DoubleMatrix1D, Double> parameterizedFunction = MODEL.getParameterizedFunction();
+        final LeastSquareResults result = MINIMISER.solve(new DoubleMatrix1D(t), new DoubleMatrix1D(ytm), parameterizedFunction, initialValues);
+        final DoubleMatrix1D parameters = result.getParameters();
+        final FunctionalDoublesCurve curve = FunctionalDoublesCurve.from(parameterizedFunction.asFunctionOfArguments(parameters));
         final YieldCurve yieldCurve = new YieldCurve(curve);
         return Sets.newHashSet(new ComputedValue(_result, yieldCurve));
       }

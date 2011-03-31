@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 
@@ -32,6 +33,11 @@ public class NelsonSiegelBondCurveModel {
         return beta0 + beta1 * x2 + beta2 * (x2 - Math.exp(-x1));
       }
 
+      public Object writeReplace() {
+        return new InvokedSerializedForm(NelsonSiegelBondCurveModel.class, "getParameterizedFunction");
+      }
+
     };
   }
+
 }

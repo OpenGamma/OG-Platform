@@ -27,7 +27,7 @@ final class MathSurface {
    * Fudge builder for {@code ConstantDoublesSurface}
    */
   @FudgeBuilderFor(ConstantDoublesSurface.class)
-  public static final class ConstantDoublesSurfaceBuilder extends FudgeBuilderBase<ConstantDoublesSurface> {
+  public static final class ConstantDoublesSurfaceBuilder extends AbstractFudgeBuilder<ConstantDoublesSurface> {
     private static final String Z_VALUE_FIELD_NAME = "z value";
     private static final String SURFACE_NAME_FIELD_NAME = "surface name";
 
@@ -48,7 +48,7 @@ final class MathSurface {
    * Fudge builder for {@code InterpolatedDoublesSurface}
    */
   @FudgeBuilderFor(InterpolatedDoublesSurface.class)
-  public static final class InterpolatedDoublesSurfaceBuilder extends FudgeBuilderBase<InterpolatedDoublesSurface> {
+  public static final class InterpolatedDoublesSurfaceBuilder extends AbstractFudgeBuilder<InterpolatedDoublesSurface> {
     private static final String X_DATA_FIELD_NAME = "x data";
     private static final String Y_DATA_FIELD_NAME = "y data";
     private static final String Z_DATA_FIELD_NAME = "z data";
