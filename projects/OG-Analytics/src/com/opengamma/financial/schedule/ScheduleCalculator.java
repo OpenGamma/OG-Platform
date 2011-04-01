@@ -235,23 +235,39 @@ public final class ScheduleCalculator {
     return getAdjustedDateSchedule(dates, convention, calendar, 0);
   }
 
+  /**
+   * Return the dates adjusted by a certain number of business days.
+   * @param dates The initial dates.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param settlementDays The number of days of the adjustment. Can be negative or positive.
+   * @return The adjusted dates.
+   */
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
     Validate.notNull(calendar);
-
     final int n = dates.length;
     final ZonedDateTime[] result = new ZonedDateTime[n];
     for (int i = 0; i < n; i++) {
-      final ZonedDateTime date = convention.adjustDate(calendar, dates[i]);
-      int adjustDays = settlementDays;
-      for (int j = 0; j < settlementDays; j++) {
-        if (!calendar.isWorkingDay(date.toLocalDate())) {
-          adjustDays++;
+      ZonedDateTime date = convention.adjustDate(calendar, dates[i]);
+      if (settlementDays > 0) {
+        for (int loopday = 0; loopday < settlementDays; loopday++) {
+          date = date.plusDays(1);
+          while (!calendar.isWorkingDay(date.toLocalDate())) {
+            date = date.plusDays(1);
+          }
+        }
+      } else {
+        for (int loopday = 0; loopday < -settlementDays; loopday++) {
+          date = date.minusDays(1);
+          while (!calendar.isWorkingDay(date.toLocalDate())) {
+            date = date.minusDays(1);
+          }
         }
       }
-      result[i] = date.plusDays(adjustDays);
+      result[i] = date;
     }
     return result;
   }
