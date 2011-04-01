@@ -108,8 +108,29 @@ public class DefaultValueConverterTest {
 
   @Test(expectedExceptions = InvalidConversionException.class)
   public void testFailedConversion() {
-    final JavaTypeInfo<int[]> intArrayType = JavaTypeInfo.builder(int[].class).get();
+    final JavaTypeInfo<char[]> intArrayType = JavaTypeInfo.builder(char[].class).get();
     convert(DataUtil.of(42), intArrayType);
+  }
+
+  @Test
+  public void testDoubleToData() {
+    final double[][] matrix = new double[8][8];
+    for (int i = 0; i < matrix.length; i++) {
+      for (int j = 0; j < matrix[i].length; j++) {
+        matrix[i][j] = (double) (i + 1) / (double) (j + 1);
+      }
+    }
+    final JavaTypeInfo<Data> dataType = JavaTypeInfo.builder(Data.class).get();
+    final Data data = convert(matrix, dataType);
+    assertNotNull(data);
+    assertNotNull(data.getMatrix());
+    assertEquals(matrix.length, data.getMatrix().length);
+    for (int i = 0; i < matrix.length; i++) {
+      assertEquals(matrix[i].length, data.getMatrix()[i].length);
+      for (int j = 0; j < matrix[i].length; j++) {
+        assertEquals(matrix[i][j], data.getMatrix()[i][j].getDoubleValue(), 0);
+      }
+    }
   }
 
 }

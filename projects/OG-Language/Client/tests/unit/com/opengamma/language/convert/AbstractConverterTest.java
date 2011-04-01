@@ -9,6 +9,7 @@ package com.opengamma.language.convert;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextFactoryBean;
 import com.opengamma.language.context.UserContextFactoryBean;
 import com.opengamma.language.definition.JavaTypeInfo;
+import com.opengamma.language.invoke.DefaultValueConverter;
 import com.opengamma.language.invoke.TypeConverter;
 
 public class AbstractConverterTest {
@@ -51,23 +53,50 @@ public class AbstractConverterTest {
 
   protected <T, J> void assertValidConversion(final TypeConverter converter, final T value,
       final JavaTypeInfo<J> target, final J expected) {
-    final ValueConversionContext context = new ValueConversionContext(getSessionContext());
+    final ValueConversionContext context = new ValueConversionContext(getSessionContext(), new DefaultValueConverter());
     converter.convertValue(context, value, target);
     if (context.isFailed()) {
       s_logger.warn("Can't convert from {}/{} to {}, expected {}", new Object[] {value.getClass(), value, target, expected });
       fail();
     }
     assertNotNull(value);
-    final Object result = context.getResult();
-    if (!expected.equals(result)) {
-      s_logger.warn("Bad conversion from {}/{} to {}, expected {}, got {}", new Object[] {value.getClass(), value, target, expected, result });
-      fail();
+    if (expected.getClass().isArray()) {
+      if (expected instanceof boolean[]) {
+        final boolean[] e = (boolean[]) expected;
+        final boolean[] r = (boolean[]) context.getResult();
+        assertEquals(e.length, r.length);
+        for (int i = 0; i < e.length; i++) {
+          assertEquals(e[i], r[i]);
+        }
+      } else if (expected instanceof byte[]) {
+        assertArrayEquals((byte[]) expected, (byte[]) context.getResult());
+      } else if (expected instanceof char[]) {
+        assertArrayEquals((char[]) expected, (char[]) context.getResult());
+      } else if (expected instanceof double[]) {
+        assertArrayEquals((double[]) expected, (double[]) context.getResult(), 0d);
+      } else if (expected instanceof float[]) {
+        assertArrayEquals((float[]) expected, (float[]) context.getResult(), 0f);
+      } else if (expected instanceof int[]) {
+        assertArrayEquals((int[]) expected, (int[]) context.getResult());
+      } else if (expected instanceof long[]) {
+        assertArrayEquals((long[]) expected, (long[]) context.getResult());
+      } else if (expected instanceof short[]) {
+        assertArrayEquals((short[]) expected, (short[]) context.getResult());
+      } else {
+        assertArrayEquals((Object[]) expected, (Object[]) context.getResult());
+      }
+    } else {
+      final Object result = context.getResult();
+      if (!expected.equals(result)) {
+        s_logger.warn("Bad conversion from {}/{} to {}, expected {}, got {}", new Object[] {value.getClass(), value, target, expected, result });
+        fail();
+      }
     }
   }
 
   protected <T, J> void assertInvalidConversion(final TypeConverter converter, final T value,
       final JavaTypeInfo<J> target) {
-    final ValueConversionContext context = new ValueConversionContext(getSessionContext());
+    final ValueConversionContext context = new ValueConversionContext(getSessionContext(), new DefaultValueConverter());
     converter.convertValue(context, value, target);
     if (!context.isFailed()) {
       final Object result = context.getResult();

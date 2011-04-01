@@ -202,24 +202,22 @@ public class DefaultValueConverter extends ValueConverter {
   }
 
   private boolean stateConversion(final ValueConversionContext conversionContext, State state) {
+    TypeConverter converter = state.getNextStateConverter();
     do {
-      final TypeConverter converter = state.getNextStateConverter();
       state = state.getNextState();
       s_logger.debug("Chained to {}, {}", converter, state);
       converter.convertValue(conversionContext, conversionContext.getResult(), state.getTargetType());
       if (conversionContext.isFailed()) {
         s_logger.debug("Chain failed");
         return false;
-      } else {
-        if (state.getNextState() == null) {
-          s_logger.debug("Chain complete");
-          return true;
-        }
       }
-    } while (true);
+      converter = state.getNextStateConverter();
+    } while (converter != null);
+    s_logger.debug("Chain complete");
+    return true;
   }
 
-  // TODO: the "already visited" record should be in the context as that may need to survive re-entrance calls
+  // TODO: the "already visited" record should be in the context as that may need to survive re-entrant calls
 
   @Override
   public void convertValue(final ValueConversionContext conversionContext, final Object value, final JavaTypeInfo<?> type) {
@@ -258,6 +256,7 @@ public class DefaultValueConverter extends ValueConverter {
       final List<TypeConverter> converters = getConvertersTo(conversionContext, explore.getTargetType());
       for (TypeConverter converter : converters) {
         if (!explore.visited(converter)) {
+
           final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
           if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
             for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {

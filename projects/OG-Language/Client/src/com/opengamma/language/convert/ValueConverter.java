@@ -63,36 +63,56 @@ public final class ValueConverter implements TypeConverter {
   }
 
   @Override
-  public void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type) {
+  public void convertValue(ValueConversionContext conversionContext, Object valueObject, JavaTypeInfo<?> type) {
     final Class<?> clazz = type.getRawClass();
     if (clazz == Value.class) {
-      if (value instanceof Boolean) {
-        conversionContext.setResult(ValueUtil.of((Boolean) value));
-      } else if (value instanceof Integer) {
-        conversionContext.setResult(ValueUtil.of((Integer) value));
-      } else if (value instanceof Double) {
-        conversionContext.setResult(ValueUtil.of((Double) value));
-      } else if (value instanceof String) {
-        conversionContext.setResult(ValueUtil.of((String) value));
-      } else if (value instanceof FudgeFieldContainer) {
-        conversionContext.setResult(ValueUtil.of((FudgeFieldContainer) value));
+      if (valueObject instanceof Boolean) {
+        conversionContext.setResult(ValueUtil.of((Boolean) valueObject));
+      } else if (valueObject instanceof Integer) {
+        conversionContext.setResult(ValueUtil.of((Integer) valueObject));
+      } else if (valueObject instanceof Double) {
+        conversionContext.setResult(ValueUtil.of((Double) valueObject));
+      } else if (valueObject instanceof String) {
+        conversionContext.setResult(ValueUtil.of((String) valueObject));
+      } else if (valueObject instanceof FudgeFieldContainer) {
+        conversionContext.setResult(ValueUtil.of((FudgeFieldContainer) valueObject));
       } else {
         conversionContext.setFail();
       }
       return;
     } else {
-      if (value instanceof Value) {
-        final Value valueValue = (Value) value;
+      if (valueObject instanceof Value) {
+        final Value value = (Value) valueObject;
         if (clazz == Boolean.class) {
-          conversionContext.setResult(valueValue.getBoolValue());
+          if (type.isAllowNull() || (value.getBoolValue() != null)) {
+            conversionContext.setResult(value.getBoolValue());
+          } else {
+            conversionContext.setFail();
+          }
         } else if (clazz == Integer.class) {
-          conversionContext.setResult(valueValue.getIntValue());
+          if (type.isAllowNull() || (value.getIntValue() != null)) {
+            conversionContext.setResult(value.getIntValue());
+          } else {
+            conversionContext.setFail();
+          }
         } else if (clazz == Double.class) {
-          conversionContext.setResult(valueValue.getDoubleValue());
+          if (type.isAllowNull() || (value.getDoubleValue() != null)) {
+            conversionContext.setResult(value.getDoubleValue());
+          } else {
+            conversionContext.setFail();
+          }
         } else if (clazz == String.class) {
-          conversionContext.setResult(valueValue.getStringValue());
+          if (type.isAllowNull() || (value.getStringValue() != null)) {
+            conversionContext.setResult(value.getStringValue());
+          } else {
+            conversionContext.setFail();
+          }
         } else if (clazz == FudgeFieldContainer.class) {
-          conversionContext.setResult(valueValue.getMessageValue());
+          if (type.isAllowNull() || (value.getMessageValue() != null)) {
+            conversionContext.setResult(value.getMessageValue());
+          } else {
+            conversionContext.setFail();
+          }
         } else {
           conversionContext.setFail();
         }

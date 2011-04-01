@@ -23,7 +23,10 @@ public final class Converters implements TypeConverterProvider {
   }
 
   public static void populate(final Collection<TypeConverter> converters) {
+    converters.add(new ArrayDepthConverter());
+    converters.add(new ArrayTypeConverter());
     converters.add(new DataConverter());
+    converters.add(new PrimitiveArrayConverter());
     converters.add(new PrimitiveConverter());
     converters.add(new ValueConverter());
   }

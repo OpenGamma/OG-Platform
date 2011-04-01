@@ -44,21 +44,21 @@ public class PrimitiveConverter implements TypeConverter {
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
-    if (clazz == Boolean.class) {
+    if ((clazz == Boolean.class) || (clazz == Boolean.TYPE)) {
       return true;
-    } else if (clazz == Byte.class) {
+    } else if ((clazz == Byte.class) || (clazz == Byte.TYPE)) {
       return true;
-    } else if (clazz == Character.class) {
+    } else if ((clazz == Character.class) || (clazz == Character.TYPE)) {
       return true;
-    } else if (clazz == Double.class) {
+    } else if ((clazz == Double.class) || (clazz == Double.TYPE)) {
       return true;
-    } else if (clazz == Float.class) {
+    } else if ((clazz == Float.class) || (clazz == Float.TYPE)) {
       return true;
-    } else if (clazz == Integer.class) {
+    } else if ((clazz == Integer.class) || (clazz == Integer.TYPE)) {
       return true;
-    } else if (clazz == Long.class) {
+    } else if ((clazz == Long.class) || (clazz == Long.TYPE)) {
       return true;
-    } else if (clazz == Short.class) {
+    } else if ((clazz == Short.class) || (clazz == Short.TYPE)) {
       return true;
     } else if (clazz == String.class) {
       return true;
@@ -69,21 +69,21 @@ public class PrimitiveConverter implements TypeConverter {
   @Override
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
-    if (clazz == Boolean.class) {
+    if ((clazz == Boolean.class) || (clazz == Boolean.TYPE)) {
       return TO_BOOLEAN;
-    } else if (clazz == Byte.class) {
+    } else if ((clazz == Byte.class) || (clazz == Byte.TYPE)) {
       return TO_BYTE;
-    } else if (clazz == Character.class) {
+    } else if ((clazz == Character.class) || (clazz == Character.TYPE)) {
       return TO_CHARACTER;
-    } else if (clazz == Double.class) {
+    } else if ((clazz == Double.class) || (clazz == Double.TYPE)) {
       return TO_DOUBLE;
-    } else if (clazz == Float.class) {
+    } else if ((clazz == Float.class) || (clazz == Float.TYPE)) {
       return TO_FLOAT;
-    } else if (clazz == Integer.class) {
+    } else if ((clazz == Integer.class) || (clazz == Integer.TYPE)) {
       return TO_INTEGER;
-    } else if (clazz == Long.class) {
+    } else if ((clazz == Long.class) || (clazz == Long.TYPE)) {
       return TO_LONG;
-    } else if (clazz == Short.class) {
+    } else if ((clazz == Short.class) || (clazz == Short.TYPE)) {
       return TO_SHORT;
     } else if (clazz == String.class) {
       return TO_STRING;
@@ -158,6 +158,9 @@ public class PrimitiveConverter implements TypeConverter {
         if ((v >= (short) Byte.MIN_VALUE) && (v <= (short) Byte.MAX_VALUE)) {
           return conversionContext.setResult((byte) v);
         }
+      } else {
+        assert value instanceof Byte;
+        return conversionContext.setResult(value);
       }
     } else if (value instanceof String) {
       try {
@@ -179,14 +182,14 @@ public class PrimitiveConverter implements TypeConverter {
       if (v.length() == 1) {
         return conversionContext.setResult(v.charAt(0));
       }
+    } else if (value instanceof Character) {
+      return conversionContext.setResult(value);
     }
     return conversionContext.setFail();
   }
 
   private static boolean toDouble(final ValueConversionContext conversionContext, final Object value) {
-    if (value instanceof Float) {
-      return conversionContext.setResult(((Float) value).doubleValue());
-    } else if (value instanceof Number) {
+    if (value instanceof Number) {
       return conversionContext.setResult(((Number) value).doubleValue());
     } else if (value instanceof String) {
       try {
@@ -318,21 +321,21 @@ public class PrimitiveConverter implements TypeConverter {
   @Override
   public void convertValue(ValueConversionContext conversionContext, Object value, JavaTypeInfo<?> type) {
     final Class<?> clazz = type.getRawClass();
-    if (clazz == Boolean.class) {
+    if ((clazz == Boolean.class) || (clazz == Boolean.TYPE)) {
       toBoolean(conversionContext, value);
-    } else if (clazz == Byte.class) {
+    } else if ((clazz == Byte.class) || (clazz == Byte.TYPE)) {
       toByte(conversionContext, value);
-    } else if (clazz == Character.class) {
+    } else if ((clazz == Character.class) || (clazz == Character.TYPE)) {
       toCharacter(conversionContext, value);
-    } else if (clazz == Double.class) {
+    } else if ((clazz == Double.class) || (clazz == Double.TYPE)) {
       toDouble(conversionContext, value);
-    } else if (clazz == Float.class) {
+    } else if ((clazz == Float.class) || (clazz == Float.TYPE)) {
       toFloat(conversionContext, value);
-    } else if (clazz == Integer.class) {
+    } else if ((clazz == Integer.class) || (clazz == Integer.TYPE)) {
       toInteger(conversionContext, value);
-    } else if (clazz == Long.class) {
+    } else if ((clazz == Long.class) || (clazz == Long.TYPE)) {
       toLong(conversionContext, value);
-    } else if (clazz == Short.class) {
+    } else if ((clazz == Short.class) || (clazz == Short.TYPE)) {
       toShort(conversionContext, value);
     } else if (clazz == String.class) {
       toString(conversionContext, value);

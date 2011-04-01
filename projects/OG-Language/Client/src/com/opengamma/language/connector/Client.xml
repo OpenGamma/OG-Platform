@@ -20,7 +20,7 @@
   </bean>
   
   <!-- Base system components -->
-  <bean id="engineFudgeContext" class="com.opengamma.util.fudge.OpenGammaFudgeContext" factory-method="getInstance" />
+  <bean id="engineFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
     <constructor-arg value="${activeMQ.brokerURL}" />
   </bean>
@@ -158,9 +158,9 @@
   </bean>
   
   <!-- Standard type conversions -->
-  <bean id="defaultTypeConversions" class="com.opengamma.language.convert.Loader">
+  <bean id="defaultTypeConversions" class="com.opengamma.language.invoke.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="typeConversions">
+    <property name="typeConverters">
       <bean class="com.opengamma.language.convert.Converters" />
     </property>
   </bean>

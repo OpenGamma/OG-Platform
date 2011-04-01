@@ -8,6 +8,7 @@ package com.opengamma.language.convert;
 
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,13 +17,16 @@ import com.opengamma.util.ArgumentChecker;
 public final class ValueConversionContext {
 
   private final SessionContext _sessionContext;
+  private final com.opengamma.language.invoke.ValueConverter _converter;
   private boolean _hasResult;
   private boolean _hasFailed;
   private Object _result;
 
-  public ValueConversionContext(final SessionContext sessionContext) {
+  public ValueConversionContext(final SessionContext sessionContext, final com.opengamma.language.invoke.ValueConverter converter) {
     ArgumentChecker.notNull(sessionContext, "sessionContext");
+    ArgumentChecker.notNull(converter, "converter");
     _sessionContext = sessionContext;
+    _converter = converter;
   }
 
   public SessionContext getSessionContext() {
@@ -31,6 +35,10 @@ public final class ValueConversionContext {
 
   public GlobalContext getGlobalContext() {
     return getSessionContext().getGlobalContext();
+  }
+
+  public void convertValue(final Object value, final JavaTypeInfo<?> type) {
+    _converter.convertValue(this, value, type);
   }
 
   public boolean setFail() {
