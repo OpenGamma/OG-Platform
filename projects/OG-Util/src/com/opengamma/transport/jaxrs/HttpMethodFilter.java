@@ -27,6 +27,14 @@ public class HttpMethodFilter implements ContainerRequestFilter {
       request.setMethod("PUT");
     } else if ("DELETE".equals(methodFormParam)) {
       request.setMethod("DELETE");
+    } else if ("OPTIONS".equals(methodFormParam)) {
+      request.setMethod("OPTIONS");
+    } else if ("HEAD".equals(methodFormParam)) {
+      request.setMethod("HEAD");
+    } else if ("POST".equals(methodFormParam)) {
+      request.setMethod("POST");  // for completeness
+    } else if ("GET".equals(methodFormParam)) {
+      request.setMethod("GET");  // for IE
     }
     return request;
   }
