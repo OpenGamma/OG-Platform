@@ -19,10 +19,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.test.TestComputationResultListener;
 import com.opengamma.engine.test.TestViewCompilationListener;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -41,7 +42,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -59,7 +60,7 @@ public class ViewTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -86,7 +87,7 @@ public class ViewTest {
     
     assertEquals(client, vp.getViewClient(client.getUniqueId()));
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());    
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());    
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     viewProcess.stop();
     
@@ -120,7 +121,7 @@ public class ViewTest {
     ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
     Thread computationThread = env.getCurrentComputationThread(viewProcess);
     
-    ViewEvaluationModel compilationModel1 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    CompiledViewDefinitionImpl compilationModel1 = compilationListener.getResult(Timeout.standardTimeoutMillis());
     assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     
     computationJob.liveDataChanged();
@@ -128,14 +129,14 @@ public class ViewTest {
     compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    ViewEvaluationModel dummy = new ViewEvaluationModel(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+    CompiledViewDefinitionImpl compiledViewDefinition = new CompiledViewDefinitionImpl(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
       public boolean isValidFor(final InstantProvider timestampProvider) {
         Instant timestamp = timestampProvider.toInstant();
         return (!timestamp.isAfter(Instant.ofEpochMillis(time0 + 20)));
       }
     };
-    computationJob.setViewEvaluationModel(dummy);
+    computationJob.setLatestCompiledViewDefinition(compiledViewDefinition);
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.liveDataChanged();
@@ -144,9 +145,9 @@ public class ViewTest {
 
     // time0 + 30 requires a rebuild
     computationJob.liveDataChanged();
-    ViewEvaluationModel compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    CompiledViewDefinitionImpl compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
     assertNotSame(compilationModel1, compilationModel2);
-    assertNotSame(dummy, compilationModel2);
+    assertNotSame(compiledViewDefinition, compilationModel2);
     assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     
     compilationListener.assertNoResult(Timeout.standardTimeoutMillis());

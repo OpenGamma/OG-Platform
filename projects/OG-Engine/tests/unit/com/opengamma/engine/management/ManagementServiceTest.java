@@ -20,9 +20,9 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -91,7 +91,7 @@ public class ManagementServiceTest {
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.getRealTime(), false);
+    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.realTime(), false);
   }
   
   

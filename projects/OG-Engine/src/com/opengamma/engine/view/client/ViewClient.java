@@ -10,7 +10,8 @@ import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.ViewCycleReference;
-import com.opengamma.engine.view.compilation.ViewCompilationListener;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -140,7 +141,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @param compilationListener  the compilation listener, or {@code null} to remove any existing listener.
    */
-  void setCompilationListener(ViewCompilationListener compilationListener);
+  void setCompilationListener(ViewDefinitionCompilationListener compilationListener);
   
   /**
    * Sets (or replaces) the result listener.
@@ -203,12 +204,25 @@ public interface ViewClient extends UniqueIdentifiable {
   /**
    * Gets the full result from the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
+   * <p>
+   * This value is consistent with the result provided to any {@link ComputationResultListener} during a callback.
    *  
    * @return the latest result, or {@code null} if no result yet exists
    * @throws IllegalStateException if the view client is not attached to a view process
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
+  
+  /**
+   * Gets the latest compiled view definition. This is consistent with any data flow restrictions being applied through
+   * this view client, so does not necessarily represent the most recent state of the view process.
+   * <p>
+   * This value is consistent with the compiled view definition provided to any
+   * {@link ViewDefinitionCompilationListener} during a callback.
+   * 
+   * @return the latest compiled view definition, or {@code null} if it has not yet been compiled
+   */
+  CompiledViewDefinitionImpl getLatestCompiledViewDefinition();
   
   /**
    * Gets whether this client supports access to view cycles.

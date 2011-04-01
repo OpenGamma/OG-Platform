@@ -35,7 +35,7 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
@@ -69,7 +69,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final Timer _clientResultTimer = new Timer("Shared ViewClient result timer");
   
-  private final ViewCycleManager _cycleManager = new ViewCycleManager();
+  private final ViewCycleManagerImpl _cycleManager = new ViewCycleManagerImpl();
   
   private final ReentrantLock _processLock = new ReentrantLock();
   
@@ -397,15 +397,19 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
   
   //-------------------------------------------------------------------------
-  public ViewCycleManager getViewCycleManager() {
+  @Override
+  public ViewCycleManagerImpl getViewCycleManager() {
     return _cycleManager;
   }
   
   //-------------------------------------------------------------------------
   /**
-   * Package visibility for tests.
+   * Intended for testing.
+   * 
+   * @param viewClientId  the unique identifier of the view client, not null
+   * @return the view process, not null
    */
-  /*package*/ ViewProcessImpl getViewProcessForClient(UniqueIdentifier viewClientId) {
+  public ViewProcessImpl getViewProcessForClient(UniqueIdentifier viewClientId) {
     _processLock.lock();
     try {
       ViewProcessImpl process = _clientToProcess.get(viewClientId).getFirst();

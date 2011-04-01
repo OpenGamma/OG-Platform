@@ -9,9 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.test.TestComputationResultListener;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.util.test.Timeout;
@@ -37,7 +37,7 @@ public class ViewRecalculationJobTest {
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     TestComputationResultListener resultListener = new TestComputationResultListener();
     client.setResultListener(resultListener);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     resultListener.getResult(TIMEOUT);  // Consume the initial result
     

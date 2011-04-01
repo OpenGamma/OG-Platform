@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ViewCycleReferenceImpl implements ViewCycleReference {
 
-  private final ViewCycleManager _manager;
+  private final ViewCycleManagerImpl _manager;
   private final SingleComputationCycle _cycle;
   private AtomicBoolean _isReleased = new AtomicBoolean(false);
   
-  public ViewCycleReferenceImpl(ViewCycleManager manager, SingleComputationCycle cycle) {
+  public ViewCycleReferenceImpl(ViewCycleManagerImpl manager, SingleComputationCycle cycle) {
     _manager = manager;
     _cycle = cycle;
   }

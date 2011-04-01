@@ -43,7 +43,7 @@ import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -62,7 +62,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private final UniqueIdentifier _cycleId;
   private final UniqueIdentifier _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
-  private final ViewEvaluationModel _viewEvaluationModel;
+  private final CompiledViewDefinitionImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -89,21 +89,21 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId,
-      ViewProcessContext viewProcessContext, ViewEvaluationModel viewEvaluationModel, ViewCycleExecutionOptions executionOptions) {
+      ViewProcessContext viewProcessContext, CompiledViewDefinitionImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
-    ArgumentChecker.notNull(viewEvaluationModel, "viewEvaluationModel");
+    ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
 
     _cycleId = cycleId;
     _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
-    _viewEvaluationModel = viewEvaluationModel;
+    _compiledViewDefinition = compiledViewDefinition;
     
     _executionOptions = executionOptions;
 
     _resultModel = new InMemoryViewComputationResultModel();
-    _resultModel.setCalculationConfigurationNames(getViewEvaluationModel().getAllCalculationConfigurationNames());
-    if (getViewEvaluationModel().getPortfolio() != null) {
-      _resultModel.setPortfolio(getViewEvaluationModel().getPortfolio());
+    _resultModel.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
+    if (getCompiledViewDefinition().getPortfolio() != null) {
+      _resultModel.setPortfolio(getCompiledViewDefinition().getPortfolio());
     }
     _resultModel.setViewCycleId(cycleId);
     _resultModel.setViewProcessId(getViewProcessId());
@@ -123,7 +123,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   }
 
   public long getFunctionInitId() {
-    return getViewEvaluationModel().getFunctionInitId();
+    return getCompiledViewDefinition().getFunctionInitId();
   }
 
   /**
@@ -144,7 +144,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
    * @return the viewDefinition
    */
   public ViewDefinition getViewDefinition() {
-    return getViewEvaluationModel().getViewDefinition();
+    return getCompiledViewDefinition().getViewDefinition();
   }
 
   public DependencyGraphExecutor<?> getDependencyGraphExecutor() {
@@ -158,17 +158,13 @@ public class SingleComputationCycle implements ViewCycleInternal {
   public Map<String, ViewComputationCache> getCachesByCalculationConfiguration() {
     return Collections.unmodifiableMap(_cachesByCalculationConfiguration);
   }
-
-  public ViewEvaluationModel getViewEvaluationModel() {
-    return _viewEvaluationModel;
-  }
   
   public ViewProcessContext getViewProcessContext() {
     return _viewProcessContext;
   }
 
   public Set<String> getAllCalculationConfigurationNames() {
-    return new HashSet<String>(getViewEvaluationModel().getAllCalculationConfigurationNames());
+    return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
   
   //-------------------------------------------------------------------------
@@ -200,19 +196,32 @@ public class SingleComputationCycle implements ViewCycleInternal {
   }
   
   @Override
+  public CompiledViewDefinitionImpl getCompiledViewDefinition() {
+    return _compiledViewDefinition;
+  }
+  
+  @Override
   public InMemoryViewComputationResultModel getResultModel() {
     return _resultModel;
   }
   
   @Override
-  public Collection<Pair<ValueSpecification, Object>> query(String calcConfigName,
-      Collection<ValueSpecification> specifications) {
-    ViewComputationCache cache = getComputationCache(calcConfigName);
+  public ComputationCacheResponse queryComputationCaches(ComputationCacheQuery query) {
+    ArgumentChecker.notNull(query, "query");
+    ArgumentChecker.notNull(query.getCalculationConfigurationName(), "calculationConfigurationName");
+    ArgumentChecker.notNull(query.getValueSpecifications(), "valueSpecifications");
+    
+    ViewComputationCache cache = getComputationCache(query.getCalculationConfigurationName());
     if (cache == null) {
-      throw new DataNotFoundException("No computation cache for calculation configuration '" + calcConfigName
+      throw new DataNotFoundException("No computation cache for calculation configuration '" + query.getCalculationConfigurationName()
           + "' was found.");
     }
-    return cache.getValues(specifications);
+    
+    Collection<Pair<ValueSpecification, Object>> result = cache.getValues(query.getValueSpecifications());
+    
+    ComputationCacheResponse response = new ComputationCacheResponse();
+    response.setResults(result);
+    return response;
   }
 
   //--------------------------------------------------------------------------  
@@ -291,7 +300,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   
   //-------------------------------------------------------------------------
   private void prepareInputs() {
-    Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getViewEvaluationModel().getAllLiveDataRequirements();
+    Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getCompiledViewDefinition().getLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
     
     getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getInputDataTime().toEpochMillisLong());
@@ -366,7 +375,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     }
 
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
+      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
 
       ViewComputationCache cache = getComputationCache(calcConfigurationName);
       ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
@@ -393,7 +402,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private void populateResultModel() {
     getResultModel().setResultTimestamp(Instant.now());
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfigurationName);
+      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
       populateResultModel(calcConfigurationName, depGraph);
     }
   }
@@ -412,7 +421,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   }
   
   private DependencyGraph getDependencyGraph(String calcConfName) {
-    DependencyGraph depGraph = getViewEvaluationModel().getDependencyGraph(calcConfName);
+    DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfName);
     return depGraph;
   }
 

@@ -47,7 +47,7 @@ public final class ViewDefinitionCompiler {
   }
 
   // --------------------------------------------------------------------------
-  public static ViewEvaluationModel compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, InstantProvider atInstant) {
+  public static CompiledViewDefinitionImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, InstantProvider atInstant) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
 
@@ -77,7 +77,7 @@ public final class ViewDefinitionCompiler {
       outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
     }
 
-    return new ViewEvaluationModel(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
+    return new CompiledViewDefinitionImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
   // --------------------------------------------------------------------------

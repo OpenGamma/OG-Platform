@@ -48,7 +48,7 @@ public class ViewDefinitionCompilerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new ViewEvaluationModel(null, null, null, 0);
+    new CompiledViewDefinitionImpl(null, null, null, 0);
   }
 
   public void testEmptyView() {
@@ -84,9 +84,9 @@ public class ViewDefinitionCompilerTest {
 
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionImpl vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertTrue(vem.getLiveDataRequirements().isEmpty());
     assertTrue(vem.getDependencyGraphsByConfiguration().isEmpty());
     assertEquals(0, vem.getAllComputationTargets().size());
   }
@@ -138,9 +138,9 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionImpl vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertTrue(vem.getLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Fibble"));
     assertTargets(vem, pn.getUniqueId());
@@ -192,9 +192,9 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionImpl vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertTrue(vem.getLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     DependencyGraph dg = vem.getDependencyGraph("Fibble");
     assertNotNull(dg);
@@ -229,9 +229,9 @@ public class ViewDefinitionCompilerTest {
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionImpl vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    assertTrue(vem.getLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Config1"));
     assertTargets(vem, t1);
@@ -271,8 +271,8 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
+    CompiledViewDefinitionImpl vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    assertTrue(vem.getLiveDataRequirements().isEmpty());
     assertEquals(1, vem.getAllDependencyGraphs().size());
     assertNotNull(vem.getDependencyGraph("Config1"));
     assertTargets(vem, sec1.getUniqueId(), t1);
@@ -290,7 +290,7 @@ public class ViewDefinitionCompilerTest {
     assertTargets(vem);
   }
 
-  private void assertTargets(ViewEvaluationModel vem, UniqueIdentifier... targets) {
+  private void assertTargets(CompiledViewDefinitionImpl vem, UniqueIdentifier... targets) {
     Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
     Set<ComputationTarget> actualTargets = vem.getAllComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());

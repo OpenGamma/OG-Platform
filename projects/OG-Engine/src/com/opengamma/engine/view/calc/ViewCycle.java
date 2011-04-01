@@ -5,17 +5,14 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.util.Collection;
-
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Represents a single execution pass on a view definition with a particular processing context.
  */
 @PublicAPI
 public interface ViewCycle extends UniqueIdentifiable {
@@ -49,6 +46,13 @@ public interface ViewCycle extends UniqueIdentifiable {
   long getDurationNanos();
   
   /**
+   * Gets the compiled view definition used during the cycle's execution
+   * 
+   * @return the compiled view definition, not null
+   */
+  CompiledViewDefinition getCompiledViewDefinition();
+  
+  /**
    * Gets the output of the view cycle.
    * 
    * @return the output of the view cycle, not null
@@ -63,11 +67,9 @@ public interface ViewCycle extends UniqueIdentifiable {
    * were calculated during the cycle, including intermediate values corresponding to inputs as well as terminal output
    * values already present in the result object.
    * 
-   * @param calcConfigName  the name of the calculation configuration to query, not null
-   * @param specifications  a collection of value specifications describing the values required, not null
-   * @return  a collection of pairs associating the requested value specifications with their respective values, not
-   *          null
+   * @param computationCacheQuery  the query, not null
+   * @return  the result of performing the query against the computation caches, not null
    */
-  Collection<Pair<ValueSpecification, Object>> query(String calcConfigName, Collection<ValueSpecification> specifications);
+  ComputationCacheResponse queryComputationCaches(ComputationCacheQuery computationCacheQuery);
   
 }

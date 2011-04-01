@@ -5,9 +5,8 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
-
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.view.calc.ViewCycleManager;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -41,15 +40,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    */
   ViewDefinitionRepository getViewDefinitionRepository();
   
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a collection of the view processes currently being managed by this view processor. A view process could be in
-   * any state, and might have finished producing new results. 
-   * 
-   * @return a collection of the current view processes, not null
-   */
-  Collection<? extends ViewProcess> getViewProcesses();
-  
+  //------------------------------------------------------------------------- 
   /**
    * Gets a view process by unique identifier.
    * 
@@ -78,5 +69,13 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @throws DataNotFoundException if there is no view with that unique identifier
    */
   ViewClient getViewClient(UniqueIdentifier clientId);
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the view cycle manager through which references to computation cycles may be obtained.
+   * 
+   * @return the view cycle manager, not null
+   */
+  ViewCycleManager getViewCycleManager();
   
 }

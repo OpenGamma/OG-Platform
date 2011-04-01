@@ -209,7 +209,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   }
 
   @Override
-  protected ViewProcessor createObject() {
+  public ViewProcessor createObject() {
     checkInjectedInputs();
     return new ViewProcessorImpl(
         UniqueIdentifier.of(VIEW_PROCESSOR_ID_SCHEME, getId().toString()),

@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.util.test.Timeout;
@@ -49,7 +50,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     vp.stop();
   }
@@ -62,7 +63,7 @@ public class ViewProcessorTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess("Something random", ExecutionOptions.getRealTime());
+    client.attachToViewProcess("Something random", ExecutionOptions.realTime());
   }
 
   @Test
@@ -80,7 +81,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
         client2.shutdown();
         latch.countDown();
       }
@@ -106,7 +107,7 @@ public class ViewProcessorTest {
     Thread tryAttach = new Thread() {
       @Override
       public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+        client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
         client2.shutdown();
         latch.countDown();
       }

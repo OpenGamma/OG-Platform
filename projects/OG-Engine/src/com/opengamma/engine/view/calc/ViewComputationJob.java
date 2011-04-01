@@ -25,10 +25,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
@@ -46,7 +46,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private final ViewProcessImpl _viewProcess;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
-  private final ViewCycleManager _cycleManager;
+  private final ViewCycleManagerImpl _cycleManager;
   
   private double _numExecutions;
   private ViewCycleReferenceImpl _previousCycleReference;
@@ -58,7 +58,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private long _fullComputationRequiredByNanos;
   private int _deltasSinceLastFull;
   
-  private ViewEvaluationModel _viewEvaluationModel;
+  private CompiledViewDefinitionImpl _latestCompiledViewDefinition;
   private final Set<ValueRequirement> _liveDataSubscriptions = new HashSet<ValueRequirement>();
   private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
@@ -72,7 +72,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private double _totalTimeNanos;
   
   public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
-      ViewProcessContext processContext, ViewCycleManager cycleManager) {
+      ViewProcessContext processContext, ViewCycleManagerImpl cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(processContext, "processContext");
@@ -96,7 +96,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     return _processContext;
   }
   
-  private ViewCycleManager getCycleManager() {
+  private ViewCycleManagerImpl getCycleManager() {
     return _cycleManager;
   }
   
@@ -273,7 +273,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       _previousCycleReference.release();
     }
     removeLiveDataSubscriptions();
-    _viewEvaluationModel = null;
+    _latestCompiledViewDefinition = null;
   }
   
   public void liveDataChanged() {
@@ -295,50 +295,50 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   //-------------------------------------------------------------------------
   private ViewCycleReferenceImpl createCycle(ViewCycleExecutionOptions executionOptions) {
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
-    ViewEvaluationModel evaluationModel = getOrCompileViewEvaluationModel(executionOptions.getValuationTime());
+    CompiledViewDefinitionImpl compiledView = getCompiledViewDefinition(executionOptions.getValuationTime());
     return getCycleManager().createViewCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(),
-        evaluationModel, executionOptions);
+        compiledView, executionOptions);
   }
   
-  private ViewEvaluationModel getOrCompileViewEvaluationModel(Instant valuationTime) {
+  private CompiledViewDefinitionImpl getCompiledViewDefinition(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    ViewEvaluationModel viewEvaluationModel = getViewEvaluationModel();
-    if (viewEvaluationModel != null && viewEvaluationModel.isValidFor(valuationTime) && functionInitId == viewEvaluationModel.getFunctionInitId()) {
+    CompiledViewDefinitionImpl compiledView = getLatestCompiledViewDefinition();
+    if (compiledView != null && compiledView.isValidFor(valuationTime) && functionInitId == compiledView.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing evaluation times)
-      return viewEvaluationModel;
+      return compiledView;
     }
     
-    viewEvaluationModel = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
-    setViewEvaluationModel(viewEvaluationModel);
+    compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
+    setLatestCompiledViewDefinition(compiledView);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
-    getViewProcess().viewCompiled(viewEvaluationModel);
+    getViewProcess().viewCompiled(compiledView);
     
-    setLiveDataSubscriptions(viewEvaluationModel.getAllLiveDataRequirements().keySet());
-    return viewEvaluationModel;
+    setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
+    return compiledView;
   }
   
   /**
-   * Gets the cached view evaluation model which may be re-used in subsequent computation cycles.
+   * Gets the cached compiled view definition which may be re-used in subsequent computation cycles.
    * <p>
    * External visibility for tests.
    * 
-   * @return the view evaluation model
+   * @return the latest compiled view definition, or {@code null} if no cycles have yet completed
    */
-  public ViewEvaluationModel getViewEvaluationModel() {
-    return _viewEvaluationModel;
+  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
+    return _latestCompiledViewDefinition;
   }
   
   /**
-   * Replaces the cached view evaluation model.
+   * Replaces the cached compiled view definition.
    * <p>
    * External visibility for tests.
    * 
-   * @param viewEvaluationModel  the view evaluation model
+   * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
    */
-  public void setViewEvaluationModel(ViewEvaluationModel viewEvaluationModel) {
-    _viewEvaluationModel = viewEvaluationModel;
+  public void setLatestCompiledViewDefinition(CompiledViewDefinitionImpl latestCompiledViewDefinition) {
+    _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
   
   private boolean requireFullCycleNext(long currentTime) {
@@ -436,11 +436,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   @Override
   public void valueChanged(ValueRequirement value) {
     ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
-    ViewEvaluationModel viewEvaluationModel = _viewEvaluationModel;
-    if (viewEvaluationModel == null) {
+    CompiledViewDefinitionImpl compiledView = getLatestCompiledViewDefinition();
+    if (compiledView == null) {
       return;
     }
-    Map<ValueRequirement, ValueSpecification> liveDataRequirements = viewEvaluationModel.getAllLiveDataRequirements();
+    Map<ValueRequirement, ValueSpecification> liveDataRequirements = compiledView.getLiveDataRequirements();
     if (liveDataRequirements.containsKey(valueSpecification)) {
       liveDataChanged();
     }

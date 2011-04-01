@@ -20,9 +20,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectIdentifier;
@@ -41,7 +41,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ObjectIdentifier _cycleObjectId;
-  private final ViewCycleManager _viewCycleManager;
+  private final ViewCycleManagerImpl _viewCycleManager;
   private final boolean _isBatchProcess;
   
   private final AtomicLong _cycleVersion = new AtomicLong();
@@ -61,7 +61,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
 
-  private final AtomicReference<ViewEvaluationModel> _latestCompilation = new AtomicReference<ViewEvaluationModel>();
+  private final AtomicReference<CompiledViewDefinitionImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionImpl>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
   /**
@@ -76,7 +76,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param isBatchProcess {@code true} if the process is for a batch computation, {@code false} otherwise 
    */
   public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
-      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManager viewCycleManager,
+      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManagerImpl viewCycleManager,
       ObjectIdentifier cycleObjectId, boolean isBatchProcess) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(definition, "definition");
@@ -196,10 +196,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return UniqueIdentifier.of(_cycleObjectId, cycleVersion);
   }
   
-  public void viewCompiled(ViewEvaluationModel viewEvaluationModel) {
-    _latestCompilation.set(viewEvaluationModel);
+  public void viewCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
+    _latestCompiledViewDefinition.set(compiledViewDefinition);
     for (ViewProcessListener listener : _allListeners) {
-      listener.compiled(viewEvaluationModel);
+      listener.viewDefinitionCompiled(compiledViewDefinition);
     }
   }
   
@@ -217,6 +217,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private void cycleCompletedCore(ViewCycle cycle) {
     // Caller MUST hold the semaphore
 
+    // [PLAT-1158]
     // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
     // of some kind. It holds the lock and blocks the recalc thread, so a slow
     // callback implementation (or just the cost of computing the delta model) will
@@ -281,11 +282,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current view computation job.
    * <p>
-   * Package visibility for tests.
+   * External visibility for testing.
    * 
    * @return  the current view computation job
    */
-  /*package*/ ViewComputationJob getComputationJob() {
+  public ViewComputationJob getComputationJob() {
     return _computationJob;
   }
 
@@ -301,11 +302,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Gets the current computation job's thread
    * <p>
-   * Package visibility for tests.
+   * External visibility for testing.
    * 
    * @return  the current computation job thread
    */
-  /*package*/ Thread getComputationThread() {
+  public Thread getComputationThread() {
     return _computationThread;
   }
 
@@ -322,7 +323,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return _viewProcessContext;
   }
   
-  private ViewCycleManager getCycleManager() {
+  private ViewCycleManagerImpl getCycleManager() {
     return _viewCycleManager;
   }
 
@@ -344,9 +345,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       _allListeners.add(listener);
       
       // Push initial state to listener
-      ViewEvaluationModel latestCompilation = _latestCompilation.get();
+      CompiledViewDefinitionImpl latestCompilation = _latestCompiledViewDefinition.get();
       if (latestCompilation != null) {
-        listener.compiled(_latestCompilation.get());
+        listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
         listener.result(_latestResult.get(), null);
       }
       

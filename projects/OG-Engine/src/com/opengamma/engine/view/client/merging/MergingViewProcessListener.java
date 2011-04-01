@@ -11,9 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessListener;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
 import com.opengamma.engine.view.calc.ViewCycleRetainer;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,13 +41,13 @@ public class MergingViewProcessListener implements ViewProcessListener {
   private ViewComputationResultModel _latestFullResult;
   private final IncrementalMerger<ViewDeltaResultModel> _deltaResultMerger = new ViewDeltaResultModelMerger();
   
-  private ViewEvaluationModel _preResultCompilation;
-  private ViewEvaluationModel _postResultCompilation;
+  private CompiledViewDefinitionImpl _preResultCompilation;
+  private CompiledViewDefinitionImpl _postResultCompilation;
   
   private boolean _processCompleted;
   private boolean _shutdown;
   
-  public MergingViewProcessListener(ViewProcessListener underlying, ViewCycleManager cycleManager) {
+  public MergingViewProcessListener(ViewProcessListener underlying, ViewCycleManagerImpl cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
     _cycleRetainer = new ViewCycleRetainer(cycleManager);
@@ -124,13 +124,13 @@ public class MergingViewProcessListener implements ViewProcessListener {
   }
 
   @Override
-  public void compiled(ViewEvaluationModel viewEvaluationModel) {
+  public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledView) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().compiled(viewEvaluationModel);
+        getUnderlying().viewDefinitionCompiled(compiledView);
       } else {
-        _postResultCompilation = viewEvaluationModel;
+        _postResultCompilation = compiledView;
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
     } finally {
@@ -199,7 +199,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
     _mergerLock.lock();
     try {
       if (_preResultCompilation != null) {
-        getUnderlying().compiled(_preResultCompilation);
+        getUnderlying().viewDefinitionCompiled(_preResultCompilation);
         _preResultCompilation = null;
       }
       if (_latestFullResult != null) {
@@ -207,7 +207,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
         _latestFullResult = null;
       }
       if (_postResultCompilation != null) {
-        getUnderlying().compiled(_postResultCompilation);
+        getUnderlying().viewDefinitionCompiled(_postResultCompilation);
         _postResultCompilation = null;
       }
       if (_processCompleted) {

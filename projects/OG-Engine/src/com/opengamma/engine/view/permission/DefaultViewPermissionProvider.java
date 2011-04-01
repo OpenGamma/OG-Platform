@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -46,14 +46,14 @@ public class DefaultViewPermissionProvider implements ViewPermissionProvider {
   
   //-------------------------------------------------------------------------
   @Override
-  public boolean canAccessCompilationOutput(UserPrincipal user, ViewEvaluationModel viewEvaluationModel) {
+  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinitionImpl viewEvaluationModel) {
     // REVIEW jonathan 2011-03-28 -- if/when we have fine-grained per-user permissions on view definitions or view
     // processes, then this would need to check against those.
     return true;
   }
 
   @Override
-  public boolean canAccessComputationResults(UserPrincipal user, ViewEvaluationModel viewEvaluationModel) {
+  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinitionImpl viewEvaluationModel) {
     s_logger.info("Checking that {} is entitled to computation results from {}", user, viewEvaluationModel);
     Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications(viewEvaluationModel);
     Map<LiveDataSpecification, Boolean> entitlements = getEntitlementChecker().isEntitled(user, requiredLiveData);
@@ -73,9 +73,9 @@ public class DefaultViewPermissionProvider implements ViewPermissionProvider {
   }
 
   //-------------------------------------------------------------------------
-  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications(ViewEvaluationModel viewEvaluationModel) {
+  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications(CompiledViewDefinitionImpl viewEvaluationModel) {
     Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
-    Set<ValueRequirement> liveDataRequirements = viewEvaluationModel.getAllLiveDataRequirements().keySet();
+    Set<ValueRequirement> liveDataRequirements = viewEvaluationModel.getLiveDataRequirements().keySet();
     for (ValueRequirement requirement : liveDataRequirements) {
       LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecuritySource());
       returnValue.add(liveDataSpec);

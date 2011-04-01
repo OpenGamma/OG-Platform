@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 
 /**
  * 
@@ -14,7 +14,7 @@ public interface ViewProcessListener {
 
   boolean isDeltaResultRequired();
   
-  void compiled(ViewEvaluationModel viewEvaluationModel);
+  void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledViewDefinition);
   
   void result(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
   

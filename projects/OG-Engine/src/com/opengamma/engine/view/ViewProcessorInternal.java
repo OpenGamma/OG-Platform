@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -19,6 +20,14 @@ import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
  */
 public interface ViewProcessorInternal extends ViewProcessor, Lifecycle {
 
+  /**
+   * Gets a collection of the view processes currently being managed by this view processor. A view process could be in
+   * any state, and might have finished producing new results. 
+   * 
+   * @return a collection of the current view processes, not null
+   */
+  Collection<? extends ViewProcess> getViewProcesses();
+  
   /**
    * Gets the function compilation service
    * 

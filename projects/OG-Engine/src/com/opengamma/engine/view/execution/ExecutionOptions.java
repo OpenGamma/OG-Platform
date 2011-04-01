@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.execution;
 
+import javax.time.Instant;
+
 import org.fudgemsg.util.ArgumentChecker;
 
 /**
@@ -30,13 +32,25 @@ public class ExecutionOptions implements ViewExecutionOptions {
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
   }
   
-  public static ViewExecutionOptions getRealTime() {
+  public static ViewExecutionOptions realTime() {
     return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), true);
   }
   
-  public static ViewExecutionOptions getBatch(ViewCycleExecutionSequence cycleExecutionSequence) {
+  public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence) {
     return new ExecutionOptions(
         cycleExecutionSequence,
+        true,
+        false,
+        null);
+  }
+  
+  public static ViewExecutionOptions singleCycle() {
+    return singleCycle(Instant.now());
+  }
+  
+  public static ViewExecutionOptions singleCycle(Instant valuationTime) {
+    return new ExecutionOptions(
+        ArbitraryViewCycleExecutionSequence.of(valuationTime),
         true,
         false,
         null);

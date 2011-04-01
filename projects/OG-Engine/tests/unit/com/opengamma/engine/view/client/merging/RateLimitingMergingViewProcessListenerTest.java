@@ -30,8 +30,8 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessListener;
 import com.opengamma.engine.view.ViewResultEntry;
-import com.opengamma.engine.view.calc.ViewCycleManager;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;
 
@@ -46,7 +46,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   @Test
   public void testPassThrough() {
     TestViewProcessListener testListener = new TestViewProcessListener();
-    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManager.class), new Timer("Custom timer"));
+    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManagerImpl.class), new Timer("Custom timer"));
 
     // OK, it doesn't really test the 'synchronous' bit, but it at least checks that no merging has happened.
     addCompile(mergingListener);
@@ -76,7 +76,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   @Test
   public void testMergingWhenRateLimiting() throws InterruptedException {
     TestViewProcessListener testListener = new TestViewProcessListener();
-    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManager.class), new Timer("Custom timer"));
+    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManagerImpl.class), new Timer("Custom timer"));
     mergingListener.setMinimumUpdatePeriodMillis(500);
 
     addResults(mergingListener, 1000);
@@ -90,7 +90,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   @Test
   public void testModifiableUpdatePeriod() throws InterruptedException {
     TestViewProcessListener testListener = new TestViewProcessListener();
-    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManager.class), new Timer("Custom timer"));
+    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManagerImpl.class), new Timer("Custom timer"));
 
     assertCorrectUpdateRate(mergingListener, testListener, 100);
     assertCorrectUpdateRate(mergingListener, testListener, 400);
@@ -102,7 +102,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   @Test
   public void testCallOrderingAndCollapsing() {
     TestViewProcessListener testListener = new TestViewProcessListener(true);
-    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManager.class), new Timer("Custom timer"));
+    RateLimitingMergingViewProcessListener mergingListener = new RateLimitingMergingViewProcessListener(testListener, mock(ViewCycleManagerImpl.class), new Timer("Custom timer"));
    
     mergingListener.setPaused(true);
     testListener.assertNothingMoreReceived();
@@ -112,16 +112,16 @@ public class RateLimitingMergingViewProcessListenerTest {
     addCompile(mergingListener);
     addResults(mergingListener, 10);
     
-    ViewEvaluationModel preCompilation = mock(ViewEvaluationModel.class);
-    mergingListener.compiled(preCompilation);
+    CompiledViewDefinitionImpl preCompilation = mock(CompiledViewDefinitionImpl.class);
+    mergingListener.viewDefinitionCompiled(preCompilation);
     
     addResults(mergingListener, 10);
     mergingListener.result(mock(ViewComputationResultModel.class), getDeltaResult(1));
     ViewComputationResultModel latestResult = mock(ViewComputationResultModel.class);
     mergingListener.result(latestResult, getDeltaResult(2));
 
-    ViewEvaluationModel postCompilation = mock(ViewEvaluationModel.class);
-    mergingListener.compiled(postCompilation);
+    CompiledViewDefinitionImpl postCompilation = mock(CompiledViewDefinitionImpl.class);
+    mergingListener.viewDefinitionCompiled(postCompilation);
     
     mergingListener.processCompleted();
     mergingListener.shutdown();
@@ -202,7 +202,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   }
   
   private void addCompile(ViewProcessListener listener) {
-    listener.compiled(mock(ViewEvaluationModel.class));
+    listener.viewDefinitionCompiled(mock(CompiledViewDefinitionImpl.class));
   }
 
   private class TestViewProcessListener implements ViewProcessListener {
@@ -234,12 +234,12 @@ public class RateLimitingMergingViewProcessListenerTest {
     }
 
     @Override
-    public void compiled(ViewEvaluationModel viewEvaluationModel) {
-      _callsReceived.add(viewEvaluationModel);
+    public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledView) {
+      _callsReceived.add(compiledView);
     }
     
     public void assertCompiled() {
-      assertReceived(ViewEvaluationModel.class);
+      assertReceived(CompiledViewDefinitionImpl.class);
     }
 
     @Override

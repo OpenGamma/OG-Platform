@@ -29,6 +29,7 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.test.TestComputationResultListener;
 import com.opengamma.engine.test.TestDeltaResultListener;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -38,7 +39,6 @@ import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
@@ -63,7 +63,7 @@ public class ViewClientTest {
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     assertNotNull(client1.getUniqueId());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     ViewProcessImpl client1Process = env.getViewProcess(vp, client1.getUniqueId());
     assertTrue(client1Process.getState() == ViewProcessState.RUNNING);
     
@@ -71,7 +71,7 @@ public class ViewClientTest {
     assertNotNull(client2.getUniqueId());
     assertFalse(client1.getUniqueId().equals(client2.getUniqueId()));
     
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     ViewProcessImpl client2Process = env.getViewProcess(vp, client2.getUniqueId());
     assertEquals(client1Process, client2Process);
     assertTrue(client2Process.getState() == ViewProcessState.RUNNING);
@@ -94,10 +94,10 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client1 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewProcessImpl view = env.getViewProcess(vp, client1.getUniqueId());
     
@@ -141,7 +141,7 @@ public class ViewClientTest {
     
     assertEquals(0, resultListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
@@ -195,7 +195,7 @@ public class ViewClientTest {
     
     assertEquals(0, deltaListener.getQueueSize());
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewDeltaResultModel result1 = deltaListener.getResult(TIMEOUT);
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
@@ -239,7 +239,7 @@ public class ViewClientTest {
     
     assertEquals(0, client1ResultListener.getQueueSize());
     
-    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client1.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     // Wait for first computation cycle
     client1ResultListener.getResult(TIMEOUT);
@@ -249,7 +249,7 @@ public class ViewClientTest {
     client2.setResultListener(client2ResultListener);
     
     assertEquals(0, client2ResultListener.getQueueSize());
-    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client2.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     // Initial result should be pushed through
     client2ResultListener.getResult(TIMEOUT);
@@ -338,7 +338,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     
     ViewProcess viewProcess = env.getViewProcess(vp, client.getUniqueId());
     
@@ -371,7 +371,7 @@ public class ViewClientTest {
     // Start live computation and collect the initial result
     snapshotProvider.addValue(env.getPrimitive1(), 2);
 
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertEquals(ViewProcessState.RUNNING, viewProcess.getState());
     
@@ -426,7 +426,7 @@ public class ViewClientTest {
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     ViewProcessImpl viewProcess1 = env.getViewProcess(vp, client.getUniqueId());
     
     ViewComputationJob recalcJob1 = env.getCurrentComputationJob(viewProcess1);
@@ -435,7 +435,7 @@ public class ViewClientTest {
     assertTrue(recalcThread1.isAlive());
     
     client.detachFromViewProcess();
-    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.getRealTime());
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.realTime());
     ViewProcessImpl viewProcess2 = env.getViewProcess(vp, client.getUniqueId());
     ViewComputationJob recalcJob2 = env.getCurrentComputationJob(viewProcess2);
     Thread recalcThread2 = env.getCurrentComputationThread(viewProcess2);

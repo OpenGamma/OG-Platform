@@ -22,8 +22,8 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.calc.ViewCycleRetainer;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
-import com.opengamma.engine.view.compilation.ViewCompilationListener;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueIdentifier;
@@ -44,22 +44,23 @@ public class ViewClientImpl implements ViewClient {
   private final UserPrincipal _user;
   private final ViewCycleRetainer _latestCycleRetainer;
   
-  private boolean _isViewCycleAccessSupported;
+  private volatile boolean _isViewCycleAccessSupported;
   private ViewClientState _state = ViewClientState.STARTED;
   private boolean _isAttached;
   
   // Per-process state
   private boolean _isBatchController;
   private volatile ViewPermissionProvider _permissionProvider;
-  private volatile boolean _canAccessCompilationOutput;
+  private volatile boolean _canAccessCompiledViewDefinition;
   private volatile boolean _canAccessComputationResults;
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
+  private final AtomicReference<CompiledViewDefinitionImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionImpl>();
   
   private final ViewProcessListener _mergedViewProcessListener;
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
   
-  private ViewCompilationListener _userCompilationListener;
+  private ViewDefinitionCompilationListener _userCompilationListener;
   private ComputationResultListener _userResultListener;
   private DeltaComputationResultListener _userDeltaListener;
   
@@ -90,17 +91,18 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void compiled(ViewEvaluationModel viewEvaluationModel) {
-        _canAccessCompilationOutput = _permissionProvider.canAccessCompilationOutput(getUser(), viewEvaluationModel);
-        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), viewEvaluationModel);
+      public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
+        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition);
         
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
         // cycle?
         
-        ViewCompilationListener compilationListener = _userCompilationListener;
+        updateLatestCompiledViewDefinition(compiledViewDefinition);
+        ViewDefinitionCompilationListener compilationListener = _userCompilationListener;
         if (compilationListener != null) {
-          compilationListener.viewCompiled(viewEvaluationModel);
+          compilationListener.viewDefinitionCompiled(compiledViewDefinition);
         }
       }
 
@@ -231,7 +233,7 @@ public class ViewClientImpl implements ViewClient {
   
   //-------------------------------------------------------------------------  
   @Override
-  public void setCompilationListener(ViewCompilationListener compilationListener) {
+  public void setCompilationListener(ViewDefinitionCompilationListener compilationListener) {
     _userCompilationListener = compilationListener;
   }
   
@@ -297,6 +299,11 @@ public class ViewClientImpl implements ViewClient {
   @Override
   public ViewComputationResultModel getLatestResult() {
     return _latestResult.get();
+  }
+  
+  @Override
+  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
+    return _latestCompiledViewDefinition.get();
   }
   
   @Override
@@ -369,6 +376,10 @@ public class ViewClientImpl implements ViewClient {
       getLatestCycleRetainer().replaceRetainedCycle(result.getViewCycleId());
     }
     _latestResult.set(result);
+  }
+  
+  private void updateLatestCompiledViewDefinition(CompiledViewDefinitionImpl compiledViewDefinition) {
+    _latestCompiledViewDefinition.set(compiledViewDefinition);
   }
   
 }

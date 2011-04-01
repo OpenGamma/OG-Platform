@@ -62,7 +62,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
@@ -165,7 +165,7 @@ public class CancelExecutionTest {
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
     graphs.put(graph.getCalcConfName(), graph);
-    ViewEvaluationModel viewEvaluationModel = new ViewEvaluationModel(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
+    CompiledViewDefinitionImpl viewEvaluationModel = new CompiledViewDefinitionImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueIdentifier.of("Test", "Cycle1"),
         UniqueIdentifier.of("Test", "ViewProcess1"),

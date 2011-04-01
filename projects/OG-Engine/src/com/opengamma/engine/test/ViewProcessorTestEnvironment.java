@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
@@ -24,8 +24,15 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.MapViewDefinitionRepository;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewProcessorFactoryBean;
+import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
@@ -39,6 +46,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.test.TestLiveDataClient;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
@@ -60,36 +68,40 @@ public class ViewProcessorTestEnvironment {
   // Settings
   private LiveDataSnapshotProvider _userSnapshotProvider;
   private LiveDataAvailabilityProvider _userAvailabilityProvider;
+  private SecuritySource _securitySource;
+  private PositionSource _positionSource;
+  private FunctionExecutionContext _functionExecutionContext;
+  private FunctionCompilationContext _functionCompilationContext;
+  private LiveDataClient _liveDataClient;
+  private ViewDefinition _viewDefinition;
+  private FunctionRepository _functionRepository;
 
   // Environment
   private ViewProcessorImpl _viewProcessor;
   private InMemoryLKVSnapshotProvider _snapshotProvider;
   private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
-  private ViewDefinition _testDefinition;
   private ViewCalculationConfiguration _calcConfig;
   private final ValueRequirement _primitive1 = new ValueRequirement("Value1", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
   private final ValueRequirement _primitive2 = new ValueRequirement("Value2", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "PrimitiveValue"));
   private MapViewDefinitionRepository _viewDefinitionRepository;
 
   public void init() {
-    _testDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_USER);
-    _calcConfig = new ViewCalculationConfiguration(_testDefinition, TEST_CALC_CONFIG_NAME);
-    _calcConfig.addSpecificRequirement(_primitive1);
-    _calcConfig.addSpecificRequirement(_primitive2);
-    _testDefinition.addViewCalculationConfiguration(_calcConfig);
+    ViewDefinition viewDefinition = getViewDefinition() != null ? getViewDefinition() : generateViewDefinition();
 
     ViewProcessorFactoryBean vpFactBean = new ViewProcessorFactoryBean();
     vpFactBean.setId(0);
 
     FudgeContext fudgeContext = new FudgeContext();
-    FunctionRepository functionRepository = new InMemoryFunctionRepository();
-    PositionSource positionSource = new MockPositionSource();
-    SecuritySource securitySource = new MockSecuritySource();
-    FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
-    functionCompilationContext.setSecuritySource(securitySource);
+    PositionSource positionSource = getPositionSource() != null ? getPositionSource() : new MockPositionSource();
+    SecuritySource securitySource = getSecuritySource() != null ? getSecuritySource() : new MockSecuritySource();
+    FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext();
+    if (functionCompilationContext == null) {
+      functionCompilationContext = new FunctionCompilationContext();
+      functionCompilationContext.setSecuritySource(securitySource);
+    }
 
     MapViewDefinitionRepository viewDefinitionRepository = new MapViewDefinitionRepository();
-    viewDefinitionRepository.addDefinition(_testDefinition);
+    viewDefinitionRepository.addDefinition(viewDefinition);
 
     InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
     vpFactBean.setComputationCacheSource(cacheSource);
@@ -98,22 +110,23 @@ public class ViewProcessorTestEnvironment {
         : new SingleNodeExecutorFactory();
     vpFactBean.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
 
+    FunctionRepository functionRepository = getFunctionRepository() != null ? getFunctionRepository() : new InMemoryFunctionRepository();
     final CompiledFunctionService compiledFunctions = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
-    TestLiveDataClient liveDataClient = new TestLiveDataClient();
+    LiveDataClient liveDataClient = getLiveDataClient() != null ? getLiveDataClient() : new TestLiveDataClient();
     vpFactBean.setLiveDataClient(liveDataClient);
 
-    if (_userSnapshotProvider != null) {
-      vpFactBean.setLiveDataSnapshotProvider(_userSnapshotProvider);
-      vpFactBean.setLiveDataAvailabilityProvider(_userAvailabilityProvider);
+    if (getUserSnapshotProvider() != null) {
+      vpFactBean.setLiveDataSnapshotProvider(getUserSnapshotProvider());
+      vpFactBean.setLiveDataAvailabilityProvider(getUserAvailabilityProvider());
     } else {
-      _snapshotProvider = new InMemoryLKVSnapshotProvider();
-      _snapshotProvider.addValue(_primitive1, 0);
-      _snapshotProvider.addValue(_primitive2, 0);
-      vpFactBean.setLiveDataSnapshotProvider(_snapshotProvider);
-      vpFactBean.setLiveDataAvailabilityProvider(_snapshotProvider);
+      InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
+      snapshotProvider.addValue(getPrimitive1(), 0);
+      snapshotProvider.addValue(getPrimitive2(), 0);
+      vpFactBean.setLiveDataSnapshotProvider(snapshotProvider);
+      vpFactBean.setLiveDataAvailabilityProvider(snapshotProvider);
     }
 
     vpFactBean.setPositionSource(positionSource);
@@ -130,7 +143,7 @@ public class ViewProcessorTestEnvironment {
     ViewProcessorQuerySender calcNodeQuerySender = new ViewProcessorQuerySender(calcNodeQueryRequestSender);
     vpFactBean.setViewProcessorQueryReceiver(calcNodeQueryReceiver);
 
-    FunctionExecutionContext functionExecutionContext = new FunctionExecutionContext();
+    FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext() != null ? getFunctionExecutionContext() : new FunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
     LocalCalculationNode localCalcNode = new LocalCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, new DefaultComputationTargetResolver(
@@ -141,10 +154,23 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
 
+  private ViewDefinition generateViewDefinition() {
+    ViewDefinition testDefinition = new ViewDefinition(TEST_VIEW_DEFINITION_NAME, TEST_USER);
+    _calcConfig = new ViewCalculationConfiguration(testDefinition, TEST_CALC_CONFIG_NAME);
+    _calcConfig.addSpecificRequirement(_primitive1);
+    _calcConfig.addSpecificRequirement(_primitive2);
+    testDefinition.addViewCalculationConfiguration(_calcConfig);
+    return testDefinition;
+  }
+
   // Pre-init configuration
   // -------------------------------------------------------------------------
   public LiveDataSnapshotProvider getUserSnapshotProvider() {
     return _userSnapshotProvider;
+  }
+  
+  public LiveDataAvailabilityProvider getUserAvailabilityProvider() {
+    return _userAvailabilityProvider;
   }
 
   public void setUserProviders(LiveDataSnapshotProvider liveDataSnapshotProvider, LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
@@ -153,6 +179,14 @@ public class ViewProcessorTestEnvironment {
     _userSnapshotProvider = liveDataSnapshotProvider;
     _userAvailabilityProvider = liveDataAvailabilityProvider;
   }
+  
+  public FunctionRepository getFunctionRepository() {
+    return _functionRepository;
+  }
+  
+  public void setFunctionRepository(FunctionRepository functionRepository) {
+    _functionRepository = functionRepository;
+  }
 
   public DependencyGraphExecutorFactory<CalculationJobResult> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
@@ -160,6 +194,46 @@ public class ViewProcessorTestEnvironment {
 
   public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<CalculationJobResult> dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
+  }
+  
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+  
+  public void setSecuritySource(SecuritySource securitySource) {
+    _securitySource = securitySource;
+  }
+  
+  public PositionSource getPositionSource() {
+    return _positionSource;
+  }
+  
+  public void setPositionSource(PositionSource positionSource) {
+    _positionSource = positionSource;
+  }
+  
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _functionExecutionContext;
+  }
+  
+  public void setFunctionExecutionContext(FunctionExecutionContext functionExecutionContext) {
+    _functionExecutionContext = functionExecutionContext;
+  }
+  
+  public FunctionCompilationContext getFunctionCompilationContext() {
+    return _functionCompilationContext;
+  }
+  
+  public void setFunctionCompilationContext(FunctionCompilationContext functionCompilationContext) {
+    _functionCompilationContext = functionCompilationContext;
+  }
+  
+  public LiveDataClient getLiveDataClient() {
+    return _liveDataClient;
+  }
+  
+  public void setLiveDataClient(LiveDataClient liveDataClient) {
+    _liveDataClient = liveDataClient;
   }
 
   // Environment accessors
@@ -181,7 +255,11 @@ public class ViewProcessorTestEnvironment {
   }
 
   public ViewDefinition getViewDefinition() {
-    return _testDefinition;
+    return _viewDefinition;
+  }
+  
+  public void setViewDefinition(ViewDefinition viewDefinition) {
+    _viewDefinition = viewDefinition;
   }
 
   public InMemoryLKVSnapshotProvider getSnapshotProvider() {

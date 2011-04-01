@@ -12,11 +12,11 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ViewCycleRetainer {
 
-  private final ViewCycleManager _cycleManager;
+  private final ViewCycleManagerImpl _cycleManager;
   
   private UniqueIdentifier _retainedCycleId;
   
-  public ViewCycleRetainer(ViewCycleManager cycleManager) {
+  public ViewCycleRetainer(ViewCycleManagerImpl cycleManager) {
     _cycleManager = cycleManager;
   }
   
@@ -36,7 +36,7 @@ public class ViewCycleRetainer {
     }
   }
   
-  private ViewCycleManager getCycleManager() {
+  private ViewCycleManagerImpl getCycleManager() {
     return _cycleManager;
   }
     
