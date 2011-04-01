@@ -76,19 +76,24 @@ public final class DataConverter implements TypeConverter {
     }
     if (value instanceof Data) {
       final Data dataValue = (Data) value;
-      if (clazz == Value.class) {
-        if (dataValue.getSingle() != null) {
+      if (dataValue.getSingle() != null) {
+        if (clazz == Value.class) {
           conversionContext.setResult(dataValue.getSingle());
           return;
         }
-      } else if (clazz == Value[].class) {
-        if (dataValue.getLinear() != null) {
+      } else if (dataValue.getLinear() != null) {
+        if (clazz == Value[].class) {
           conversionContext.setResult(dataValue.getLinear());
           return;
         }
-      } else if (clazz == Value[][].class) {
-        if (dataValue.getMatrix() != null) {
+      } else if (dataValue.getMatrix() != null) {
+        if (clazz == Value[][].class) {
           conversionContext.setResult(dataValue.getMatrix());
+          return;
+        }
+      } else {
+        if (type.isAllowNull()) {
+          conversionContext.setResult(null);
           return;
         }
       }

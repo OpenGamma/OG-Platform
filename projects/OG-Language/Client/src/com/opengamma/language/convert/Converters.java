@@ -28,6 +28,7 @@ public final class Converters implements TypeConverterProvider {
     converters.add(new DataConverter());
     converters.add(new PrimitiveArrayConverter());
     converters.add(new PrimitiveConverter());
+    converters.add(new BoxingConverter());
     converters.add(new ValueConverter());
   }
 

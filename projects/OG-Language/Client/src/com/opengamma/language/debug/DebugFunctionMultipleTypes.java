@@ -32,7 +32,7 @@ public class DebugFunctionMultipleTypes implements PublishedFunction {
     final MutableFudgeFieldContainer message = FudgeContext.GLOBAL_DEFAULT.newMessage();
     message.add("byte", byteValue);
     message.add("boolean", booleanValue);
-    message.add("char", charValue);
+    message.add("char", Character.toString(charValue));
     message.add("double", doubleValue);
     message.add("float", floatValue);
     message.add("int", intValue);

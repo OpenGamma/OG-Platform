@@ -26,8 +26,8 @@ public class DefaultParameterConverter implements ParameterConverter {
     int i = 0;
     try {
       while (i < parameters.length) {
-        parameters[i++] = valueConverter.convertValue(sessionContext, clientParameters.get(i), targetParameters.get(i)
-            .getJavaTypeInfo());
+        final Object converted = valueConverter.convertValue(sessionContext, clientParameters.get(i), targetParameters.get(i).getJavaTypeInfo());
+        parameters[i++] = converted;
       }
     } catch (InvalidConversionException e) {
       throw new InvokeParameterConversionException(i, e.getClientMessage());

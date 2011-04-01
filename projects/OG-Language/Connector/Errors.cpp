@@ -17,6 +17,7 @@ LOGGING (com.opengamma.language.connector.Errors);
 static TCHAR *_ParameterConversionError (int nIndex, const TCHAR *pszMessage) {
 	TCHAR sz[MESSAGE_BUFFER_SIZE];
 	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid parameter %d - %s"), nIndex + 1, pszMessage);
+	return _tcsdup (sz);
 }
 
 static TCHAR *_ResultConversionError (int nIndex, const TCHAR *pszMessage) {

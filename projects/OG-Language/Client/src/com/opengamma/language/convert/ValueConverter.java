@@ -22,15 +22,23 @@ import com.opengamma.language.invoke.TypeConverter;
  */
 public final class ValueConverter implements TypeConverter {
 
-  private static final JavaTypeInfo<Value> VALUE = JavaTypeInfo.builder(Value.class).get();
-  private static final JavaTypeInfo<Boolean> BOOLEAN = JavaTypeInfo.builder(Boolean.class).get();
-  private static final JavaTypeInfo<Integer> INTEGER = JavaTypeInfo.builder(Integer.class).get();
-  private static final JavaTypeInfo<Double> DOUBLE = JavaTypeInfo.builder(Double.class).get();
-  private static final JavaTypeInfo<String> STRING = JavaTypeInfo.builder(String.class).get();
-  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE = JavaTypeInfo.builder(FudgeFieldContainer.class).get();
+  private static final JavaTypeInfo<Value> VALUE_NOT_NULL = JavaTypeInfo.builder(Value.class).get();
+  private static final JavaTypeInfo<Value> VALUE_NULL = JavaTypeInfo.builder(Value.class).allowNull().get();
+  private static final JavaTypeInfo<Boolean> BOOLEAN_NOT_NULL = JavaTypeInfo.builder(Boolean.class).get();
+  private static final JavaTypeInfo<Boolean> BOOLEAN_NULL = JavaTypeInfo.builder(Boolean.class).allowNull().get();
+  private static final JavaTypeInfo<Integer> INTEGER_NOT_NULL = JavaTypeInfo.builder(Integer.class).get();
+  private static final JavaTypeInfo<Integer> INTEGER_NULL = JavaTypeInfo.builder(Integer.class).allowNull().get();
+  private static final JavaTypeInfo<Double> DOUBLE_NOT_NULL = JavaTypeInfo.builder(Double.class).get();
+  private static final JavaTypeInfo<Double> DOUBLE_NULL = JavaTypeInfo.builder(Double.class).allowNull().get();
+  private static final JavaTypeInfo<String> STRING_NOT_NULL = JavaTypeInfo.builder(String.class).get();
+  private static final JavaTypeInfo<String> STRING_NULL = JavaTypeInfo.builder(String.class).allowNull().get();
+  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE_NOT_NULL = JavaTypeInfo.builder(FudgeFieldContainer.class).get();
+  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE_NULL = JavaTypeInfo.builder(FudgeFieldContainer.class).allowNull().get();
 
-  private static final TypeMap TO_VALUE = TypeMap.of(ZERO_LOSS, BOOLEAN, INTEGER, DOUBLE, STRING, MESSAGE);
-  private static final TypeMap FROM_VALUE = TypeMap.of(ZERO_LOSS, VALUE);
+  private static final TypeMap TO_VALUE_NOT_NULL = TypeMap.of(ZERO_LOSS, BOOLEAN_NOT_NULL, INTEGER_NOT_NULL, DOUBLE_NOT_NULL, STRING_NOT_NULL, MESSAGE_NOT_NULL);
+  private static final TypeMap TO_VALUE_ALLOW_NULL = TypeMap.of(ZERO_LOSS, BOOLEAN_NULL, INTEGER_NULL, DOUBLE_NULL, STRING_NULL, MESSAGE_NULL);
+  private static final TypeMap FROM_VALUE_NOT_NULL = TypeMap.of(ZERO_LOSS, VALUE_NOT_NULL);
+  private static final TypeMap FROM_VALUE_ALLOW_NULL = TypeMap.of(ZERO_LOSS, VALUE_NULL);
 
   @Override
   public boolean canConvertTo(JavaTypeInfo<?> targetType) {
@@ -38,7 +46,7 @@ public final class ValueConverter implements TypeConverter {
     if (clazz == Value.class) {
       return true;
     } else {
-      for (JavaTypeInfo<?> toData : TO_VALUE.keySet()) {
+      for (JavaTypeInfo<?> toData : (targetType.isAllowNull() ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL).keySet()) {
         if (clazz == toData.getRawClass()) {
           return true;
         }
@@ -51,9 +59,9 @@ public final class ValueConverter implements TypeConverter {
   public Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType) {
     final Class<?> clazz = targetType.getRawClass();
     if (clazz == Value.class) {
-      return TO_VALUE;
+      return targetType.isAllowNull() ? TO_VALUE_ALLOW_NULL : TO_VALUE_NOT_NULL;
     } else {
-      return FROM_VALUE;
+      return targetType.isAllowNull() ? FROM_VALUE_ALLOW_NULL : FROM_VALUE_NOT_NULL;
     }
   }
 
@@ -83,32 +91,38 @@ public final class ValueConverter implements TypeConverter {
     } else {
       if (valueObject instanceof Value) {
         final Value value = (Value) valueObject;
-        if (clazz == Boolean.class) {
-          if (type.isAllowNull() || (value.getBoolValue() != null)) {
+        if (ValueUtil.isNull(value)) {
+          if (type.isAllowNull()) {
+            conversionContext.setResult(null);
+          } else {
+            conversionContext.setFail();
+          }
+        } else if (clazz == Boolean.class) {
+          if (value.getBoolValue() != null) {
             conversionContext.setResult(value.getBoolValue());
           } else {
             conversionContext.setFail();
           }
         } else if (clazz == Integer.class) {
-          if (type.isAllowNull() || (value.getIntValue() != null)) {
+          if (value.getIntValue() != null) {
             conversionContext.setResult(value.getIntValue());
           } else {
             conversionContext.setFail();
           }
         } else if (clazz == Double.class) {
-          if (type.isAllowNull() || (value.getDoubleValue() != null)) {
+          if (value.getDoubleValue() != null) {
             conversionContext.setResult(value.getDoubleValue());
           } else {
             conversionContext.setFail();
           }
         } else if (clazz == String.class) {
-          if (type.isAllowNull() || (value.getStringValue() != null)) {
+          if (value.getStringValue() != null) {
             conversionContext.setResult(value.getStringValue());
           } else {
             conversionContext.setFail();
           }
         } else if (clazz == FudgeFieldContainer.class) {
-          if (type.isAllowNull() || (value.getMessageValue() != null)) {
+          if (value.getMessageValue() != null) {
             conversionContext.setResult(value.getMessageValue());
           } else {
             conversionContext.setFail();
@@ -117,6 +131,11 @@ public final class ValueConverter implements TypeConverter {
           conversionContext.setFail();
         }
         return;
+      } else if (valueObject == null) {
+        if (type.isAllowNull()) {
+          conversionContext.setResult(null);
+          return;
+        }
       }
     }
     conversionContext.setFail();

@@ -113,6 +113,21 @@ public class DefaultValueConverterTest {
   }
 
   @Test
+  public void testBoxingConverter() {
+    convert(DataUtil.of(42.d), JavaTypeInfo.builder(Double.TYPE).get());
+  }
+
+  @Test(expectedExceptions = InvalidConversionException.class)
+  public void testNullConverter_fail() {
+    convert(new Data(), JavaTypeInfo.builder(String.class).get());
+  }
+
+  @Test
+  public void testNullConverter_ok() {
+    convert(new Data(), JavaTypeInfo.builder(String.class).allowNull().get());
+  }
+
+  @Test
   public void testDoubleToData() {
     final double[][] matrix = new double[8][8];
     for (int i = 0; i < matrix.length; i++) {

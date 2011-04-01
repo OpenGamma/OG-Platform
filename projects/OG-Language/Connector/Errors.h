@@ -34,7 +34,7 @@ private:
 	CError () { }
 	~CError () { }
 public:
-	TCHAR *ToString (const com_opengamma_language_Value *pValue);
+	static TCHAR *ToString (const com_opengamma_language_Value *pValue);
 };
 
 #endif /* ifndef __inc_og_language_connector_errors_h */

@@ -22,6 +22,18 @@ public final class ValueUtil {
   private ValueUtil() {
   }
 
+  public static boolean isNull(final Value value) {
+    if (value == null) {
+      return true;
+    }
+    return (value.getBoolValue() == null)
+        && (value.getDoubleValue() == null)
+        && (value.getErrorValue() == null)
+        && (value.getIntValue() == null)
+        && (value.getMessageValue() == null)
+        && (value.getStringValue() == null);
+  }
+
   public static Value of(final Boolean boolValue) {
     ArgumentChecker.notNull(boolValue, "boolValue");
     final Value value = new Value();
@@ -103,7 +115,7 @@ public final class ValueUtil {
         sb.append(", ");
       }
       sb.append("\"");
-      StringEscapeUtils.escapeJava(value.getStringValue());
+      sb.append(StringEscapeUtils.escapeJava(value.getStringValue()));
       sb.append("\"");
     }
     if (value.getErrorValue() != null) {
