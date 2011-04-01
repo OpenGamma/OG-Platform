@@ -153,7 +153,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   
   //-------------------------------------------------------------------------
   @Path("{configId}")
-  public AbstractWebConfigResource findConfig(@PathParam("configId") String idStr) {
+  public WebConfigResource findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
     UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
     try {

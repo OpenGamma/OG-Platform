@@ -20,6 +20,7 @@ import javax.time.calendar.OffsetTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -869,7 +870,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   }
   
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "deprecation" })
   public BatchSearchResult search(BatchSearchRequest request) {
     DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
     DetachedCriteria runTimeCriteria = criteria.createCriteria("runTime");
@@ -882,7 +883,8 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     
     if (request.getObservationTime() != null) {
       observationTimeCriteria.add(
-          Restrictions.eq("label", request.getObservationTime()));
+          Restrictions.sqlRestriction("UPPER(label) like UPPER(?)", 
+              getDbHelper().sqlWildcardAdjustValue(request.getObservationTime()), Hibernate.STRING));
     }
     
     BatchSearchResult result = new BatchSearchResult();
