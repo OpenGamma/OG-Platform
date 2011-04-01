@@ -12,6 +12,12 @@ import java.util.Properties;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionDefinitionFilter;
+import com.opengamma.language.invoke.DefaultParameterConverter;
+import com.opengamma.language.invoke.DefaultResultConverter;
+import com.opengamma.language.invoke.DefaultValueConverter;
+import com.opengamma.language.invoke.ParameterConverter;
+import com.opengamma.language.invoke.ResultConverter;
+import com.opengamma.language.invoke.ValueConverter;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.DefaultLiveDataDefinitionFilter;
 import com.opengamma.language.livedata.LiveDataDefinitionFilter;
@@ -23,7 +29,7 @@ import com.opengamma.language.procedure.ProcedureDefinitionFilter;
  * A global information context shared by all client instances. This corresponds to the
  * OpenGamma installation the language integration framework is connecting to.
  */
-public abstract class GlobalContext extends AbstractContext {
+public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> {
 
   /**
    * Name under which the system settings (OpenGamma.properties) are bound. 
@@ -42,16 +48,54 @@ public abstract class GlobalContext extends AbstractContext {
    * Name under which the procedure definition filter is bound.
    */
   protected static final String PROCEDURE_DEFINITION_FILTER = "procedureDefinitionFilter";
+  /**
+   * Name under which the generic parameter converter is bound.
+   */
+  protected static final String PARAMETER_CONVERTER = "parameterConverter";
+  /**
+   * Name under which the generic result converter is bound.
+   */
+  protected static final String RESULT_CONVERTER = "resultConverter";
+  /**
+   * Name under which the generic value converter is bound. 
+   */
+  protected static final String VALUE_CONVERTER = "valueConverter";
+  /**
+   * Name under which a function specific parameter converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String FUNCTION_PARAMETER_CONVERTER = "functionParameterConverter";
+  /**
+   * Name under which a function specific result converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String FUNCTION_RESULT_CONVERTER = "functionResultConverter";
+  /**
+   * Name under which a live data specific parameter converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String LIVEDATA_PARAMETER_CONVERTER = "liveDataParameterConverter";
+  /**
+   * Name under which a live data specific result converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String LIVEDATA_RESULT_CONVERTER = "liveDataResultConverter";
+  /**
+   * Name under which a procedure specific parameter converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String PROCEDURE_PARAMETER_CONVERTER = "procedureParameterConverter";
+  /**
+   * Name under which a procedure specific result converter is bound. If none is bound, the generic one will be used.
+   */
+  protected static final String PROCEDURE_RESULT_CONVERTER = "procedureResultConverter";
 
   private final Map<String, UserContext> _userContexts = new HashMap<String, UserContext>();
 
   /* package */GlobalContext() {
+    super(null);
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.cachingInstance());
     setValue(PROCEDURE_PROVIDER, AggregatingProcedureProvider.cachingInstance());
     setValue(FUNCTION_DEFINITION_FILTER, new DefaultFunctionDefinitionFilter());
     setValue(LIVEDATA_DEFINITION_FILTER, new DefaultLiveDataDefinitionFilter());
     setValue(PROCEDURE_DEFINITION_FILTER, new DefaultProcedureDefinitionFilter());
+    setValue(VALUE_CONVERTER, new DefaultValueConverter());
   }
 
   /**
@@ -119,6 +163,70 @@ public abstract class GlobalContext extends AbstractContext {
 
   public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
     return getValue(PROCEDURE_DEFINITION_FILTER);
+  }
+
+  public ParameterConverter getParameterConverter() {
+    ParameterConverter v = getValue(PARAMETER_CONVERTER);
+    if (v == null) {
+      v = new DefaultParameterConverter();
+      replaceValue(PARAMETER_CONVERTER, v);
+    }
+    return v;
+  }
+
+  protected ParameterConverter getParameterConverter(final String key) {
+    ParameterConverter v = getValue(key);
+    if (v == null) {
+      v = getParameterConverter();
+      replaceValue(key, v);
+    }
+    return v;
+  }
+
+  public ParameterConverter getFunctionParameterConverter() {
+    return getParameterConverter(FUNCTION_PARAMETER_CONVERTER);
+  }
+
+  public ParameterConverter getLiveDataParameterConverter() {
+    return getParameterConverter(LIVEDATA_PARAMETER_CONVERTER);
+  }
+
+  public ParameterConverter getProcedureParameterConverter() {
+    return getParameterConverter(PROCEDURE_PARAMETER_CONVERTER);
+  }
+
+  public ResultConverter getResultConverter() {
+    ResultConverter v = getValue(RESULT_CONVERTER);
+    if (v == null) {
+      v = new DefaultResultConverter();
+      replaceValue(RESULT_CONVERTER, v);
+    }
+    return v;
+  }
+
+  protected ResultConverter getResultConverter(final String key) {
+    ResultConverter v = getValue(key);
+    if (v == null) {
+      v = getResultConverter();
+      replaceValue(key, v);
+    }
+    return v;
+  }
+
+  public ResultConverter getFunctionResultConverter() {
+    return getResultConverter(FUNCTION_RESULT_CONVERTER);
+  }
+
+  public ResultConverter getLiveDataResultConverter() {
+    return getResultConverter(LIVEDATA_RESULT_CONVERTER);
+  }
+
+  public ResultConverter getProcedureResultConverter() {
+    return getResultConverter(PROCEDURE_RESULT_CONVERTER);
+  }
+
+  public ValueConverter getValueConverter() {
+    return getValue(VALUE_CONVERTER);
   }
 
 }

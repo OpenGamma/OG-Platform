@@ -26,7 +26,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
    * Fudge builder for {@code DoubleMatrix1D}
    */
   @FudgeBuilderFor(DoubleMatrix1D.class)
-  public static final class DoubleMatrix1DBuilder extends FudgeBuilderBase<DoubleMatrix1D> {
+  public static final class DoubleMatrix1DBuilder extends AbstractFudgeBuilder<DoubleMatrix1D> {
     private static final String DATA_FIELD_NAME = "data";
 
     @Override
@@ -46,7 +46,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
    * Fudge builder for {@code DoubleMatrix2D}
    */
   @FudgeBuilderFor(DoubleMatrix2D.class)
-  public static final class DoubleMatrix2DBuilder extends FudgeBuilderBase<DoubleMatrix2D> {
+  public static final class DoubleMatrix2DBuilder extends AbstractFudgeBuilder<DoubleMatrix2D> {
     private static final String DATA_FIELD_NAME = "data";
 
     @Override

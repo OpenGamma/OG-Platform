@@ -15,7 +15,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceF
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS cap/floor by swaption replication with SABR Hagan formula.
@@ -34,19 +33,22 @@ public class CapFloorCMSReplicationSABRMethod {
   private final int _nbIteration = 6;
 
   /** 
-   * Default constructor. The default integration interval is 1.00 (100%).
+   * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    */
   public CapFloorCMSReplicationSABRMethod() {
     _integrationInterval = 1.00;
   }
 
+  /**
+   * Constructor of the CMS cap/floor replication method with the integration range. 
+   * @param integrationInterval Integration range.
+   */
   public CapFloorCMSReplicationSABRMethod(double integrationInterval) {
     _integrationInterval = integrationInterval;
   }
 
   /**
-   * Computes the price of a CMS cap/floor. 
-   * ! Only cap implemented for the moment!
+   * Compute the price of a CMS cap/floor by replication in SABR framework. 
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle.
    * @return The price.
@@ -118,18 +120,13 @@ public class CapFloorCMSReplicationSABRMethod {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
-      _delta = cmsCap.getPaymentTime() - cmsCap.getFixingTime();
-      //FIXME: The delta definition should be improved.
-      _eta = -_delta / _tau;
+      _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
+      _eta = -_delta;
       _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCap.getFixingTime();
-      // FIXME: A better notion of maturity is required
+      // TODO: A better notion of maturity may be required (using period?)
       AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
-      double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
-      if (annuityFixed.getNumberOfPayments() >= 2) {
-        maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
-      }
-      _maturity = maturity;
+      _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
       _forward = forward;
       _isCall = cmsCap.isCap();
       _strike = cmsCap.geStrike();
@@ -223,7 +220,7 @@ public class CapFloorCMSReplicationSABRMethod {
      */
     double bs(double strike) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      double volatility = _sabrParameter.getVolatility(new DoublesPair(_timeToExpiry, _maturity), strike, _forward);
+      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
       BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);

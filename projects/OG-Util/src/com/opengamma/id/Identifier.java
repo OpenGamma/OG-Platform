@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -249,7 +249,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     message.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
@@ -264,7 +264,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 

@@ -13,7 +13,7 @@ public abstract class Custom extends com.opengamma.language.connector.Procedure 
   protected Custom (final Custom source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static Custom fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {

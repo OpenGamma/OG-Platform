@@ -13,20 +13,17 @@ import com.opengamma.math.function.Function1D;
  * The sample standard deviation of a series of data is defined as the square root of the sample variance (see {@link SampleVarianceCalculator}).
  */
 public class SampleStandardDeviationCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _variance = new SampleVarianceCalculator();
+  private static final Function1D<double[], Double> VARIANCE = new SampleVarianceCalculator();
 
   /**
-   * @param x The array of data
+   * @param x The array of data, not null, must contain at least two data points
    * @return The sample standard deviation
-   * @throws IllegalArgumentException If the array is null or contains fewer than two elements
    */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least two points to calculate standard deviation");
-    }
-    return Math.sqrt(_variance.evaluate(x));
+    Validate.isTrue(x.length >= 2, "Need at least two points to calculate standard deviation");
+    return Math.sqrt(VARIANCE.evaluate(x));
   }
 
 }

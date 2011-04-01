@@ -98,16 +98,18 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TENOR_SWAP"));
 
     final AnnuityCouponIbor pay = getFloatLeg(floatPayLeg, now, effectiveDate, maturityDate, fundingCurveName, payLegCurveName, calendar, 0.0 /*spread is paid on receive leg*/,
-        conventions.getBasisSwapPayFloatingLegSettlementDays());
+        conventions.getBasisSwapPayFloatingLegSettlementDays(), true);
 
     final AnnuityCouponIbor receive = getFloatLeg(floatReceiveLeg, now, effectiveDate, maturityDate, fundingCurveName, recieveLegCurveName, calendar, marketRate,
-        conventions.getBasisSwapReceiveFloatingLegSettlementDays());
+        conventions.getBasisSwapReceiveFloatingLegSettlementDays(), false);
+
+    // TODO: add payer/receiver flag!
 
     return new TenorSwap(pay, receive);
   }
 
   public AnnuityCouponIbor getFloatLeg(final FloatingInterestRateLeg floatLeg, final ZonedDateTime now, final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double marketRate, final int settlementDays) {
+      final String fundingCurveName, final String liborCurveName, final Calendar calendar, final double marketRate, final int settlementDays, boolean isPayer) {
     final ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDate, maturityDate, floatLeg.getFrequency());
     final ZonedDateTime[] adjustedDates = ScheduleCalculator.getAdjustedDateSchedule(unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, 0);
     final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(effectiveDate, unadjustedDates, floatLeg.getBusinessDayConvention(), calendar, settlementDays);
@@ -117,14 +119,16 @@ public class TenorSwapSecurityToTenorSwapConverter {
     final double[] resetTimes = ScheduleCalculator.getTimes(resetDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     final double[] maturityTimes = ScheduleCalculator.getTimes(maturityDates, DayCountFactory.INSTANCE.getDayCount("Actual/Actual"), now);
     final double[] yearFractions = ScheduleCalculator.getYearFractions(adjustedDates, floatLeg.getDayCount(), effectiveDate);
-    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
+    // Implementation comment: negative notional if payer.
+    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount() * (isPayer ? -1.0 : 1.0);
 
     final double[] spreads = new double[paymentTimes.length];
     Arrays.fill(spreads, marketRate);
 
     final CouponIbor[] payments = new CouponIbor[paymentTimes.length];
     for (int i = 0; i < payments.length; i++) {
-      payments[i] = new  CouponIbor(paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i], maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
+      payments[i] = new CouponIbor(((InterestRateNotional) floatLeg.getNotional()).getCurrency(), paymentTimes[i], fundingCurveName, yearFractions[i], notional, resetTimes[i], resetTimes[i],
+          maturityTimes[i], yearFractions[i], spreads[i], liborCurveName);
     }
 
     //TODO need to handle paymentYearFraction differently from forwardYearFraction 

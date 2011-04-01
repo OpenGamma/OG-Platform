@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.payments;
 
 import com.opengamma.financial.instrument.payment.CapFloor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a cap/floor on Ibor.
@@ -23,6 +24,7 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
 
   /**
    * Constructor from all the cap/floor details.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
@@ -35,9 +37,9 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
-  public CapFloorIbor(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime, double fixingPeriodEndTime,
-      double fixingYearFraction, String forwardCurveName, double strike, boolean isCap) {
-    super(paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
+  public CapFloorIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
+      double fixingPeriodEndTime, double fixingYearFraction, String forwardCurveName, double strike, boolean isCap) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, forwardCurveName);
     _strike = strike;
     _isCap = isCap;
   }

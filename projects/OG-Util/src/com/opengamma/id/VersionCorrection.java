@@ -12,7 +12,7 @@ import javax.time.InstantProvider;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.google.common.base.Objects;
@@ -260,7 +260,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     if (_versionAsOf != null) {
@@ -280,7 +280,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 

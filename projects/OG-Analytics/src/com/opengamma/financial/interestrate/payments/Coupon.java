@@ -3,6 +3,7 @@ package com.opengamma.financial.interestrate.payments;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic coupon.
@@ -14,13 +15,14 @@ public class Coupon extends Payment {
 
   /**
    * Constructor of a generic coupon from details.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    */
-  public Coupon(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional) {
-    super(paymentTime, fundingCurveName);
+  public Coupon(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional) {
+    super(currency, paymentTime, fundingCurveName);
     Validate.isTrue(paymentYearFraction >= 0, "year fraction < 0");
     _paymentYearFraction = paymentYearFraction;
     _notional = notional;
@@ -49,7 +51,7 @@ public class Coupon extends Payment {
 
   @Override
   public String toString() {
-    return "Coupon : time = " + getPaymentTime() + ", yearFraction = " + getPaymentYearFraction() + ", notional = " + _notional;
+    return "Coupon : currency = " + getCurrency() + ", time = " + getPaymentTime() + ", yearFraction = " + getPaymentYearFraction() + ", notional = " + _notional;
   }
 
   @Override

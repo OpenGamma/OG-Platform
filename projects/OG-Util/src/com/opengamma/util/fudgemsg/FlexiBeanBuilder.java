@@ -16,8 +16,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorType;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 /**
@@ -45,7 +45,7 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
     for (Entry<String, Object> entry : data.entrySet()) {
       Object value = entry.getValue();
       if (value == null) {
-        msg.add(entry.getKey(), null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+        msg.add(entry.getKey(), null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else {
         context.objectToFudgeMsg(msg, entry.getKey(), null, value);
       }

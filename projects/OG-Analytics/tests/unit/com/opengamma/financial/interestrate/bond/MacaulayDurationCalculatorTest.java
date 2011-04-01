@@ -7,11 +7,14 @@ package com.opengamma.financial.interestrate.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -19,6 +22,7 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 public class MacaulayDurationCalculatorTest {
   private static final MacaulayDurationCalculator MDC = new MacaulayDurationCalculator();
   private static final String CURVE_NAME = "Test Curve";
+  private static final Currency CUR = Currency.USD;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBond() {
@@ -27,7 +31,7 @@ public class MacaulayDurationCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDirtyPrice() {
-    MDC.calculate(new Bond(new double[] {1, 2, 3}, 0.05, CURVE_NAME), -0.4);
+    MDC.calculate(new Bond(CUR, new double[] {1, 2, 3}, 0.05, CURVE_NAME), -0.4);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -38,7 +42,7 @@ public class MacaulayDurationCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    final Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     MDC.calculate(bond, 0.0);
   }
 
@@ -50,7 +54,7 @@ public class MacaulayDurationCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    final Bond bond = new Bond(paymentTimes, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.0, CURVE_NAME);
     final double duration = MDC.calculate(bond, 0.889);
     assertEquals(n * tau, duration, 1e-8);
   }
@@ -66,7 +70,7 @@ public class MacaulayDurationCalculatorTest {
     }
     final double yield = 0.05;
     final double coupon = (Math.exp(yield * tau) - 1) / alpha;
-    final Bond bond = new Bond(paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, coupon, alpha, 0.0, CURVE_NAME);
     final double duration = MDC.calculate(bond, 1.0);
 
     double sum = 0.0;
@@ -86,7 +90,7 @@ public class MacaulayDurationCalculatorTest {
     for (int i = 0; i < n; i++) {
       paymentTimes[i] = (i + 1) * tau;
     }
-    final Bond bond = new Bond(paymentTimes, 0.05, CURVE_NAME);
+    final Bond bond = new Bond(CUR, paymentTimes, 0.05, CURVE_NAME);
     final double duration1 = MDC.calculate(bond, 0.889);
     final double duration2 = MDC.calculate(bond, 0.789);
     assertTrue(duration1 > duration2);
@@ -97,7 +101,7 @@ public class MacaulayDurationCalculatorTest {
     final double[] t = new double[] {1, 2, 3, 4};
     final double[] coupons = new double[] {0.01, 0.01, 0.01, 0.01};
     final double[] fractions = new double[] {0.5, 1, 1, 1};
-    final Bond bond = new Bond(t, coupons, fractions, 0, CURVE_NAME);
+    final Bond bond = new Bond(CUR, t, coupons, fractions, 0, CURVE_NAME);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {CURVE_NAME}, new YieldCurve[] {new YieldCurve(ConstantDoublesCurve.from(0.05))});
     assertEquals(MDC.calculate(bond, BondDirtyPriceCalculator.getInstance().calculate(bond, curves)), MDC.calculate(bond, curves), 0);
   }

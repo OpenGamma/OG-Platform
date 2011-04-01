@@ -154,7 +154,7 @@ public abstract class OptionSecurity extends com.opengamma.financial.security.Fi
     }
     _currency = source._currency;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_exerciseType != null)  {
       final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _exerciseType.getClass (), com.opengamma.financial.security.option.ExerciseType.class);

@@ -12,7 +12,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -187,7 +187,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     MutableFudgeFieldContainer fudgeMsg = _identifier.toFudgeMsg(factory, message);
@@ -205,7 +205,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 

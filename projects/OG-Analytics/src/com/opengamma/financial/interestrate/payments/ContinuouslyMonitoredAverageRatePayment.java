@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Continuously monitored 
@@ -20,9 +21,9 @@ public class ContinuouslyMonitoredAverageRatePayment extends Coupon {
   private final double _spread;
   private final String _indexCurveName;
 
-  public ContinuouslyMonitoredAverageRatePayment(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction, double startTime, double endTime,
-      double spread, String indexCurveName) {
-    super(paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public ContinuouslyMonitoredAverageRatePayment(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double rateYearFraction,
+      double startTime, double endTime, double spread, String indexCurveName) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(startTime >= 0, "startTime < 0");
     Validate.isTrue(endTime > startTime && endTime <= paymentTime, "endTime < startTime or endTime > paymentTime");
     Validate.notNull(indexCurveName);

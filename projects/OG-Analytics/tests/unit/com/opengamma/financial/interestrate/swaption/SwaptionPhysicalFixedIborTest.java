@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
@@ -78,8 +78,8 @@ public class SwaptionPhysicalFixedIborTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER);
   // Swaption construction: All combinations
-  private static final ZZZSwapFixedIborDefinition SWAP_DEFINITION_PAYER = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
-  private static final ZZZSwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_PAYER = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_RECEIVER = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_RECEIVER, IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_SHORT_PAYER = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, !IS_LONG);
@@ -210,7 +210,7 @@ public class SwaptionPhysicalFixedIborTest {
     double priceLongReceiver = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
     double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     // From previous run
-    double expectedPriceLongPayer = 2045655.258;
+    double expectedPriceLongPayer = 2045742.060;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -225,14 +225,14 @@ public class SwaptionPhysicalFixedIborTest {
     CouponFixed[] coupon = new CouponFixed[annuity.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
       // Step-up by 10bps
-      coupon[loopcpn] = new CouponFixed(annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
+      coupon[loopcpn] = new CouponFixed(CUR, annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
           * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
     }
     AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
     FixedCouponSwap<Payment> swapStepup = new FixedCouponSwap<Payment>(annuityStepUp, SWAP_PAYER.getSecondLeg());
-    SwaptionPhysicalFixedIbor swaptionStepUp = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), swapStepup, IS_LONG);
+    SwaptionPhysicalFixedIbor swaptionStepUp = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), swapStepup, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
     double priceLongPayerStepUp = PVC.visit(swaptionStepUp, sabrBundle);
-    double expectedPriceLongPayerSteUp = 1879737.120;
+    double expectedPriceLongPayerSteUp = 1879844.508;
     assertEquals(expectedPriceLongPayerSteUp, priceLongPayerStepUp, 1E-2);
 
   }
@@ -245,7 +245,7 @@ public class SwaptionPhysicalFixedIborTest {
     SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     double priceHagan = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganBundle);
     // From previous run
-    assertEquals(2045655.258, priceHagan, 1E-2);
+    assertEquals(2034294.508, priceHagan, 1E-2);
     // SABR Hagan alternative volatility function
     SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);

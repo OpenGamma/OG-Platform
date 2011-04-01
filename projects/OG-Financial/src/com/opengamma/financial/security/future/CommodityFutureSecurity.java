@@ -59,7 +59,7 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
     _unitNumber = source._unitNumber;
     _unitName = source._unitName;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_commodityType != null)  {
       msg.add (COMMODITY_TYPE_KEY, null, _commodityType);

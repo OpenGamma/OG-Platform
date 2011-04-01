@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 
@@ -23,7 +23,7 @@ public final class StripInstrumentTypeSecondaryType extends SecondaryFieldType<S
   public static final StripInstrumentTypeSecondaryType INSTANCE = new StripInstrumentTypeSecondaryType();
 
   private StripInstrumentTypeSecondaryType() {
-    super(StringFieldType.INSTANCE, StripInstrumentType.class);
+    super(FudgeWireType.STRING, StripInstrumentType.class);
   }
 
   @Override

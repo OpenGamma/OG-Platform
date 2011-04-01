@@ -21,13 +21,15 @@ public final class ValueUtil {
   private ValueUtil() {
   }
 
-  public static Value of(final boolean boolValue) {
+  public static Value of(final Boolean boolValue) {
+    ArgumentChecker.notNull(boolValue, "boolValue");
     final Value value = new Value();
     value.setBoolValue(boolValue);
     return value;
   }
 
-  public static Value of(final double doubleValue) {
+  public static Value of(final Double doubleValue) {
+    ArgumentChecker.notNull(doubleValue, "doubleValue");
     final Value value = new Value();
     value.setDoubleValue(doubleValue);
     return value;
@@ -39,7 +41,8 @@ public final class ValueUtil {
     return value;
   }
 
-  public static Value of(final int intValue) {
+  public static Value of(final Integer intValue) {
+    ArgumentChecker.notNull(intValue, "intValue");
     final Value value = new Value();
     value.setIntValue(intValue);
     return value;

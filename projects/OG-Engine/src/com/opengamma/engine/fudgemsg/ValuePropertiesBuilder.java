@@ -17,10 +17,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
-import org.fudgemsg.types.FudgeMsgFieldType;
-import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.value.ValueProperties;
 
@@ -70,16 +68,16 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
           if ((propertyValues.size() > 1) || optional) {
             final MutableFudgeFieldContainer subMessage = context.newMessage();
             if (optional) {
-              subMessage.add(null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+              subMessage.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
             }
             for (String propertyValue : propertyValues) {
-              subMessage.add(null, null, StringFieldType.INSTANCE, propertyValue);
+              subMessage.add(null, null, FudgeWireType.STRING, propertyValue);
             }
-            withMessage.add(propertyName, null, FudgeMsgFieldType.INSTANCE, subMessage);
+            withMessage.add(propertyName, null, FudgeWireType.SUB_MESSAGE, subMessage);
           } else if (propertyValues.isEmpty()) {
-            withMessage.add(propertyName, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+            withMessage.add(propertyName, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
           } else {
-            withMessage.add(propertyName, null, StringFieldType.INSTANCE, propertyValues.iterator().next());
+            withMessage.add(propertyName, null, FudgeWireType.STRING, propertyValues.iterator().next());
           }
         }
       }
@@ -105,8 +103,7 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
     }
 
     FudgeFieldContainer withMessage = message.getMessage(WITH_FIELD);
-    if (withMessage == null)
-    {
+    if (withMessage == null) {
       return ValueProperties.none();
     }
     for (FudgeField field : withMessage) {
