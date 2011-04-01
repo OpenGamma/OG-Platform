@@ -511,7 +511,7 @@ public class CommandLineBatchJob {
         _batchDbManager.startBatch(run);
         
         ViewClient client = run.getViewProcessor().createViewClient(UserPrincipal.getLocalUser());
-        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.getBatch(ArbitraryViewCycleExecutionSequence.of(run.getValuationTime())), true);
+        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.of(run.getValuationTime())), true);
         client.waitForCompletion();
 
         _batchDbManager.endBatch(run);

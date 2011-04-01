@@ -49,7 +49,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
-import com.opengamma.engine.view.compilation.ViewEvaluationModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.permission.PermissiveViewPermissionProviderFactory;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
@@ -89,7 +89,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   /**
    * The view evaluation model
    */
-  private ViewEvaluationModel _viewEvaluationModel;
+  private CompiledViewDefinitionImpl _viewEvaluationModel;
   
   /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
@@ -432,7 +432,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     return _viewDefinitionConfig.getValue();
   }
 
-  public ViewEvaluationModel getViewEvaluationModel() {
+  public CompiledViewDefinitionImpl getViewEvaluationModel() {
     return _viewEvaluationModel;
   }
   
