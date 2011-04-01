@@ -6,6 +6,7 @@
 
 package com.opengamma.language;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -60,6 +61,55 @@ public final class ValueUtil {
     final Value value = new Value();
     value.setStringValue(stringValue);
     return value;
+  }
+
+  /**
+   * Displayable form of the Value object.
+   * 
+   * @param value value to convert to a string
+   * @return a displayable string representation
+   */
+  public static String toString(final Value value) {
+    final StringBuilder sb = new StringBuilder();
+    if (value.getErrorValue() != null) {
+      sb.append("{Error ").append(value.getErrorValue());
+    }
+    if (value.getBoolValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getBoolValue());
+    }
+    if (value.getDoubleValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getDoubleValue());
+    }
+    if (value.getIntValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getIntValue());
+    }
+    if (value.getMessageValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getMessageValue());
+    }
+    if (value.getStringValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append("\"");
+      StringEscapeUtils.escapeJava(value.getStringValue());
+      sb.append("\"");
+    }
+    if (value.getErrorValue() != null) {
+      sb.append("}");
+    }
+    return sb.toString();
   }
 
 }

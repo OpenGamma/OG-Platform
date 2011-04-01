@@ -1,7 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/Value.proto:15(10)
+// Created from com/opengamma/language/Value.proto:17(10)
 package com.opengamma.language;
 public class Value implements java.io.Serializable {
   private static final long serialVersionUID = -3384801225834293009l;

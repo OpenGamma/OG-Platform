@@ -83,6 +83,7 @@
               <constructor-arg value="42" />
             </bean>
             <bean class="com.opengamma.language.debug.DebugFunctionMessage" />
+            <bean class="com.opengamma.language.debug.DebugFunctionMultipleTypes" />
           </list>
         </property>
       </bean>

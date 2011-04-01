@@ -200,6 +200,17 @@ public final class JavaTypeInfo<T> {
     return sb.toString();
   }
 
+  /**
+   * Return a simplified {@link #toString} that is suitable for the client as it may be shown to a user.
+   * The raw {@code toString} should contain sufficient extra information to be useful in a diagnostic
+   * log but may not be particularly pretty.
+   * 
+   * @return the string
+   */
+  public String toClientString() {
+    return getRawClass().getSimpleName();
+  }
+
   public static <T> Builder<T> builder(final Class<T> rawClass) {
     ArgumentChecker.notNull(rawClass, "rawClass");
     return new Builder<T>(rawClass);

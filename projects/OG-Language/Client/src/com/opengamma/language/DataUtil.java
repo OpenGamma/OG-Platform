@@ -75,4 +75,47 @@ public final class DataUtil {
     return data;
   }
 
+  /**
+   * Displayable form of the Data object.
+   * 
+   * @param data the object to convert to a string
+   * @return the displayable string
+   */
+  public static String toString(final Data data) {
+    if (data.getSingle() != null) {
+      return ValueUtil.toString(data.getSingle());
+    } else if (data.getLinear() != null) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append('[');
+      for (int i = 0; i < data.getLinear().length; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(ValueUtil.toString(data.getLinear()[i]));
+      }
+      sb.append(']');
+      return sb.toString();
+    } else if (data.getMatrix() != null) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append('[');
+      for (int i = 0; i < data.getMatrix().length; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append('[');
+        for (int j = 0; j < data.getMatrix()[i].length; j++) {
+          if (j > 0) {
+            sb.append(", ");
+          }
+          sb.append(ValueUtil.toString(data.getMatrix()[i][j]));
+        }
+        sb.append(']');
+      }
+      sb.append(']');
+      return sb.toString();
+    } else {
+      return "Data";
+    }
+  }
+
 }
