@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.id.Identifier;
@@ -75,7 +75,7 @@ public class LiveDataSpecification {
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory fudgeMessageFactory) {
     ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(NORMALIZATION_RULE_SET_ID_FIELD_NAME, _normalizationRuleSetId);

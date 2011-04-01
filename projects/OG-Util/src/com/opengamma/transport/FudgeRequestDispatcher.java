@@ -7,23 +7,40 @@ package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives byte array messages and dispatches them to a {@link FudgeRequestReceiver}.
+ * Receives byte array messages and dispatches them to a {@code FudgeRequestReceiver}.
  */
 public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
+
+  /**
+   * The underlying receiver.
+   */
   private final FudgeRequestReceiver _underlying;
-  private final FudgeContext _fudgeContext;
-  
+  /**
+   * The Fudge context.
+   */
+  private FudgeContext _fudgeContext;
+
+  /**
+   * Creates an instance based on an underlying receiver.
+   * 
+   * @param underlying  the underlying receiver, not null
+   */
   public FudgeRequestDispatcher(FudgeRequestReceiver underlying) {
     this(underlying, new FudgeContext());
   }
-  
+
+  /**
+   * Creates an instance based on an underlying receiver.
+   * 
+   * @param underlying  the underlying receiver, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
   public FudgeRequestDispatcher(FudgeRequestReceiver underlying, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -31,31 +48,32 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
     _fudgeContext = fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlying
+   * Gets the underlying receiver.
+   * 
+   * @return the underlying receiver, not null
    */
   public FudgeRequestReceiver getUnderlying() {
     return _underlying;
   }
 
   /**
-   * @return the fudgeContext
+   * Gets the Fudge context.
+   * 
+   * @return the Fudge context, not null
    */
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public byte[] requestReceived(byte[] message) {
     FudgeMsgEnvelope requestEnvelope = getFudgeContext().deserialize(message);
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext()); 
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
     FudgeFieldContainer responseContainer = getUnderlying().requestReceived(deserializationContext, requestEnvelope);
-    if (!(responseContainer instanceof FudgeMsg)) {
-      throw new IllegalArgumentException("FudgeMsgRequestDispatcher can only currently handle FudgeMsg");
-    }
-    FudgeMsg responseMsg = (FudgeMsg) responseContainer;
-    byte[] responseBytes = getFudgeContext().toByteArray(responseMsg);
-    return responseBytes;
+    return getFudgeContext().toByteArray(responseContainer);
   }
 
 }

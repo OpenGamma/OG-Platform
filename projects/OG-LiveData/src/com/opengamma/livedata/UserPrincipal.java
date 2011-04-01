@@ -121,7 +121,7 @@ public class UserPrincipal implements java.io.Serializable {
     return new UserPrincipal(this);
   }
 
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg(final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeFieldContainer toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) {
       throw new NullPointerException("fudgeContext must not be null");
     }
@@ -130,7 +130,7 @@ public class UserPrincipal implements java.io.Serializable {
     return msg;
   }
 
-  public void toFudgeMsg(final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     if (_userName != null) {
       msg.add(USER_NAME_KEY, null, _userName);
     }

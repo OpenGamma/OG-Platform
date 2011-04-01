@@ -49,13 +49,13 @@ public class Available extends com.opengamma.language.connector.Function impleme
     public Entry clone () {
       return new Entry (this);
     }
-    public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+    public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
       if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
       final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
       toFudgeMsg (fudgeContext, msg);
       return msg;
     }
-    public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+    public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
       msg.add (IDENTIFIER_KEY, null, _identifier);
       if (_definition != null)  {
         final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _definition.getClass (), com.opengamma.language.function.Definition.class);
@@ -169,13 +169,13 @@ public class Available extends com.opengamma.language.connector.Function impleme
   public Available clone () {
     return new Available (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_function != null)  {
       for (com.opengamma.language.function.Available.Entry fudge1 : _function) {

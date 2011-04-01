@@ -13,7 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
@@ -38,7 +38,7 @@ public class ValueSpecificationBuilder implements FudgeBuilder<ValueSpecificatio
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ValueSpecification object) {
     MutableFudgeFieldContainer msg = context.newMessage();
-    msg.add(VALUE_NAME_KEY, null, StringFieldType.INSTANCE, object.getValueName());
+    msg.add(VALUE_NAME_KEY, null, FudgeWireType.STRING, object.getValueName());
     ComputationTargetSpecificationBuilder.addMessageFields(context, msg, object.getTargetSpecification());
     context.objectToFudgeMsg(msg, PROPERTIES_KEY, null, object.getProperties());
     return msg;

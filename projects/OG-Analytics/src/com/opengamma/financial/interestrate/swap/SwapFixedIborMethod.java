@@ -5,12 +5,18 @@
  */
 package com.opengamma.financial.interestrate.swap;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).
@@ -61,12 +67,40 @@ public class SwapFixedIborMethod {
   public static double presentValueBasisPoint(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldCurveBundle curves) {
     AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
-    double pvbp = 0;
+    return presentValueBasisPoint(fixedCouponSwap, discountingCurve);
+  }
+
+  /**
+   * Compute the sensitivity of the PVBP to the discounting curve.
+   * @param fixedCouponSwap The swap.
+   * @param discountingCurve The discounting curve.
+   * @return The sensitivity.
+   */
+  public static List<DoublesPair> presentValueBasisPointSensitivity(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldAndDiscountCurve discountingCurve) {
+    AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    double time;
+    List<DoublesPair> list = new ArrayList<DoublesPair>();
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
-      pvbp += annuityFixed.getNthPayment(loopcpn).getPaymentYearFraction() * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional())
-          * discountingCurve.getDiscountFactor(annuityFixed.getNthPayment(loopcpn).getPaymentTime());
+      time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
+      DoublesPair s = new DoublesPair(time, -time * discountingCurve.getDiscountFactor(time));
+      list.add(s);
+
     }
-    return pvbp;
+    return list;
+  }
+
+  /**
+   * Compute the sensitivity of the PVBP to a curve bundle.
+   * @param fixedCouponSwap The swap.
+   * @param curves The yield curve bundle (containing the appropriate discounting curve).
+   * @return The sensitivity.
+   */
+  public static Map<String, List<DoublesPair>> presentValueBasisPointSensitivity(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldCurveBundle curves) {
+    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
+    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointSensitivity(fixedCouponSwap, discountingCurve));
+    return result;
   }
 
   /**

@@ -9,7 +9,7 @@ import javax.time.calendar.Period;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
  * Converts DayCount instances to/from a Fudge string type.
@@ -23,7 +23,7 @@ public final class PeriodSecondaryType extends SecondaryFieldType<Period, String
   public static final PeriodSecondaryType INSTANCE = new PeriodSecondaryType();
 
   private PeriodSecondaryType() {
-    super(StringFieldType.INSTANCE, Period.class);
+    super(FudgeWireType.STRING, Period.class);
   }
 
   @Override

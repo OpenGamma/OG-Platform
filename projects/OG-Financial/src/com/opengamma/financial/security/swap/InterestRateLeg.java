@@ -13,7 +13,7 @@ public abstract class InterestRateLeg extends com.opengamma.financial.security.s
   protected InterestRateLeg (final InterestRateLeg source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static InterestRateLeg fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {

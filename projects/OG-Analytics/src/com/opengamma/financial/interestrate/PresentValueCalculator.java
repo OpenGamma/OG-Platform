@@ -110,7 +110,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
     SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
-    return method.price(swaption, sabr);
+    return method.presentValue(swaption, sabr);
   }
 
   @Override
@@ -121,7 +121,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
     SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
-    return method.price(swaption, sabr);
+    return method.presentValue(swaption, sabr);
   }
 
   @Override

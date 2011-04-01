@@ -15,7 +15,7 @@ public abstract class Function extends com.opengamma.language.connector.UserMess
   protected Function (final Function source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static Function fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
