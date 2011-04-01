@@ -6,9 +6,11 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import org.fudgemsg.FudgeMsgField;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 
@@ -27,6 +29,6 @@ public class FrequencyTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Frequency.class,
-        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getConventionName())));
+        FudgeMsgField.of(FudgeWireType.STRING, s_ref.getConventionName())));
   }
 }

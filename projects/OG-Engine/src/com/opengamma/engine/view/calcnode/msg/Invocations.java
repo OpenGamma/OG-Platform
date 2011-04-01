@@ -81,13 +81,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
       public PerFunction clone () {
         return new PerFunction (this);
       }
-      public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+      public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
         if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
         final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
         toFudgeMsg (fudgeContext, msg);
         return msg;
       }
-      public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+      public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
         if (_identifier != null)  {
           msg.add (IDENTIFIER_KEY, null, _identifier);
         }
@@ -205,13 +205,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
     public PerConfiguration clone () {
       return new PerConfiguration (this);
     }
-    public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+    public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
       if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
       final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
       toFudgeMsg (fudgeContext, msg);
       return msg;
     }
-    public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+    public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
       if (_configuration != null)  {
         msg.add (CONFIGURATION_KEY, null, _configuration);
       }
@@ -324,13 +324,13 @@ public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCa
   public Invocations clone () {
     return new Invocations (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
     final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_configuration != null)  {
       for (com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration fudge1 : _configuration) {

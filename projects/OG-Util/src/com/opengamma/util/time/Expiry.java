@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -156,7 +156,7 @@ public class Expiry implements InstantProvider, Serializable {
    * @deprecated Use builder
    */
   @Deprecated
-  public void toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public void toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer message) {
     ExpiryBuilder.toFudgeMsg(this, message);
   }
 

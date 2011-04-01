@@ -30,7 +30,7 @@ import com.opengamma.math.curve.Curve;
    * Fudge builder for {@code YieldCurve}
    */
   @FudgeBuilderFor(YieldCurve.class)
-  public static final class YieldCurveBuilder extends FudgeBuilderBase<YieldCurve> {
+  public static final class YieldCurveBuilder extends AbstractFudgeBuilder<YieldCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
 
     @SuppressWarnings("unchecked")
@@ -50,7 +50,7 @@ import com.opengamma.math.curve.Curve;
    * Fudge builder for {@code DiscountCurve}
    */
   @FudgeBuilderFor(DiscountCurve.class)
-  public static final class DiscountCurveBuilder extends FudgeBuilderBase<DiscountCurve> {
+  public static final class DiscountCurveBuilder extends AbstractFudgeBuilder<DiscountCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
 
     @SuppressWarnings("unchecked")

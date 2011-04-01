@@ -16,9 +16,9 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.DateTimeAccuracy;
 import org.fudgemsg.types.FudgeDateTime;
-import org.fudgemsg.types.FudgeMsgFieldType;
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.time.Expiry;
@@ -43,7 +43,7 @@ public final class ExpiryBuilder implements FudgeBuilder<Expiry> {
    * Dummy secondary type to force serialization.
    */
   @FudgeSecondaryType
-  public static final SecondaryFieldType<Expiry, FudgeFieldContainer> SECONDARY_TYPE_INSTANCE = new SecondaryFieldType<Expiry, FudgeFieldContainer>(FudgeMsgFieldType.INSTANCE, Expiry.class) {
+  public static final SecondaryFieldType<Expiry, FudgeFieldContainer> SECONDARY_TYPE_INSTANCE = new SecondaryFieldType<Expiry, FudgeFieldContainer>(FudgeWireType.SUB_MESSAGE, Expiry.class) {
     private static final long serialVersionUID = 1L;
 
     @Override

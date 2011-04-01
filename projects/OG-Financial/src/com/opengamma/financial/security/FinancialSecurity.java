@@ -17,7 +17,7 @@ public abstract class FinancialSecurity extends com.opengamma.master.security.Ma
   protected FinancialSecurity (final FinancialSecurity source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static FinancialSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {

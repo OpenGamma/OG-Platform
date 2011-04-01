@@ -7,7 +7,7 @@ package com.opengamma.util.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -30,7 +30,7 @@ public final class CurrencySecondaryType extends SecondaryFieldType<Currency, St
    * Restricted constructor.
    */
   private CurrencySecondaryType() {
-    super(StringFieldType.INSTANCE, Currency.class);
+    super(FudgeWireType.STRING, Currency.class);
   }
 
   //-------------------------------------------------------------------------

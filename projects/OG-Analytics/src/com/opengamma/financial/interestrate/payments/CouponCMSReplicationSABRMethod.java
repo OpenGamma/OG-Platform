@@ -15,7 +15,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceF
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price of a CMS coupon by swaption replication with SABR Hagan formula.
@@ -216,7 +215,7 @@ public class CouponCMSReplicationSABRMethod {
      */
     double bs(double strike) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, true);
-      double volatility = _sabrParameter.getVolatility(new DoublesPair(_timeToExpiry, _maturity), strike, _forward);
+      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
       BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);

@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
@@ -24,7 +24,7 @@ public final class FrequencySecondaryType extends SecondaryFieldType<Frequency, 
   public static final FrequencySecondaryType INSTANCE = new FrequencySecondaryType();
 
   private FrequencySecondaryType() {
-    super(StringFieldType.INSTANCE, Frequency.class);
+    super(FudgeWireType.STRING, Frequency.class);
   }
 
   @Override

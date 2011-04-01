@@ -19,9 +19,8 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.FudgeMsgFieldType;
-import org.fudgemsg.types.IndicatorFieldType;
 import org.fudgemsg.types.IndicatorType;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanUtils;
 import org.joda.beans.MetaBean;
@@ -77,10 +76,10 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
             MutableFudgeFieldContainer subMsg = buildMessageList(context, prop, (List<?>) obj);
-            msg.add(prop.name(), null, FudgeMsgFieldType.INSTANCE, subMsg);
+            msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Map<?, ?>) {
             MutableFudgeFieldContainer subMsg = buildMessageMap(context, prop, (Map<?, ?>) obj);
-            msg.add(prop.name(), null, FudgeMsgFieldType.INSTANCE, subMsg);
+            msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else {
             context.objectToFudgeMsgWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
           }
@@ -97,7 +96,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     MutableFudgeFieldContainer msg = context.newMessage();
     for (Object entry : list) {
       if (entry == null) {
-        msg.add(null, null, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+        msg.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (contentType != null) {
         context.objectToFudgeMsg(msg, null, null, entry);
       } else {
@@ -113,14 +112,14 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     MutableFudgeFieldContainer msg = context.newMessage();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       if (entry.getKey() == null) {
-        msg.add(null, 1, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+        msg.add(null, 1, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (keyType != null) {
         context.objectToFudgeMsg(msg, null, 1, entry.getKey());
       } else {
         context.objectToFudgeMsgWithClassHeaders(msg, null, 1, entry.getKey());
       }
       if (entry.getValue() == null) {
-        msg.add(null, 2, IndicatorFieldType.INSTANCE, IndicatorType.INSTANCE);
+        msg.add(null, 2, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (valueType != null) {
         context.objectToFudgeMsg(msg, null, 2, entry.getValue());
       } else {

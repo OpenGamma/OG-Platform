@@ -38,7 +38,7 @@ final class LabelledMatrix1DBuilder {
   }
 
   @FudgeBuilderFor(DoubleLabelledMatrix1D.class)
-  public static final class DoubleLabelledMatrix1DBuilder extends FudgeBuilderBase<DoubleLabelledMatrix1D> {
+  public static final class DoubleLabelledMatrix1DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final DoubleLabelledMatrix1D object) {
@@ -110,7 +110,7 @@ final class LabelledMatrix1DBuilder {
   }
 
   @FudgeBuilderFor(LocalDateLabelledMatrix1D.class)
-  public static final class LocalDateLabelledMatrix1DBuilder extends FudgeBuilderBase<LocalDateLabelledMatrix1D> {
+  public static final class LocalDateLabelledMatrix1DBuilder extends AbstractFudgeBuilder<LocalDateLabelledMatrix1D> {
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final LocalDateLabelledMatrix1D object) {
