@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,46 +117,46 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
     assertEquals(expected.getParentNodeId(), actual.getParentNodeId());
   }
 
-  private FudgeFieldContainer runPortfolioNodeTest(final PortfolioNode original) {
-    final FudgeFieldContainer message = getFudgeSerializationContext().objectToFudgeMsg(original);
+  private FudgeMsg runPortfolioNodeTest(final PortfolioNode original) {
+    final FudgeMsg message = getFudgeSerializationContext().objectToFudgeMsg(original);
     s_logger.debug("Message = {}", message);
     final PortfolioNode portfolio = getFudgeDeserializationContext().fudgeMsgToObject(PortfolioNode.class, message);
     assertPortfolioNodeEquals(original, portfolio);
     return message;
   }
 
-  private int countParentIdentifiers(final FudgeFieldContainer message) {
+  private int countParentIdentifiers(final FudgeMsg message) {
     int count = 0;
     for (FudgeField field : message) {
       if (PortfolioNodeBuilder.FIELD_PARENT.equals(field.getName()) || PositionBuilder.FIELD_PARENT.equals(field.getName())) {
         s_logger.debug("Found parent ref {}", field.getValue());
         count++;
-      } else if (field.getValue() instanceof FudgeFieldContainer) {
-        count += countParentIdentifiers((FudgeFieldContainer) field.getValue());
+      } else if (field.getValue() instanceof FudgeMsg) {
+        count += countParentIdentifiers((FudgeMsg) field.getValue());
       }
     }
     return count;
   }
 
   public void testPortfolio() {
-    final FudgeFieldContainer message = runPortfolioNodeTest(createPortfolioNodes()[0]);
+    final FudgeMsg message = runPortfolioNodeTest(createPortfolioNodes()[0]);
     assertEquals(0, countParentIdentifiers(message));
   }
 
   public void testPortfolioWithPositions() {
-    final FudgeFieldContainer message = runPortfolioNodeTest(createPortfolioWithPositions());
+    final FudgeMsg message = runPortfolioNodeTest(createPortfolioWithPositions());
     assertEquals(0, countParentIdentifiers(message));
   }
 
   public void testPortfolioWithParent() {
     final PortfolioNodeImpl root = createPortfolioNodes()[0];
     root.setParentNodeId(nextIdentifier());
-    final FudgeFieldContainer message = runPortfolioNodeTest(root);
+    final FudgeMsg message = runPortfolioNodeTest(root);
     assertEquals(1, countParentIdentifiers(message));
   }
 
-  private FudgeFieldContainer runPositionTest(final Position original) {
-    final FudgeFieldContainer message = getFudgeSerializationContext().objectToFudgeMsg(original);
+  private FudgeMsg runPositionTest(final Position original) {
+    final FudgeMsg message = getFudgeSerializationContext().objectToFudgeMsg(original);
     s_logger.debug("Message = {}", message);
     final Position position = getFudgeDeserializationContext().fudgeMsgToObject(Position.class, message);
     assertPositionEquals(original, position);
@@ -164,7 +164,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   }
 
   public void testPosition() {
-    final FudgeFieldContainer message = runPositionTest(new PositionImpl(nextIdentifier(), new BigDecimal(100), IdentifierBundle.of(Identifier.of("Scheme 1", "Id 1"), Identifier
+    final FudgeMsg message = runPositionTest(new PositionImpl(nextIdentifier(), new BigDecimal(100), IdentifierBundle.of(Identifier.of("Scheme 1", "Id 1"), Identifier
         .of("Scheme 2", "Id 2"))));
     assertEquals(0, countParentIdentifiers(message));
   }
@@ -172,7 +172,7 @@ public class PortfolioNodeAndPositionBuilderTest extends AbstractBuilderTestCase
   public void testPositionWithPortfolioNode() {
     final PositionImpl position = new PositionImpl(nextIdentifier(), new BigDecimal(100), Identifier.of("Security", "Bar"));
     position.setParentNodeId(nextIdentifier());
-    final FudgeFieldContainer message = runPositionTest(position);
+    final FudgeMsg message = runPositionTest(position);
     assertEquals(1, countParentIdentifiers(message));
   }
 

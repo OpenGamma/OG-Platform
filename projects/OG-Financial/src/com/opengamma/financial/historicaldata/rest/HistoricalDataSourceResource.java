@@ -32,9 +32,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -110,7 +110,7 @@ public class HistoricalDataSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer message = context.newMessage();
+    final MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEID, null, result.getKey(), UniqueIdentifier.class);
     context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result.getValue(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
@@ -121,7 +121,7 @@ public class HistoricalDataSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer message = context.newMessage();
+    final MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
@@ -210,7 +210,7 @@ public class HistoricalDataSourceResource {
     // delivered by a POST is not ideally placed here, but other Source interfaces are currently suffering from the
     // same problem and the solution is not clear.
     
-    FudgeFieldContainer msg = request.getMessage();
+    FudgeMsg msg = request.getMessage();
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
     Set<IdentifierBundle> identifierSet = deserializationContext.fudgeMsgToObject(Set.class, msg.getMessage(REQUEST_IDENTIFIER_SET));
     String dataSource = msg.getString(REQUEST_DATA_SOURCE);
@@ -224,7 +224,7 @@ public class HistoricalDataSourceResource {
     Map<IdentifierBundle, Pair<UniqueIdentifier, LocalDateDoubleTimeSeries>> result = _dataSource.getHistoricalData(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
     FudgeSerializationContext context = getFudgeSerializationContext();
-    MutableFudgeFieldContainer message = context.newMessage();
+    MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, Map.class);
     return new FudgeMsgEnvelope(message); 
   }
@@ -237,7 +237,7 @@ public class HistoricalDataSourceResource {
   @GET
   @Path("debugInfo")
   public FudgeMsgEnvelope getDebugInfo() {
-    final MutableFudgeFieldContainer message = getFudgeContext().newMessage();
+    final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
     message.add("historicalDataSource", getHistoricalDataSource().toString());
     return new FudgeMsgEnvelope(message);

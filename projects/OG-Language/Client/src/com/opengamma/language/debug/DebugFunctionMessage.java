@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class DebugFunctionMessage implements PublishedFunction {
   private Data execute(final Data foo, final Data bar) {
     s_logger.debug("Foo = {}, Bar = {}", foo, bar);
     final FudgeContext ctx = FudgeContext.GLOBAL_DEFAULT;
-    final MutableFudgeFieldContainer msg = ctx.newMessage();
+    final MutableFudgeMsg msg = ctx.newMessage();
     final FudgeSerializationContext sctx = new FudgeSerializationContext(ctx);
     sctx.objectToFudgeMsgWithClassHeaders(msg, "foo", null, foo);
     sctx.objectToFudgeMsgWithClassHeaders(msg, "bar", null, bar);

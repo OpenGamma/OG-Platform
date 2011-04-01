@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -68,17 +68,17 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
   // TODO: FudgeFieldName and Ordinal annotations
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, T bean) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, T bean) {
     try {
-      MutableFudgeFieldContainer msg = context.newMessage();
+      MutableFudgeMsg msg = context.newMessage();
       for (MetaProperty<Object> prop : bean.metaBean().metaPropertyIterable()) {
         if (prop.readWrite().isReadable()) {
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
-            MutableFudgeFieldContainer subMsg = buildMessageList(context, prop, (List<?>) obj);
+            MutableFudgeMsg subMsg = buildMessageList(context, prop, (List<?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Map<?, ?>) {
-            MutableFudgeFieldContainer subMsg = buildMessageMap(context, prop, (Map<?, ?>) obj);
+            MutableFudgeMsg subMsg = buildMessageMap(context, prop, (Map<?, ?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else {
             context.objectToFudgeMsgWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
@@ -91,9 +91,9 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     }
   }
 
-  private MutableFudgeFieldContainer buildMessageList(FudgeSerializationContext context, MetaProperty<Object> prop, List<?> list) {
+  private MutableFudgeMsg buildMessageList(FudgeSerializationContext context, MetaProperty<Object> prop, List<?> list) {
     Class<?> contentType = BeanUtils.listType(prop);
-    MutableFudgeFieldContainer msg = context.newMessage();
+    MutableFudgeMsg msg = context.newMessage();
     for (Object entry : list) {
       if (entry == null) {
         msg.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
@@ -106,10 +106,10 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     return msg;
   }
 
-  private MutableFudgeFieldContainer buildMessageMap(FudgeSerializationContext context, MetaProperty<Object> prop, Map<?, ?> map) {
+  private MutableFudgeMsg buildMessageMap(FudgeSerializationContext context, MetaProperty<Object> prop, Map<?, ?> map) {
     Class<?> keyType = BeanUtils.mapKeyType(prop);
     Class<?> valueType = BeanUtils.mapValueType(prop);
-    MutableFudgeFieldContainer msg = context.newMessage();
+    MutableFudgeMsg msg = context.newMessage();
     for (Map.Entry<?, ?> entry : map.entrySet()) {
       if (entry.getKey() == null) {
         msg.add(null, 1, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
@@ -132,7 +132,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public T buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+  public T buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final T bean;
     try {
       bean = (T) _metaBean.createBean();
@@ -143,13 +143,13 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
             Object value = null;
             if (List.class.isAssignableFrom(prop.propertyType())) {
               value = field.getValue();
-              if (value instanceof FudgeFieldContainer) {
-                value = buildObjectList(context, prop, (FudgeFieldContainer) value);
+              if (value instanceof FudgeMsg) {
+                value = buildObjectList(context, prop, (FudgeMsg) value);
               }
             } else if (Map.class.isAssignableFrom(prop.propertyType())) {
               value = field.getValue();
-              if (value instanceof FudgeFieldContainer) {
-                value = buildObjectMap(context, prop, (FudgeFieldContainer) value);
+              if (value instanceof FudgeMsg) {
+                value = buildObjectMap(context, prop, (FudgeMsg) value);
               }
             }
             if (value == null) {
@@ -167,7 +167,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     return bean;
   }
 
-  private Object buildObjectList(FudgeDeserializationContext context, MetaProperty<Object> prop, FudgeFieldContainer msg) {
+  private Object buildObjectList(FudgeDeserializationContext context, MetaProperty<Object> prop, FudgeMsg msg) {
     Class<?> contentType = BeanUtils.listType(prop);
     List<Object> list = new ArrayList<Object>();
     for (FudgeField field : msg) {
@@ -180,7 +180,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
     return list;
   }
 
-  private Object buildObjectMap(FudgeDeserializationContext context, MetaProperty<Object> prop, FudgeFieldContainer msg) {
+  private Object buildObjectMap(FudgeDeserializationContext context, MetaProperty<Object> prop, FudgeMsg msg) {
     Class<?> keyType = BeanUtils.mapKeyType(prop);
     Class<?> valueType = BeanUtils.mapValueType(prop);
     Map<Object, Object> map = new HashMap<Object, Object>();

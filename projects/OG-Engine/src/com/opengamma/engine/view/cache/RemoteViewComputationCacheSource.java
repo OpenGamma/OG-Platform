@@ -11,7 +11,7 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
@@ -98,16 +98,16 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
         s_logger.debug("Searching for {} identifiers to send to shared cache", identifiers.size());
         if (identifiers.size() == 1) {
           final long identifier = identifiers.get(0);
-          final FudgeFieldContainer data = cache.getPrivateDataStore().get(identifier);
+          final FudgeMsg data = cache.getPrivateDataStore().get(identifier);
           if (data != null) {
             s_logger.debug("Found identifier {} in private cache", identifier);
             cache.getSharedDataStore().put(identifier, data);
           }
         } else {
-          final Map<Long, FudgeFieldContainer> data = cache.getPrivateDataStore().get(identifiers);
+          final Map<Long, FudgeMsg> data = cache.getPrivateDataStore().get(identifiers);
           if (data.size() == 1) {
             s_logger.debug("Found 1 of {} identifiers in private cache", identifiers.size());
-            final Map.Entry<Long, FudgeFieldContainer> entry = data.entrySet().iterator().next();
+            final Map.Entry<Long, FudgeMsg> entry = data.entrySet().iterator().next();
             cache.getSharedDataStore().put(entry.getKey(), entry.getValue());
           } else if (data.size() > 1) {
             s_logger.debug("Found {} of {} identifiers in private cache", data.size(), identifiers.size());

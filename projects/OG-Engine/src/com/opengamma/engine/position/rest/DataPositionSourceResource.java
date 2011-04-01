@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.position.Portfolio;
@@ -83,7 +83,7 @@ public class DataPositionSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = fsc.newMessage();
+    MutableFudgeMsg msg = fsc.newMessage();
     fsc.objectToFudgeMsg(msg, "portfolio", null, result);
     return new FudgeMsgEnvelope(msg);
   }
@@ -97,7 +97,7 @@ public class DataPositionSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = fsc.newMessage();
+    MutableFudgeMsg msg = fsc.newMessage();
     fsc.objectToFudgeMsg(msg, "node", null, result);
     return new FudgeMsgEnvelope(msg);
   }
@@ -111,7 +111,7 @@ public class DataPositionSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = fsc.newMessage();
+    MutableFudgeMsg msg = fsc.newMessage();
     fsc.objectToFudgeMsg(msg, "position", null, result);
     return new FudgeMsgEnvelope(msg);
   }
@@ -125,7 +125,7 @@ public class DataPositionSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = fsc.newMessage();
+    MutableFudgeMsg msg = fsc.newMessage();
     fsc.objectToFudgeMsg(msg, "trade", null, result);
     return new FudgeMsgEnvelope(msg);
   }

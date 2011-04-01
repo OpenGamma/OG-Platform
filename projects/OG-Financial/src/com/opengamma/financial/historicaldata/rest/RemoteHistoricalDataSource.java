@@ -32,9 +32,9 @@ import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -92,7 +92,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     return _targetBase;
   }
 
-  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> decodePairMessage(final FudgeFieldContainer message) {
+  private Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> decodePairMessage(final FudgeMsg message) {
     if (message == null) {
       return Pair.of(null, EMPTY_TIMESERIES);
     }
@@ -108,7 +108,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
     return Pair.of(context.fieldValueToObject(UniqueIdentifier.class, uniqueIdField), context.fieldValueToObject(LocalDateDoubleTimeSeries.class, timeSeriesField));
   }
 
-  private LocalDateDoubleTimeSeries decodeTimeSeriesMessage(final FudgeFieldContainer message) {
+  private LocalDateDoubleTimeSeries decodeTimeSeriesMessage(final FudgeMsg message) {
     if (message == null) {
       return EMPTY_TIMESERIES;
     }
@@ -229,7 +229,7 @@ public class RemoteHistoricalDataSource implements HistoricalDataSource {
       LocalDate start, boolean inclusiveStart, LocalDate end, boolean exclusiveEnd) {
     final RestTarget target = getTargetBase().resolveBase(REQUEST_MULTIPLE);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(getRestClient().getFudgeContext());
-    MutableFudgeFieldContainer msg = serializationContext.newMessage();
+    MutableFudgeMsg msg = serializationContext.newMessage();
     serializationContext.objectToFudgeMsg(msg, REQUEST_IDENTIFIER_SET, null, identifierSet);
     serializationContext.objectToFudgeMsg(msg, REQUEST_DATA_SOURCE, null, dataSource);
     serializationContext.objectToFudgeMsg(msg, REQUEST_DATA_PROVIDER, null, dataProvider);

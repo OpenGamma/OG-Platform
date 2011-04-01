@@ -8,7 +8,7 @@ package com.opengamma.livedata.entitlement;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -39,8 +39,8 @@ public class EntitlementServer implements FudgeRequestReceiver {
   
   @Override
   @Transactional
-  public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-    FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
+  public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+    FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
     EntitlementRequest entitlementRequest = EntitlementRequest.fromFudgeMsg(context, requestFudgeMsg);
     s_logger.debug("Received entitlement request {}", entitlementRequest);
     
@@ -59,7 +59,7 @@ public class EntitlementServer implements FudgeRequestReceiver {
     }
     
     EntitlementResponseMsg response = new EntitlementResponseMsg(responses);
-    FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }
   

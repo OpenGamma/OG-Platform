@@ -8,7 +8,7 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class FudgeSecurityEncodingTest extends SecurityTestCase {
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeFieldContainer msg = context.objectToFudgeMsg(security);
+    FudgeMsg msg = context.objectToFudgeMsg(security);
     s_logger.debug("Security {}", security);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

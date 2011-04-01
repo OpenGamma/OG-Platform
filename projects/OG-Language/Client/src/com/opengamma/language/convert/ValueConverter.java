@@ -8,7 +8,7 @@ package com.opengamma.language.convert;
 
 import java.util.List;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtil;
@@ -25,7 +25,7 @@ public final class ValueConverter implements TypeConverter {
   private static final JavaTypeInfo<Integer> INTEGER = JavaTypeInfo.builder(Integer.class).get();
   private static final JavaTypeInfo<Double> DOUBLE = JavaTypeInfo.builder(Double.class).get();
   private static final JavaTypeInfo<String> STRING = JavaTypeInfo.builder(String.class).get();
-  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE = JavaTypeInfo.builder(FudgeFieldContainer.class).get();
+  private static final JavaTypeInfo<FudgeMsg> MESSAGE = JavaTypeInfo.builder(FudgeMsg.class).get();
 
   private static final List<JavaTypeInfo<?>> TO_VALUE = JavaTypeInfo.asList(BOOLEAN, INTEGER, DOUBLE, STRING, MESSAGE);
   private static final List<JavaTypeInfo<?>> FROM_VALUE = JavaTypeInfo.asList(VALUE);
@@ -72,8 +72,8 @@ public final class ValueConverter implements TypeConverter {
         conversionContext.setResult(1, ValueUtil.of((Double) value));
       } else if (value instanceof String) {
         conversionContext.setResult(1, ValueUtil.of((String) value));
-      } else if (value instanceof FudgeFieldContainer) {
-        conversionContext.setResult(1, ValueUtil.of((FudgeFieldContainer) value));
+      } else if (value instanceof FudgeMsg) {
+        conversionContext.setResult(1, ValueUtil.of((FudgeMsg) value));
       } else {
         conversionContext.setFail();
       }
@@ -89,7 +89,7 @@ public final class ValueConverter implements TypeConverter {
           conversionContext.setResult(1, valueValue.getDoubleValue());
         } else if (clazz == String.class) {
           conversionContext.setResult(1, valueValue.getStringValue());
-        } else if (clazz == FudgeFieldContainer.class) {
+        } else if (clazz == FudgeMsg.class) {
           conversionContext.setResult(1, valueValue.getMessageValue());
         } else {
           conversionContext.setFail();

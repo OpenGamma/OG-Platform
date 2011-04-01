@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.definition.DefinitionRepository;
@@ -71,7 +71,7 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
   public abstract void initContext(SessionContextInitializationEventHandler preInitialize);
 
   public abstract void initContextWithStash(SessionContextInitializationEventHandler preInitialize,
-      FudgeFieldContainer stash);
+      FudgeMsg stash);
 
   public abstract void doneContext();
 

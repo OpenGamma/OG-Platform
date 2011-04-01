@@ -15,7 +15,7 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -144,7 +144,7 @@ public abstract class AbstractResourceService<Underlying, UnderlyingResource> {
    */
   @GET
   public FudgeMsgEnvelope listResources() {
-    final MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
+    final MutableFudgeMsg msg = getFudgeContext().newMessage();
     for (String key : getResourceMap().keySet()) {
       msg.add("name", key);
     }

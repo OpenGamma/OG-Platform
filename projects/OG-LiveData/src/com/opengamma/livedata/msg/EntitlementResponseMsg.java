@@ -20,7 +20,7 @@ public class EntitlementResponseMsg implements java.io.Serializable {
       _responses = fudge0;
     }
   }
-  protected EntitlementResponseMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected EntitlementResponseMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (RESPONSES_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a EntitlementResponseMsg - field 'responses' is not present");
@@ -28,7 +28,7 @@ public class EntitlementResponseMsg implements java.io.Serializable {
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.livedata.msg.EntitlementResponse fudge2;
-        fudge2 = com.opengamma.livedata.msg.EntitlementResponse.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge1));
+        fudge2 = com.opengamma.livedata.msg.EntitlementResponse.fromFudgeMsg (fudgeContext, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
         _responses.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -51,28 +51,28 @@ public class EntitlementResponseMsg implements java.io.Serializable {
   public EntitlementResponseMsg clone () {
     return new EntitlementResponseMsg (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_responses != null)  {
       for (com.opengamma.livedata.msg.EntitlementResponse fudge1 : _responses) {
-        final org.fudgemsg.MutableFudgeFieldContainer fudge2 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge1.getClass (), com.opengamma.livedata.msg.EntitlementResponse.class);
+        final org.fudgemsg.MutableFudgeMsg fudge2 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge1.getClass (), com.opengamma.livedata.msg.EntitlementResponse.class);
         fudge1.toFudgeMsg (fudgeContext, fudge2);
         msg.add (RESPONSES_KEY, null, fudge2);
       }
     }
   }
-  public static EntitlementResponseMsg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static EntitlementResponseMsg fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.livedata.msg.EntitlementResponseMsg".equals (className)) break;
       try {
-        return (com.opengamma.livedata.msg.EntitlementResponseMsg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.livedata.msg.EntitlementResponseMsg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

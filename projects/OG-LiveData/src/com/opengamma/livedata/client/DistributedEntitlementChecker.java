@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -66,7 +66,7 @@ public class DistributedEntitlementChecker {
       return returnValue;
     }
     
-    FudgeFieldContainer requestMessage = composeRequestMessage(user, specifications);
+    FudgeMsg requestMessage = composeRequestMessage(user, specifications);
     
     final CountDownLatch latch = new CountDownLatch(1);
     
@@ -76,7 +76,7 @@ public class DistributedEntitlementChecker {
       public void messageReceived(FudgeContext fudgeContext,
           FudgeMsgEnvelope msgEnvelope) {
         
-        FudgeFieldContainer msg = msgEnvelope.getMessage();
+        FudgeMsg msg = msgEnvelope.getMessage();
         EntitlementResponseMsg responseMsg = EntitlementResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(fudgeContext), msg);
         for (EntitlementResponse response : responseMsg.getResponses()) {
           returnValue.put(response.getLiveDataSpecification(), response.getIsEntitled());
@@ -107,7 +107,7 @@ public class DistributedEntitlementChecker {
     return entitlements.get(specification);
   }
 
-  private FudgeFieldContainer composeRequestMessage(UserPrincipal user,
+  private FudgeMsg composeRequestMessage(UserPrincipal user,
       Collection<LiveDataSpecification> specifications) {
     EntitlementRequest request = new EntitlementRequest(user, specifications);
     return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));

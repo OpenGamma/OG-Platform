@@ -9,9 +9,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -245,7 +245,7 @@ public final class ObjectIdentifier
    * @param msg the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer msg) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(msg, "msg");
     msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
@@ -261,7 +261,7 @@ public final class ObjectIdentifier
    * @param factory a message creator, not null
    * @return the serialized Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -273,7 +273,7 @@ public final class ObjectIdentifier
    * @param msg the Fudge message, not {@code null}
    * @return the object identifier, not null
    */
-  public static ObjectIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
+  public static ObjectIdentifier fromFudgeMsg(FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return ObjectIdentifier.of(scheme, value);

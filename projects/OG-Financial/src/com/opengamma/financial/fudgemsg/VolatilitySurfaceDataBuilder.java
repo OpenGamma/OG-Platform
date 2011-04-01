@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -32,8 +32,8 @@ import com.opengamma.util.tuple.Pair;
 public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurfaceData<?, ?>> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, VolatilitySurfaceData<?, ?> object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceData<?, ?> object) {
+    MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
     message.add("definitionName", object.getDefinitionName());
     message.add("specificationName", object.getSpecificationName());
@@ -47,7 +47,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
     for (Entry<?, Double> entry : object.asMap().entrySet()) {
       @SuppressWarnings("unchecked")
       Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
-      MutableFudgeFieldContainer subMessage = context.newMessage();
+      MutableFudgeMsg subMessage = context.newMessage();
       subMessage.add("x", null, context.objectToFudgeMsg(pair.getFirst()));
       subMessage.add("y", null, context.objectToFudgeMsg(pair.getSecond()));
       subMessage.add("value", null, entry.getValue());
@@ -57,7 +57,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
   }
 
   @Override
-  public VolatilitySurfaceData<?, ?> buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public VolatilitySurfaceData<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     String definitionName = message.getString("definitionName");
     String specificationName = message.getString("specificationName");
@@ -88,7 +88,7 @@ public class VolatilitySurfaceDataBuilder implements FudgeBuilder<VolatilitySurf
       Map<Pair<Object, Object>, Double> values = new HashMap<Pair<Object, Object>, Double>();
       List<FudgeField> valuesFields = message.getAllByName("values");
       for (FudgeField valueField : valuesFields) {
-        FudgeFieldContainer subMessage = (FudgeFieldContainer) valueField.getValue();
+        FudgeMsg subMessage = (FudgeMsg) valueField.getValue();
         Object x = context.fieldValueToObject(xClazz, subMessage.getByName("x"));
         Object y = context.fieldValueToObject(yClazz, subMessage.getByName("y"));
         Double value = subMessage.getDouble("value");

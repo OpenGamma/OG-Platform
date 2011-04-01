@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -185,7 +185,7 @@ public class SecurityMasterResource {
   @GET
   @Path("debugInfo")
   public FudgeMsgEnvelope getDebugInfo() {
-    final MutableFudgeFieldContainer message = getFudgeContext().newMessage();
+    final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
     message.add("securityMaster", getSecurityMaster().toString());
     return new FudgeMsgEnvelope(message);

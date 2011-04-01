@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -23,8 +23,8 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FixedIncomeStrip object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStrip object) {
+    MutableFudgeMsg message = context.newMessage();
     //FudgeSerializationContext.addClassHeader(message, FixedIncomeStrip.class);
     //message.add("type", object.getInstrumentType().name());
     context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
@@ -38,7 +38,7 @@ public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
   }
 
   @Override
-  public FixedIncomeStrip buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public FixedIncomeStrip buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     //StripInstrumentType type = StripInstrumentType.valueOf(message.getString("type"));
     StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     String conventionName = message.getString("conventionName");

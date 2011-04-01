@@ -44,13 +44,13 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
       _receiveLeg = receiveLeg;
     }
   }
-  protected SwapSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected SwapSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (TRADE_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'tradeDate' is not present");
     try {
-      _tradeDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _tradeDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'tradeDate' is not DateTimeWithZone message", e);
@@ -58,7 +58,7 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
     fudgeField = fudgeMsg.getByName (EFFECTIVE_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'effectiveDate' is not present");
     try {
-      _effectiveDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _effectiveDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'effectiveDate' is not DateTimeWithZone message", e);
@@ -66,7 +66,7 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
     fudgeField = fudgeMsg.getByName (MATURITY_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'maturityDate' is not present");
     try {
-      _maturityDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _maturityDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'maturityDate' is not DateTimeWithZone message", e);
@@ -82,7 +82,7 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
     fudgeField = fudgeMsg.getByName (PAY_LEG_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'payLeg' is not present");
     try {
-      _payLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _payLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'payLeg' is not SwapLeg message", e);
@@ -90,7 +90,7 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
     fudgeField = fudgeMsg.getByName (RECEIVE_LEG_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'receiveLeg' is not present");
     try {
-      _receiveLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _receiveLeg = com.opengamma.financial.security.swap.SwapLeg.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a SwapSecurity - field 'receiveLeg' is not SwapLeg message", e);
@@ -149,26 +149,26 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
   public SwapSecurity clone () {
     return new SwapSecurity (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_tradeDate != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _tradeDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _tradeDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
       _tradeDate.toFudgeMsg (fudgeContext, fudge1);
       msg.add (TRADE_DATE_KEY, null, fudge1);
     }
     if (_effectiveDate != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _effectiveDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _effectiveDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
       _effectiveDate.toFudgeMsg (fudgeContext, fudge1);
       msg.add (EFFECTIVE_DATE_KEY, null, fudge1);
     }
     if (_maturityDate != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _maturityDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _maturityDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
       _maturityDate.toFudgeMsg (fudgeContext, fudge1);
       msg.add (MATURITY_DATE_KEY, null, fudge1);
     }
@@ -176,23 +176,23 @@ public class SwapSecurity extends com.opengamma.financial.security.FinancialSecu
       msg.add (COUNTERPARTY_KEY, null, _counterparty);
     }
     if (_payLeg != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _payLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _payLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
       _payLeg.toFudgeMsg (fudgeContext, fudge1);
       msg.add (PAY_LEG_KEY, null, fudge1);
     }
     if (_receiveLeg != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _receiveLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _receiveLeg.getClass (), com.opengamma.financial.security.swap.SwapLeg.class);
       _receiveLeg.toFudgeMsg (fudgeContext, fudge1);
       msg.add (RECEIVE_LEG_KEY, null, fudge1);
     }
   }
-  public static SwapSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static SwapSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.SwapSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.SwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.swap.SwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

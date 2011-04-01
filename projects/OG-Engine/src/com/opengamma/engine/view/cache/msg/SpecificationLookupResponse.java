@@ -20,7 +20,7 @@ public class SpecificationLookupResponse extends com.opengamma.engine.view.cache
       _specification = fudge0;
     }
   }
-  protected SpecificationLookupResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected SpecificationLookupResponse (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (SPECIFICATION_KEY);
@@ -67,13 +67,13 @@ public class SpecificationLookupResponse extends com.opengamma.engine.view.cache
   public SpecificationLookupResponse clone () {
     return new SpecificationLookupResponse (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_specification != null)  {
       for (com.opengamma.engine.value.ValueSpecification fudge1 : _specification) {
@@ -81,13 +81,13 @@ public class SpecificationLookupResponse extends com.opengamma.engine.view.cache
       }
     }
   }
-  public static SpecificationLookupResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static SpecificationLookupResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.cache.msg.SpecificationLookupResponse".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.cache.msg.SpecificationLookupResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeContext, fudgeMsg);
+        return (com.opengamma.engine.view.cache.msg.SpecificationLookupResponse)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.mapping.FudgeDeserializationContext.class, org.fudgemsg.FudgeMsg.class).invoke (null, fudgeContext, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

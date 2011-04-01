@@ -17,7 +17,7 @@ import javax.ws.rs.QueryParam;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.core.security.Security;
@@ -95,7 +95,7 @@ public class SecuritySourceResource {
   public FudgeMsgEnvelope getSecurity(@PathParam("uid") String uidStr) {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
@@ -115,7 +115,7 @@ public class SecuritySourceResource {
       bundle = bundle.withIdentifier(Identifier.parse(idStr));
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     final Collection<Security> securities = getSecuritySource().getSecurities(bundle);
     for (Security security : securities) {
       context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
@@ -138,7 +138,7 @@ public class SecuritySourceResource {
       bundle = bundle.withIdentifier(Identifier.parse(idStr));
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
@@ -154,7 +154,7 @@ public class SecuritySourceResource {
   public FudgeMsgEnvelope getBondsWithIssuerName(@QueryParam("issuerName") String issuerName) {
     ArgumentChecker.notEmpty(issuerName, "issuerName");
     final FudgeSerializationContext context = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     final Collection<Security> securities = getSecuritySource().getBondsWithIssuerName(issuerName);
     for (Security security : securities) {
       context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
@@ -171,7 +171,7 @@ public class SecuritySourceResource {
   @GET
   @Path("debugInfo")
   public FudgeMsgEnvelope getDebugInfo() {
-    final MutableFudgeFieldContainer message = getFudgeContext().newMessage();
+    final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
     message.add("securitySource", getSecuritySource().toString());
     return new FudgeMsgEnvelope(message);

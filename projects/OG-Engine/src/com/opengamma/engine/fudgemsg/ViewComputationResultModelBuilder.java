@@ -6,8 +6,8 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -26,10 +26,10 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   private static final String FIELD_LIVEDATA = "liveData";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
-    final MutableFudgeFieldContainer message = ViewResultModelBuilder.createResultModelMessage(context, resultModel);
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
+    final MutableFudgeMsg message = ViewResultModelBuilder.createResultModelMessage(context, resultModel);
     
-    final MutableFudgeFieldContainer liveDataMsg = context.newMessage();
+    final MutableFudgeMsg liveDataMsg = context.newMessage();
     for (ComputedValue value : resultModel.getAllLiveData()) {
       context.objectToFudgeMsg(liveDataMsg, null, 1, value);
     }
@@ -39,10 +39,10 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   }
 
   @Override
-  public ViewComputationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ViewComputationResultModel buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(context, message);
     
-    for (FudgeField field : message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_LIVEDATA))) {
+    for (FudgeField field : message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_LIVEDATA))) {
       ComputedValue liveData = context.fieldValueToObject(ComputedValue.class, field);
       resultModel.addLiveData(liveData);      
     }

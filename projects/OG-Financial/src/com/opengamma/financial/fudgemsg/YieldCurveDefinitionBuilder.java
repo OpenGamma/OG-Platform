@@ -10,8 +10,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -30,8 +30,8 @@ import com.opengamma.util.money.Currency;
 public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefinition> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, YieldCurveDefinition object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, YieldCurveDefinition object) {
+    MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
     if (object.getRegion() != null) {
       context.objectToFudgeMsg(message, "region", null, object.getRegion());
@@ -46,7 +46,7 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
   }
 
   @Override
-  public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public YieldCurveDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     Identifier region = null;
     if (message.hasField("region")) {

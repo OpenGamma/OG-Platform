@@ -13,9 +13,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
@@ -60,8 +60,8 @@ public class ConfigurationResource {
   }
 
   @SuppressWarnings("unchecked")
-  private FudgeFieldContainer mapToMessage(final FudgeSerializationContext context, final Map<?, ?> value) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  private FudgeMsg mapToMessage(final FudgeSerializationContext context, final Map<?, ?> value) {
+    final MutableFudgeMsg message = context.newMessage();
     for (Map.Entry<Object, Object> config : ((Map<Object, Object>) value).entrySet()) {
       if (config.getValue() instanceof Map) {
         message.add(config.getKey().toString(), mapToMessage(context, (Map<?, ?>) config.getValue()));

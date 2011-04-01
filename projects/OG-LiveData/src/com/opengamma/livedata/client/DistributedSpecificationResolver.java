@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -50,7 +50,7 @@ public class DistributedSpecificationResolver {
     
     s_logger.info("Sending message to resolve ", spec);
     ResolveRequest resolveRequest = new ResolveRequest(spec);
-    FudgeFieldContainer requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
+    FudgeMsg requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicReference<LiveDataSpecification> resolved = new AtomicReference<LiveDataSpecification>();
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
@@ -59,7 +59,7 @@ public class DistributedSpecificationResolver {
       public void messageReceived(FudgeContext fudgeContext,
           FudgeMsgEnvelope msgEnvelope) {
         
-        FudgeFieldContainer msg = msgEnvelope.getMessage();
+        FudgeMsg msg = msgEnvelope.getMessage();
         ResolveResponse response = ResolveResponse.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
         resolved.set(response.getResolvedSpecification());
         responseReceived.set(true);

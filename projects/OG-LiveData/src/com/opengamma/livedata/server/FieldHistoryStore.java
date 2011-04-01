@@ -7,8 +7,8 @@ package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 /**
  * A store of historical message field values.
@@ -20,13 +20,13 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 public class FieldHistoryStore {
   
   private final FudgeContext _context = FudgeContext.GLOBAL_DEFAULT;
-  private final MutableFudgeFieldContainer _lastKnownValues;
+  private final MutableFudgeMsg _lastKnownValues;
   
   public FieldHistoryStore() {
     _lastKnownValues = _context.newMessage();
   }
   
-  public FieldHistoryStore(FudgeFieldContainer history) {
+  public FieldHistoryStore(FudgeMsg history) {
     _lastKnownValues = _context.newMessage(history);   
   }
   
@@ -34,7 +34,7 @@ public class FieldHistoryStore {
     _lastKnownValues = _context.newMessage(original._lastKnownValues);   
   }
   
-  public synchronized void liveDataReceived(FudgeFieldContainer msg) {
+  public synchronized void liveDataReceived(FudgeMsg msg) {
     for (FudgeField field : msg.getAllFields()) {
       _lastKnownValues.remove(field.getName());
       _lastKnownValues.add(field);
@@ -49,7 +49,7 @@ public class FieldHistoryStore {
     return _lastKnownValues.isEmpty();
   }
   
-  public synchronized FudgeFieldContainer getLastKnownValues() {
+  public synchronized FudgeMsg getLastKnownValues() {
     return _lastKnownValues;
   }
 

@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class FinancialTestBase {
     return _regionSource;
   }
 
-  private FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
+  private FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
     s_logger.info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
@@ -66,10 +66,10 @@ public class FinancialTestBase {
     s_logger.info("object {}", object);
     final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
     final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer messageIn = fudgeSerializationContext.newMessage();
+    final MutableFudgeMsg messageIn = fudgeSerializationContext.newMessage();
     fudgeSerializationContext.objectToFudgeMsg(messageIn, "test", null, object);
     s_logger.info("message {}", messageIn);
-    final FudgeFieldContainer messageOut = cycleMessage(messageIn);
+    final FudgeMsg messageOut = cycleMessage(messageIn);
     s_logger.info("message {}", messageOut);
     final T newObject = fudgeDeserializationContext.fieldValueToObject(clazz, messageOut.getByName("test"));
     assertNotNull(newObject);

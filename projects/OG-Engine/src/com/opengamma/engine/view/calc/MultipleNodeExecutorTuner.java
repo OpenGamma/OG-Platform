@@ -10,8 +10,8 @@ import java.util.Map;
 
 import javax.time.Instant;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,8 +150,8 @@ public class MultipleNodeExecutorTuner implements Runnable {
     }
   }
 
-  private FudgeFieldContainer dumpCapabilities(final FudgeSerializationContext context, final String invokerId, final Collection<Capability> capabilities) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  private FudgeMsg dumpCapabilities(final FudgeSerializationContext context, final String invokerId, final Collection<Capability> capabilities) {
+    final MutableFudgeMsg message = context.newMessage();
     message.add("identifier", invokerId);
     for (Capability capability : capabilities) {
       context.objectToFudgeMsgWithClassHeaders(message, capability.getIdentifier(), null, capability, Capability.class);
@@ -159,8 +159,8 @@ public class MultipleNodeExecutorTuner implements Runnable {
     return message;
   }
 
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, "factory", null, getFactory());
     if (getJobDispatcher() != null) {
       for (Map.Entry<String, Collection<Capability>> capabilities : getJobDispatcher().getAllCapabilities().entrySet()) {

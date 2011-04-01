@@ -6,9 +6,9 @@
 package com.opengamma.financial.analytics.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeTypeDictionary;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectBuilder;
@@ -33,7 +33,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
   public static final class InvokedSerializedFormBuilder extends AbstractFudgeMessageBuilder<InvokedSerializedForm> implements FudgeObjectBuilder<Object> {
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final InvokedSerializedForm object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InvokedSerializedForm object) {
       if (object.getOuterClass() != null) {
         message.add(null, null, object.getOuterClass().getName());
       } else {
@@ -42,7 +42,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
       if (object.getParameters().length == 0) {
         message.add(object.getMethod(), null, IndicatorType.INSTANCE);
       } else {
-        final MutableFudgeFieldContainer parameters = context.newMessage();
+        final MutableFudgeMsg parameters = context.newMessage();
         for (Object parameter : object.getParameters()) {
           context.objectToFudgeMsg(parameters, null, null, substituteObject(parameter));
         }
@@ -51,7 +51,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
     }
 
     @Override
-    public Object buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public Object buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       Object outer = null;
       String method = null;
       Object[] parameters = null;
@@ -75,7 +75,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
                 throw new IllegalStateException("Parameters already set from " + method);
               }
               method = field.getName();
-              final FudgeFieldContainer params = (FudgeFieldContainer) field.getValue();
+              final FudgeMsg params = (FudgeMsg) field.getValue();
               parameters = new Object[params.getNumFields()];
               int i = 0;
               for (FudgeField param : params) {

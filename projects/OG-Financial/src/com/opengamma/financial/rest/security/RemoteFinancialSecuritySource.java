@@ -13,7 +13,7 @@ import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.core.security.Security;
@@ -84,7 +84,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   public Collection<Security> getSecurities(IdentifierBundle securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", securityKey.toStringList());
-    final FudgeFieldContainer message = getRestClient().getMsg(target);
+    final FudgeMsg message = getRestClient().getMsg(target);
     final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
     for (FudgeField security : message) {
@@ -106,7 +106,7 @@ public class RemoteFinancialSecuritySource implements FinancialSecuritySource {
   public Collection<Security> getBondsWithIssuerName(String issuerName) {
     ArgumentChecker.notNull(issuerName, "issuerName");
     final RestTarget target = _targetBase.resolve("bonds").resolveQuery("issuerName", Collections.singletonList(issuerName));
-    final FudgeFieldContainer message = getRestClient().getMsg(target);
+    final FudgeMsg message = getRestClient().getMsg(target);
     final FudgeDeserializationContext context = getRestClient().getFudgeDeserializationContext();
     final Collection<Security> securities = new ArrayList<Security>(message.getNumFields());
     for (FudgeField security : message) {

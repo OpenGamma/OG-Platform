@@ -6,8 +6,8 @@
 package com.opengamma.engine.view;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -49,13 +49,13 @@ public class NumberDeltaComparer implements DeltaComparer<Number> {
     return previousCompare != newCompare;
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeMsg toFudgeMsg(FudgeSerializationContext fudgeContext) {
+    MutableFudgeMsg msg = fudgeContext.newMessage();
     msg.add(DECIMAL_PLACES_FIELD, _decimalPlaces);
     return msg;
   }
   
-  public static NumberDeltaComparer fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
+  public static NumberDeltaComparer fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeMsg msg) {
     return new NumberDeltaComparer(msg.getInt(DECIMAL_PLACES_FIELD));
   }
 

@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
   private Map<CalculationJobSpecification, DependencyGraph> _jobToDepGraphMap = new WeakHashMap<CalculationJobSpecification, DependencyGraph>();
 
   @Override
-  public synchronized FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+  public synchronized FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
     ArgumentChecker.notNullInjected(_jobToDepGraphMap, "Job Specification to Dependency Graph Map");
     Object message = context.fudgeMsgToObject(requestEnvelope.getMessage());
     if (message instanceof DependentValueSpecificationsRequest) {
@@ -48,7 +48,7 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
         collectAllValueSpecifications(root, valueSpecs);
       }
       FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(context.getFudgeContext());
-      MutableFudgeFieldContainer msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getCorrelationId(), valueSpecs));
+      MutableFudgeMsg msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getCorrelationId(), valueSpecs));
       FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
       return msg;
     } else {

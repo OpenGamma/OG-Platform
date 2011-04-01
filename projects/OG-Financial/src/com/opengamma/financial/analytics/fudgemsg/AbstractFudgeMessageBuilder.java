@@ -11,7 +11,7 @@ import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeMessageBuilder;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -25,15 +25,15 @@ import com.opengamma.OpenGammaRuntimeException;
   /**
    * Builds the message by serializing the specified object.
    * <p>
-   * This method creates a new message and uses {@link #buildMessage(FudgeSerializationContext, MutableFudgeFieldContainer, Object)}
+   * This method creates a new message and uses {@link #buildMessage(FudgeSerializationContext, MutableFudgeMsg, Object)}
    * to populate it.
    * @param context  the Fudge context, not null
    * @param object  the object being serialized
    * @return the created object, not null
    */
   @Override
-  public final MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, T object) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public final MutableFudgeMsg buildMessage(FudgeSerializationContext context, T object) {
+    final MutableFudgeMsg message = context.newMessage();
     message.add(null, 0, object.getClass().getName());
     buildMessage(context, message, object);
     return message;
@@ -45,7 +45,7 @@ import com.opengamma.OpenGammaRuntimeException;
    * @param message  the message to populate, not null
    * @param object  the object being serialized
    */
-  protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
+  protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeMsg message, T object);
 
   /**
    * The cache of previously resolved (and forced accessible) {@code writeReplace} methods.

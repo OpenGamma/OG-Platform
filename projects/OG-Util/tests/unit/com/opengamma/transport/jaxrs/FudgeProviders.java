@@ -17,9 +17,9 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -32,7 +32,7 @@ import com.opengamma.OpenGammaRuntimeException;
 public class FudgeProviders {
 
   private void testBeans(final MessageBodyWriter<FudgeMsgEnvelope> producer, final MessageBodyReader<FudgeMsgEnvelope> consumer) {
-    final MutableFudgeFieldContainer msgIn = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    final MutableFudgeMsg msgIn = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msgIn.add("foo", "bar");
     msgIn.add("number", 42);
     final FudgeMsgEnvelope msgInEnv = new FudgeMsgEnvelope(msgIn, 0, 0);
@@ -50,7 +50,7 @@ public class FudgeProviders {
     }
     assertTrue(consumer.isReadable(FudgeMsgEnvelope.class, null, null, null));
     final ByteArrayInputStream bis = new ByteArrayInputStream(data);
-    final FudgeFieldContainer msgOut;
+    final FudgeMsg msgOut;
     try {
       final FudgeMsgEnvelope env = consumer.readFrom(FudgeMsgEnvelope.class, null, null, null, null, bis);
       assertNotNull(env);

@@ -25,7 +25,7 @@ public class Test extends com.opengamma.language.connector.UserMessagePayload im
     _operation = operation;
     _nonce = nonce;
   }
-  protected Test (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Test (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (OPERATION_ORDINAL);
@@ -54,26 +54,26 @@ public class Test extends com.opengamma.language.connector.UserMessagePayload im
   public Test clone () {
     return new Test (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_operation != null)  {
       msg.add (null, OPERATION_ORDINAL, _operation.name ());
     }
     msg.add (null, NONCE_ORDINAL, _nonce);
   }
-  public static Test fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Test fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.connector.Test".equals (className)) break;
       try {
-        return (com.opengamma.language.connector.Test)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.connector.Test)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
