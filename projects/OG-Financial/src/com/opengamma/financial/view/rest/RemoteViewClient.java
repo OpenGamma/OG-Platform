@@ -23,11 +23,15 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
@@ -42,9 +46,9 @@ public class RemoteViewClient implements ViewClient {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
   
-  private final ViewProcess _view;
   private final URI _baseUri;
   private final FudgeRestClient _client;
+  private final ViewProcessor _viewProcessor;
   
   private final ReentrantLock _listenerLock = new ReentrantLock();
   private DeltaComputationResultListener _deltaListener;
@@ -55,8 +59,8 @@ public class RemoteViewClient implements ViewClient {
   private final FudgeContext _fudgeContext;
   private final JmsTemplate _jmsTemplate;
   
-  public RemoteViewClient(ViewProcess view, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
-    _view = view;
+  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
+    _viewProcessor = viewProcessor;
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
     _fudgeContext = fudgeContext;
@@ -79,31 +83,14 @@ public class RemoteViewClient implements ViewClient {
   }
   
   @Override
-  public ViewProcess getView() {
-    return _view;
-  }
-  
-  @Override
   public UserPrincipal getUser() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_USER);
     return _client.access(uri).get(UserPrincipal.class);
   }
-
-  @Override
-  public boolean isResultAvailable() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_AVAILABLE);
-    return _client.access(uri).get(Boolean.class);
-  }
   
   @Override
-  public ViewComputationResultModel getLatestResult() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
-    FudgeMsgEnvelope envelope = _client.access(uri).get(FudgeMsgEnvelope.class);
-    FudgeField latestResultField = envelope.getMessage().getByName(DataViewClientResource.PATH_LATEST_RESULT);
-    if (latestResultField == null) {
-      return null;
-    }
-    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, latestResultField);
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
   }
   
   @Override
@@ -111,43 +98,111 @@ public class RemoteViewClient implements ViewClient {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_STATE);
     return _client.access(uri).get(ViewClientState.class);
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isAttached() {
+    //TODO
+    return false;
+  }
+  
+  @Override
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
+    //TODO
+  }
 
   @Override
-  public ViewComputationResultModel runOneCycle(final long valuationTime) {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RUN_ONE_CYCLE);
-    FudgeMsgEnvelope envelope = _client.access(uri).post(FudgeMsgEnvelope.class, valuationTime);
-    FudgeField runOneCycleResult = envelope.getMessage().getByName(DataViewClientResource.PATH_RUN_ONE_CYCLE);
-    if (runOneCycleResult == null) {
-      return null;
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions,
+      boolean newBatchProcess) {
+    //TODO
+  }
+
+  @Override
+  public void attachToViewProcess(UniqueIdentifier processId) {
+    //TODO
+  }
+  
+  @Override
+  public void detachFromViewProcess() {
+    //TODO
+  }
+
+  @Override
+  public boolean isBatchController() {
+    //TODO
+    return false;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void setCompilationListener(ViewDefinitionCompilationListener compilationListener) {
+    //TODO
+  }
+  
+  @Override
+  public void setResultListener(ComputationResultListener newListener) {
+    _listenerLock.lock();
+    try {
+      ComputationResultListener oldListener = _resultListener;
+      _resultListener = newListener;
+      if (oldListener == null && newListener != null) {
+        // Set up subscription
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
+        String topicName = _client.access(uri).post(String.class);
+        initResultListener(topicName);
+      } else if (oldListener != null && newListener == null) {
+        URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_RESULT_STREAM);
+        _client.access(uri).post();
+        tearDownResultListener();
+      }
+    } finally {
+      _listenerLock.unlock();
     }
-    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, runOneCycleResult);
   }
   
-  @Override
-  public void startLive() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_START);
-    _client.access(uri).post();
-  }
-
-  @Override
-  public void pauseLive() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PAUSE);
-    _client.access(uri).post();
+  private void initResultListener(final String topicName) {
+    s_logger.info("Set up result JMS subscription to {}", topicName);
+    _resultListenerContainer = new DefaultMessageListenerContainer();
+    _resultListenerContainer.setConnectionFactory(_jmsTemplate.getConnectionFactory());
+    _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+      @Override
+      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+        s_logger.debug("Result message received on {}", topicName);
+        ViewComputationResultModel resultModel = null;
+        try {
+          resultModel = fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage());
+        } catch (Exception e) {
+          s_logger.warn("Disregarding result message because couldn't parse: {}", msgEnvelope.getMessage());
+          s_logger.warn("Underlying parse error", e);
+          return;
+        }
+        dispatchResult(resultModel);
+      }
+    }, _fudgeContext)));
+    _resultListenerContainer.setDestinationName(topicName);
+    _resultListenerContainer.setPubSubDomain(true);
+    _resultListenerContainer.setExceptionListener(new ExceptionListener() {
+      @Override
+      public void onException(JMSException exception) {
+        s_logger.warn("Error in result receiver", exception);
+      }
+    });
+    _resultListenerContainer.afterPropertiesSet();
+    _resultListenerContainer.start();
   }
   
-  @Override
-  public void stopLive() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP);
-    _client.access(uri).post();    
+  private void dispatchResult(ViewComputationResultModel result) {
+    s_logger.debug("Received a computation result {}", result.getResultTimestamp());
+    ComputationResultListener listener = _resultListener;
+    if (listener != null) {
+      listener.computationResultAvailable(result);
+    }
   }
   
-  @Override
-  public void shutdown() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
-    _client.access(uri).post();
-    
-    setResultListener(null);
-    setDeltaResultListener(null);
+  private void tearDownResultListener() {
+    _resultListenerContainer.stop();
+    _resultListenerContainer.destroy();
+    _resultListenerContainer = null;
   }
 
   @Override
@@ -217,77 +272,78 @@ public class RemoteViewClient implements ViewClient {
   }
 
   @Override
-  public void setResultListener(ComputationResultListener newListener) {
-    _listenerLock.lock();
-    try {
-      ComputationResultListener oldListener = _resultListener;
-      _resultListener = newListener;
-      if (oldListener == null && newListener != null) {
-        // Set up subscription
-        URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
-        String topicName = _client.access(uri).post(String.class);
-        initResultListener(topicName);
-      } else if (oldListener != null && newListener == null) {
-        URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_RESULT_STREAM);
-        _client.access(uri).post();
-        tearDownResultListener();
-      }
-    } finally {
-      _listenerLock.unlock();
-    }
-  }
-  
-  private void initResultListener(final String topicName) {
-    s_logger.info("Set up result JMS subscription to {}", topicName);
-    _resultListenerContainer = new DefaultMessageListenerContainer();
-    _resultListenerContainer.setConnectionFactory(_jmsTemplate.getConnectionFactory());
-    _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-      @Override
-      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-        s_logger.debug("Result message received on {}", topicName);
-        ViewComputationResultModel resultModel = null;
-        try {
-          resultModel = fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage());
-        } catch (Exception e) {
-          s_logger.warn("Disregarding result message because couldn't parse: {}", msgEnvelope.getMessage());
-          s_logger.warn("Underlying parse error", e);
-          return;
-        }
-        dispatchResult(resultModel);
-      }
-    }, _fudgeContext)));
-    _resultListenerContainer.setDestinationName(topicName);
-    _resultListenerContainer.setPubSubDomain(true);
-    _resultListenerContainer.setExceptionListener(new ExceptionListener() {
-      @Override
-      public void onException(JMSException exception) {
-        s_logger.warn("Error in result receiver", exception);
-      }
-    });
-    _resultListenerContainer.afterPropertiesSet();
-    _resultListenerContainer.start();
-  }
-  
-  private void dispatchResult(ViewComputationResultModel result) {
-    s_logger.debug("Received a computation result {}", result.getResultTimestamp());
-    ComputationResultListener listener = _resultListener;
-    if (listener != null) {
-      listener.computationResultAvailable(result);
-    }
-  }
-  
-  private void tearDownResultListener() {
-    _resultListenerContainer.stop();
-    _resultListenerContainer.destroy();
-    _resultListenerContainer = null;
-  }
-
-  @Override
-  public void setLiveUpdatePeriod(long periodMillis) {
+  public void setUpdatePeriod(long periodMillis) {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_UPDATE_PERIOD);
     _client.access(uri).put(periodMillis);
   }
   
+  //-------------------------------------------------------------------------
+  @Override
+  public void pause() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_PAUSE);
+    _client.access(uri).post();
+  }
+  
+  @Override
+  public void resume() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESUME);
+    _client.access(uri).post();
+  }
+  
+  @Override
+  public void waitForCompletion() throws InterruptedException {
+    //TODO
+  }
+  
+  @Override
+  public boolean isResultAvailable() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_AVAILABLE);
+    return _client.access(uri).get(Boolean.class);
+  }
+
+  @Override
+  public ViewComputationResultModel getLatestResult() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
+    FudgeMsgEnvelope envelope = _client.access(uri).get(FudgeMsgEnvelope.class);
+    FudgeField latestResultField = envelope.getMessage().getByName(DataViewClientResource.PATH_LATEST_RESULT);
+    if (latestResultField == null) {
+      return null;
+    }
+    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, latestResultField);
+  }
+  
+  @Override
+  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
+    //TODO
+    return null;
+  }
+  
+  @Override
+  public boolean isViewCycleAccessSupported() {
+    //TODO
+    return false;
+  }
+  
+  @Override
+  public void setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
+    //TODO
+  }
+  
+  @Override
+  public ViewCycleReference createLatestCycleReference() {
+    //TODO
+    return null;
+  }
+  
+  @Override
+  public void shutdown() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
+    _client.access(uri).post();
+    
+    setResultListener(null);
+    setDeltaResultListener(null);
+  }
+
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) {
     return UriBuilder.fromUri(baseUri).path(path).build();

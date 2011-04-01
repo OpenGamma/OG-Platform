@@ -26,7 +26,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 /**
  * RESTful resource for a view client.
  */
-@Path("/data/viewclients/clients/{clientId}")
+@Path("/data/viewprocessors/{viewProcessId}/clients/{viewClientId}")
 @Consumes(FudgeRest.MEDIA)
 @Produces(FudgeRest.MEDIA)
 public class DataViewClientResource {
@@ -37,9 +37,8 @@ public class DataViewClientResource {
   public static final String PATH_RESULT_AVAILABLE = "resultAvailable";
   public static final String PATH_LATEST_RESULT = "latestResult";
   public static final String PATH_STATE = "state";
-  public static final String PATH_START = "start";
+  public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
-  public static final String PATH_STOP = "stop";
   public static final String PATH_SHUTDOWN = "shutdown";
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
   
@@ -110,23 +109,16 @@ public class DataViewClientResource {
   }
   
   @POST
-  @Path(PATH_START)
-  public Response startLive() {
-    getViewClient().startLive();
+  @Path(PATH_RESUME)
+  public Response resume() {
+    getViewClient().resume();
     return Response.ok().build();
   }
   
   @POST
   @Path(PATH_PAUSE)
-  public Response pauseLive() {
-    getViewClient().pauseLive();
-    return Response.ok().build();
-  }
-  
-  @POST
-  @Path(PATH_STOP)
-  public Response stopLive() {
-    getViewClient().stopLive();
+  public Response pause() {
+    getViewClient().pause();
     return Response.ok().build();
   }
   
@@ -139,20 +131,11 @@ public class DataViewClientResource {
   
   @PUT
   @Path(PATH_UPDATE_PERIOD)
-  public Response setLiveUpdatePeriod(long periodMillis) {
-    getViewClient().setLiveUpdatePeriod(periodMillis);
+  public Response setUpdatePeriod(long periodMillis) {
+    getViewClient().setUpdatePeriod(periodMillis);
     return Response.ok().build();
   }
   
-  @POST
-  @Path(PATH_RUN_ONE_CYCLE)
-  public Response runOneCycle(Long valuationTime) {
-    FudgeSerializationContext context = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
-    return Response.ok(new FudgeMsgEnvelope(msg)).build();
-  }
-
   @POST
   @Path(PATH_START_JMS_RESULT_STREAM)
   public Response startResultStream() {
