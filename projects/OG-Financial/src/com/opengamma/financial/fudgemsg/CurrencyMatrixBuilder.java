@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -43,7 +43,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
   private static final String VALUE_REQUIREMENTS_FIELD_NAME = "valueReq";
   private static final String CROSS_CONVERT_FIELD_NAME = "crossConvert";
 
-  private static MutableFudgeFieldContainer getOrCreateMessage(final FudgeMessageFactory factory, final String name, final Map<String, MutableFudgeFieldContainer> map) {
+  private static MutableFudgeFieldContainer getOrCreateMessage(final FudgeMsgFactory factory, final String name, final Map<String, MutableFudgeFieldContainer> map) {
     MutableFudgeFieldContainer msg = map.get(name);
     if (msg == null) {
       msg = factory.newMessage();
@@ -52,7 +52,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     return msg;
   }
 
-  private static FudgeFieldContainer mapToMessage(final FudgeMessageFactory factory, final Map<String, MutableFudgeFieldContainer> map) {
+  private static FudgeFieldContainer mapToMessage(final FudgeMsgFactory factory, final Map<String, MutableFudgeFieldContainer> map) {
     final MutableFudgeFieldContainer msg = factory.newMessage();
     for (Map.Entry<String, MutableFudgeFieldContainer> entry : map.entrySet()) {
       msg.add(entry.getKey(), null, FudgeWireType.SUB_MESSAGE, entry.getValue());

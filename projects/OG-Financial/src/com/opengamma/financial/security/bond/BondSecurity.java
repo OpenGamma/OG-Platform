@@ -385,7 +385,7 @@ public abstract class BondSecurity extends com.opengamma.financial.security.Fina
     _parAmount = source._parAmount;
     _redemptionValue = source._redemptionValue;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_issuerName != null)  {
       msg.add (ISSUER_NAME_KEY, null, _issuerName);

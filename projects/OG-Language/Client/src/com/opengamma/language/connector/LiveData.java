@@ -15,7 +15,7 @@ public abstract class LiveData extends com.opengamma.language.connector.UserMess
   protected LiveData (final LiveData source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static LiveData fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {

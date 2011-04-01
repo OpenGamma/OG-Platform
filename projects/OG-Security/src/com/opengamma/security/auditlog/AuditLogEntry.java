@@ -11,7 +11,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
@@ -123,7 +123,7 @@ public class AuditLogEntry {
     _timestamp = timestamp;
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory fudgeMessageFactory) {
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add("user", getUser());
     msg.add("originatingSystem", getOriginatingSystem());

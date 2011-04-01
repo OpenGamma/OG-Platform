@@ -15,7 +15,7 @@ public abstract class Procedure extends com.opengamma.language.connector.UserMes
   protected Procedure (final Procedure source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
   public static Procedure fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
