@@ -51,6 +51,11 @@ public class WebBatchesResource extends AbstractWebBatchResource {
       @QueryParam("observationDate") String observationDate,
       @QueryParam("observationTime") String observationTime,
       @Context UriInfo uriInfo) {
+    FlexiBean out = createSearchResultData(page, pageSize, observationDate, observationTime, uriInfo);
+    return getFreemarker().build("batches/batches.ftl", out);
+  }
+
+  private FlexiBean createSearchResultData(int page, int pageSize, String observationDate, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     BatchSearchRequest searchRequest = new BatchSearchRequest();
@@ -71,7 +76,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
       out.put("searchResult", searchResult);
     }
-    return getFreemarker().build("batches/batches.ftl", out);
+    return out;
   }
 
   @GET
@@ -82,26 +87,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
       @QueryParam("observationDate") String observationDate,
       @QueryParam("observationTime") String observationTime,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createRootData();
-
-    BatchSearchRequest searchRequest = new BatchSearchRequest();
-
-    observationDate = StringUtils.trimToNull(observationDate);
-    if (observationDate != null) {
-      searchRequest.setObservationDate(LocalDate.parse(observationDate));
-    }
-
-    observationTime = StringUtils.trimToNull(observationTime);
-    searchRequest.setObservationTime(observationTime);
-
-    searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
-    out.put("searchRequest", searchRequest);
-
-    if (data().getUriInfo().getQueryParameters().size() > 0) {
-      BatchSearchResult searchResult = data().getBatchDbManager().search(searchRequest);
-      out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
-      out.put("searchResult", searchResult);
-    }
+    FlexiBean out = createSearchResultData(page, pageSize, observationDate, observationTime, uriInfo);
     return getFreemarker().build("batches/jsonbatches.ftl", out);
   }
 

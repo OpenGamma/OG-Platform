@@ -76,9 +76,9 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BLOOMBERG";
   
-  private static final String[] DATA_FIELDS = new String[] { CLOSE_DATA_FIELD, "VOLUME" };
-  private static final String[] DATA_PROVIDERS = new String[] { "UNKNOWN", CMPL_DATA_PROVIDER, "CMPT" };
-  private static final String[] DATA_SOURCES = new String[] { BBG_DATA_SOURCE, "REUTERS", "JPM" };
+  private static final String[] DATA_FIELDS = new String[] {CLOSE_DATA_FIELD, "VOLUME"};
+  private static final String[] DATA_PROVIDERS = new String[] {CMPL_DATA_PROVIDER, "CMPT"};
+  private static final String[] DATA_SOURCES = new String[] {BBG_DATA_SOURCE, "REUTERS"};
 
   private static final LocalDate DEFAULT_START = DateUtil.previousWeekDay().minusDays(7);
 
@@ -308,18 +308,19 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void searchByIdentifierBundle() throws Exception {
     List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
-      TimeSeriesSearchResult<T> searchResult = search(null, null, expectedTSDoc.getIdentifiers().asIdentifierBundle(), expectedTSDoc.getDataField(), expectedTSDoc.getDataProvider(), expectedTSDoc.getDataSource(), expectedTSDoc.getObservationTime(), true, false);
-      assertNotNull(searchResult);
-      List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
-      assertNotNull(documents);
-      assertTrue(documents.size() == 1);
-      
-      TimeSeriesDocument<T> searchedDoc = documents.get(0);
-      assertNotNull(searchedDoc);
-      
-      assertEqualTimeSeriesDocument(expectedTSDoc, searchedDoc);
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(expectedTS);
+    
+    TimeSeriesSearchResult<T> searchResult = search(null, null, tsDoc.getIdentifiers().asIdentifierBundle(), tsDoc.getDataField(), tsDoc.getDataProvider(), tsDoc.getDataSource(), tsDoc.getObservationTime(), true, false);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(documents.size() == 1);
+    
+    TimeSeriesDocument<T> searchedDoc = documents.get(0);
+    assertNotNull(searchedDoc);
+    
+    assertEqualTimeSeriesDocument(tsDoc, searchedDoc);
+    
   }
 
   private TimeSeriesSearchResult<T> search(LocalDate currentDate, UniqueIdentifier timeSeriesId, IdentifierBundle bundle, String dataField, String dataProvider, String dataSource, String observationTime, boolean loadTimeSeries, boolean loadDates) {    
@@ -342,55 +343,55 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void searchByIdentifierValue() throws Exception {
     List<TimeSeriesDocument<T>> expectedTS = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> expectedTSDoc : expectedTS) {
-      TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
-      IdentifierWithDates identifierWithDates = expectedTSDoc.getIdentifiers().getIdentifiers().iterator().next();
-      request.setIdentifierValue(identifierWithDates.asIdentifier().getValue());
-      request.setDataField(expectedTSDoc.getDataField());
-      request.setDataProvider(expectedTSDoc.getDataProvider());
-      request.setDataSource(expectedTSDoc.getDataSource());
-      request.setObservationTime(expectedTSDoc.getObservationTime());
-      request.setLoadTimeSeries(true);
-      
-      TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(request);
-      assertNotNull(searchResult);
-      List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
-      assertNotNull(documents);
-      assertTrue(documents.size() == 1);
-      
-      TimeSeriesDocument<T> searchedDoc = documents.get(0);
-      assertNotNull(searchedDoc);
-      
-      assertEqualTimeSeriesDocument(expectedTSDoc, searchedDoc);
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(expectedTS);
+    TimeSeriesSearchRequest<T> request = new TimeSeriesSearchRequest<T>();
+    IdentifierWithDates identifierWithDates = tsDoc.getIdentifiers().getIdentifiers().iterator().next();
+    request.setIdentifierValue(identifierWithDates.asIdentifier().getValue());
+    request.setDataField(tsDoc.getDataField());
+    request.setDataProvider(tsDoc.getDataProvider());
+    request.setDataSource(tsDoc.getDataSource());
+    request.setObservationTime(tsDoc.getObservationTime());
+    request.setLoadTimeSeries(true);
+    
+    TimeSeriesSearchResult<T> searchResult = _tsMaster.searchTimeSeries(request);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(documents.size() == 1);
+    
+    TimeSeriesDocument<T> searchedDoc = documents.get(0);
+    assertNotNull(searchedDoc);
+    
+    assertEqualTimeSeriesDocument(tsDoc, searchedDoc);
+    
   }
   
   @Test
   public void searchByFieldProviderSource() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      TimeSeriesSearchResult<T> searchResult = search(null, null, tsDoc.getIdentifiers().asIdentifierBundle(), tsDoc.getDataField(), tsDoc.getDataProvider(), tsDoc.getDataSource(), tsDoc.getObservationTime(), true, false);
-      assertNotNull(searchResult);
-      List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
-      assertNotNull(documents);
-      assertTrue(documents.size() == 1);
-      
-      assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    TimeSeriesSearchResult<T> searchResult = search(null, null, tsDoc.getIdentifiers().asIdentifierBundle(), tsDoc.getDataField(), tsDoc.getDataProvider(), tsDoc.getDataSource(), tsDoc.getObservationTime(), true, false);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(documents.size() == 1);
+    
+    assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
   }
   
   @Test
   public void searchByUID() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      TimeSeriesSearchResult<T> searchResult = search(null, tsDoc.getUniqueId(), null, null, null, null, null, true, false);
-      assertNotNull(searchResult);
-      List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
-      assertNotNull(documents);
-      assertTrue(documents.size() == 1);
-      
-      assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    TimeSeriesSearchResult<T> searchResult = search(null, tsDoc.getUniqueId(), null, null, null, null, null, true, false);
+    assertNotNull(searchResult);
+    List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
+    assertNotNull(documents);
+    assertTrue(documents.size() == 1);
+    assertEqualTimeSeriesDocument(tsDoc, documents.get(0));
+    
   }
   
   @Test
@@ -417,8 +418,7 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
             assertEquals(convert(start), timeSeries.getEarliestTime());
             tsDocument.setTimeSeries(timeSeries);
             
-            tsDocument = _tsMaster.addTimeSeries(tsDocument);
-            
+            tsDocument = _tsMaster.addTimeSeries(tsDocument);         
             assertNotNull(tsDocument);
             assertNotNull(tsDocument.getUniqueId());
             
@@ -484,39 +484,45 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void updateTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      tsDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
-      
-      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
-      
-      //delete dataPoints, set with empty timeseries
-      tsDoc.setTimeSeries(getEmptyTimeSeries()); 
-      updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
-      
-      assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
-    }
+    assertFalse(tsList.isEmpty());
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    tsDoc.setTimeSeries(makeRandomTimeSeries(DEFAULT_START, 7));
+    TimeSeriesDocument<T> updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
+    
+    assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
+    
+    //delete dataPoints, set with empty timeseries
+    tsDoc.setTimeSeries(getEmptyTimeSeries()); 
+    updatedDoc = _tsMaster.updateTimeSeries(tsDoc);
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    assertEquals(tsDoc.getUniqueId(), updatedDoc.getUniqueId());
+    
+    assertEqualTimeSeriesDocument(updatedDoc, _tsMaster.getTimeSeries(updatedDoc.getUniqueId()));
+    
   }
   
+  private TimeSeriesDocument<T> getRandonTimeSeriesDocument(List<TimeSeriesDocument<T>> tsList) {
+    int randIndex = _random.nextInt(tsList.size());
+    return tsList.get(randIndex);
+  }
+
   @Test
   public void removeTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      _tsMaster.removeTimeSeries(tsDoc.getUniqueId());
-      try {
-        _tsMaster.getTimeSeries(tsDoc.getUniqueId());
-        fail();
-      } catch(DataNotFoundException ex) {
-        //do nothing
-      }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    _tsMaster.removeTimeSeries(tsDoc.getUniqueId());
+    try {
+      _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+      fail();
+    } catch(DataNotFoundException ex) {
+      //do nothing
     }
-    addAndTestTimeSeries();
   }
   
   @Test
@@ -544,28 +550,28 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void resolveIdentifier() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      IdentifierBundle bundle = tsDoc.getIdentifiers().asIdentifierBundle();
-      UniqueIdentifier resolveIdentifier = _tsMaster.resolveIdentifier(bundle, tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField());
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    IdentifierBundle bundle = tsDoc.getIdentifiers().asIdentifierBundle();
+    UniqueIdentifier resolveIdentifier = _tsMaster.resolveIdentifier(bundle, tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField());
+    assertNotNull(resolveIdentifier);
+    assertEquals(tsDoc.getUniqueId(), resolveIdentifier);
+    
+    for (Identifier identifier : bundle) {
+      resolveIdentifier = _tsMaster.resolveIdentifier(IdentifierBundle.of(identifier), tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField());
       assertNotNull(resolveIdentifier);
       assertEquals(tsDoc.getUniqueId(), resolveIdentifier);
-      
-      for (Identifier identifier : bundle) {
-        resolveIdentifier = _tsMaster.resolveIdentifier(IdentifierBundle.of(identifier), tsDoc.getDataSource(), tsDoc.getDataProvider(), tsDoc.getDataField());
-        assertNotNull(resolveIdentifier);
-        assertEquals(tsDoc.getUniqueId(), resolveIdentifier);
-      }
-      
-      resolveIdentifier = _tsMaster.resolveIdentifier(bundle, "INVALID", CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-      assertNull(resolveIdentifier);
-      resolveIdentifier = _tsMaster.resolveIdentifier(bundle, BBG_DATA_SOURCE, "INVALID", CLOSE_DATA_FIELD);
-      assertNull(resolveIdentifier);
-      
-      resolveIdentifier = _tsMaster.resolveIdentifier(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, "INVALID");
-      assertNull(resolveIdentifier);
     }
     
-    UniqueIdentifier resolveIdentifier = _tsMaster.resolveIdentifier(IdentifierBundle.of(Identifier.of("Invalid", "Invalid")), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    resolveIdentifier = _tsMaster.resolveIdentifier(bundle, "INVALID", CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
+    assertNull(resolveIdentifier);
+    resolveIdentifier = _tsMaster.resolveIdentifier(bundle, BBG_DATA_SOURCE, "INVALID", CLOSE_DATA_FIELD);
+    assertNull(resolveIdentifier);
+    
+    resolveIdentifier = _tsMaster.resolveIdentifier(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, "INVALID");
+    assertNull(resolveIdentifier);
+        
+    resolveIdentifier = _tsMaster.resolveIdentifier(IdentifierBundle.of(Identifier.of("Invalid", "Invalid")), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertNull(resolveIdentifier);
     
     //check null identifiers
@@ -634,20 +640,21 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void appendTimeSeries() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
-      LocalDate start = convert(timeSeries.getLatestTime()).plusDays(1);
-      DoubleTimeSeries<T> appendedTS = makeRandomTimeSeries(start, 7);
-      DoubleTimeSeries<T> mergedTS = timeSeries.noIntersectionOperation(appendedTS);
-      // append timeseries to existing identifiers in the datastore
-      tsDoc.setTimeSeries(appendedTS);
-      _tsMaster.appendTimeSeries(tsDoc);
-      
-      TimeSeriesDocument<T> latestDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
-      assertNotNull(latestDoc);
-      tsDoc.setTimeSeries(mergedTS);
-      assertEqualTimeSeriesDocument(tsDoc, latestDoc);
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
+    LocalDate start = convert(timeSeries.getLatestTime()).plusDays(1);
+    DoubleTimeSeries<T> appendedTS = makeRandomTimeSeries(start, 7);
+    DoubleTimeSeries<T> mergedTS = timeSeries.noIntersectionOperation(appendedTS);
+    // append timeseries to existing identifiers in the datastore
+    tsDoc.setTimeSeries(appendedTS);
+    _tsMaster.appendTimeSeries(tsDoc);
+    
+    TimeSeriesDocument<T> latestDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertNotNull(latestDoc);
+    tsDoc.setTimeSeries(mergedTS);
+    assertEqualTimeSeriesDocument(tsDoc, latestDoc);
+    
   }
   
   @Test
@@ -667,7 +674,7 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
     List<TimeSeriesDocument<T>> cmplDataProviders = new ArrayList<TimeSeriesDocument<T>>();
     List<TimeSeriesDocument<T>> bbgDataSources = new ArrayList<TimeSeriesDocument<T>>();
     List<TimeSeriesDocument<T>> lcloseObservations = new ArrayList<TimeSeriesDocument<T>>();
-    
+        
     for (TimeSeriesDocument<T> tsDoc : tsList) {
       //set timeseries to null for metadata test
       tsDoc.setTimeSeries(null);
@@ -697,29 +704,29 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
     searchResult = search(null, null, null, CLOSE_DATA_FIELD, null, null, null, false, false);
     documents = searchResult.getDocuments();
     assertTrue(closeDataFields.size() == documents.size());
-    for (TimeSeriesDocument<T> tsDoc : documents) {
-      assertTrue(closeDataFields.contains(tsDoc));
+    for (TimeSeriesDocument<T> testDoc : documents) {
+      assertTrue(closeDataFields.contains(testDoc));
     }
 
     searchResult = search(null, null, null, null, null, BBG_DATA_SOURCE, null, false, false);
     documents = searchResult.getDocuments();
     assertTrue(bbgDataSources.size() == documents.size());
-    for (TimeSeriesDocument<T> tsDoc : documents) {
-      assertTrue(bbgDataSources.contains(tsDoc));
+    for (TimeSeriesDocument<T> testDoc : documents) {
+      assertTrue(bbgDataSources.contains(testDoc));
     }
     
     searchResult = search(null, null, null, null, null, null, LCLOSE_OBSERVATION_TIME, false, false);
     documents = searchResult.getDocuments();
     assertTrue(lcloseObservations.size() == documents.size());
-    for (TimeSeriesDocument<T> tsDoc : documents) {
-      assertTrue(lcloseObservations.contains(tsDoc));
+    for (TimeSeriesDocument<T> testDoc : documents) {
+      assertTrue(lcloseObservations.contains(testDoc));
     }
     
     searchResult = search(null, null, null, null, CMPL_DATA_PROVIDER, null, null, false, false);
     documents = searchResult.getDocuments();
     assertTrue(cmplDataProviders.size() == documents.size());
-    for (TimeSeriesDocument<T> tsDoc : documents) {
-      assertTrue(cmplDataProviders.contains(tsDoc));
+    for (TimeSeriesDocument<T> testDoc : documents) {
+      assertTrue(cmplDataProviders.contains(testDoc));
     }
   }
   
@@ -732,54 +739,55 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
     List<TimeSeriesDocument<T>> documents = searchResult.getDocuments();
     assertNotNull(documents);
     assertTrue(tsList.size() == documents.size());
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      //set timeseries to null for metadata test and set dates
-      tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
-      tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
-      tsDoc.setTimeSeries(null);
-      assertTrue(documents.contains(tsDoc));
-    }
+    
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    //set timeseries to null for metadata test and set dates
+    tsDoc.setEarliest(tsDoc.getTimeSeries().getEarliestTime());
+    tsDoc.setLatest(tsDoc.getTimeSeries().getLatestTime());
+    tsDoc.setTimeSeries(null);
+    assertTrue(documents.contains(tsDoc));
+    
   }
   
   @Test
   public void addDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
-      //add datapoint
-      T latestTime = timeSeries.getLatestTime();
-      LocalDate date = convert(latestTime).plusDays(1);
-      while (!isWeekday(date)) {
-        date = date.plusDays(1);
-      }
-      double value = Math.random();
-      List<T> dates = timeSeries.times();
-      List<Double> values = timeSeries.values();
-      dates.add(convert(date));
-      values.add(value);
-      DoubleTimeSeries<T> updatedTS = getTimeSeries(dates, values); 
-      
-      String scheme = tsDoc.getUniqueId().getScheme();
-      String timeSeriesID = tsDoc.getUniqueId().getValue();
-      DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
-      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
-      dataPointDocument.setDate(convert(date));
-      dataPointDocument.setValue(value);
-      
-      dataPointDocument = _tsMaster.addDataPoint(dataPointDocument);
-      assertNotNull(dataPointDocument);
-      assertEquals(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(convert(date))), dataPointDocument.getDataPointId());
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      assertEquals(updatedTS, updatedDoc.getTimeSeries());
-      
-      DataPointDocument<T> actualDDoc = _tsMaster.getDataPoint(dataPointDocument.getDataPointId());
-      assertEquals(tsDoc.getUniqueId(), actualDDoc.getTimeSeriesId());
-      assertEquals(dataPointDocument.getDataPointId(), actualDDoc.getDataPointId());
-      assertEquals(dataPointDocument.getDate(), actualDDoc.getDate());
-      assertEquals(dataPointDocument.getValue(), actualDDoc.getValue());
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
+    //add datapoint
+    T latestTime = timeSeries.getLatestTime();
+    LocalDate date = convert(latestTime).plusDays(1);
+    while (!isWeekday(date)) {
+      date = date.plusDays(1);
     }
+    double value = Math.random();
+    List<T> dates = timeSeries.times();
+    List<Double> values = timeSeries.values();
+    dates.add(convert(date));
+    values.add(value);
+    DoubleTimeSeries<T> updatedTS = getTimeSeries(dates, values); 
+    
+    String scheme = tsDoc.getUniqueId().getScheme();
+    String timeSeriesID = tsDoc.getUniqueId().getValue();
+    DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
+    dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+    dataPointDocument.setDate(convert(date));
+    dataPointDocument.setValue(value);
+    
+    dataPointDocument = _tsMaster.addDataPoint(dataPointDocument);
+    assertNotNull(dataPointDocument);
+    assertEquals(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(convert(date))), dataPointDocument.getDataPointId());
+    TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    assertEquals(updatedTS, updatedDoc.getTimeSeries());
+    
+    DataPointDocument<T> actualDDoc = _tsMaster.getDataPoint(dataPointDocument.getDataPointId());
+    assertEquals(tsDoc.getUniqueId(), actualDDoc.getTimeSeriesId());
+    assertEquals(dataPointDocument.getDataPointId(), actualDDoc.getDataPointId());
+    assertEquals(dataPointDocument.getDate(), actualDDoc.getDate());
+    assertEquals(dataPointDocument.getValue(), actualDDoc.getValue());
   }
   
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -794,84 +802,86 @@ public abstract class TimeSeriesMasterTest<T> extends DBTest {
   @Test
   public void updateDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDoc : tsList) {
-      DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
-      //update datapoint
-      List<T> dates = timeSeries.times();
-      List<Double> values = timeSeries.values();
-      int updateIdx = _random.nextInt(timeSeries.size());
-      T date = timeSeries.getTime(updateIdx);
-      double newValue = _random.nextDouble();
-      values.set(updateIdx, newValue);
-      
-      DoubleTimeSeries<T> updatedTS = getTimeSeries(dates, values);
-      
-      String scheme = tsDoc.getUniqueId().getScheme();
-      String timeSeriesID = tsDoc.getUniqueId().getValue();
-      DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
-      dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
-      dataPointDocument.setDataPointId(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(date)));
-      dataPointDocument.setDate(date);
-      dataPointDocument.setValue(newValue);
-      
-      DataPointDocument<T> updated = _tsMaster.updateDataPoint(dataPointDocument);
-      assertNotNull(updated);
-      assertEquals(dataPointDocument.getDataPointId(), updated.getDataPointId());
-      assertEquals(dataPointDocument.getTimeSeriesId(), updated.getTimeSeriesId());
-      assertEquals(dataPointDocument.getDate(), updated.getDate());
-      assertEquals(dataPointDocument.getValue(), updated.getValue());
-      
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      assertEquals(updatedTS, updatedDoc.getTimeSeries());
-    }
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
+    //update datapoint
+    List<T> dates = timeSeries.times();
+    List<Double> values = timeSeries.values();
+    int updateIdx = _random.nextInt(timeSeries.size());
+    T date = timeSeries.getTime(updateIdx);
+    double newValue = _random.nextDouble();
+    values.set(updateIdx, newValue);
+    
+    DoubleTimeSeries<T> updatedTS = getTimeSeries(dates, values);
+    
+    String scheme = tsDoc.getUniqueId().getScheme();
+    String timeSeriesID = tsDoc.getUniqueId().getValue();
+    DataPointDocument<T> dataPointDocument = new DataPointDocument<T>();
+    dataPointDocument.setTimeSeriesId(tsDoc.getUniqueId());
+    dataPointDocument.setDataPointId(UniqueIdentifier.of(scheme, timeSeriesID + "/" + print(date)));
+    dataPointDocument.setDate(date);
+    dataPointDocument.setValue(newValue);
+    
+    DataPointDocument<T> updated = _tsMaster.updateDataPoint(dataPointDocument);
+    assertNotNull(updated);
+    assertEquals(dataPointDocument.getDataPointId(), updated.getDataPointId());
+    assertEquals(dataPointDocument.getTimeSeriesId(), updated.getTimeSeriesId());
+    assertEquals(dataPointDocument.getDate(), updated.getDate());
+    assertEquals(dataPointDocument.getValue(), updated.getValue());
+    
+    TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    assertEquals(updatedTS, updatedDoc.getTimeSeries());
     
   }
   
   @Test
   public void removeDataPoint() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDocument : tsList) {
-      DoubleTimeSeries<T> timeSeries = tsDocument.getTimeSeries();
-      //delete random datapoints
-      List<T> dates = timeSeries.times();
-      List<Double> values = timeSeries.values();
-      int deleteIdx = _random.nextInt(timeSeries.size());
-      T deletedDate = dates.remove(deleteIdx);
-      values.remove(deleteIdx);
-      
-      DoubleTimeSeries<T> deletedTS = getTimeSeries(dates, values);
-      String scheme = tsDocument.getUniqueId().getScheme();
-      String tsId = tsDocument.getUniqueId().getValue();
-      _tsMaster.removeDataPoint(UniqueIdentifier.of(scheme, tsId + "/" + print(deletedDate)));
-      
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      assertEquals(deletedTS, updatedDoc.getTimeSeries());
-    }
+    
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
+    //delete random datapoints
+    List<T> dates = timeSeries.times();
+    List<Double> values = timeSeries.values();
+    int deleteIdx = _random.nextInt(timeSeries.size());
+    T deletedDate = dates.remove(deleteIdx);
+    values.remove(deleteIdx);
+    
+    DoubleTimeSeries<T> deletedTS = getTimeSeries(dates, values);
+    String scheme = tsDoc.getUniqueId().getScheme();
+    String tsId = tsDoc.getUniqueId().getValue();
+    _tsMaster.removeDataPoint(UniqueIdentifier.of(scheme, tsId + "/" + print(deletedDate)));
+    
+    TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    assertEquals(deletedTS, updatedDoc.getTimeSeries());
+    
   }
   
   @Test
   public void removeDataPoints() throws Exception {
     List<TimeSeriesDocument<T>> tsList = addAndTestTimeSeries();
-    for (TimeSeriesDocument<T> tsDocument : tsList) {
-      DoubleTimeSeries<T> timeSeries = tsDocument.getTimeSeries();
-      int originalSize = timeSeries.size();
-      int desiredSize = originalSize / 2;
-      T firstDateToRetain = timeSeries.getTime(timeSeries.size() - desiredSize);
-      _tsMaster.removeDataPoints(tsDocument.getUniqueId(), firstDateToRetain);
-      
-      TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDocument.getUniqueId());
+    TimeSeriesDocument<T> tsDoc = getRandonTimeSeriesDocument(tsList);
+    
+    DoubleTimeSeries<T> timeSeries = tsDoc.getTimeSeries();
+    int originalSize = timeSeries.size();
+    int desiredSize = originalSize / 2;
+    T firstDateToRetain = timeSeries.getTime(timeSeries.size() - desiredSize);
+    _tsMaster.removeDataPoints(tsDoc.getUniqueId(), firstDateToRetain);
+    
+    TimeSeriesDocument<T> updatedDoc = _tsMaster.getTimeSeries(tsDoc.getUniqueId());
 
-      assertNotNull(updatedDoc);
-      assertNotNull(updatedDoc.getUniqueId());
-      
-      assertEquals(desiredSize, updatedDoc.getTimeSeries().size());
-      assertEquals(firstDateToRetain, updatedDoc.getTimeSeries().getEarliestTime());
-      assertEquals(timeSeries.getLatestTime(), updatedDoc.getTimeSeries().getLatestTime());
-    }
+    assertNotNull(updatedDoc);
+    assertNotNull(updatedDoc.getUniqueId());
+    
+    assertEquals(desiredSize, updatedDoc.getTimeSeries().size());
+    assertEquals(firstDateToRetain, updatedDoc.getTimeSeries().getEarliestTime());
+    assertEquals(timeSeries.getLatestTime(), updatedDoc.getTimeSeries().getLatestTime());
+    
   }
   
   @Test

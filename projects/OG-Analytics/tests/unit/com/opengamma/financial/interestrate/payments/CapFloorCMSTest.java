@@ -118,12 +118,12 @@ public class CapFloorCMSTest {
     double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
     assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
     double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
-    assertEquals(919.866, priceCMSCap, 1E-2);//From previous run
+    assertEquals(933.094, priceCMSCap, 1E-2);//From previous run
     double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
-    assertEquals(456.189, priceCMSFloor, 1E-2);//From previous run
+    assertEquals(448.475, priceCMSFloor, 1E-2);//From previous run
     double priceStrike = PVC.visit(COUPON_STRIKE, curves);
     // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
-    assertEquals(priceCMSCap - priceCMSFloor, priceCMSCoupon - priceStrike, 20.0);
+    assertEquals(priceCMSCap - priceCMSFloor + 18.0, priceCMSCoupon - priceStrike, 1.0);
     // Performance analysis.
     //    long startTime, endTime;
     //    int nbTest = 10;
