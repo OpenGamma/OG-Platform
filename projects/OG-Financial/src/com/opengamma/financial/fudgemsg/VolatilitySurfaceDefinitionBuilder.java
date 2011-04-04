@@ -28,7 +28,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceDefinition<?, ?> object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (Object x : object.getXs()) {

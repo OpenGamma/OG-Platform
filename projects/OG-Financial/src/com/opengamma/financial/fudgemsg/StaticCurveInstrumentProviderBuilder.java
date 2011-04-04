@@ -30,7 +30,7 @@ public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<Static
     MutableFudgeMsg message = context.newMessage();
     FudgeSerializationContext.addClassHeader(message, StaticCurveInstrumentProvider.class);
     message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
-    context.objectToFudgeMsg(message, "instrument", null, object.getInstrument(null, null));
+    context.addToMessage(message, "instrument", null, object.getInstrument(null, null));
     return message; 
   }
 

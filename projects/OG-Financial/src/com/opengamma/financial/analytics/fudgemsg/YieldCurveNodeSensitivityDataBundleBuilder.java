@@ -34,9 +34,9 @@ public class YieldCurveNodeSensitivityDataBundleBuilder extends AbstractFudgeBui
 
   @Override
   protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurveNodeSensitivityDataBundle object) {
-    context.objectToFudgeMsg(message, CURRENCY_NAME, null, object.getCurrency());
-    context.objectToFudgeMsg(message, MATRIX_NAME, null, object.getLabelledMatrix());
-    context.objectToFudgeMsg(message, CURVE_NAME, null, object.getYieldCurveName());
+    context.addToMessage(message, CURRENCY_NAME, null, object.getCurrency());
+    context.addToMessage(message, MATRIX_NAME, null, object.getLabelledMatrix());
+    context.addToMessage(message, CURVE_NAME, null, object.getYieldCurveName());
   }
 
 }

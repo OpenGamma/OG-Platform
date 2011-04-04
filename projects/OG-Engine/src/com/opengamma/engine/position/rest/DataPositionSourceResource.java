@@ -84,7 +84,7 @@ public class DataPositionSourceResource {
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
     MutableFudgeMsg msg = fsc.newMessage();
-    fsc.objectToFudgeMsg(msg, "portfolio", null, result);
+    fsc.addToMessage(msg, "portfolio", null, result);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -98,7 +98,7 @@ public class DataPositionSourceResource {
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
     MutableFudgeMsg msg = fsc.newMessage();
-    fsc.objectToFudgeMsg(msg, "node", null, result);
+    fsc.addToMessage(msg, "node", null, result);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -112,7 +112,7 @@ public class DataPositionSourceResource {
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
     MutableFudgeMsg msg = fsc.newMessage();
-    fsc.objectToFudgeMsg(msg, "position", null, result);
+    fsc.addToMessage(msg, "position", null, result);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -126,7 +126,7 @@ public class DataPositionSourceResource {
     }
     final FudgeSerializationContext fsc = getFudgeSerializationContext();
     MutableFudgeMsg msg = fsc.newMessage();
-    fsc.objectToFudgeMsg(msg, "trade", null, result);
+    fsc.addToMessage(msg, "trade", null, result);
     return new FudgeMsgEnvelope(msg);
   }
 

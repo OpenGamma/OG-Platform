@@ -64,19 +64,19 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Trade trade) {
     final MutableFudgeMsg message = context.newMessage();
     if (trade.getUniqueId() != null) {
-      context.objectToFudgeMsg(message, FIELD_UNIQUE_ID, null, trade.getUniqueId());
+      context.addToMessage(message, FIELD_UNIQUE_ID, null, trade.getUniqueId());
     }
     if (trade.getParentPositionId() != null) {
-      context.objectToFudgeMsg(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
+      context.addToMessage(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
     }
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
     }
     if (trade.getSecurityKey() != null) {
-      context.objectToFudgeMsg(message, FIELD_SECURITYKEY, null, trade.getSecurityKey());
+      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityKey());
     }
     if (trade.getCounterparty() != null) {
-      context.objectToFudgeMsg(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
+      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
     }
     if (trade.getTradeDate() != null) {
       message.add(FIELD_TRADE_DATE, null, trade.getTradeDate());

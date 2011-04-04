@@ -48,7 +48,7 @@ public class SimpleFunctionParameters implements FunctionParameters {
 
   public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeMsg message) {
     for (Map.Entry<String, Object> parameter : _parameters.entrySet()) {
-      context.objectToFudgeMsgWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
+      context.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
     }
   }
 

@@ -67,7 +67,7 @@ public class FinancialTestBase {
     final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
     final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
     final MutableFudgeMsg messageIn = fudgeSerializationContext.newMessage();
-    fudgeSerializationContext.objectToFudgeMsg(messageIn, "test", null, object);
+    fudgeSerializationContext.addToMessage(messageIn, "test", null, object);
     s_logger.info("message {}", messageIn);
     final FudgeMsg messageOut = cycleMessage(messageIn);
     s_logger.info("message {}", messageOut);

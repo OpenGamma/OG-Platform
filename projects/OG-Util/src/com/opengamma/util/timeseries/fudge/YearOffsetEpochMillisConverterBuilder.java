@@ -27,9 +27,9 @@ public class YearOffsetEpochMillisConverterBuilder implements FudgeBuilder<YearO
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, 
                                                  YearOffsetEpochMillisConverter converter) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, null, 0, converter.getClass().getName());
-    context.objectToFudgeMsg(message, null, 1, converter.getTimeZone310());
-    context.objectToFudgeMsg(message, null, 2, converter.getZonedOffset().toOffsetDateTime());
+    context.addToMessage(message, null, 0, converter.getClass().getName());
+    context.addToMessage(message, null, 1, converter.getTimeZone310());
+    context.addToMessage(message, null, 2, converter.getZonedOffset().toOffsetDateTime());
     return message;
   }
 

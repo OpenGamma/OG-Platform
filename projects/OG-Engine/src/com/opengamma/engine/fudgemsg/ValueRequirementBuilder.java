@@ -39,7 +39,7 @@ public class ValueRequirementBuilder implements FudgeBuilder<ValueRequirement> {
     msg.add(VALUE_NAME_FIELD_NAME, valueName);
     ComputationTargetSpecificationBuilder.addMessageFields(context, msg, object.getTargetSpecification());
     if (!object.getConstraints().isEmpty()) {
-      context.objectToFudgeMsg(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
+      context.addToMessage(msg, CONSTRAINTS_FIELD_NAME, null, object.getConstraints());
     }
     return msg;
   }

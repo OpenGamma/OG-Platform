@@ -104,8 +104,8 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
     @Override
     public void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final GridInterpolator2D object) {
-      context.objectToFudgeMsg(message, X_FIELD_NAME, null, object.getXInterpolator());
-      context.objectToFudgeMsg(message, Y_FIELD_NAME, null, object.getYInterpolator());
+      context.addToMessage(message, X_FIELD_NAME, null, object.getXInterpolator());
+      context.addToMessage(message, Y_FIELD_NAME, null, object.getYInterpolator());
     }
 
     @SuppressWarnings("unchecked")

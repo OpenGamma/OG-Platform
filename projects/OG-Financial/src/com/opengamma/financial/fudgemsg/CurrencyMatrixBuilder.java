@@ -130,7 +130,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
           @Override
           public Void visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
             final MutableFudgeMsg entries = getOrCreateMessage(context, sourceISO, reqValues);
-            context.objectToFudgeMsg(entries, targetISO, null, valueRequirement);
+            context.addToMessage(entries, targetISO, null, valueRequirement);
             if (suppressInverse) {
               entries.add(targetISO, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
             }
@@ -149,7 +149,7 @@ public class CurrencyMatrixBuilder implements FudgeBuilder<CurrencyMatrix> {
     if (!crossValues.isEmpty()) {
       msg.add(CROSS_CONVERT_FIELD_NAME, null, FudgeWireType.SUB_MESSAGE, mapToMessage(context, crossValues));
     }
-    context.objectToFudgeMsg(msg, UNIQUE_ID_FIELD_NAME, null, object.getUniqueId());
+    context.addToMessage(msg, UNIQUE_ID_FIELD_NAME, null, object.getUniqueId());
     return msg;
   }
 

@@ -69,7 +69,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
   private static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final PortfolioNode node) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueId());
+    context.addToMessage(message, FIELD_IDENTIFIER, null, node.getUniqueId());
     message.add(FIELD_NAME, node.getName());
     message.add(FIELD_POSITIONS, encodePositions(context, node.getPositions()));
     message.add(FIELD_SUBNODES, encodeSubNodes(context, node.getChildNodes()));
@@ -79,7 +79,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
     final MutableFudgeMsg message = buildMessageImpl(context, node);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNodeId());
+    context.addToMessage(message, FIELD_PARENT, null, node.getParentNodeId());
     return message;
   }
 

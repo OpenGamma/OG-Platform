@@ -63,7 +63,7 @@ public class IsAlive extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNo
     super.toFudgeMsg (fudgeContext, msg);
     if (_job != null)  {
       for (com.opengamma.engine.view.calcnode.CalculationJobSpecification fudge1 : _job) {
-        fudgeContext.objectToFudgeMsgWithClassHeaders (msg, JOB_KEY, null, fudge1, com.opengamma.engine.view.calcnode.CalculationJobSpecification.class);
+        fudgeContext.addToMessageWithClassHeaders (msg, JOB_KEY, null, fudge1, com.opengamma.engine.view.calcnode.CalculationJobSpecification.class);
       }
     }
   }

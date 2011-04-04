@@ -47,7 +47,7 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
       if (value == null) {
         msg.add(entry.getKey(), null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else {
-        context.objectToFudgeMsg(msg, entry.getKey(), null, value);
+        context.addToMessage(msg, entry.getKey(), null, value);
       }
     }
     return msg;

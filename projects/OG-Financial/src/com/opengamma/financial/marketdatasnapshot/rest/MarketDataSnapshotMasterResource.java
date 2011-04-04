@@ -92,7 +92,7 @@ public class MarketDataSnapshotMasterResource {
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
       final MutableFudgeMsg resp = sctx.newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
-      sctx.objectToFudgeMsgWithClassHeaders(resp, "snapshot", null, document.getSnapshot(), StructuredMarketDataSnapshot.class);
+      sctx.addToMessageWithClassHeaders(resp, "snapshot", null, document.getSnapshot(), StructuredMarketDataSnapshot.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);

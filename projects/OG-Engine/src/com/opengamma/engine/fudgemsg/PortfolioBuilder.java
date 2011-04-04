@@ -32,9 +32,9 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
+    context.addToMessage(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
     message.add(FIELD_NAME, portfolio.getName());
-    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode());
+    context.addToMessage(message, FIELD_ROOT, null, portfolio.getRootNode());
     return message;
   }
 

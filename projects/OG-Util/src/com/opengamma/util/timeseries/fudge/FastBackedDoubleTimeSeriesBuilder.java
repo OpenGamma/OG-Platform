@@ -25,9 +25,9 @@ public abstract class FastBackedDoubleTimeSeriesBuilder<E, T extends FastBackedD
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, T object) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, null, 0, object.getClass().getName()); // we need to stick the class name in so receiver knows.
-    context.objectToFudgeMsg(message, null, 1, object.getConverter());
-    context.objectToFudgeMsg(message, null, 2, object.getFastSeries());
+    context.addToMessage(message, null, 0, object.getClass().getName()); // we need to stick the class name in so receiver knows.
+    context.addToMessage(message, null, 1, object.getConverter());
+    context.addToMessage(message, null, 2, object.getFastSeries());
     return message;
   }
   

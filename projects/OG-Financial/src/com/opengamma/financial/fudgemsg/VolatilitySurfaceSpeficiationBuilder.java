@@ -26,9 +26,9 @@ public class VolatilitySurfaceSpeficiationBuilder implements FudgeBuilder<Volati
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceSpecification object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
-    context.objectToFudgeMsg(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
+    context.addToMessage(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message; 
   }
 

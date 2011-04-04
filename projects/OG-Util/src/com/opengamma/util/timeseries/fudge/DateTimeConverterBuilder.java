@@ -24,8 +24,8 @@ public abstract class DateTimeConverterBuilder<T extends DateTimeConverter<?>> i
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, T converter) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, null, 0, converter.getClass().getName());
-    context.objectToFudgeMsg(message, null, 1, converter.getTimeZone());
+    context.addToMessage(message, null, 0, converter.getClass().getName());
+    context.addToMessage(message, null, 1, converter.getTimeZone());
     return message;
   }
   

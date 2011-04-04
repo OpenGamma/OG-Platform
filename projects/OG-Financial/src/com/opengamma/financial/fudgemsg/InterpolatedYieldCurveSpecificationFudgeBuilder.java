@@ -33,13 +33,13 @@ public class InterpolatedYieldCurveSpecificationFudgeBuilder implements FudgeBui
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, InterpolatedYieldCurveSpecification object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "curveDate", null, object.getCurveDate());
+    context.addToMessage(message, "curveDate", null, object.getCurveDate());
     message.add("name", object.getName());
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
-    context.objectToFudgeMsg(message, "region", null, object.getRegion());
-    context.objectToFudgeMsg(message, "interpolator", null, object.getInterpolator());
+    context.addToMessage(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "region", null, object.getRegion());
+    context.addToMessage(message, "interpolator", null, object.getInterpolator());
     for (FixedIncomeStripWithIdentifier resolvedStrip : object.getStrips()) {
-      context.objectToFudgeMsg(message, "resolvedStrips", null, resolvedStrip);
+      context.addToMessage(message, "resolvedStrips", null, resolvedStrip);
     }
     return message; 
   }

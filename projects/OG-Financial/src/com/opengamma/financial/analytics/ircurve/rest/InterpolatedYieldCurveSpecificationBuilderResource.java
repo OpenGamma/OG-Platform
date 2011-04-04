@@ -50,7 +50,7 @@ public class InterpolatedYieldCurveSpecificationBuilderResource {
     final InterpolatedYieldCurveSpecification curveSpecification = getUnderlying().buildCurve(curveDate, curveDefinition);
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeMsg msg = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(msg, "specification", null, curveSpecification, InterpolatedYieldCurveSpecification.class);
+    sctx.addToMessageWithClassHeaders(msg, "specification", null, curveSpecification, InterpolatedYieldCurveSpecification.class);
     return new FudgeMsgEnvelope(msg);
   }
 

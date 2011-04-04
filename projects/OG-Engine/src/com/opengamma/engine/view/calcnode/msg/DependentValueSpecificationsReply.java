@@ -68,7 +68,7 @@ public class DependentValueSpecificationsReply extends com.opengamma.engine.view
     super.toFudgeMsg (fudgeContext, msg);
     if (_valueSpecification != null)  {
       for (com.opengamma.engine.value.ValueSpecification fudge1 : _valueSpecification) {
-        fudgeContext.objectToFudgeMsgWithClassHeaders (msg, VALUE_SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
+        fudgeContext.addToMessageWithClassHeaders (msg, VALUE_SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
       }
     }
   }

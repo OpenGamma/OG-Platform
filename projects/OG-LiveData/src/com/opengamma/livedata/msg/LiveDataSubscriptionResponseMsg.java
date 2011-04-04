@@ -78,7 +78,7 @@ public class LiveDataSubscriptionResponseMsg implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_requestingUser != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, REQUESTING_USER_KEY, null, _requestingUser, com.opengamma.livedata.UserPrincipal.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, REQUESTING_USER_KEY, null, _requestingUser, com.opengamma.livedata.UserPrincipal.class);
     }
     if (_responses != null)  {
       for (com.opengamma.livedata.msg.LiveDataSubscriptionResponse fudge1 : _responses) {

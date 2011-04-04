@@ -35,7 +35,7 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
     msg.add(TYPE_FIELD_NAME, object.getType().name());
     UniqueIdentifier uid = object.getUniqueId();
     if (uid != null) {
-      context.objectToFudgeMsg(msg, IDENTIFIER_FIELD_NAME, null, uid);
+      context.addToMessage(msg, IDENTIFIER_FIELD_NAME, null, uid);
     }
   }
 

@@ -29,7 +29,7 @@ public class TimeSeriesMetaDataConfigurationBuilder implements FudgeBuilder<Time
     MutableFudgeMsg message = context.newMessage();
     for (TimeSeriesMetaDataRating rule : object.getRules()) {
 //      message.add("rule", context.objectToFudgeMsg(rule));
-      context.objectToFudgeMsg(message, "rules", null, rule);
+      context.addToMessage(message, "rules", null, rule);
     }
     return message;
   }

@@ -42,7 +42,7 @@ public class ResolveRequest implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_requestedSpecification != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
   }
   public static ResolveRequest fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {

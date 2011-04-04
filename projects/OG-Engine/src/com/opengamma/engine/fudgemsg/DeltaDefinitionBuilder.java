@@ -30,7 +30,7 @@ public class DeltaDefinitionBuilder implements FudgeBuilder<DeltaDefinition> {
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, DeltaDefinition object) {
     MutableFudgeMsg msg = context.newMessage();
     if (object.getNumberComparer() != null) {
-      context.objectToFudgeMsgWithClassHeaders(msg, NUMBER_COMPARER_KEY, null, object.getNumberComparer(), DeltaComparer.class);
+      context.addToMessageWithClassHeaders(msg, NUMBER_COMPARER_KEY, null, object.getNumberComparer(), DeltaComparer.class);
     }
     return msg;
   }

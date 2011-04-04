@@ -99,7 +99,7 @@ public class DataViewClientResource {
   public Response getLatestResult() {
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsg(msg, PATH_LATEST_RESULT, null, getViewClient().getLatestResult());
+    context.addToMessage(msg, PATH_LATEST_RESULT, null, getViewClient().getLatestResult());
     return Response.ok(new FudgeMsgEnvelope(msg)).build();
   }
   
@@ -149,7 +149,7 @@ public class DataViewClientResource {
   public Response runOneCycle(Long valuationTime) {
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsg(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
+    context.addToMessage(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
     return Response.ok(new FudgeMsgEnvelope(msg)).build();
   }
 

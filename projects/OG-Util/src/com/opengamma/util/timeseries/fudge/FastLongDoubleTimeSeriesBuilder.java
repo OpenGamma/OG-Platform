@@ -25,10 +25,10 @@ public abstract class FastLongDoubleTimeSeriesBuilder<T extends FastLongDoubleTi
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FastLongDoubleTimeSeries object) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, null, 0, object.getClass().getName());
-    context.objectToFudgeMsg(message, null, 1, object.getEncoding());
-    context.objectToFudgeMsg(message, null, 2, object.timesArrayFast());
-    context.objectToFudgeMsg(message, null, 3, object.valuesArrayFast());
+    context.addToMessage(message, null, 0, object.getClass().getName());
+    context.addToMessage(message, null, 1, object.getEncoding());
+    context.addToMessage(message, null, 2, object.timesArrayFast());
+    context.addToMessage(message, null, 3, object.valuesArrayFast());
     return message;
   }
 

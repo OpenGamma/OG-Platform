@@ -58,10 +58,10 @@ final class MathCurve {
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InterpolatedDoublesCurve object) {
-      context.objectToFudgeMsg(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.objectToFudgeMsg(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.objectToFudgeMsg(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
-      context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -97,8 +97,8 @@ final class MathCurve {
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final FunctionalDoublesCurve object) {
-      context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
-      context.objectToFudgeMsg(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
+      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+      context.addToMessage(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
       return;
     }
   }

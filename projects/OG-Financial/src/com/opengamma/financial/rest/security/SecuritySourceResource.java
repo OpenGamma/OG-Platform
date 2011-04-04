@@ -96,7 +96,7 @@ public class SecuritySourceResource {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
+    context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(uid), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -118,7 +118,7 @@ public class SecuritySourceResource {
     final MutableFudgeMsg msg = context.newMessage();
     final Collection<Security> securities = getSecuritySource().getSecurities(bundle);
     for (Security security : securities) {
-      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+      context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     }
     return new FudgeMsgEnvelope(msg);
   }
@@ -139,7 +139,7 @@ public class SecuritySourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
+    context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, getSecuritySource().getSecurity(bundle), Security.class);
     return new FudgeMsgEnvelope(msg);
   }
 
@@ -157,7 +157,7 @@ public class SecuritySourceResource {
     final MutableFudgeMsg msg = context.newMessage();
     final Collection<Security> securities = getSecuritySource().getBondsWithIssuerName(issuerName);
     for (Security security : securities) {
-      context.objectToFudgeMsgWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
+      context.addToMessageWithClassHeaders(msg, SECURITYSOURCE_SECURITY, null, security, Security.class);
     }
     return new FudgeMsgEnvelope(msg);
   }

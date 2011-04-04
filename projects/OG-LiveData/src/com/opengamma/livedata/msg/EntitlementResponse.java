@@ -74,7 +74,7 @@ public class EntitlementResponse implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_liveDataSpecification != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, LIVE_DATA_SPECIFICATION_KEY, null, _liveDataSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, LIVE_DATA_SPECIFICATION_KEY, null, _liveDataSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     msg.add (IS_ENTITLED_KEY, null, _isEntitled);
     if (_msg != null)  {

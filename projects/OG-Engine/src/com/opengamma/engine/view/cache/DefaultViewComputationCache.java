@@ -345,7 +345,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   protected static FudgeMsg serializeValue(final FudgeSerializationContext context, final Object value) {
     context.reset();
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
+    context.addToMessageWithClassHeaders(message, null, NATIVE_FIELD_INDEX, value);
     // Optimize the "value encoded as sub-message" case to reduce space requirement
     Object svalue = message.getValue(NATIVE_FIELD_INDEX);
     if (svalue instanceof FudgeMsg) {
