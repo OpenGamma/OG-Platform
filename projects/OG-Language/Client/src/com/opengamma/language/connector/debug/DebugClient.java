@@ -41,7 +41,7 @@ public class DebugClient extends Client {
       @Override
       public void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
         superInitializer.initContextWithStash(context, stash);
-        context.setValue(SESSION_CONTEXT_STASH, new ImmutableFudgeMsg(stash, FudgeContext.GLOBAL_DEFAULT));
+        context.setValue(SESSION_CONTEXT_STASH, new ImmutableFudgeMsg(FudgeContext.GLOBAL_DEFAULT, stash));
       }
 
     };
