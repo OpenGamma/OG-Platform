@@ -62,7 +62,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     return _id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     _id = id;
   }
 
