@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -39,8 +39,8 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
 
   //-------------------------------------------------------------------------
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FlexiBean bean) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FlexiBean bean) {
+    final MutableFudgeMsg msg = context.newMessage();
     Map<String, Object> data = bean.toMap();
     for (Entry<String, Object> entry : data.entrySet()) {
       Object value = entry.getValue();
@@ -54,7 +54,7 @@ public final class FlexiBeanBuilder implements FudgeBuilder<FlexiBean> {
   }
 
   @Override
-  public FlexiBean buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+  public FlexiBean buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final FlexiBean bean = new FlexiBean();
     List<FudgeField> fields = msg.getAllFields();
     for (FudgeField field : fields) {

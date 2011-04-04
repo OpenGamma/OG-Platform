@@ -5,8 +5,8 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.wire.types.FudgeWireType;
@@ -55,9 +55,9 @@ public class ValueSnapshot {
     _overrideValue = overrideValue;
   }
 
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     msg.add("marketValue", null, FudgeWireType.DOUBLE, getMarketValue());
     if (getOverrideValue() != null) {
       msg.add("overrideValue", null, FudgeWireType.DOUBLE, getOverrideValue().doubleValue());
@@ -65,7 +65,7 @@ public class ValueSnapshot {
     return msg;
   }
 
-  public static ValueSnapshot fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+  public static ValueSnapshot fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
     return new ValueSnapshot(msg.getDouble("marketValue"), msg.hasField("overrideValue") ? Double.valueOf(msg
         .getDouble("overrideValue")) : null);
   }

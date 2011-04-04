@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
@@ -72,7 +72,7 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
   public byte[] requestReceived(byte[] message) {
     FudgeMsgEnvelope requestEnvelope = getFudgeContext().deserialize(message);
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext());
-    FudgeFieldContainer responseContainer = getUnderlying().requestReceived(deserializationContext, requestEnvelope);
+    FudgeMsg responseContainer = getUnderlying().requestReceived(deserializationContext, requestEnvelope);
     return getFudgeContext().toByteArray(responseContainer);
   }
 

@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.fudge;
 
 import java.util.TimeZone;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -22,15 +22,15 @@ public abstract class DateTimeConverterBuilder<T extends DateTimeConverter<?>> i
   public abstract T makeConverter(TimeZone timeZone);
   
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, T converter) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, T converter) {
+    final MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, null, 0, converter.getClass().getName());
     context.objectToFudgeMsg(message, null, 1, converter.getTimeZone());
     return message;
   }
   
   @Override
-  public T buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public T buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     return makeConverter(message.getFieldValue(TimeZone.class, message.getByOrdinal(1)));
   }
 }

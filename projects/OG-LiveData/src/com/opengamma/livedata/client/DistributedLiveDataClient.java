@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -119,7 +119,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     
     // Build request message
     LiveDataSubscriptionRequest subReqMessage = new LiveDataSubscriptionRequest(user, type, specs);
-    FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
+    FudgeMsg requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
     
     // Build response receiver
     FudgeMessageReceiver responseReceiver;
@@ -178,7 +178,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         if ((envelope == null) || (envelope.getMessage() == null)) {
           throw new OpenGammaRuntimeException("Got a message that can't be deserialized from a Fudge message.");
         }
-        FudgeFieldContainer msg = envelope.getMessage();
+        FudgeMsg msg = envelope.getMessage();
         
         LiveDataSubscriptionResponseMsg responseMessage = LiveDataSubscriptionResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(getFudgeContext()), msg);
         if (responseMessage.getResponses().isEmpty()) {
@@ -377,7 +377,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   @Override
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
-    FudgeFieldContainer fudgeMsg = msgEnvelope.getMessage();
+    FudgeMsg fudgeMsg = msgEnvelope.getMessage();
     LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fudgeMsg);
     valueUpdate(update);
   }

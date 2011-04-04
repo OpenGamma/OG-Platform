@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -29,21 +29,21 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private final List<String> _unsubscriptions = new ArrayList<String>();
   private volatile int _numConnections; // = 0;
   private volatile int _numDisconnections; // = 0;
-  private final Map<String, FudgeFieldContainer> _uniqueId2MarketData;
+  private final Map<String, FudgeMsg> _uniqueId2MarketData;
   
   public MockLiveDataServer(IdentificationScheme domain) {
-    this(domain, new ConcurrentHashMap<String, FudgeFieldContainer>());
+    this(domain, new ConcurrentHashMap<String, FudgeMsg>());
   }
   
   public MockLiveDataServer(IdentificationScheme domain,
-      Map<String, FudgeFieldContainer> uniqueId2Snapshot) {
+      Map<String, FudgeMsg> uniqueId2Snapshot) {
     ArgumentChecker.notNull(domain, "Identification domain");
     ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;
     _uniqueId2MarketData = uniqueId2Snapshot;
   }
   
-  public void addMarketDataMapping(String key, FudgeFieldContainer value) {
+  public void addMarketDataMapping(String key, FudgeMsg value) {
     _uniqueId2MarketData.put(key, value);        
   }
   
@@ -72,11 +72,11 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   }
   
   @Override
-  protected Map<String, FudgeFieldContainer> doSnapshot(Collection<String> uniqueIds) {
-    Map<String, FudgeFieldContainer> returnValue = new HashMap<String, FudgeFieldContainer>();
+  protected Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds) {
+    Map<String, FudgeMsg> returnValue = new HashMap<String, FudgeMsg>();
     
     for (String uniqueId : uniqueIds) {
-      FudgeFieldContainer snapshot = _uniqueId2MarketData.get(uniqueId);
+      FudgeMsg snapshot = _uniqueId2MarketData.get(uniqueId);
       if (snapshot == null) {
         snapshot = FudgeContext.GLOBAL_DEFAULT.newMessage();
       }
@@ -88,7 +88,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   
   public void sendLiveDataToClient() {
     for (Subscription subscription : getSubscriptions()) {
-      FudgeFieldContainer marketData = doSnapshot(subscription.getSecurityUniqueId());
+      FudgeMsg marketData = doSnapshot(subscription.getSecurityUniqueId());
       liveDataReceived(subscription.getSecurityUniqueId(), marketData);
     }
   }

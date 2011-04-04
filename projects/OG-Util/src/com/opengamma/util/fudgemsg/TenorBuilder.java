@@ -7,8 +7,8 @@ package com.opengamma.util.fudgemsg;
 
 import javax.time.calendar.Period;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -27,14 +27,14 @@ public class TenorBuilder implements FudgeBuilder<Tenor> {
   public static final String TENOR_FIELD_NAME = "tenor";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Tenor object) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Tenor object) {
+    final MutableFudgeMsg msg = context.newMessage();
     msg.add(TENOR_FIELD_NAME, object.getPeriod().toString());
     return msg;
   }
 
   @Override
-  public Tenor buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+  public Tenor buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final String tenorStr = msg.getString(TENOR_FIELD_NAME);
     if (tenorStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Tenor - field 'tenor' is not present");

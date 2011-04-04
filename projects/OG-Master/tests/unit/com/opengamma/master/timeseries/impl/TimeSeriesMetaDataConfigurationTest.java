@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.testng.annotations.Test;
@@ -39,8 +39,8 @@ public class TimeSeriesMetaDataConfigurationTest {
     TimeSeriesMetaDataConfiguration inputConfig = new TimeSeriesMetaDataConfiguration(rules);
     
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
-    MutableFudgeFieldContainer inputMsg = serializationContext.objectToFudgeMsg(inputConfig);
-    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputConfig);
+    FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     assertNotNull(outputMsg);
     assertEquals(3, outputMsg.getNumFields());
     

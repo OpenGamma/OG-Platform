@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ComputedValue;
@@ -75,7 +75,7 @@ public class PrivateToSharedTransferTest {
     source.setMissingValueLoader(new MissingValueLoader() {
 
       @Override
-      public FudgeFieldContainer findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
+      public FudgeMsg findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
         assertEquals("Test View", cache.getViewName());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
@@ -95,9 +95,9 @@ public class PrivateToSharedTransferTest {
       }
 
       @Override
-      public Map<Long, FudgeFieldContainer> findMissingValues(final ViewComputationCacheKey cache,
+      public Map<Long, FudgeMsg> findMissingValues(final ViewComputationCacheKey cache,
           final Collection<Long> identifiers) {
-        final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
+        final Map<Long, FudgeMsg> map = new HashMap<Long, FudgeMsg>();
         for (Long identifier : identifiers) {
           map.put(identifier, findMissingValue(cache, identifier));
         }

@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -61,17 +61,17 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
     return _targetBase;
   }
 
-  private UniqueIdentifier getIdentifier(FudgeFieldContainer msg) {
+  private UniqueIdentifier getIdentifier(FudgeMsg msg) {
     final FudgeField uidField = msg.getByName("uniqueId");
     if (uidField == null) {
       return null;
     }
-    return UniqueIdentifier.fromFudgeMsg(msg.getFieldValue(FudgeFieldContainer.class, uidField));
+    return UniqueIdentifier.fromFudgeMsg(msg.getFieldValue(FudgeMsg.class, uidField));
   }
 
   public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {
     final FudgeSerializationContext sctx = getFudgeSerializationContext();
-    final MutableFudgeFieldContainer req = sctx.newMessage();
+    final MutableFudgeMsg req = sctx.newMessage();
     sctx.objectToFudgeMsgWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
     try {
       final FudgeMsgEnvelope respEnv = getRestClient().post(getTargetBase().resolve(path), req);
@@ -106,7 +106,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
 
   @Override
   public YieldCurveDefinitionDocument get(UniqueIdentifier uid) {
-    final FudgeFieldContainer msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(uid.toString()));
+    final FudgeMsg msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(uid.toString()));
     if (msg == null) {
       throw new DataNotFoundException("uid=" + uid);
     }
@@ -124,7 +124,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   @Override
   public YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
     ObjectIdentifier objectId = objectIdable.getObjectId();
-    final FudgeFieldContainer msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(objectId.toString()));
+    final FudgeMsg msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(objectId.toString()));
     if (msg == null) {
       throw new DataNotFoundException("uid=" + objectId);
     }
@@ -159,7 +159,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     try {
       final FudgeSerializationContext sctx = getFudgeSerializationContext();
-      final MutableFudgeFieldContainer req = sctx.newMessage();
+      final MutableFudgeMsg req = sctx.newMessage();
       sctx.objectToFudgeMsgWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       getRestClient().put(getTargetBase().resolveBase("curves").resolve(document.getUniqueId().toString()), req);
       return document;

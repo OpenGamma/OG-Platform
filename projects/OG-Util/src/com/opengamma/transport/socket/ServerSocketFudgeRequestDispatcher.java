@@ -14,7 +14,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.wire.FudgeMsgReader;
@@ -149,7 +149,7 @@ public class ServerSocketFudgeRequestDispatcher extends AbstractServerSocketProc
     }
 
     private void dispatch(final FudgeMsgEnvelope envelope) {
-      FudgeFieldContainer response = null;
+      FudgeMsg response = null;
       try {
         s_logger.debug("Received message with {} fields. Dispatching to underlying.", envelope.getMessage().getNumFields());
         response = getUnderlying().requestReceived(new FudgeDeserializationContext(_fudgeContext), envelope);

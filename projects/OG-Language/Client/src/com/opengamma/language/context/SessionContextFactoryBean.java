@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -56,7 +56,7 @@ public class SessionContextFactoryBean implements SessionContextFactory {
       }
 
       @Override
-      protected void initContextWithStashImpl(MutableSessionContext context, FudgeFieldContainer stash) {
+      protected void initContextWithStashImpl(MutableSessionContext context, FudgeMsg stash) {
         getSessionContextEventHandler().initContextWithStash(context, stash);
       }
 

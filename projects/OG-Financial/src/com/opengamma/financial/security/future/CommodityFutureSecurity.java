@@ -15,7 +15,7 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
     if (commodityType == null) throw new NullPointerException ("commodityType' cannot be null");
     _commodityType = commodityType;
   }
-  protected CommodityFutureSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected CommodityFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (COMMODITY_TYPE_KEY);
@@ -59,7 +59,7 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
     _unitNumber = source._unitNumber;
     _unitName = source._unitName;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_commodityType != null)  {
       msg.add (COMMODITY_TYPE_KEY, null, _commodityType);
@@ -71,13 +71,13 @@ public abstract class CommodityFutureSecurity extends com.opengamma.financial.se
       msg.add (UNIT_NAME_KEY, null, _unitName);
     }
   }
-  public static CommodityFutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static CommodityFutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.future.CommodityFutureSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.future.CommodityFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.future.CommodityFutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

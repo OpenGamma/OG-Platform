@@ -127,7 +127,7 @@ public class CouponCMSTest {
       throw new RuntimeException(e);
     }
     double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON.getNotional() * CMS_COUPON.getPaymentYearFraction();
-    assertEquals(9152.270, priceCMS, 1E-2);
+    assertEquals(9161.597, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
 
     CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod(integrationInterval);
@@ -182,7 +182,7 @@ public class CouponCMSTest {
     SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     double priceHagan = PVC.visit(CMS_COUPON, sabrHaganBundle);
     // From previous run
-    assertEquals(9151.187, priceHagan, 1E-2);
+    assertEquals(9160.522, priceHagan, 1E-2);
     // No convexity adjustment
     double priceNoConvexity = PVC.visit(CMS_COUPON, curves);
     assertEquals(priceHagan, priceNoConvexity, 400.0);

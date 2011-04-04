@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
@@ -37,7 +37,7 @@ public class SwapScheduleCalculatorTest {
   private static final Notional NOTIONAL = new Notional() {
 
     @Override
-    public FudgeFieldContainer toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
       // Okay to return NULL as we're not doing any messaging with this
       return null;
     }
@@ -76,7 +76,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeFieldContainer toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
       return null;
     }
 
@@ -90,7 +90,7 @@ public class SwapScheduleCalculatorTest {
     }
 
     @Override
-    public FudgeFieldContainer toFudgeMsg(final FudgeMsgFactory fudgeContext) {
+    public FudgeMsg toFudgeMsg(final FudgeMsgFactory fudgeContext) {
       return null;
     }
 

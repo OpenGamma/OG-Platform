@@ -6,8 +6,8 @@
 package com.opengamma.engine.view.calcnode;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.transport.EndPointDescriptionProvider;
 
@@ -58,8 +58,8 @@ public class ConfigurationResource {
     return _jobServer;
   }
 
-  public FudgeFieldContainer toFudgeMsg(final FudgeContext fudgeContext) {
-    final MutableFudgeFieldContainer message = fudgeContext.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeContext fudgeContext) {
+    final MutableFudgeMsg message = fudgeContext.newMessage();
     if (getCacheServer() != null) {
       message.add(CACHE_SERVER_KEY, getCacheServer().getEndPointDescription(fudgeContext));
     }

@@ -19,9 +19,9 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
@@ -337,7 +337,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     for (Identifier identifier : getIdentifiers()) {
@@ -353,7 +353,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMsgFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -364,13 +364,13 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    * @param msg the Fudge message, not {@code null}
    * @return the identifier bundle
    */
-  public static IdentifierBundle fromFudgeMsg(FudgeFieldContainer msg) {
+  public static IdentifierBundle fromFudgeMsg(FudgeMsg msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();
     for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
-      if (field.getValue() instanceof FudgeFieldContainer == false) {
+      if (field.getValue() instanceof FudgeMsg == false) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }
-      identifiers.add(Identifier.fromFudgeMsg((FudgeFieldContainer) field.getValue()));
+      identifiers.add(Identifier.fromFudgeMsg((FudgeMsg) field.getValue()));
     }
     return new IdentifierBundle(identifiers);
   }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -35,13 +35,13 @@ import com.opengamma.math.curve.Curve;
 
     @SuppressWarnings("unchecked")
     @Override
-    public YieldCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public YieldCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new YieldCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final YieldCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurve object) {
       context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
@@ -55,13 +55,13 @@ import com.opengamma.math.curve.Curve;
 
     @SuppressWarnings("unchecked")
     @Override
-    public DiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public DiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new DiscountCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final DiscountCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DiscountCurve object) {
       context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }

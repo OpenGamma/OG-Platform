@@ -14,8 +14,8 @@ import java.util.Queue;
 import javax.time.Instant;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -34,13 +34,13 @@ public abstract class ViewResultModelBuilder {
   private static final String FIELD_RESULTTS = "resultTS";
   private static final String FIELD_RESULTS = "results";
 
-  protected static MutableFudgeFieldContainer createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  protected static MutableFudgeMsg createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
+    final MutableFudgeMsg message = context.newMessage();
     message.add(FIELD_VIEWNAME, resultModel.getViewName());
     message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
     message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
-    final MutableFudgeFieldContainer resultMsg = context.newMessage();
+    final MutableFudgeMsg resultMsg = context.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
       resultMsg.add(null, 1, calculationConfiguration);
       context.objectToFudgeMsg(resultMsg, null, 2, resultModel.getCalculationResult(calculationConfiguration));
@@ -50,14 +50,14 @@ public abstract class ViewResultModelBuilder {
   }
 
   @SuppressWarnings("unchecked")
-  protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
     final String viewName = message.getString(FIELD_VIEWNAME);
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
-    for (FudgeField field : message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_RESULTS))) {
+    for (FudgeField field : message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_RESULTS))) {
       if (field.getOrdinal() == 1) {
         final String key = context.fieldValueToObject(String.class, field);
         if (values.isEmpty()) {

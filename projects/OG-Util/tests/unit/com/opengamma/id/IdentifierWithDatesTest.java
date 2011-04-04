@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -124,7 +124,7 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, VALID_TO);
     
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(4, msg.getNumFields());
     
@@ -136,7 +136,7 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, VALID_FROM, null);
     
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     
@@ -148,7 +148,7 @@ public class IdentifierWithDatesTest {
     Identifier identifier = Identifier.of("id1", "value1");
     IdentifierWithDates test = IdentifierWithDates.of(identifier, null, VALID_TO);
     
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     

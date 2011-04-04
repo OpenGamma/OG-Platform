@@ -13,7 +13,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -226,7 +226,7 @@ public class VersionCorrectionTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_notNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
@@ -236,7 +236,7 @@ public class VersionCorrectionTest {
 
   public void test_fudgeEncoding_nulls() {
     VersionCorrection test = VersionCorrection.of(null, null);
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(0, msg.getNumFields());
     

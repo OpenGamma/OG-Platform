@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -24,8 +24,8 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<FixedIncomeStripWithIdentifier> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FixedIncomeStripWithIdentifier object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithIdentifier object) {
+    MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
     context.objectToFudgeMsg(message, "tenor", null, object.getMaturity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
@@ -36,7 +36,7 @@ public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<Fixed
   }
 
   @Override
-  public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public FixedIncomeStripWithIdentifier buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     Tenor tenor = context.fieldValueToObject(Tenor.class, message.getByName("tenor"));
     Identifier security = context.fieldValueToObject(Identifier.class, message.getByName("identifier"));

@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * Lifetime events on a session context
@@ -14,6 +14,6 @@ public interface SessionContextInitializationEventHandler {
 
   void initContext(MutableSessionContext context);
 
-  void initContextWithStash(MutableSessionContext context, FudgeFieldContainer stash);
+  void initContextWithStash(MutableSessionContext context, FudgeMsg stash);
 
 }

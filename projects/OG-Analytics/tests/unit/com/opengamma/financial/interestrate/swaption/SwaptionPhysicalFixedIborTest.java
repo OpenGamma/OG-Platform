@@ -210,7 +210,7 @@ public class SwaptionPhysicalFixedIborTest {
     double priceLongReceiver = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
     double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     // From previous run
-    double expectedPriceLongPayer = 2045742.060;
+    double expectedPriceLongPayer = 2046242.058;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -232,7 +232,7 @@ public class SwaptionPhysicalFixedIborTest {
     FixedCouponSwap<Payment> swapStepup = new FixedCouponSwap<Payment>(annuityStepUp, SWAP_PAYER.getSecondLeg());
     SwaptionPhysicalFixedIbor swaptionStepUp = SwaptionPhysicalFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), swapStepup, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
     double priceLongPayerStepUp = PVC.visit(swaptionStepUp, sabrBundle);
-    double expectedPriceLongPayerSteUp = 1879844.508;
+    double expectedPriceLongPayerSteUp = 1880325.618;
     assertEquals(expectedPriceLongPayerSteUp, priceLongPayerStepUp, 1E-2);
 
   }
@@ -245,7 +245,7 @@ public class SwaptionPhysicalFixedIborTest {
     SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
     double priceHagan = PVC.visit(SWAPTION_LONG_PAYER, sabrHaganBundle);
     // From previous run
-    assertEquals(2034294.508, priceHagan, 1E-2);
+    assertEquals(2034800.445, priceHagan, 1E-2);
     // SABR Hagan alternative volatility function
     SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);

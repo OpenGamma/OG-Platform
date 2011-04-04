@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * 
@@ -15,7 +15,7 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public interface FudgeMessageSender {
 
-  void send(FudgeFieldContainer message);
+  void send(FudgeMsg message);
   
   FudgeContext getFudgeContext();
 }

@@ -17,7 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 /**
@@ -51,7 +51,7 @@ public class FudgeObjectBinaryConsumer extends FudgeBase implements MessageBodyR
       MediaType mediaType,
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream) throws IOException, WebApplicationException {
-    FudgeFieldContainer message = getFudgeContext().createMessageReader(entityStream).nextMessage();
+    FudgeMsg message = getFudgeContext().createMessageReader(entityStream).nextMessage();
     if (message == null) {
       return null;
     }

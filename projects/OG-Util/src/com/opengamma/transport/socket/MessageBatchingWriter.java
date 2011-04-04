@@ -12,7 +12,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.LockSupport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
 import org.fudgemsg.wire.FudgeMsgWriter;
 
@@ -33,7 +33,7 @@ public class MessageBatchingWriter {
 
   private boolean _writingThreadActive;
   private boolean _flushRequired;
-  private Queue<FudgeFieldContainer> _messages;
+  private Queue<FudgeMsg> _messages;
   private long _nanoFlushDelay;
 
   public MessageBatchingWriter() {
@@ -73,8 +73,8 @@ public class MessageBatchingWriter {
     return _out;
   }
 
-  public void write(FudgeFieldContainer message) {
-    Queue<FudgeFieldContainer> messages = null;
+  public void write(FudgeMsg message) {
+    Queue<FudgeMsg> messages = null;
     synchronized (this) {
       if (_writingThreadActive) {
         if (_messages != null) {
@@ -83,7 +83,7 @@ public class MessageBatchingWriter {
           return;
         } else {
           // Another thread is already writing
-          messages = new LinkedList<FudgeFieldContainer>();
+          messages = new LinkedList<FudgeMsg>();
           _messages = messages;
         }
       } else {

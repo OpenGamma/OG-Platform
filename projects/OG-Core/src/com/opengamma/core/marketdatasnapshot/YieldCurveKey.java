@@ -2,8 +2,8 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.io.Serializable;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -41,16 +41,16 @@ public class YieldCurveKey implements Serializable, Comparable<YieldCurveKey> {
   }
 
   
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     msg.add("currency", _currency.getCode());
     msg.add("name", _name);
     
     return msg;
   }
 
-  public static YieldCurveKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+  public static YieldCurveKey fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
     return new YieldCurveKey(Currency.of(msg.getString("currency")), msg.getString("name"));
   }
   

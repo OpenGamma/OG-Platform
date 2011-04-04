@@ -20,7 +20,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
@@ -120,7 +120,7 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
   protected Object parseXML(String xml) {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(FUDGE_CONTEXT, car));
-    FudgeFieldContainer message = fmr.nextMessage();
+    FudgeMsg message = fmr.nextMessage();
     Object config = FUDGE_CONTEXT.fromFudgeMsg(message);
     return config;
   }

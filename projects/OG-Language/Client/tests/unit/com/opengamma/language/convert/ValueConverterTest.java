@@ -9,7 +9,7 @@ package com.opengamma.language.convert;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.language.Data;
@@ -78,7 +78,7 @@ public class ValueConverterTest extends AbstractConverterTest {
 
   @Test
   public void testToMessage() {
-    final JavaTypeInfo<FudgeFieldContainer> target = JavaTypeInfo.builder(FudgeFieldContainer.class).get();
+    final JavaTypeInfo<FudgeMsg> target = JavaTypeInfo.builder(FudgeMsg.class).get();
     assertEquals(true, _valueConverter.canConvertTo(target));
     assertValidConversion(_valueConverter, ValueUtil.of(FudgeContext.EMPTY_MESSAGE), target,
         FudgeContext.EMPTY_MESSAGE);
