@@ -10,7 +10,7 @@ import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.ViewCycleReference;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifiable;
@@ -222,7 +222,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @return the latest compiled view definition, or {@code null} if it has not yet been compiled
    */
-  CompiledViewDefinitionImpl getLatestCompiledViewDefinition();
+  CompiledViewDefinition getLatestCompiledViewDefinition();
   
   /**
    * Gets whether this client supports access to view cycles.

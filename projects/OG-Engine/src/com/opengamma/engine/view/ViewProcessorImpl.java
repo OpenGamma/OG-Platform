@@ -340,12 +340,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       viewProcess.shutdown();
       
       _allProcessesById.remove(viewProcess.getUniqueId());
-      
       ViewProcessDescription description = new ViewProcessDescription(viewProcess.getDefinitionName(), viewProcess.getExecutionOptions());
       _sharedProcessesByDescription.remove(description);
     } finally {
       _processLock.unlock();
     }
+    
+    _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
   }
   
   //-------------------------------------------------------------------------

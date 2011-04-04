@@ -24,30 +24,30 @@ public class ViewProcess implements ViewProcessMBean {
   /**
    * A View backing instance
    */
-  private final ViewProcessInternal _view;
+  private final ViewProcessInternal _viewProcess;
 
   private final ObjectName _objectName;
 
   /**
    * Create a management View
    * 
-   * @param view the underlying View
+   * @param viewProcess the underlying View
    * @param viewProcessor the viewProcessor processing the view
    */
-  public ViewProcess(ViewProcessInternal view, com.opengamma.engine.view.ViewProcessor viewProcessor) {
-    ArgumentChecker.notNull(view, "View");
+  public ViewProcess(ViewProcessInternal viewProcess, com.opengamma.engine.view.ViewProcessor viewProcessor) {
+    ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(viewProcessor, "ViewProcessor");
-    _view = view;
-    _objectName = createObjectName(viewProcessor.toString(), view.getUniqueId());
+    _viewProcess = viewProcess;
+    _objectName = createObjectName(viewProcessor.getUniqueId(), viewProcess.getUniqueId());
   }
 
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewName>"
    */
-  static ObjectName createObjectName(String viewProcessorName, UniqueIdentifier viewProcessId) {
+  static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=View,ViewProcessor=" + viewProcessorName + ",name=" + viewProcessId);
+      objectName = new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorId.getValue() + ",name=ViewProcess " + viewProcessId.getValue());
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
@@ -56,42 +56,42 @@ public class ViewProcess implements ViewProcessMBean {
   
   @Override
   public UniqueIdentifier getUniqueId() {
-    return _view.getUniqueId();
+    return _viewProcess.getUniqueId();
   }
   
   @Override
   public String getPortfolioIdentifier() {
-    return _view.getDefinition().getPortfolioId().toString();
+    return _viewProcess.getDefinition().getPortfolioId().toString();
   }
 
   @Override
   public boolean isBatchProcess() {
-    return _view.isBatchProcess();
+    return _viewProcess.isBatchProcess();
   }
 
   @Override
   public String getDefinitionName() {
-    return _view.getDefinitionName();
+    return _viewProcess.getDefinitionName();
   }
 
   @Override
   public ViewProcessState getState() {
-    return _view.getState();
+    return _viewProcess.getState();
   }
 
   @Override
   public void shutdown() {
-    _view.shutdown();
+    _viewProcess.shutdown();
   }
   
   @Override
   public void suspend() {
-    _view.suspend();
+    _viewProcess.suspend();
   }
 
   @Override
   public void resume() {
-    _view.resume();
+    _viewProcess.resume();
   }
   
   /**

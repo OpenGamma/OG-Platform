@@ -99,7 +99,7 @@ public final class ManagementService implements ViewProcessorEventListener {
       _calcConfigByViewProcessId.putIfAbsent(viewProcess.getUniqueId(), configurationNames);
       for (String calcConfigName : configurationNames) {
         com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
-          new com.opengamma.engine.management.GraphExecutionStatistics(viewProcess, _statisticsProvider, _viewProcessor.toString(), calcConfigName);
+          new com.opengamma.engine.management.GraphExecutionStatistics(viewProcess, _statisticsProvider, _viewProcessor.getUniqueId(), calcConfigName);
         registerGraphStatistics(graphStatistics);
       }
     }
@@ -160,8 +160,9 @@ public final class ManagementService implements ViewProcessorEventListener {
       Set<String> configurationNames = view.getDefinition().getAllCalculationConfigurationNames();
       _calcConfigByViewProcessId.putIfAbsent(viewProcessId, configurationNames);
       for (String calcConfigName : configurationNames) {
-        com.opengamma.engine.management.GraphExecutionStatistics graphStatistics = new com.opengamma.engine.management.GraphExecutionStatistics(view, _statisticsProvider, _viewProcessor.toString(),
-            calcConfigName);
+        com.opengamma.engine.management.GraphExecutionStatistics graphStatistics =
+          new com.opengamma.engine.management.GraphExecutionStatistics(view, _statisticsProvider,
+              _viewProcessor.getUniqueId(), calcConfigName);
         try {
           registerGraphStatistics(graphStatistics);
         } catch (Exception e) {
@@ -175,16 +176,16 @@ public final class ManagementService implements ViewProcessorEventListener {
   public void notifyViewProcessRemoved(UniqueIdentifier viewProcessId) {
     ObjectName objectName = null;
     try {
-      objectName = com.opengamma.engine.management.ViewProcess.createObjectName(_viewProcessor.toString(), viewProcessId);
+      objectName = com.opengamma.engine.management.ViewProcess.createObjectName(_viewProcessor.getUniqueId(), viewProcessId);
       _mBeanServer.unregisterMBean(objectName);
     } catch (Exception e) {
       s_logger.warn("Error unregistering view for management for " + objectName + " . Error was " + e.getMessage(), e);
     }
     Set<String> configurationNames = _calcConfigByViewProcessId.get(viewProcessId);
     if (configurationNames != null) {
-      String viewDefinitionName = _viewProcessor.getViewProcess(viewProcessId).getDefinitionName();
+      //String viewDefinitionName = _viewProcessor.getViewProcess(viewProcessId).getDefinitionName();
       for (String configName : configurationNames) {
-        objectName = com.opengamma.engine.management.GraphExecutionStatistics.createObjectName(_viewProcessor.toString(), viewProcessId, viewDefinitionName, configName);
+        objectName = com.opengamma.engine.management.GraphExecutionStatistics.createObjectName(_viewProcessor.getUniqueId(), viewProcessId, configName);
         try {
           _mBeanServer.unregisterMBean(objectName);
         } catch (Exception e) {

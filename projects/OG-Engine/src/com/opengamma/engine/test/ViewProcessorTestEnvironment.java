@@ -89,7 +89,7 @@ public class ViewProcessorTestEnvironment {
     ViewDefinition viewDefinition = getViewDefinition() != null ? getViewDefinition() : generateViewDefinition();
 
     ViewProcessorFactoryBean vpFactBean = new ViewProcessorFactoryBean();
-    vpFactBean.setId(0);
+    vpFactBean.setId(0L);
 
     FudgeContext fudgeContext = new FudgeContext();
     PositionSource positionSource = getPositionSource() != null ? getPositionSource() : new MockPositionSource();

@@ -36,19 +36,19 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   /**
    * Create a management GraphExecutionStatistics
    * 
-   * @param viewProcess the view process
-   * @param statisticsProvider the statistics provider
-   * @param viewProcessorName the view processor name
-   * @param calcConfigName the calculation configuration name
+   * @param viewProcess  the view process
+   * @param statisticsProvider  the statistics provider
+   * @param viewProcessorId  the view processor identifier
+   * @param calcConfigName  the calculation configuration name
    */
-  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, String viewProcessorName, String calcConfigName) {
+  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, UniqueIdentifier viewProcessorId, String calcConfigName) {
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
-    ArgumentChecker.notNull(viewProcessorName, "ViewProcessor Name");
+    ArgumentChecker.notNull(viewProcessorId, "viewProcessorId");
     ArgumentChecker.notNull(viewProcess, "View Process");
     ArgumentChecker.notNull(calcConfigName, "calcConfig Name");
     _viewProcessId = viewProcess.getUniqueId();
     _viewDefinitionName = viewProcess.getDefinitionName();
-    _objectName = createObjectName(viewProcessorName, _viewProcessId, _viewDefinitionName, calcConfigName);
+    _objectName = createObjectName(viewProcessorId, _viewProcessId, calcConfigName);
     _calcConfigName = calcConfigName;
     _statisticsProvider = statisticsProvider;
   }
@@ -56,11 +56,11 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   /**
    * Creates an object name using the scheme "com.opengamma:type=GraphExecutionStatistics,ViewProcessor=<viewProcessorName>,View=<viewName>,name=<calcConfigName>"
    */
-  static ObjectName createObjectName(String viewProcessorName, UniqueIdentifier viewProcessId, String viewDefinitionName, String calcConfigName) {
+  static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId, String calcConfigName) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=GraphExecutionStatistics,ViewProcessor=" + viewProcessorName
-          + ",ViewProcess=" + viewProcessId + ",definition=" + viewDefinitionName + ",config=" + calcConfigName);
+      objectName = new ObjectName("com.opengamma:type=GraphExecutionStatistics,ViewProcessor=ViewProcessor " + viewProcessorId.getValue()
+          + ",ViewProcess=ViewProcess " + viewProcessId.getValue() + ",name=" + calcConfigName);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }

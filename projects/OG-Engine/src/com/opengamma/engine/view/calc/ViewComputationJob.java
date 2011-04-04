@@ -378,14 +378,12 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    getProcessContext().getLiveDataSnapshotProvider().addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
     _liveDataSubscriptions.addAll(requiredSubscriptions);
+    getProcessContext().getLiveDataSnapshotProvider().addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
-        s_logger.warn("Timed out after {} ms waiting for live data subscriptions to be made. The live data snapshot" +
+        s_logger.warn("Timed out after {} ms waiting for live data subscriptions to be made. The live data snapshot " +
           "used in the computation cycle could be incomplete.", LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS);
-        _pendingSubscriptions.clear();
-        _pendingSubscriptionLatch = null;
       }
     } catch (InterruptedException ex) {
       s_logger.info("Interrupted while waiting for subscription results.");
