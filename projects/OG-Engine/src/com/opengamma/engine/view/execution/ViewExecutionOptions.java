@@ -49,4 +49,13 @@ public interface ViewExecutionOptions {
    */
   Integer getMaxSuccessiveDeltaCycles();
   
+  /**
+   * Gets whether execution involves merely compiling the view definition for each valuation time in the execution
+   * sequence.
+   * 
+   * @return {@code true} to only compile the view definition for each valuation time in the execution sequence,
+   *         {@code false} for normal execution
+   */
+  boolean isCompileOnly();
+  
 }

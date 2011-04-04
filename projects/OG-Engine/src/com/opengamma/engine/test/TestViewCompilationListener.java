@@ -5,16 +5,16 @@
  */
 package com.opengamma.engine.test;
 
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 
 /**
  * Test implementation of {@link ViewDefinitionCompilationListener}.
  */
-public class TestViewCompilationListener extends AbstractTestResultListener<CompiledViewDefinitionImpl> implements ViewDefinitionCompilationListener {
+public class TestViewCompilationListener extends AbstractTestResultListener<CompiledViewDefinition> implements ViewDefinitionCompilationListener {
 
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
     resultReceived(compiledViewDefinition);
   }
 

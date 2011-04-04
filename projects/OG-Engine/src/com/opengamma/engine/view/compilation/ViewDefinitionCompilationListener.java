@@ -22,6 +22,6 @@ public interface ViewDefinitionCompilationListener {
    *
    * @param compiledViewDefinition  the compilation result, not null
    */
-  void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledViewDefinition);
+  void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition);
   
 }

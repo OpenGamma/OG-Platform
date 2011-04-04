@@ -23,6 +23,7 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -121,7 +122,7 @@ public class ViewTest {
     ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
     Thread computationThread = env.getCurrentComputationThread(viewProcess);
     
-    CompiledViewDefinitionImpl compilationModel1 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    CompiledViewDefinitionImpl compilationModel1 = (CompiledViewDefinitionImpl) compilationListener.getResult(Timeout.standardTimeoutMillis());
     assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
     
     computationJob.liveDataChanged();
@@ -145,7 +146,7 @@ public class ViewTest {
 
     // time0 + 30 requires a rebuild
     computationJob.liveDataChanged();
-    CompiledViewDefinitionImpl compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    CompiledViewDefinition compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
     assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());

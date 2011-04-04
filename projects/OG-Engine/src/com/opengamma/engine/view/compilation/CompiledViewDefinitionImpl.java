@@ -189,7 +189,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "ViewEvaluationModel[" + getViewDefinition().getName() + ", " + getValidityString() + "]";
+    return "CompiledViewDefinition[" + getViewDefinition().getName() + ", " + getValidityString() + "]";
   }
   
   //-------------------------------------------------------------------------

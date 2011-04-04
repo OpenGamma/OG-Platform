@@ -47,6 +47,8 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
   private final ViewCycleManagerImpl _cycleManager;
+  private final boolean _executeCycles;
+  private final boolean _makeLiveDataSubscriptions;
   
   private double _numExecutions;
   private ViewCycleReferenceImpl _previousCycleReference;
@@ -81,6 +83,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
+    
+    _executeCycles = !getExecutionOptions().isCompileOnly();
+    _makeLiveDataSubscriptions = getExecutionOptions().isLiveDataTriggerEnabled();
   }
 
   //-------------------------------------------------------------------------
@@ -221,31 +226,33 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     ViewCycleReferenceImpl cycleReference = createCycle(executionOptions);
     ViewCycleInternal cycle = cycleReference.getCycle();
     
-    if (doFullRecalc) {
-      s_logger.info("Performing full computation");
-      _deltasSinceLastFull = 0;
-    } else {
-      s_logger.info("Performing delta computation");
-      _deltasSinceLastFull++;
+    if (_executeCycles) {
+      if (doFullRecalc) {
+        s_logger.info("Performing full computation");
+        _deltasSinceLastFull = 0;
+      } else {
+        s_logger.info("Performing delta computation");
+        _deltasSinceLastFull++;
+      }
+      
+      try {
+        ViewCycleInternal deltaCycle = doFullRecalc ? null : _previousCycleReference.getCycle();
+        cycle.execute(deltaCycle);
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+        // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+        // interrupted cycle never happened so that deltas will be calculated from the previous cycle. 
+        cycleReference.release();
+        s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+        return;
+      }
+      
+      long duration = cycle.getDurationNanos();
+      _totalTimeNanos += duration;
+      _numExecutions += 1.0;
+      s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
     }
-    
-    try {
-      ViewCycleInternal deltaCycle = doFullRecalc ? null : _previousCycleReference.getCycle();
-      cycle.execute(deltaCycle);
-    } catch (InterruptedException e) {
-      Thread.interrupted();
-      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
-      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
-      // interrupted cycle never happened so that deltas will be calculated from the previous cycle. 
-      cycleReference.release();
-      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
-      return;
-    }
-    
-    long duration = cycle.getDurationNanos();
-    _totalTimeNanos += duration;
-    _numExecutions += 1.0;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
     
     // Don't push the results through if we've been terminated, since another computation job could be running already
     // and the fact that we've been terminated means the view is no longer interested in the result. Just die quietly.
@@ -254,17 +261,22 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       return;
     }
     
-    getViewProcess().cycleCompleted(cycle);
+    if (_executeCycles) {
+      getViewProcess().cycleCompleted(cycle);
+    }
+    
     if (getExecutionOptions().getExecutionSequence().isEmpty()) {
       s_logger.debug("Computation job completed for view process {}", getViewProcess());
       getViewProcess().jobCompleted();
       terminate();
     }
     
-    if (_previousCycleReference != null) {
-      _previousCycleReference.release();
+    if (_executeCycles) {
+      if (_previousCycleReference != null) {
+        _previousCycleReference.release();
+      }
+      _previousCycleReference = cycleReference;
     }
-    _previousCycleReference = cycleReference;
   }
     
   @Override
@@ -315,7 +327,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
     getViewProcess().viewCompiled(compiledView);
     
-    setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
+    if (_makeLiveDataSubscriptions) {
+      setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
+    }
     return compiledView;
   }
   

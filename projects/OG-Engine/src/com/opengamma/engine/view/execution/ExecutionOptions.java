@@ -18,18 +18,30 @@ public class ExecutionOptions implements ViewExecutionOptions {
   private final boolean _runAsFastAsPossible;
   private final boolean _liveDataTriggerEnabled;
   private final Integer _maxSuccessiveDeltaCycles;
+  private final boolean _compileOnly;
   
   public ExecutionOptions(ViewCycleExecutionSequence evaluationTimeSequence, boolean liveDataTriggerEnabled) {
-    this(evaluationTimeSequence, false, liveDataTriggerEnabled, null);
+    this(evaluationTimeSequence, liveDataTriggerEnabled, null);
   }
   
-  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible, boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
+  public ExecutionOptions(ViewCycleExecutionSequence evaluationTimeSequence, boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
+    this(evaluationTimeSequence, false, liveDataTriggerEnabled, null, false);
+  }
+  
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
+      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
+    this(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, false);
+  }
+  
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
+      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles, boolean compileOnly) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     
     _executionSequence = executionSequence;
     _runAsFastAsPossible = runAsFastAsPossible;
     _liveDataTriggerEnabled = liveDataTriggerEnabled;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
+    _compileOnly = compileOnly;
   }
   
   public static ViewExecutionOptions realTime() {
@@ -41,7 +53,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
         cycleExecutionSequence,
         true,
         false,
-        null);
+        null,
+        false);
   }
   
   public static ViewExecutionOptions singleCycle() {
@@ -53,7 +66,21 @@ public class ExecutionOptions implements ViewExecutionOptions {
         ArbitraryViewCycleExecutionSequence.of(valuationTime),
         true,
         false,
-        null);
+        null,
+        false);
+  }
+  
+  public static ViewExecutionOptions compileOnly() {
+    return compileOnly(ArbitraryViewCycleExecutionSequence.of(Instant.now()));
+  }
+  
+  public static ViewExecutionOptions compileOnly(ViewCycleExecutionSequence cycleExecutionSequence) {
+    return new ExecutionOptions(
+        cycleExecutionSequence,
+        true,
+        false,
+        null,
+        true);
   }
   
   @Override
@@ -75,6 +102,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public Integer getMaxSuccessiveDeltaCycles() {
     return _maxSuccessiveDeltaCycles;
   }
+  
+  @Override
+  public boolean isCompileOnly() {
+    return _compileOnly;
+  }
 
   @Override
   public int hashCode() {
@@ -84,6 +116,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     result = prime * result + (_liveDataTriggerEnabled ? 1231 : 1237);
     result = prime * result + ((_maxSuccessiveDeltaCycles == null) ? 0 : _maxSuccessiveDeltaCycles.hashCode());
     result = prime * result + (_runAsFastAsPossible ? 1231 : 1237);
+    result = prime * result + (_compileOnly ? 1231 : 1237);
     return result;
   }
 
@@ -113,6 +146,9 @@ public class ExecutionOptions implements ViewExecutionOptions {
       return false;
     }
     if (_runAsFastAsPossible != other._runAsFastAsPossible) {
+      return false;
+    }
+    if (_compileOnly != other._compileOnly) {
       return false;
     }
     return true;

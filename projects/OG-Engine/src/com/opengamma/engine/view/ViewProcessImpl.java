@@ -252,6 +252,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     } finally {
       unlock();
     }
+    
+    if (!_allListeners.isEmpty()) {
+      for (ViewProcessListener listener : _allListeners) {
+        listener.processCompleted();
+      }
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -429,7 +435,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // Caller MUST hold the semaphore
     s_logger.info("Stopping computation on view process {}...", this);
     if (getState() != ViewProcessState.RUNNING) {
-      throw new IllegalStateException("Cannot stop the computation job from state " + getState());
+      return;
     }
     terminateComputationJob();
     setState(ViewProcessState.STOPPED);
