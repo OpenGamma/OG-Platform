@@ -24,6 +24,8 @@ public class DataCompiledViewDefinitionResource {
   public static final String PATH_SECURITY_TYPES = "securityTypes";
   public static final String PATH_VALID_FROM = "validFrom";
   public static final String PATH_VALID_TO = "validTo";
+  public static final String PATH_OUTPUT_VALUE_NAMES = "outputValueNames";
+  public static final String PATH_COMPUTATION_TARGETS = "computationTargets";
   //CSON: just constants
   
   private final CompiledViewDefinition _compiledViewDefinition;
@@ -66,6 +68,18 @@ public class DataCompiledViewDefinitionResource {
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
     return Response.ok(_compiledViewDefinition.getValidTo()).build();
+  }
+
+  @GET
+  @Path(PATH_OUTPUT_VALUE_NAMES)
+  public Response getOutputValueNames() {
+    return Response.ok(_compiledViewDefinition.getOutputValueNames()).build();
+  }
+  
+  @GET
+  @Path(PATH_COMPUTATION_TARGETS)
+  public Response getComputationTargets() {
+    return Response.ok(_compiledViewDefinition.getComputationTargets()).build();
   }
   
 }

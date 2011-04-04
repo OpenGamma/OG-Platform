@@ -104,6 +104,27 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
     return _liveDataRequirements;
   }
+  
+  @Override
+  public Set<String> getOutputValueNames() {
+    Set<String> valueNames = new HashSet<String>();
+    for (DependencyGraph graph : getAllDependencyGraphs()) {
+      for (ValueSpecification spec : graph.getOutputValues()) {
+        valueNames.add(spec.getValueName());
+      }
+    }
+    return valueNames;
+  }
+ 
+  @Override
+  public Set<ComputationTarget> getComputationTargets() {
+    Set<ComputationTarget> targets = new HashSet<ComputationTarget>();
+    for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
+      Set<ComputationTarget> requiredLiveData = dependencyGraph.getAllComputationTargets();
+      targets.addAll(requiredLiveData);
+    }
+    return targets;
+  }
 
   @Override
   public Set<String> getSecurityTypes() {
@@ -149,35 +170,6 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public DependencyGraph getDependencyGraph(String calcConfigName) {
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     return _graphsByConfiguration.get(calcConfigName);
-  }
-
-  /**
-   * Gets a set of all computation targets across every calculation configuration.
-   * 
-   * @return a set of all computation targets, not null
-   */
-  public Set<ComputationTarget> getAllComputationTargets() {
-    Set<ComputationTarget> targets = new HashSet<ComputationTarget>();
-    for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
-      Set<ComputationTarget> requiredLiveData = dependencyGraph.getAllComputationTargets();
-      targets.addAll(requiredLiveData);
-    }
-    return targets;
-  }
-
-  /**
-   * Gets a set of every value requirement name across every calculation configuration. 
-   * 
-   * @return a set of all value requirement names, not null
-   */
-  public Set<String> getAllOutputValueNames() {
-    Set<String> valueNames = new HashSet<String>();
-    for (DependencyGraph graph : getAllDependencyGraphs()) {
-      for (ValueSpecification spec : graph.getOutputValues()) {
-        valueNames.add(spec.getValueName());
-      }
-    }
-    return valueNames;
   }
   
   /**

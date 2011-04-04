@@ -258,8 +258,8 @@ public class RemoteCacheRequestResponseTest {
     conduit.connectEnd2 (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     final long timestamp = System.currentTimeMillis();
-    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey("View1", "Config1",
-        timestamp));
+    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(
+        UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
     final MutableFudgeMsg inputValue = s_fudgeContext.newMessage();
     for (int i = 0; i < 32; i++) {
       inputValue.add(i, Integer.toString(i));

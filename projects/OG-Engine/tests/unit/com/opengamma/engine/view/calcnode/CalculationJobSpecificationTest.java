@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**

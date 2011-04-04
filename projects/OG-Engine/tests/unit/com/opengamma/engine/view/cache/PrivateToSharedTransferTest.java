@@ -77,7 +77,7 @@ public class PrivateToSharedTransferTest {
 
       @Override
       public FudgeMsg findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
-        assertEquals("Test View", cache.getViewName());
+        assertEquals("Test View", cache.getViewProcessId());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
         int i = Integer.parseInt(spec.getValueName());

@@ -13,6 +13,7 @@ import javax.time.Instant;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -68,6 +69,20 @@ public class RemoteCompiledViewDefinition implements CompiledViewDefinition {
   public Instant getValidTo() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
     return _client.access(uri).get(Instant.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<String> getOutputValueNames() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_OUTPUT_VALUE_NAMES).build();
+    return _client.access(uri).get(Set.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<ComputationTarget> getComputationTargets() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
+    return _client.access(uri).get(Set.class);
   }
   
 }

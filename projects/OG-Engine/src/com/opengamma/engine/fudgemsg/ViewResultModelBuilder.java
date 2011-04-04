@@ -35,15 +35,9 @@ public abstract class ViewResultModelBuilder {
   private static final String FIELD_RESULTTS = "resultTS";
   private static final String FIELD_RESULTS = "results";
 
-<<<<<<< HEAD
-  protected static MutableFudgeFieldContainer createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
-=======
   protected static MutableFudgeMsg createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
     final MutableFudgeMsg message = context.newMessage();
-    message.add(FIELD_VIEWNAME, resultModel.getViewName());
->>>>>>> origin/master
+    message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
     message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
     message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
@@ -56,14 +50,8 @@ public abstract class ViewResultModelBuilder {
     return message;
   }
 
-<<<<<<< HEAD
-  protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final UniqueIdentifier viewProcessId = message.getValue(UniqueIdentifier.class, FIELD_VIEWPROCESSID);
-=======
-  @SuppressWarnings("unchecked")
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
-    final String viewName = message.getString(FIELD_VIEWNAME);
->>>>>>> origin/master
+    final UniqueIdentifier viewProcessId = message.getValue(UniqueIdentifier.class, FIELD_VIEWPROCESSID);
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();

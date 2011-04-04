@@ -20,7 +20,7 @@ import com.opengamma.engine.view.calc.ViewCycleManager;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.FudgeRestClient;
 import com.sun.jersey.api.client.ClientResponse;
 

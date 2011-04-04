@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.time.Instant;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -43,6 +44,20 @@ public interface CompiledViewDefinition {
    * @return a map from each stated value requirement to the resolved value specification for live data, not null  
    */
   Map<ValueRequirement, ValueSpecification> getLiveDataRequirements();
+  
+  /**
+   * Gets a set of every value requirement name across every calculation configuration. 
+   * 
+   * @return a set of all value requirement names, not null
+   */
+  Set<String> getOutputValueNames();
+  
+  /**
+   * Gets a set of all computation targets across every calculation configuration.
+   * 
+   * @return a set of all computation targets, not null
+   */
+  Set<ComputationTarget> getComputationTargets();
   
   /**
    * Gets a set of the security types present in the dependency graphs; that is, all security types on which

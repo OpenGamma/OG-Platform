@@ -20,10 +20,12 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**

@@ -47,9 +47,9 @@ import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.permission.PermissiveViewPermissionProviderFactory;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
@@ -87,9 +87,9 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   private ViewProcessor _viewProcessor;
   
   /**
-   * The view evaluation model
+   * The compiled view definition
    */
-  private CompiledViewDefinitionImpl _viewEvaluationModel;
+  private CompiledViewDefinition _compiledViewDefinition;
   
   /**
    * What day's market data snapshot to use. 99.9% of the time will be the same as
@@ -389,11 +389,8 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver,
         functionCompilationService.getFunctionCompilationContext(), computationTargetResolver, functionCompilationService.getExecutorService(), securitySource, positionSource);
-    _viewEvaluationModel = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
-    
-    for (ComputationTarget target : getViewEvaluationModel().getAllComputationTargets()) {
-      _spec2Target.put(target.toSpecification(), target);
-    }
+    CompiledViewDefinition compiledViewDefinition = ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, getValuationTime());
+    setCompiledViewDefinition(compiledViewDefinition);
   }
   
   public void setViewProcessor(ViewProcessor viewProcessor) {
@@ -415,7 +412,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   
   @Override
   public Set<String> getAllOutputValueNames() {
-    return getViewEvaluationModel().getAllOutputValueNames();
+    return getCompiledViewDefinition().getOutputValueNames();
   }
   
   @Override
@@ -432,8 +429,17 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     return _viewDefinitionConfig.getValue();
   }
 
-  public CompiledViewDefinitionImpl getViewEvaluationModel() {
-    return _viewEvaluationModel;
+  public CompiledViewDefinition getCompiledViewDefinition() {
+    return _compiledViewDefinition;
+  }
+  
+  public void setCompiledViewDefinition(CompiledViewDefinition compiledViewDefinition) {
+    ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
+    _compiledViewDefinition = compiledViewDefinition;
+    _spec2Target.clear();
+    for (ComputationTarget target : getCompiledViewDefinition().getComputationTargets()) {
+      _spec2Target.put(target.toSpecification(), target);
+    }
   }
   
 }

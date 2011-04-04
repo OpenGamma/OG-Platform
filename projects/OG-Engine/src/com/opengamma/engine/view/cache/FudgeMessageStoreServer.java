@@ -275,7 +275,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     protected GetResponse visitGetRequest(final GetRequest request) {
       final List<Long> identifiers = request.getIdentifier();
       final Collection<FudgeMsg> response;
-      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       if (cache == null) {
         // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
         s_logger.warn("Get request on invalid cache - {}", request);
@@ -307,7 +307,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     protected CacheMessage visitPutRequest(final PutRequest request) {
       final List<Long> identifiers = request.getIdentifier();
       final List<FudgeMsg> data = request.getData();
-      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       // Review 2010-10-19 Andrew -- This causes cache creation. This is bad if messages were delayed and the cache has already been released.
       final FudgeMessageStore store = getUnderlying().getCache(key).getSharedDataStore();
       if (identifiers.size() == 1) {

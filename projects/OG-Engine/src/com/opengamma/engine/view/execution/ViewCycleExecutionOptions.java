@@ -7,7 +7,7 @@ package com.opengamma.engine.view.execution;
 
 import javax.time.Instant;
 
-import org.fudgemsg.util.ArgumentChecker;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Encapsulates specific settings affecting the execution of an individual view cycle.

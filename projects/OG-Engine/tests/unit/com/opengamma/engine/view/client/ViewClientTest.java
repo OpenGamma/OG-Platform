@@ -120,7 +120,7 @@ public class ViewClientTest {
     SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
     snapshotProvider.addValue(env.getPrimitive1(), 0);
     snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.setProviders(snapshotProvider, snapshotProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -176,7 +176,7 @@ public class ViewClientTest {
     SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
     snapshotProvider.addValue(env.getPrimitive1(), 0);
     snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.setProviders(snapshotProvider, snapshotProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -227,7 +227,7 @@ public class ViewClientTest {
     SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
     snapshotProvider.addValue(env.getPrimitive1(), 0);
     snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.setProviders(snapshotProvider, snapshotProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -355,7 +355,7 @@ public class ViewClientTest {
     SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
     snapshotProvider.addValue(env.getPrimitive1(), 0);
     snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.setProviders(snapshotProvider, snapshotProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
@@ -418,7 +418,7 @@ public class ViewClientTest {
     SynchronousInMemoryLKVSnapshotProvider snapshotProvider = new SynchronousInMemoryLKVSnapshotProvider();
     snapshotProvider.addValue(env.getPrimitive1(), 0);
     snapshotProvider.addValue(env.getPrimitive2(), 0);
-    env.setUserProviders(snapshotProvider, snapshotProvider);
+    env.setProviders(snapshotProvider, snapshotProvider);
     env.init();
     
     ViewProcessorImpl vp = env.getViewProcessor();
