@@ -6,7 +6,7 @@
 package com.opengamma.financial.batch;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.transport.jaxrs.RestClient;
@@ -46,7 +46,7 @@ public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
   @Override
   public void write(AdHocBatchResult batch) {
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer defnMsg = sctx.newMessage();
+    final MutableFudgeMsg defnMsg = sctx.newMessage();
     sctx.objectToFudgeMsg(defnMsg, "batch", null, batch);
     final RestTarget target = getTargetBase();
     getRestClient().post(target, defnMsg);

@@ -6,7 +6,7 @@
 package com.opengamma.language.connector.debug;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.ImmutableFudgeMsg;
 
 import com.opengamma.language.connector.Client;
@@ -39,7 +39,7 @@ public class DebugClient extends Client {
       }
 
       @Override
-      public void initContextWithStash(final MutableSessionContext context, final FudgeFieldContainer stash) {
+      public void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
         superInitializer.initContextWithStash(context, stash);
         context.setValue(SESSION_CONTEXT_STASH, new ImmutableFudgeMsg(stash, FudgeContext.GLOBAL_DEFAULT));
       }
@@ -47,7 +47,7 @@ public class DebugClient extends Client {
     };
   }
 
-  private FudgeFieldContainer getStash() {
+  private FudgeMsg getStash() {
     return getSessionContext().getValue(SESSION_CONTEXT_STASH);
   }
 

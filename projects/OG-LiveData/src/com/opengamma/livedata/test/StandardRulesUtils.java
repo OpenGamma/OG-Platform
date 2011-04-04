@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Set;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.Sets;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
@@ -22,7 +22,7 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class StandardRulesUtils {
   
-  public static void validateOpenGammaMsg(FudgeFieldContainer msg) {
+  public static void validateOpenGammaMsg(FudgeMsg msg) {
     assertNotNull(msg);
     
     Set<String> acceptableFields = Sets.newHashSet(

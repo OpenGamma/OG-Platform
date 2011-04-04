@@ -10,9 +10,9 @@ import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   }
 
   @Override
-  public void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver) {
+  public void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver) {
     startIfNecessary();
     s_logger.debug("Dispatching request with {} fields", request.getNumFields());
     _writer.write(request);

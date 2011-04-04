@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
 import com.opengamma.transport.socket.SocketFudgeRequestSender;
@@ -38,7 +38,7 @@ public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeReq
     return _endPointDescriptionProvider;
   }
 
-  private FudgeFieldContainer resolveEndPointDescription() {
+  private FudgeMsg resolveEndPointDescription() {
     if (_endPointDescriptionProvider != null) {
       ArgumentChecker.notNull(getFudgeContext(), "fudgeContext");
       return _endPointDescriptionProvider.getEndPointDescription(getFudgeContext());
@@ -49,7 +49,7 @@ public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeReq
 
   @Override
   protected FudgeRequestSender createObject() {
-    final FudgeFieldContainer endPoint = resolveEndPointDescription();
+    final FudgeMsg endPoint = resolveEndPointDescription();
     ArgumentChecker.notNull(endPoint, "endPointDescription");
     if (AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
       final SocketFudgeRequestSender sender = new SocketFudgeRequestSender(getFudgeContext());

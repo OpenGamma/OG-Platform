@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 @Test
 public abstract class DoubleTimeSeriesTest<E> {
@@ -396,7 +396,7 @@ public abstract class DoubleTimeSeriesTest<E> {
   }
   
   public void testFudgeSerialization() {
-    FudgeFieldContainer msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(createStandardTimeSeries()).getMessage();
+    FudgeMsg msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(createStandardTimeSeries()).getMessage();
     FudgeMsgFormatter.outputToSystemOut(msg);
     Object o = OpenGammaFudgeContext.getInstance().fromFudgeMsg(msg);
     assertEquals(createStandardTimeSeries(), o);

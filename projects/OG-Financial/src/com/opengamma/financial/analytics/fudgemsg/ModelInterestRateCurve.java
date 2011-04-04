@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -30,18 +30,18 @@ import com.opengamma.math.curve.Curve;
    * Fudge builder for {@code YieldCurve}
    */
   @FudgeBuilderFor(YieldCurve.class)
-  public static final class YieldCurveBuilder extends FudgeBuilderBase<YieldCurve> {
+  public static final class YieldCurveBuilder extends AbstractFudgeBuilder<YieldCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
 
     @SuppressWarnings("unchecked")
     @Override
-    public YieldCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public YieldCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new YieldCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final YieldCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurve object) {
       context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
@@ -50,18 +50,18 @@ import com.opengamma.math.curve.Curve;
    * Fudge builder for {@code DiscountCurve}
    */
   @FudgeBuilderFor(DiscountCurve.class)
-  public static final class DiscountCurveBuilder extends FudgeBuilderBase<DiscountCurve> {
+  public static final class DiscountCurveBuilder extends AbstractFudgeBuilder<DiscountCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
 
     @SuppressWarnings("unchecked")
     @Override
-    public DiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public DiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final Curve<Double, Double> curve = context.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
       return new DiscountCurve(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final DiscountCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DiscountCurve object) {
       context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }

@@ -6,8 +6,8 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -31,7 +31,7 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
    */
   private static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
-  protected static void addMessageFields(final FudgeSerializationContext context, final MutableFudgeFieldContainer msg, final ComputationTargetSpecification object) {
+  protected static void addMessageFields(final FudgeSerializationContext context, final MutableFudgeMsg msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());
     UniqueIdentifier uid = object.getUniqueId();
     if (uid != null) {
@@ -40,13 +40,13 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ComputationTargetSpecification object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ComputationTargetSpecification object) {
+    MutableFudgeMsg msg = context.newMessage();
     addMessageFields(context, msg, object);
     return msg;
   }
 
-  protected static ComputationTargetSpecification buildObjectImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  protected static ComputationTargetSpecification buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     final ComputationTargetType type = ComputationTargetType.valueOf(message.getString(TYPE_FIELD_NAME));
     UniqueIdentifier uid = null;
     if (message.hasField(IDENTIFIER_FIELD_NAME)) {
@@ -57,7 +57,7 @@ public class ComputationTargetSpecificationBuilder implements FudgeBuilder<Compu
   }
 
   @Override
-  public ComputationTargetSpecification buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ComputationTargetSpecification buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     return buildObjectImpl(context, message);
   }
 

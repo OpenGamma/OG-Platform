@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.google.common.collect.Sets;
@@ -27,7 +27,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -48,9 +48,9 @@ public class CalculationJobTest {
     inputJob.convertInputs(identifierMap);
 
     FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
-    MutableFudgeFieldContainer inputMsg = serContext.objectToFudgeMsg(inputJob);
+    MutableFudgeMsg inputMsg = serContext.objectToFudgeMsg(inputJob);
     
-    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     assertNotNull(outputJob);
@@ -83,8 +83,8 @@ public class CalculationJobTest {
     inputJob.convertInputs(identifierMap);
 
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
-    MutableFudgeFieldContainer inputMsg = serializationContext.objectToFudgeMsg(inputJob);
-    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputJob);
+    FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     

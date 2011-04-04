@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function1D;
  * \\end{align*}
  * }
  * @see MeanCalculator
- * @see ModeCalculator
+ * @see MedianCalculator
  * @see SampleStandardDeviationCalculator
  */
 public class PearsonFirstSkewnessCoefficientCalculator extends Function1D<double[], Double> {

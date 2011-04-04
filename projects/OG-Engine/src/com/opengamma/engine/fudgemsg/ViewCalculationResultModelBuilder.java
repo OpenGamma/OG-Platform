@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -30,8 +30,8 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalculationResultModel> {
   
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewCalculationResultModel resultModel) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCalculationResultModel resultModel) {
+    final MutableFudgeMsg message = context.newMessage();
     final Collection<ComputationTargetSpecification> targets = resultModel.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
       final Map<String, ComputedValue> values = resultModel.getValues(target);
@@ -43,7 +43,7 @@ public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalcu
   }
   
   @Override
-  public ViewCalculationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ViewCalculationResultModel buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     final Map<ComputationTargetSpecification, Map<String, ComputedValue>> mapNames = new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
     final Map<ComputationTargetSpecification, Set<ComputedValue>> mapAll = new HashMap<ComputationTargetSpecification, Set<ComputedValue>>();
     for (FudgeField field : message) {

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -57,7 +57,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+    final MutableFudgeMsg resp = getFudgeContext().newMessage();
     resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(resp);
   }
@@ -72,7 +72,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+    final MutableFudgeMsg resp = getFudgeContext().newMessage();
     resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(resp);
   }
@@ -84,7 +84,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
     try {
       final YieldCurveDefinitionDocument document = getUnderlying().get(uid);
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-      final MutableFudgeFieldContainer resp = sctx.newMessage();
+      final MutableFudgeMsg resp = sctx.newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
       sctx.objectToFudgeMsgWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);

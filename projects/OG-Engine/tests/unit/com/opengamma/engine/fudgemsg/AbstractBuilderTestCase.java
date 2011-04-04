@@ -8,14 +8,14 @@ package com.opengamma.engine.fudgemsg;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.BeforeMethod;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.fudgemsg.BuilderTestProxyFactory.BuilderTestProxy;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Base class for builder tests.
@@ -51,11 +51,11 @@ public abstract class AbstractBuilderTestCase {
   
   protected <T> T cycleObject (final Class<T> clazz, final T object) {
     getLogger ().debug ("cycle object {} of class {}", object, clazz);
-    final FudgeFieldContainer message = getFudgeSerializationContext ().objectToFudgeMsg(object);
+    final FudgeMsg message = getFudgeSerializationContext ().objectToFudgeMsg(object);
     getLogger ().debug ("message {}", message);
     
     
-    final FudgeFieldContainer proxiedMessage = _proxy.proxy(clazz, message);
+    final FudgeMsg proxiedMessage = _proxy.proxy(clazz, message);
     getLogger ().debug ("message after proxy {}", proxiedMessage);
     
     final T cycled = getFudgeDeserializationContext ().fudgeMsgToObject(clazz, proxiedMessage);

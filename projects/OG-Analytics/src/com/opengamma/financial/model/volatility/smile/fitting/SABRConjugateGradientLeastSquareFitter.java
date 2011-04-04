@@ -25,7 +25,6 @@ import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.math.minimization.ScalarMinimizer;
 import com.opengamma.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.math.minimization.TransformParameters;
-import com.opengamma.math.minimization.VectorMinimizer;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.util.CompareUtils;
 
@@ -85,7 +84,7 @@ public class SABRConjugateGradientLeastSquareFitter extends LeastSquareSmileFitt
       }
     };
     final ScalarMinimizer lineMinimizer = new BrentMinimizer1D();
-    final VectorMinimizer minimzer = new ConjugateDirectionVectorMinimizer(lineMinimizer, 1e-6, 10000);
+    final ConjugateDirectionVectorMinimizer minimzer = new ConjugateDirectionVectorMinimizer(lineMinimizer, 1e-6, 10000);
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
     final DoubleMatrix1D minPos = minimzer.minimize(function, fp);
     final double chiSquare = function.evaluate(minPos);

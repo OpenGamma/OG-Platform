@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 @Test
 public class ReleaseCacheMessageTest {

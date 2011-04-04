@@ -6,7 +6,8 @@
 package com.opengamma.math.minimization;
 
 /**
- * 
+ * Interface for objects containing functions that can transform constrained model parameters into unconstrained fitting parameters and vice versa. It also
+ * provides functions that will provide the gradient of the functions that perform these transformations
  */
 public interface ParameterLimitsTransform {
   /** Types of the limits */
@@ -18,15 +19,15 @@ public interface ParameterLimitsTransform {
   }
 
   /**
-   * Used to transform from a model parameter that is only allows to take certain values, to a fitting parameter that can take any value
+   * A function to transform a constrained model parameter to an unconstrained fitting parameter
    * @param x Model parameter 
-   * @return fitting parameter
+   * @return Fitting parameter
    */
   double transform(double x);
 
   /**
-   * Used to transform from a fitting parameter that can take any value, to a model parameter that is only allows to take certain values
-   * @param y fitting parameter
+   * A function to transform an unconstrained fitting parameter to a constrained model parameter
+   * @param y Fitting parameter
    * @return Model parameter 
    */
   double inverseTransform(double y);

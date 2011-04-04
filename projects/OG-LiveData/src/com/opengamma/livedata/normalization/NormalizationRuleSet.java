@@ -9,14 +9,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.collect.Lists;
 import com.opengamma.livedata.resolver.JmsTopicNameResolver;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An ordered set of normalization rules.
@@ -63,10 +63,10 @@ public class NormalizationRuleSet {
    * @return the normalized message. Null if one of the normalization rules
    * rejected the message.
    */
-  public FudgeFieldContainer getNormalizedMessage(
-      FudgeFieldContainer msg,
+  public FudgeMsg getNormalizedMessage(
+      FudgeMsg msg,
       FieldHistoryStore fieldHistory) {
-    MutableFudgeFieldContainer normalizedMsg = OpenGammaFudgeContext.getInstance().newMessage(msg);
+    MutableFudgeMsg normalizedMsg = OpenGammaFudgeContext.getInstance().newMessage(msg);
     for (NormalizationRule rule : _rules) {
       normalizedMsg = rule.apply(normalizedMsg, fieldHistory);
       if (normalizedMsg == null) {

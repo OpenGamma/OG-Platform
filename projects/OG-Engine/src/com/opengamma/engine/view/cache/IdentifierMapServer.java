@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -81,7 +81,7 @@ public class IdentifierMapServer extends CacheMessageVisitor implements FudgeReq
   }
 
   @Override
-  public FudgeFieldContainer requestReceived(final FudgeDeserializationContext context, final FudgeMsgEnvelope requestEnvelope) {
+  public FudgeMsg requestReceived(final FudgeDeserializationContext context, final FudgeMsgEnvelope requestEnvelope) {
     final CacheMessage request = context.fudgeMsgToObject(CacheMessage.class, requestEnvelope.getMessage());
     final FudgeContext fudgeContext = context.getFudgeContext();
     CacheMessage response = request.accept(this);
@@ -90,7 +90,7 @@ public class IdentifierMapServer extends CacheMessageVisitor implements FudgeReq
     }
     response.setCorrelationId(request.getCorrelationId());
     final FudgeSerializationContext ctx = new FudgeSerializationContext(fudgeContext);
-    final MutableFudgeFieldContainer responseMsg = ctx.objectToFudgeMsg(response);
+    final MutableFudgeMsg responseMsg = ctx.objectToFudgeMsg(response);
     // We have only one response for each request type, so don't need the headers
     // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), IdentifierMapResponse.class);
     return responseMsg;

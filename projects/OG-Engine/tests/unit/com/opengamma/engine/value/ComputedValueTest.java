@@ -9,14 +9,14 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test ComputedValue.
@@ -51,7 +51,7 @@ public class ComputedValueTest {
       return _j;
     }
 
-    public static ComplexValue fromFudgeMsg(final FudgeFieldContainer msg) {
+    public static ComplexValue fromFudgeMsg(final FudgeMsg msg) {
       return new ComplexValue(msg.getDouble("i"), msg.getDouble("j"));
     }
 
@@ -70,7 +70,7 @@ public class ComputedValueTest {
   private void cycleComputedValue(final ComputedValue value) {
     final FudgeMsgEnvelope fme = s_fudgeContext.toFudgeMsg(value);
     assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
+    final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
     final ComputedValue cycledValue = s_fudgeContext.fromFudgeMsg(ComputedValue.class, msg);
     assertNotNull(cycledValue);

@@ -15,13 +15,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.engine.view.calc.ViewCycleReference;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * RESTful resource for a view client.

@@ -12,13 +12,13 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.fudge.ExpiryBuilder;
+import com.opengamma.util.fudgemsg.ExpiryBuilder;
 
 /**
  * Test Expiry.
@@ -33,16 +33,16 @@ public class ExpiryTest {
     s_fudgeContext.getObjectDictionary().addBuilder(Expiry.class, new ExpiryBuilder());
   }
 
-  private static FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
+  private static FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] encoded = s_fudgeContext.toByteArray(message);
     return s_fudgeContext.deserialize(encoded).getMessage();
   }
 
   private static void testExpiry(final Expiry expiry) {
     final FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
-    final MutableFudgeFieldContainer messageIn = serContext.newMessage();
+    final MutableFudgeMsg messageIn = serContext.newMessage();
     serContext.objectToFudgeMsg(messageIn, "test", null, expiry);
-    final FudgeFieldContainer messageOut = cycleMessage(messageIn);
+    final FudgeMsg messageOut = cycleMessage(messageIn);
     final FudgeDeserializationContext dsrContext = new FudgeDeserializationContext(s_fudgeContext);
     final Expiry result = dsrContext.fieldValueToObject(Expiry.class, messageOut.getByName("test"));
     assertEquals(expiry, result);

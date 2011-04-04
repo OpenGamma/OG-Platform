@@ -6,12 +6,13 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeMsgField;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
+import org.testng.annotations.Test;
 
 /**
  * Test Period Fudge support.
@@ -28,7 +29,7 @@ public class PeriodTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Period.class,
-        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.toString())));
+        FudgeMsgField.of(FudgeWireType.STRING, s_ref.toString())));
   }
 
 }

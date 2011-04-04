@@ -45,7 +45,7 @@ public class DirichletBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, double t) {
+  public double getConstant(final PDEDataBundle data, final double t, final double dx) {
     return _timeValue.evaluate(t);
   }
 

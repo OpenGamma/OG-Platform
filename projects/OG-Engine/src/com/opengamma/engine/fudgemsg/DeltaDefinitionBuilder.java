@@ -6,8 +6,8 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -27,8 +27,8 @@ public class DeltaDefinitionBuilder implements FudgeBuilder<DeltaDefinition> {
   private static final String NUMBER_COMPARER_KEY = "numberComparer";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, DeltaDefinition object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, DeltaDefinition object) {
+    MutableFudgeMsg msg = context.newMessage();
     if (object.getNumberComparer() != null) {
       context.objectToFudgeMsgWithClassHeaders(msg, NUMBER_COMPARER_KEY, null, object.getNumberComparer(), DeltaComparer.class);
     }
@@ -37,7 +37,7 @@ public class DeltaDefinitionBuilder implements FudgeBuilder<DeltaDefinition> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public DeltaDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public DeltaDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField fudgeField = message.getByName(NUMBER_COMPARER_KEY);
     DeltaDefinition deltaDefinition = new DeltaDefinition();
     if (fudgeField != null) {

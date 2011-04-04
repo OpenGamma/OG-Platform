@@ -31,11 +31,11 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.wire.FudgeMsgWriter;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -145,7 +145,7 @@ public class RestClient {
    * @param target  the RESTful target, not null
    * @return the Fudge message, null for a 404
    */
-  public FudgeFieldContainer getMsg(final RestTarget target) {
+  public FudgeMsg getMsg(final RestTarget target) {
     final FudgeMsgEnvelope fme = getMsgEnvelope(target);
     if (fme == null) {
       return null;
@@ -189,7 +189,7 @@ public class RestClient {
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
    */
-  public FudgeMsgEnvelope put(final RestTarget target, final FudgeFieldContainer msg) {
+  public FudgeMsgEnvelope put(final RestTarget target, final FudgeMsg msg) {
     return put(target, new FudgeMsgEnvelope(msg));
   }
 
@@ -236,7 +236,7 @@ public class RestClient {
    * @param msg  the Fudge message, not null
    * @return the Fudge message, not null
    */
-  public FudgeMsgEnvelope post(final RestTarget target, final FudgeFieldContainer msg) {
+  public FudgeMsgEnvelope post(final RestTarget target, final FudgeMsg msg) {
     return post(target, new FudgeMsgEnvelope(msg));
   }
 
@@ -272,7 +272,7 @@ public class RestClient {
 
   //-------------------------------------------------------------------------
   public <T> T getSingleValue(final Class<T> clazz, final RestTarget target, final String returnFieldName) {
-    final FudgeFieldContainer msg = getMsg(target);
+    final FudgeMsg msg = getMsg(target);
     if (msg == null) {
       return null;
     }
@@ -284,7 +284,7 @@ public class RestClient {
   }
 
   public <T> T getSingleValue(final Class<T> clazz, final RestTarget target, final int returnFieldOrdinal) {
-    final FudgeFieldContainer msg = getMsg(target);
+    final FudgeMsg msg = getMsg(target);
     if (msg == null) {
       return null;
     }
@@ -296,7 +296,7 @@ public class RestClient {
   }
 
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final String returnFieldName) {
-    final FudgeFieldContainer msg = getMsg(target);
+    final FudgeMsg msg = getMsg(target);
     if (msg == null) {
       throw new RestRuntimeException("GET", target, 404, "Not Found");
     }
@@ -308,7 +308,7 @@ public class RestClient {
   }
 
   public <T> T getSingleValueNotNull(final Class<T> clazz, final RestTarget target, final int returnFieldOrdinal) {
-    final FudgeFieldContainer msg = getMsg(target);
+    final FudgeMsg msg = getMsg(target);
     if (msg == null) {
       throw new RestRuntimeException("GET", target, 404, "Not Found");
     }

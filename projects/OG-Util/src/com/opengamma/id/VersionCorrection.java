@@ -11,9 +11,9 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -260,7 +260,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     if (_versionAsOf != null) {
@@ -280,7 +280,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -292,7 +292,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param msg the Fudge message, not {@code null}
    * @return the identifier
    */
-  public static VersionCorrection fromFudgeMsg(FudgeFieldContainer msg) {
+  public static VersionCorrection fromFudgeMsg(FudgeMsg msg) {
     Instant version = msg.getValue(Instant.class, "VersionAsOf");
     Instant correction = msg.getValue(Instant.class, "CorrectedTo");
     return VersionCorrection.of(version, correction);

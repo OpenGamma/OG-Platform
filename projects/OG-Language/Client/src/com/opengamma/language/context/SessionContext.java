@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.definition.DefinitionRepository;
@@ -22,7 +22,7 @@ import com.opengamma.language.procedure.ProcedureRepository;
  * for the lifetime of the actual client must be "stashed" and the session context initialized
  * based on the result of the stash.
  */
-public abstract class SessionContext extends AbstractContext {
+public abstract class SessionContext extends AbstractContext<UserContext> {
 
   /**
    * Whether the client for the session is in debug mode.
@@ -45,10 +45,8 @@ public abstract class SessionContext extends AbstractContext {
    */
   protected static final String PROCEDURE_REPOSITORY = "procedureRepository";
 
-  private final UserContext _userContext;
-
   /* package */SessionContext(final UserContext userContext) {
-    _userContext = userContext;
+    super(userContext);
     // Providers
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.nonCachingInstance());
     setValue(LIVEDATA_PROVIDER, AggregatingLiveDataProvider.nonCachingInstance());
@@ -65,7 +63,7 @@ public abstract class SessionContext extends AbstractContext {
   }
 
   public UserContext getUserContext() {
-    return _userContext;
+    return getParentContext();
   }
 
   // Context initialization
@@ -73,7 +71,7 @@ public abstract class SessionContext extends AbstractContext {
   public abstract void initContext(SessionContextInitializationEventHandler preInitialize);
 
   public abstract void initContextWithStash(SessionContextInitializationEventHandler preInitialize,
-      FudgeFieldContainer stash);
+      FudgeMsg stash);
 
   public abstract void doneContext();
 

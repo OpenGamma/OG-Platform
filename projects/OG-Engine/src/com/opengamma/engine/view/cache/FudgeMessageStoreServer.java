@@ -20,9 +20,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -116,7 +116,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
    * @param message the message to send, not {@code null}.
    */
   protected void broadcast(final CacheMessage message) {
-    final MutableFudgeFieldContainer msg = getUnderlying().getFudgeContext().newMessage();
+    final MutableFudgeMsg msg = getUnderlying().getFudgeContext().newMessage();
     message.toFudgeMsg(getUnderlying().getFudgeContext(), msg);
     FudgeSerializationContext.addClassHeader(msg, message.getClass(), CacheMessage.class);
     for (Map.Entry<FudgeConnection, Object> connectionEntry : getConnections().entrySet()) {
@@ -151,12 +151,12 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   }
 
   @Override
-  public FudgeFieldContainer findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
+  public FudgeMsg findMissingValue(final ViewComputationCacheKey cacheKey, final long identifier) {
     s_logger.debug("findMissing value {}", identifier);
     broadcast(new FindMessage(cacheKey.getViewProcessId(), cacheKey.getCalculationConfigurationName(), cacheKey.getSnapshotTimestamp(), Collections.singleton(identifier)));
     // We're in the callback so we know the cache must exist
     final FudgeMessageStore store = getUnderlying().findCache(cacheKey).getSharedDataStore();
-    FudgeFieldContainer data = store.get(identifier);
+    FudgeMsg data = store.get(identifier);
     if (data == null) {
       final ValueSearch search = getOrCreateValueSearch(cacheKey);
       try {
@@ -179,7 +179,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
   }
 
   @Override
-  public Map<Long, FudgeFieldContainer> findMissingValues(final ViewComputationCacheKey cache,
+  public Map<Long, FudgeMsg> findMissingValues(final ViewComputationCacheKey cache,
       final Collection<Long> identifiers) {
     s_logger.debug("findMissing values {}", identifiers);
     broadcast(new FindMessage(cache.getViewProcessId(), cache.getCalculationConfigurationName(), cache.getSnapshotTimestamp(), identifiers));
@@ -191,11 +191,11 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     for (Long identifier : identifiers) {
       identifierArray[identifierCount++] = identifier;
     }
-    final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
+    final Map<Long, FudgeMsg> map = new HashMap<Long, FudgeMsg>();
     try {
       while (identifierCount > 0) {
         final Long identifier = identifierArray[0];
-        FudgeFieldContainer data = store.get(identifier);
+        FudgeMsg data = store.get(identifier);
         if (data != null) {
           s_logger.debug("Value for {} found and transferred to shared data store", identifier);
           map.put(identifier, data);
@@ -274,8 +274,8 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     @Override
     protected GetResponse visitGetRequest(final GetRequest request) {
       final List<Long> identifiers = request.getIdentifier();
-      final Collection<FudgeFieldContainer> response;
-      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final Collection<FudgeMsg> response;
+      final DefaultViewComputationCache cache = getUnderlying().findCache(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       if (cache == null) {
         // Can happen if a node runs slowly, the job is retried elsewhere and the cycle completed while the original node is still generating traffic
         s_logger.warn("Get request on invalid cache - {}", request);
@@ -283,16 +283,16 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
       } else {
         final FudgeMessageStore store = cache.getSharedDataStore();
         if (identifiers.size() == 1) {
-          FudgeFieldContainer data = store.get(identifiers.get(0));
+          FudgeMsg data = store.get(identifiers.get(0));
           if (data == null) {
             data = FudgeContext.EMPTY_MESSAGE;
           }
           response = Collections.singleton(data);
         } else {
-          response = new ArrayList<FudgeFieldContainer>(identifiers.size());
-          final Map<Long, FudgeFieldContainer> data = store.get(identifiers);
+          response = new ArrayList<FudgeMsg>(identifiers.size());
+          final Map<Long, FudgeMsg> data = store.get(identifiers);
           for (Long identifier : identifiers) {
-            FudgeFieldContainer value = data.get(identifier);
+            FudgeMsg value = data.get(identifier);
             if (value == null) {
               value = FudgeContext.EMPTY_MESSAGE;
             }
@@ -306,16 +306,16 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
     @Override
     protected CacheMessage visitPutRequest(final PutRequest request) {
       final List<Long> identifiers = request.getIdentifier();
-      final List<FudgeFieldContainer> data = request.getData();
-      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewProcessId(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
+      final List<FudgeMsg> data = request.getData();
+      final ViewComputationCacheKey key = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshotTimestamp());
       // Review 2010-10-19 Andrew -- This causes cache creation. This is bad if messages were delayed and the cache has already been released.
       final FudgeMessageStore store = getUnderlying().getCache(key).getSharedDataStore();
       if (identifiers.size() == 1) {
         store.put(identifiers.get(0), data.get(0));
       } else {
-        final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
+        final Map<Long, FudgeMsg> map = new HashMap<Long, FudgeMsg>();
         final Iterator<Long> i = identifiers.iterator();
-        final Iterator<FudgeFieldContainer> j = data.iterator();
+        final Iterator<FudgeMsg> j = data.iterator();
         while (i.hasNext()) {
           map.put(i.next(), j.next());
         }
@@ -349,7 +349,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
       if (response != null) {
         response.setCorrelationId(request.getCorrelationId());
         final FudgeSerializationContext sctx = new FudgeSerializationContext(fudgeContext);
-        final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
+        final MutableFudgeMsg responseMsg = sctx.objectToFudgeMsg(response);
         // We have only one response for each request type, so don't really need the headers
         // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), BinaryDataStoreResponse.class);
         getConnection().getFudgeMessageSender().send(responseMsg);

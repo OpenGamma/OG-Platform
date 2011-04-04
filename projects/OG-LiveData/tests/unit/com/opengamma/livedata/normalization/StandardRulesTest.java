@@ -8,8 +8,8 @@ package com.opengamma.livedata.normalization;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
@@ -23,12 +23,12 @@ public class StandardRulesTest {
   public void noNormalization() {
     NormalizationRuleSet ruleSet = StandardRules.getNoNormalization();
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
+    FudgeMsg normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
     assertEquals(msg, normalizedMsg);
   }
   

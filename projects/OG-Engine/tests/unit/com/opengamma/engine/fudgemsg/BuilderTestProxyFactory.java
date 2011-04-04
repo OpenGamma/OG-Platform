@@ -11,15 +11,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataInputStreamReader;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.wire.FudgeDataInputStreamReader;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * This class allows you to test serializers from other platforms by using any {@link AbstractBuilderTestCase}s you have.
@@ -27,7 +27,7 @@ import com.opengamma.util.fudge.OpenGammaFudgeContext;
 public class BuilderTestProxyFactory {
 
   public interface BuilderTestProxy {
-    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig);
+    public FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig);
   }
 
   public BuilderTestProxy getProxy() {
@@ -41,7 +41,7 @@ public class BuilderTestProxyFactory {
 
   private static class NullBuilderTestProxy implements BuilderTestProxy {
     @Override
-    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig) {
+    public FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig) {
       return orig;
     }
   }
@@ -56,7 +56,7 @@ public class BuilderTestProxyFactory {
     }
 
     @Override
-    public FudgeFieldContainer proxy(final Class<?> clazz, FudgeFieldContainer orig) {
+    public FudgeMsg proxy(final Class<?> clazz, FudgeMsg orig) {
 
       FudgeContext context = OpenGammaFudgeContext.getInstance();
 
@@ -84,10 +84,10 @@ public class BuilderTestProxyFactory {
               final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
           
               ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(3);
-              Future<FudgeFieldContainer> retMsgFuture = scheduledThreadPoolExecutor.submit(new Callable<FudgeFieldContainer>() {
+              Future<FudgeMsg> retMsgFuture = scheduledThreadPoolExecutor.submit(new Callable<FudgeMsg>() {
 
                 @Override
-                public FudgeFieldContainer call() throws Exception {
+                public FudgeMsg call() throws Exception {
                   return fudgeMsgReader.nextMessage();
                 }
                 

@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,15 +47,15 @@ public class LiveDataSnapshotProviderTest {
     snapshotter.addSubscription(TEST_USER, constructRequirement("test3"));
     snapshotter.addSubscription(TEST_USER_2, constructRequirement("test3"));
     
-    MutableFudgeFieldContainer msg1 = new FudgeContext().newMessage();
+    MutableFudgeMsg msg1 = new FudgeContext().newMessage();
     msg1.add(_marketDataRequirement, 52.07);
     
-    MutableFudgeFieldContainer msg2 = new FudgeContext().newMessage();
+    MutableFudgeMsg msg2 = new FudgeContext().newMessage();
     msg2.add(_marketDataRequirement, 52.15);
     
-    MutableFudgeFieldContainer msg3a = new FudgeContext().newMessage();
+    MutableFudgeMsg msg3a = new FudgeContext().newMessage();
     msg3a.add(_marketDataRequirement, 52.16);
-    MutableFudgeFieldContainer msg3b = new FudgeContext().newMessage();
+    MutableFudgeMsg msg3b = new FudgeContext().newMessage();
     msg3b.add(_marketDataRequirement, 52.17);
     
     client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), Identifier.of("testdomain", "test1")), msg1);

@@ -29,13 +29,14 @@ import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
-import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
+
 /**
  * 
  */
@@ -59,8 +60,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   @Override
   public BondDefinition visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     final Currency currency = security.getCurrency();
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
@@ -76,8 +76,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     } else {
       throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
     }
-    final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE
-        .getBusinessDayConvention("Following");
+    final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
     final DayCount daycount = security.getDayCountConvention();
@@ -85,14 +84,12 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     final int settlementDays = convention.getSettlementDays();
     final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);
     final boolean rollToSettlement = convention.rollToSettlement();
-    final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates,
-        calendar, businessDayConvention, convention.getSettlementDays()) : ScheduleCalculator
-        .getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, 0));
+    final LocalDate[] settlementDates = (rollToSettlement ? ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, convention.getSettlementDays())
+        : ScheduleCalculator.getSettlementDateSchedule(nominalDates, calendar, businessDayConvention, 0));
     final double coupon = security.getCouponRate() / 100;
-    final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar,
-        isEOMConvention, convention.getName(), convention.getExDividendDays(),
+    final BondConvention bondConvention = new BondConvention(settlementDays, daycount, businessDayConvention, calendar, isEOMConvention, convention.getName(), convention.getExDividendDays(),
         SimpleYieldConvention.US_TREASURY_EQUIVALANT);
-    return new BondDefinition(nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
+    return new BondDefinition(security.getCurrency(), nominalDates, settlementDates, coupon, periodsPerYear, bondConvention);
   }
 
   @Override
@@ -100,10 +97,8 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     throw new NotImplementedException();
   }
 
-  private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate,
-      final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
-    LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency,
-        convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
+  private LocalDate[] getBondSchedule(final BondSecurity security, final LocalDate maturityDate, final SimpleFrequency simpleFrequency, final ConventionBundle convention, final LocalDate datedDate) {
+    LocalDate[] schedule = ScheduleFactory.getSchedule(datedDate, maturityDate, simpleFrequency, convention.isEOMConvention(), convention.calculateScheduleFromMaturity(), false);
     // front stub
     if (schedule[0].equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
       final int n = schedule.length;
@@ -115,8 +110,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
       schedule = temp;
     }
     if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.warn("Security first coupon date did not match calculated first coupon date: "
-          + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
     }
     return schedule;
   }

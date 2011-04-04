@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.currency;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.types.PrimitiveFieldTypes;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.engine.ComputationTargetType;
@@ -126,13 +126,13 @@ public abstract class CurrencyMatrixValue {
       return getValueRequirement().hashCode() * 17 + ObjectUtils.hashCode(isReciprocal());
     }
 
-    public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-      final MutableFudgeFieldContainer msg = context.objectToFudgeMsg(getValueRequirement());
-      msg.add("reciprocal", null, PrimitiveFieldTypes.BOOLEAN_TYPE, isReciprocal());
+    public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
+      final MutableFudgeMsg msg = context.objectToFudgeMsg(getValueRequirement());
+      msg.add("reciprocal", null, FudgeWireType.BOOLEAN, isReciprocal());
       return msg;
     }
 
-    public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    public static CurrencyMatrixValueRequirement fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
       return new CurrencyMatrixValueRequirement(context.fudgeMsgToObject(ValueRequirement.class, msg), msg.getBoolean("reciprocal"));
     }
 

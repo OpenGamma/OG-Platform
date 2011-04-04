@@ -10,13 +10,13 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Base class for testing OG-Analytics objects to and from Fudge messages.
@@ -30,7 +30,7 @@ public class AnalyticsTestBase {
     return OpenGammaFudgeContext.getInstance();
   }
 
-  private FudgeFieldContainer cycleMessage(final FudgeFieldContainer message) {
+  private FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = OpenGammaFudgeContext.getInstance().toByteArray(message);
     s_logger.info("{} bytes", data.length);
     return OpenGammaFudgeContext.getInstance().deserialize(data).getMessage();
@@ -41,7 +41,7 @@ public class AnalyticsTestBase {
     s_logger.info("object {}", object);
     final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(getFudgeContext());
     final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext(getFudgeContext());
-    FudgeFieldContainer message = fudgeSerializationContext.objectToFudgeMsg(object);
+    FudgeMsg message = fudgeSerializationContext.objectToFudgeMsg(object);
     assertNotNull(message);
     s_logger.info("message {}", message);
     message = cycleMessage(message);

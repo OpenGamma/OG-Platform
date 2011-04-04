@@ -24,13 +24,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeMsgWriter;
-import org.fudgemsg.FudgeRuntimeIOException;
-import org.fudgemsg.FudgeStreamReader;
-import org.fudgemsg.FudgeStreamWriter;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.FudgeRuntimeIOException;
+import org.fudgemsg.wire.FudgeStreamReader;
+import org.fudgemsg.wire.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,14 +185,14 @@ public class Client implements Runnable {
       }
 
       @Override
-      public void initContextWithStash(MutableSessionContext context, FudgeFieldContainer stash) {
+      public void initContextWithStash(MutableSessionContext context, FudgeMsg stash) {
         initContext(context);
       }
 
     };
   }
 
-  private void initializeContext(final FudgeFieldContainer stash) {
+  private void initializeContext(final FudgeMsg stash) {
     s_logger.info("Initializing session context");
     if (stash != null) {
       getSessionContext().initContextWithStash(getSessionInitializer(), stash);

@@ -10,11 +10,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.fudgemsg.EncodedFudgeMsg;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeDataOutputStreamWriter;
-import org.fudgemsg.FudgeEncoded;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.wire.EncodedFudgeMsg;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeEncoded;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -47,15 +47,15 @@ public class DefaultFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public FudgeFieldContainer get(long identifier) {
+  public FudgeMsg get(long identifier) {
     final byte[] data = getBinaryData().get(identifier);
     return (data != null) ? new EncodedFudgeMsg(data, getFudgeContext()) : null;
   }
 
   @Override
-  public Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers) {
+  public Map<Long, FudgeMsg> get(Collection<Long> identifiers) {
     final Map<Long, byte[]> dataValues = getBinaryData().get(identifiers);
-    final Map<Long, FudgeFieldContainer> resultValues = new HashMap<Long, FudgeFieldContainer>();
+    final Map<Long, FudgeMsg> resultValues = new HashMap<Long, FudgeMsg>();
     for (Map.Entry<Long, byte[]> data : dataValues.entrySet()) {
       resultValues.put(data.getKey(), new EncodedFudgeMsg(data.getValue(), getFudgeContext()));
     }
@@ -63,7 +63,7 @@ public class DefaultFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public void put(long identifier, FudgeFieldContainer dataMessage) {
+  public void put(long identifier, FudgeMsg dataMessage) {
     final byte[] data;
     if (dataMessage instanceof FudgeEncoded) {
       data = ((FudgeEncoded) dataMessage).getFudgeEncoded();
@@ -77,11 +77,11 @@ public class DefaultFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public void put(Map<Long, FudgeFieldContainer> dataMessages) {
+  public void put(Map<Long, FudgeMsg> dataMessages) {
     final Map<Long, byte[]> dataBytes = new HashMap<Long, byte[]>();
     ByteArrayOutputStream baos = null;
     FudgeDataOutputStreamWriter writer = null;
-    for (Map.Entry<Long, FudgeFieldContainer> dataMessage : dataMessages.entrySet()) {
+    for (Map.Entry<Long, FudgeMsg> dataMessage : dataMessages.entrySet()) {
       final byte[] data;
       if (dataMessage.getValue() instanceof FudgeEncoded) {
         data = ((FudgeEncoded) dataMessage.getValue()).getFudgeEncoded();

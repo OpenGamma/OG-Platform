@@ -9,9 +9,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.PublicAPI;
 
@@ -26,9 +26,9 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   private static final String FIELDS_FIELD_NAME = "fields";
   private final long _sequenceNumber;
   private final LiveDataSpecification _specification;
-  private final FudgeFieldContainer _fieldContainer;
+  private final FudgeMsg _fieldContainer;
   
-  public LiveDataValueUpdateBean(long sequenceNumber, LiveDataSpecification specification, FudgeFieldContainer fieldContainer) {
+  public LiveDataValueUpdateBean(long sequenceNumber, LiveDataSpecification specification, FudgeMsg fieldContainer) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _sequenceNumber = sequenceNumber;
     _specification = specification;
@@ -36,7 +36,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   }
 
   @Override
-  public FudgeFieldContainer getFields() {
+  public FudgeMsg getFields() {
     return _fieldContainer;
   }
 
@@ -50,8 +50,8 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return _specification;
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory fudgeMessageFactory) {
+    MutableFudgeMsg msg = fudgeMessageFactory.newMessage();
     msg.add(SEQUENCE_NUMBER_FIELD_NAME, getSequenceNumber());
     if (getSpecification() != null) {
       msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeMessageFactory));
@@ -62,10 +62,10 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return msg;
   
   }
-  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeFieldContainer msg) {
+  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeMsg msg) {
     Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
-    FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
-    FudgeFieldContainer fields = msg.getMessage(FIELDS_FIELD_NAME);
+    FudgeMsg specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
+    FudgeMsg fields = msg.getMessage(FIELDS_FIELD_NAME);
     // REVIEW kirk 2009-10-28 -- Right thing to do here?
     if (sequenceNumber == null) {
       return null;

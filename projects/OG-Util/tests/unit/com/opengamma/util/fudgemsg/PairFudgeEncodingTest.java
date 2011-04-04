@@ -8,7 +8,7 @@ package com.opengamma.util.fudgemsg;
 import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.IntDoublePair;
 import com.opengamma.util.tuple.LongDoublePair;
@@ -75,7 +75,7 @@ public class PairFudgeEncodingTest {
 
   private void testFudgeMessage(final Pair<?, ?> pair) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeFieldContainer msg = context.objectToFudgeMsg(pair);
+    FudgeMsg msg = context.objectToFudgeMsg(pair);
     s_logger.debug("Paging {}", pair);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

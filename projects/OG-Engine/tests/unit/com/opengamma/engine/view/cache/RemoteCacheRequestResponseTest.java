@@ -23,8 +23,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.DirectFudgeConnection;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -214,14 +214,14 @@ public class RemoteCacheRequestResponseTest {
     FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
 
     // Single value
-    final MutableFudgeFieldContainer inputValue1 = s_fudgeContext.newMessage();
+    final MutableFudgeMsg inputValue1 = s_fudgeContext.newMessage();
     for (int i = 0; i < 32; i++) {
       inputValue1.add(i, Integer.toString(i));
     }
     long identifier1 = 1L;
     dataStore.put(identifier1, inputValue1);
 
-    FudgeFieldContainer outputValue = dataStore.get(identifier1);
+    FudgeMsg outputValue = dataStore.get(identifier1);
     assertNotNull(outputValue);
     assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
 
@@ -233,18 +233,18 @@ public class RemoteCacheRequestResponseTest {
     assertEquals(inputValue1.getAllFields(), outputValue.getAllFields());
 
     // Multiple value
-    final MutableFudgeFieldContainer inputValue2 = s_fudgeContext.newMessage();
+    final MutableFudgeMsg inputValue2 = s_fudgeContext.newMessage();
     for (int i = 32; i < 64; i++) {
       inputValue2.add(i, Integer.toString(i));
     }
-    final Map<Long, FudgeFieldContainer> inputMap = new HashMap<Long, FudgeFieldContainer>();
+    final Map<Long, FudgeMsg> inputMap = new HashMap<Long, FudgeMsg>();
     identifier1++;
     long identifier2 = identifier1 + 1;
     inputMap.put(identifier1, inputValue1);
     inputMap.put(identifier2, inputValue2);
     dataStore.put(inputMap);
 
-    final Map<Long, FudgeFieldContainer> outputMap = dataStore.get(Arrays.asList(identifier1, identifier2));
+    final Map<Long, FudgeMsg> outputMap = dataStore.get(Arrays.asList(identifier1, identifier2));
     assertEquals(2, outputMap.size());
     assertEquals(inputValue1.getAllFields(), outputMap.get(identifier1).getAllFields());
     assertEquals(inputValue2.getAllFields(), outputMap.get(identifier2).getAllFields());
@@ -258,15 +258,16 @@ public class RemoteCacheRequestResponseTest {
     conduit.connectEnd2 (server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     final long timestamp = System.currentTimeMillis();
-    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueIdentifier.of("Test", "ViewProcess1"), "Config1", timestamp));
-    final MutableFudgeFieldContainer inputValue = s_fudgeContext.newMessage();
+    FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey("View1", "Config1",
+        timestamp));
+    final MutableFudgeMsg inputValue = s_fudgeContext.newMessage();
     for (int i = 0; i < 32; i++) {
       inputValue.add(i, Integer.toString(i));
     }
     final long identifier = 1L;
     dataStore.put(identifier, inputValue);
 
-    FudgeFieldContainer outputValue = dataStore.get(identifier);
+    FudgeMsg outputValue = dataStore.get(identifier);
     assertNotNull(outputValue);
     assertEquals(inputValue.getAllFields(), outputValue.getAllFields());
 

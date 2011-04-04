@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -355,7 +355,7 @@ public class IdentifierBundleTest {
         Identifier.of("id1", "value1"),
         Identifier.of("id2", "value2")
       );
-    FudgeFieldContainer msg = input.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = input.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     

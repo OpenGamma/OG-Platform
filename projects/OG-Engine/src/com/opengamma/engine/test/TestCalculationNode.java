@@ -8,7 +8,7 @@ package com.opengamma.engine.test;
 import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -24,7 +24,7 @@ import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGa
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 public class TestCalculationNode extends AbstractCalculationNode {
 
@@ -38,7 +38,7 @@ public class TestCalculationNode extends AbstractCalculationNode {
           }
 
           @Override
-          public void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver) {
+          public void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver) {
             // No-op
           }
 

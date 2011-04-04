@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -78,7 +78,7 @@ public class MarketDataSnapshotMasterResource {
     if (document == null) {
       return null;
     }
-    final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+    final MutableFudgeMsg resp = getFudgeContext().newMessage();
     resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(resp);
   }
@@ -90,7 +90,7 @@ public class MarketDataSnapshotMasterResource {
     try {
       final MarketDataSnapshotDocument document = _snapshotMaster.get(uid);
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-      final MutableFudgeFieldContainer resp = sctx.newMessage();
+      final MutableFudgeMsg resp = sctx.newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
       sctx.objectToFudgeMsgWithClassHeaders(resp, "snapshot", null, document.getSnapshot(), StructuredMarketDataSnapshot.class);
       return new FudgeMsgEnvelope(resp);
@@ -124,7 +124,7 @@ public class MarketDataSnapshotMasterResource {
       if (document == null) {
         return null;
       }
-      final MutableFudgeFieldContainer resp = getFudgeContext().newMessage();
+      final MutableFudgeMsg resp = getFudgeContext().newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
       return new FudgeMsgEnvelope(resp);
       
@@ -143,7 +143,7 @@ public class MarketDataSnapshotMasterResource {
   @GET
   @Path("debugInfo")
   public FudgeMsgEnvelope getDebugInfo() {
-    final MutableFudgeFieldContainer message = getFudgeContext().newMessage();
+    final MutableFudgeMsg message = getFudgeContext().newMessage();
     message.add("fudgeContext", getFudgeContext().toString());
     message.add("snapshotMaster", _snapshotMaster.toString());
     return new FudgeMsgEnvelope(message);

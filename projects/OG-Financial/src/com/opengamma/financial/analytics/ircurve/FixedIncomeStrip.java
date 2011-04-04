@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -155,16 +155,16 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   //-------------------------------------------------------------------------
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeMsg message) {
     FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
-    MutableFudgeFieldContainer container = builder.buildMessage(context, this);
+    MutableFudgeMsg container = builder.buildMessage(context, this);
     for (FudgeField field : container.getAllFields()) {
       message.add(field);
     }
   }
 
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
-  public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg message) {
     FixedIncomeStripBuilder builder = new FixedIncomeStripBuilder();
     return builder.buildObject(context, message);
   }

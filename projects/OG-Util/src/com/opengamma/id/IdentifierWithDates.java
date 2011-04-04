@@ -11,9 +11,9 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -187,10 +187,10 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
-    MutableFudgeFieldContainer fudgeMsg = _identifier.toFudgeMsg(factory, message);
+    MutableFudgeMsg fudgeMsg = _identifier.toFudgeMsg(factory, message);
     if (_validFrom != null) {
       fudgeMsg.add(VALID_FROM_FUDGE_FIELD_NAME, _validFrom);
     }
@@ -205,7 +205,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -214,7 +214,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static IdentifierWithDates fromFudgeMsg(FudgeFieldContainer msg) {
+  public static IdentifierWithDates fromFudgeMsg(FudgeMsg msg) {
     Identifier identifier = Identifier.fromFudgeMsg(msg);
     FudgeField field = msg.getByName(VALID_FROM_FUDGE_FIELD_NAME);
     LocalDate validFrom = null;

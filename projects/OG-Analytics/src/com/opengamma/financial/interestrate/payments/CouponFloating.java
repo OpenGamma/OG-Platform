@@ -7,8 +7,10 @@ package com.opengamma.financial.interestrate.payments;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.money.Currency;
+
 /**
- * Class describing a generic floating coupon with a uniaue fixing date.
+ * Class describing a generic floating coupon with a unique fixing date.
  */
 public class CouponFloating extends Coupon {
 
@@ -16,14 +18,15 @@ public class CouponFloating extends Coupon {
 
   /**
    * Constructor from all the details.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    */
-  public CouponFloating(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime) {
-    super(paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public CouponFloating(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.isTrue(fixingTime >= 0.0, "fixing time < 0");
     _fixingTime = fixingTime;
   }

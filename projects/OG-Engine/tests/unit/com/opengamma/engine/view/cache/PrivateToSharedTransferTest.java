@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.value.ComputedValue;
@@ -28,7 +28,7 @@ import com.opengamma.engine.view.cache.DefaultViewComputationCacheSource.Missing
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
@@ -76,8 +76,8 @@ public class PrivateToSharedTransferTest {
     source.setMissingValueLoader(new MissingValueLoader() {
 
       @Override
-      public FudgeFieldContainer findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
-        assertEquals(UniqueIdentifier.of("Test", "ViewProcess"), cache.getViewProcessId());
+      public FudgeMsg findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
+        assertEquals("Test View", cache.getViewName());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
         int i = Integer.parseInt(spec.getValueName());
@@ -96,9 +96,9 @@ public class PrivateToSharedTransferTest {
       }
 
       @Override
-      public Map<Long, FudgeFieldContainer> findMissingValues(final ViewComputationCacheKey cache,
+      public Map<Long, FudgeMsg> findMissingValues(final ViewComputationCacheKey cache,
           final Collection<Long> identifiers) {
-        final Map<Long, FudgeFieldContainer> map = new HashMap<Long, FudgeFieldContainer>();
+        final Map<Long, FudgeMsg> map = new HashMap<Long, FudgeMsg>();
         for (Long identifier : identifiers) {
           map.put(identifier, findMissingValue(cache, identifier));
         }

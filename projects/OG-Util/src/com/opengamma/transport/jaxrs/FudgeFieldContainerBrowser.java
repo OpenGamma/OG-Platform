@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
@@ -19,9 +19,9 @@ import org.fudgemsg.FudgeMsgEnvelope;
  */
 public class FudgeFieldContainerBrowser {
 
-  private final FudgeFieldContainer _message;
+  private final FudgeMsg _message;
 
-  public FudgeFieldContainerBrowser(final FudgeFieldContainer message) {
+  public FudgeFieldContainerBrowser(final FudgeMsg message) {
     _message = message;
   }
 
@@ -36,10 +36,10 @@ public class FudgeFieldContainerBrowser {
     if (field == null) {
       return null;
     }
-    if (!(field.getValue() instanceof FudgeFieldContainer)) {
+    if (!(field.getValue() instanceof FudgeMsg)) {
       return null;
     }
-    return new FudgeFieldContainerBrowser((FudgeFieldContainer) field.getValue());
+    return new FudgeFieldContainerBrowser((FudgeMsg) field.getValue());
   }
 
 }

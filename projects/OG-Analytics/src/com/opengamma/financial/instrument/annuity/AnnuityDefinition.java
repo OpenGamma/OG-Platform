@@ -21,8 +21,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency. All the payments have the same reference amount sign and the 
- * reference amount are non-zero. 
+ * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency. 
  * @param <P> The payment type 
  *
  */
@@ -49,10 +48,8 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
-      //      Validate.isTrue(payments[loopcpn - 1].getReferenceAmount() * payments[loopcpn].getReferenceAmount() >= 0, "payments should all have the same sign");
       amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
     }
-    //    Validate.isTrue(amount != 0, "at least one payment should be non-zero");
     _payments = payments;
     _isPayer = (amount < 0);
   }
@@ -142,12 +139,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
 
   @Override
   public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
-    return null;
+    return visitor.visitAnnuityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    return visitor.visitAnnuityDefinition(this);
   }
 
 }

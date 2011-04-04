@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -25,6 +27,7 @@ import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -39,6 +42,7 @@ public class NodeSensitivityCalculatorTest {
   private static final LinkedHashMap<String, YieldAndDiscountCurve> INTERPOLATED_CURVES;
   private static final YieldAndDiscountCurve FUNDING_CURVE;
   private static final YieldAndDiscountCurve LIBOR_CURVE;
+  private static final Currency CUR = Currency.USD;
 
   static {
     final double[] fixedPaymentTimes = new double[] {1, 2, 3, 4, 5};
@@ -61,7 +65,7 @@ public class NodeSensitivityCalculatorTest {
     INTERPOLATED_CURVES.put(LIBOR_CURVE_NAME, LIBOR_CURVE);
 
     final double couponRate = 0.07;
-    IRD = new FixedFloatSwap(fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
+    IRD = new FixedFloatSwap(CUR, fixedPaymentTimes, floatingPaymentTimes, couponRate, FUNDING_CURVE_NAME, LIBOR_CURVE_NAME, true);
 
   }
 

@@ -13,8 +13,8 @@ import org.testng.annotations.Test;
 import java.util.Collections;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.google.common.collect.Lists;
@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -55,8 +55,8 @@ public class CalculationJobResultTest {
         "localhost");
     result.convertInputs(identifierMap);
     FudgeSerializationContext serializationContext = new FudgeSerializationContext(s_fudgeContext);
-    MutableFudgeFieldContainer inputMsg = serializationContext.objectToFudgeMsg(result);
-    FudgeFieldContainer outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
+    MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(result);
+    FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
     
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(s_fudgeContext);
     CalculationJobResult outputJob = deserializationContext.fudgeMsgToObject(CalculationJobResult.class, outputMsg);

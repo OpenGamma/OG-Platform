@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
@@ -32,11 +32,15 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
   /**
    * Swap underlying the swaption.
    */
-  private final ZZZSwapFixedIborDefinition _underlyingSwap;
+  private final SwapFixedIborDefinition _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
   private final boolean _isLong;
+  /**
+   * The cash settlement date of the swaption.
+   */
+  private final ZonedDateTime _settlementDate;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flqg.
@@ -46,13 +50,14 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionCashFixedIborDefinition(ZonedDateTime expiryDate, double strike, ZZZSwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
+  private SwaptionCashFixedIborDefinition(ZonedDateTime expiryDate, double strike, SwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
     super(strike, new Expiry(expiryDate), isCall);
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
+    _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
   }
 
   /**
@@ -62,7 +67,7 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionCashFixedIborDefinition from(ZonedDateTime expiryDate, ZZZSwapFixedIborDefinition underlyingSwap, boolean isLong) {
+  public static SwaptionCashFixedIborDefinition from(ZonedDateTime expiryDate, SwapFixedIborDefinition underlyingSwap, boolean isLong) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     // A swaption payer can be consider as a call on the swap rate.
@@ -78,15 +83,16 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, getExpiry().getExpiry());
+    final double settlementTime = actAct.getDayCountFraction(zonedDate, _settlementDate);
     final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, _isLong);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 
   /**
    * Gets the _underlyingSwap field.
    * @return The underlying swap.
    */
-  public ZZZSwapFixedIborDefinition getUnderlyingSwap() {
+  public SwapFixedIborDefinition getUnderlyingSwap() {
     return _underlyingSwap;
   }
 
@@ -96,6 +102,14 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the swaption settlement date.
+   * @return The settlement date.
+   */
+  public ZonedDateTime getSettlementDate() {
+    return _settlementDate;
   }
 
   @Override

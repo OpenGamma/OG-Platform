@@ -6,7 +6,7 @@
 package com.opengamma.transport.jaxrs;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.transport.EndPointDescriptionProvider;
 
@@ -39,7 +39,7 @@ public class RemoteEndPointDescriptionProvider implements EndPointDescriptionPro
   }
 
   @Override
-  public FudgeFieldContainer getEndPointDescription(final FudgeContext fudgeContext) {
+  public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
     RestClient client = getRestClient();
     if (client == null) {
       client = RestClient.getInstance(fudgeContext, null);

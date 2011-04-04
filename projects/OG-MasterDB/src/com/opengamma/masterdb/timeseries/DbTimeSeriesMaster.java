@@ -104,6 +104,8 @@ import com.opengamma.master.timeseries.TimeSeriesSearchRequest;
 import com.opengamma.master.timeseries.TimeSeriesSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.DbHelper;
+import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -327,11 +329,6 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   }
 
   private long getOrCreateTimeSeriesKey(long bundleId, String dataSource, String dataProvider, String field, String observationTime) {
-//    long timeSeriesKeyID = getTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
-//    if (timeSeriesKeyID == INVALID_KEY) {
-//      timeSeriesKeyID = createTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
-//    }
-//    return timeSeriesKeyID;
     return createTimeSeriesKey(bundleId, dataSource, dataProvider, field, observationTime);
   }
 
@@ -355,20 +352,21 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     return getDataSourceId(dataSource);
   }
 
-  private Map<Long, List<IdentifierWithDates>> searchIdentifierBundles(final Collection<Identifier> identifiers, String identifierValue, final Date currentDate) {
-    IdentifierBundleHandler rowHandler = new IdentifierBundleHandler();
+  private Map<Long, List<IdentifierWithDates>> searchIdentifierBundles(final TimeSeriesSearchRequest<T> request) {
     String namedSql = _namedSQLMap.get(SELECT_BUNDLE_FROM_IDENTIFIERS);
     StringBuilder bundleWhereCondition = new StringBuilder(" ");
-    Object[] parameters = null;
     String findIdentifiersSql = null;
     
-    if ((identifiers == null || identifiers.isEmpty()) && identifierValue == null) {
+    ArrayList<Object> parametersList = new ArrayList<Object>();
+    Collection<Identifier> requestIdentifiers = request.getIdentifiers();
+    String identifierValue = request.getIdentifierValue();
+    Date currentDate = toSqlDate(request.getCurrentDate());
+    if ((requestIdentifiers == null || requestIdentifiers.isEmpty()) && identifierValue == null) {
       findIdentifiersSql = _namedSQLMap.get(LOAD_ALL_IDENTIFIERS);
     } else {
       int orCounter = 1;
-      ArrayList<Object> parametersList = new ArrayList<Object>();
-      if (identifiers != null) {
-        for (Identifier identifier : identifiers) {
+      if (requestIdentifiers != null) {
+        for (Identifier identifier : requestIdentifiers) {
           bundleWhereCondition.append("( ");
           bundleWhereCondition.append("d.name = ? AND dsi.identifier_value = ? ");
           parametersList.add(identifier.getScheme().getName());
@@ -382,35 +380,33 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
           } 
           
           bundleWhereCondition.append(" )");
-          if (orCounter++ != identifiers.size()) {
+          if (orCounter++ != requestIdentifiers.size()) {
             bundleWhereCondition.append(" OR ");
           }
         }
       }
+      
       if (identifierValue != null) {
         if (!parametersList.isEmpty()) {
           bundleWhereCondition.append(" OR ");
         }
-        String identifierValueQuery = getDbSource().getDialect().sqlWildcardQuery("dsi.identifier_value ", "?", identifierValue);
-        bundleWhereCondition.append(identifierValueQuery);
-        String adjustedIdentifierValue = getDbSource().getDialect().sqlWildcardAdjustValue(identifierValue);
-        parametersList.add(adjustedIdentifierValue);
-        
+        bundleWhereCondition.append(getDbSource().getDialect().sqlWildcardQuery("UPPER(dsi.identifier_value) ", "UPPER(?) ", identifierValue));
+        parametersList.add(getDbSource().getDialect().sqlWildcardAdjustValue(identifierValue));
         if (currentDate != null) {
-          bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL)");
+          bundleWhereCondition.append("AND (dsi.valid_from <= ?  OR dsi.valid_from IS NULL) AND (dsi.valid_to >= ? OR dsi.valid_to IS NULL) ");
           parametersList.add(currentDate);
           parametersList.add(currentDate);
         }
       }
       bundleWhereCondition.append(" ");
       findIdentifiersSql = StringUtils.replace(namedSql, ":identifierBundleClause", bundleWhereCondition.toString());
-      
-      parameters = parametersList.toArray();
     }
     
+    IdentifierBundleHandler rowHandler = new IdentifierBundleHandler();
     JdbcOperations jdbcOperations = getJdbcTemplate().getJdbcOperations();
-    jdbcOperations.query(findIdentifiersSql, parameters, rowHandler);
-    
+    s_logger.debug("searchIdentifierBundles {}", findIdentifiersSql);
+    s_logger.debug("parameters {}", parametersList.toArray());
+    jdbcOperations.query(findIdentifiersSql, parametersList.toArray(), rowHandler);
     return rowHandler.getResult();
   }
 
@@ -819,9 +815,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       s_logger.debug("TimeSeries not found id: {}", tsId);
       throw new DataNotFoundException("TimeSeries not found id: " + tsId);
     }
-    
-    
-    
+  
     result.setIdentifiers(new IdentifierBundleWithDates(identifiers));
     assert (dataFieldSet.size() == 1);
     result.setDataField(dataFieldSet.iterator().next());
@@ -831,10 +825,8 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     result.setDataSource(dataSourceSet.iterator().next());
     assert (observationTimeSet.size() == 1);
     result.setObservationTime(observationTimeSet.iterator().next());
-    assert (tsKeySet.size() == 1);
-    
+    assert (tsKeySet.size() == 1);  
     return result;
-    
   }
 
   @Override
@@ -1032,117 +1024,145 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
   @Override
   public TimeSeriesSearchResult<T> searchTimeSeries(TimeSeriesSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "timeseries request");
+    if (request.getTimeSeriesId() != null) {
+      return searchByUniqueIdentifier(request);
+    } else {
+      return searchByMetaData(request);
+    }
+  }
+
+  private TimeSeriesSearchResult<T> searchByMetaData(TimeSeriesSearchRequest<T> request) {
     
-    TimeSeriesSearchResult<T> result = new TimeSeriesSearchResult<T>();
-    UniqueIdentifier uniqueId = request.getTimeSeriesId();
-    if (uniqueId != null) {
-      long tsId = validateAndGetTimeSeriesId(uniqueId);
-      MetaData<T> tsMetaData = getTimeSeriesMetaData(tsId);
-      s_logger.debug("tsMetaData={}", tsMetaData);
+    TimeSeriesSearchResult<T> result = new TimeSeriesSearchResult<T>();  
+    Map<Long, List<IdentifierWithDates>> bundleMap = searchIdentifierBundles(request);
+    
+    if (hasIdentifier(request) && bundleMap.isEmpty()) {
+      return result;
+    }
+    
+    DbMapSqlParameterSource parameters = new DbMapSqlParameterSource();
+    String metaDataSql = getMetaDataSQL(request, bundleMap.keySet(), parameters);
+        
+    TimeSeriesMetaDataRowMapper<T> rowMapper = new TimeSeriesMetaDataRowMapper<T>(this);
+    rowMapper.setLoadDates(request.isLoadDates());
+    
+    String countSql = createTotalCountSql(metaDataSql);
+    int count = getJdbcTemplate().queryForInt(countSql, parameters);
+    String sqlApplyPaging = getDbSource().getDialect().sqlApplyPaging(metaDataSql, StringUtils.EMPTY, request.getPagingRequest());
+    
+    List<MetaData<T>> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
+    for (MetaData<T> tsMetaData : tsMetaDataList) {
       TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
+      Long bundleId = tsMetaData.getIdentifierBundleId();
+      long timeSeriesKey = tsMetaData.getTimeSeriesId();
       document.setDataField(tsMetaData.getDataField());
       document.setDataProvider(tsMetaData.getDataProvider());
       document.setDataSource(tsMetaData.getDataSource());
-      document.setIdentifiers(tsMetaData.getIdentifiers());
+      
+      List<IdentifierWithDates> identifiers = bundleMap.get(bundleId);
+      
+      document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
       document.setObservationTime(tsMetaData.getObservationTime());
-      document.setUniqueId(uniqueId);
+      document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
       if (request.isLoadDates()) {
-        //load timeseries date ranges
-        Map<String, T> dates = getTimeSeriesDateRange(tsId);
-        tsMetaData.setEarliestDate(dates.get("earliest"));
-        tsMetaData.setLatestDate(dates.get("latest"));
+        document.setEarliest(tsMetaData.getEarliestDate());
+        document.setLatest(tsMetaData.getLatestDate());
       }
       if (request.isLoadTimeSeries()) {
-        DoubleTimeSeries<T> timeSeries = loadTimeSeries(tsId, request.getStart(), request.getEnd());
-        document.setTimeSeries(timeSeries);
+        DoubleTimeSeries<T> loadTimeSeries = loadTimeSeries(timeSeriesKey, request.getStart(), request.getEnd());
+        document.setTimeSeries(loadTimeSeries);
       }
       result.getDocuments().add(document);
-    } else {
-      String dataSource = request.getDataSource();
-      String dataProvider = request.getDataProvider();
-      String dataField = request.getDataField();
-      String observationTime = request.getObservationTime();
-      String metaDataSql = null;
-      Collection<Identifier> requestIdentifiers = request.getIdentifiers();
-      Date currentDate = null;
-      if (request.getCurrentDate() != null) {
-        currentDate = DbDateUtils.toSqlDate(request.getCurrentDate());
-      }
-      Map<Long, List<IdentifierWithDates>> bundles = searchIdentifierBundles(requestIdentifiers, request.getIdentifierValue(), currentDate);
-      
-      boolean useBundleIds = (requestIdentifiers != null && !requestIdentifiers.isEmpty()) || request.getIdentifierValue() != null;
-      
-      if (request.isLoadDates()) {
-        if (useBundleIds) {
-          metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS);
-        } else {
-          metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES);
-        }
-      } else {
-        if (useBundleIds) {
-          if (bundles.isEmpty()) {
-            return result;
-          }
-          metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA_BY_IDENTIFIERS);
-        } else {
-          metaDataSql = _namedSQLMap.get(GET_ACTIVE_META_DATA);
-        }
-      }
-      metaDataSql = metaDataSql.toUpperCase();
-      MapSqlParameterSource parameters = new MapSqlParameterSource();
-      if (dataSource != null) {
-        metaDataSql +=  " AND DS.NAME = :DATASOURCE ";
-        parameters.addValue("DATASOURCE", dataSource, Types.VARCHAR);
-      }
-      if (dataProvider != null) {
-        metaDataSql +=  " AND DP.NAME = :DATAPROVIDER ";
-        parameters.addValue("DATAPROVIDER", dataProvider, Types.VARCHAR);
-      }
-      if (dataField != null) {
-        metaDataSql +=  " AND DF.NAME = :DATAFIELD ";
-        parameters.addValue("DATAFIELD", dataField, Types.VARCHAR);
-      }
-      if (observationTime != null) {
-        metaDataSql +=  " AND OT.NAME = :OBSERVATIONTIME ";
-        parameters.addValue("OBSERVATIONTIME", observationTime, Types.VARCHAR);
-      }
-      
-      if (useBundleIds) {
-        parameters.addValue("BUNDLEIDS", bundles.keySet());
-      }
-      TimeSeriesMetaDataRowMapper<T> rowMapper = new TimeSeriesMetaDataRowMapper<T>(this);
-      rowMapper.setLoadDates(request.isLoadDates());
-      
-      String countSql = createTotalCountSql(metaDataSql);
-      int count = getJdbcTemplate().queryForInt(countSql, parameters);
-      String sqlApplyPaging = getDbSource().getDialect().sqlApplyPaging(metaDataSql, StringUtils.EMPTY, request.getPagingRequest());
-      
-      List<MetaData<T>> tsMetaDataList = getJdbcTemplate().query(sqlApplyPaging, rowMapper, parameters);
-      for (MetaData<T> tsMetaData : tsMetaDataList) {
-        TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
-        Long bundleId = tsMetaData.getIdentifierBundleId();
-        long timeSeriesKey = tsMetaData.getTimeSeriesId();
-        document.setDataField(tsMetaData.getDataField());
-        document.setDataProvider(tsMetaData.getDataProvider());
-        document.setDataSource(tsMetaData.getDataSource());
-        
-        List<IdentifierWithDates> identifiers = bundles.get(bundleId);
-        
-        document.setIdentifiers(new IdentifierBundleWithDates(identifiers));
-        document.setObservationTime(tsMetaData.getObservationTime());
-        document.setUniqueId(UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, String.valueOf(tsMetaData.getTimeSeriesId())));
-        if (request.isLoadDates()) {
-          document.setEarliest(tsMetaData.getEarliestDate());
-          document.setLatest(tsMetaData.getLatestDate());
-        }
-        if (request.isLoadTimeSeries()) {
-          DoubleTimeSeries<T> loadTimeSeries = loadTimeSeries(timeSeriesKey, request.getStart(), request.getEnd());
-          document.setTimeSeries(loadTimeSeries);
-        }
-        result.getDocuments().add(document);
-      }
-      result.setPaging(new Paging(request.getPagingRequest(), count));
     }
+    result.setPaging(new Paging(request.getPagingRequest(), count));
+    return result;
+  }
+
+  private boolean hasIdentifier(TimeSeriesSearchRequest<T> request) {
+    return (request.getIdentifiers() != null && !request.getIdentifiers().isEmpty()) || request.getIdentifierValue() != null;
+  }
+
+  private String getMetaDataSQL(final TimeSeriesSearchRequest<T> request, final Set<Long> ids, final DbMapSqlParameterSource parameters) {
+    StringBuilder result = new StringBuilder();
+    if (request.isLoadDates()) {
+      if (hasIdentifier(request)) {
+        result.append(_namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES_BY_IDENTIFIERS).toUpperCase());
+      } else {
+        result.append(_namedSQLMap.get(GET_ACTIVE_META_DATA_WITH_DATES).toUpperCase());
+      }
+    } else {
+      if (hasIdentifier(request)) {
+        result.append(_namedSQLMap.get(GET_ACTIVE_META_DATA_BY_IDENTIFIERS).toUpperCase());
+      } else {
+        result.append(_namedSQLMap.get(GET_ACTIVE_META_DATA).toUpperCase());
+      }
+    }
+    
+    final String dataSource = request.getDataSource();
+    if (dataSource != null) {
+      result.append(getDbHelper().sqlWildcardQuery("AND UPPER(DS.NAME) ", "UPPER(:DATASOURCE)", dataSource));
+      parameters.addValueNullIgnored("DATASOURCE", getDbHelper().sqlWildcardAdjustValue(dataSource));
+    }
+    
+    final String dataProvider = request.getDataProvider();
+    if (dataProvider != null) {
+      result.append(getDbHelper().sqlWildcardQuery("AND UPPER(DP.NAME) ", "UPPER(:DATAPROVIDER)", dataProvider));
+      parameters.addValueNullIgnored("DATAPROVIDER", getDbHelper().sqlWildcardAdjustValue(dataProvider));
+    }
+    
+    final String dataField = request.getDataField();
+    if (dataField != null) {
+      result.append(getDbHelper().sqlWildcardQuery("AND UPPER(DF.NAME) ", "UPPER(:DATAFIELD)", dataField));
+      parameters.addValueNullIgnored("DATAFIELD", getDbHelper().sqlWildcardAdjustValue(dataField));
+    }
+    
+    final String observationTime = request.getObservationTime();
+    if (observationTime != null) {
+      result.append(getDbHelper().sqlWildcardQuery("AND UPPER(OT.NAME) ", "UPPER(:OBSERVATIONTIME)", observationTime));
+      parameters.addValueNullIgnored("OBSERVATIONTIME", getDbHelper().sqlWildcardAdjustValue(observationTime));
+    }
+    if (hasIdentifier(request)) {
+      parameters.addValue("BUNDLEIDS", ids);
+    }
+    return result.toString();
+  }
+  
+  private Date toSqlDate(final LocalDate localDate) {
+    Date result = null;
+    if (localDate != null) {
+      result = DbDateUtils.toSqlDate(localDate);
+    }
+    return result;
+  }
+  
+  private DbHelper getDbHelper() {
+    return getDbSource().getDialect();
+  }
+
+  private TimeSeriesSearchResult<T> searchByUniqueIdentifier(TimeSeriesSearchRequest<T> request) {
+    TimeSeriesSearchResult<T> result = new TimeSeriesSearchResult<T>();
+    UniqueIdentifier uniqueId = request.getTimeSeriesId();
+    long tsId = validateAndGetTimeSeriesId(uniqueId);
+    MetaData<T> tsMetaData = getTimeSeriesMetaData(tsId);
+    s_logger.debug("tsMetaData={}", tsMetaData);
+    TimeSeriesDocument<T> document = new TimeSeriesDocument<T>();
+    document.setDataField(tsMetaData.getDataField());
+    document.setDataProvider(tsMetaData.getDataProvider());
+    document.setDataSource(tsMetaData.getDataSource());
+    document.setIdentifiers(tsMetaData.getIdentifiers());
+    document.setObservationTime(tsMetaData.getObservationTime());
+    document.setUniqueId(uniqueId);
+    if (request.isLoadDates()) {
+      //load timeseries date ranges
+      Map<String, T> dates = getTimeSeriesDateRange(tsId);
+      tsMetaData.setEarliestDate(dates.get("earliest"));
+      tsMetaData.setLatestDate(dates.get("latest"));
+    }
+    if (request.isLoadTimeSeries()) {
+      DoubleTimeSeries<T> timeSeries = loadTimeSeries(tsId, request.getStart(), request.getEnd());
+      document.setTimeSeries(timeSeries);
+    }
+    result.getDocuments().add(document);
     return result;
   }
 
@@ -1479,5 +1499,5 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     }
 
   }
- 
+  
 }

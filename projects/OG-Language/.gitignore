@@ -2,6 +2,7 @@
 /TestResults/
 /Client/tests/classes/
 /Client/tests/output/
+/tests/output/
 /dist/
 /*/Debug/
 /*/Release/
@@ -13,7 +14,6 @@
 /*/*.vcxproj.user
 /Connector/com_opengamma_language_*
 /OG-Language.suo
-.fudge-proto-gitignore
 MANIFEST.MF
 build.number
 .settings/

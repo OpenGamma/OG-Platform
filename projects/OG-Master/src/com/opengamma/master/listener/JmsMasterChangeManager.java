@@ -9,7 +9,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Manager for receiving and handling events from masters.
@@ -126,7 +126,7 @@ public class JmsMasterChangeManager extends BasicMasterChangeManager implements 
 
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    FudgeFieldContainer msg = msgEnvelope.getMessage();
+    FudgeMsg msg = msgEnvelope.getMessage();
     s_logger.debug("Master changed: Received message {}", msg);
     FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     MasterChanged event = context.fudgeMsgToObject(MasterChanged.class, msg);

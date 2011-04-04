@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.view.cache.msg.CacheMessage;
 import com.opengamma.engine.view.cache.msg.DeleteRequest;
@@ -50,21 +50,21 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public FudgeFieldContainer get(long identifier) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(), getCacheKey()
+  public FudgeMsg get(long identifier) {
+    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier));
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
-    final FudgeFieldContainer data = response.getData().get(0);
+    final FudgeMsg data = response.getData().get(0);
     return data.isEmpty() ? null : data;
   }
 
   @Override
-  public Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers) {
-    final GetRequest request = new GetRequest(getCacheKey().getViewProcessId(), getCacheKey()
+  public Map<Long, FudgeMsg> get(Collection<Long> identifiers) {
+    final GetRequest request = new GetRequest(getCacheKey().getViewName(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), identifiers);
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
-    final Map<Long, FudgeFieldContainer> result = new HashMap<Long, FudgeFieldContainer>();
-    final List<FudgeFieldContainer> values = response.getData();
+    final Map<Long, FudgeMsg> result = new HashMap<Long, FudgeMsg>();
+    final List<FudgeMsg> values = response.getData();
     int i = 0;
     for (Long identifier : request.getIdentifier()) {
       result.put(identifier, values.get(i++));
@@ -73,18 +73,18 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public void put(long identifier, FudgeFieldContainer data) {
-    final PutRequest request = new PutRequest(getCacheKey().getViewProcessId(), getCacheKey()
+  public void put(long identifier, FudgeMsg data) {
+    final PutRequest request = new PutRequest(getCacheKey().getViewName(), getCacheKey()
         .getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), Collections.singleton(identifier),
         Collections.singleton(data));
     getRemoteCacheClient().sendPutMessage(request, CacheMessage.class);
   }
 
   @Override
-  public void put(Map<Long, FudgeFieldContainer> data) {
+  public void put(Map<Long, FudgeMsg> data) {
     final List<Long> identifiers = new ArrayList<Long>(data.size());
-    final List<FudgeFieldContainer> values = new ArrayList<FudgeFieldContainer>(data.size());
-    for (Map.Entry<Long, FudgeFieldContainer> entry : data.entrySet()) {
+    final List<FudgeMsg> values = new ArrayList<FudgeMsg>(data.size());
+    for (Map.Entry<Long, FudgeMsg> entry : data.entrySet()) {
       identifiers.add(entry.getKey());
       values.add(entry.getValue());
     }

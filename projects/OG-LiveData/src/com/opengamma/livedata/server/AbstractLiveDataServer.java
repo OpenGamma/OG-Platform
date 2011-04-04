@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -166,7 +166,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param uniqueIds Not null. May be empty.
    * @throws RuntimeException If the snapshot could not be obtained.
    */
-  protected abstract Map<String, FudgeFieldContainer> doSnapshot(Collection<String> uniqueIds);
+  protected abstract Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds);
 
   /**
    * @return Identification domain that uniquely identifies securities for this
@@ -397,8 +397,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
       
       s_logger.info("Subscription snapshot required for {}", newSubscriptionsForWhichSnapshotIsRequired);
-      Map<String, FudgeFieldContainer> snapshots = doSnapshot(newSubscriptionsForWhichSnapshotIsRequired);
-      for (Map.Entry<String, FudgeFieldContainer> snapshot : snapshots.entrySet()) {
+      Map<String, FudgeMsg> snapshots = doSnapshot(newSubscriptionsForWhichSnapshotIsRequired);
+      for (Map.Entry<String, FudgeMsg> snapshot : snapshots.entrySet()) {
         Subscription subscription = securityUniqueId2NewSubscription.get(snapshot.getKey());
         subscription.initialSnapshotReceived(snapshot.getValue());
       }
@@ -519,16 +519,16 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
 
     s_logger.info("Need to actually snapshot {}", snapshotsToActuallyDo);
-    Map<String, FudgeFieldContainer> snapshots = doSnapshot(snapshotsToActuallyDo);
-    for (Map.Entry<String, FudgeFieldContainer> snapshotEntry : snapshots.entrySet()) {
+    Map<String, FudgeMsg> snapshots = doSnapshot(snapshotsToActuallyDo);
+    for (Map.Entry<String, FudgeMsg> snapshotEntry : snapshots.entrySet()) {
       String securityUniqueId = snapshotEntry.getKey();
-      FudgeFieldContainer msg = snapshotEntry.getValue();
+      FudgeMsg msg = snapshotEntry.getValue();
       
       LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
       
       DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
         .resolve(liveDataSpecFromClient);
-      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
+      FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg);
       if (normalizedMsg == null) {
         responses.add(getErrorResponse(
             liveDataSpecFromClient,
@@ -554,9 +554,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @param securityUniqueId Security unique ID
    * @return The snapshot
    */
-  public FudgeFieldContainer doSnapshot(String securityUniqueId) {
-    Map<String, FudgeFieldContainer> snapshots = doSnapshot(Collections.singleton(securityUniqueId));
-    FudgeFieldContainer snapshot = snapshots.get(securityUniqueId);
+  public FudgeMsg doSnapshot(String securityUniqueId) {
+    Map<String, FudgeMsg> snapshots = doSnapshot(Collections.singleton(securityUniqueId));
+    FudgeMsg snapshot = snapshots.get(securityUniqueId);
     if (snapshot == null) {
       throw new OpenGammaRuntimeException("doSnapshot() did not fulfill its contract to populate map for each unique ID");
     }
@@ -825,7 +825,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public void liveDataReceived(String securityUniqueId,
-      FudgeFieldContainer liveDataFields) {
+      FudgeMsg liveDataFields) {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numMarketDataUpdatesReceived.incrementAndGet();

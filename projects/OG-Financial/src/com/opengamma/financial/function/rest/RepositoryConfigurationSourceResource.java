@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
@@ -40,7 +40,7 @@ public class RepositoryConfigurationSourceResource {
   @Path("/repositoryConfiguration")
   public FudgeMsgEnvelope getRepositoryConfiguration() {
     final RepositoryConfiguration configuration = getUnderlying().getRepositoryConfiguration();
-    final MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
+    final MutableFudgeMsg msg = getFudgeContext().newMessage();
     msg.add("repositoryConfiguration", configuration.toFudgeMsg(getFudgeContext()));
     return new FudgeMsgEnvelope(msg);
   }

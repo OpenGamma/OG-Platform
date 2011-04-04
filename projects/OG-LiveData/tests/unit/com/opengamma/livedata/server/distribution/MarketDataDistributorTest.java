@@ -8,7 +8,7 @@ package com.opengamma.livedata.server.distribution;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -40,7 +40,7 @@ public class MarketDataDistributorTest {
     assertEquals(LiveDataValueUpdate.SEQUENCE_START, mdd.getNumMessagesSent());
     mdd.updateFieldHistory(FudgeContext.EMPTY_MESSAGE);
     assertEquals(0, mdd.getNumMessagesSent());
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("foo", "bar");
     mdd.distributeLiveData(msg);
     assertEquals(1, mdd.getNumMessagesSent());

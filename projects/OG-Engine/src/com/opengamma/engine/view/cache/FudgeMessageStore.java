@@ -8,7 +8,7 @@ package com.opengamma.engine.view.cache;
 import java.util.Collection;
 import java.util.Map;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -27,7 +27,7 @@ public interface FudgeMessageStore {
    * @param identifier The identifier to obtain data for
    * @return the current data stored with that identifier.
    */
-  FudgeFieldContainer get(long identifier);
+  FudgeMsg get(long identifier);
 
   /**
    * Potentially more efficient form of {@link #get} for multiple lookups.
@@ -35,7 +35,7 @@ public interface FudgeMessageStore {
    * @param identifiers identifiers to query
    * @return map of results. If there is no data for an identifier it will be missing from the map. 
    */
-  Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers);
+  Map<Long, FudgeMsg> get(Collection<Long> identifiers);
 
   /**
    * Provide data for the given identifier for this store.
@@ -43,14 +43,14 @@ public interface FudgeMessageStore {
    * @param identifier The identifier to use as a key
    * @param data The data to store
    */
-  void put(long identifier, FudgeFieldContainer data);
+  void put(long identifier, FudgeMsg data);
 
   /**
    * Potentially more efficient form of {@link #put} for multiple puts.
    * 
    * @param data map of identifier to data values to store
    */
-  void put(Map<Long, FudgeFieldContainer> data);
+  void put(Map<Long, FudgeMsg> data);
 
   /**
    * Remove any underlying resources, and free all memory, relating

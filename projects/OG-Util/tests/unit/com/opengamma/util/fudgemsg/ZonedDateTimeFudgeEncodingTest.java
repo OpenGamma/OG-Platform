@@ -13,13 +13,13 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Test ZonedDateTime Fudge.
@@ -40,7 +40,7 @@ public class ZonedDateTimeFudgeEncodingTest {
 
   private void testFudgeMessage(final ZonedDateTime zonedDateTime) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeFieldContainer msg = context.objectToFudgeMsg(zonedDateTime);
+    FudgeMsg msg = context.objectToFudgeMsg(zonedDateTime);
     s_logger.debug("ZonedDateTime {}", zonedDateTime);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

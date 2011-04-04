@@ -134,7 +134,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     final Map<String, List<DoublesPair>> senseR = visit(swap.getSecondLeg(), curves);
     final Map<String, List<DoublesPair>> senseP = visit(swap.getFirstLeg(), curves);
 
-    return addSensitivity(curves, senseR, senseP);
+    return PresentValueSensitivityUtil.addSensitivity(curves, senseR, senseP);
   }
 
   @Override
@@ -192,12 +192,13 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
 
     final double tPay = payment.getPaymentTime();
-    final double ta = payment.getFixingTime();
-    final double tb = payment.getFixingPeriodEndTime();
+    //    final double tStart = payment.getFixingTime();
+    final double tStart = payment.getFixingPeriodStartTime();
+    final double tEnd = payment.getFixingPeriodEndTime();
     final double dfPay = fundCurve.getDiscountFactor(tPay);
-    final double dfa = liborCurve.getDiscountFactor(ta);
-    final double dfb = liborCurve.getDiscountFactor(tb);
-    final double forward = (dfa / dfb - 1) / payment.getFixingYearFraction();
+    final double dfStart = liborCurve.getDiscountFactor(tStart);
+    final double dfEnd = liborCurve.getDiscountFactor(tEnd);
+    final double forward = (dfStart / dfEnd - 1) / payment.getFixingYearFraction();
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
@@ -212,10 +213,10 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
       temp = new ArrayList<DoublesPair>();
     }
 
-    final double ratio = notional * dfPay * dfa / dfb * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
-    s = new DoublesPair(ta, -ta * ratio);
+    final double ratio = notional * dfPay * dfStart / dfEnd * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
+    s = new DoublesPair(tStart, -tStart * ratio);
     temp.add(s);
-    s = new DoublesPair(tb, tb * ratio);
+    s = new DoublesPair(tEnd, tEnd * ratio);
     temp.add(s);
 
     result.put(liborCurveName, temp);
@@ -290,55 +291,57 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     Map<String, List<DoublesPair>> swapRateSens = parRateSensCal.visit(payment.getUnderlyingSwap(), data);
     Map<String, List<DoublesPair>> payDFSens = discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime);
     Map<String, List<DoublesPair>> result = swapRateSens;
-    result = multiplySensitivity(result, paymentDiscountFactor);
-    result = addSensitivity(data, result, multiplySensitivity(payDFSens, swapRate));
-    return multiplySensitivity(result, payment.getNotional() * payment.getPaymentYearFraction());
+    result = PresentValueSensitivityUtil.multiplySensitivity(result, paymentDiscountFactor);
+    result = PresentValueSensitivityUtil.addSensitivity(data, result, PresentValueSensitivityUtil.multiplySensitivity(payDFSens, swapRate));
+    return PresentValueSensitivityUtil.multiplySensitivity(result, payment.getNotional() * payment.getPaymentYearFraction());
   }
 
-  /**
-   * Add two maps representing sensitivities into one.
-   * @param curves List of curves.
-   * @param sense1 First sensitivity.
-   * @param sense2 Second sensitivity.
-   * @return The total sensitivity.
-   */
-  private static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sense1, final Map<String, List<DoublesPair>> sense2) {
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : curves.getAllNames()) {
-      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-      if (sense1.containsKey(name)) {
-        for (final DoublesPair pair : sense1.get(name)) {
-          temp.add(pair);
-        }
-      }
-      if (sense2.containsKey(name)) {
-        for (final DoublesPair pair : sense2.get(name)) {
-          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
-          temp.add(newPair);
-        }
-      }
-      result.put(name, temp);
-    }
-    return result;
-  }
+  //  /**
+  //   * Add two maps representing sensitivities into one.
+  //   * @param curves List of curves.
+  //   * @param sense1 First sensitivity.
+  //   * @param sense2 Second sensitivity.
+  //   * @return The total sensitivity.
+  //   */
+  //  @Deprecated
+  //  private static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sense1, final Map<String, List<DoublesPair>> sense2) {
+  //    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+  //    for (final String name : curves.getAllNames()) {
+  //      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+  //      if (sense1.containsKey(name)) {
+  //        for (final DoublesPair pair : sense1.get(name)) {
+  //          temp.add(pair);
+  //        }
+  //      }
+  //      if (sense2.containsKey(name)) {
+  //        for (final DoublesPair pair : sense2.get(name)) {
+  //          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
+  //          temp.add(newPair);
+  //        }
+  //      }
+  //      result.put(name, temp);
+  //    }
+  //    return result;
+  //  }
 
-  /**
-   * Multiply a sensitivity by a common factor.
-   * @param sensi The original sensitivity.
-   * @param factor The multiplicative factor.
-   * @return The multiplied sensitivity.
-   */
-  private static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensi, double factor) {
-    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    for (final String name : sensi.keySet()) {
-      final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
-      for (final DoublesPair pair : sensi.get(name)) {
-        curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
-      }
-      result.put(name, curveSensi);
-    }
-    return result;
-  }
+  //  /**
+  //   * Multiply a sensitivity by a common factor.
+  //   * @param sensi The original sensitivity.
+  //   * @param factor The multiplicative factor.
+  //   * @return The multiplied sensitivity.
+  //   */
+  //  @Deprecated
+  //  private static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensi, double factor) {
+  //    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+  //    for (final String name : sensi.keySet()) {
+  //      final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
+  //      for (final DoublesPair pair : sensi.get(name)) {
+  //        curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
+  //      }
+  //      result.put(name, curveSensi);
+  //    }
+  //    return result;
+  //  }
 
   /**
    * Compute the sensitivity of the discount factor at a given time.

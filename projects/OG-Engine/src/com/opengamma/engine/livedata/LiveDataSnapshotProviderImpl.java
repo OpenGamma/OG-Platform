@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +174,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     }
     
     s_logger.debug("Corresponding value requirements are {}", valueRequirements);
-    FudgeFieldContainer msg = valueUpdate.getFields();
+    FudgeMsg msg = valueUpdate.getFields();
     
     for (ValueRequirement valueRequirement : valueRequirements) {
       // We assume all market data can be represented as a Double. The request for the field as a Double also ensures

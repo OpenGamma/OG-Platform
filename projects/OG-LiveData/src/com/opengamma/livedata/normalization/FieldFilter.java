@@ -10,12 +10,12 @@ import java.util.HashSet;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudge.OpenGammaFudgeContext;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Strips all fields out of the message except the ones you want to explicitly accept.
@@ -54,11 +54,11 @@ public class FieldFilter implements NormalizationRule {
   }
 
   @Override
-  public MutableFudgeFieldContainer apply(
-      MutableFudgeFieldContainer msg,
+  public MutableFudgeMsg apply(
+      MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     
-    MutableFudgeFieldContainer normalizedMsg = getContext().newMessage();
+    MutableFudgeMsg normalizedMsg = getContext().newMessage();
     // REVIEW kirk 2010-04-15 -- Run through the fields in the order of the
     // original message and check for containment in _fieldsToAccept as it's
     // faster for large messages.

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
@@ -46,7 +46,7 @@ public class RequiredFieldFilter implements NormalizationRule {
    * all required fields, {@code msg} unmodified otherwise
    */
   @Override
-  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg,
+  public MutableFudgeMsg apply(MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     Set<String> namesFromMsg = msg.getAllFieldNames();
     if (namesFromMsg.containsAll(getRequiredFieldNames())) {

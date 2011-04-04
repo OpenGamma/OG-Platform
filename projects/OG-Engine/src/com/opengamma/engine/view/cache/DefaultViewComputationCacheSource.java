@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifier;
@@ -43,9 +43,9 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
    */
   public static interface MissingValueLoader {
 
-    FudgeFieldContainer findMissingValue(ViewComputationCacheKey cache, long identifier);
+    FudgeMsg findMissingValue(ViewComputationCacheKey cache, long identifier);
 
-    Map<Long, FudgeFieldContainer> findMissingValues(ViewComputationCacheKey cache, Collection<Long> identifier);
+    Map<Long, FudgeMsg> findMissingValues(ViewComputationCacheKey cache, Collection<Long> identifier);
 
   }
 
@@ -100,7 +100,7 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
     final DefaultViewComputationCache cache = _cachesByKey.get(key);
     final InMemoryIdentifierMap identifierMap = new InMemoryIdentifierMap();
     final FudgeMessageStore dataStore = new DefaultFudgeMessageStore(new InMemoryBinaryDataStore(), getFudgeContext());
-    for (Pair<ValueSpecification, FudgeFieldContainer> value : cache) {
+    for (Pair<ValueSpecification, FudgeMsg> value : cache) {
       dataStore.put(identifierMap.getIdentifier(value.getKey()), value.getValue());
     }
     return new DefaultViewComputationCache(identifierMap, dataStore, dataStore, getFudgeContext());
@@ -151,12 +151,12 @@ public class DefaultViewComputationCacheSource implements ViewComputationCacheSo
           cache.setMissingValueLoader(new DefaultViewComputationCache.MissingValueLoader() {
 
             @Override
-            public FudgeFieldContainer findMissingValue(final long identifier) {
+            public FudgeMsg findMissingValue(final long identifier) {
               return loader.findMissingValue(key, identifier);
             }
 
             @Override
-            public Map<Long, FudgeFieldContainer> findMissingValues(Collection<Long> identifiers) {
+            public Map<Long, FudgeMsg> findMissingValues(Collection<Long> identifiers) {
               return loader.findMissingValues(key, identifiers);
             }
 

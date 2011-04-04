@@ -5,8 +5,8 @@
  */
 package com.opengamma.util.timeseries.fudge;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -22,8 +22,8 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 public abstract class FastIntDoubleTimeSeriesBuilder<T extends FastIntDoubleTimeSeries> implements FudgeBuilder<T> {
   public abstract T makeSeries(DateTimeNumericEncoding encoding, int[] times, double[] values);
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FastIntDoubleTimeSeries object) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FastIntDoubleTimeSeries object) {
+    final MutableFudgeMsg message = context.newMessage();
     context.objectToFudgeMsg(message, null, 0, object.getClass().getName());
     context.objectToFudgeMsg(message, null, 1, object.getEncoding());
     context.objectToFudgeMsg(message, null, 2, object.timesArrayFast());
@@ -32,7 +32,7 @@ public abstract class FastIntDoubleTimeSeriesBuilder<T extends FastIntDoubleTime
   }
 
   @Override
-  public T buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public T buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     return makeSeries(context.fieldValueToObject(DateTimeNumericEncoding.class, message.getByOrdinal(1)), 
                       (int[]) message.getValue(2), (double[]) message.getValue(3));
   }
