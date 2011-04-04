@@ -7,6 +7,7 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -49,15 +50,12 @@ public class DataViewProcessorResource {
   private final String _jmsTopicPrefix;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final FudgeContext _fudgeContext;
+  private final ScheduledExecutorService _scheduler;
   
-  private final DataViewCycleManagerResource _cycleManagerResource;
+  private AtomicReference<DataViewCycleManagerResource> _cycleManagerResource;
   
   public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
-    
-    _cycleManagerResource = new DataViewCycleManagerResource(viewProcessor.getViewCycleManager());
-    ReleaseExpiredReferencesRunnable releaseExpiredReferencesTask = _cycleManagerResource.createReleaseExpiredReferencesTask();
-    releaseExpiredReferencesTask.setScheduler(scheduler);
     
     _jmsTemplate = new JmsTemplate(connectionFactory);
     _jmsTemplate.setPubSubDomain(true);
@@ -65,6 +63,7 @@ public class DataViewProcessorResource {
     _jmsMessageSenderService = new JmsByteArrayMessageSenderService(_jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;
+    _scheduler = scheduler;
   }
   
   //-------------------------------------------------------------------------
@@ -75,9 +74,10 @@ public class DataViewProcessorResource {
 
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
-  public DataViewClientResource getViewClient(@PathParam("viewClientId") UniqueIdentifier viewClientId) {
+  public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") UniqueIdentifier viewClientId) {
     ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
-    return new DataViewClientResource(viewClient, _jmsMessageSenderService, _jmsTopicPrefix, _fudgeContext);
+    DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(uriInfo);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsMessageSenderService, _jmsTopicPrefix);
   }
   
   @POST
@@ -97,8 +97,8 @@ public class DataViewProcessorResource {
   
   //-------------------------------------------------------------------------
   @Path(PATH_CYCLES)
-  public DataViewCycleManagerResource getViewCycleManager(@PathParam("viewCycleId") UniqueIdentifier viewCycleId) {
-    return _cycleManagerResource;
+  public DataViewCycleManagerResource getViewCycleManager(@Context UriInfo uriInfo) {
+    return getOrCreateDataViewCycleManagerResource(uriInfo);
   }
   
   //-------------------------------------------------------------------------
@@ -111,6 +111,22 @@ public class DataViewProcessorResource {
   
   public static URI uriClient(URI baseUri, UniqueIdentifier viewClientId) {
     return UriBuilder.fromUri(baseUri).path("clients").segment(viewClientId.toString()).build();
+  }
+  
+  private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(UriInfo uriInfo) {
+    DataViewCycleManagerResource resource = _cycleManagerResource.get();
+    if (resource == null) {
+      URI baseUri = uriInfo.getBaseUriBuilder().path(PATH_CYCLES).build();
+      DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, _viewProcessor.getViewCycleManager());
+      if (_cycleManagerResource.compareAndSet(null, newResource)) {
+        resource = newResource;
+        ReleaseExpiredReferencesRunnable task = newResource.createReleaseExpiredReferencesTask();
+        task.setScheduler(_scheduler);
+      } else {
+        resource = _cycleManagerResource.get();
+      }
+    }
+    return resource;
   }
   
 }

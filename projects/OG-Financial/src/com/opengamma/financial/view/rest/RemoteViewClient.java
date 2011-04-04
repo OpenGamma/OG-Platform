@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.ExceptionListener;
@@ -13,9 +14,7 @@ import javax.jms.JMSException;
 import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -29,7 +28,7 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
@@ -38,6 +37,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.rest.FudgeRestClient;
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link ViewClient}.
@@ -58,21 +58,15 @@ public class RemoteViewClient implements ViewClient {
   
   private final FudgeContext _fudgeContext;
   private final JmsTemplate _jmsTemplate;
+  private final ScheduledExecutorService _scheduler;
   
-  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate) {
+  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
     _fudgeContext = fudgeContext;
     _jmsTemplate = jmsTemplate;
-  }
-  
-  private FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-  
-  private FudgeDeserializationContext getFudgeDeserializationContext() {
-    return new FudgeDeserializationContext(getFudgeContext());
+    _scheduler = scheduler;
   }
 
   //-------------------------------------------------------------------------
@@ -102,35 +96,41 @@ public class RemoteViewClient implements ViewClient {
   //-------------------------------------------------------------------------
   @Override
   public boolean isAttached() {
-    //TODO
-    return false;
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_IS_ATTACHED);
+    return _client.access(uri).get(Boolean.class);
   }
   
   @Override
   public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions) {
-    //TODO
+    attachToViewProcess(viewDefinitionName, executionOptions, false);
   }
 
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions,
-      boolean newBatchProcess) {
-    //TODO
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
+    AttachToViewProcessRequest request = new AttachToViewProcessRequest();
+    request.setViewDefinitionName(viewDefinitionName);
+    request.setExecutionOptions(executionOptions);
+    request.setNewBatchProcess(newBatchProcess);
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_ATTACH_SEARCH);
+    _client.access(uri).post(request);
   }
 
   @Override
   public void attachToViewProcess(UniqueIdentifier processId) {
-    //TODO
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_ATTACH_DIRECT);
+    _client.access(uri).post(processId);
   }
   
   @Override
   public void detachFromViewProcess() {
-    //TODO
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_DETACH);
+    _client.access(uri).post();
   }
 
   @Override
   public boolean isBatchController() {
-    //TODO
-    return false;
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_IS_BATCH_CONTROLLER);
+    return _client.access(uri).get(Boolean.class);
   }
 
   //-------------------------------------------------------------------------
@@ -304,35 +304,33 @@ public class RemoteViewClient implements ViewClient {
   @Override
   public ViewComputationResultModel getLatestResult() {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_RESULT);
-    FudgeMsgEnvelope envelope = _client.access(uri).get(FudgeMsgEnvelope.class);
-    FudgeField latestResultField = envelope.getMessage().getByName(DataViewClientResource.PATH_LATEST_RESULT);
-    if (latestResultField == null) {
-      return null;
-    }
-    return getFudgeDeserializationContext().fieldValueToObject(ViewComputationResultModel.class, latestResultField);
+    return _client.access(uri).get(ViewComputationResultModel.class);
   }
   
   @Override
-  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
-    //TODO
-    return null;
+  public CompiledViewDefinition getLatestCompiledViewDefinition() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LATEST_COMPILED_DEFINITION);
+    return new RemoteCompiledViewDefinition(uri);
   }
   
   @Override
   public boolean isViewCycleAccessSupported() {
-    //TODO
-    return false;
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
+    return _client.access(uri).get(Boolean.class);
   }
   
   @Override
   public void setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
-    //TODO
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
+    _client.access(uri).post(isViewCycleAccessSupported);
   }
   
   @Override
   public ViewCycleReference createLatestCycleReference() {
-    //TODO
-    return null;
+    URI createReferenceUri = getUri(_baseUri, DataViewClientResource.PATH_CREATE_LATEST_CYCLE_REFERENCE);
+    ClientResponse response = _client.access(createReferenceUri).post(ClientResponse.class);
+    URI referenceUri = response.getLocation();
+    return new RemoteViewCycleReference(referenceUri, _scheduler);
   }
   
   @Override

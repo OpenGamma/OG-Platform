@@ -19,10 +19,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.engine.view.calc.ViewCycleManager;
 import com.opengamma.engine.view.calc.ViewCycleReference;
@@ -41,25 +39,25 @@ public class DataViewCycleManagerResource {
    */
   public static final long REFERENCE_LEASE_MILLIS = 60000;
   
+  private final URI _baseUri;
   private final ViewCycleManager _cycleManager;
   private final AtomicLong _nextReferenceId = new AtomicLong();
   private final Map<Long, DataViewCycleReferenceResource> _activeReferences = new ConcurrentHashMap<Long, DataViewCycleReferenceResource>();
 
-  public DataViewCycleManagerResource(ViewCycleManager cycleManager) {
+  public DataViewCycleManagerResource(URI baseUri, ViewCycleManager cycleManager) {
+    _baseUri = baseUri;
     _cycleManager = cycleManager;
   }
   
   @POST
   @Consumes(FudgeRest.MEDIA)
-  public Response createReference(@Context UriInfo uriInfo, UniqueIdentifier cycleId) {
+  public Response createReference(UniqueIdentifier cycleId) {
     ViewCycleReference reference = _cycleManager.createReference(cycleId);
     if (reference == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
-    long referenceId = _nextReferenceId.getAndIncrement();
-    DataViewCycleReferenceResource referenceResource = new DataViewCycleReferenceResource(this, referenceId, reference);
-    _activeReferences.put(referenceId, referenceResource);
-    return Response.created(uriReference(uriInfo.getRequestUri(), referenceId)).build();
+    URI referenceUri = manageReference(reference);
+    return Response.created(referenceUri).build();
   }
   
   @Path("{referenceId}")
@@ -77,6 +75,17 @@ public class DataViewCycleManagerResource {
   
   public static URI uriReference(URI baseUri, long cycleReferenceId) {
     return UriBuilder.fromUri(baseUri).segment(Long.toString(cycleReferenceId)).build();
+  }
+  
+  private URI getBaseUri() {
+    return _baseUri;
+  }
+  
+  /*package*/ URI manageReference(ViewCycleReference reference) {
+    long referenceId = _nextReferenceId.getAndIncrement();
+    DataViewCycleReferenceResource referenceResource = new DataViewCycleReferenceResource(this, referenceId, reference);
+    _activeReferences.put(referenceId, referenceResource);
+    return uriReference(getBaseUri(), referenceId);
   }
   
   /**

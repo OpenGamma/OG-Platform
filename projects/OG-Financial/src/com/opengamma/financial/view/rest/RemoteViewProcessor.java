@@ -69,13 +69,13 @@ public class RemoteViewProcessor implements ViewProcessor {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
     ClientResponse response = _client.access(uri).post(ClientResponse.class, clientUser);
     URI clientLocation = response.getLocation();
-    return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _jmsTemplate);
+    return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _jmsTemplate, _scheduler);
   }
 
   @Override
   public ViewClient getViewClient(UniqueIdentifier clientId) {
     URI clientUri = DataViewProcessorResource.uriClient(_baseUri, clientId);
-    return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _jmsTemplate);
+    return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _jmsTemplate, _scheduler);
   }
 
   //-------------------------------------------------------------------------

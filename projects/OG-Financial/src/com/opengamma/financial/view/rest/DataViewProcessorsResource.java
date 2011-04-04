@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,6 +22,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.transport.jaxrs.FudgeRest;
 
 /**
  * RESTful back-end to provide access to view processors
@@ -56,9 +58,10 @@ public class DataViewProcessorsResource {
   }
   
   //-------------------------------------------------------------------------
+  
   @Path("{viewProcessorId}")
-  public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") UniqueIdentifier viewProcessorId) {
-    return _viewProcessorResourceMap.get(viewProcessorId);
+  public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
+    return _viewProcessorResourceMap.get(UniqueIdentifier.parse(viewProcessorId));
   }
   
   @GET
