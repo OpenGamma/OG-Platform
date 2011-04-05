@@ -50,8 +50,6 @@ static void StartStop () {
 #ifndef RUN_TESTS
 #undef BEGIN_TESTS
 #define BEGIN_TESTS MANUAL_TESTS
-#undef TEST
-#define TEST MANUAL_TEST
 #endif /* ifndef RUN_TESTS */
 
 BEGIN_TESTS (JVMTest)

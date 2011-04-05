@@ -38,22 +38,33 @@ public:
 
 #ifdef __cplusplus_cli
 using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
-#define MANUAL_TESTS(label) \
+#define BEGIN_TESTS_(automatic, label) \
+	static bool s_bAutomatic = automatic; \
+	[TestClass] \
 	public ref class C##label { \
 	public:
-#define BEGIN_TESTS(label) [TestClass] MANUAL_TESTS(label)
-#define MANUAL_TEST(proc) \
+#define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
+#define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
+#define TEST(proc) \
+		[TestMethod] \
 		void Test##proc () { \
 			CAbstractTest::InitialiseLogs (); \
+			if (!s_bAutomatic) { \
+				LOGINFO (TEXT ("Skipping test ") << TEXT (#proc)); \
+				return; \
+			} \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete")); \
 		}
-#define TEST(proc) [TestMethod] MANUAL_TEST(proc)
 #define BEFORE_TEST(proc) \
 		[TestInitialize] \
 		void Before##proc () { \
 			CAbstractTest::InitialiseLogs (); \
+			if (!s_bAutomatic) { \
+				LOGINFO (TEXT ("Skipping pre-test ") << TEXT (#proc)); \
+				return; \
+			} \
 			LOGINFO (TEXT ("Starting pre-test ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("Pre-test ") << TEXT (#proc) << TEXT (" complete")); \
@@ -61,6 +72,10 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 #define AFTER_TEST(proc) \
 		[TestCleanup] \
 		void After##proc () { \
+			if (!s_bAutomatic) { \
+				LOGINFO (TEXT ("Skipping post-test ") << TEXT (#proc)); \
+				return; \
+			} \
 			LOGINFO (TEXT ("Starting post-test ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("Post-test ") << TEXT (#proc) << TEXT (" complete")); \
@@ -69,6 +84,10 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 		[ClassInitialize] \
 		static void BeforeAll##proc () { \
 			CAbstractTest::InitialiseLogs (); \
+			if (!s_bAutomatic) { \
+				LOGINFO (TEXT ("Skipping before-all ") << TEXT (#proc)); \
+				return; \
+			} \
 			LOGINFO (TEXT ("Starting before-all ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("Before-all ") << TEXT (#proc) << TEXT (" complete")); \
@@ -76,6 +95,10 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 #define AFTER_ALL_TESTS(proc) \
 		[ClassCleanup] \
 		static void AfterAll##proc () { \
+			if (!s_bAutomatic) { \
+				LOGINFO (TEXT ("Skipping after-all ") << TEXT (#proc)); \
+				return; \
+			} \
 			LOGINFO (TEXT ("Starting after-all ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("After-all ") << TEXT (#proc) << TEXT (" complete")); \
@@ -91,13 +114,12 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
 #define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
 #define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
-#define MANUAL_TEST(proc) \
+#define TEST(proc) \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			Before (); \
 			::proc (); \
 			After (); \
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete"));
-#define TEST(proc) MANUAL_TEST(proc)
 #define BEFORE_TEST(proc) \
 		} \
 		void Before () { \

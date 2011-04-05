@@ -98,8 +98,6 @@ static void DoQueryAvailableInline () {
 #ifndef RUN_TESTS
 #undef BEGIN_TESTS
 #define BEGIN_TESTS MANUAL_TESTS
-#undef TEST
-#define TEST MANUAL_TEST
 #endif
 
 BEGIN_TESTS(OverlappedTest)
