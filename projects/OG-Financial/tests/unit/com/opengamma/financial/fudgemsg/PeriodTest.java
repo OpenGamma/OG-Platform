@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.Period;
 
-import org.fudgemsg.FudgeMsgField;
+import org.fudgemsg.ImmutableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
@@ -29,7 +29,7 @@ public class PeriodTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Period.class,
-        FudgeMsgField.of(FudgeWireType.STRING, s_ref.toString())));
+        ImmutableFudgeField.of(FudgeWireType.STRING, s_ref.toString())));
   }
 
 }
