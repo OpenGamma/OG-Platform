@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 
@@ -60,7 +59,7 @@ public class DebugFunctionMultipleTypes implements PublishedFunction {
         new MetaParameter("long", JavaTypeInfo.builder(Long.TYPE).get()),
         new MetaParameter("short", JavaTypeInfo.builder(Short.TYPE).get()),
         new MetaParameter("string", JavaTypeInfo.builder(String.class).allowNull().get()),
-        new MetaParameter("message", JavaTypeInfo.builder(FudgeFieldContainer.class).allowNull().get()));
+        new MetaParameter("message", JavaTypeInfo.builder(FudgeMsg.class).allowNull().get()));
     final FunctionInvoker invoker = new AbstractFunctionInvoker(args) {
       @Override
       public Object invokeImpl(SessionContext sessionContext, Object[] parameters) {
