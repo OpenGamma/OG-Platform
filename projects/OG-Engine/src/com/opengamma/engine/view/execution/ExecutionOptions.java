@@ -61,6 +61,10 @@ public class ExecutionOptions implements ViewExecutionOptions {
     return singleCycle(Instant.now());
   }
   
+  public static ViewExecutionOptions singleCycle(long valuationTimeMillis) {
+    return singleCycle(Instant.ofEpochMillis(valuationTimeMillis));
+  }
+  
   public static ViewExecutionOptions singleCycle(Instant valuationTime) {
     return new ExecutionOptions(
         ArbitraryViewCycleExecutionSequence.of(valuationTime),
