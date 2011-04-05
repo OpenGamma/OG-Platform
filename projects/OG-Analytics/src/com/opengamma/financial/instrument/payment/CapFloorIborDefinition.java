@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a cap/floor on Ibor.
+ * Class describing a caplet/floorlet on Ibor. The notional is positive for long the option and negative for short the option.
  */
 public class CapFloorIborDefinition extends CouponIborDefinition implements CapFloor {
 

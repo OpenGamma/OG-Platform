@@ -49,6 +49,14 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InterestRat
   }
 
   @Override
+  public String toString() {
+    String result = "Swap : \n";
+    result += "First leg: " + _firstLeg.toString();
+    result += "\nSecond leg: " + _secondLeg.toString();
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

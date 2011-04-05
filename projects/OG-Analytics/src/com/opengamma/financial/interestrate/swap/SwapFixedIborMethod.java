@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -40,6 +41,22 @@ public class SwapFixedIborMethod {
     double notional = Math.abs(fixedCouponSwap.getFixedLeg().getNthPayment(0).getNotional());
     double annuityCash = 1.0 / forward * (1.0 - 1.0 / Math.pow(1 + forward / nbFixedPaymentYear, nbFixedPeriod)) * notional;
     return annuityCash;
+  }
+
+  /**
+   * Computes the derivative of cash annuity with respect to the forward. The computation is relevant only for standard swaps with constant notional and regular payments.
+   * @param fixedCouponSwap The underlying swap.
+   * @param forward The swap forward.
+   * @return The cash annuity derivative.
+   */
+  public static double getAnnuityCashDerivative(FixedCouponSwap<? extends Payment> fixedCouponSwap, double forward) {
+    int nbFixedPeriod = fixedCouponSwap.getFixedLeg().getPayments().length;
+    int nbFixedPaymentYear = (int) Math.round(1.0 / fixedCouponSwap.getFixedLeg().getNthPayment(0).getPaymentYearFraction());
+    double notional = Math.abs(fixedCouponSwap.getFixedLeg().getNthPayment(0).getNotional());
+    double annuityCashDerivative = -1.0 / (forward * forward) * (1.0 - 1.0 / Math.pow(1 + forward / nbFixedPaymentYear, nbFixedPeriod)) * notional;
+    annuityCashDerivative += 1.0 / (forward * nbFixedPaymentYear) * nbFixedPeriod * Math.pow(1 + forward / nbFixedPaymentYear, -nbFixedPeriod - 1.0) * notional;
+    return annuityCashDerivative;
+
   }
 
   /**
@@ -82,9 +99,9 @@ public class SwapFixedIborMethod {
     List<DoublesPair> list = new ArrayList<DoublesPair>();
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
       time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
-      DoublesPair s = new DoublesPair(time, -time * discountingCurve.getDiscountFactor(time));
+      DoublesPair s = new DoublesPair(time, -time * discountingCurve.getDiscountFactor(time) * annuityFixed.getNthPayment(loopcpn).getPaymentYearFraction()
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
       list.add(s);
-
     }
     return list;
   }
@@ -95,12 +112,12 @@ public class SwapFixedIborMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The sensitivity.
    */
-  public static Map<String, List<DoublesPair>> presentValueBasisPointSensitivity(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldCurveBundle curves) {
+  public static PresentValueSensitivity presentValueBasisPointSensitivity(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldCurveBundle curves) {
     Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
     result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointSensitivity(fixedCouponSwap, discountingCurve));
-    return result;
+    return new PresentValueSensitivity(result);
   }
 
   /**
