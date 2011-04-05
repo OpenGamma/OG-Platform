@@ -152,9 +152,10 @@ public final class ValueUtil {
    * Displayable form of the Value object.
    * 
    * @param value value to convert to a string
+   * @param quoted {@code true} to surround strings in quote marks and escape them, {@code false} otherwise
    * @return a displayable string representation
    */
-  public static String toString(final Value value) {
+  public static String toString(final Value value, final boolean quoted) {
     if (value == null) {
       return null;
     }
@@ -190,9 +191,13 @@ public final class ValueUtil {
       if (sb.length() > 0) {
         sb.append(", ");
       }
-      sb.append("\"");
-      sb.append(StringEscapeUtils.escapeJava(value.getStringValue()));
-      sb.append("\"");
+      if (quoted) {
+        sb.append("\"");
+        sb.append(StringEscapeUtils.escapeJava(value.getStringValue()));
+        sb.append("\"");
+      } else {
+        sb.append(value.getStringValue());
+      }
     }
     if (value.getErrorValue() != null) {
       sb.append("}");

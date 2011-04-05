@@ -51,9 +51,9 @@ public class InvalidConversionException extends IllegalArgumentException {
     final StringBuilder sb = new StringBuilder();
     sb.append("Could not convert ");
     if (_value instanceof Value) {
-      sb.append(ValueUtil.toString((Value) _value));
+      sb.append(ValueUtil.toString((Value) _value, true));
     } else if (_value instanceof Data) {
-      sb.append(DataUtil.toString((Data) _value));
+      sb.append(DataUtil.toString((Data) _value, true));
     } else {
       sb.append(_value.toString());
     }

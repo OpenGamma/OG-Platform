@@ -79,11 +79,12 @@ public final class DataUtil {
    * Displayable form of the Data object.
    * 
    * @param data the object to convert to a string
+   * @param quoted {@code true} to put quote marks around strings and escape them, {@code false} otherwise
    * @return the displayable string
    */
-  public static String toString(final Data data) {
+  public static String toString(final Data data, final boolean quoted) {
     if (data.getSingle() != null) {
-      return ValueUtil.toString(data.getSingle());
+      return ValueUtil.toString(data.getSingle(), quoted);
     } else if (data.getLinear() != null) {
       final StringBuilder sb = new StringBuilder();
       sb.append('[');
@@ -91,7 +92,7 @@ public final class DataUtil {
         if (i > 0) {
           sb.append(", ");
         }
-        sb.append(ValueUtil.toString(data.getLinear()[i]));
+        sb.append(ValueUtil.toString(data.getLinear()[i], quoted));
       }
       sb.append(']');
       return sb.toString();
@@ -107,7 +108,7 @@ public final class DataUtil {
           if (j > 0) {
             sb.append(", ");
           }
-          sb.append(ValueUtil.toString(data.getMatrix()[i][j]));
+          sb.append(ValueUtil.toString(data.getMatrix()[i][j], quoted));
         }
         sb.append(']');
       }
