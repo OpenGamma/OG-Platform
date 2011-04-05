@@ -7,8 +7,8 @@ package com.opengamma.engine.fudgemsg;
 
 import javax.time.Instant;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -27,14 +27,14 @@ public class ViewDeltaResultModelBuilder extends ViewResultModelBuilder implemen
   private static final String FIELD_PREVIOUSTS = "previousTS";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDeltaResultModel deltaModel) {
-    final MutableFudgeFieldContainer message = ViewResultModelBuilder.createResultModelMessage(context, deltaModel);
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewDeltaResultModel deltaModel) {
+    final MutableFudgeMsg message = ViewResultModelBuilder.createResultModelMessage(context, deltaModel);
     message.add(FIELD_PREVIOUSTS, deltaModel.getPreviousResultTimestamp());
     return message;
   }
 
   @Override
-  public ViewDeltaResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ViewDeltaResultModel buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     InMemoryViewDeltaResultModel viewDeltaResultModel = (InMemoryViewDeltaResultModel) bootstrapCommonDataFromMessage(context, message);
     
     final Instant parentResultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_PREVIOUSTS));

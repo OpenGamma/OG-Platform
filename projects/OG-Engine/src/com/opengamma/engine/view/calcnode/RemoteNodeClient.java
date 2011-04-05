@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -156,7 +156,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private void sendMessage(final RemoteCalcNodeMessage message) {
     final FudgeMessageSender sender = getConnection().getFudgeMessageSender();
     final FudgeSerializationContext context = new FudgeSerializationContext(sender.getFudgeContext());
-    final FudgeFieldContainer msg = FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class);
+    final FudgeMsg msg = FudgeSerializationContext.addClassHeader(context.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class);
     s_logger.debug("Sending message ({} fields) to {}", msg.getNumFields(), _connection);
     sender.send(msg);
   }
@@ -175,7 +175,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
    */
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    final FudgeFieldContainer msg = msgEnvelope.getMessage();
+    final FudgeMsg msg = msgEnvelope.getMessage();
     s_logger.debug("Received ({} fields) from {}", msg.getNumFields(), _connection);
     final FudgeDeserializationContext context = new FudgeDeserializationContext(fudgeContext);
     final RemoteCalcNodeMessage message = context.fudgeMsgToObject(RemoteCalcNodeMessage.class, msgEnvelope.getMessage());

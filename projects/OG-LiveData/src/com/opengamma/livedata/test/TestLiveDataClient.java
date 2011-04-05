@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -60,7 +60,7 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
     return _subscriptionRequests;
   }
   
-  public void marketDataReceived(LiveDataSpecification fullyQualifiedSpecification, FudgeFieldContainer fields) {
+  public void marketDataReceived(LiveDataSpecification fullyQualifiedSpecification, FudgeMsg fields) {
     LiveDataValueUpdateBean bean = new LiveDataValueUpdateBean(_sequenceGenerator.incrementAndGet(), fullyQualifiedSpecification, fields);
     getValueDistributor().notifyListeners(bean);
   }

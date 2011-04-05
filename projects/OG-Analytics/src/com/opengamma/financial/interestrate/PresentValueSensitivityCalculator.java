@@ -192,12 +192,13 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     final YieldAndDiscountCurve liborCurve = data.getCurve(liborCurveName);
 
     final double tPay = payment.getPaymentTime();
-    final double ta = payment.getFixingTime();
-    final double tb = payment.getFixingPeriodEndTime();
+    //    final double tStart = payment.getFixingTime();
+    final double tStart = payment.getFixingPeriodStartTime();
+    final double tEnd = payment.getFixingPeriodEndTime();
     final double dfPay = fundCurve.getDiscountFactor(tPay);
-    final double dfa = liborCurve.getDiscountFactor(ta);
-    final double dfb = liborCurve.getDiscountFactor(tb);
-    final double forward = (dfa / dfb - 1) / payment.getFixingYearFraction();
+    final double dfStart = liborCurve.getDiscountFactor(tStart);
+    final double dfEnd = liborCurve.getDiscountFactor(tEnd);
+    final double forward = (dfStart / dfEnd - 1) / payment.getFixingYearFraction();
     final double notional = payment.getNotional();
 
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
@@ -212,10 +213,10 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
       temp = new ArrayList<DoublesPair>();
     }
 
-    final double ratio = notional * dfPay * dfa / dfb * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
-    s = new DoublesPair(ta, -ta * ratio);
+    final double ratio = notional * dfPay * dfStart / dfEnd * payment.getPaymentYearFraction() / payment.getFixingYearFraction();
+    s = new DoublesPair(tStart, -tStart * ratio);
     temp.add(s);
-    s = new DoublesPair(tb, tb * ratio);
+    s = new DoublesPair(tEnd, tEnd * ratio);
     temp.add(s);
 
     result.put(liborCurveName, temp);

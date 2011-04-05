@@ -18,7 +18,7 @@ import java.util.Timer;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -68,13 +68,13 @@ public class HeartbeatSenderTest {
     
     for(byte[] message : messages) {
       FudgeMsgEnvelope fudgeMsgEnvelope = fudgeContext.deserialize(message);
-      FudgeFieldContainer fudgeMsg = fudgeMsgEnvelope.getMessage();
+      FudgeMsg fudgeMsg = fudgeMsgEnvelope.getMessage();
       assertNotNull(fudgeMsg);
       assertEquals(2, fudgeMsg.getNumFields());
       for(FudgeField field : fudgeMsg.getAllFields()) {
         assertNull(field.getOrdinal());
-        assertTrue(field.getValue() instanceof FudgeFieldContainer);
-        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg((FudgeFieldContainer) field.getValue());
+        assertTrue(field.getValue() instanceof FudgeMsg);
+        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg((FudgeMsg) field.getValue());
         assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
       }
     }

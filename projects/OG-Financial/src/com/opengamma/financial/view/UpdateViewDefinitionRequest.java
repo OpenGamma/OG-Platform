@@ -7,8 +7,8 @@ package com.opengamma.financial.view;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -106,13 +106,13 @@ public final class UpdateViewDefinitionRequest {
    * @param context  the Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeMsg msg = context.newMessage();
     if (_name != null) {
       msg.add(NAME_FIELD_NAME, _name);
     }
     if (_viewDefinition != null) {
-      context.objectToFudgeMsg(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
+      context.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
     }
     return msg;
   }
@@ -123,7 +123,7 @@ public final class UpdateViewDefinitionRequest {
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+  public static UpdateViewDefinitionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg msg) {
     UpdateViewDefinitionRequest req = new UpdateViewDefinitionRequest();
     if (msg.hasField(NAME_FIELD_NAME)) {
       req.setName(msg.getString(NAME_FIELD_NAME));

@@ -8,7 +8,7 @@ package com.opengamma.util.fudgemsg;
 import static org.testng.AssertJUnit.fail;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class PagingFudgeEncodingTest {
 
   private void testFudgeMessage(final Paging paging) {
     final FudgeSerializationContext context = new FudgeSerializationContext(s_fudgeContext);
-    FudgeFieldContainer msg = context.objectToFudgeMsg(paging);
+    FudgeMsg msg = context.objectToFudgeMsg(paging);
     s_logger.debug("Paging {}", paging);
     s_logger.debug("Encoded to {}", msg);
     final byte[] bytes = s_fudgeContext.toByteArray(msg);

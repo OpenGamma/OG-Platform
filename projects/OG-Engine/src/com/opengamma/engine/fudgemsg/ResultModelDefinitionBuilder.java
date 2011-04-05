@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -29,9 +29,9 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
   private static final String PRIMITIVE_OUTPUT_MODE_FIELD = "primitiveOutputMode";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ResultModelDefinition object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ResultModelDefinition object) {
     ArgumentChecker.notNull(context, "Fudge Context");
-    MutableFudgeFieldContainer msg = context.newMessage();
+    MutableFudgeMsg msg = context.newMessage();
     msg.add(AGGREGATE_POSITION_OUTPUT_MODE_FIELD, object.getAggregatePositionOutputMode().name());
     msg.add(POSITION_OUTPUT_MODE_FIELD, object.getPositionOutputMode().name());
     msg.add(TRADE_OUTPUT_MODE_FIELD, object.getTradeOutputMode().name());
@@ -41,7 +41,7 @@ public class ResultModelDefinitionBuilder implements FudgeBuilder<ResultModelDef
   }
 
   @Override
-  public ResultModelDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ResultModelDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ResultModelDefinition result = new ResultModelDefinition();
     result.setAggregatePositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(AGGREGATE_POSITION_OUTPUT_MODE_FIELD)));
     result.setPositionOutputMode(message.getFieldValue(ResultOutputMode.class, message.getByName(POSITION_OUTPUT_MODE_FIELD)));

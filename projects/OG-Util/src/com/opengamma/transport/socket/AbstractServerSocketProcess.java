@@ -15,8 +15,8 @@ import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -185,7 +185,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, Initiali
    */
   public static final String PORT_KEY = "port";
 
-  private void loadInterfaceAddress(final NetworkInterface iface, final MutableFudgeFieldContainer message) {
+  private void loadInterfaceAddress(final NetworkInterface iface, final MutableFudgeMsg message) {
     final Enumeration<NetworkInterface> ni = iface.getSubInterfaces();
     while (ni.hasMoreElements()) {
       loadInterfaceAddress(ni.nextElement(), message);
@@ -203,8 +203,8 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, Initiali
   }
 
   @Override
-  public FudgeFieldContainer getEndPointDescription(final FudgeContext fudgeContext) {
-    final MutableFudgeFieldContainer desc = fudgeContext.newMessage();
+  public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
+    final MutableFudgeMsg desc = fudgeContext.newMessage();
     desc.add(TYPE_KEY, TYPE_VALUE);
     final InetAddress addr = _serverSocket.getInetAddress();
     if (addr != null) {

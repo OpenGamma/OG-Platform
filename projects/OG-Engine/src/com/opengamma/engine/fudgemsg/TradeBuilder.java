@@ -11,8 +11,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -61,22 +61,22 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   protected static final String FIELD_TRADE_TIME = "tradeTime";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final Trade trade) {
-    final MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Trade trade) {
+    final MutableFudgeMsg message = context.newMessage();
     if (trade.getUniqueId() != null) {
-      context.objectToFudgeMsg(message, FIELD_UNIQUE_ID, null, trade.getUniqueId());
+      context.addToMessage(message, FIELD_UNIQUE_ID, null, trade.getUniqueId());
     }
     if (trade.getParentPositionId() != null) {
-      context.objectToFudgeMsg(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
+      context.addToMessage(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
     }
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
     }
     if (trade.getSecurityKey() != null) {
-      context.objectToFudgeMsg(message, FIELD_SECURITYKEY, null, trade.getSecurityKey());
+      context.addToMessage(message, FIELD_SECURITYKEY, null, trade.getSecurityKey());
     }
     if (trade.getCounterparty() != null) {
-      context.objectToFudgeMsg(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
+      context.addToMessage(message, FIELD_COUNTERPARTY, null, trade.getCounterparty().getIdentifier());
     }
     if (trade.getTradeDate() != null) {
       message.add(FIELD_TRADE_DATE, null, trade.getTradeDate());
@@ -88,7 +88,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   }
 
   @Override
-  public Trade buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  public Trade buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
     UniqueIdentifier tradeId = uidField != null ? context.fieldValueToObject(UniqueIdentifier.class, uidField) : null;
     FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);

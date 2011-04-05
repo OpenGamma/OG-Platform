@@ -8,7 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +110,7 @@ public class JmsResultPublisher implements ComputationResultListener, DeltaCompu
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     s_logger.info("Write {} to JMS {}", resultModel, _resultSender);
-    FudgeFieldContainer resultModelMsg = _fudgeSerializationContext.objectToFudgeMsg(resultModel);
+    FudgeMsg resultModelMsg = _fudgeSerializationContext.objectToFudgeMsg(resultModel);
     s_logger.debug("Results in Fudge msg {}", resultModelMsg);
     byte[] fudgeMsg = _fudgeContext.toByteArray(resultModelMsg);
     s_logger.debug("Writing {} bytes data", fudgeMsg.length);

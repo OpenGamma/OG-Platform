@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -57,12 +57,12 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
     TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath(), context, 1000L);
     
-    MutableFudgeFieldContainer msg1 = context.newMessage();
+    MutableFudgeMsg msg1 = context.newMessage();
     msg1.add("name1", 1);
     msg1.add("name2", 1);
     msg1.add("name3", 1);
     msg1.add("name1", 1);
-    MutableFudgeFieldContainer msg2 = context.newMessage();
+    MutableFudgeMsg msg2 = context.newMessage();
     msg1.add("name4", msg2);
     msg2.add(14, 1);
     msg2.add("name5", "foo");
@@ -99,12 +99,12 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
     TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath(), context, 1000L);
     
-    MutableFudgeFieldContainer msg1 = context.newMessage();
+    MutableFudgeMsg msg1 = context.newMessage();
     msg1.add("name1", 1);
     msg1.add("name2", 1);
     msg1.add("name3", 1);
     msg1.add("name1", 1);
-    MutableFudgeFieldContainer msg2 = context.newMessage();
+    MutableFudgeMsg msg2 = context.newMessage();
     msg1.add("name4", msg2);
     msg2.add(14, 1);
     msg2.add("name5", "foo");

@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -36,8 +36,8 @@ public class IdResolverServer implements FudgeRequestReceiver {
   }
   
   @Override
-  public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-    FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
+  public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+    FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
     ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(context, requestFudgeMsg);
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
@@ -48,7 +48,7 @@ public class IdResolverServer implements FudgeRequestReceiver {
         resolvedId);
     
     ResolveResponse response = new ResolveResponse(resolvedSpec);
-    FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+    FudgeMsg responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }
   

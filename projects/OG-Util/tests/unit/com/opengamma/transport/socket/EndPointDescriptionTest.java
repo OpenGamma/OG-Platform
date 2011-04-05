@@ -15,7 +15,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class EndPointDescriptionTest {
       server.setBindAddress(InetAddress.getLocalHost());
     }
     server.start();
-    final FudgeFieldContainer serverEndPoint = server.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    final FudgeMsg serverEndPoint = server.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(serverEndPoint);
     s_logger.info("Server end point {}", serverEndPoint);
     final AbstractSocketProcess client = new AbstractSocketProcess() {
@@ -53,7 +53,7 @@ public class EndPointDescriptionTest {
     client.setInetAddress(InetAddress.getLocalHost());
     client.setPortNumber(server.getPortNumber());
     client.start();
-    final FudgeFieldContainer clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    final FudgeMsg clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(clientEndPoint);
     s_logger.info("Client end point {} ", clientEndPoint);
     assertEquals(serverEndPoint.getString(AbstractServerSocketProcess.TYPE_KEY), clientEndPoint.getString(AbstractServerSocketProcess.TYPE_KEY));
@@ -79,7 +79,7 @@ public class EndPointDescriptionTest {
 
     };
     server.start();
-    final FudgeFieldContainer serverEndPoint = server.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    final FudgeMsg serverEndPoint = server.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(serverEndPoint);
     s_logger.info("Server end point {}", serverEndPoint);
     final AbstractSocketProcess client = new AbstractSocketProcess() {
@@ -91,7 +91,7 @@ public class EndPointDescriptionTest {
     };
     client.setServer(serverEndPoint);
     client.start();
-    final FudgeFieldContainer clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
+    final FudgeMsg clientEndPoint = client.getEndPointDescription(FudgeContext.GLOBAL_DEFAULT);
     assertNotNull(clientEndPoint);
     s_logger.info("Client end point {} ", clientEndPoint);
     client.stop();

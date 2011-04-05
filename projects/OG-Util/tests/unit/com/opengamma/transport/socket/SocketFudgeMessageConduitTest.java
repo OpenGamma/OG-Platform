@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
@@ -35,7 +35,7 @@ public class SocketFudgeMessageConduitTest {
     sender.setInetAddress(InetAddress.getLocalHost());
     sender.setPortNumber(socketReceiver.getPortNumber());
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("RATM", "Bombtrack");
     msg.add("You Know", "It's All Of That");
     sender.send(msg);

@@ -7,8 +7,8 @@ package com.opengamma.financial.fudgemsg;
 
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -33,15 +33,15 @@ public class AdHocBatchResultBuilder implements FudgeBuilder<AdHocBatchResult> {
   private static final String RESULT_KEY = "result";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, AdHocBatchResult object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, BATCHID_KEY, null, object.getBatchId());
-    context.objectToFudgeMsg(msg, RESULT_KEY, null, object.getResult());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, AdHocBatchResult object) {
+    MutableFudgeMsg msg = context.newMessage();
+    context.addToMessage(msg, BATCHID_KEY, null, object.getBatchId());
+    context.addToMessage(msg, RESULT_KEY, null, object.getResult());
     return msg;
   }
 
   @Override
-  public AdHocBatchResult buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public AdHocBatchResult buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField batchIdField = message.getByName(BATCHID_KEY);
     FudgeField resultField = message.getByName(RESULT_KEY);
 

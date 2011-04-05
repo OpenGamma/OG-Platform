@@ -7,22 +7,22 @@ public abstract class InterestRateLeg extends com.opengamma.financial.security.s
   public InterestRateLeg (com.opengamma.financial.convention.daycount.DayCount dayCount, com.opengamma.financial.convention.frequency.Frequency frequency, com.opengamma.id.Identifier regionIdentifier, com.opengamma.financial.convention.businessday.BusinessDayConvention businessDayConvention, com.opengamma.financial.security.swap.Notional notional) {
     super (dayCount, frequency, regionIdentifier, businessDayConvention, notional);
   }
-  protected InterestRateLeg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected InterestRateLeg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
   }
   protected InterestRateLeg (final InterestRateLeg source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
-  public static InterestRateLeg fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static InterestRateLeg fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.InterestRateLeg".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.InterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.swap.InterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

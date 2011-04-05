@@ -12,8 +12,8 @@ import static com.opengamma.livedata.normalization.MarketDataRequirementNames.IM
 import static com.opengamma.livedata.normalization.MarketDataRequirementNames.LAST_IMPLIED_VOLATILITY;
 import static com.opengamma.livedata.normalization.MarketDataRequirementNames.MID_IMPLIED_VOLATILITY;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
 
@@ -25,8 +25,8 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 public class ImpliedVolatilityCalculator implements NormalizationRule {
   
   @Override
-  public MutableFudgeFieldContainer apply(
-      MutableFudgeFieldContainer msg,
+  public MutableFudgeMsg apply(
+      MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     
     Double impliedVolatility = msg.getDouble(BEST_IMPLIED_VOLATILITY);
@@ -56,7 +56,7 @@ public class ImpliedVolatilityCalculator implements NormalizationRule {
       return msg;
     }
     
-    FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
+    FudgeMsg lkv = fieldHistory.getLastKnownValues();
     impliedVolatility = lkv.getDouble(IMPLIED_VOLATILITY);
     if (impliedVolatility != null) {
       msg.add(MarketDataRequirementNames.IMPLIED_VOLATILITY, impliedVolatility);

@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -63,7 +63,7 @@ public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
 
   //-------------------------------------------------------------------------
   @Override
-  public void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver) {
+  public void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(responseReceiver, "responseReceiver");
     byte[] bytes = getFudgeContext().toByteArray(request);

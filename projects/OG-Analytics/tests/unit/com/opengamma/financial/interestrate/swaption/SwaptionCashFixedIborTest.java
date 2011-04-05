@@ -117,12 +117,12 @@ public class SwaptionCashFixedIborTest {
     double priceShortPayer = funcShortPayer.evaluate(data) * (SWAPTION_SHORT_PAYER.isLong() ? 1.0 : -1.0);
     Function1D<BlackFunctionData, Double> funcShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
     double priceShortReceiver = funcShortReceiver.evaluate(data) * (SWAPTION_SHORT_RECEIVER.isLong() ? 1.0 : -1.0);
-    // Check hard-coded values
-    double expectedPvbp = 190050636.579;
+    // From previous run
+    double expectedPvbp = 190049742.002;
     assertEquals(expectedPvbp, pvbp, 1E-2);
-    double expectedPriceLongPayer = 1729721.240;
+    double expectedPriceLongPayer = 1730413.788;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
-    double expectedPriceLongReceiver = 27685.862;
+    double expectedPriceLongReceiver = 27648.357;
     assertEquals(expectedPriceLongReceiver, priceLongReceiver, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -144,7 +144,7 @@ public class SwaptionCashFixedIborTest {
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
     // From previous run
-    double expectedPriceLongPayer = 1758742.755;
+    double expectedPriceLongPayer = 1759370.967;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
   }
 }

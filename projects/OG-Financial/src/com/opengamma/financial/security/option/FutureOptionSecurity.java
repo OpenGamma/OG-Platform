@@ -19,7 +19,7 @@ public class FutureOptionSecurity extends com.opengamma.financial.security.optio
     _exchange = exchange;
     _isMargined = isMargined;
   }
-  protected FutureOptionSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected FutureOptionSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (POINT_VALUE_KEY);
@@ -64,13 +64,13 @@ public class FutureOptionSecurity extends com.opengamma.financial.security.optio
   public FutureOptionSecurity clone () {
     return new FutureOptionSecurity (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     msg.add (POINT_VALUE_KEY, null, _pointValue);
     if (_exchange != null)  {
@@ -78,13 +78,13 @@ public class FutureOptionSecurity extends com.opengamma.financial.security.optio
     }
     msg.add (IS_MARGINED_KEY, null, _isMargined);
   }
-  public static FutureOptionSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static FutureOptionSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.option.FutureOptionSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.option.FutureOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.option.FutureOptionSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

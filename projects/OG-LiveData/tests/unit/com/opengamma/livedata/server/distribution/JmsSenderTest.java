@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.testng.annotations.AfterClass;
@@ -79,7 +79,7 @@ public class JmsSenderTest {
   public void simpleScenario() throws Exception {
     ensureStarted();
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("name", "ruby");
     
     _mdd.distributeLiveData(msg);
@@ -103,17 +103,17 @@ public class JmsSenderTest {
   public void reconnectionScenario() throws Exception {
     ensureStarted();
     
-    MutableFudgeFieldContainer msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg1.add("name", "olivia");
     
-    MutableFudgeFieldContainer msg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg2.add("name", "ruby");
     
-    MutableFudgeFieldContainer msg3 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg3 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg3.add("name", "sophie"); // will overwrite ruby
     msg3.add("address", "london");
     
-    MutableFudgeFieldContainer msg4 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg4 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg4.add("name", "chloe");
     
     _mdd.distributeLiveData(msg1);

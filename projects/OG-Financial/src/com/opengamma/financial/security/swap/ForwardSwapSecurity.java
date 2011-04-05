@@ -14,13 +14,13 @@ public class ForwardSwapSecurity extends com.opengamma.financial.security.swap.S
       _forwardStartDate = (com.opengamma.financial.security.DateTimeWithZone)forwardStartDate.clone ();
     }
   }
-  protected ForwardSwapSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected ForwardSwapSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (FORWARD_START_DATE_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ForwardSwapSecurity - field 'forwardStartDate' is not present");
     try {
-      _forwardStartDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _forwardStartDate = com.opengamma.financial.security.DateTimeWithZone.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a ForwardSwapSecurity - field 'forwardStartDate' is not DateTimeWithZone message", e);
@@ -44,27 +44,27 @@ public class ForwardSwapSecurity extends com.opengamma.financial.security.swap.S
   public ForwardSwapSecurity clone () {
     return new ForwardSwapSecurity (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_forwardStartDate != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _forwardStartDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _forwardStartDate.getClass (), com.opengamma.financial.security.DateTimeWithZone.class);
       _forwardStartDate.toFudgeMsg (fudgeContext, fudge1);
       msg.add (FORWARD_START_DATE_KEY, null, fudge1);
     }
   }
-  public static ForwardSwapSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static ForwardSwapSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.ForwardSwapSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.ForwardSwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.swap.ForwardSwapSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

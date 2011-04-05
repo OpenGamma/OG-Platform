@@ -7,8 +7,8 @@ package com.opengamma.engine.fudgemsg;
 
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -32,21 +32,21 @@ public class ComputedValueBuilder implements FudgeBuilder<ComputedValue> {
   private static final String VALUE_KEY = "value";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ComputedValue object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ComputedValue object) {
+    MutableFudgeMsg msg = context.newMessage();
     ValueSpecification specification = object.getSpecification();
     if (specification != null) {
-      context.objectToFudgeMsg(msg, SPECIFICATION_KEY, null, specification);
+      context.addToMessage(msg, SPECIFICATION_KEY, null, specification);
     }
     Object value = object.getValue();
     if (value != null) {
-      context.objectToFudgeMsgWithClassHeaders(msg, VALUE_KEY, null, value);
+      context.addToMessageWithClassHeaders(msg, VALUE_KEY, null, value);
     }
     return msg;
   }
 
   @Override
-  public ComputedValue buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public ComputedValue buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField fudgeField = message.getByName(SPECIFICATION_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ComputedValue - field 'specification' is not present");
     ValueSpecification valueSpec = context.fieldValueToObject(ValueSpecification.class, fudgeField);

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +144,7 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
   }
 
   @Override
-  public void send(FudgeFieldContainer message) {
+  public void send(FudgeMsg message) {
     gatherFieldNames(message);
     _underlying.send(message);
   }
@@ -152,7 +152,7 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
   /**
    * @param message
    */
-  private void gatherFieldNames(FudgeFieldContainer message) {
+  private void gatherFieldNames(FudgeMsg message) {
     for (FudgeField field : message) {
       if (field.getName() == null) {
         continue;
@@ -170,8 +170,8 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
       }
       _taxonomyValues.putIfAbsent(field.getName(), _nextOrdinal.getAndIncrement());
       
-      if (field.getValue() instanceof FudgeFieldContainer) {
-        gatherFieldNames((FudgeFieldContainer) field.getValue());
+      if (field.getValue() instanceof FudgeMsg) {
+        gatherFieldNames((FudgeMsg) field.getValue());
       }
     }
   }

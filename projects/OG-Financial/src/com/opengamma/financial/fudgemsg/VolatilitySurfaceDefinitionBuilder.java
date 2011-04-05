@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -26,9 +26,9 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, VolatilitySurfaceDefinition<?, ?> object) {
-    MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, VolatilitySurfaceDefinition<?, ?> object) {
+    MutableFudgeMsg message = context.newMessage();
+    context.addToMessage(message, "currency", null, object.getCurrency());
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (Object x : object.getXs()) {
@@ -41,7 +41,7 @@ public class VolatilitySurfaceDefinitionBuilder implements FudgeBuilder<Volatili
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));
     String name = message.getString("name");
     String interpolatorName = message.getString("interpolatorName");

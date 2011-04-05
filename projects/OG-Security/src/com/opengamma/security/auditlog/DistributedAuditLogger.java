@@ -8,7 +8,7 @@ package com.opengamma.security.auditlog;
 import java.util.Date;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class DistributedAuditLogger extends AbstractAuditLogger {
   public void log(String user, String originatingSystem, String object, String operation, String description, boolean success) {
     AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
     s_logger.info("Sending message: " + auditLogEntry.toString());
-    FudgeFieldContainer logMessage = auditLogEntry.toFudgeMsg(_fudgeContext);
+    FudgeMsg logMessage = auditLogEntry.toFudgeMsg(_fudgeContext);
     _msgSender.send(logMessage);
   }
   

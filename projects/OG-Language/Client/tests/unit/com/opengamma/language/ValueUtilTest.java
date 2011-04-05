@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * Tests the methods in the {@link ValueUtil} class.
@@ -66,7 +66,7 @@ public class ValueUtilTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullMessage() {
-    ValueUtil.of((FudgeFieldContainer) null);
+    ValueUtil.of((FudgeMsg) null);
   }
 
 }

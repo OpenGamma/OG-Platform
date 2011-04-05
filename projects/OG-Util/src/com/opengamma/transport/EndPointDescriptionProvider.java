@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * Returns a description of the server end point that a client may connect to. The content
@@ -16,6 +16,6 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public interface EndPointDescriptionProvider {
 
-  FudgeFieldContainer getEndPointDescription(FudgeContext fudgeContext);
+  FudgeMsg getEndPointDescription(FudgeContext fudgeContext);
 
 }

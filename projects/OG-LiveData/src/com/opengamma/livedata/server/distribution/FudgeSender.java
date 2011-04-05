@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.server.distribution;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.FudgeMessageSender;
@@ -38,7 +38,7 @@ public class FudgeSender implements MarketDataSender {
 
   @Override
   public void sendMarketData(LiveDataValueUpdateBean data) {
-    FudgeFieldContainer fudgeMsg = data.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+    FudgeMsg fudgeMsg = data.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
     getFudgeMessageSender().send(fudgeMsg);
   }
 
