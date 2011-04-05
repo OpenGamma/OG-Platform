@@ -7,7 +7,6 @@
 package com.opengamma.language;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
@@ -139,7 +138,7 @@ public final class ValueUtil {
     }
   }
 
-  public static FudgeFieldContainer toMessage(final Value data) {
+  public static FudgeMsg toMessage(final Value data) {
     if (data == null) {
       return null;
     } else if (data.getMessageValue() != null) {

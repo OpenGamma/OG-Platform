@@ -11,7 +11,8 @@ import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -26,10 +27,10 @@ import com.opengamma.language.function.PublishedFunction;
  */
 public class DebugFunctionMultipleTypes implements PublishedFunction {
 
-  private FudgeFieldContainer execute(final byte byteValue, final boolean booleanValue, final char charValue, final double doubleValue, final float floatValue, final int intValue,
+  private FudgeMsg execute(final byte byteValue, final boolean booleanValue, final char charValue, final double doubleValue, final float floatValue, final int intValue,
       final long longValue,
       final short shortValue, final String stringValue, final FudgeFieldContainer messageValue) {
-    final MutableFudgeFieldContainer message = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    final MutableFudgeMsg message = FudgeContext.GLOBAL_DEFAULT.newMessage();
     message.add("byte", byteValue);
     message.add("boolean", booleanValue);
     message.add("char", Character.toString(charValue));

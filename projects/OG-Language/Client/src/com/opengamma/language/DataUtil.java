@@ -158,7 +158,7 @@ public final class DataUtil {
     return ValueUtil.toInt(toValue(data));
   }
 
-  public static FudgeFieldContainer toMessage(final Data data) {
+  public static FudgeMsg toMessage(final Data data) {
     return ValueUtil.toMessage(toValue(data));
   }
 
