@@ -68,6 +68,8 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private volatile boolean _wakeOnLiveDataChanged;
   private volatile boolean _liveDataChanged;
   
+  private enum ViewCycleType { FULL, DELTA, NONE }
+  
   /**
    * Nanoseconds
    */
@@ -138,120 +140,48 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    */
   @Override
   protected void runOneCycle() {
-    long currentTime = System.nanoTime();
-    boolean doFullRecalc = false;
-    boolean doDeltaRecalc = false;
+    // Exception handling is important here to ensure that computation jobs do not just die quietly while consumers are
+    // potentially blocked, waiting for results.
     
-    synchronized (this) {
-      // The actual computation cycle must occur outside of the synchronized block to allow calls to liveDataChanged()
-      // to return as quickly as possible.
-      
-      if (requireFullCycleNext(currentTime)) {
-        s_logger.debug("Forcing a full computation");
-        doFullRecalc = true;
-      } else if (requireDeltaCycleNext(currentTime)) {
-        s_logger.debug("Forcing a delta computation");
-        doDeltaRecalc = true;
+    ViewCycleType cycleType = waitForNextCycle();
+    if (cycleType == ViewCycleType.NONE) {
+      // Will get back to runOneCycle() straight away unless the job has been terminated
+      return;
+    }
+    
+    ViewCycleExecutionOptions executionOptions = null;
+    try {
+      if (!getExecutionOptions().getExecutionSequence().isEmpty()) {
+        executionOptions = getExecutionOptions().getExecutionSequence().getNext();
+        s_logger.debug("Next cycle execution options: {}", executionOptions);
       }
-      
-      if (_liveDataChanged) {
-        s_logger.debug("Live data has changed");
-        if (currentTime >= _eligibleForFullComputationFromNanos) {
-          // Do (or upgrade to) a full computation because we're eligible for one
-          s_logger.debug("Performing a full computation for the live data change");
-          doFullRecalc = true;
-          _liveDataChanged = false;
-        } else if (currentTime >= _eligibleForDeltaComputationFromNanos) {
-          // Do a delta computation
-          s_logger.debug("Performing a delta computation for the live data change");
-          doDeltaRecalc = true;
-          _liveDataChanged = false;
-        }
-      }
-      
-      if (!doFullRecalc && !doDeltaRecalc) {
-        // Going to sleep
-        
-        long minWakeUpTime = Math.min(_eligibleForDeltaComputationFromNanos, _eligibleForFullComputationFromNanos);
-        long wakeUpTime;
-        if (_liveDataChanged) {
-          s_logger.debug("Sleeping until eligible to perform the next computation cycle");
-          
-          // Live data has arrived but we decided not to perform a computation cycle; this must be because we're not
-          // eligible for one right now. We'll do one as soon as we are.
-          wakeUpTime = minWakeUpTime;
-          
-          // No amount of live data can make us eligible for a computation cycle any sooner.
-          _wakeOnLiveDataChanged = false;
-        } else {
-          s_logger.debug("Sleeping until forced to perform the next computation cycle");
-          
-          // Only *plan* to wake up when we really have to
-          wakeUpTime = Math.min(_deltaComputationRequiredByNanos, _fullComputationRequiredByNanos);
-          
-          // If we're not scheduled to wake up until after we're eligible for a computation cycle, then allow us to be
-          // woken sooner by live data changing. The benefit of this is when min=max, meaning live data will never wake
-          // us up.
-          _wakeOnLiveDataChanged = wakeUpTime > minWakeUpTime;
-        }
-        
-        long sleepTime = wakeUpTime - currentTime;
-        sleepTime = Math.max(0, sleepTime);
-        sleepTime /= NANOS_PER_MILLISECOND;
-        sleepTime += 1; // round up a bit to make sure it'll be enough
-        s_logger.debug("Waiting for {} ms", sleepTime);
-        try {
-          // This could wait until end of time if both full and delta maximum recalc periods are null.
-          // In this case, only liveDataChanged() will wake it up
-          wait(sleepTime);
-        } catch (InterruptedException e) {
-          // We support interruption as a signal that we have been terminated. If we're interrupted without having been
-          // terminated, we'll just return to this method and go back to sleep.
-          Thread.interrupted();
-          s_logger.info("Interrupted while delaying. Continuing operation.");
-        }
-  
-        // Will get back to runOneCycle() straight away unless the job has been terminated
+      if (executionOptions == null) {
+        s_logger.info("No more view cycle execution options");
+        jobCompleted();
         return;
       }
+    } catch (Exception e) {
+      s_logger.error("Error obtaining next view cycle execution options from sequence for view process " + getViewProcess(), e);
+      return;
     }
-
-    // Set the times for the next computation cycle. These might have passed by the time this cycle completes, in which
-    // case another cycle will run straight away.
-    updateComputationTimes(currentTime, !doFullRecalc);
     
-    ViewCycleExecutionOptions executionOptions = getExecutionOptions().getExecutionSequence().getNext();
-    s_logger.debug("Next cycle execution options: {}", executionOptions);
-    
-    ViewCycleReferenceImpl cycleReference = createCycle(executionOptions);
-    ViewCycleInternal cycle = cycleReference.getCycle();
+    ViewCycleReferenceImpl cycleReference;
+    try {
+      cycleReference = createCycle(executionOptions);
+    } catch (Exception e) {
+      s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
+      return;
+    }
     
     if (_executeCycles) {
-      if (doFullRecalc) {
-        s_logger.info("Performing full computation");
-        _deltasSinceLastFull = 0;
-      } else {
-        s_logger.info("Performing delta computation");
-        _deltasSinceLastFull++;
-      }
-      
       try {
-        ViewCycleInternal deltaCycle = doFullRecalc ? null : _previousCycleReference.getCycle();
-        cycle.execute(deltaCycle);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-        // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
-        // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
-        // interrupted cycle never happened so that deltas will be calculated from the previous cycle. 
+        executeViewCycle(cycleType, cycleReference);
+      } catch (Exception e) {
+        // Execution failed
+        s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
         cycleReference.release();
-        s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
         return;
       }
-      
-      long duration = cycle.getDurationNanos();
-      _totalTimeNanos += duration;
-      _numExecutions += 1.0;
-      s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
     }
     
     // Don't push the results through if we've been terminated, since another computation job could be running already
@@ -262,13 +192,15 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     if (_executeCycles) {
-      getViewProcess().cycleCompleted(cycle);
+      try {
+        getViewProcess().cycleCompleted(cycleReference.getCycle());
+      } catch (Exception e) {
+        s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+      }
     }
     
     if (getExecutionOptions().getExecutionSequence().isEmpty()) {
-      s_logger.debug("Computation job completed for view process {}", getViewProcess());
-      getViewProcess().jobCompleted();
-      terminate();
+      jobCompleted();
     }
     
     if (_executeCycles) {
@@ -277,6 +209,118 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       }
       _previousCycleReference = cycleReference;
     }
+  }
+  
+  private synchronized ViewCycleType waitForNextCycle() {
+    long currentTime = System.nanoTime();
+    
+    boolean doFullRecalc = false;
+    boolean doDeltaRecalc = false;
+    
+    if (requireFullCycleNext(currentTime)) {
+      s_logger.debug("Forcing a full computation");
+      doFullRecalc = true;
+    } else if (requireDeltaCycleNext(currentTime)) {
+      s_logger.debug("Forcing a delta computation");
+      doDeltaRecalc = true;
+    }
+    
+    if (_liveDataChanged) {
+      s_logger.debug("Live data has changed");
+      if (currentTime >= _eligibleForFullComputationFromNanos) {
+        // Do (or upgrade to) a full computation because we're eligible for one
+        s_logger.debug("Performing a full computation for the live data change");
+        doFullRecalc = true;
+        _liveDataChanged = false;
+      } else if (currentTime >= _eligibleForDeltaComputationFromNanos) {
+        // Do a delta computation
+        s_logger.debug("Performing a delta computation for the live data change");
+        doDeltaRecalc = true;
+        _liveDataChanged = false;
+      }
+    }
+    
+    if (doFullRecalc || doDeltaRecalc) {
+      // Set the times for the next computation cycle. These might have passed by the time this cycle completes, in
+      // which case another cycle will run straight away.
+      updateComputationTimes(currentTime, !doFullRecalc);
+      
+      return doFullRecalc ? ViewCycleType.FULL : ViewCycleType.DELTA;
+    }
+    
+    // Going to sleep
+    long minWakeUpTime = Math.min(_eligibleForDeltaComputationFromNanos, _eligibleForFullComputationFromNanos);
+    long wakeUpTime;
+    if (_liveDataChanged) {
+      s_logger.debug("Sleeping until eligible to perform the next computation cycle");
+      
+      // Live data has arrived but we decided not to perform a computation cycle; this must be because we're not
+      // eligible for one right now. We'll do one as soon as we are.
+      wakeUpTime = minWakeUpTime;
+      
+      // No amount of live data can make us eligible for a computation cycle any sooner.
+      _wakeOnLiveDataChanged = false;
+    } else {
+      s_logger.debug("Sleeping until forced to perform the next computation cycle");
+      
+      // Only *plan* to wake up when we really have to
+      wakeUpTime = Math.min(_deltaComputationRequiredByNanos, _fullComputationRequiredByNanos);
+      
+      // If we're not scheduled to wake up until after we're eligible for a computation cycle, then allow us to be
+      // woken sooner by live data changing. The benefit of this is when min=max, meaning live data will never wake
+      // us up.
+      _wakeOnLiveDataChanged = wakeUpTime > minWakeUpTime;
+    }
+    
+    long sleepTime = wakeUpTime - currentTime;
+    sleepTime = Math.max(0, sleepTime);
+    sleepTime /= NANOS_PER_MILLISECOND;
+    sleepTime += 1; // round up a bit to make sure it'll be enough
+    s_logger.debug("Waiting for {} ms", sleepTime);
+    try {
+      // This could wait until end of time if both full and delta maximum recalc periods are null.
+      // In this case, only liveDataChanged() will wake it up
+      wait(sleepTime);
+    } catch (InterruptedException e) {
+      // We support interruption as a signal that we have been terminated. If we're interrupted without having been
+      // terminated, we'll just return to this method and go back to sleep.
+      Thread.interrupted();
+      s_logger.info("Interrupted while delaying. Continuing operation.");
+    }
+
+    return ViewCycleType.NONE;
+  }
+  
+  private void executeViewCycle(ViewCycleType cycleType, ViewCycleReferenceImpl cycleReference) throws Exception {
+    ViewCycleInternal deltaCycle;
+    if (cycleType == ViewCycleType.FULL) {
+      s_logger.info("Performing full computation");
+      _deltasSinceLastFull = 0;
+      deltaCycle = null;
+    } else {
+      s_logger.info("Performing delta computation");
+      _deltasSinceLastFull++;
+      deltaCycle = _previousCycleReference.getCycle();
+    }
+    
+    try {
+      cycleReference.getCycle().execute(deltaCycle);
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
+      // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
+      // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
+      s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
+      throw e;
+    } catch (Exception e) {
+      s_logger.error("Error while executing view cycle", e);
+      throw e;
+    }
+    
+    long duration = cycleReference.getCycle().getDurationNanos();
+    _totalTimeNanos += duration;
+    _numExecutions += 1.0;
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
   }
     
   @Override
@@ -288,20 +332,28 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _latestCompiledViewDefinition = null;
   }
   
-  public void liveDataChanged() {
+  private void jobCompleted() {
+    s_logger.info("Computation job completed for view process {}", getViewProcess());
+    try {
+      getViewProcess().jobCompleted();
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of computation job completion", e);
+    }
+    terminate();
+  }
+  
+  public synchronized void liveDataChanged() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency live data. See how it goes, but we could take into account the recalc periods and apply a
     // heuristic (e.g. only wake up due to live data if max - min < e, for some e) which tries to see whether it's
     // worth doing all this.
     
     s_logger.debug("Live Data changed");
-    synchronized (this) {
-      _liveDataChanged = true;
-      if (!_wakeOnLiveDataChanged) {
-        return;
-      }
-      notifyAll();
+    _liveDataChanged = true;
+    if (!_wakeOnLiveDataChanged) {
+      return;
     }
+    notifyAll();
   }
   
   //-------------------------------------------------------------------------
