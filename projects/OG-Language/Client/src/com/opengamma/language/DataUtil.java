@@ -118,4 +118,48 @@ public final class DataUtil {
     }
   }
 
+  public static Value toValue(final Data data) {
+    if (data.getSingle() != null) {
+      return data.getSingle();
+    } else if (data.getLinear() != null) {
+      if (data.getLinear().length > 0) {
+        return data.getLinear()[0];
+      } else {
+        return null;
+      }
+    } else if (data.getMatrix() != null) {
+      if (data.getMatrix().length > 0) {
+        if (data.getMatrix()[0].length > 0) {
+          return data.getMatrix()[0][0];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  public static Boolean toBool(final Data data) {
+    return ValueUtil.toBool(toValue(data));
+  }
+
+  public static Double toDouble(final Data data) {
+    return ValueUtil.toDouble(toValue(data));
+  }
+
+  public static Integer toError(final Data data) {
+    return ValueUtil.toError(toValue(data));
+  }
+
+  public static Integer toInt(final Data data) {
+    return ValueUtil.toInt(toValue(data));
+  }
+
+  public static FudgeFieldContainer toMessage(final Data data) {
+    return ValueUtil.toMessage(toValue(data));
+  }
+
 }

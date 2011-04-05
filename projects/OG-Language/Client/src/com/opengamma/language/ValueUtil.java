@@ -75,6 +75,79 @@ public final class ValueUtil {
     return value;
   }
 
+  public static Boolean toBool(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue();
+    } else if (data.getIntValue() != null) {
+      return data.getIntValue() != 0;
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue() != 0;
+    } else {
+      return null;
+    }
+  }
+
+  public static Double toDouble(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue();
+    } else if (data.getIntValue() != null) {
+      return (double) data.getIntValue();
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue() ? 1.0 : 0.0;
+    } else if (data.getStringValue() != null) {
+      return Double.parseDouble(data.getStringValue());
+    } else {
+      return null;
+    }
+  }
+
+  public static Integer toError(final Value data) {
+    if (data == null) {
+      return null;
+    }
+    if (data.getErrorValue() != null) {
+      return data.getErrorValue();
+    } else {
+      return null;
+    }
+  }
+
+  public static Integer toInt(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getIntValue() != null) {
+      return data.getIntValue();
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue().intValue();
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue() ? 1 : 0;
+    } else if (data.getStringValue() != null) {
+      return Integer.parseInt(data.getStringValue());
+    } else {
+      return null;
+    }
+  }
+
+  public static FudgeFieldContainer toMessage(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getMessageValue() != null) {
+      return data.getMessageValue();
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Displayable form of the Value object.
    * 
@@ -82,6 +155,9 @@ public final class ValueUtil {
    * @return a displayable string representation
    */
   public static String toString(final Value value) {
+    if (value == null) {
+      return null;
+    }
     final StringBuilder sb = new StringBuilder();
     if (value.getErrorValue() != null) {
       sb.append("{Error ").append(value.getErrorValue());
