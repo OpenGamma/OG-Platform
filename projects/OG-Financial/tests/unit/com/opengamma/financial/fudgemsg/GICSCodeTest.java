@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.ImmutableFudgeField;
+import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
@@ -28,7 +28,7 @@ public class GICSCodeTest extends FinancialTestBase {
   @Test
   public void testFromInteger () {
     assertEquals(s_ref, getFudgeContext().getFieldValue(GICSCode.class,
-        ImmutableFudgeField.of(FudgeWireType.INT, s_ref.getCode())));
+        UnmodifiableFudgeField.of(FudgeWireType.INT, s_ref.getCode())));
   }
 
 }
