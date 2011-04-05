@@ -81,7 +81,7 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
             MutableFudgeMsg subMsg = buildMessageMap(context, prop, (Map<?, ?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else {
-            context.objectToFudgeMsgWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
+            context.addToMessageWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
           }
         }
       }
@@ -98,9 +98,9 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
       if (entry == null) {
         msg.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (contentType != null) {
-        context.objectToFudgeMsg(msg, null, null, entry);
+        context.addToMessage(msg, null, null, entry);
       } else {
-        context.objectToFudgeMsgWithClassHeaders(msg, null, null, entry);
+        context.addToMessageWithClassHeaders(msg, null, null, entry);
       }
     }
     return msg;
@@ -114,16 +114,16 @@ public final class DirectBeanBuilder<T extends Bean> implements FudgeBuilder<T> 
       if (entry.getKey() == null) {
         msg.add(null, 1, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (keyType != null) {
-        context.objectToFudgeMsg(msg, null, 1, entry.getKey());
+        context.addToMessage(msg, null, 1, entry.getKey());
       } else {
-        context.objectToFudgeMsgWithClassHeaders(msg, null, 1, entry.getKey());
+        context.addToMessageWithClassHeaders(msg, null, 1, entry.getKey());
       }
       if (entry.getValue() == null) {
         msg.add(null, 2, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (valueType != null) {
-        context.objectToFudgeMsg(msg, null, 2, entry.getValue());
+        context.addToMessage(msg, null, 2, entry.getValue());
       } else {
-        context.objectToFudgeMsgWithClassHeaders(msg, null, 2, entry.getValue());
+        context.addToMessageWithClassHeaders(msg, null, 2, entry.getValue());
       }
     }
     return msg;

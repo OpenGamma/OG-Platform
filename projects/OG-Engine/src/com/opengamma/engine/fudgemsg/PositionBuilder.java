@@ -45,16 +45,16 @@ public class PositionBuilder implements FudgeBuilder<Position> {
 
   protected static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final Position position) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, position.getUniqueId());
+    context.addToMessage(message, FIELD_IDENTIFIER, null, position.getUniqueId());
     message.add(FIELD_QUANTITY, null, position.getQuantity());
-    context.objectToFudgeMsg(message, FIELD_SECURITYKEY, null, position.getSecurityKey());
+    context.addToMessage(message, FIELD_SECURITYKEY, null, position.getSecurityKey());
     return message;
   }
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Position position) {
     final MutableFudgeMsg message = buildMessageImpl(context, position);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, position.getParentNodeId());
+    context.addToMessage(message, FIELD_PARENT, null, position.getParentNodeId());
     return message;
   }
 

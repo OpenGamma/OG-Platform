@@ -66,7 +66,7 @@ public class ConfigurationResource {
       if (config.getValue() instanceof Map) {
         message.add(config.getKey().toString(), mapToMessage(context, (Map<?, ?>) config.getValue()));
       } else {
-        context.objectToFudgeMsg(message, config.getKey().toString(), null, config.getValue());
+        context.addToMessage(message, config.getKey().toString(), null, config.getValue());
       }
     }
     return message;

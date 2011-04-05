@@ -32,16 +32,16 @@ public class YieldCurveDefinitionBuilder implements FudgeBuilder<YieldCurveDefin
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, YieldCurveDefinition object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "currency", null, object.getCurrency());
     if (object.getRegion() != null) {
-      context.objectToFudgeMsg(message, "region", null, object.getRegion());
+      context.addToMessage(message, "region", null, object.getRegion());
     }
     message.add("name", object.getName());
     message.add("interpolatorName", object.getInterpolatorName());
     for (FixedIncomeStrip strip : object.getStrips()) {
-      context.objectToFudgeMsg(message, "strip", null, strip);
+      context.addToMessage(message, "strip", null, strip);
     }
-    context.objectToFudgeMsgWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, "uniqueId", null, object.getUniqueId(), UniqueIdentifier.class);
     return message;
   }
 

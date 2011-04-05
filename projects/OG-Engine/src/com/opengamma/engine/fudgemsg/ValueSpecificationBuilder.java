@@ -40,7 +40,7 @@ public class ValueSpecificationBuilder implements FudgeBuilder<ValueSpecificatio
     MutableFudgeMsg msg = context.newMessage();
     msg.add(VALUE_NAME_KEY, null, FudgeWireType.STRING, object.getValueName());
     ComputationTargetSpecificationBuilder.addMessageFields(context, msg, object.getTargetSpecification());
-    context.objectToFudgeMsg(msg, PROPERTIES_KEY, null, object.getProperties());
+    context.addToMessage(msg, PROPERTIES_KEY, null, object.getProperties());
     return msg;
   }
 

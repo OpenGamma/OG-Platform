@@ -26,12 +26,12 @@ public class FixedIncomeStripWithIdentifierBuilder implements FudgeBuilder<Fixed
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithIdentifier object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
-    context.objectToFudgeMsg(message, "tenor", null, object.getMaturity());
+    context.addToMessage(message, "type", null, object.getInstrumentType());
+    context.addToMessage(message, "tenor", null, object.getMaturity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
     }
-    context.objectToFudgeMsg(message, "identifier", null, object.getSecurity());
+    context.addToMessage(message, "identifier", null, object.getSecurity());
     return message; 
   }
 

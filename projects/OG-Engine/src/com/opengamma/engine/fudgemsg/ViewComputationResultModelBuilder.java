@@ -31,7 +31,7 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
     
     final MutableFudgeMsg liveDataMsg = context.newMessage();
     for (ComputedValue value : resultModel.getAllLiveData()) {
-      context.objectToFudgeMsg(liveDataMsg, null, 1, value);
+      context.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
     

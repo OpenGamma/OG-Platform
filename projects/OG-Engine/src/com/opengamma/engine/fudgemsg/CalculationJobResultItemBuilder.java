@@ -34,12 +34,12 @@ public class CalculationJobResultItemBuilder implements FudgeBuilder<Calculation
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJobResultItem object) {
     MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsg(msg, ITEM_FIELD_NAME, null, object.getItem());
+    context.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
     msg.add(INVOCATION_RESULT_FIELD_NAME, object.getResult().name());
     msg.add(EXCEPTION_CLASS_FIELD_NAME, object.getExceptionClass());
     msg.add(EXCEPTION_MSG_FIELD_NAME, object.getExceptionMsg());
     msg.add(STACK_TRACE_FIELD_NAME, object.getStackTrace());
-    context.objectToFudgeMsg(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
+    context.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     return msg;
   }
 

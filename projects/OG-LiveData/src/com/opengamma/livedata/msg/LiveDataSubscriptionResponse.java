@@ -131,7 +131,7 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_requestedSpecification != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, REQUESTED_SPECIFICATION_KEY, null, _requestedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     if (_subscriptionResult != null)  {
       msg.add (SUBSCRIPTION_RESULT_KEY, null, _subscriptionResult.name ());
@@ -140,13 +140,13 @@ public class LiveDataSubscriptionResponse implements java.io.Serializable {
       msg.add (USER_MESSAGE_KEY, null, _userMessage);
     }
     if (_fullyQualifiedSpecification != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, FULLY_QUALIFIED_SPECIFICATION_KEY, null, _fullyQualifiedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, FULLY_QUALIFIED_SPECIFICATION_KEY, null, _fullyQualifiedSpecification, com.opengamma.livedata.LiveDataSpecification.class);
     }
     if (_tickDistributionSpecification != null)  {
       msg.add (TICK_DISTRIBUTION_SPECIFICATION_KEY, null, _tickDistributionSpecification);
     }
     if (_snapshot != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, SNAPSHOT_KEY, null, _snapshot, com.opengamma.livedata.LiveDataValueUpdateBean.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, SNAPSHOT_KEY, null, _snapshot, com.opengamma.livedata.LiveDataValueUpdateBean.class);
     }
   }
   public static LiveDataSubscriptionResponse fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {

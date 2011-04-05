@@ -111,8 +111,8 @@ public class HistoricalDataSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEID, null, result.getKey(), UniqueIdentifier.class);
-    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result.getValue(), LocalDateDoubleTimeSeries.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_UNIQUEID, null, result.getKey(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result.getValue(), LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
 
@@ -122,7 +122,7 @@ public class HistoricalDataSourceResource {
     }
     final FudgeSerializationContext context = getFudgeSerializationContext();
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, LocalDateDoubleTimeSeries.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, LocalDateDoubleTimeSeries.class);
     return new FudgeMsgEnvelope(message);
   }
 
@@ -225,7 +225,7 @@ public class HistoricalDataSourceResource {
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, exclusiveEnd);
     FudgeSerializationContext context = getFudgeSerializationContext();
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, Map.class);
+    context.addToMessageWithClassHeaders(message, HISTORICALDATASOURCE_TIMESERIES, null, result, Map.class);
     return new FudgeMsgEnvelope(message); 
   }
 

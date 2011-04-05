@@ -67,11 +67,11 @@ final class MathSurface {
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InterpolatedDoublesSurface object) {
-      context.objectToFudgeMsg(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.objectToFudgeMsg(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.objectToFudgeMsg(message, Z_DATA_FIELD_NAME, null, object.getZDataAsPrimitive());
-      context.objectToFudgeMsg(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
-      context.objectToFudgeMsg(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
+      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      context.addToMessage(message, Z_DATA_FIELD_NAME, null, object.getZDataAsPrimitive());
+      context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      context.addToMessage(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
     }
   }
 }

@@ -48,7 +48,7 @@ public class InterpolatedYieldCurveDefinitionSourceResource {
     }
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(msg, "definition", null, definition, YieldCurveDefinition.class);
+    context.addToMessageWithClassHeaders(msg, "definition", null, definition, YieldCurveDefinition.class);
     return new FudgeMsgEnvelope(msg);
   }
 

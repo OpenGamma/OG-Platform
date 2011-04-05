@@ -46,7 +46,7 @@ public class CurrencyMatrixSourceResource {
     }
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(msg, "matrix", null, matrix, CurrencyMatrix.class);
+    context.addToMessageWithClassHeaders(msg, "matrix", null, matrix, CurrencyMatrix.class);
     return new FudgeMsgEnvelope(msg);
   }
 

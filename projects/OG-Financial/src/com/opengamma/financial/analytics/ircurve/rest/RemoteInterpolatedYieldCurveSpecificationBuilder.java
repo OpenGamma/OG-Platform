@@ -54,7 +54,7 @@ public class RemoteInterpolatedYieldCurveSpecificationBuilder implements Interpo
     final RestTarget target = getTargetBase().resolve(curveDate.toString());
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
     final MutableFudgeMsg defnMsg = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
+    sctx.addToMessageWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
     final FudgeMsgEnvelope specMsg = getRestClient().post(target, defnMsg);
     if (specMsg == null) {
       return null;

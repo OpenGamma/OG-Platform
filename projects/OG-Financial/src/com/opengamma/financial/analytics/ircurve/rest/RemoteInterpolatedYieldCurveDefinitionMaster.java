@@ -72,7 +72,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
   public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {
     final FudgeSerializationContext sctx = getFudgeSerializationContext();
     final MutableFudgeMsg req = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
+    sctx.addToMessageWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
     try {
       final FudgeMsgEnvelope respEnv = getRestClient().post(getTargetBase().resolve(path), req);
       if (respEnv == null) {
@@ -160,7 +160,7 @@ public class RemoteInterpolatedYieldCurveDefinitionMaster implements Interpolate
     try {
       final FudgeSerializationContext sctx = getFudgeSerializationContext();
       final MutableFudgeMsg req = sctx.newMessage();
-      sctx.objectToFudgeMsgWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
+      sctx.addToMessageWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       getRestClient().put(getTargetBase().resolveBase("curves").resolve(document.getUniqueId().toString()), req);
       return document;
     } catch (RestRuntimeException ex) {

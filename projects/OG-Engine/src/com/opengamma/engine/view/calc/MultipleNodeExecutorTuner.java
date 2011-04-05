@@ -154,14 +154,14 @@ public class MultipleNodeExecutorTuner implements Runnable {
     final MutableFudgeMsg message = context.newMessage();
     message.add("identifier", invokerId);
     for (Capability capability : capabilities) {
-      context.objectToFudgeMsgWithClassHeaders(message, capability.getIdentifier(), null, capability, Capability.class);
+      context.addToMessageWithClassHeaders(message, capability.getIdentifier(), null, capability, Capability.class);
     }
     return message;
   }
 
   public FudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     final MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "factory", null, getFactory());
+    context.addToMessage(message, "factory", null, getFactory());
     if (getJobDispatcher() != null) {
       for (Map.Entry<String, Collection<Capability>> capabilities : getJobDispatcher().getAllCapabilities().entrySet()) {
         message.add("Invoker", dumpCapabilities(context, capabilities.getKey(), capabilities.getValue()));

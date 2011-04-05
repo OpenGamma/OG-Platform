@@ -45,7 +45,7 @@ public class Execute extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNo
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_job != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, JOB_KEY, null, _job, com.opengamma.engine.view.calcnode.CalculationJob.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, JOB_KEY, null, _job, com.opengamma.engine.view.calcnode.CalculationJob.class);
     }
   }
   public static Execute fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeMsg fudgeMsg) {

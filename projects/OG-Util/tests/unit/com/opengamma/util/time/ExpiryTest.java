@@ -41,7 +41,7 @@ public class ExpiryTest {
   private static void testExpiry(final Expiry expiry) {
     final FudgeSerializationContext serContext = new FudgeSerializationContext(s_fudgeContext);
     final MutableFudgeMsg messageIn = serContext.newMessage();
-    serContext.objectToFudgeMsg(messageIn, "test", null, expiry);
+    serContext.addToMessage(messageIn, "test", null, expiry);
     final FudgeMsg messageOut = cycleMessage(messageIn);
     final FudgeDeserializationContext dsrContext = new FudgeDeserializationContext(s_fudgeContext);
     final Expiry result = dsrContext.fieldValueToObject(Expiry.class, messageOut.getByName("test"));

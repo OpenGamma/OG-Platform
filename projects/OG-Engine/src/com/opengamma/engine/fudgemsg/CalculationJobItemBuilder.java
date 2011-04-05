@@ -49,12 +49,12 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
     }
     FunctionParameters functionParameters = object.getFunctionParameters();
     if (functionParameters != null) {
-      context.objectToFudgeMsgWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
+      context.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
     }
     long[] inputs = object.getInputIdentifiers();
     msg.add(INPUT_FIELD_NAME, inputs);
     for (ValueRequirement desiredValue : object.getDesiredValues()) {
-      context.objectToFudgeMsg(msg, DESIRED_VALUE_FIELD_NAME, null, desiredValue);
+      context.addToMessage(msg, DESIRED_VALUE_FIELD_NAME, null, desiredValue);
     }
     return msg;
   }

@@ -60,7 +60,7 @@ public class Heartbeat implements java.io.Serializable {
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_liveDataSpecifications != null)  {
       for (com.opengamma.livedata.LiveDataSpecification fudge1 : _liveDataSpecifications) {
-        fudgeContext.objectToFudgeMsgWithClassHeaders (msg, LIVE_DATA_SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
+        fudgeContext.addToMessageWithClassHeaders (msg, LIVE_DATA_SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
       }
     }
   }

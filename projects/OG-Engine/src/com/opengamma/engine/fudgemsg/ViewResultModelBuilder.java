@@ -44,7 +44,7 @@ public abstract class ViewResultModelBuilder {
     final MutableFudgeMsg resultMsg = context.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
       resultMsg.add(null, 1, calculationConfiguration);
-      context.objectToFudgeMsg(resultMsg, null, 2, resultModel.getCalculationResult(calculationConfiguration));
+      context.addToMessage(resultMsg, null, 2, resultModel.getCalculationResult(calculationConfiguration));
     }
     message.add(FIELD_RESULTS, resultMsg);
     return message;

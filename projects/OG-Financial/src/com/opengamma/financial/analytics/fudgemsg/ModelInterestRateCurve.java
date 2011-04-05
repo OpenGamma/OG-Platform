@@ -42,7 +42,7 @@ import com.opengamma.math.curve.Curve;
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurve object) {
-      context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+      context.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
 
@@ -62,7 +62,7 @@ import com.opengamma.math.curve.Curve;
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DiscountCurve object) {
-      context.objectToFudgeMsgWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+      context.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
     }
   }
 

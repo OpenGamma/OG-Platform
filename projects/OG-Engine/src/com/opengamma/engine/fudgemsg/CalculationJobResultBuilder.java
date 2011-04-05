@@ -35,7 +35,7 @@ public class CalculationJobResultBuilder implements FudgeBuilder<CalculationJobR
     msg.add(DURATION_FIELD_NAME, object.getDuration());
     msg.add(COMPUTE_NODE_ID_FIELD_NAME, object.getComputeNodeId());
     for (CalculationJobResultItem item : object.getResultItems()) {
-      context.objectToFudgeMsg(msg, ITEMS_FIELD_NAME, null, item);
+      context.addToMessage(msg, ITEMS_FIELD_NAME, null, item);
     }
     return msg;
   }

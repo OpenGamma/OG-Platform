@@ -84,7 +84,7 @@ public final class AddViewDefinitionRequest {
   public FudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
     MutableFudgeMsg msg = context.newMessage();
     if (_viewDefinition != null) {
-      context.objectToFudgeMsg(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
+      context.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
     }
     return msg;
   }

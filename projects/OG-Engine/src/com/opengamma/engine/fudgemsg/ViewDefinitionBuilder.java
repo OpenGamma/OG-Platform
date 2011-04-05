@@ -63,9 +63,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     // both at once.
     MutableFudgeMsg message = context.newMessage();
     message.add(NAME_FIELD, null, viewDefinition.getName());
-    context.objectToFudgeMsg(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
-    context.objectToFudgeMsg(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
-    context.objectToFudgeMsg(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
+    context.addToMessage(message, IDENTIFIER_FIELD, null, viewDefinition.getPortfolioId());
+    context.addToMessage(message, USER_FIELD, null, viewDefinition.getLiveDataUser());
+    context.addToMessage(message, RESULT_MODEL_DEFINITION_FIELD, null, viewDefinition.getResultModelDefinition());
 
     Currency defaultCurrency = viewDefinition.getDefaultCurrency();
     if (defaultCurrency != null) {
@@ -95,7 +95,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
         for (Pair<String, ValueProperties> requirement : securityTypeRequirements.getValue()) {
           MutableFudgeMsg reqMsg = context.newMessage();
           reqMsg.add(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD, requirement.getFirst());
-          context.objectToFudgeMsg(reqMsg, PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD, null, requirement.getSecond());
+          context.addToMessage(reqMsg, PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD, null, requirement.getSecond());
           securityTypeRequirementsMsg.add(PORTFOLIO_REQUIREMENT_FIELD, reqMsg);
         }
         calcConfigMsg.add(PORTFOLIO_REQUIREMENTS_BY_SECURITY_TYPE_FIELD, securityTypeRequirementsMsg);
@@ -103,11 +103,11 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
         calcConfigMsg.add(SPECIFIC_REQUIREMENT_FIELD, context.objectToFudgeMsg(specificRequirement));
       }
-      context.objectToFudgeMsg(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
-      context.objectToFudgeMsg(calcConfigMsg, DEFAULT_PROPERTIES_FIELD, null, calcConfig.getDefaultProperties());
+      context.addToMessage(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
+      context.addToMessage(calcConfigMsg, DEFAULT_PROPERTIES_FIELD, null, calcConfig.getDefaultProperties());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
-    context.objectToFudgeMsgWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueIdentifier.class);
+    context.addToMessageWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueIdentifier.class);
     return message;
   }
 

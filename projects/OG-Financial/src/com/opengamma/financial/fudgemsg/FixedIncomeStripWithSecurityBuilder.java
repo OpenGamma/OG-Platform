@@ -30,14 +30,14 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithSecurity object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
-    context.objectToFudgeMsg(message, "tenor", null, object.getTenor());
-    context.objectToFudgeMsg(message, "resolvedTenor", null, object.getResolvedTenor());
+    context.addToMessage(message, "type", null, object.getInstrumentType());
+    context.addToMessage(message, "tenor", null, object.getTenor());
+    context.addToMessage(message, "resolvedTenor", null, object.getResolvedTenor());
     ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
     MutableFudgeMsg subMessage = zonedDateTimeBuilder.buildMessage(context, object.getMaturity());
-    context.objectToFudgeMsg(message, "maturity", null, subMessage);
-    context.objectToFudgeMsg(message, "identifier", null, object.getSecurityIdentifier());
-    context.objectToFudgeMsgWithClassHeaders(message, "security", null, object.getSecurity());
+    context.addToMessage(message, "maturity", null, subMessage);
+    context.addToMessage(message, "identifier", null, object.getSecurityIdentifier());
+    context.addToMessageWithClassHeaders(message, "security", null, object.getSecurity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
     }

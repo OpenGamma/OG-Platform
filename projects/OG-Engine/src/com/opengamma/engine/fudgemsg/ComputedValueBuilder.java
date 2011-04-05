@@ -36,11 +36,11 @@ public class ComputedValueBuilder implements FudgeBuilder<ComputedValue> {
     MutableFudgeMsg msg = context.newMessage();
     ValueSpecification specification = object.getSpecification();
     if (specification != null) {
-      context.objectToFudgeMsg(msg, SPECIFICATION_KEY, null, specification);
+      context.addToMessage(msg, SPECIFICATION_KEY, null, specification);
     }
     Object value = object.getValue();
     if (value != null) {
-      context.objectToFudgeMsgWithClassHeaders(msg, VALUE_KEY, null, value);
+      context.addToMessageWithClassHeaders(msg, VALUE_KEY, null, value);
     }
     return msg;
   }

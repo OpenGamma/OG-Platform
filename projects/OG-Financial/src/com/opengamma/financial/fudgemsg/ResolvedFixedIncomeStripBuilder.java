@@ -26,9 +26,9 @@ public class ResolvedFixedIncomeStripBuilder implements FudgeBuilder<FixedIncome
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithIdentifier object) {
     MutableFudgeMsg message = context.newMessage();
-    context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
-    context.objectToFudgeMsg(message, "maturity", null, object.getMaturity());
-    context.objectToFudgeMsg(message, "security", null, object.getSecurity());
+    context.addToMessage(message, "type", null, object.getInstrumentType());
+    context.addToMessage(message, "maturity", null, object.getMaturity());
+    context.addToMessage(message, "security", null, object.getSecurity());
     return message; 
   }
 

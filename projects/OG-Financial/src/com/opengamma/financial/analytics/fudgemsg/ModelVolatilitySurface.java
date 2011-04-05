@@ -35,7 +35,7 @@ import com.opengamma.math.surface.Surface;
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final VolatilitySurface object) {
-      context.objectToFudgeMsgWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
+      context.addToMessageWithClassHeaders(message, SURFACE_FIELD_NAME, null, object.getSurface(), Surface.class);
     }
 
     @SuppressWarnings("unchecked")

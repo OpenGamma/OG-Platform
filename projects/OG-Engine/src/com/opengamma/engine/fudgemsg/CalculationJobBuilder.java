@@ -41,7 +41,7 @@ public class CalculationJobBuilder implements FudgeBuilder<CalculationJob> {
       }
     }
     for (CalculationJobItem item : object.getJobItems()) {
-      context.objectToFudgeMsg(msg, ITEM_FIELD_NAME, null, item);
+      context.addToMessage(msg, ITEM_FIELD_NAME, null, item);
     }
     MutableFudgeMsg cacheSelectHintMsg = context.objectToFudgeMsg(object.getCacheSelectHint());
     for (FudgeField fudgeField : cacheSelectHintMsg.getAllFields()) {

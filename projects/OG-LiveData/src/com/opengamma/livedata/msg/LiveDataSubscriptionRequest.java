@@ -91,14 +91,14 @@ public class LiveDataSubscriptionRequest implements java.io.Serializable {
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_user != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, USER_KEY, null, _user, com.opengamma.livedata.UserPrincipal.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, USER_KEY, null, _user, com.opengamma.livedata.UserPrincipal.class);
     }
     if (_type != null)  {
       msg.add (TYPE_KEY, null, _type.name ());
     }
     if (_specifications != null)  {
       for (com.opengamma.livedata.LiveDataSpecification fudge1 : _specifications) {
-        fudgeContext.objectToFudgeMsgWithClassHeaders (msg, SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
+        fudgeContext.addToMessageWithClassHeaders (msg, SPECIFICATIONS_KEY, null, fudge1, com.opengamma.livedata.LiveDataSpecification.class);
       }
     }
   }

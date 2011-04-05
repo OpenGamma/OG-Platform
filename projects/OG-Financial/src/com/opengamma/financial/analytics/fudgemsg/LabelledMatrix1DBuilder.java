@@ -50,7 +50,7 @@ final class LabelledMatrix1DBuilder {
       for (int i = 0; i < object.size(); i++) {
         msg.add(LABEL_TYPE_ORDINAL, labels[i].getClass().getName());
         msg.add(KEY_ORDINAL, keys[i]);
-        context.objectToFudgeMsg(msg, null, LABEL_ORDINAL, labels[i]);
+        context.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
@@ -122,7 +122,7 @@ final class LabelledMatrix1DBuilder {
       for (int i = 0; i < object.size(); i++) {
         msg.add(LABEL_TYPE_ORDINAL, labels[i].getClass().getName());
         msg.add(KEY_ORDINAL, keys[i]);
-        context.objectToFudgeMsg(msg, null, LABEL_ORDINAL, labels[i]);
+        context.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
 

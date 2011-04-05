@@ -86,7 +86,7 @@ public class InterpolatedYieldCurveDefinitionMasterResource {
       final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
       final MutableFudgeMsg resp = sctx.newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
-      sctx.objectToFudgeMsgWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
+      sctx.addToMessageWithClassHeaders(resp, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
       return new FudgeMsgEnvelope(resp);
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);

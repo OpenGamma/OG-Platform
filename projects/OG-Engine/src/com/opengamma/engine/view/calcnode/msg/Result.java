@@ -72,7 +72,7 @@ public class Result extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNod
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_result != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, RESULT_KEY, null, _result, com.opengamma.engine.view.calcnode.CalculationJobResult.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, RESULT_KEY, null, _result, com.opengamma.engine.view.calcnode.CalculationJobResult.class);
     }
     if (_ready != null)  {
       final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _ready.getClass (), com.opengamma.engine.view.calcnode.msg.Ready.class);

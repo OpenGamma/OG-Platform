@@ -35,8 +35,8 @@ public class AdHocBatchResultBuilder implements FudgeBuilder<AdHocBatchResult> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, AdHocBatchResult object) {
     MutableFudgeMsg msg = context.newMessage();
-    context.objectToFudgeMsg(msg, BATCHID_KEY, null, object.getBatchId());
-    context.objectToFudgeMsg(msg, RESULT_KEY, null, object.getResult());
+    context.addToMessage(msg, BATCHID_KEY, null, object.getBatchId());
+    context.addToMessage(msg, RESULT_KEY, null, object.getResult());
     return msg;
   }
 

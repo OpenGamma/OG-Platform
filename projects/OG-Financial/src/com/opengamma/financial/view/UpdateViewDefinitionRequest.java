@@ -112,7 +112,7 @@ public final class UpdateViewDefinitionRequest {
       msg.add(NAME_FIELD_NAME, _name);
     }
     if (_viewDefinition != null) {
-      context.objectToFudgeMsg(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
+      context.addToMessage(msg, VIEW_DEFINITION_FIELD_NAME, null, _viewDefinition);
     }
     return msg;
   }

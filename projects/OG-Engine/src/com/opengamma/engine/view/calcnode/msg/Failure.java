@@ -102,7 +102,7 @@ public class Failure extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNo
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_job != null)  {
-      fudgeContext.objectToFudgeMsgWithClassHeaders (msg, JOB_KEY, null, _job, com.opengamma.engine.view.calcnode.CalculationJobSpecification.class);
+      fudgeContext.addToMessageWithClassHeaders (msg, JOB_KEY, null, _job, com.opengamma.engine.view.calcnode.CalculationJobSpecification.class);
     }
     if (_errorMessage != null)  {
       msg.add (ERROR_MESSAGE_KEY, null, _errorMessage);

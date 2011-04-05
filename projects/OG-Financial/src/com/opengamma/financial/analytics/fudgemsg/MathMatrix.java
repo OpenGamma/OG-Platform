@@ -57,7 +57,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
     @Override
     protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DoubleMatrix2D object) {
-      context.objectToFudgeMsg(message, DATA_FIELD_NAME, null, object.getData());
+      context.addToMessage(message, DATA_FIELD_NAME, null, object.getData());
     }
   }
 

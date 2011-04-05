@@ -37,8 +37,8 @@ public class DebugFunctionMessage implements PublishedFunction {
     final FudgeContext ctx = FudgeContext.GLOBAL_DEFAULT;
     final MutableFudgeMsg msg = ctx.newMessage();
     final FudgeSerializationContext sctx = new FudgeSerializationContext(ctx);
-    sctx.objectToFudgeMsgWithClassHeaders(msg, "foo", null, foo);
-    sctx.objectToFudgeMsgWithClassHeaders(msg, "bar", null, bar);
+    sctx.addToMessageWithClassHeaders(msg, "foo", null, foo);
+    sctx.addToMessageWithClassHeaders(msg, "bar", null, bar);
     return DataUtil.of(msg);
   }
 

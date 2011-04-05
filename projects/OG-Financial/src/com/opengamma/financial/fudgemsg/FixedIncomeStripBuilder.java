@@ -27,9 +27,9 @@ public class FixedIncomeStripBuilder implements FudgeBuilder<FixedIncomeStrip> {
     MutableFudgeMsg message = context.newMessage();
     //FudgeSerializationContext.addClassHeader(message, FixedIncomeStrip.class);
     //message.add("type", object.getInstrumentType().name());
-    context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
+    context.addToMessage(message, "type", null, object.getInstrumentType());
     message.add("conventionName", object.getConventionName());
-    context.objectToFudgeMsg(message, "tenor", null, object.getCurveNodePointTime());
+    context.addToMessage(message, "tenor", null, object.getCurveNodePointTime());
     //message.add("tenorAsPeriod", object.getCurveNodePointTime().getPeriod().toString());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());

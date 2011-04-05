@@ -37,14 +37,14 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
       if (object.getOuterClass() != null) {
         message.add(null, null, object.getOuterClass().getName());
       } else {
-        context.objectToFudgeMsg(message, null, null, substituteObject(object.getOuterInstance()));
+        context.addToMessage(message, null, null, substituteObject(object.getOuterInstance()));
       }
       if (object.getParameters().length == 0) {
         message.add(object.getMethod(), null, IndicatorType.INSTANCE);
       } else {
         final MutableFudgeMsg parameters = context.newMessage();
         for (Object parameter : object.getParameters()) {
-          context.objectToFudgeMsg(parameters, null, null, substituteObject(parameter));
+          context.addToMessage(parameters, null, null, substituteObject(parameter));
         }
         message.add(object.getMethod(), null, parameters);
       }

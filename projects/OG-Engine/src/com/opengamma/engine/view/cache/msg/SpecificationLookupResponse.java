@@ -77,7 +77,7 @@ public class SpecificationLookupResponse extends com.opengamma.engine.view.cache
     super.toFudgeMsg (fudgeContext, msg);
     if (_specification != null)  {
       for (com.opengamma.engine.value.ValueSpecification fudge1 : _specification) {
-        fudgeContext.objectToFudgeMsgWithClassHeaders (msg, SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
+        fudgeContext.addToMessageWithClassHeaders (msg, SPECIFICATION_KEY, null, fudge1, com.opengamma.engine.value.ValueSpecification.class);
       }
     }
   }

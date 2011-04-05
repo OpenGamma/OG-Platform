@@ -36,7 +36,7 @@ public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalcu
     for (ComputationTargetSpecification target : targets) {
       final Map<String, ComputedValue> values = resultModel.getValues(target);
       for (Map.Entry<String, ComputedValue> value : values.entrySet()) {
-        context.objectToFudgeMsg(message, null, null, value.getValue());
+        context.addToMessage(message, null, null, value.getValue());
       }
     }
     return message;
