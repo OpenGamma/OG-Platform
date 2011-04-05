@@ -29,7 +29,7 @@ public class DebugFunctionMultipleTypes implements PublishedFunction {
 
   private FudgeMsg execute(final byte byteValue, final boolean booleanValue, final char charValue, final double doubleValue, final float floatValue, final int intValue,
       final long longValue,
-      final short shortValue, final String stringValue, final FudgeFieldContainer messageValue) {
+      final short shortValue, final String stringValue, final FudgeMsg messageValue) {
     final MutableFudgeMsg message = FudgeContext.GLOBAL_DEFAULT.newMessage();
     message.add("byte", byteValue);
     message.add("boolean", booleanValue);
@@ -68,7 +68,7 @@ public class DebugFunctionMultipleTypes implements PublishedFunction {
           throw new IllegalArgumentException("Wrong number of parameters");
         }
         return execute((Byte) parameters[0], (Boolean) parameters[1], (Character) parameters[2], (Double) parameters[3], (Float) parameters[4], (Integer) parameters[5], (Long) parameters[6],
-            (Short) parameters[7], (String) parameters[8], (FudgeFieldContainer) parameters[9]);
+            (Short) parameters[7], (String) parameters[8], (FudgeMsg) parameters[9]);
       }
     };
     return new MetaFunction("DebugFunctionMultipleTypes", args, invoker);
