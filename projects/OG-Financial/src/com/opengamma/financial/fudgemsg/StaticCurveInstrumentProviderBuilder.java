@@ -6,8 +6,8 @@
 package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -26,16 +26,16 @@ public class StaticCurveInstrumentProviderBuilder implements FudgeBuilder<Static
    */
   public static final String TYPE = "Static";
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, StaticCurveInstrumentProvider object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, StaticCurveInstrumentProvider object) {
+    MutableFudgeMsg message = context.newMessage();
     FudgeSerializationContext.addClassHeader(message, StaticCurveInstrumentProvider.class);
     message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
-    context.objectToFudgeMsg(message, "instrument", null, object.getInstrument(null, null));
+    context.addToMessage(message, "instrument", null, object.getInstrument(null, null));
     return message; 
   }
 
   @Override
-  public StaticCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public StaticCurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField instrumentIdentifier = message.getByName("instrument");
     Identifier identifier = context.fieldValueToObject(Identifier.class, instrumentIdentifier);
     return new StaticCurveInstrumentProvider(identifier);

@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.server;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -40,16 +40,16 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
 
   @Override
   @Transactional
-  public FudgeFieldContainer requestReceived(
+  public FudgeMsg requestReceived(
       FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
     try {
-      FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
+      FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
       LiveDataSubscriptionRequest subscriptionRequest = LiveDataSubscriptionRequest.fromFudgeMsg(context, requestFudgeMsg);
       s_logger.info("Received subscription request {}", subscriptionRequest);
       LiveDataSubscriptionResponseMsg subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
       s_logger.info("Sending subscription response {}", subscriptionResponse);
-      FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+      FudgeMsg responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
       return responseFudgeMsg;
     } catch (RuntimeException e) {
       s_logger.error("Unexpected exception when processing subscription request", e);

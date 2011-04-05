@@ -87,7 +87,7 @@ public class UserPrincipal implements java.io.Serializable {
     _ipAddress = ipAddress;
   }
 
-  protected UserPrincipal(final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected UserPrincipal(final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName(USER_NAME_KEY);
     if (fudgeField == null) {
@@ -121,16 +121,16 @@ public class UserPrincipal implements java.io.Serializable {
     return new UserPrincipal(this);
   }
 
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) {
       throw new NullPointerException("fudgeContext must not be null");
     }
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage();
     toFudgeMsg(fudgeContext, msg);
     return msg;
   }
 
-  public void toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg(final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_userName != null) {
       msg.add(USER_NAME_KEY, null, _userName);
     }
@@ -139,7 +139,7 @@ public class UserPrincipal implements java.io.Serializable {
     }
   }
 
-  public static UserPrincipal fromFudgeMsg(final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static UserPrincipal fromFudgeMsg(final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal(0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String) field.getValue();
@@ -147,7 +147,7 @@ public class UserPrincipal implements java.io.Serializable {
         break;
       }
       try {
-        return (com.opengamma.livedata.UserPrincipal) Class.forName(className).getDeclaredMethod("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke(null, fudgeMsg);
+        return (com.opengamma.livedata.UserPrincipal) Class.forName(className).getDeclaredMethod("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke(null, fudgeMsg);
       } catch (Throwable t) {
         // no-action
       }

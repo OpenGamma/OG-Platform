@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -25,7 +25,7 @@ public class YieldCurveNodeSensitivityDataBundleBuilder extends AbstractFudgeBui
   private static final String CURVE_NAME = "CurveName";
 
   @Override
-  public YieldCurveNodeSensitivityDataBundle buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  public YieldCurveNodeSensitivityDataBundle buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     final Currency ccy = context.fieldValueToObject(Currency.class, message.getByName(CURRENCY_NAME));
     final DoubleLabelledMatrix1D labelledMatrix = context.fieldValueToObject(DoubleLabelledMatrix1D.class, message.getByName(MATRIX_NAME));
     final String curveName = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME));
@@ -33,10 +33,10 @@ public class YieldCurveNodeSensitivityDataBundleBuilder extends AbstractFudgeBui
   }
 
   @Override
-  protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final YieldCurveNodeSensitivityDataBundle object) {
-    context.objectToFudgeMsg(message, CURRENCY_NAME, null, object.getCurrency());
-    context.objectToFudgeMsg(message, MATRIX_NAME, null, object.getLabelledMatrix());
-    context.objectToFudgeMsg(message, CURVE_NAME, null, object.getYieldCurveName());
+  protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final YieldCurveNodeSensitivityDataBundle object) {
+    context.addToMessage(message, CURRENCY_NAME, null, object.getCurrency());
+    context.addToMessage(message, MATRIX_NAME, null, object.getLabelledMatrix());
+    context.addToMessage(message, CURVE_NAME, null, object.getYieldCurveName());
   }
 
 }

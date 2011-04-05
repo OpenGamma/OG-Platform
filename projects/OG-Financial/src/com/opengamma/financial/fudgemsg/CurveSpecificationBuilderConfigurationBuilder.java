@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -31,95 +31,95 @@ import com.opengamma.util.time.Tenor;
 public class CurveSpecificationBuilderConfigurationBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, CurveSpecificationBuilderConfiguration object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CurveSpecificationBuilderConfiguration object) {
+    MutableFudgeMsg message = context.newMessage();
     FudgeSerializationContext.addClassHeader(message, CurveSpecificationBuilderConfiguration.class);
-    MutableFudgeFieldContainer cashInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg cashInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(cashInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("cashInstrumentProviders", cashInstrumentProvidersMessage);
     
-    MutableFudgeFieldContainer fraInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg fraInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFraInstrumentProviders().entrySet()) {
       if (entry.getKey().getPeriod().toString() == null) {
         throw new OpenGammaRuntimeException("null");
       }
-      context.objectToFudgeMsg(fraInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(fraInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("fraInstrumentProviders", fraInstrumentProvidersMessage);
     
-    MutableFudgeFieldContainer futureInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg futureInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getFutureInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(futureInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("futureInstrumentProviders", futureInstrumentProvidersMessage);
 
-    MutableFudgeFieldContainer rateInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg rateInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getRateInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(rateInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(rateInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("rateInstrumentProviders", rateInstrumentProvidersMessage);
     
-    MutableFudgeFieldContainer swapInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg swapInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getSwapInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(swapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(swapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("swapInstrumentProviders", swapInstrumentProvidersMessage);
     
-    MutableFudgeFieldContainer basisSwapInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg basisSwapInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getBasisSwapInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(basisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("basisSwapInstrumentProviders", basisSwapInstrumentProvidersMessage);
     
-    MutableFudgeFieldContainer tenorSwapInstrumentProvidersMessage = context.newMessage();
+    MutableFudgeMsg tenorSwapInstrumentProvidersMessage = context.newMessage();
     for (Entry<Tenor, CurveInstrumentProvider> entry : object.getTenorSwapInstrumentProviders().entrySet()) {
-      context.objectToFudgeMsg(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      context.addToMessage(tenorSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
     }
     message.add("tenorSwapInstrumentProviders", tenorSwapInstrumentProvidersMessage);
     return message; 
   }
 
   @Override
-  public CurveSpecificationBuilderConfiguration buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    FudgeFieldContainer cashInstrumentProvidersMessage = message.getMessage("cashInstrumentProviders");
+  public CurveSpecificationBuilderConfiguration buildObject(FudgeDeserializationContext context, FudgeMsg message) {
+    FudgeMsg cashInstrumentProvidersMessage = message.getMessage("cashInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : cashInstrumentProvidersMessage.getAllFields()) {
       cashInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
     
-    FudgeFieldContainer fraInstrumentProvidersMessage = message.getMessage("fraInstrumentProviders");
+    FudgeMsg fraInstrumentProvidersMessage = message.getMessage("fraInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : fraInstrumentProvidersMessage.getAllFields()) {
       fraInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
 
-    FudgeFieldContainer futureInstrumentProvidersMessage = message.getMessage("futureInstrumentProviders");
+    FudgeMsg futureInstrumentProvidersMessage = message.getMessage("futureInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : futureInstrumentProvidersMessage.getAllFields()) {
       futureInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
     
-    FudgeFieldContainer rateInstrumentProvidersMessage = message.getMessage("rateInstrumentProviders");
+    FudgeMsg rateInstrumentProvidersMessage = message.getMessage("rateInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> rateInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : rateInstrumentProvidersMessage.getAllFields()) {
       rateInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
 
-    FudgeFieldContainer swapInstrumentProvidersMessage = message.getMessage("swapInstrumentProviders");
+    FudgeMsg swapInstrumentProvidersMessage = message.getMessage("swapInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : swapInstrumentProvidersMessage.getAllFields()) {
       swapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
     
-    FudgeFieldContainer basisSwapInstrumentProvidersMessage = message.getMessage("basisSwapInstrumentProviders");
+    FudgeMsg basisSwapInstrumentProvidersMessage = message.getMessage("basisSwapInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : basisSwapInstrumentProvidersMessage.getAllFields()) {
       basisSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));
     }
     
-    FudgeFieldContainer tenorSwapInstrumentProvidersMessage = message.getMessage("tenorSwapInstrumentProviders");
+    FudgeMsg tenorSwapInstrumentProvidersMessage = message.getMessage("tenorSwapInstrumentProviders");
     Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     for (FudgeField field : tenorSwapInstrumentProvidersMessage.getAllFields()) {
       tenorSwapInstrumentProviders.put(new Tenor(Period.parse(field.getName())), context.fieldValueToObject(CurveInstrumentProvider.class, field));

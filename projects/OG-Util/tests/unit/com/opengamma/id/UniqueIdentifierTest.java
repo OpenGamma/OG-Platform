@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -347,7 +347,7 @@ public class UniqueIdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_noVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
@@ -357,7 +357,7 @@ public class UniqueIdentifierTest {
 
   public void test_fudgeEncoding_version() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     

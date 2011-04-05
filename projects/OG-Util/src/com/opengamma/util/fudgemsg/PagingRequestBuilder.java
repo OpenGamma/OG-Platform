@@ -5,8 +5,8 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -26,15 +26,15 @@ public final class PagingRequestBuilder implements FudgeBuilder<PagingRequest> {
   public static final String PAGING_SIZE_FIELD_NAME = "pagingSize";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, PagingRequest object) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, PagingRequest object) {
+    final MutableFudgeMsg msg = context.newMessage();
     msg.add(PAGE_FIELD_NAME, object.getPage());
     msg.add(PAGING_SIZE_FIELD_NAME, object.getPagingSize());
     return msg;
   }
 
   @Override
-  public PagingRequest buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+  public PagingRequest buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final Integer page = msg.getInt(PAGE_FIELD_NAME);
     final Integer pagingSize = msg.getInt(PAGING_SIZE_FIELD_NAME);
     return new PagingRequest(page != null ? page : 1, pagingSize != null ? pagingSize : PagingRequest.DEFAULT_PAGING_SIZE);

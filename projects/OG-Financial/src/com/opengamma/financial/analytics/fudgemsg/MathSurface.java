@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -32,12 +32,12 @@ final class MathSurface {
     private static final String SURFACE_NAME_FIELD_NAME = "surface name";
 
     @Override
-    public ConstantDoublesSurface buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public ConstantDoublesSurface buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       return ConstantDoublesSurface.from(message.getFieldValue(Double.class, message.getByName(Z_VALUE_FIELD_NAME)), message.getFieldValue(String.class, message.getByName(SURFACE_NAME_FIELD_NAME)));
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantDoublesSurface object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final ConstantDoublesSurface object) {
       message.add(Z_VALUE_FIELD_NAME, null, object.getZValue(0., 0.));
       message.add(SURFACE_NAME_FIELD_NAME, null, object.getName());
     }
@@ -56,7 +56,7 @@ final class MathSurface {
     private static final String SURFACE_NAME_FIELD_NAME = "surface name";
 
     @Override
-    public InterpolatedDoublesSurface buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public InterpolatedDoublesSurface buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
       final double[] y = context.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
       final double[] z = context.fieldValueToObject(double[].class, message.getByName(Z_DATA_FIELD_NAME));
@@ -66,12 +66,12 @@ final class MathSurface {
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final InterpolatedDoublesSurface object) {
-      context.objectToFudgeMsg(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.objectToFudgeMsg(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.objectToFudgeMsg(message, Z_DATA_FIELD_NAME, null, object.getZDataAsPrimitive());
-      context.objectToFudgeMsg(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
-      context.objectToFudgeMsg(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InterpolatedDoublesSurface object) {
+      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      context.addToMessage(message, Z_DATA_FIELD_NAME, null, object.getZDataAsPrimitive());
+      context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      context.addToMessage(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
     }
   }
 }

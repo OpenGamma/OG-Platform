@@ -10,7 +10,7 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 
 import java.util.Map;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtil;
@@ -32,8 +32,8 @@ public final class ValueConverter implements TypeConverter {
   private static final JavaTypeInfo<Double> DOUBLE_NULL = JavaTypeInfo.builder(Double.class).allowNull().get();
   private static final JavaTypeInfo<String> STRING_NOT_NULL = JavaTypeInfo.builder(String.class).get();
   private static final JavaTypeInfo<String> STRING_NULL = JavaTypeInfo.builder(String.class).allowNull().get();
-  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE_NOT_NULL = JavaTypeInfo.builder(FudgeFieldContainer.class).get();
-  private static final JavaTypeInfo<FudgeFieldContainer> MESSAGE_NULL = JavaTypeInfo.builder(FudgeFieldContainer.class).allowNull().get();
+  private static final JavaTypeInfo<FudgeMsg> MESSAGE_NOT_NULL = JavaTypeInfo.builder(FudgeMsg.class).get();
+  private static final JavaTypeInfo<FudgeMsg> MESSAGE_NULL = JavaTypeInfo.builder(FudgeMsg.class).allowNull().get();
 
   private static final TypeMap TO_VALUE_NOT_NULL = TypeMap.of(ZERO_LOSS, BOOLEAN_NOT_NULL, INTEGER_NOT_NULL, DOUBLE_NOT_NULL, STRING_NOT_NULL, MESSAGE_NOT_NULL);
   private static final TypeMap TO_VALUE_ALLOW_NULL = TypeMap.of(ZERO_LOSS, BOOLEAN_NULL, INTEGER_NULL, DOUBLE_NULL, STRING_NULL, MESSAGE_NULL);
@@ -82,8 +82,8 @@ public final class ValueConverter implements TypeConverter {
         conversionContext.setResult(ValueUtil.of((Double) valueObject));
       } else if (valueObject instanceof String) {
         conversionContext.setResult(ValueUtil.of((String) valueObject));
-      } else if (valueObject instanceof FudgeFieldContainer) {
-        conversionContext.setResult(ValueUtil.of((FudgeFieldContainer) valueObject));
+      } else if (valueObject instanceof FudgeMsg) {
+        conversionContext.setResult(ValueUtil.of((FudgeMsg) valueObject));
       } else {
         conversionContext.setFail();
       }
@@ -121,7 +121,7 @@ public final class ValueConverter implements TypeConverter {
           } else {
             conversionContext.setFail();
           }
-        } else if (clazz == FudgeFieldContainer.class) {
+        } else if (clazz == FudgeMsg.class) {
           if (value.getMessageValue() != null) {
             conversionContext.setResult(value.getMessageValue());
           } else {

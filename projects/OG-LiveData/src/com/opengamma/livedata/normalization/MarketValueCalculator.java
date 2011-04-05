@@ -9,8 +9,8 @@ import static com.opengamma.livedata.normalization.MarketDataRequirementNames.AS
 import static com.opengamma.livedata.normalization.MarketDataRequirementNames.BID;
 import static com.opengamma.livedata.normalization.MarketDataRequirementNames.LAST;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
 
@@ -39,11 +39,11 @@ public class MarketValueCalculator implements NormalizationRule {
    * with the value calculated as described above
    */
   @Override
-  public MutableFudgeFieldContainer apply(
-      MutableFudgeFieldContainer msg,
+  public MutableFudgeMsg apply(
+      MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     
-    FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
+    FudgeMsg lkv = fieldHistory.getLastKnownValues();
     
     Double bid = msg.getDouble(BID);
     if (bid == null) {
@@ -98,11 +98,11 @@ public class MarketValueCalculator implements NormalizationRule {
   /**
    * Tries to populate MARKET_VALUE from the history.
    */
-  private MutableFudgeFieldContainer lastKnownMarketValue(
-      MutableFudgeFieldContainer msg,
+  private MutableFudgeMsg lastKnownMarketValue(
+      MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     
-    FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
+    FudgeMsg lkv = fieldHistory.getLastKnownValues();
     
     Double lastKnownMarketValue = lkv.getDouble(MarketDataRequirementNames.MARKET_VALUE);
     if (lastKnownMarketValue == null) {

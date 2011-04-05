@@ -6,7 +6,7 @@
 
 package com.opengamma.language;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -44,7 +44,7 @@ public final class DataUtil {
     return of(ValueUtil.of(intValue));
   }
 
-  public static Data of(final FudgeFieldContainer messageValue) {
+  public static Data of(final FudgeMsg messageValue) {
     return of(ValueUtil.of(messageValue));
   }
 

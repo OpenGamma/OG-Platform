@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -151,7 +151,7 @@ public class IdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding() {
     Identifier test = Identifier.of("id1", "value1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     

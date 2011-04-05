@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public final class NullSessionContextEventHandler implements SessionContextEvent
   }
 
   @Override
-  public void initContextWithStash(final MutableSessionContext context, final FudgeFieldContainer stash) {
+  public void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
     s_logger.info("Initialising session context {} with stash {}", context, stash);
     // No-op
   }

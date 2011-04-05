@@ -26,13 +26,13 @@ public class ConnectorMessage implements java.io.Serializable {
   }
   private com.opengamma.language.connector.ConnectorMessage.Operation _operation;
   public static final int OPERATION_ORDINAL = 1;
-  private org.fudgemsg.FudgeFieldContainer _stash;
+  private org.fudgemsg.FudgeMsg _stash;
   public static final int STASH_ORDINAL = 2;
   public ConnectorMessage (com.opengamma.language.connector.ConnectorMessage.Operation operation) {
     if (operation == null) throw new NullPointerException ("operation' cannot be null");
     _operation = operation;
   }
-  protected ConnectorMessage (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected ConnectorMessage (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (OPERATION_ORDINAL);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ConnectorMessage - field 'operation' is not present");
@@ -45,8 +45,8 @@ public class ConnectorMessage implements java.io.Serializable {
     fudgeField = fudgeMsg.getByOrdinal (STASH_ORDINAL);
     if (fudgeField != null)  {
       try {
-        final org.fudgemsg.FudgeFieldContainer fudge1;
-        fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
+        final org.fudgemsg.FudgeMsg fudge1;
+        fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField);
         setStash (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -54,7 +54,7 @@ public class ConnectorMessage implements java.io.Serializable {
       }
     }
   }
-  public ConnectorMessage (com.opengamma.language.connector.ConnectorMessage.Operation operation, org.fudgemsg.FudgeFieldContainer stash) {
+  public ConnectorMessage (com.opengamma.language.connector.ConnectorMessage.Operation operation, org.fudgemsg.FudgeMsg stash) {
     if (operation == null) throw new NullPointerException ("operation' cannot be null");
     _operation = operation;
     _stash = stash;
@@ -67,13 +67,13 @@ public class ConnectorMessage implements java.io.Serializable {
   public ConnectorMessage clone () {
     return new ConnectorMessage (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_operation != null)  {
       msg.add (null, OPERATION_ORDINAL, _operation.getFudgeEncoding ());
     }
@@ -81,13 +81,13 @@ public class ConnectorMessage implements java.io.Serializable {
       msg.add (null, STASH_ORDINAL, fudgeContext.newMessage (_stash));
     }
   }
-  public static ConnectorMessage fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static ConnectorMessage fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.connector.ConnectorMessage".equals (className)) break;
       try {
-        return (com.opengamma.language.connector.ConnectorMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.connector.ConnectorMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
@@ -102,10 +102,10 @@ public class ConnectorMessage implements java.io.Serializable {
     if (operation == null) throw new NullPointerException ("operation' cannot be null");
     _operation = operation;
   }
-  public org.fudgemsg.FudgeFieldContainer getStash () {
+  public org.fudgemsg.FudgeMsg getStash () {
     return _stash;
   }
-  public void setStash (org.fudgemsg.FudgeFieldContainer stash) {
+  public void setStash (org.fudgemsg.FudgeMsg stash) {
     _stash = stash;
   }
   public boolean equals (final Object o) {

@@ -15,7 +15,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeRuntimeIOException;
@@ -210,7 +210,7 @@ public class ServerSocketFudgeConnectionReceiver extends AbstractServerSocketPro
         }
 
         @Override
-        public void send(FudgeFieldContainer message) {
+        public void send(FudgeMsg message) {
           try {
             _writer.write(message);
           } catch (FudgeRuntimeIOException e) {

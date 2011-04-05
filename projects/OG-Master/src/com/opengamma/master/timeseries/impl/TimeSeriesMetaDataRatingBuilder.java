@@ -5,8 +5,8 @@
  */
 package com.opengamma.master.timeseries.impl;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -20,8 +20,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public class TimeSeriesMetaDataRatingBuilder implements FudgeBuilder<TimeSeriesMetaDataRating> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, TimeSeriesMetaDataRating object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, TimeSeriesMetaDataRating object) {
+    MutableFudgeMsg message = context.newMessage();
     message.add("fieldName", object.getFieldName());
     message.add("fieldValue", object.getFieldValue());
     message.add("rating", object.getRating());
@@ -29,7 +29,7 @@ public class TimeSeriesMetaDataRatingBuilder implements FudgeBuilder<TimeSeriesM
   }
 
   @Override
-  public TimeSeriesMetaDataRating buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public TimeSeriesMetaDataRating buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     String fieldName = message.getString("fieldName");
     if (fieldName == null) {
       throw new IllegalArgumentException("Fudge message is not a TimeSeriesMetaDataRating - field 'fieldName' is not present");

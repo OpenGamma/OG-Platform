@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
       }
 
       @Override
-      public void send(FudgeFieldContainer message) {
+      public void send(FudgeMsg message) {
         requestSender.sendRequest(message, FudgeSynchronousClient.this);
       }
 
@@ -126,7 +126,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * @param correlationId  the message id
    * @return the result
    */
-  protected FudgeFieldContainer sendRequestAndWaitForResponse(FudgeFieldContainer requestMsg, long correlationId) {
+  protected FudgeMsg sendRequestAndWaitForResponse(FudgeMsg requestMsg, long correlationId) {
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
     try {
@@ -147,7 +147,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
     }
   }
 
-  protected void sendMessage(FudgeFieldContainer message) {
+  protected void sendMessage(FudgeMsg message) {
     getMessageSender().send(message);
   }
 
@@ -158,7 +158,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    */
   @Override
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-    final FudgeFieldContainer reply = msgEnvelope.getMessage();
+    final FudgeMsg reply = msgEnvelope.getMessage();
     final Long correlationId = getCorrelationIdFromReply(reply);
     if (correlationId == null) {
       final FudgeMessageReceiver receiver = getAsynchronousMessageReceiver();
@@ -183,14 +183,14 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * @param reply  the reply
    * @return the id, or {@code null} if it's an asynchronous message (over {@link FudgeConnection} transport only)
    */
-  protected abstract Long getCorrelationIdFromReply(FudgeFieldContainer reply);
+  protected abstract Long getCorrelationIdFromReply(FudgeMsg reply);
 
   // -------------------------------------------------------------------------
   /**
    * Data holder.
    */
   private static final class ClientRequestHolder {
-    public FudgeFieldContainer resultValue; // CSIGNORE: simple holder object
+    public FudgeMsg resultValue; // CSIGNORE: simple holder object
     public final CountDownLatch latch = new CountDownLatch(1); // CSIGNORE: simple holder object
   }
 

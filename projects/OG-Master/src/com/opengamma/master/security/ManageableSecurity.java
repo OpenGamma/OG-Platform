@@ -42,7 +42,7 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
     setName (NAME);
     setIdentifiers (IDENTIFIERS);
   }
-  protected ManageableSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected ManageableSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'name' is not present");
@@ -63,7 +63,7 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
     fudgeField = fudgeMsg.getByName (IDENTIFIERS_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'identifiers' is not present");
     try {
-      _identifiers = com.opengamma.id.IdentifierBundle.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _identifiers = com.opengamma.id.IdentifierBundle.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a ManageableSecurity - field 'identifiers' is not IdentifierBundle message", e);
@@ -72,7 +72,7 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
     if (fudgeField != null)  {
       try {
         final com.opengamma.id.UniqueIdentifier fudge1;
-        fudge1 = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+        fudge1 = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
         setUniqueId (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -110,15 +110,15 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
   public ManageableSecurity clone () {
     return new ManageableSecurity (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_uniqueId != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _uniqueId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _uniqueId.getClass (), com.opengamma.id.UniqueIdentifier.class);
       _uniqueId.toFudgeMsg (fudgeContext, fudge1);
       msg.add (UNIQUE_ID_KEY, null, fudge1);
     }
@@ -129,18 +129,18 @@ public class ManageableSecurity implements java.io.Serializable, com.opengamma.c
       msg.add (SECURITY_TYPE_KEY, null, _securityType);
     }
     if (_identifiers != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.IdentifierBundle.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.IdentifierBundle.class);
       _identifiers.toFudgeMsg (fudgeContext, fudge1);
       msg.add (IDENTIFIERS_KEY, null, fudge1);
     }
   }
-  public static ManageableSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static ManageableSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.master.security.ManageableSecurity".equals (className)) break;
       try {
-        return (com.opengamma.master.security.ManageableSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.master.security.ManageableSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

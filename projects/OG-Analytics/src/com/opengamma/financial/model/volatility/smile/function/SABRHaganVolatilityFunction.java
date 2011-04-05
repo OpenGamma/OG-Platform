@@ -90,7 +90,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     final double nu = data.getNu();
     final double forward = data.getForward();
 
-    // Note Implementation: Forward sweep.
+    // Implementation note: Forward sweep.
     double sfK = Math.pow(forward * strike, (1 - beta) / 2);
     double lnrfK = Math.log(forward / strike);
     double z = nu / alpha * sfK * lnrfK;
@@ -106,7 +106,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     double sf2 = (1 + (Math.pow((1 - beta) * alpha / sfK, 2) / 24 + (rho * beta * nu * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
     volatilityAdjoint[0] = alpha / sf1 * rzxz * sf2;
 
-    // Note Implementation: Backward sweep.
+    // Implementation note: Backward sweep.
     double vBar = 1;
     double sf2Bar = alpha / sf1 * rzxz * vBar;
     double sf1Bar = -alpha / (sf1 * sf1) * rzxz * sf2 * vBar;

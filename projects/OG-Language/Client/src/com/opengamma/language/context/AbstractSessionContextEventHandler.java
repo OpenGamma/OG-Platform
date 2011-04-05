@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -38,12 +38,12 @@ public abstract class AbstractSessionContextEventHandler implements SessionConte
   }
 
   @Override
-  public final void initContextWithStash(final MutableSessionContext context, final FudgeFieldContainer stash) {
+  public final void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
     getPrevious().initContextWithStash(context, stash);
     initContextWithStashImpl(context, stash);
   }
 
-  protected void initContextWithStashImpl(MutableSessionContext context, FudgeFieldContainer stash) {
+  protected void initContextWithStashImpl(MutableSessionContext context, FudgeMsg stash) {
     // Ignore the stash if unimplemented
     initContextImpl(context);
   }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.normalization;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
 
@@ -21,7 +21,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 public class FieldHistoryUpdater implements NormalizationRule {
 
   @Override
-  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg,
+  public MutableFudgeMsg apply(MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory) {
     fieldHistory.liveDataReceived(msg);
     return msg;

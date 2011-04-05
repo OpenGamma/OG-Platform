@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -35,7 +35,7 @@ public class RemoteCacheClient {
     }
 
     @Override
-    protected Long getCorrelationIdFromReply(final FudgeFieldContainer reply) {
+    protected Long getCorrelationIdFromReply(final FudgeMsg reply) {
       return reply.getLong(CacheMessage.CORRELATION_ID_KEY);
     }
 
@@ -43,7 +43,7 @@ public class RemoteCacheClient {
       final FudgeSerializationContext scontext = new FudgeSerializationContext(getMessageSender().getFudgeContext());
       final long correlationId = getNextCorrelationId();
       request.setCorrelationId(correlationId);
-      final FudgeFieldContainer responseMsg = sendRequestAndWaitForResponse(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(request), request.getClass(), CacheMessage.class),
+      final FudgeMsg responseMsg = sendRequestAndWaitForResponse(FudgeSerializationContext.addClassHeader(scontext.objectToFudgeMsg(request), request.getClass(), CacheMessage.class),
           correlationId);
       final FudgeDeserializationContext dcontext = new FudgeDeserializationContext(getMessageSender().getFudgeContext());
       final Response response = dcontext.fudgeMsgToObject(responseClass, responseMsg);

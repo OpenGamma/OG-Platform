@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.time.Duration;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.calcnode.msg.Invocations;
@@ -266,7 +266,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
         configurations.add(new PerConfiguration(configuration.getKey(), functionData));
       }
     }
-    final MutableFudgeFieldContainer message = getFudgeMessageSender().getFudgeContext().newMessage();
+    final MutableFudgeMsg message = getFudgeMessageSender().getFudgeContext().newMessage();
     FudgeSerializationContext.addClassHeader(message, Invocations.class, RemoteCalcNodeMessage.class);
     new Invocations(configurations).toFudgeMsg(getFudgeMessageSender().getFudgeContext(), message);
     getFudgeMessageSender().send(message);

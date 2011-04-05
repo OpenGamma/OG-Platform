@@ -7,7 +7,7 @@ package com.opengamma.engine.view.cache;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -97,7 +97,7 @@ public class ViewComputationCacheServer implements FudgeConnectionReceiver, Fudg
       if (response != null) {
         response.setCorrelationId(request.getCorrelationId());
         final FudgeSerializationContext sctx = new FudgeSerializationContext(context);
-        final MutableFudgeFieldContainer responseMsg = sctx.objectToFudgeMsg(response);
+        final MutableFudgeMsg responseMsg = sctx.objectToFudgeMsg(response);
         // We have only one response type for each request, so don't really need the headers
         // FudgeSerializationContext.addClassHeader(responseMsg, response.getClass(), CacheMessage.class);
         getConnection().getFudgeMessageSender().send(responseMsg);
