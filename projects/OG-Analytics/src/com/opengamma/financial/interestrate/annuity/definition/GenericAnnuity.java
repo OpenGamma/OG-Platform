@@ -99,6 +99,15 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   @Override
+  public String toString() {
+    String result = "Annuity:";
+    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
+      result += _payments[looppayment].toString();
+    }
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

@@ -44,6 +44,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   private SwaptionCashFixedIbor(double expiryTime, double strike, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isCall, boolean isLong) {
     super(strike, expiryTime, isCall);
     Validate.notNull(underlyingSwap, "underlying swap");
+    Validate.isTrue(underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate() == strike, "Strike not in line with underlying");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _settlementTime = settlementTime;

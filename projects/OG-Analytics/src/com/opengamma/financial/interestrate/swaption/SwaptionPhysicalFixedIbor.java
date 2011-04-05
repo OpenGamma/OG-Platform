@@ -91,6 +91,11 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   }
 
   @Override
+  public String toString() {
+    return "Swaption: Expiry=" + getTimeToExpiry() + ", is long=" + _isLong + "\n" + _underlyingSwap;
+  }
+
+  @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitSwaptionPhysicalFixedIbor(this, data);
   }

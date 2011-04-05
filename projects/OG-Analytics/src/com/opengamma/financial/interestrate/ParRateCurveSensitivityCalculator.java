@@ -118,13 +118,14 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
     final AnnuityCouponFixed unitCouponAnnuity = REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0);
-    final GenericAnnuity<?> recieveAnnuity = swap.getSecondLeg();
+    final GenericAnnuity<?> floatingAnnuity = swap.getSecondLeg();
     final double a = PV_CALCULATOR.visit(unitCouponAnnuity, curves);
-    final double b = PV_CALCULATOR.visit(recieveAnnuity, curves);
+    final double b = PV_CALCULATOR.visit(floatingAnnuity, curves);
     final double bOveraSq = b / a / a;
     final Map<String, List<DoublesPair>> senseA = SENSITIVITY_CALCULATOR.visit(unitCouponAnnuity, curves);
-    final Map<String, List<DoublesPair>> senseB = SENSITIVITY_CALCULATOR.visit(recieveAnnuity, curves);
+    final Map<String, List<DoublesPair>> senseB = SENSITIVITY_CALCULATOR.visit(floatingAnnuity, curves);
 
+    //TODO: Refactor the code below to use PresentValueSensitivity add/multiply
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : curves.getAllNames()) {
       boolean flag = false;
@@ -241,7 +242,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
   public Map<String, List<DoublesPair>> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final String curveName = payment.getForwardCurveName();
     final YieldAndDiscountCurve curve = data.getCurve(curveName);
-    final double ta = payment.getFixingTime();
+    //    final double ta = payment.getFixingTime();
+    final double ta = payment.getFixingPeriodStartTime();
     final double tb = payment.getFixingPeriodEndTime();
     final double delta = payment.getFixingYearFraction();
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;

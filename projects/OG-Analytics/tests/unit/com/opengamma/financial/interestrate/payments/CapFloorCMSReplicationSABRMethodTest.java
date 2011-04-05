@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
- * Please see distribution for license.
- */
 package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -28,10 +23,14 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
-public class CapFloorCMSTest {
+public class CapFloorCMSReplicationSABRMethodTest {
   //Swap 5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -85,22 +84,52 @@ public class CapFloorCMSTest {
   // Calculators
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testCMSCoupon() {
-    CapFloorCMSDefinition.from(null, STRIKE, IS_CAP);
+  @Test
+  public void testPriceReplication() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    // CMS cap/floor with strike 0 has the same price as a CMS coupon.
+    double priceCMSCoupon = PVC.visit(CMS_COUPON, sabrBundle);
+    double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
+    assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
+    double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
+    assertEquals(717.182, priceCMSCap, 1E-2);//From previous run
+    double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
+    assertEquals(597.902, priceCMSFloor, 1E-2);//From previous run
+    double priceStrike = PVC.visit(COUPON_STRIKE, curves);
+    // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
+    assertEquals(priceCMSCap - priceCMSFloor + 24.0, priceCMSCoupon - priceStrike, 1.0);
   }
 
-  @Test
-  public void testFrom() {
-    CapFloorCMSDefinition capConstructor = new CapFloorCMSDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP_DEFINITION, CMS_INDEX,
-        STRIKE, IS_CAP);
-    CapFloorCMSDefinition capFrom = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
-    assertEquals(capConstructor, capFrom);
-  }
-
-  @Test
-  public void testGetter() {
-    assertEquals(STRIKE, CMS_CAP.geStrike(), 1E-10);
-    assertEquals(IS_CAP, CMS_CAP.isCap());
+  @Test(enabled = false)
+  public void testPerformance() {
+    // Used only to assess performance
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+    long startTime, endTime;
+    int nbTest = 50;
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      replication.presentValue(CMS_CAP, sabrBundle);
+      replication.presentValueSensitivity(CMS_CAP, sabrBundle);
+      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
+    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 50 cap 5Y.
+    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      replication.presentValue(CMS_FLOOR, sabrBundle);
+      replication.presentValueSensitivity(CMS_FLOOR, sabrBundle);
+      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
+    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 50 floor 5Y.
+    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 500 ms for 50 floor 5Y.
   }
 }
