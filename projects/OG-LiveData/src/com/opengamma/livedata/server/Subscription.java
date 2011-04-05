@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +168,7 @@ public class Subscription {
     _distributors.clear();
   }
   
-  /*package*/ synchronized void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
+  /*package*/ synchronized void initialSnapshotReceived(FudgeMsg liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {
@@ -176,7 +176,7 @@ public class Subscription {
     }
   }
 
-  /*package*/ synchronized void liveDataReceived(FudgeFieldContainer liveDataFields) {
+  /*package*/ synchronized void liveDataReceived(FudgeMsg liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {

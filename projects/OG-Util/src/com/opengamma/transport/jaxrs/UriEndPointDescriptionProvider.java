@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +58,8 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
   }
 
   @Override
-  public FudgeFieldContainer getEndPointDescription(final FudgeContext fudgeContext) {
-    final MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
+    final MutableFudgeMsg msg = fudgeContext.newMessage();
     msg.add(TYPE_KEY, TYPE_VALUE);
     for (String url : _uris) {
       msg.add(URI_KEY, url);
@@ -73,11 +73,11 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    * @param fudgeContext the Fudge context
    * @return the end point description message, as returned by {@link #getEndPointDescription}
    */
-  public FudgeFieldContainer toFudgeMsg(final FudgeContext fudgeContext) {
+  public FudgeMsg toFudgeMsg(final FudgeContext fudgeContext) {
     return getEndPointDescription(fudgeContext);
   }
 
-  public static URI getAccessibleURI(final FudgeFieldContainer endPoint) {
+  public static URI getAccessibleURI(final FudgeMsg endPoint) {
     ArgumentChecker.notNull(endPoint, "endPoint");
     if (!TYPE_VALUE.equals(endPoint.getString(TYPE_KEY))) {
       throw new IllegalArgumentException("End point is not a REST target - " + endPoint);

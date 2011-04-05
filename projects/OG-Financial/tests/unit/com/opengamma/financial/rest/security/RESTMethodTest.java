@@ -20,7 +20,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgFormatter;
 import com.opengamma.engine.test.MockSecurity;
@@ -91,10 +91,10 @@ public class RESTMethodTest {
   public void testGetSecurityByIdentifier() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(_uid1.toString());
     assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
+    final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITY));
+    final FudgeMsg security = msg.getFieldValue(FudgeMsg.class, msg.getByName(SECURITYSOURCE_SECURITY));
     assertNotNull(security);
   }
 
@@ -102,10 +102,10 @@ public class RESTMethodTest {
   public void testGetSecurityByBundle() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1::v1"));
     assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
+    final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
-    final FudgeFieldContainer security = msg.getFieldValue(FudgeFieldContainer.class, msg.getByName(SECURITYSOURCE_SECURITY));
+    final FudgeMsg security = msg.getFieldValue(FudgeMsg.class, msg.getByName(SECURITYSOURCE_SECURITY));
     assertNotNull(security);
   }
 
@@ -113,7 +113,7 @@ public class RESTMethodTest {
   public void testGetSecurities() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1::v1", "d2::v2"));
     assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
+    final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
     final Collection<FudgeField> securities = msg.getAllByName(SECURITYSOURCE_SECURITY);
@@ -125,7 +125,7 @@ public class RESTMethodTest {
   public void testGetAllBondsOfIssuerType() {
     final FudgeMsgEnvelope fme = getSecuritySourceResource().getBondsWithIssuerName("US TREASURY N/B");
     assertNotNull(fme);
-    final FudgeFieldContainer msg = fme.getMessage();
+    final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
     FudgeMsgFormatter.outputToSystemOut(msg);
     final Collection<FudgeField> securities = msg.getAllByName(SECURITYSOURCE_SECURITY);

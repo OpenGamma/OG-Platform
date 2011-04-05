@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -34,11 +34,11 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
   private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, CalculationJobItem object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJobItem object) {
+    MutableFudgeMsg msg = context.newMessage();
     ComputationTargetSpecification computationTargetSpecification = object.getComputationTargetSpecification();
     if (computationTargetSpecification != null) {
-      MutableFudgeFieldContainer specMsg = context.objectToFudgeMsg(computationTargetSpecification);
+      MutableFudgeMsg specMsg = context.objectToFudgeMsg(computationTargetSpecification);
       for (FudgeField fudgeField : specMsg.getAllFields()) {
         msg.add(fudgeField);
       }
@@ -49,19 +49,19 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
     }
     FunctionParameters functionParameters = object.getFunctionParameters();
     if (functionParameters != null) {
-      context.objectToFudgeMsgWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
+      context.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
     }
     long[] inputs = object.getInputIdentifiers();
     msg.add(INPUT_FIELD_NAME, inputs);
     for (ValueRequirement desiredValue : object.getDesiredValues()) {
-      context.objectToFudgeMsg(msg, DESIRED_VALUE_FIELD_NAME, null, desiredValue);
+      context.addToMessage(msg, DESIRED_VALUE_FIELD_NAME, null, desiredValue);
     }
     return msg;
   }
 
 
   @Override
-  public CalculationJobItem buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public CalculationJobItem buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     
     ComputationTargetSpecification computationTargetSpecification = context.fudgeMsgToObject(ComputationTargetSpecification.class, message);
     Validate.notNull(computationTargetSpecification, "Fudge message is not a CalculationJobItem - field 'computationTargetSpecification' is not present");
@@ -77,7 +77,7 @@ public class CalculationJobItemBuilder implements FudgeBuilder<CalculationJobIte
 
     List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
     for (FudgeField field : message.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
-      FudgeFieldContainer valueMsg = (FudgeFieldContainer) field.getValue();
+      FudgeMsg valueMsg = (FudgeMsg) field.getValue();
       ValueRequirement desiredValue = context.fudgeMsgToObject(ValueRequirement.class, valueMsg);
       desiredValues.add(desiredValue);
     }

@@ -6,7 +6,7 @@
 package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
@@ -54,11 +54,11 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   @Override
   public void messageReceived(byte[] message) {
     FudgeMsgEnvelope heartbeatEnvelope = getFudgeContext().deserialize(message);
-    FudgeFieldContainer heartbeatMsg = heartbeatEnvelope.getMessage();
+    FudgeMsg heartbeatMsg = heartbeatEnvelope.getMessage();
     messageReceived(heartbeatMsg);
   }
   
-  public void messageReceived(FudgeFieldContainer msg) {
+  public void messageReceived(FudgeMsg msg) {
     Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
     for (LiveDataSpecification fullyQualifiedLiveDataSpec : heartbeat.getLiveDataSpecifications()) {
       s_logger.debug("Heartbeat received on live data specification {}", fullyQualifiedLiveDataSpec);

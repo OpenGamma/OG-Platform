@@ -5,7 +5,7 @@
  */
 package com.opengamma.transport;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
@@ -17,6 +17,6 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
  */
 public interface FudgeRequestReceiver {
   
-  FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope);
+  FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope);
 
 }

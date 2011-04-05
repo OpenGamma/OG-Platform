@@ -6,8 +6,8 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -30,16 +30,16 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
   private static final String FIELD_ROOT = "root";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
+    final MutableFudgeMsg message = context.newMessage();
+    context.addToMessage(message, FIELD_IDENTIFIER, null, portfolio.getUniqueId());
     message.add(FIELD_NAME, portfolio.getName());
-    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode());
+    context.addToMessage(message, FIELD_ROOT, null, portfolio.getRootNode());
     return message;
   }
 
   @Override
-  public Portfolio buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public Portfolio buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField idField = message.getByName(FIELD_IDENTIFIER);
     final UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));

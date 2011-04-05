@@ -8,7 +8,7 @@ package com.opengamma.util.rest;
 import java.io.CharArrayWriter;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
 
@@ -42,7 +42,7 @@ public class FudgeMessageJSONBuilder {
    * @param fudgeMsg the fudge message
    * @return the json representation
    */
-  public String build(FudgeFieldContainer fudgeMsg) {
+  public String build(FudgeMsg fudgeMsg) {
     ArgumentChecker.notNull(fudgeMsg, "fudge message");
     
     final CharArrayWriter caw = new CharArrayWriter();

@@ -6,8 +6,8 @@
 package com.opengamma.util.fudgemsg;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -33,8 +33,8 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
   public static final String SECOND_FIELD_NAME = "second";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Pair<?, ?> object) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, Pair<?, ?> object) {
+    final MutableFudgeMsg msg = context.newMessage();
     if (object instanceof LongObjectPair || object instanceof LongDoublePair) {
       msg.add("firstLong", object.getFirst());
     } else if (object instanceof IntObjectPair || object instanceof IntDoublePair) {
@@ -43,21 +43,21 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
       msg.add("firstDouble", object.getFirst());
     } else {
       if (object.getFirst() != null) {
-        context.objectToFudgeMsg(msg, FIRST_FIELD_NAME, null, object.getFirst());
+        context.addToMessage(msg, FIRST_FIELD_NAME, null, object.getFirst());
       }
     }
     if (object instanceof LongDoublePair || object instanceof IntDoublePair || object instanceof DoublesPair) {
       msg.add("secondDouble", object.getSecond());
     } else {
       if (object.getSecond() != null) {
-        context.objectToFudgeMsgWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond());
+        context.addToMessageWithClassHeaders(msg, SECOND_FIELD_NAME, null, object.getSecond());
       }
     }
     return msg;
   }
 
   @Override
-  public Pair<?, ?> buildObject(FudgeDeserializationContext context, FudgeFieldContainer msg) {
+  public Pair<?, ?> buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     final Long firstLong = msg.getLong("firstLong");
     if (firstLong != null) {
       final Double secondDouble = msg.getDouble("secondDouble");

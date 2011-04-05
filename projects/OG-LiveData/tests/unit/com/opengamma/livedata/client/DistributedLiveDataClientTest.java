@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import com.google.common.collect.Sets;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -43,20 +43,20 @@ public class DistributedLiveDataClientTest {
   private MockLiveDataServer _server;
   private DistributedLiveDataClient _client;
   
-  private MutableFudgeFieldContainer[] _testMsgs; 
+  private MutableFudgeMsg[] _testMsgs; 
   
   @BeforeMethod
   public void initialize() {
-    MutableFudgeFieldContainer testMsg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg testMsg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     testMsg1.add("LAST", 9.86);
     
-    MutableFudgeFieldContainer testMsg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg testMsg2 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     testMsg2.add("BID", 10.00);
     testMsg2.add("ASK", 10.05);
     
-    _testMsgs = new MutableFudgeFieldContainer[] { testMsg1, testMsg2 };
+    _testMsgs = new MutableFudgeMsg[] { testMsg1, testMsg2 };
     
-    Map<String, FudgeFieldContainer> uniqueId2TestMsg = new HashMap<String, FudgeFieldContainer>();
+    Map<String, FudgeMsg> uniqueId2TestMsg = new HashMap<String, FudgeMsg>();
     uniqueId2TestMsg.put(LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC.getIdentifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME), testMsg1);
     uniqueId2TestMsg.put(TEST_ID_1, testMsg1);
     uniqueId2TestMsg.put(TEST_ID_2, testMsg2);

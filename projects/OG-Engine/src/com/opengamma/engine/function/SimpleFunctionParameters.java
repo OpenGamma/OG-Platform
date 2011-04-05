@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -46,13 +46,13 @@ public class SimpleFunctionParameters implements FunctionParameters {
     return (T) _parameters.get(parameter);
   }
 
-  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeFieldContainer message) {
+  public void toFudgeMsg(final FudgeSerializationContext context, final MutableFudgeMsg message) {
     for (Map.Entry<String, Object> parameter : _parameters.entrySet()) {
-      context.objectToFudgeMsgWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
+      context.addToMessageWithClassHeaders(message, parameter.getKey(), null, parameter.getValue());
     }
   }
 
-  public static SimpleFunctionParameters fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  public static SimpleFunctionParameters fromFudgeMsg(final FudgeDeserializationContext context, final FudgeMsg message) {
     final SimpleFunctionParameters parameters = new SimpleFunctionParameters();
     for (FudgeField field : message) {
       if (field.getName() != null) {

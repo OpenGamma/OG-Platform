@@ -16,9 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
@@ -35,8 +35,8 @@ public class SocketFudgeRequestConduitTest {
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
       @Override
-      public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-        MutableFudgeFieldContainer response = context.getFudgeContext().newMessage();
+      public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+        MutableFudgeMsg response = context.getFudgeContext().newMessage();
         response.add("TheTime", System.nanoTime());
         return response;
       }
@@ -48,7 +48,7 @@ public class SocketFudgeRequestConduitTest {
     sender.setInetAddress(InetAddress.getLocalHost());
     sender.setPortNumber(requestDispatcher.getPortNumber());
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("RATM", "Bombtrack");
     msg.add("You Know", "It's All Of That");
     sender.sendRequest(msg, collectingReceiver);
@@ -93,7 +93,7 @@ public class SocketFudgeRequestConduitTest {
       private final AtomicInteger _concurrency = new AtomicInteger(0);
 
       @Override
-      public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
+      public FudgeMsg requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
         final int concurrency = _concurrency.incrementAndGet();
         if (concurrency > maxConcurrency.get()) {
           maxConcurrency.set(concurrency);

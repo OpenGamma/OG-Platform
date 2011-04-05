@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,12 +215,12 @@ public final class FunctionCosts implements FunctionInvocationStatisticsGatherer
 
   //-------------------------------------------------------------------------
   // For debug purposes only
-  public FudgeFieldContainer toFudgeMsg(final FudgeMsgFactory factory) {
-    final MutableFudgeFieldContainer message = factory.newMessage();
+  public FudgeMsg toFudgeMsg(final FudgeMsgFactory factory) {
+    final MutableFudgeMsg message = factory.newMessage();
     for (Map.Entry<String, FunctionCostsPerConfiguration> configuration : _data.entrySet()) {
-      final MutableFudgeFieldContainer configurationMessage = factory.newMessage();
+      final MutableFudgeMsg configurationMessage = factory.newMessage();
       for (Map.Entry<String, FunctionInvocationStatistics> function : configuration.getValue().getCosts().entrySet()) {
-        final MutableFudgeFieldContainer functionMessage = factory.newMessage();
+        final MutableFudgeMsg functionMessage = factory.newMessage();
         functionMessage.add("invocationCost", function.getValue().getInvocationCost());
         functionMessage.add("dataInput", function.getValue().getDataInputCost());
         functionMessage.add("dataOutput", function.getValue().getDataOutputCost());

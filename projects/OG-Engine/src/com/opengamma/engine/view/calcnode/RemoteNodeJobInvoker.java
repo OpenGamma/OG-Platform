@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
@@ -99,7 +99,7 @@ import com.opengamma.transport.FudgeMessageSender;
       final Scaling scaling = FunctionInvocationStatisticsReceiver.messageReceived(getFunctionCosts(), message);
       if (scaling != null) {
         s_logger.debug("Sending scaling message ", scaling);
-        final MutableFudgeFieldContainer scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
+        final MutableFudgeMsg scalingMessage = getFudgeMessageSender().getFudgeContext().newMessage();
         FudgeSerializationContext.addClassHeader(scalingMessage, scaling.getClass(), RemoteCalcNodeMessage.class);
         scaling.toFudgeMsg(getFudgeMessageSender().getFudgeContext(), scalingMessage);
         getFudgeMessageSender().send(scalingMessage);

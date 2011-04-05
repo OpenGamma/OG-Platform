@@ -16,9 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.transport.CollectingFudgeMessageReceiver;
@@ -36,15 +36,15 @@ public class SocketFudgeConnectionConduitTest {
   
   private final AtomicInteger _uid = new AtomicInteger();
 
-  private FudgeFieldContainer createMessage() {
-    final MutableFudgeFieldContainer message = FudgeContext.GLOBAL_DEFAULT.newMessage();
+  private FudgeMsg createMessage() {
+    final MutableFudgeMsg message = FudgeContext.GLOBAL_DEFAULT.newMessage();
     message.add("uid", _uid.incrementAndGet());
     return message;
   }
 
   public void simpleTest() throws Exception {
-    final FudgeFieldContainer testMessage1 = createMessage();
-    final FudgeFieldContainer testMessage2 = createMessage();
+    final FudgeMsg testMessage1 = createMessage();
+    final FudgeMsg testMessage2 = createMessage();
     // receiver will respond to testMessage1 with testMessage2
     final FudgeConnectionReceiver serverReceiver = new FudgeConnectionReceiver() {
       @Override
@@ -73,9 +73,9 @@ public class SocketFudgeConnectionConduitTest {
   }
   
   public void messageReceiverTest() throws Exception {
-    final FudgeFieldContainer testMessage1 = createMessage();
-    final FudgeFieldContainer testMessage2 = createMessage();
-    final FudgeFieldContainer testMessage3 = createMessage();
+    final FudgeMsg testMessage1 = createMessage();
+    final FudgeMsg testMessage2 = createMessage();
+    final FudgeMsg testMessage3 = createMessage();
     final CollectingFudgeMessageReceiver message3Receiver = new CollectingFudgeMessageReceiver();
     // receiver will ignore testMessage1
     // after receiving testMessage2, will set the message receiver on the connection
@@ -129,7 +129,7 @@ public class SocketFudgeConnectionConduitTest {
     @Override
     public void run() {
       for (int i = 0; i < NUM_MESSAGES; i++) {
-        final FudgeFieldContainer message = createMessage();
+        final FudgeMsg message = createMessage();
         _sender.send(message);
       }
     }
@@ -193,7 +193,7 @@ public class SocketFudgeConnectionConduitTest {
         connection.setFudgeMessageReceiver(new FudgeMessageReceiver() {
           @Override
           public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            MutableFudgeFieldContainer message = fudgeContext.newMessage();
+            MutableFudgeMsg message = fudgeContext.newMessage();
             message.add("foo", 1);
             connection.getFudgeMessageSender().send(message);
             try {

@@ -5,7 +5,7 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public final class DefaultSessionContextEventHandler implements SessionContextEv
   }
 
   @Override
-  public void initContextWithStash(final MutableSessionContext context, final FudgeFieldContainer stash) {
+  public void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
     initContext(context);
   }
 

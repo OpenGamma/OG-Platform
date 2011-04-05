@@ -11,9 +11,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.testng.annotations.Test;
 
@@ -30,7 +30,7 @@ public class FudgeConduitTest {
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
     
-    MutableFudgeFieldContainer msg = context.newMessage();
+    MutableFudgeMsg msg = context.newMessage();
     msg.add("Foo", "Bar");
     msg.add("Number Problems", 99);
     
@@ -40,7 +40,7 @@ public class FudgeConduitTest {
     assertEquals(1, receivedMessages.size());
     FudgeMsgEnvelope receivedEnvelope = receivedMessages.get(0);
     assertNotNull(receivedEnvelope.getMessage());
-    FudgeFieldContainer receivedMsg = receivedEnvelope.getMessage();
+    FudgeMsg receivedMsg = receivedEnvelope.getMessage();
     assertEquals(2, receivedMsg.getNumFields());
     assertEquals("Bar", receivedMsg.getString("Foo"));
     assertEquals(new Integer(99), receivedMsg.getInt("Number Problems"));
@@ -50,9 +50,9 @@ public class FudgeConduitTest {
     FudgeContext context = new FudgeContext();
     FudgeRequestReceiver requestReceiver = new FudgeRequestReceiver() {
       @Override
-      public FudgeFieldContainer requestReceived(
+      public FudgeMsg requestReceived(
           FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-        MutableFudgeFieldContainer response = context.getFudgeContext().newMessage();
+        MutableFudgeMsg response = context.getFudgeContext().newMessage();
         response.add("Killing", "In The Name Of");
         return response;
       }
@@ -60,7 +60,7 @@ public class FudgeConduitTest {
     
     FudgeRequestSender sender = InMemoryRequestConduit.create(requestReceiver);
     
-    MutableFudgeFieldContainer request = context.newMessage();
+    MutableFudgeMsg request = context.newMessage();
     request.add("Rage", "Against The Machine");
     
     CollectingFudgeMessageReceiver responseReceiver = new CollectingFudgeMessageReceiver();
@@ -70,7 +70,7 @@ public class FudgeConduitTest {
     
     FudgeMsgEnvelope receivedEnvelope = receivedMessages.get(0);
     assertNotNull(receivedEnvelope.getMessage());
-    FudgeFieldContainer receivedMsg = receivedEnvelope.getMessage();
+    FudgeMsg receivedMsg = receivedEnvelope.getMessage();
     assertEquals(1, receivedMsg.getNumFields());
     assertEquals("In The Name Of", receivedMsg.getString("Killing"));
   }

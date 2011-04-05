@@ -870,7 +870,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   }
   
   @Override
-  @SuppressWarnings({"unchecked", "deprecation" })
+  @SuppressWarnings("unchecked")
   public BatchSearchResult search(BatchSearchRequest request) {
     DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
     DetachedCriteria runTimeCriteria = criteria.createCriteria("runTime");

@@ -12,8 +12,8 @@ import java.util.Queue;
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -41,8 +41,8 @@ final class LabelledMatrix1DBuilder {
   public static final class DoubleLabelledMatrix1DBuilder extends AbstractFudgeBuilder<DoubleLabelledMatrix1D> {
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final DoubleLabelledMatrix1D object) {
-      final MutableFudgeFieldContainer msg = context.newMessage();
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final DoubleLabelledMatrix1D object) {
+      final MutableFudgeMsg msg = context.newMessage();
 
       final Double[] keys = object.getKeys();
       final Object[] labels = object.getLabels();
@@ -50,7 +50,7 @@ final class LabelledMatrix1DBuilder {
       for (int i = 0; i < object.size(); i++) {
         msg.add(LABEL_TYPE_ORDINAL, labels[i].getClass().getName());
         msg.add(KEY_ORDINAL, keys[i]);
-        context.objectToFudgeMsg(msg, null, LABEL_ORDINAL, labels[i]);
+        context.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
@@ -58,8 +58,8 @@ final class LabelledMatrix1DBuilder {
     }
 
     @Override
-    public DoubleLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      final FudgeFieldContainer msg = message.getMessage(MATRIX_FIELD);
+    public DoubleLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();
@@ -113,8 +113,8 @@ final class LabelledMatrix1DBuilder {
   public static final class LocalDateLabelledMatrix1DBuilder extends AbstractFudgeBuilder<LocalDateLabelledMatrix1D> {
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final LocalDateLabelledMatrix1D object) {
-      final MutableFudgeFieldContainer msg = context.newMessage();
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final LocalDateLabelledMatrix1D object) {
+      final MutableFudgeMsg msg = context.newMessage();
 
       final LocalDate[] keys = object.getKeys();
       final Object[] labels = object.getLabels();
@@ -122,7 +122,7 @@ final class LabelledMatrix1DBuilder {
       for (int i = 0; i < object.size(); i++) {
         msg.add(LABEL_TYPE_ORDINAL, labels[i].getClass().getName());
         msg.add(KEY_ORDINAL, keys[i]);
-        context.objectToFudgeMsg(msg, null, LABEL_ORDINAL, labels[i]);
+        context.addToMessage(msg, null, LABEL_ORDINAL, labels[i]);
         msg.add(VALUE_ORDINAL, values[i]);
       }
 
@@ -130,8 +130,8 @@ final class LabelledMatrix1DBuilder {
     }
 
     @Override
-    public LocalDateLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      final FudgeFieldContainer msg = message.getMessage(MATRIX_FIELD);
+    public LocalDateLabelledMatrix1D buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+      final FudgeMsg msg = message.getMessage(MATRIX_FIELD);
 
       final Queue<String> labelTypes = new LinkedList<String>();
       final Queue<FudgeField> labelValues = new LinkedList<FudgeField>();

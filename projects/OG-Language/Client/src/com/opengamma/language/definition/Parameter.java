@@ -16,7 +16,7 @@ public class Parameter implements java.io.Serializable {
     _name = name;
     _required = required;
   }
-  protected Parameter (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Parameter (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a Parameter - field 'name' is not present");
@@ -59,13 +59,13 @@ public class Parameter implements java.io.Serializable {
   public Parameter clone () {
     return new Parameter (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_name != null)  {
       msg.add (NAME_KEY, null, _name);
     }
@@ -74,13 +74,13 @@ public class Parameter implements java.io.Serializable {
     }
     msg.add (REQUIRED_KEY, null, _required);
   }
-  public static Parameter fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Parameter fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.definition.Parameter".equals (className)) break;
       try {
-        return (com.opengamma.language.definition.Parameter)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.definition.Parameter)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

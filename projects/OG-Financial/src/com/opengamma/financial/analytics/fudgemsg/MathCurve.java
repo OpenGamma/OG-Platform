@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -35,13 +35,13 @@ final class MathCurve {
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantDoublesCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final ConstantDoublesCurve object) {
       message.add(Y_VALUE_FIELD_NAME, null, object.getYValue(0.));
       message.add(CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @Override
-    public ConstantDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public ConstantDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       return ConstantDoublesCurve.from(message.getFieldValue(Double.class, message.getByName(Y_VALUE_FIELD_NAME)), message.getFieldValue(String.class, message.getByName(CURVE_NAME_FIELD_NAME)));
     }
   }
@@ -57,16 +57,16 @@ final class MathCurve {
     private static final String CURVE_NAME_FIELD_NAME = "curve name";
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final InterpolatedDoublesCurve object) {
-      context.objectToFudgeMsg(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
-      context.objectToFudgeMsg(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
-      context.objectToFudgeMsg(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
-      context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final InterpolatedDoublesCurve object) {
+      context.addToMessage(message, X_DATA_FIELD_NAME, null, object.getXDataAsPrimitive());
+      context.addToMessage(message, Y_DATA_FIELD_NAME, null, object.getYDataAsPrimitive());
+      context.addToMessage(message, INTERPOLATOR_FIELD_NAME, null, object.getInterpolator());
+      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
       final double[] y = context.fieldValueToObject(double[].class, message.getByName(Y_DATA_FIELD_NAME));
       final Interpolator1D interpolator = context.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_FIELD_NAME));
@@ -85,7 +85,7 @@ final class MathCurve {
 
     @SuppressWarnings("unchecked")
     @Override
-    public FunctionalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    public FunctionalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));
       final Object function = context.fieldValueToObject(message.getByName(CURVE_FUNCTION_FIELD_NAME));
       if (function instanceof Function) {
@@ -96,9 +96,9 @@ final class MathCurve {
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final FunctionalDoublesCurve object) {
-      context.objectToFudgeMsg(message, CURVE_NAME_FIELD_NAME, null, object.getName());
-      context.objectToFudgeMsg(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeMsg message, final FunctionalDoublesCurve object) {
+      context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
+      context.addToMessage(message, CURVE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
       return;
     }
   }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -26,7 +26,7 @@ public class CurveInstrumentProviderBuilder implements FudgeBuilder<CurveInstrum
   private BloombergFutureCurveInstrumentProviderBuilder _bloombergFutureBuilder = new BloombergFutureCurveInstrumentProviderBuilder();
   private StaticCurveInstrumentProviderBuilder _staticBuilder = new StaticCurveInstrumentProviderBuilder();
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, CurveInstrumentProvider object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CurveInstrumentProvider object) {
     if (object instanceof BloombergFutureCurveInstrumentProvider) {
       return _bloombergFutureBuilder.buildMessage(context, (BloombergFutureCurveInstrumentProvider) object);
     } else if (object instanceof StaticCurveInstrumentProvider) {
@@ -37,7 +37,7 @@ public class CurveInstrumentProviderBuilder implements FudgeBuilder<CurveInstrum
   }
 
   @Override
-  public CurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public CurveInstrumentProvider buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     String type = message.getString("type");
     if (type.equals(BloombergFutureCurveInstrumentProviderBuilder.TYPE)) {
       return _bloombergFutureBuilder.buildObject(context, message);

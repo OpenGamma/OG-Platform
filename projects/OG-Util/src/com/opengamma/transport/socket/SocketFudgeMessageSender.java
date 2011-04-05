@@ -10,7 +10,7 @@ import java.io.BufferedOutputStream;
 import java.net.Socket;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class SocketFudgeMessageSender extends AbstractSocketProcess implements F
    * @param message message to send
    */
   @Override
-  public void send(FudgeFieldContainer message) {
+  public void send(FudgeMsg message) {
     startIfNecessary();
     s_logger.info("Sending message with {} fields", message.getNumFields());
     _writer.write(message);

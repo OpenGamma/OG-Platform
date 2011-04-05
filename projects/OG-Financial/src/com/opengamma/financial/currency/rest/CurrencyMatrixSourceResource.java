@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -45,8 +45,8 @@ public class CurrencyMatrixSourceResource {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     final FudgeSerializationContext context = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsgWithClassHeaders(msg, "matrix", null, matrix, CurrencyMatrix.class);
+    final MutableFudgeMsg msg = context.newMessage();
+    context.addToMessageWithClassHeaders(msg, "matrix", null, matrix, CurrencyMatrix.class);
     return new FudgeMsgEnvelope(msg);
   }
 

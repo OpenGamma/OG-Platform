@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeMsgField;
+import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
@@ -28,7 +28,7 @@ public class TenorTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Tenor.class,
-        FudgeMsgField.of(FudgeWireType.STRING, s_ref.getPeriod().toString())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getPeriod().toString())));
   }
 
 }

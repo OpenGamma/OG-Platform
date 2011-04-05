@@ -1,7 +1,7 @@
 package com.opengamma.core.marketdatasnapshot;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -48,16 +48,16 @@ public class MarketDataValueSpecification {
     return _uniqueId;
   }
 
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeSerializationContext context) {
 
-    final MutableFudgeFieldContainer msg = context.newMessage();
+    final MutableFudgeMsg msg = context.newMessage();
     msg.add("type", null, context.objectToFudgeMsg(_type));
     msg.add("uniqueId", null, context.objectToFudgeMsg(_uniqueId));
     return msg;
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializationContext context,
-      final FudgeFieldContainer msg) {
+      final FudgeMsg msg) {
     return new MarketDataValueSpecification(
         context.fieldValueToObject(MarketDataValueType.class, msg.getByName("type")), context.fieldValueToObject(
             UniqueIdentifier.class, msg.getByName("uniqueId")));

@@ -13,13 +13,13 @@ public class Data implements java.io.Serializable {
   public static final int MATRIX_ORDINAL = 3;
   public Data () {
   }
-  protected Data (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Data (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (SINGLE_ORDINAL);
     if (fudgeField != null)  {
       try {
         final com.opengamma.language.Value fudge1;
-        fudge1 = com.opengamma.language.Value.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+        fudge1 = com.opengamma.language.Value.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
         setSingle (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -29,12 +29,12 @@ public class Data implements java.io.Serializable {
     fudgeField = fudgeMsg.getByOrdinal (LINEAR_ORDINAL);
     if (fudgeField != null)  {
       try {
-        final org.fudgemsg.FudgeFieldContainer fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
+        final org.fudgemsg.FudgeMsg fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField);
         final java.util.List<com.opengamma.language.Value> fudge2 = new java.util.ArrayList<com.opengamma.language.Value> ();
         for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
           try {
             final com.opengamma.language.Value fudge4;
-            fudge4 = com.opengamma.language.Value.fromFudgeMsg (fudge1.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge3));
+            fudge4 = com.opengamma.language.Value.fromFudgeMsg (fudge1.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge3));
             fudge2.add (fudge4);
           }
           catch (IllegalArgumentException e) {
@@ -51,16 +51,16 @@ public class Data implements java.io.Serializable {
     fudgeField = fudgeMsg.getByOrdinal (MATRIX_ORDINAL);
     if (fudgeField != null)  {
       try {
-        final org.fudgemsg.FudgeFieldContainer fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
+        final org.fudgemsg.FudgeMsg fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField);
         final java.util.List<com.opengamma.language.Value[]> fudge2 = new java.util.ArrayList<com.opengamma.language.Value[]> ();
         for (org.fudgemsg.FudgeField fudge3 : fudge1)if (fudge3.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
           try {
-            final org.fudgemsg.FudgeFieldContainer fudge4 = fudge1.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge3);
+            final org.fudgemsg.FudgeMsg fudge4 = fudge1.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge3);
             final java.util.List<com.opengamma.language.Value> fudge5 = new java.util.ArrayList<com.opengamma.language.Value> ();
             for (org.fudgemsg.FudgeField fudge6 : fudge4)if (fudge6.getType() != org.fudgemsg.wire.types.FudgeWireType.INDICATOR)  {
               try {
                 final com.opengamma.language.Value fudge7;
-                fudge7 = com.opengamma.language.Value.fromFudgeMsg (fudge4.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge6));
+                fudge7 = com.opengamma.language.Value.fromFudgeMsg (fudge4.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge6));
                 fudge5.add (fudge7);
               }
               catch (IllegalArgumentException e) {
@@ -148,23 +148,23 @@ public class Data implements java.io.Serializable {
   public Data clone () {
     return new Data (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_single != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _single.getClass (), com.opengamma.language.Value.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _single.getClass (), com.opengamma.language.Value.class);
       _single.toFudgeMsg (fudgeContext, fudge1);
       msg.add (null, SINGLE_ORDINAL, fudge1);
     }
     if (_linear != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = fudgeContext.newMessage ();
+      final org.fudgemsg.MutableFudgeMsg fudge1 = fudgeContext.newMessage ();
       for (com.opengamma.language.Value fudge2 : _linear) {
         if (fudge2 != null)  {
-          final org.fudgemsg.MutableFudgeFieldContainer fudge3 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge2.getClass (), com.opengamma.language.Value.class);
+          final org.fudgemsg.MutableFudgeMsg fudge3 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge2.getClass (), com.opengamma.language.Value.class);
           fudge2.toFudgeMsg (fudgeContext, fudge3);
           fudge1.add (null, null, fudge3);
         }
@@ -175,13 +175,13 @@ public class Data implements java.io.Serializable {
       msg.add (null, LINEAR_ORDINAL, fudge1);
     }
     if (_matrix != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = fudgeContext.newMessage ();
+      final org.fudgemsg.MutableFudgeMsg fudge1 = fudgeContext.newMessage ();
       for (com.opengamma.language.Value[] fudge2 : _matrix) {
         if (fudge2 != null)  {
-          final org.fudgemsg.MutableFudgeFieldContainer fudge3 = fudgeContext.newMessage ();
+          final org.fudgemsg.MutableFudgeMsg fudge3 = fudgeContext.newMessage ();
           for (com.opengamma.language.Value fudge4 : fudge2) {
             if (fudge4 != null)  {
-              final org.fudgemsg.MutableFudgeFieldContainer fudge5 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge4.getClass (), com.opengamma.language.Value.class);
+              final org.fudgemsg.MutableFudgeMsg fudge5 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge4.getClass (), com.opengamma.language.Value.class);
               fudge4.toFudgeMsg (fudgeContext, fudge5);
               fudge3.add (null, null, fudge5);
             }
@@ -198,13 +198,13 @@ public class Data implements java.io.Serializable {
       msg.add (null, MATRIX_ORDINAL, fudge1);
     }
   }
-  public static Data fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Data fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.Data".equals (className)) break;
       try {
-        return (com.opengamma.language.Data)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.Data)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
