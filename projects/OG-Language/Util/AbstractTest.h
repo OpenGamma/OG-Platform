@@ -42,14 +42,14 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 	public ref class C##label { \
 	public:
 #define BEGIN_TESTS(label) [TestClass] MANUAL_TESTS(label)
-#define TEST(proc) \
-		[TestMethod] \
+#define MANUAL_TEST(proc) \
 		void Test##proc () { \
 			CAbstractTest::InitialiseLogs (); \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			::proc (); \
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete")); \
 		}
+#define TEST(proc) [TestMethod] MANUAL_TEST(proc)
 #define BEFORE_TEST(proc) \
 		[TestInitialize] \
 		void Before##proc () { \
@@ -91,12 +91,13 @@ using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 			LOGINFO (TEXT ("Beginning ") << TEXT (#label));
 #define BEGIN_TESTS(label) BEGIN_TESTS_(true, label)
 #define MANUAL_TESTS(label) BEGIN_TESTS_(false, label)
-#define TEST(proc) \
+#define MANUAL_TEST(proc) \
 			LOGINFO (TEXT ("Running test ") << TEXT (#proc)); \
 			Before (); \
 			::proc (); \
 			After (); \
 			LOGINFO (TEXT ("Test ") << TEXT (#proc) << TEXT (" complete"));
+#define TEST(proc) MANUAL_TEST(proc)
 #define BEFORE_TEST(proc) \
 		} \
 		void Before () { \
