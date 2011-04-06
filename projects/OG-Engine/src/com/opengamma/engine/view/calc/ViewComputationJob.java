@@ -48,7 +48,6 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private final ViewProcessContext _processContext;
   private final ViewCycleManagerImpl _cycleManager;
   private final boolean _executeCycles;
-  private final boolean _makeLiveDataSubscriptions;
   
   private double _numExecutions;
   private ViewCycleReferenceImpl _previousCycleReference;
@@ -85,9 +84,10 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-    
+
     _executeCycles = !getExecutionOptions().isCompileOnly();
-    _makeLiveDataSubscriptions = getExecutionOptions().isLiveDataTriggerEnabled();
+
+    processContext.getLiveDataSnapshotProvider().addListener(this);
   }
 
   //-------------------------------------------------------------------------
@@ -328,6 +328,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     if (_previousCycleReference != null) {
       _previousCycleReference.release();
     }
+    _processContext.getLiveDataSnapshotProvider().removeListener(this);
     removeLiveDataSubscriptions();
     _latestCompiledViewDefinition = null;
   }
@@ -379,9 +380,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
     getViewProcess().viewCompiled(compiledView);
     
-    if (_makeLiveDataSubscriptions) {
-      setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
-    }
+    // Update the live data subscriptions to whatever is now required, ensuring the computation cycle can find the
+    // required input data when it is executed.
+    setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
     return compiledView;
   }
   
@@ -444,12 +445,14 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    _liveDataSubscriptions.addAll(requiredSubscriptions);
     getProcessContext().getLiveDataSnapshotProvider().addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
+    _liveDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+        long remainingCount = _pendingSubscriptionLatch.getCount();
         s_logger.warn("Timed out after {} ms waiting for live data subscriptions to be made. The live data snapshot " +
-          "used in the computation cycle could be incomplete.", LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS);
+          "used in the computation cycle could be incomplete. Still waiting for {} out of {} live data subscriptions",
+          new Object[] {LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, remainingCount, _liveDataSubscriptions.size()});
       }
     } catch (InterruptedException ex) {
       s_logger.info("Interrupted while waiting for subscription results.");
@@ -484,6 +487,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     // REVIEW jonathan 2011-01-07
     // Can't tell in general whether this subscription message was relating to a subscription that we made or one that
     // a concurrent user of the LiveDataSnapshotProvider made.
+    s_logger.debug("Subscription succeeded: {}", requirement);
     removePendingSubscription(requirement);
   }
 
@@ -499,6 +503,10 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
 
   @Override
   public void valueChanged(ValueRequirement value) {
+    if (!getExecutionOptions().isLiveDataTriggerEnabled()) {
+      return;
+    }
+    
     ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
     CompiledViewDefinitionImpl compiledView = getLatestCompiledViewDefinition();
     if (compiledView == null) {
