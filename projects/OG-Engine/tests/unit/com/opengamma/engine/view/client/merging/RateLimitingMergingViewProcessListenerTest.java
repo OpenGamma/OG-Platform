@@ -28,9 +28,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessErrorType;
 import com.opengamma.engine.view.ViewProcessListener;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;
@@ -190,8 +192,8 @@ public class RateLimitingMergingViewProcessListenerTest {
     // Wait a couple of periods for any stragglers
     Thread.sleep (2 * period);
     // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
-    assertTrue ("Expecting results no faster than " + period + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () >= (period - period / 10));
-    assertTrue ("Expecting results no slower than " + (period * 2) + "ms, got " + testListener.getShortestDelay (), testListener.getShortestDelay () <= (period * 2));
+    assertTrue ("Expecting results no faster than " + period + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() >= (period - period / 10));
+    assertTrue ("Expecting results no slower than " + (period * 2) + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() <= (period * 2));
     s_logger.info("Size = {}", testListener.clearCalls());
   }
 
@@ -234,7 +236,7 @@ public class RateLimitingMergingViewProcessListenerTest {
     }
 
     @Override
-    public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledView) {
+    public void viewDefinitionCompiled(CompiledViewDefinition compiledView) {
       _callsReceived.add(compiledView);
     }
     
@@ -268,6 +270,10 @@ public class RateLimitingMergingViewProcessListenerTest {
           throw new AssertionError("Expecting " + resultCount + " results but no more found after result " + i);
         }
       }
+    }
+    
+    @Override
+    public void error(ViewProcessErrorType errorType, String details, Exception exception) {
     }
 
     @Override

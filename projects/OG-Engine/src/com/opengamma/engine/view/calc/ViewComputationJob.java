@@ -19,11 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
+import com.opengamma.engine.view.ViewProcessErrorType;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
@@ -157,7 +159,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       }
       if (executionOptions == null) {
         s_logger.info("No more view cycle execution options");
-        jobCompleted();
+        processCompleted();
         return;
       }
     } catch (Exception e) {
@@ -180,6 +182,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
         // Execution failed
         s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
         cycleReference.release();
+        cycleExecutionError(executionOptions, e);
         return;
       }
     }
@@ -192,15 +195,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     if (_executeCycles) {
-      try {
-        getViewProcess().cycleCompleted(cycleReference.getCycle());
-      } catch (Exception e) {
-        s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
-      }
+      cycleCompleted(cycleReference.getCycle());
     }
     
     if (getExecutionOptions().getExecutionSequence().isEmpty()) {
-      jobCompleted();
+      processCompleted();
     }
     
     if (_executeCycles) {
@@ -208,6 +207,23 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
         _previousCycleReference.release();
       }
       _previousCycleReference = cycleReference;
+    }
+  }
+
+  private void cycleCompleted(ViewCycle cycle) {
+    try {
+      getViewProcess().cycleCompleted(cycle);
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
+    }
+  }
+
+  private void cycleExecutionError(ViewCycleExecutionOptions executionOptions, Exception e) {
+    try {
+      getViewProcess().processError(ViewProcessErrorType.EXECUTE_VIEW_CYCLE_ERROR,
+          "Execution failed for cycle with execution options " + executionOptions, e);
+    } catch (Exception vpe) {
+      s_logger.error("Error notifying the view process " + getViewProcess() + " of the cycle execution error", vpe);
     }
   }
   
@@ -333,10 +349,10 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     _latestCompiledViewDefinition = null;
   }
   
-  private void jobCompleted() {
+  private void processCompleted() {
     s_logger.info("Computation job completed for view process {}", getViewProcess());
     try {
-      getViewProcess().jobCompleted();
+      getViewProcess().processCompleted();
     } catch (Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of computation job completion", e);
     }
@@ -373,7 +389,12 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       return compiledView;
     }
     
-    compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
+    try {
+      compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
+    } catch (Exception e) {
+      getViewProcess().processError(ViewProcessErrorType.VIEW_DEFINITION_COMPILE_ERROR, null, e);
+      throw new OpenGammaRuntimeException("Error compiling view definition", e);
+    }
     setLatestCompiledViewDefinition(compiledView);
     
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.

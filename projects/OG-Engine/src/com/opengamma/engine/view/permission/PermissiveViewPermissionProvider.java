@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.permission;
 
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
@@ -14,12 +14,12 @@ import com.opengamma.livedata.UserPrincipal;
 public class PermissiveViewPermissionProvider implements ViewPermissionProvider {
 
   @Override
-  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinitionImpl viewEvaluationModel) {
+  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
     return true;
   }
 
   @Override
-  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinitionImpl viewEvaluationModel) {
+  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
     return true;
   }
 

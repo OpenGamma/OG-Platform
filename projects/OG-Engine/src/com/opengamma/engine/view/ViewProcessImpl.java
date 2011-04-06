@@ -129,7 +129,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     if (getState() == ViewProcessState.TERMINATED) {
       return;
     }
-    shutdownCore(false);
+    shutdownCore();
   }
 
   //-------------------------------------------------------------------------
@@ -199,7 +199,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   public void viewCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
     _latestCompiledViewDefinition.set(compiledViewDefinition);
     for (ViewProcessListener listener : _allListeners) {
-      listener.viewDefinitionCompiled(compiledViewDefinition);
+      try {
+        listener.viewDefinitionCompiled(compiledViewDefinition);
+      } catch (Exception e) {
+        logListenerError(listener, e);
+      }
     }
   }
   
@@ -231,19 +235,36 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     ViewDeltaResultModel deltaResult = null;
     if (!_allListeners.isEmpty()) {
       for (ViewProcessListener listener : _allListeners) {
-        if (listener.isDeltaResultRequired()) {
-          if (deltaResult == null) {
-            deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+        try {
+          if (listener.isDeltaResultRequired()) {
+            if (deltaResult == null) {
+              deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+            }
+            listener.result(result, deltaResult);
+          } else {
+            listener.result(result, null);
           }
-          listener.result(result, deltaResult);
-        } else {
-          listener.result(result, null);
+        } catch (Exception e) {
+          logListenerError(listener, e);
         }
       }
     }
   }
   
-  public void jobCompleted() {
+  public void processError(ViewProcessErrorType errorType, String details, Exception exception) {
+    s_logger.error("View process error " + errorType + " occurred: " + details, exception);
+    if (!_allListeners.isEmpty()) {
+      for (ViewProcessListener listener : _allListeners) {
+        try {
+          listener.error(errorType, details, exception);
+        } catch (Exception e) {
+          logListenerError(listener, e);
+        }
+      }
+    }
+  }
+  
+  public void processCompleted() {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Computation job completed on view {}. No further cycles to run.", this);
     lock();
@@ -255,7 +276,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     
     if (!_allListeners.isEmpty()) {
       for (ViewProcessListener listener : _allListeners) {
-        listener.processCompleted();
+        try {
+          listener.processCompleted();
+        } catch (Exception e) {
+          logListenerError(listener, e);
+        }
       }
     }
   }
@@ -443,12 +468,15 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   //-------------------------------------------------------------------------
-  private void shutdownCore(boolean completed) {
+  private void shutdownCore() {
     // Caller MUST NOT hold the semaphore
+    boolean isInterrupting;
     final Set<ViewProcessListener> listeners;
     lock();
     try {
+      isInterrupting = getState() == ViewProcessState.RUNNING;
       setState(ViewProcessState.TERMINATED);
+      
       listeners = new HashSet<ViewProcessListener>(_allListeners);
       _allListeners.clear();
       _listenerExecutionDemand.clear();
@@ -458,9 +486,27 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
 
     // Don't hold semaphore while calling out
-    for (ViewProcessListener listener : listeners) {
-      listener.shutdown();
+    if (isInterrupting) {
+      for (ViewProcessListener listener : listeners) {
+        try {
+          listener.error(ViewProcessErrorType.VIEW_PROCESS_TERMINATED, "View process was shut down while running", null);
+        } catch (Exception e) {
+          logListenerError(listener, e);
+        }
+      }
     }
+    
+    for (ViewProcessListener listener : listeners) {
+      try {
+        listener.shutdown();
+      } catch (Exception e) {
+        logListenerError(listener, e);
+      }
+    }
+  }
+
+  private void logListenerError(ViewProcessListener listener, Exception e) {
+    s_logger.error("Error while calling listener " + listener, e);
   }
   
   private void terminateComputationJob() {

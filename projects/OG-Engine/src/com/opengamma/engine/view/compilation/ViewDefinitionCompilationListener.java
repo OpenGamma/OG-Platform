@@ -24,4 +24,12 @@ public interface ViewDefinitionCompilationListener {
    */
   void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition);
   
+  /**
+   * Called to indicate that compilation of the view definition failed.
+   * 
+   * @param details  a description of the compilation failure, possibly null
+   * @param exception  any exception associated with the compilation failure, possibly null
+   */
+  void compilationFailed(String details, Exception exception);
+  
 }

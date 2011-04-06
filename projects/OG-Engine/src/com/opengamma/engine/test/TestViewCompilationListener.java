@@ -18,4 +18,8 @@ public class TestViewCompilationListener extends AbstractTestResultListener<Comp
     resultReceived(compiledViewDefinition);
   }
 
+  @Override
+  public void compilationFailed(String details, Exception exception) {
+  }
+
 }

@@ -17,12 +17,13 @@ import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessErrorType;
 import com.opengamma.engine.view.ViewProcessListener;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.calc.ViewCycleRetainer;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
@@ -55,7 +56,7 @@ public class ViewClientImpl implements ViewClient {
   private volatile boolean _canAccessComputationResults;
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
-  private final AtomicReference<CompiledViewDefinitionImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionImpl>();
+  private final AtomicReference<CompiledViewDefinition> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinition>();
   
   private final ViewProcessListener _mergedViewProcessListener;
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
@@ -91,7 +92,7 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
         _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition);
         
@@ -117,6 +118,16 @@ public class ViewClientImpl implements ViewClient {
           DeltaComputationResultListener deltaListener = _userDeltaListener;
           if (deltaListener != null) {
             deltaListener.deltaResultAvailable(deltaResult);
+          }
+        }
+      }
+      
+      @Override
+      public void error(ViewProcessErrorType errorType, String details, Exception exception) {
+        if (errorType == ViewProcessErrorType.VIEW_DEFINITION_COMPILE_ERROR) {
+          ViewDefinitionCompilationListener compilationListener = _userCompilationListener;
+          if (compilationListener != null) {
+            compilationListener.compilationFailed(details, exception);
           }
         }
       }
@@ -302,7 +313,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
+  public CompiledViewDefinition getLatestCompiledViewDefinition() {
     return _latestCompiledViewDefinition.get();
   }
   
@@ -378,7 +389,7 @@ public class ViewClientImpl implements ViewClient {
     _latestResult.set(result);
   }
   
-  private void updateLatestCompiledViewDefinition(CompiledViewDefinitionImpl compiledViewDefinition) {
+  private void updateLatestCompiledViewDefinition(CompiledViewDefinition compiledViewDefinition) {
     _latestCompiledViewDefinition.set(compiledViewDefinition);
   }
   

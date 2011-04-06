@@ -5,15 +5,19 @@
  */
 package com.opengamma.engine.view.client.merging;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessErrorType;
 import com.opengamma.engine.view.ViewProcessListener;
 import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
 import com.opengamma.engine.view.calc.ViewCycleRetainer;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,18 +38,11 @@ public class MergingViewProcessListener implements ViewProcessListener {
    */
   private final AtomicLong _lastUpdateMillis = new AtomicLong(0);
   
-  // REVIEW jonathan 2011-03-25 -- currently the view process listener interface is simple enough that calls can be
-  // interpreted and stored here for later draining. If it gets much worse then a collapsing queue of objects modelling
-  // the calls would be a better approach.
+  private final List<Function<ViewProcessListener, ?>> _callQueue = new LinkedList<Function<ViewProcessListener, ?>>();
   
-  private ViewComputationResultModel _latestFullResult;
-  private final IncrementalMerger<ViewDeltaResultModel> _deltaResultMerger = new ViewDeltaResultModelMerger();
-  
-  private CompiledViewDefinitionImpl _preResultCompilation;
-  private CompiledViewDefinitionImpl _postResultCompilation;
-  
-  private boolean _processCompleted;
-  private boolean _shutdown;
+  private int _currentResultCompilationIndex = -1;
+  private int _resultIndex = -1;
+  private int _futureResultCompilationIndex = -1;
   
   public MergingViewProcessListener(ViewProcessListener underlying, ViewCycleManagerImpl cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -124,13 +121,18 @@ public class MergingViewProcessListener implements ViewProcessListener {
   }
 
   @Override
-  public void viewDefinitionCompiled(CompiledViewDefinitionImpl compiledView) {
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().viewDefinitionCompiled(compiledView);
+        getUnderlying().viewDefinitionCompiled(compiledViewDefinition);
       } else {
-        _postResultCompilation = compiledView;
+        if (_futureResultCompilationIndex != -1) {
+          // Another compilation without a result in the meantime. Perhaps errors are occurring.  
+          _callQueue.remove(_futureResultCompilationIndex);
+        }
+        _futureResultCompilationIndex = _callQueue.size();
+        _callQueue.add(new ViewDefinitionCompiledCall(compiledViewDefinition));
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
     } finally {
@@ -148,18 +150,69 @@ public class MergingViewProcessListener implements ViewProcessListener {
       if (isPassThrough()) {
         getUnderlying().result(fullResult, deltaResult);
       } else {
-        if (_postResultCompilation != null) {
-          // The current post-result compilation happened before the new result
-          // Any old pre-result compilation is irrelevant because it corresponds to a result that we're about to replace
-          _preResultCompilation = _postResultCompilation;
-          _postResultCompilation = null;
+        
+        // Result merging is the most complicated. It is based on the following rules:
+        //  - only one result call in the queue, kept up-to-date by merging new result calls into it 
+        //  - the updated result call is repositioned to the end of the queue
+        //  - a compiled view definition is only retained in the queue while it corresponds to the current result or a
+        //    future result; updating the result call could make an old compilation redundant
+        
+        // Result collapsing
+        if (_resultIndex != -1) {
+          // There's an old result call in the queue - find it and move to end
+          ResultCall resultCall;
+          int lastIndex = _callQueue.size() - 1;
+          if (_resultIndex == lastIndex) {
+            // Old result is already at end of queue
+            resultCall = (ResultCall) _callQueue.get(lastIndex);
+          } else {
+            // Old result is elsewhere in queue - pull to end and update indices
+            resultCall = (ResultCall) _callQueue.remove(_resultIndex);
+            _callQueue.add(resultCall);
+            if (_futureResultCompilationIndex > _resultIndex) {
+              _futureResultCompilationIndex--;
+            }
+            _resultIndex = lastIndex;
+          }
+          
+          // Merge new result into old one
+          resultCall.update(fullResult, deltaResult);
+        } else {
+          // No existing result call - add new one
+          ResultCall resultCall = new ResultCall(fullResult, deltaResult);
+          _resultIndex = _callQueue.size();
+          _callQueue.add(resultCall);
         }
-        _latestFullResult = fullResult;
-        if (isDeltaResultRequired() && deltaResult != null) {
-          _deltaResultMerger.merge(deltaResult);
+
+        // Compilation collapsing
+        if (_futureResultCompilationIndex != -1) {
+          if (_currentResultCompilationIndex != -1) {
+            // No longer interested in the compilation which applied to the result before it was updated
+            _callQueue.remove(_currentResultCompilationIndex);
+            _resultIndex--;
+            _futureResultCompilationIndex--;
+          }
+          
+          // The last compilation now applies to the current result
+          _currentResultCompilationIndex = _futureResultCompilationIndex;
+          _futureResultCompilationIndex = -1;
         }
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+  
+  @Override
+  public void error(ViewProcessErrorType errorType, String details, Exception exception) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().error(errorType, details, exception);
+      } else {
+        _callQueue.add(new ErrorCall(errorType, details, exception));
+      }
     } finally {
       _mergerLock.unlock();
     }
@@ -172,7 +225,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
       if (isPassThrough()) {
         getUnderlying().processCompleted();
       } else {
-        _processCompleted = true;
+        _callQueue.add(new ProcessCompletedCall());
       }
     } finally {
       _mergerLock.unlock();
@@ -186,7 +239,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
       if (isPassThrough()) {
         getUnderlying().shutdown();
       } else {
-        _shutdown = true;
+        _callQueue.add(new ShutdownCall());
       }
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
@@ -198,26 +251,14 @@ public class MergingViewProcessListener implements ViewProcessListener {
   public void drain() {
     _mergerLock.lock();
     try {
-      if (_preResultCompilation != null) {
-        getUnderlying().viewDefinitionCompiled(_preResultCompilation);
-        _preResultCompilation = null;
+      for (Function<ViewProcessListener, ?> call : _callQueue) {
+        call.apply(getUnderlying());
       }
-      if (_latestFullResult != null) {
-        getUnderlying().result(_latestFullResult, _deltaResultMerger.consume());
-        _latestFullResult = null;
-      }
-      if (_postResultCompilation != null) {
-        getUnderlying().viewDefinitionCompiled(_postResultCompilation);
-        _postResultCompilation = null;
-      }
-      if (_processCompleted) {
-        getUnderlying().processCompleted();
-        _processCompleted = false;
-      }
-      if (_shutdown) {
-        getUnderlying().shutdown();
-        _shutdown = false;
-      }
+      _callQueue.clear();
+      _currentResultCompilationIndex = -1;
+      _resultIndex = -1;
+      _futureResultCompilationIndex = -1;
+      
     } finally {
       _mergerLock.unlock();
     }
@@ -229,10 +270,10 @@ public class MergingViewProcessListener implements ViewProcessListener {
   public void reset() {
     _mergerLock.lock();
     try {
-      _preResultCompilation = null;
-      _postResultCompilation = null;
-      _latestFullResult = null;
-      _deltaResultMerger.consume();
+      _callQueue.clear();
+      _currentResultCompilationIndex = -1;
+      _resultIndex = -1;
+      _futureResultCompilationIndex = -1;
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
       _mergerLock.unlock();
