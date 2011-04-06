@@ -28,10 +28,6 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -106,51 +102,5 @@ public class CapFloorCMSTest {
   public void testGetter() {
     assertEquals(STRIKE, CMS_CAP.geStrike(), 1E-10);
     assertEquals(IS_CAP, CMS_CAP.isCap());
-  }
-
-  @Test
-  public void testPriceReplication() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    // CMS cap/floor with strike 0 has the same price as a CMS coupon.
-    double priceCMSCoupon = PVC.visit(CMS_COUPON, sabrBundle);
-    double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
-    assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
-    double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
-    assertEquals(933.094, priceCMSCap, 1E-2);//From previous run
-    double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
-    assertEquals(448.475, priceCMSFloor, 1E-2);//From previous run
-    double priceStrike = PVC.visit(COUPON_STRIKE, curves);
-    // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
-    assertEquals(priceCMSCap - priceCMSFloor + 18.0, priceCMSCoupon - priceStrike, 1.0);
-    // Performance analysis.
-    //    long startTime, endTime;
-    //    int nbTest = 10;
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      PVC.visit(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication : " + (endTime - startTime) + " ms");
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      PVC.visit(CMS_CAP, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS cap by replication : " + (endTime - startTime) + " ms");
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      PVC.visit(CMS_FLOOR, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS floor by replication : " + (endTime - startTime) + " ms");
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      PVC.visit(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication : " + (endTime - startTime) + " ms");
-
   }
 }

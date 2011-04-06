@@ -84,4 +84,46 @@ static inline char *WideToAsciiDup (const wchar_t *pszIn) {
 
 #undef WCHAR_AVAILABLE
 
+#if defined (_WIN32) && defined (_XHASH_)
+class PTSTR_hasher : public stdext::hash_compare<PTSTR> {
+public:
+	size_t operator () (PTSTR const &psz) const {
+		size_t v = 1;
+		PCTSTR _psz = psz;
+		while (*_psz) {
+			v += (v << 4) + *(_psz++);
+		}
+		return v;
+	}
+	bool operator () (PTSTR const &psz1, PTSTR const &psz2) const {
+		return _tcscmp (psz1, psz2) < 0;
+	}
+};
+
+class PCTSTR_hasher : public stdext::hash_compare<PCTSTR> {
+public:
+	size_t operator () (PCTSTR const &psz) const {
+		size_t v = 1;
+		PCTSTR _psz = psz;
+		while (*_psz) {
+			v += (v << 4) + *(_psz++);
+		}
+		return v;
+	}
+	bool operator () (PCTSTR const &psz1, PCTSTR const &psz2) const {
+		return _tcscmp (psz1, psz2) < 0;
+	}
+};
+#endif /* if defined (_WIN32) && defined (_XHASH_) */
+
+typedef struct _rcstring {
+	volatile unsigned int nCount;
+	TCHAR szString[1];
+} RCSTRING, *PRCSTRING;
+
+void StringRelease (PRCSTRING pstr);
+PRCSTRING StringCreate (const TCHAR *pszString);
+void StringRetain (PRCSTRING pstr);
+#define StringPtr(_prc_) ((const TCHAR*)(_prc_)->szString)
+
 #endif /* ifndef __inc_og_language_util_string_h */

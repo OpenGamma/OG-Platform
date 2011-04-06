@@ -19,7 +19,6 @@
 #else
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -31,6 +30,7 @@
 #include <spawn.h>
 #include <sys/stat.h>
 #endif
+#include <malloc.h>
 #include <assert.h>
 
 // Include these so that cpptask fails if libraries not present

@@ -30,7 +30,10 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -41,6 +44,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -588,6 +592,69 @@ public class PresentValueSensitivityCalculatorTest {
       final DoublesPair pair = sensitivityFunding.get(i);
       assertEquals(nodeTimes[i + 1], pair.getFirst(), 0.0);
       assertEquals(res, pair.getSecond(), 1e-6);
+    }
+
+  }
+
+  // Swaption description
+  //  private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2014, 3, 18);
+  private static final int SETTLEMENT_DAYS = 2;
+  // Swap 5Y description
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final boolean IS_EOM = true;
+  private static final int ANNUITY_TENOR_YEAR = 5;
+  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final ZonedDateTime SETTLEMENT_DATE = DateUtil.getUTCDate(2014, 3, 20);
+  //ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
+  private static final double NOTIONAL = 100000000; //100m
+  //  Fixed leg: Semi-annual bond
+  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final double RATE = 0.0325;
+  private static final boolean FIXED_IS_PAYER = true;
+  //  Ibor leg: quarterly money
+  private static final Period INDEX_TENOR = Period.ofMonths(3);
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final SwapGenerator SWAP_GENERATOR = new SwapGenerator(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
+  private static final CMSIndex CMS_INDEX = new CMSIndex(SWAP_GENERATOR, ANNUITY_TENOR);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+  private static final FixedCouponSwap<Payment> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+
+  @Test
+  public void testFixedCouponSwap() {
+
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    PresentValueSensitivity pvsSwapPayer = new PresentValueSensitivity(PVSC.visit(SWAP_PAYER, curves));
+    pvsSwapPayer = pvsSwapPayer.clean();
+
+    final double eps = 1e-8;
+    int nbPayDate = SWAP_PAYER.getSecondLeg().getPayments().length;
+    String bumpedCurveName = "Bumped Curve";
+    String[] bumpedCurvesName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    FixedCouponSwap<Payment> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
+    double pvSwap = PVC.visit(SWAP_PAYER, curves);
+    // 2. Funding curve sensitivity
+    final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
+    final double[] yieldsFunding = new double[nbPayDate + 1];
+    yieldsFunding[0] = curveFunding.getInterestRate(0.0);
+    double[] nodeTimes = new double[nbPayDate + 1];
+    for (int i = 0; i < nbPayDate; i++) {
+      nodeTimes[i + 1] = SWAP_PAYER.getSecondLeg().getNthPayment(i).getPaymentTime();
+      yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimes[i + 1]);
+    }
+    final YieldAndDiscountCurve tempCurve_funding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yieldsFunding, new LinearInterpolator1D()));
+    List<DoublesPair> temp_funding = pvsSwapPayer.getSensitivity().get(FUNDING_CURVE_NAME);
+    for (int i = 0; i < nbPayDate; i++) {
+      final YieldAndDiscountCurve bumpedCurve = tempCurve_funding.withSingleShift(nodeTimes[i + 1], eps);
+      final YieldCurveBundle curvesFunding = new YieldCurveBundle();
+      curvesFunding.addAll(curves);
+      curvesFunding.setCurve("Bumped Curve", bumpedCurve);
+      final double bumpedpv = PVC.visit(swapBumpedFunding, curvesFunding);
+      double res = (bumpedpv - pvSwap) / eps;
+      final DoublesPair pair = temp_funding.get(i);
+      assertEquals("Node " + i, nodeTimes[i + 1], pair.getFirst(), 0.0);
+      assertEquals("Node " + i, res, pair.getSecond(), 1E+0);
     }
 
   }

@@ -84,7 +84,7 @@ public abstract class Payment implements InterestRateDerivative {
 
   @Override
   public String toString() {
-    return "\n Payment time = " + _paymentTime + ", Funding curve = " + _fundingCurveName;
+    return "\n Currency=" + _currency + ", Payment time=" + _paymentTime + ", Funding curve=" + _fundingCurveName;
   }
 
   @Override

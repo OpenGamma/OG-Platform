@@ -27,7 +27,7 @@ public abstract class ValueConverter {
    * @throws InvalidConversionException if the conversion is not possible
    */
   public <T> T convertValue(final SessionContext sessionContext, final Object value, final JavaTypeInfo<T> type) {
-    final ValueConversionContext conversionContext = new ValueConversionContext(sessionContext);
+    final ValueConversionContext conversionContext = new ValueConversionContext(sessionContext, this);
     convertValue(conversionContext, value, type);
     if (conversionContext.isFailed()) {
       throw new InvalidConversionException(value, type);

@@ -77,7 +77,7 @@ public class CouponFixed extends PaymentFixed {
 
   @Override
   public String toString() {
-    return "FixedCouponPayment[t = " + getPaymentTime() + ", " + _fixedRate + ", notional = " + getNotional() + ", t = " + getPaymentYearFraction() + "]";
+    return super.toString() + ", [Rate=" + _fixedRate + ", notional=" + getNotional() + ", year fraction=" + getPaymentYearFraction() + "]";
   }
 
   @Override

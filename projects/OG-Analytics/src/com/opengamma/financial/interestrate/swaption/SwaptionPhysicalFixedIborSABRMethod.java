@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
@@ -17,6 +18,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFuncti
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a physical swaption with SABR model.
@@ -40,8 +42,7 @@ public class SwaptionPhysicalFixedIborSABRMethod {
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
-    //    double pvbp = PVC.visit(RRV.visit(annuityFixed, 1.0), sabrData);
-    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
     double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
     // TODO: A better notion of maturity may be required (using period?)
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
@@ -59,7 +60,7 @@ public class SwaptionPhysicalFixedIborSABRMethod {
    * Computes the present value rate sensitivity of a physical delivery European swaption in the SABR model.
    * @param swaption The swaption.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
-   * @return The present value.
+   * @return The present value curve sensitivity.
    */
   public PresentValueSensitivity presentValueSensitivity(final SwaptionPhysicalFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
@@ -69,10 +70,9 @@ public class SwaptionPhysicalFixedIborSABRMethod {
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     // Derivative of the forward with respect to the rates.
     PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), sabrData));
-    //    double pvbp = PVC.visit(RRV.visit(annuityFixed, 1.0), sabrData);
     double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
     // Derivative of the PVBP with respect to the rates.
-    PresentValueSensitivity pvbpDr = new PresentValueSensitivity(SwapFixedIborMethod.presentValueBasisPointSensitivity(swaption.getUnderlyingSwap(), sabrData));
+    PresentValueSensitivity pvbpDr = SwapFixedIborMethod.presentValueBasisPointSensitivity(swaption.getUnderlyingSwap(), sabrData);
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
     double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
@@ -88,5 +88,35 @@ public class SwaptionPhysicalFixedIborSABRMethod {
       result = result.multiply(-1);
     }
     return result;
+  }
+
+  /**
+   * Computes the present value SABR sensitivity of a physical delivery European swaption in the SABR model.
+   * @param swaption The swaption.
+   * @param sabrData The SABR data. The SABR function need to be the Hagan function.
+   * @return The present value SABR sensitivity.
+   */
+  public PresentValueSABRSensitivity presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
+    Validate.notNull(swaption);
+    Validate.notNull(sabrData);
+    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    ParRateCalculator prc = ParRateCalculator.getInstance();
+    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
+    double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
+    DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
+    BlackPriceFunction blackFunction = new BlackPriceFunction();
+    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, strike, forward);
+    BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
+    double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    double omega = (swaption.isLong() ? 1.0 : -1.0);
+    sensi.addAlpha(expiryMaturity, omega * pvbp * bsAdjoint[2] * volatilityAdjoint[3]);
+    sensi.addRho(expiryMaturity, omega * pvbp * bsAdjoint[2] * volatilityAdjoint[4]);
+    sensi.addNu(expiryMaturity, omega * pvbp * bsAdjoint[2] * volatilityAdjoint[5]);
+    return sensi;
   }
 }

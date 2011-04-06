@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -80,7 +82,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   public void testNullParRates() {
     new MultipleYieldCurveFinderDataBundle(null, null, null, NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNodes() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, null, INTERPOLATORS, SENSITIVITY_CALCULATORS);
@@ -98,8 +100,9 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLengthParRates() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[]{0.01}, null, NODES, INTERPOLATORS, null);    
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, new double[] {0.01}, null, NODES, INTERPOLATORS, null);
   }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNameClash() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
@@ -115,8 +118,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
-    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1, new YieldCurve(ConstantDoublesCurve.from(2.)))),
-        NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
+    new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1,
+        new YieldCurve(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, SENSITIVITY_CALCULATORS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -211,8 +214,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
       names.add(name);
     }
     assertEquals(DATA.getCurveNames(), names);
-    assertArrayEquals(DATA.getCurveNodePointsForCurve(CURVE_NAME1), TIMES1, 0);
-    assertArrayEquals(DATA.getCurveNodePointsForCurve(CURVE_NAME2), TIMES2, 0);
+    assertArrayEquals(DATA.getCurveNodePointsForCurve(CURVE_NAME1), TIMES1, 1E-10);
+    assertArrayEquals(DATA.getCurveNodePointsForCurve(CURVE_NAME2), TIMES2, 1E-10);
     for (int i = 0; i < DERIVATIVES.size(); i++) {
       assertEquals(DERIVATIVES.get(i), DATA.getDerivative(i));
     }

@@ -6,11 +6,9 @@
 
 package com.opengamma.language.convert;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -19,24 +17,16 @@ import com.opengamma.util.ArgumentChecker;
 public final class ValueConversionContext {
 
   private final SessionContext _sessionContext;
-  private Set<Object> _visited;
-  private int _cost;
-  private int _costLimit;
+  private final com.opengamma.language.invoke.ValueConverter _converter;
   private boolean _hasResult;
   private boolean _hasFailed;
   private Object _result;
 
-  public ValueConversionContext(final SessionContext sessionContext) {
+  public ValueConversionContext(final SessionContext sessionContext, final com.opengamma.language.invoke.ValueConverter converter) {
     ArgumentChecker.notNull(sessionContext, "sessionContext");
+    ArgumentChecker.notNull(converter, "converter");
     _sessionContext = sessionContext;
-    _costLimit = Integer.MAX_VALUE;
-  }
-
-  public Set<Object> getVisited() {
-    if (_visited == null) {
-      _visited = new HashSet<Object>();
-    }
-    return _visited;
+    _converter = converter;
   }
 
   public SessionContext getSessionContext() {
@@ -47,6 +37,10 @@ public final class ValueConversionContext {
     return getSessionContext().getGlobalContext();
   }
 
+  public void convertValue(final Object value, final JavaTypeInfo<?> type) {
+    _converter.convertValue(this, value, type);
+  }
+
   public boolean setFail() {
     if (_hasResult) {
       throw new IllegalStateException("Result (" + _result + ") already set");
@@ -55,7 +49,7 @@ public final class ValueConversionContext {
       throw new IllegalStateException("Already failed");
     }
     _hasFailed = true;
-    return false;
+    return true;
   }
 
   public boolean isFailed() {
@@ -67,21 +61,7 @@ public final class ValueConversionContext {
     }
   }
 
-  public int getCost() {
-    return _cost;
-  }
-
-  public void setCost(final int cost) {
-    _cost = cost;
-  }
-
-  public int getAndSetCost(final int cost) {
-    final int original = getCost();
-    setCost(cost);
-    return original;
-  }
-
-  public boolean setResult(final int cost, final Object result) {
+  public boolean setResult(final Object result) {
     if (_hasResult) {
       throw new IllegalStateException("Result (" + _result + ") already set");
     }
@@ -89,7 +69,6 @@ public final class ValueConversionContext {
       throw new IllegalStateException("Already failed");
     }
     _hasResult = true;
-    setCost(getCost() + cost);
     _result = result;
     return true;
   }
@@ -106,14 +85,6 @@ public final class ValueConversionContext {
         throw new IllegalStateException("Neither result nor failure set");
       }
     }
-  }
-
-  public int getCostLimit() {
-    return _costLimit;
-  }
-
-  public void setCostLimit(final int costLimit) {
-    _costLimit = costLimit;
   }
 
 }

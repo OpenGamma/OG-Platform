@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.language.Data;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeParameterConversionException;
 
 /**
  * Default implementation of {@link ParameterConverter}.
@@ -23,9 +24,13 @@ public class DefaultParameterConverter implements ParameterConverter {
     final ValueConverter valueConverter = sessionContext.getGlobalContext().getValueConverter();
     final Object[] parameters = new Object[clientParameters.size()];
     int i = 0;
-    for (i = 0; i < parameters.length; i++) {
-      parameters[i] = valueConverter.convertValue(sessionContext, clientParameters.get(i), targetParameters.get(i)
-          .getJavaTypeInfo());
+    try {
+      while (i < parameters.length) {
+        final Object converted = valueConverter.convertValue(sessionContext, clientParameters.get(i), targetParameters.get(i).getJavaTypeInfo());
+        parameters[i++] = converted;
+      }
+    } catch (InvalidConversionException e) {
+      throw new InvokeParameterConversionException(i, e.getClientMessage());
     }
     return parameters;
   }
