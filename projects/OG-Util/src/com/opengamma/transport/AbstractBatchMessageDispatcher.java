@@ -5,7 +5,6 @@
  */
 package com.opengamma.transport;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +17,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
 /**
+ * A message dispatcher that can send a batch of messages.
+ * <p>
  * An abstract implementation of a system that can consume batches of
  * messages and dispatch them to a {@link BatchByteArrayMessageReceiver}.
  * It will create a single <em>non-daemon</em> thread to pull messages
  * off the underlying message source.
+ * <p>
+ * This class is mutable, but thread-safe
  */
 public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
@@ -43,14 +46,15 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
   /**
    * The name.
    */
-  private String _name = "AbstractBatchMessageDispatcher";
+  private volatile String _name = "AbstractBatchMessageDispatcher";
   /**
    * The thread.
    */
-  private Thread _dispatchThread;
+  private volatile Thread _dispatchThread;
 
   /**
    * Creates a dispatcher.
+   * 
    * @param source  the data source, not null
    */
   protected AbstractBatchMessageDispatcher(ByteArraySource source) {
@@ -58,8 +62,10 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
     _source = source;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Adds a receiver to the dispatcher.
+   * 
    * @param receiver  the message receiver, not null
    */
   public void addReceiver(BatchByteArrayMessageReceiver receiver) {
@@ -69,25 +75,32 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
     }
   }
 
+  /**
+   * Gets a copy of the set of receivers.
+   * 
+   * @return the receivers, modifiable copy, not null
+   */
+  public Set<BatchByteArrayMessageReceiver> getReceivers() {
+    final Set<BatchByteArrayMessageReceiver> receivers;
+    synchronized (_receivers) {
+      receivers = new HashSet<BatchByteArrayMessageReceiver>(_receivers);
+    }
+    return receivers;
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets the source of data
-   * @return the source, not null
+   * Gets the source of data.
+   * 
+   * @return the array source, not null
    */
   public ByteArraySource getSource() {
     return _source;
   }
 
   /**
-   * Gets the set of receivers.
-   * @return the receivers, unmodifiable, not null
-   */
-  public Set<BatchByteArrayMessageReceiver> getReceivers() {
-    return Collections.unmodifiableSet(_receivers);
-  }
-
-  /**
    * Gets the job being used.
+   * 
    * @return the collection job, not null
    */
   public MessageCollectionJob getCollectionJob() {
@@ -96,6 +109,7 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
   /**
    * Gets the name.
+   * 
    * @return the name, not null
    */
   public String getName() {
@@ -104,6 +118,7 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
   /**
    * Sets the name.
+   * 
    * @param name the name to set, not null
    */
   public void setName(String name) {
@@ -113,6 +128,7 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
   /**
    * Gets the thread in use.
+   * 
    * @return the dispatch thread, null if not running
    */
   public Thread getDispatchThread() {
@@ -130,7 +146,7 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
     if (isRunning()) {
       throw new IllegalStateException("Cannot start a running dispatcher");
     }
-    Thread dispatchThread = new Thread(getCollectionJob(), getName());
+    final Thread dispatchThread = new Thread(getCollectionJob(), getName());
     dispatchThread.setDaemon(false);
     dispatchThread.start();
     _dispatchThread = dispatchThread;
@@ -156,13 +172,16 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
   /**
    * Dispatch messages to the receivers.
+   * 
    * @param messages  the messages, not null
    */
-  protected void dispatchMessages(List<byte[]> messages) {
+  protected void dispatchMessages(final List<byte[]> messages) {
+    final BatchByteArrayMessageReceiver[] receivers;
     synchronized (_receivers) {
-      for (BatchByteArrayMessageReceiver receiver : getReceivers()) {
-        receiver.messagesReceived(messages);
-      }
+      receivers = (BatchByteArrayMessageReceiver[]) _receivers.toArray(new BatchByteArrayMessageReceiver[_receivers.size()]);
+    }
+    for (BatchByteArrayMessageReceiver receiver : receivers) {
+      receiver.messagesReceived(messages);
     }
   }
 
@@ -174,7 +193,7 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
 
     @Override
     protected void runOneCycle() {
-      List<byte[]> batchMessages = getSource().batchReceive(1000L);
+      final List<byte[]> batchMessages = getSource().batchReceive(1000L);
       if (batchMessages == null || batchMessages.isEmpty()) {
         return;
       }
