@@ -49,7 +49,6 @@ public abstract class ViewResultModelBuilder {
     return message;
   }
 
-  @SuppressWarnings("unchecked")
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
     final String viewName = message.getString(FIELD_VIEWNAME);
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
