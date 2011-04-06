@@ -8,6 +8,7 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
@@ -86,18 +87,20 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * Parses an {@code Identifier} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>}.
+   * which is {@code <SCHEME>~<VALUE>}.
    * 
    * @param str  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
   public static Identifier parse(String str) {
-    int pos = str.indexOf("::");
+    ArgumentChecker.notEmpty(str, "str");
+    str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    int pos = str.indexOf("~");
     if (pos < 0) {
       throw new IllegalArgumentException("Invalid identifier format: " + str);
     }
-    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
+    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 1));
   }
 
   /**
@@ -233,13 +236,13 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>}.
    * 
    * @return the identifier, not null
    */
   @Override
   public String toString() {
-    return _scheme.getName() + "::" + _value;
+    return _scheme.getName() + "~" + _value;
   }
 
   //-------------------------------------------------------------------------

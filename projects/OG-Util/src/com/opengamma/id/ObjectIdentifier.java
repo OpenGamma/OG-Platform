@@ -33,8 +33,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * Real-world examples of {@code ObjectIdentifier} include instances of:
  * <ul>
- * <li>Database key - DbSec::123456</li>
- * <li>In memory key - MemSec::123456</li>
+ * <li>Database key - DbSec~123456</li>
+ * <li>In memory key - MemSec~123456</li>
  * </ul>
  * <p>
  * This class is immutable and thread-safe.
@@ -84,7 +84,7 @@ public final class ObjectIdentifier
    * Obtains an identifier from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>}.
+   * which is {@code <SCHEME>~<VALUE>}.
    * 
    * @param oidStr  the object identifier to parse, not null
    * @return the object identifier, not null
@@ -92,7 +92,8 @@ public final class ObjectIdentifier
    */
   public static ObjectIdentifier parse(String oidStr) {
     ArgumentChecker.notEmpty(oidStr, "uidStr");
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(oidStr, "::");
+    oidStr = StringUtils.replace(oidStr, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(oidStr, "~");
     switch (split.length) {
       case 2:
         return ObjectIdentifier.of(split[0], split[1]);
@@ -229,13 +230,13 @@ public final class ObjectIdentifier
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>}.
    * 
    * @return the identifier, not null
    */
   @Override
   public String toString() {
-    return new StrBuilder().append(_scheme).append(':').append(':').append(_value).toString();
+    return new StrBuilder().append(_scheme).append('~').append(_value).toString();
   }
 
   //-------------------------------------------------------------------------

@@ -107,24 +107,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
     return of(null, correctedTo);
   }
 
-//  /**
-//   * Parses an {@code Identifier} from a formatted scheme and value.
-//   * <p>
-//   * This parses the identifier from the form produced by {@code toString()}
-//   * which is {@code <SCHEME>::<VALUE>}.
-//   * 
-//   * @param str  the identifier to parse, not null
-//   * @return the identifier, not null
-//   * @throws IllegalArgumentException if the identifier cannot be parsed
-//   */
-//  public static VersionCorrection parse(String str) {
-//    int pos = str.indexOf("::");
-//    if (pos < 0) {
-//      throw new IllegalArgumentException("Invalid identifier format: " + str);
-//    }
-//    return new VersionCorrection(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
-//  }
-
   /**
    * Creates a version-correction combination.
    * 
@@ -244,13 +226,13 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Returns the version-correction instants separated by a dash.
+   * Returns the version-correction instants separated by a tilde.
    * 
    * @return the string version, not null
    */
   @Override
   public String toString() {
-    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + ".C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
+    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + "~C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
   }
 
   //-------------------------------------------------------------------------
