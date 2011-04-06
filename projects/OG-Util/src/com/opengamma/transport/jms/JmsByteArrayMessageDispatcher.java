@@ -15,29 +15,44 @@ import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * A message dispatcher that uses JMS.
+ * <p>
+ * This is a simple implementation based on JMS.
  */
 public class JmsByteArrayMessageDispatcher implements MessageListener {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageDispatcher.class);
+
+  /**
+   * The underlying message receiver.
+   */
   private final ByteArrayMessageReceiver _underlying;
-  
-  public JmsByteArrayMessageDispatcher(ByteArrayMessageReceiver underlying) {
+
+  /**
+   * Creates an instance based on a message receiver.
+   * 
+   * @param underlying  the underlying message receiver, not null
+   */
+  public JmsByteArrayMessageDispatcher(final ByteArrayMessageReceiver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlying
+   * Gets the underlying message receiver.
+   * 
+   * @return the underlying message receiver
    */
   public ByteArrayMessageReceiver getUnderlying() {
     return _underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void onMessage(Message message) {
-    byte[] bytes = JmsByteArrayHelper.extractBytes(message);
+  public void onMessage(final Message message) {
+    final byte[] bytes = JmsByteArrayHelper.extractBytes(message);
     s_logger.debug("Dispatching byte array of length {}", bytes.length);
     getUnderlying().messageReceived(bytes);
   }
