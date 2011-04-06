@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -110,13 +109,13 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
       final String propertyName = field.getName();
       
       switch (field.getType().getTypeId()) {
-        case FudgeTypeDictionary.INDICATOR_TYPE_ID:
+        case FudgeWireType.INDICATOR_TYPE_ID:
           builder.withAny(propertyName);
           break;
-        case FudgeTypeDictionary.STRING_TYPE_ID:
+        case FudgeWireType.STRING_TYPE_ID:
           builder.with(propertyName, (String) field.getValue());
           break;
-        case FudgeTypeDictionary.SUB_MESSAGE_TYPE_ID: {
+        case FudgeWireType.SUB_MESSAGE_TYPE_ID: {
           final FudgeMsg subMessage = (FudgeMsg) field.getValue();
           final List<String> values = new ArrayList<String>(subMessage.getNumFields());
           for (FudgeField subField : subMessage) {
