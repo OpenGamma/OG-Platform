@@ -70,7 +70,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
           }
         } else {
           switch (field.getType().getTypeId()) {
-            case FudgeTypeDictionary.FUDGE_MSG_TYPE_ID: {
+            case FudgeTypeDictionary.SUB_MESSAGE_TYPE_ID: {
               if (method != null) {
                 throw new IllegalStateException("Parameters already set from " + method);
               }

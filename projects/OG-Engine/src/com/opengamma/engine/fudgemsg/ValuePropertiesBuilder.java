@@ -116,7 +116,7 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
         case FudgeTypeDictionary.STRING_TYPE_ID:
           builder.with(propertyName, (String) field.getValue());
           break;
-        case FudgeTypeDictionary.FUDGE_MSG_TYPE_ID: {
+        case FudgeTypeDictionary.SUB_MESSAGE_TYPE_ID: {
           final FudgeMsg subMessage = (FudgeMsg) field.getValue();
           final List<String> values = new ArrayList<String>(subMessage.getNumFields());
           for (FudgeField subField : subMessage) {
