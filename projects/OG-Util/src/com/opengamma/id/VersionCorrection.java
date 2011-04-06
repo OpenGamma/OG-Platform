@@ -43,6 +43,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class VersionCorrection implements Comparable<VersionCorrection>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Version-correction instance representing the latest version and correction.
    */

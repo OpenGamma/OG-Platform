@@ -39,6 +39,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class Identifier implements Identifiable, Comparable<Identifier>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Fudge message key for the scheme.
    */

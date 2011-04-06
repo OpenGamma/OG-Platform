@@ -48,6 +48,9 @@ import com.opengamma.util.PublicAPI;
 public final class UniqueIdentifier
     implements Comparable<UniqueIdentifier>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Fudge message key for the scheme.
    */

@@ -26,6 +26,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Fudge message key for the valid_from.
    */

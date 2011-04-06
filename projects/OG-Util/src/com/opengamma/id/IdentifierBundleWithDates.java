@@ -37,6 +37,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class IdentifierBundleWithDates implements Iterable<IdentifierWithDates>, Serializable, Comparable<IdentifierBundleWithDates> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton empty bundle.
    */

@@ -12,6 +12,9 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class RestRuntimeException extends OpenGammaRuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * The RESTful method.
    */
