@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.time.Instant;
 import javax.time.TimeSource;
 
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public abstract class AbstractDbMaster {
     ArgumentChecker.notNull(dbSource, "dbSource");
     s_logger.debug("installed DbSource: {}", dbSource);
     _dbSource = dbSource;
-    _timeSource = TimeSource.system();
+    _timeSource = dbSource.timeSource();
     _identifierScheme = defaultScheme;
   }
 
@@ -91,6 +92,15 @@ public abstract class AbstractDbMaster {
     ArgumentChecker.notNull(timeSource, "timeSource");
     s_logger.debug("installed TimeSource: {}", timeSource);
     _timeSource = timeSource;
+  }
+
+  /**
+   * Gets the current instant using the time-source.
+   * 
+   * @return the current instant, not null
+   */
+  protected Instant now() {
+    return Instant.now(getTimeSource());
   }
 
   //-------------------------------------------------------------------------
@@ -147,7 +157,7 @@ public abstract class AbstractDbMaster {
    * 
    * @param objectId  the object identifier, not null
    */
-  public void checkScheme(final ObjectIdentifiable objectId) {
+  protected void checkScheme(final ObjectIdentifiable objectId) {
     if (getIdentifierScheme().equals(objectId.getObjectId().getScheme()) == false) {
       throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + getIdentifierScheme() + "): " + objectId);
     }
@@ -160,7 +170,7 @@ public abstract class AbstractDbMaster {
    * @param id  the identifier to extract from, not null
    * @return the extracted row id
    */
-  public long extractRowId(final UniqueIdentifier id) {
+  protected long extractRowId(final UniqueIdentifier id) {
     try {
       return Long.parseLong(id.getValue()) + Long.parseLong(id.getVersion());
     } catch (NumberFormatException ex) {
@@ -174,7 +184,7 @@ public abstract class AbstractDbMaster {
    * @param objectId  the identifier to extract from, not null
    * @return the extracted oid
    */
-  public long extractOid(final ObjectIdentifiable objectId) {
+  protected long extractOid(final ObjectIdentifiable objectId) {
     try {
       return Long.parseLong(objectId.getObjectId().getValue());
     } catch (NumberFormatException ex) {
