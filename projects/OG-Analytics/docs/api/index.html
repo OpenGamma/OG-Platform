@@ -1,0 +1,62 @@
+{% set javadocs = d['json']['javadoc-data.json|javadocs'] %}
+{% for package_name, package_info in javadocs['packages'].items() %}
+
+<!-- split "{{package_name}}" -->
+<h1 id="package-{{ package_name }}">Package {{ package_name }}</h1>
+
+
+{% for class_name, class_info in package_info['classes'].items() %}
+
+<h2 id="class-{{ class_info['qualified-name'] }}">Class {{ class_name }}</h2>
+{% if class_info.has_key('superclass') %} {% if not class_info['superclass'].startswith('java.lang') %}
+{% set superclass_package = class_info['superclass'].rpartition(".")[0] %}
+<p>Subclass of: <a href="{{ superclass_package}}.html#class-{{ class_info['superclass'] }}">{{ class_info['superclass'] }}</a></p>
+{% endif %} {% endif %}
+
+{{ class_info['comment-text'] }}
+
+{% if d['sections']['formulae.tex|idio|t'].has_key(class_info['qualified-name']) %}
+{{ d['sections']['formulae.tex|idio|t'][class_info['qualified-name']] }}
+{% else %}
+<span style="color:red;border:thin solid red;">Add section ### @export "{{ class_info['qualified-name'] }}"</span>
+{% endif %}
+
+<h3>Constructors</h3>
+{% for constructor, constructor_info in class_info['constructors'].items() %}
+{% set sig_array = constructor_info['signature'].lstrip("(").rstrip(")").split(",") %}
+<h4>{{ constructor_info['name'] }}({% set i = 0 -%}{% for s in sig_array -%}{% set i = i+1 %}
+  {% set s_package, _, s_class = s.strip().rstrip('[]').rpartition(".") -%}
+  {% if s_package.startswith('com.opengamma') %}<a href="{{ s_package }}.html#class-{{ s.strip().rstrip('[]') }}">{{ s_class }}</a>
+  {% else -%}{{ s }}{% endif -%}{% if (i < sig_array.__len__()) -%},{% endif -%}{% endfor -%})
+</h4>
+
+{{ constructor_info['comment-text'] }}
+
+{{ constructor_info['source-html'] }}
+{% endfor %}
+
+<h3>Methods</h3>
+{% for method_name, method_info in class_info['methods'].items() %}
+{% set sig_array = method_info['signature'].lstrip("(").rstrip(")").split(",") %}
+<h4>{{ method_info['name'] }}(
+  {% set i = 0 %}
+  {% for s in sig_array -%}
+  {% set i = i+1 %}
+  {% set s_package, _, s_class = s.strip().rstrip('[]').rpartition(".") -%}
+  {% if s_package.startswith('com.opengamma') %}<a href="{{ s_package }}.html#class-{{ s.strip().rstrip('[]') }}">{{ s_class }}</a>
+  {% else -%}
+  {{ s }}
+  {% endif -%}
+  {% if i < sig_array.__len__() %},{% endif %}
+  {% endfor -%})
+</h4>
+
+{{ method_info['comment-text'] }}
+
+{{ method_info['source-html'] }}
+
+{% endfor %}
+{% endfor %}
+{% endfor %}
+<!-- endsplit -->
+
