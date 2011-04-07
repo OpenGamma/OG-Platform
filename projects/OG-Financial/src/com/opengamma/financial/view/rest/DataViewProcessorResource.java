@@ -49,7 +49,6 @@ public class DataViewProcessorResource {
   private final JmsTemplate _jmsTemplate;
   private final String _jmsTopicPrefix;
   private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
-  private final FudgeContext _fudgeContext;
   private final ScheduledExecutorService _scheduler;
   
   private AtomicReference<DataViewCycleManagerResource> _cycleManagerResource;
@@ -62,7 +61,6 @@ public class DataViewProcessorResource {
     
     _jmsMessageSenderService = new JmsByteArrayMessageSenderService(_jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
-    _fudgeContext = fudgeContext;
     _scheduler = scheduler;
   }
   

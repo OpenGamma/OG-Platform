@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.client;
 
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -101,11 +102,11 @@ public interface ViewClient extends UniqueIdentifiable {
    * 
    * @param viewDefinitionName  the name of the view definition, not null
    * @param executionOptions  the view execution options, not null
-   * @param newBatchProcess  {@code true} to attach to a new batch process with this client as the batch controller,
-   *                         {@code false} to connect to a normal, shared process
+   * @param newPrivateProcess  {@code true} to attach to a new process,
+   *                           {@code false} to attach to a shared process
    * @throws IllegalStateException if the client is already attached to a process 
    */
-  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess);
+  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
   
   /**
    * Attaches the client to a specific, existing view process.
@@ -121,15 +122,19 @@ public interface ViewClient extends UniqueIdentifiable {
    * Detaches the client from the view process, if any, to which it is currently attached.
    */
   void detachFromViewProcess();
-  
+
+  // [PLAT-1174]
+  // REVIEW jonathan 2011-04-07 -- providing access to the underlying live data overrides like this is bad for a few
+  // reasons, and only really applies to real-time processes. They should instead be part of the execution options for
+  // each cycle.
   /**
-   * Gets whether this client is the controller of a batch view process. Only one such client can exist for any batch
-   * process, and this client solely drives execution of the process, regardless of the actions of other clients. Any
-   * other client therefore operates merely as a 'fly-on-the-wall' for monitoring the batch.
+   * Gets the live data override injector for the view process to which the client is attached. This allows arbitrary
+   * live data to be overridden; the effects of doing so will be seen in future view cycles.
    * 
-   * @return {@code true} if this client is the controller of a batch view process, {@code false} otherwise
+   * @return  the live data override injector, not null
+   * @throws IllegalStateException if the view client is not attached to a view process
    */
-  boolean isBatchController();
+  LiveDataInjector getLiveDataOverrideInjector();
   
   //-------------------------------------------------------------------------
   /**

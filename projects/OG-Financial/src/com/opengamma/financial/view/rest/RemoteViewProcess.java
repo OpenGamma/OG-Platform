@@ -38,12 +38,6 @@ public class RemoteViewProcess implements ViewProcess {
   }
   
   @Override
-  public boolean isBatchProcess() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_BATCH_PROCESS).build();
-    return _client.access(uri).get(Boolean.class);
-  }
-  
-  @Override
   public String getDefinitionName() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION_NAME).build();
     return _client.access(uri).get(String.class);

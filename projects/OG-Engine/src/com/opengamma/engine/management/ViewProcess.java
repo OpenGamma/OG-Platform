@@ -65,11 +65,6 @@ public class ViewProcess implements ViewProcessMBean {
   }
 
   @Override
-  public boolean isBatchProcess() {
-    return _viewProcess.isBatchProcess();
-  }
-
-  @Override
   public String getDefinitionName() {
     return _viewProcess.getDefinitionName();
   }

@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -50,7 +51,6 @@ public class ViewClientImpl implements ViewClient {
   private boolean _isAttached;
   
   // Per-process state
-  private boolean _isBatchController;
   private volatile ViewPermissionProvider _permissionProvider;
   private volatile boolean _canAccessCompiledViewDefinition;
   private volatile boolean _canAccessComputationResults;
@@ -180,7 +180,7 @@ public class ViewClientImpl implements ViewClient {
   }
   
   @Override
-  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newBatchProcess) {
+  public void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean privateProcess) {
     _clientLock.lock();
     try {
       checkNotTerminated();
@@ -188,12 +188,12 @@ public class ViewClientImpl implements ViewClient {
       // The client is detached right now so the merging update listener is paused. Although the following calls may
       // cause initial updates to be pushed through, they will not be seen until the merging update listener is
       // resumed, at which point the new permission provider will be in place. 
-      if (newBatchProcess) {
-        _permissionProvider = getViewProcessor().attachClientToBatchViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionName, executionOptions);
+      if (privateProcess) {
+        _permissionProvider = getViewProcessor().attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionName, executionOptions);
       } else {
         _permissionProvider = getViewProcessor().attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionName, executionOptions);
       }
-      attachToViewProcessCore(newBatchProcess);
+      attachToViewProcessCore();
     } finally {
       _clientLock.unlock();
     }
@@ -205,14 +205,13 @@ public class ViewClientImpl implements ViewClient {
     try {
       checkNotTerminated();
       _permissionProvider = getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
-      attachToViewProcessCore(false);
+      attachToViewProcessCore();
     } finally {
       _clientLock.unlock();
     }
   }
   
-  private void attachToViewProcessCore(boolean isBatchController) {
-    _isBatchController = isBatchController;
+  private void attachToViewProcessCore() {
     _isAttached = true;
     boolean isPaused = getState() == ViewClientState.PAUSED;
     _mergingViewProcessListener.setPaused(isPaused);
@@ -228,7 +227,6 @@ public class ViewClientImpl implements ViewClient {
       getLatestCycleRetainer().replaceRetainedCycle(null);
       _mergingViewProcessListener.setPaused(true);
       _mergingViewProcessListener.reset();
-      _isBatchController = false;
       _latestResult.set(null);
       _isAttached = false;
       _permissionProvider = null;
@@ -236,10 +234,11 @@ public class ViewClientImpl implements ViewClient {
       _clientLock.unlock();
     }
   }
-
+  
   @Override
-  public boolean isBatchController() {
-    return _isBatchController;
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    // [PLAT-1174] - this shouldn't be here
+    return getViewProcessor().getLiveDataOverrideInjector(getUniqueId());
   }
   
   //-------------------------------------------------------------------------  

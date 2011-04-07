@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -31,6 +32,7 @@ import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
@@ -126,11 +128,11 @@ public class RemoteViewClient implements ViewClient {
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_DETACH);
     _client.access(uri).post();
   }
-
+  
   @Override
-  public boolean isBatchController() {
-    URI uri = getUri(_baseUri, DataViewClientResource.PATH_IS_BATCH_CONTROLLER);
-    return _client.access(uri).get(Boolean.class);
+  public LiveDataInjector getLiveDataOverrideInjector() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR);
+    return new RemoteLiveDataInjector(uri);
   }
 
   //-------------------------------------------------------------------------

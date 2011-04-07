@@ -29,15 +29,6 @@ public interface ViewProcessMBean {
   String getPortfolioIdentifier();
   
   /**
-   * Indicates whether the view process was created for a batch computation.
-   * <p>
-   * This may affect the behaviour of any attached clients.
-   * 
-   * @return {@code true} if the process was created for a batch computation, {@code false} otherwise
-   */
-  boolean isBatchProcess();
-  
-  /**
    * Gets the name of the underlying view definition
    * 
    * @return the name of the underlying view definition

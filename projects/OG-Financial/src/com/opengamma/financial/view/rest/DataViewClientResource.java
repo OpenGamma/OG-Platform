@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.calc.ViewCycleReference;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
@@ -39,7 +40,7 @@ public class DataViewClientResource {
   public static final String PATH_ATTACH_SEARCH = "attachSearch";
   public static final String PATH_ATTACH_DIRECT = "attachDirect";
   public static final String PATH_DETACH = "detach";
-  public static final String PATH_IS_BATCH_CONTROLLER = "isBatchController";
+  public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "overrides";
   public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
   public static final String PATH_RESULT_AVAILABLE = "resultAvailable";
@@ -125,10 +126,9 @@ public class DataViewClientResource {
     return Response.ok().build();
   }
   
-  @GET
-  @Path(PATH_IS_BATCH_CONTROLLER)
-  public Response isBatchController() {
-    return Response.ok(getViewClient().isBatchController()).build();
+  @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
+  public LiveDataInjectorResource getLiveDataOverrideInjector() {
+    return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
   }
   
   @POST

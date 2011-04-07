@@ -25,7 +25,6 @@ public class DataViewProcessResource {
   
   //CSOFF: just constants
   public static final String PATH_UNIQUE_ID = "id";
-  public static final String PATH_BATCH_PROCESS = "batchProcess";
   public static final String PATH_DEFINITION_NAME = "definitionName";
   public static final String PATH_DEFINITION = "definition";
   public static final String PATH_STATE = "state";
@@ -47,12 +46,6 @@ public class DataViewProcessResource {
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
     return Response.ok(_viewProcess.getUniqueId()).build();
-  }
-  
-  @GET
-  @Path(PATH_BATCH_PROCESS)
-  public Response isBatchProcess() {
-    return Response.ok(_viewProcess.isBatchProcess()).build();
   }
   
   @GET

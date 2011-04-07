@@ -42,7 +42,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private final ViewProcessContext _viewProcessContext;
   private final ObjectIdentifier _cycleObjectId;
   private final ViewCycleManagerImpl _viewCycleManager;
-  private final boolean _isBatchProcess;
   
   private final AtomicLong _cycleVersion = new AtomicLong();
 
@@ -53,8 +52,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    */
   private final Semaphore _processLock = new Semaphore(1);
 
-  private final Set<ViewProcessListener> _allListeners = new HashSet<ViewProcessListener>();
-  private final Set<ViewProcessListener> _listenerExecutionDemand = new HashSet<ViewProcessListener>();
+  private final Set<ViewProcessListener> _listeners = new HashSet<ViewProcessListener>();
 
   private volatile ViewProcessState _state = ViewProcessState.STOPPED;
   
@@ -72,12 +70,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param executionOptions  the view execution options, not null
    * @param viewProcessContext  the process context, not null
    * @param viewCycleManager  the view cycle manager, not null
-   * @param cycleObjectId  the object identifier of cycles, not null
-   * @param isBatchProcess {@code true} if the process is for a batch computation, {@code false} otherwise 
+   * @param cycleObjectId  the object identifier of cycles, not null 
    */
   public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
       ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManagerImpl viewCycleManager,
-      ObjectIdentifier cycleObjectId, boolean isBatchProcess) {
+      ObjectIdentifier cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -90,18 +87,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     _viewProcessContext = viewProcessContext;
     _viewCycleManager = viewCycleManager;
     _cycleObjectId = cycleObjectId;
-    _isBatchProcess = isBatchProcess;
   }
   
   //-------------------------------------------------------------------------
   @Override
   public UniqueIdentifier getUniqueId() {
     return _viewProcessId;
-  }
-  
-  @Override
-  public boolean isBatchProcess() {
-    return _isBatchProcess;
   }
   
   @Override
@@ -198,7 +189,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   public void viewCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
     _latestCompiledViewDefinition.set(compiledViewDefinition);
-    for (ViewProcessListener listener : _allListeners) {
+    for (ViewProcessListener listener : _listeners) {
       try {
         listener.viewDefinitionCompiled(compiledViewDefinition);
       } catch (Exception e) {
@@ -233,8 +224,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     _latestResult.set(result);
     
     ViewDeltaResultModel deltaResult = null;
-    if (!_allListeners.isEmpty()) {
-      for (ViewProcessListener listener : _allListeners) {
+    if (!_listeners.isEmpty()) {
+      for (ViewProcessListener listener : _listeners) {
         try {
           if (listener.isDeltaResultRequired()) {
             if (deltaResult == null) {
@@ -253,8 +244,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   
   public void processError(ViewProcessErrorType errorType, String details, Exception exception) {
     s_logger.error("View process error " + errorType + " occurred: " + details, exception);
-    if (!_allListeners.isEmpty()) {
-      for (ViewProcessListener listener : _allListeners) {
+    if (!_listeners.isEmpty()) {
+      for (ViewProcessListener listener : _listeners) {
         try {
           listener.error(errorType, details, exception);
         } catch (Exception e) {
@@ -274,8 +265,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       unlock();
     }
     
-    if (!_allListeners.isEmpty()) {
-      for (ViewProcessListener listener : _allListeners) {
+    if (!_listeners.isEmpty()) {
+      for (ViewProcessListener listener : _listeners) {
         try {
           listener.processCompleted();
         } catch (Exception e) {
@@ -360,35 +351,30 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
-   * Attaches a listener to the view process, optionally adding execution demand.
+   * Attaches a listener to the view process.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
    * @param listener  the listener, not null
-   * @param addExecutionDemand  {@code true} if the listener should add execution demand to the process, {@code false} otherwise
    * @return the permission provider for the process, not null
    */
-  public ViewPermissionProvider attachListener(ViewProcessListener listener, boolean addExecutionDemand) {
+  public ViewPermissionProvider attachListener(ViewProcessListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      _allListeners.add(listener);
-      
-      // Push initial state to listener
-      CompiledViewDefinitionImpl latestCompilation = _latestCompiledViewDefinition.get();
-      if (latestCompilation != null) {
-        listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
-        listener.result(_latestResult.get(), null);
-      }
-      
-      if (addExecutionDemand) {
-        if (_listenerExecutionDemand.size() == 0) {
+      if (!_listeners.add(listener)) {
+        if (_listeners.size() == 1) {
           startComputationJob();
+        } else {
+          // Push initial state to listener
+          CompiledViewDefinitionImpl latestCompilation = _latestCompiledViewDefinition.get();
+          if (latestCompilation != null) {
+            listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
+            listener.result(_latestResult.get(), null);
+          }
         }
-        _listenerExecutionDemand.add(listener);
       }
-      
       return getProcessContext().getViewPermissionProvider();
     } finally {
       unlock();
@@ -408,8 +394,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      _allListeners.remove(listener);
-      if (_listenerExecutionDemand.remove(listener) && _listenerExecutionDemand.size() == 0) {
+      if (_listeners.remove(listener) && _listeners.size() == 0) {
         stopComputationJob();
       }
     } finally {
@@ -418,7 +403,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
   
   public boolean hasExecutionDemand() {
-    return !_listenerExecutionDemand.isEmpty();
+    return !_listeners.isEmpty();
   }
   
   public ViewExecutionOptions getExecutionOptions() {
@@ -477,9 +462,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       isInterrupting = getState() == ViewProcessState.RUNNING;
       setState(ViewProcessState.TERMINATED);
       
-      listeners = new HashSet<ViewProcessListener>(_allListeners);
-      _allListeners.clear();
-      _listenerExecutionDemand.clear();
+      listeners = new HashSet<ViewProcessListener>(_listeners);
+      _listeners.clear();
       terminateComputationJob();
     } finally {
       unlock();
