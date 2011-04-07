@@ -49,34 +49,34 @@ public class YieldCurveConfigPopulator {
       for (Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
         Currency ccy = currencyEntry.getKey();
         YieldCurveDefinition definition = currencyEntry.getValue();
-        ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>();
+        ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
         document.setName(curveName + "_" + ccy.getCode());
         document.setValue(definition);
         ConfigMasterUtils.storeByName(configMaster, document);
         dumpDefinition(definition);
       }
     }
-//    ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>();
+//    ConfigDocument<YieldCurveDefinition> forwardUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
 //    forwardUSD.setName("FORWARD_USD");
 //    forwardUSD.setValue(CurveDefinitionAndSpecifications.buildUSDForwardCurveDefinition());
 //    ConfigMasterUtils.storeByName(configRepo, forwardUSD);
-//    ConfigDocument<YieldCurveDefinition> fundingUSD = new ConfigDocument<YieldCurveDefinition>();
+//    ConfigDocument<YieldCurveDefinition> fundingUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
 //    fundingUSD.setName("FUNDING_USD");
 //    fundingUSD.setValue(CurveDefinitionAndSpecifications.buildUSDFundingCurveDefinition());
 //    ConfigMasterUtils.storeByName(configRepo, fundingUSD);
-    ConfigDocument<YieldCurveDefinition> swapOnlyUSD = new ConfigDocument<YieldCurveDefinition>();
+    ConfigDocument<YieldCurveDefinition> swapOnlyUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     swapOnlyUSD.setName("SWAP_ONLY_USD");
     swapOnlyUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyCurveDefinition());
     ConfigMasterUtils.storeByName(configMaster, swapOnlyUSD);
-    ConfigDocument<YieldCurveDefinition> swapOnlyNo3YrUSD = new ConfigDocument<YieldCurveDefinition>();
+    ConfigDocument<YieldCurveDefinition> swapOnlyNo3YrUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     swapOnlyNo3YrUSD.setName("SWAP_ONLY_NO3YR_USD");
     swapOnlyNo3YrUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyNo3YrCurveDefinition());
     ConfigMasterUtils.storeByName(configMaster, swapOnlyNo3YrUSD);
-    ConfigDocument<YieldCurveDefinition> swapOnly3YrUSD = new ConfigDocument<YieldCurveDefinition>();
+    ConfigDocument<YieldCurveDefinition> swapOnly3YrUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     swapOnly3YrUSD.setName("SWAP_ONLY_3YR_USD");
     swapOnly3YrUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnly3YrCurveDefinition());
     ConfigMasterUtils.storeByName(configMaster, swapOnly3YrUSD);
-    ConfigDocument<YieldCurveDefinition> singleUSD = new ConfigDocument<YieldCurveDefinition>();
+    ConfigDocument<YieldCurveDefinition> singleUSD = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     singleUSD.setName("SINGLE_USD");
     singleUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSingleCurveDefinition());
     ConfigMasterUtils.storeByName(configMaster, singleUSD);
@@ -85,12 +85,12 @@ public class YieldCurveConfigPopulator {
   public static void populateCurveSpecificationBuilderConfigMaster(ConfigMaster configMaster) {
     Map<Currency, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
     for (Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
-      ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
+      ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
       doc.setName("DEFAULT_" + entry.getKey().getCode());
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
-//    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>();
+//    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
 //    doc.setName("DEFAULT_USD");
 //    doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());
     

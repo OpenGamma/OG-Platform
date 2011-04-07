@@ -348,14 +348,18 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   protected void searchWithPaging(
       final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
       final ResultSetExtractor<List<D>> extractor, final AbstractDocumentsResult<D> result) {
+    
+    s_logger.debug("with args {}", args);
     final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (pagingRequest.equals(PagingRequest.ALL)) {
       result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
     } else {
+      s_logger.debug("executing sql {}", sql[1]);
       final int count = namedJdbc.queryForInt(sql[1], args);
       result.setPaging(new Paging(pagingRequest, count));
       if (count > 0) {
+        s_logger.debug("executing sql {}", sql[0]);
         result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       }
     }

@@ -104,11 +104,13 @@ FudgeMsg CSynchronousCallSlot::GetMessage (unsigned long lTimeout) {
 		LOGDEBUG (TEXT ("Semaphore signalled"));
 	} else {
 		LOGDEBUG (TEXT ("Timeout elapsed on semaphore"));
+		SetLastError (ETIMEDOUT);
 	}
 	FudgeMsg msg = m_msg.GetAndSet (BUSY_FUDGE_MSG);
 	if (msg == BUSY_FUDGE_MSG) {
 		LOGWARN (TEXT ("Duplicate call to GetMessage"));
 		msg = NULL_FUDGE_MSG;
+		SetLastError (EINVAL);
 	}
 	return msg;
 }

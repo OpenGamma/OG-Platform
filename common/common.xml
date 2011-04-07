@@ -40,15 +40,9 @@
 
 	<target name="fudge-proto-present" depends="resolve">
 		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
-		<!--available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" /-->
 	</target>
 
-	<target name="fudge-proto-gitignore" depends="fudge-proto-present" unless="fudge.proto.gitignore.exists">
-		<touch file="${fudge.proto.gitIgnoreFlag}" />
-		<property name="fudge.proto.gitIgnore" value="true" />
-	</target>
-
-	<target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present"> <!-- depends="fudge-proto-gitignore" -->
+	<target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present">
 		 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
 		 <fudgeproto
 			srcdir="${src.dir}"
@@ -59,7 +53,7 @@
 			hashCode="${fudge.proto.hashCode}"
 			verbose="${build.verbose}"
 			fudgeContext="${fudge.proto.fudgeContext}"
-			rebuildAll="${fudge.proto.rebuildall}">
+			rebuildAll="${fudge.proto.rebuildAll}">
 			<fileHeader>///CLOVER:OFF
 // CSOFF: Generated File</fileHeader>
 			<fileFooter>///CLOVER:ON

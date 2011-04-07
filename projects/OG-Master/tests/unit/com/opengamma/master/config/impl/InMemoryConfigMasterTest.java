@@ -49,19 +49,19 @@ public class InMemoryConfigMasterTest {
   public void setUp() {
     _testEmpty = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
     _testPopulated = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Test"));
-    _doc1 = new ConfigDocument<Identifier>();
+    _doc1 = new ConfigDocument<Identifier>(Identifier.class);
     _doc1.setName("ONE");
     _doc1.setValue(VAL1);
     _doc1 = _testPopulated.add(_doc1);
-    _doc2 = new ConfigDocument<Identifier>();
+    _doc2 = new ConfigDocument<Identifier>(Identifier.class);
     _doc2.setName("TWO");
     _doc2.setValue(VAL2);
     _doc2 = _testPopulated.add(_doc2);
-    _doc3 = new ConfigDocument<IdentifierBundle>();
+    _doc3 = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
     _doc3.setName("THREE");
     _doc3.setValue(VAL3);
     _doc3 = _testPopulated.add(_doc3);
-    _doc4 = new ConfigDocument<IdentifierBundle>();
+    _doc4 = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
     _doc4.setName("FOUR");
     _doc4.setValue(VAL4);
     _doc4 = _testPopulated.add(_doc4);
@@ -75,7 +75,7 @@ public class InMemoryConfigMasterTest {
 
   public void test_defaultSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster();
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("ONE");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
@@ -84,7 +84,7 @@ public class InMemoryConfigMasterTest {
 
   public void test_alternateSupplier() {
     InMemoryConfigMaster master = new InMemoryConfigMaster(new ObjectIdentifierSupplier("Hello"));
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("ONE");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
@@ -163,7 +163,7 @@ public class InMemoryConfigMasterTest {
 
   //-------------------------------------------------------------------------
   public void test_add_emptyMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("Test");
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = _testEmpty.add(doc);
@@ -175,14 +175,14 @@ public class InMemoryConfigMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_update_emptyMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setValue(VAL1);
     doc.setUniqueId(OTHER_UID);
     _testEmpty.update(doc);
   }
 
   public void test_update_populatedMaster() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setValue(VAL1);
     doc.setUniqueId(_doc1.getUniqueId());
     ConfigDocument<Identifier> updated = _testPopulated.update(doc);
