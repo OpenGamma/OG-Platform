@@ -110,7 +110,9 @@ public class BondFixedDescriptionDefinitionTest {
     assertEquals(coupon, bond.getCoupon());
     AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, BUSINESS_DAY.adjustDate(CALENDAR,
         MATURITY_DATE), 1.0)});
-    assertEquals(nominal, bond.getNominal());
+    assertEquals(nominal.getCurrency(), bond.getNominal().getCurrency());
+    assertEquals(nominal.getNthPayment(0).getPaymentDate(), bond.getNominal().getNthPayment(0).getPaymentDate());
+    assertEquals(nominal.getNthPayment(0).getAmount(), bond.getNominal().getNthPayment(0).getAmount());
   }
 
   @Test

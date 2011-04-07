@@ -61,6 +61,6 @@ public class BondIborTransactionDefinitionTest {
     assertEquals(BOND_DESCRIPTION, BOND_TRANSACTION.getUnderlyingBond());
     assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION.getPreviousAccrualDate());
     assertEquals(DateUtil.getUTCDate(2011, 10, 13), BOND_TRANSACTION.getNextAccrualDate());
-    assertEquals(PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
+    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
   }
 }

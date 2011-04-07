@@ -65,6 +65,6 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals(expectedAccrued, BOND_TRANSACTION.getAccruedInterestAtSettlement(), 1E-6);
     assertEquals(DateUtil.getUTCDate(2011, 7, 13), BOND_TRANSACTION.getPreviousAccrualDate());
     assertEquals(DateUtil.getUTCDate(2012, 1, 13), BOND_TRANSACTION.getNextAccrualDate());
-    assertEquals(PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
+    assertEquals(-PRICE * QUANTITY, BOND_TRANSACTION.getPaymentAmount());
   }
 }
