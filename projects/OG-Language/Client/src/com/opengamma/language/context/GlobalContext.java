@@ -12,11 +12,13 @@ import java.util.Properties;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.DefaultFunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionDefinitionFilter;
+import com.opengamma.language.invoke.AggregatingTypeConverterProvider;
 import com.opengamma.language.invoke.DefaultParameterConverter;
 import com.opengamma.language.invoke.DefaultResultConverter;
 import com.opengamma.language.invoke.DefaultValueConverter;
 import com.opengamma.language.invoke.ParameterConverter;
 import com.opengamma.language.invoke.ResultConverter;
+import com.opengamma.language.invoke.TypeConverterProvider;
 import com.opengamma.language.invoke.ValueConverter;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.DefaultLiveDataDefinitionFilter;
@@ -61,6 +63,10 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    */
   protected static final String VALUE_CONVERTER = "valueConverter";
   /**
+   * Name under which a source of type converters is bound.
+   */
+  protected static final String TYPE_CONVERTER_PROVIDER = "typeConverterProvider";
+  /**
    * Name under which a function specific parameter converter is bound. If none is bound, the generic one will be used.
    */
   protected static final String FUNCTION_PARAMETER_CONVERTER = "functionParameterConverter";
@@ -95,6 +101,7 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     setValue(FUNCTION_DEFINITION_FILTER, new DefaultFunctionDefinitionFilter());
     setValue(LIVEDATA_DEFINITION_FILTER, new DefaultLiveDataDefinitionFilter());
     setValue(PROCEDURE_DEFINITION_FILTER, new DefaultProcedureDefinitionFilter());
+    setValue(TYPE_CONVERTER_PROVIDER, new AggregatingTypeConverterProvider());
     setValue(VALUE_CONVERTER, new DefaultValueConverter());
   }
 
@@ -227,6 +234,14 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   public ValueConverter getValueConverter() {
     return getValue(VALUE_CONVERTER);
+  }
+
+  protected AggregatingTypeConverterProvider getTypeConverterProviderImpl() {
+    return getValue(TYPE_CONVERTER_PROVIDER);
+  }
+
+  public TypeConverterProvider getTypeConverterProvider() {
+    return getTypeConverterProviderImpl();
   }
 
 }

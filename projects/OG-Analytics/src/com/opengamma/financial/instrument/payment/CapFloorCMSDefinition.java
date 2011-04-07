@@ -23,7 +23,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a caplet/floorlet on CMS rate.
+ * Class describing a caplet/floorlet on CMS rate. The notional is positive for long the option and negative for short the option.
  */
 public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFloor {
 

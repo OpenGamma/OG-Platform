@@ -18,19 +18,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class describing a present value sensitivity.
+ * Class describing a present value curve sensitivity.
  */
 public class PresentValueSensitivity {
 
   /**
-   * The map containing the sensitivity.
+   * The map containing the sensitivity. The map linked the curve (String) to a list of pairs (cash flow time, sensitivity value).
    */
   private final Map<String, List<DoublesPair>> _sensitivity;
-
-  //  /**
-  //   * Maximum comparison in time comparison.
-  //   */
-  //  private final double _eps = 1E-10;
 
   /**
    * Constructor from a map of sensitivity.
@@ -99,7 +94,7 @@ public class PresentValueSensitivity {
   }
 
   /**
-   * Clean a sensitivity by sorting the times and adding the duplicate times.
+   * Return a clean sensitivity by sorting the times and adding the duplicate times.
    * @return The cleaned sensitivity.
    */
   public PresentValueSensitivity clean() {

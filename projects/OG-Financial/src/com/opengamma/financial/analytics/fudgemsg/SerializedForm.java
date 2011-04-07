@@ -7,13 +7,13 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeTypeDictionary;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectBuilder;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.types.IndicatorType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.serialization.InvokedSerializedForm;
@@ -70,7 +70,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
           }
         } else {
           switch (field.getType().getTypeId()) {
-            case FudgeTypeDictionary.FUDGE_MSG_TYPE_ID: {
+            case FudgeWireType.SUB_MESSAGE_TYPE_ID: {
               if (method != null) {
                 throw new IllegalStateException("Parameters already set from " + method);
               }
@@ -83,7 +83,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
               }
               break;
             }
-            case FudgeTypeDictionary.INDICATOR_TYPE_ID:
+            case FudgeWireType.INDICATOR_TYPE_ID:
               method = field.getName();
               break;
           }

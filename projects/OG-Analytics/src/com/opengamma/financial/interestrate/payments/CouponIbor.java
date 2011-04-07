@@ -118,8 +118,8 @@ public class CouponIbor extends CouponFloating {
 
   @Override
   public String toString() {
-    return super.toString() + ", fixing start = " + _fixingPeriodStartTime + ", fixing end = " + _fixingPeriodEndTime + ", fixing year fraction = " + _fixingYearFraction + ", spread = " + _spread
-        + ", forward curve = " + _forwardCurveName;
+    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingYearFraction + "], spread = " + _spread + ", forward curve = "
+        + _forwardCurveName;
   }
 
   @Override

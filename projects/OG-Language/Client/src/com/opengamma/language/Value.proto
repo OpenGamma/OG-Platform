@@ -11,6 +11,8 @@ namespace com.opengamma.language {
    *
    * The meaning of given error values are specific to a language binding. It is also possible that the
    * error value is used in conjunction with other values to express further information about the error.
+   * Some error values are reserved for the standard built-in OpenGamma functions and the default
+   * infrastructure - these are in com/opengamma/language/errors/Constants.java
    */
   message Value {
     optional bool boolValue = 1;

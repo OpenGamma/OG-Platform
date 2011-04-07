@@ -132,7 +132,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -522,7 +522,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   protected ManageableTrade getTradeByInstants(final UniqueIdentifier uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getTradeByLatest {}", uniqueId);
-    final Instant now = Instant.now(getTimeSource());
+    final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("trade_oid", extractOid(uniqueId))
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))

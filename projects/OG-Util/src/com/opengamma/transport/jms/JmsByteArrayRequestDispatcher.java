@@ -20,19 +20,31 @@ import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * A request dispatcher that uses JMS.
+ * <p>
+ * This is a simple implementation based on JMS.
  */
 public class JmsByteArrayRequestDispatcher implements SessionAwareMessageListener<Message> {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayRequestDispatcher.class);
+
+  /**
+   * The underlying request receiver.
+   */
   private final ByteArrayRequestReceiver _underlying;
-  
-  public JmsByteArrayRequestDispatcher(ByteArrayRequestReceiver underlying) {
+
+  /**
+   * Creates an instance based on a request receiver.
+   * 
+   * @param underlying  the underlying request receiver, not null
+   */
+  public JmsByteArrayRequestDispatcher(final ByteArrayRequestReceiver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * @return the underlying
    */
@@ -40,18 +52,19 @@ public class JmsByteArrayRequestDispatcher implements SessionAwareMessageListene
     return _underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void onMessage(Message message, Session session) throws JMSException {
-    Destination replyTo = message.getJMSReplyTo();
+  public void onMessage(final Message message, final Session session) throws JMSException {
+    final Destination replyTo = message.getJMSReplyTo();
     if (replyTo == null) {
       throw new IllegalArgumentException("No JMSReplyTo destination set.");
     }
-    byte[] requestBytes = JmsByteArrayHelper.extractBytes(message);
+    final byte[] requestBytes = JmsByteArrayHelper.extractBytes(message);
     s_logger.debug("Dispatching request {} of size {} to underlying", message.getJMSMessageID(), requestBytes.length);
-    byte[] responseBytes = getUnderlying().requestReceived(requestBytes);
+    final byte[] responseBytes = getUnderlying().requestReceived(requestBytes);
     s_logger.debug("Returning response of size {} to {}", responseBytes.length, replyTo);
-    MessageProducer mp = session.createProducer(replyTo);
-    BytesMessage bytesMessage = session.createBytesMessage();
+    final MessageProducer mp = session.createProducer(replyTo);
+    final BytesMessage bytesMessage = session.createBytesMessage();
     bytesMessage.writeBytes(responseBytes);
     bytesMessage.setJMSCorrelationID(message.getJMSMessageID());
     mp.send(bytesMessage);

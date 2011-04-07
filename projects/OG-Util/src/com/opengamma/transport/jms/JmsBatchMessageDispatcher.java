@@ -18,37 +18,58 @@ import org.springframework.jms.core.JmsTemplate;
 import com.opengamma.transport.AbstractBatchMessageDispatcher;
 
 /**
- * 
- *
- * @author kirk
+ * A batch message dispatcher that uses JMS.
+ * <p>
+ * This is a simple implementation based on JMS.
  */
 public class JmsBatchMessageDispatcher extends AbstractBatchMessageDispatcher {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsBatchMessageDispatcher.class);
+
+  /**
+   * The byte array source.
+   */
   private final JmsByteArraySource _jmsSource;
-  
-  public JmsBatchMessageDispatcher(JmsTemplate jmsTemplate) {
+
+  /**
+   * Creates an instance wrapping a JMS source.
+   * 
+   * @param jmsTemplate  the JMS template, not null
+   */
+  public JmsBatchMessageDispatcher(final JmsTemplate jmsTemplate) {
     this(new JmsByteArraySource(jmsTemplate));
-  }
-  
-  protected JmsBatchMessageDispatcher(JmsByteArraySource jmsSource) {
-    super(jmsSource);
-    _jmsSource = jmsSource;
   }
 
   /**
+   * Creates an instance using the wrapped queue.
+   * 
+   * @param source  the byte array source, not null
+   */
+  protected JmsBatchMessageDispatcher(final JmsByteArraySource source) {
+    super(source);
+    _jmsSource = source;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the JMS source.
+   * 
    * @return the jmsSource
    */
   public JmsByteArraySource getJmsSource() {
     return _jmsSource;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  protected void dispatchMessages(List<byte[]> messages) {
+  protected void dispatchMessages(final List<byte[]> messages) {
     super.dispatchMessages(messages);
-    switch(getJmsSource().getJmsTemplate().getSessionAcknowledgeMode()) {
+    
+    switch (getJmsSource().getJmsTemplate().getSessionAcknowledgeMode()) {
       case Session.AUTO_ACKNOWLEDGE:
       case Session.DUPS_OK_ACKNOWLEDGE:
-        // Do nothing.
+        // do nothing
         return;
       default:
         acknowledgeMessageBatch();
@@ -56,14 +77,14 @@ public class JmsBatchMessageDispatcher extends AbstractBatchMessageDispatcher {
   }
 
   /**
-   * 
+   * Calls the JMS acknowledge API, catching the exception.
    */
   private void acknowledgeMessageBatch() {
     for (Message message : getJmsSource().getLastMessageBatch()) {
       try {
         message.acknowledge();
-      } catch (JMSException e) {
-        s_logger.warn("Unable to acknowledge message", e);
+      } catch (JMSException ex) {
+        s_logger.warn("Unable to acknowledge message", ex);
       }
     }
   }

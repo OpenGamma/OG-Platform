@@ -32,6 +32,7 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -85,10 +86,16 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     out.put("type", type);
         
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      ConfigSearchResult<Object> searchResult = data().getConfigMaster().search(searchRequest);
+      ConfigSearchResult<Object> searchResult = null;
+      if (searchRequest.getType() != null) {
+        searchResult = data().getConfigMaster().search(searchRequest);
+      } else {
+        searchResult = new ConfigSearchResult<Object>();
+        searchResult.setPaging(Paging.of(searchResult.getDocuments(), searchRequest.getPagingRequest()));
+      }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
-    }
+    } 
     return out;
   }
   

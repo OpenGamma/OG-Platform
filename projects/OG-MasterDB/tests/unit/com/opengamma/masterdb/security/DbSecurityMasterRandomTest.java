@@ -45,7 +45,7 @@ public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCa
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     DbSecurityMaster secMaster = (DbSecurityMaster) context.getBean(getDatabaseType() + "DbSecurityMaster");
     s_logger.debug("SecMaster initialization complete {}", secMaster);
-    _testCase = new SecurityMasterTestCase(secMaster) {};
+    _testCase = new SecurityMasterTestCase(secMaster);
   }
 
   /**

@@ -39,7 +39,7 @@ public class PortfolioImplTest {
     assertEquals("Name", test.getName());
     assertEquals(true, PortfolioNodeImpl.class.isAssignableFrom(test.getRootNode().getClass()));
     assertEquals(0, test.getRootNode().size());
-    assertEquals("Portfolio[Scheme::Id]", test.toString());
+    assertEquals("Portfolio[Scheme~Id]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -59,7 +59,7 @@ public class PortfolioImplTest {
     assertEquals(id("Scheme", "Id"), test.getUniqueId());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() == root);
-    assertEquals("Portfolio[Scheme::Id]", test.toString());
+    assertEquals("Portfolio[Scheme~Id]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)

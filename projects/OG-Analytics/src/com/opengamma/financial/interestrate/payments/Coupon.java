@@ -51,7 +51,7 @@ public class Coupon extends Payment {
 
   @Override
   public String toString() {
-    return "Coupon : currency = " + getCurrency() + ", time = " + getPaymentTime() + ", yearFraction = " + getPaymentYearFraction() + ", notional = " + _notional;
+    return super.toString() + ", year fraction = " + getPaymentYearFraction() + ", notional = " + _notional;
   }
 
   @Override

@@ -23,36 +23,74 @@ import org.springframework.jms.core.MessageCreator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A service to receive messages (byte arrays) and publish them to a JMS destination asynchronously
- * as ExecutorService jobs.
+ * A service to receive messages (byte arrays) and publish them to a
+ * JMS destination asynchronously as {@code ExecutorService} jobs.
  */
 public class JmsByteArrayMessageSenderService {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSenderService.class);
 
+  /**
+   * The executor in use.
+   */
   // Is one thread best? Does the JMS layer allow concurrent publishing? Is an I/O bound task going to benefit from concurrency? 
   private static final ExecutorService s_executor = Executors.newSingleThreadExecutor();
 
+  /**
+   * The JMS template.
+   */
   private final JmsTemplate _jmsTemplate;
+  /**
+   * The queued data.
+   */
   private final ConcurrentMap<String, byte[]> _queuedData;
 
+  /**
+   * Creates an insatnce based on a JMS template.
+   * 
+   * @param jmsTemplate  the JMS template, not null
+   */
   public JmsByteArrayMessageSenderService(final JmsTemplate jmsTemplate) {
     _jmsTemplate = jmsTemplate;
     _queuedData = new ConcurrentHashMap<String, byte[]>();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the JMS template.
+   * 
+   * @return the template, not null
+   */
   protected JmsTemplate getJmsTemplate() {
     return _jmsTemplate;
   }
 
+  /**
+   * Gets the executor.
+   * 
+   * @return the executor, not null
+   */
   protected ExecutorService getExecutor() {
     return s_executor;
   }
 
+  /**
+   * Gets the queued data.
+   * 
+   * @return the queued data, not null
+   */
   protected ConcurrentMap<String, byte[]> getQueuedData() {
     return _queuedData;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Posts the message.
+   * 
+   * @param destinationName  the JMS destination name, not null
+   * @param message  the message as a byte array, not null
+   */
   protected void postMessage(final String destinationName, final byte[] message) {
     ArgumentChecker.notNull(message, "message");
     s_logger.debug("posting message size {} to {}", message.length, destinationName);
@@ -66,7 +104,7 @@ public class JmsByteArrayMessageSenderService {
           getJmsTemplate().send(destinationName, new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException {
-              BytesMessage bytesMessage = session.createBytesMessage();
+              final BytesMessage bytesMessage = session.createBytesMessage();
               bytesMessage.writeBytes(message);
               return bytesMessage;
             }
@@ -79,6 +117,14 @@ public class JmsByteArrayMessageSenderService {
     }
   }
 
+  /**
+   * Gets the message sender instance.
+   * <p>
+   * The sender allows a byte array to be sent to the destination.
+   * 
+   * @param destinationName  the JMS destination name, not null
+   * @return the sender instance, not null
+   */
   public JmsByteArrayMessageSender getMessageSender(final String destinationName) {
     ArgumentChecker.notNull(destinationName, "destinationName");
     return new JmsByteArrayMessageSender(destinationName, getJmsTemplate()) {

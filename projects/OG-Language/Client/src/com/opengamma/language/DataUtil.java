@@ -75,4 +75,92 @@ public final class DataUtil {
     return data;
   }
 
+  /**
+   * Displayable form of the Data object.
+   * 
+   * @param data the object to convert to a string
+   * @param quoted {@code true} to put quote marks around strings and escape them, {@code false} otherwise
+   * @return the displayable string
+   */
+  public static String toString(final Data data, final boolean quoted) {
+    if (data.getSingle() != null) {
+      return ValueUtil.toString(data.getSingle(), quoted);
+    } else if (data.getLinear() != null) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append('[');
+      for (int i = 0; i < data.getLinear().length; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append(ValueUtil.toString(data.getLinear()[i], quoted));
+      }
+      sb.append(']');
+      return sb.toString();
+    } else if (data.getMatrix() != null) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append('[');
+      for (int i = 0; i < data.getMatrix().length; i++) {
+        if (i > 0) {
+          sb.append(", ");
+        }
+        sb.append('[');
+        for (int j = 0; j < data.getMatrix()[i].length; j++) {
+          if (j > 0) {
+            sb.append(", ");
+          }
+          sb.append(ValueUtil.toString(data.getMatrix()[i][j], quoted));
+        }
+        sb.append(']');
+      }
+      sb.append(']');
+      return sb.toString();
+    } else {
+      return "Data";
+    }
+  }
+
+  public static Value toValue(final Data data) {
+    if (data.getSingle() != null) {
+      return data.getSingle();
+    } else if (data.getLinear() != null) {
+      if (data.getLinear().length > 0) {
+        return data.getLinear()[0];
+      } else {
+        return null;
+      }
+    } else if (data.getMatrix() != null) {
+      if (data.getMatrix().length > 0) {
+        if (data.getMatrix()[0].length > 0) {
+          return data.getMatrix()[0][0];
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  public static Boolean toBool(final Data data) {
+    return ValueUtil.toBool(toValue(data));
+  }
+
+  public static Double toDouble(final Data data) {
+    return ValueUtil.toDouble(toValue(data));
+  }
+
+  public static Integer toError(final Data data) {
+    return ValueUtil.toError(toValue(data));
+  }
+
+  public static Integer toInt(final Data data) {
+    return ValueUtil.toInt(toValue(data));
+  }
+
+  public static FudgeMsg toMessage(final Data data) {
+    return ValueUtil.toMessage(toValue(data));
+  }
+
 }
