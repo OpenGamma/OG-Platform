@@ -12,6 +12,12 @@ repository/
 ivy/
 bootstrap/
 tests/output/
-docs/
+javadoc
 lib/
 .idea/
+.DS_Store
+*.sw*
+logs/
+artifacts/
+output/
+output-long/

@@ -14,6 +14,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -298,6 +299,16 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitCapFloorCMS(CapFloorCMS payment) {
       return visit(payment);
+    }
+
+    @Override
+    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond, Object data) {
+      return visit(bond, data);
+    }
+
+    @Override
+    public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond) {
+      return visit(bond);
     }
   };
 

@@ -225,7 +225,7 @@ public class CapFloorCMSReplicationSABRMethod {
     private final boolean _isCall;
 
     /**
-     * 
+     * Constructor
      */
     public CMSIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameter sabrParameter, double forward) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
@@ -489,18 +489,10 @@ public class CapFloorCMSReplicationSABRMethod {
     }
 
     /**
-     * The Black-Scholes formula with numeraire 1 as function of the strike.
+     * The Black-Scholes formula and its derivative with respect to the forward.
      * @param strike The strike.
-     * @return The Black-Scholes formula.
+     * @return The Black-Scholes formula and its derivative.
      */
-    double bs(double strike) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
-      BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
-      return func.evaluate(dataBlack);
-    }
-
     double[] bsbsp(double strike) {
       double[] result = new double[2];
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
