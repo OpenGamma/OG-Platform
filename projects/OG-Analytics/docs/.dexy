@@ -9,7 +9,6 @@
   "og*.tex|jinja|hd|ft|latex" : {
     "allinputs" : true
   },
-  "formulae.tex|idio|t" : {},
   "javadoc-data.json|javadocs" : {},
   "_*.html|dexy" : {},
   "_*.tex|dexy" : {},

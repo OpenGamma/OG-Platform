@@ -4,8 +4,6 @@ Ugly ugly "javadocs":jd
 
 Here are some PDFs...
 
-{% for k in s.keys() %}
-{% if k.startswith("og_") %}
+{% for k in s.keys() -%}{% if k.startswith("og_") -%}
 * "{{ k }}":{{ k }}
-{% endif %}
-{% endfor %}
+{% endif -%}{% endfor -%}

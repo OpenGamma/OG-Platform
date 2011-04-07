@@ -15,12 +15,6 @@
 
 {{ class_info['comment-text'] }}
 
-{% if d['sections']['formulae.tex|idio|t'].has_key(class_info['qualified-name']) %}
-{{ d['sections']['formulae.tex|idio|t'][class_info['qualified-name']] }}
-{% else %}
-<span style="color:red;border:thin solid red;">Add section ### @export "{{ class_info['qualified-name'] }}"</span>
-{% endif %}
-
 <h3>Constructors</h3>
 {% for constructor, constructor_info in class_info['constructors'].items() %}
 {% set sig_array = constructor_info['signature'].lstrip("(").rstrip(")").split(",") %}
