@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.annuity.definition;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
 
   /**
    * Flag indicating if the annuity is payer (true) or receiver (false). Deduced from the first non-zero amount; 
-   * if all amounts don't have the same sign, the flag can be incorrect.
+   * if all amounts don't have the same sign, the flag may be incorrect.
    */
   private final boolean _isPayer;
 
@@ -96,6 +97,21 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
    */
   public boolean isPayer() {
     return _isPayer;
+  }
+
+  /**
+   * Remove the payments paying on or before the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  public GenericAnnuity<P> trimBefore(double trimTime) {
+    List<P> list = new ArrayList<P>();
+    for (P payment : _payments) {
+      if (payment.getPaymentTime() > trimTime) {
+        list.add(payment);
+      }
+    }
+    return new GenericAnnuity<P>(list.toArray(_payments));
   }
 
   @Override

@@ -81,8 +81,6 @@ public class CouponCMSTest {
   private static final double NOTIONAL = 1000000; //1m
   private static final CouponCMSDefinition CMS_COUPON_RECEIVER_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
       SWAP_DEFINITION, CMS_INDEX);
-  private static final CouponCMSDefinition CMS_COUPON_PAYER_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, -NOTIONAL, FIXING_DATE,
-      SWAP_DEFINITION, CMS_INDEX);
   // to derivatives
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
@@ -91,7 +89,6 @@ public class CouponCMSTest {
   private static final FixedCouponSwap<Payment> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CouponCMS CMS_COUPON_RECEIVER = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final CouponCMS CMS_COUPON_PAYER = (CouponCMS) CMS_COUPON_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   // Calculators
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
