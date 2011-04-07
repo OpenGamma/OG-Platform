@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -25,21 +25,21 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 public class TimeSeriesMetaDataConfigurationBuilder implements FudgeBuilder<TimeSeriesMetaDataConfiguration> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final TimeSeriesMetaDataConfiguration object) {
-    MutableFudgeFieldContainer message = context.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final TimeSeriesMetaDataConfiguration object) {
+    MutableFudgeMsg message = context.newMessage();
     for (TimeSeriesMetaDataRating rule : object.getRules()) {
 //      message.add("rule", context.objectToFudgeMsg(rule));
-      context.objectToFudgeMsg(message, "rules", null, rule);
+      context.addToMessage(message, "rules", null, rule);
     }
     return message;
   }
 
   @Override
-  public TimeSeriesMetaDataConfiguration buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  public TimeSeriesMetaDataConfiguration buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
     Collection<FudgeField> fields = message.getAllByName("rules");
     final List<TimeSeriesMetaDataRating> rules = new ArrayList<TimeSeriesMetaDataRating>(fields.size());
     for (FudgeField field : fields) {
-      TimeSeriesMetaDataRating rule = context.fudgeMsgToObject(TimeSeriesMetaDataRating.class, (FudgeFieldContainer) field.getValue());
+      TimeSeriesMetaDataRating rule = context.fudgeMsgToObject(TimeSeriesMetaDataRating.class, (FudgeMsg) field.getValue());
       rules.add(rule);
     }
     return new TimeSeriesMetaDataConfiguration(rules);

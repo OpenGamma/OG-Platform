@@ -129,16 +129,36 @@ public class SABRInterestRateParameter {
 
   /**
    * Return the volatility for a expiry/maturity pair, a strike and a forward rate.
-   * @param expiryMaturity The expiry/maturity pair.
+   * @param expiryTime Time to expiry.
+   * @param maturity Tenor.
    * @param strike The strike.
    * @param forward The forward.
    * @return The volatility.
    */
-  public double getVolatility(DoublesPair expiryMaturity, double strike, double forward) {
-    SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryMaturity.first, true);
+  public double getVolatility(double expiryTime, double maturity, double strike, double forward) {
+    DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option);
     return funcSabrLongPayer.evaluate(data);
+  }
+
+  /**
+   * Return the Black implied volatility in the SABR model and its derivatives when the SABR function is Hagan function.
+   * @param expiryTime Time to expiry.
+   * @param maturity Tenor.
+   * @param strike The strike.
+   * @param forward The forward.
+   * @return The volatility and its derivative. An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, 
+   * [3] the derivative w.r.t. to alpha, [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu.
+   */
+  public double[] getVolatilityAdjoint(double expiryTime, double maturity, double strike, double forward) {
+    Validate.isTrue(_sabrFunction instanceof SABRHaganVolatilityFunction, "Adjoint volatility available only for Hagan formula");
+    SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
+    DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    SABRFormulaData data = new SABRFormulaData(forward, getAlpha(expiryMaturity), getBeta(expiryMaturity), getNu(expiryMaturity), getRho(expiryMaturity));
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
+    return sabrHaganFunction.getVolatilityAdjoint(option, data);
   }
 
 }

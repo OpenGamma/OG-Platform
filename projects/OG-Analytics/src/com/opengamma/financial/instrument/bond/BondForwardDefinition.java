@@ -24,6 +24,7 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -48,6 +49,14 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
     final double coupon = underlyingBond.getCoupons()[0]; //TODO not necessarily - coupons might not be equal (unlikely but should be tested for)
     _accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), coupon,
         _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays());
+  }
+
+  /**
+   * Gets the bond currency.
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return _underlyingBond.getCurrency();
   }
 
   public BondDefinition getUnderlyingBond() {
@@ -118,7 +127,7 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
         }
         couponDateWithZone = couponDate.atMidnight().atZone(TimeZone.UTC);
         final double period = repoDaycount.getDayCountFraction(couponDateWithZone, dateWithZone);
-        expiredCoupons.add(new CouponFixed(period, yieldCurveNames[0], timeBetweenPeriods, notional, coupons[i]));
+        expiredCoupons.add(new CouponFixed(_underlyingBond.getCurrency(), period, yieldCurveNames[0], timeBetweenPeriods, notional, coupons[i]));
       }
       i++;
     }

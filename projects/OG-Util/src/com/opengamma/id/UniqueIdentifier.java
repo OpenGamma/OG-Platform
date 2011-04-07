@@ -10,9 +10,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -38,8 +38,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * Real-world examples of {@code UniqueIdentifier} include instances of:
  * <ul>
- * <li>Database key - DbSec::123456::1</li>
- * <li>In memory key - MemSec::123456::234</li>
+ * <li>Database key - DbSec~123456~1</li>
+ * <li>In memory key - MemSec~123456~234</li>
  * </ul>
  * <p>
  * This class is immutable and thread-safe.
@@ -47,6 +47,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class UniqueIdentifier
     implements Comparable<UniqueIdentifier>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Fudge message key for the scheme.
@@ -113,7 +116,7 @@ public final class UniqueIdentifier
    * Obtains an identifier from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>::<VERSION>}.
+   * which is {@code <SCHEME>~<VALUE>~<VERSION>}.
    * 
    * @param uidStr  the identifier to parse, not null
    * @return the identifier, not null
@@ -121,7 +124,8 @@ public final class UniqueIdentifier
    */
   public static UniqueIdentifier parse(String uidStr) {
     ArgumentChecker.notEmpty(uidStr, "uidStr");
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uidStr, "::");
+    uidStr = StringUtils.replace(uidStr, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(uidStr, "~");
     switch (split.length) {
       case 2:
         return UniqueIdentifier.of(split[0], split[1], null);
@@ -353,7 +357,7 @@ public final class UniqueIdentifier
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>::<VERSION>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>~<VERSION>}.
    * <p>
    * If the version is null, the identifier will omit the colons and version.
    * 
@@ -362,9 +366,9 @@ public final class UniqueIdentifier
   @Override
   public String toString() {
     StrBuilder buf = new StrBuilder()
-        .append(_scheme).append(':').append(':').append(_value);
+        .append(_scheme).append('~').append(_value);
     if (_version != null) {
-      buf.append(':').append(':').append(_version);
+      buf.append('~').append(_version);
     }
     return buf.toString();
   }
@@ -379,7 +383,7 @@ public final class UniqueIdentifier
    * @param msg the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(msg, "msg");
     msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
@@ -398,7 +402,7 @@ public final class UniqueIdentifier
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -410,7 +414,7 @@ public final class UniqueIdentifier
    * @param msg the Fudge message, not {@code null}
    * @return the unique identifier
    */
-  public static UniqueIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
+  public static UniqueIdentifier fromFudgeMsg(FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     String version = msg.getString(VERSION_FUDGE_FIELD_NAME);

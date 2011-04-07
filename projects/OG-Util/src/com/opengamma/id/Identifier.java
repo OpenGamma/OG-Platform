@@ -8,9 +8,10 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.apache.commons.lang.StringUtils;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -38,6 +39,9 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public final class Identifier implements Identifiable, Comparable<Identifier>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Fudge message key for the scheme.
@@ -83,18 +87,20 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * Parses an {@code Identifier} from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>}.
+   * which is {@code <SCHEME>~<VALUE>}.
    * 
    * @param str  the identifier to parse, not null
    * @return the identifier, not null
    * @throws IllegalArgumentException if the identifier cannot be parsed
    */
   public static Identifier parse(String str) {
-    int pos = str.indexOf("::");
+    ArgumentChecker.notEmpty(str, "str");
+    str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    int pos = str.indexOf("~");
     if (pos < 0) {
       throw new IllegalArgumentException("Invalid identifier format: " + str);
     }
-    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
+    return new Identifier(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 1));
   }
 
   /**
@@ -230,13 +236,13 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>}.
    * 
    * @return the identifier, not null
    */
   @Override
   public String toString() {
-    return _scheme.getName() + "::" + _value;
+    return _scheme.getName() + "~" + _value;
   }
 
   //-------------------------------------------------------------------------
@@ -249,7 +255,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     message.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
@@ -264,7 +270,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -275,7 +281,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
    * @param msg the Fudge message, not {@code null}
    * @return the identifier
    */
-  public static Identifier fromFudgeMsg(FudgeFieldContainer msg) {
+  public static Identifier fromFudgeMsg(FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return Identifier.of(scheme, value);

@@ -69,6 +69,81 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     };
   }
 
+  /**
+   * Return the Black implied volatility in the SABR model and its derivatives.
+   * @param option The option.
+   * @param data The Black data.
+   * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
+   * [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu
+   */
+  public double[] getVolatilityAdjoint(final EuropeanVanillaOption option, final SABRFormulaData data) {
+    /**
+     * The array storing the price and derivatives.
+     */
+    double[] volatilityAdjoint = new double[6];
+
+    final double strike = option.getStrike();
+    final double timeToExpiry = option.getTimeToExpiry();
+    final double alpha = data.getAlpha();
+    final double beta = data.getBeta();
+    final double rho = data.getRho();
+    final double nu = data.getNu();
+    final double forward = data.getForward();
+
+    // Implementation note: Forward sweep.
+    double sfK = Math.pow(forward * strike, (1 - beta) / 2);
+    double lnrfK = Math.log(forward / strike);
+    double z = nu / alpha * sfK * lnrfK;
+    double rzxz;
+    double xz = 0;
+    if (Math.abs(forward - strike) < 1E-7) {
+      rzxz = 1 - rho * z / 2; // order 1
+    } else {
+      xz = Math.log((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) / (1 - rho));
+      rzxz = z / xz;
+    }
+    double sf1 = sfK * (1 + (1 - beta) * (1 - beta) / 24 * (lnrfK * lnrfK) + Math.pow(1 - beta, 4) / 1920 * Math.pow(lnrfK, 4));
+    double sf2 = (1 + (Math.pow((1 - beta) * alpha / sfK, 2) / 24 + (rho * beta * nu * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
+    volatilityAdjoint[0] = alpha / sf1 * rzxz * sf2;
+
+    // Implementation note: Backward sweep.
+    double vBar = 1;
+    double sf2Bar = alpha / sf1 * rzxz * vBar;
+    double sf1Bar = -alpha / (sf1 * sf1) * rzxz * sf2 * vBar;
+    double rzxzBar = alpha / sf1 * sf2 * vBar;
+    double zBar;
+    double xzBar = 0;
+    if (Math.abs(forward - strike) < 1E-7) {
+      zBar = -rho / 2 * rzxzBar;
+    } else {
+      xzBar = -z / (xz * xz) * rzxzBar;
+      zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) * (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
+    }
+    double lnrfKBar = sfK * ((1 - beta) * (1 - beta) / 12 * lnrfK + Math.pow(1 - beta, 4) / 1920 * 4 * Math.pow(lnrfK, 3)) * sf1Bar + nu / alpha * sfK * zBar;
+    double sfKBar = nu / alpha * lnrfK * zBar + (1 + (1 - beta) * (1 - beta) / 24 * lnrfK * lnrfK + Math.pow(1 - beta, 4) / 1920 * Math.pow(lnrfK, 4)) * sf1Bar
+        + (-Math.pow((1 - beta) * alpha, 2) / Math.pow(sfK, 3) / 12 - (rho * beta * nu * alpha) / 4 / (sfK * sfK)) * timeToExpiry * sf2Bar;
+    double strikeBar = -1 / strike * lnrfKBar + (1 - beta) * sfK / (2 * strike) * sfKBar;
+    double forwardBar = 1 / forward * lnrfKBar + (1 - beta) * sfK / (2 * forward) * sfKBar;
+    double nuBar = 1 / alpha * sfK * lnrfK * zBar + ((rho * beta * alpha) / (4 * sfK) + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
+    double rhoBar;
+    if (Math.abs(forward - strike) < 1E-7) {
+      rhoBar = -z / 2 * rzxzBar;
+    } else {
+      rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / (1 - rho)) * xzBar;
+    }
+    rhoBar += ((beta * nu * alpha) / (4 * sfK) - rho * nu * nu / 4) * timeToExpiry * sf2Bar;
+
+    double alphaBar = -nu / (alpha * alpha) * sfK * lnrfK * zBar + (((1 - beta) * alpha / sfK) * ((1 - beta) / sfK) / 12 + (rho * beta * nu) / (4 * sfK)) * timeToExpiry * sf2Bar + 1 / sf1 * rzxz
+        * sf2 * vBar;
+    volatilityAdjoint[1] = forwardBar;
+    volatilityAdjoint[2] = strikeBar;
+    volatilityAdjoint[3] = alphaBar;
+    volatilityAdjoint[4] = rhoBar;
+    volatilityAdjoint[5] = nuBar;
+
+    return volatilityAdjoint;
+  }
+
   private double getZOverChi(final double rho, final double z) {
 
     if (CompareUtils.closeEquals(z, 0.0, EPS)) {

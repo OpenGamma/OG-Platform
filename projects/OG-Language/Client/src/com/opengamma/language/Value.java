@@ -1,10 +1,10 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/Value.proto:15(10)
+// Created from com/opengamma/language/Value.proto:17(10)
 package com.opengamma.language;
 public class Value implements java.io.Serializable {
-  private static final long serialVersionUID = -3384801225834293009l;
+  private static final long serialVersionUID = -3384800892304866449l;
   private Boolean _boolValue;
   public static final int BOOL_VALUE_ORDINAL = 1;
   private Integer _intValue;
@@ -13,13 +13,13 @@ public class Value implements java.io.Serializable {
   public static final int DOUBLE_VALUE_ORDINAL = 3;
   private String _stringValue;
   public static final int STRING_VALUE_ORDINAL = 4;
-  private org.fudgemsg.FudgeFieldContainer _messageValue;
+  private org.fudgemsg.FudgeMsg _messageValue;
   public static final int MESSAGE_VALUE_ORDINAL = 5;
   private Integer _errorValue;
   public static final int ERROR_VALUE_ORDINAL = 6;
   public Value () {
   }
-  protected Value (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Value (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (BOOL_VALUE_ORDINAL);
     if (fudgeField != null)  {
@@ -60,8 +60,8 @@ public class Value implements java.io.Serializable {
     fudgeField = fudgeMsg.getByOrdinal (MESSAGE_VALUE_ORDINAL);
     if (fudgeField != null)  {
       try {
-        final org.fudgemsg.FudgeFieldContainer fudge1;
-        fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField);
+        final org.fudgemsg.FudgeMsg fudge1;
+        fudge1 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField);
         setMessageValue (fudge1);
       }
       catch (IllegalArgumentException e) {
@@ -78,7 +78,7 @@ public class Value implements java.io.Serializable {
       }
     }
   }
-  public Value (Boolean boolValue, Integer intValue, Double doubleValue, String stringValue, org.fudgemsg.FudgeFieldContainer messageValue, Integer errorValue) {
+  public Value (Boolean boolValue, Integer intValue, Double doubleValue, String stringValue, org.fudgemsg.FudgeMsg messageValue, Integer errorValue) {
     _boolValue = boolValue;
     _intValue = intValue;
     _doubleValue = doubleValue;
@@ -98,13 +98,13 @@ public class Value implements java.io.Serializable {
   public Value clone () {
     return new Value (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_boolValue != null)  {
       msg.add (null, BOOL_VALUE_ORDINAL, _boolValue);
     }
@@ -118,19 +118,19 @@ public class Value implements java.io.Serializable {
       msg.add (null, STRING_VALUE_ORDINAL, _stringValue);
     }
     if (_messageValue != null)  {
-      msg.add (null, MESSAGE_VALUE_ORDINAL, (_messageValue instanceof org.fudgemsg.ImmutableFudgeFieldContainer) ? _messageValue : fudgeContext.newMessage (_messageValue));
+      msg.add (null, MESSAGE_VALUE_ORDINAL, (_messageValue instanceof org.fudgemsg.MutableFudgeMsg) ? fudgeContext.newMessage (_messageValue) : _messageValue);
     }
     if (_errorValue != null)  {
       msg.add (null, ERROR_VALUE_ORDINAL, _errorValue);
     }
   }
-  public static Value fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Value fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.Value".equals (className)) break;
       try {
-        return (com.opengamma.language.Value)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.Value)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
@@ -162,10 +162,10 @@ public class Value implements java.io.Serializable {
   public void setStringValue (String stringValue) {
     _stringValue = stringValue;
   }
-  public org.fudgemsg.FudgeFieldContainer getMessageValue () {
+  public org.fudgemsg.FudgeMsg getMessageValue () {
     return _messageValue;
   }
-  public void setMessageValue (org.fudgemsg.FudgeFieldContainer messageValue) {
+  public void setMessageValue (org.fudgemsg.FudgeMsg messageValue) {
     _messageValue = messageValue;
   }
   public Integer getErrorValue () {

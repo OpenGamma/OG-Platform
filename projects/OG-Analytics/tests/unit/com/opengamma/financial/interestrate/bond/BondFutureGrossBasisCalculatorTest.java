@@ -5,13 +5,16 @@
  */
 package com.opengamma.financial.interestrate.bond;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import org.testng.annotations.Test;
+
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -19,8 +22,9 @@ import com.opengamma.financial.interestrate.future.definition.BondFutureDelivera
 public class BondFutureGrossBasisCalculatorTest {
   private static final BondFutureGrossBasisCalculator CALCULATOR = BondFutureGrossBasisCalculator.getInstance();
   private static final String NAME = "A";
-  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(new double[] {1, 2, 3}, 0.05, NAME), 0.1, 0, 0),
-      new BondForward(new Bond(new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.1, 0, 0.04), new BondForward(new Bond(new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.2, 0, 1)};
+  private static final Currency CUR = Currency.USD;
+  private static final BondForward[] DELIVERABLES = new BondForward[] {new BondForward(new Bond(CUR, new double[] {1, 2, 3}, 0.05, NAME), 0.1, 0, 0),
+      new BondForward(new Bond(CUR, new double[] {1, 2, 3, 4, 5, 6}, 0.06, NAME), 0.1, 0, 0.04), new BondForward(new Bond(CUR, new double[] {1, 2, 3, 4, 5}, 0.045, NAME), 0.2, 0, 1)};
   private static final double[] CONVERSION_FACTORS = new double[] {0.123, 0.456, 0.789};
   private static final double[] CLEAN_PRICES = new double[] {97., 98., 99.};
   private static final double[] REPO_RATES = new double[] {0.03, 0.02, 0.03};

@@ -20,7 +20,7 @@ public class Result extends com.opengamma.language.connector.Function implements
       _result = fudge0;
     }
   }
-  protected Result (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Result (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
     fudgeFields = fudgeMsg.getAllByName (RESULT_KEY);
@@ -29,7 +29,7 @@ public class Result extends com.opengamma.language.connector.Function implements
     for (org.fudgemsg.FudgeField fudge1 : fudgeFields) {
       try {
         final com.opengamma.language.Data fudge2;
-        fudge2 = com.opengamma.language.Data.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge1));
+        fudge2 = com.opengamma.language.Data.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge1));
         _result.add (fudge2);
       }
       catch (IllegalArgumentException e) {
@@ -53,29 +53,29 @@ public class Result extends com.opengamma.language.connector.Function implements
   public Result clone () {
     return new Result (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_result != null)  {
       for (com.opengamma.language.Data fudge1 : _result) {
-        final org.fudgemsg.MutableFudgeFieldContainer fudge2 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge1.getClass (), com.opengamma.language.Data.class);
+        final org.fudgemsg.MutableFudgeMsg fudge2 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), fudge1.getClass (), com.opengamma.language.Data.class);
         fudge1.toFudgeMsg (fudgeContext, fudge2);
         msg.add (RESULT_KEY, null, fudge2);
       }
     }
   }
-  public static Result fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Result fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.function.Result".equals (className)) break;
       try {
-        return (com.opengamma.language.function.Result)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.function.Result)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

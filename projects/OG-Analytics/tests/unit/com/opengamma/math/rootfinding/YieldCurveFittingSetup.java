@@ -48,6 +48,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -64,6 +65,7 @@ public abstract class YieldCurveFittingSetup {
   protected static final double EPS = 1e-8;
   /** Number of steps */
   protected static final int STEPS = 100;
+  private static final Currency CUR = Currency.USD;
 
   protected abstract Logger getLogger();
 
@@ -95,7 +97,7 @@ public abstract class YieldCurveFittingSetup {
     final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> unknownCurveInterpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
     final LinkedHashMap<String, double[]> unknownCurveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> unknownCurveNodeSensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
 
     for (int i = 0; i < n; i++) {
       unknownCurveInterpolators.put(curveNames.get(i), extrapolator);
@@ -279,9 +281,9 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(paymentTimes, 1.0, fundCurveName, fundCurveName, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, 
-        yearFracs, spreads, 1.0, fundCurveName, liborCurveName, false);
+    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, 1.0, fundCurveName, fundCurveName, true);
+    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, fundCurveName, liborCurveName,
+        false);
     return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
   }
 
@@ -315,9 +317,9 @@ public abstract class YieldCurveFittingSetup {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, rate, fundingCurveName, true);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(CUR, fixed, rate, fundingCurveName, true);
 
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(CUR, floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 
@@ -331,7 +333,7 @@ public abstract class YieldCurveFittingSetup {
     }
     final double accuredInterest = coupon * (0.5 - paymentTimes[0]);
 
-    return new Bond(paymentTimes, coupon, 0.5, accuredInterest, curveName);
+    return new Bond(CUR, paymentTimes, coupon, 0.5, accuredInterest, curveName);
   }
 
   protected void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double eps) {

@@ -15,10 +15,11 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.money.Currency;
 
 /**
- * A generic annuity is a set of payments (cash flows) at known future times. All payments have the same currency. All payments have the same sign or are 0.
- * There payments can be known in advance, or depend on the future value of  some (possibly several) indices, e.g. the future Libor
+ * A generic annuity is a set of payments (cash flows) at known future times. All payments have the same currency.
+ * There payments can be known in advance, or depend on the future value of some (possibly several) indices, e.g. the Libor.
  * @param <P> The payment type 
  */
 public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
@@ -34,13 +35,12 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0);
-    // TODO check currency
+    Currency currency0 = payments[0].getCurrency();
     double amount = payments[0].getReferenceAmount();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
-      //      Validate.isTrue(payments[loopcpn - 1].getReferenceAmount() * payments[loopcpn].getReferenceAmount() >= 0, "payments should all have the same sign");
+      Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
       amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount;
     }
-    //    Validate.isTrue(amount != 0, "at least one payment should be non-zero");
     _payments = payments;
     _isPayer = (amount < 0);
   }
@@ -60,6 +60,14 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
 
   public P getNthPayment(final int n) {
     return _payments[n];
+  }
+
+  /**
+   * Return the currency of the annuity. 
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _payments[0].getCurrency();
   }
 
   /**
@@ -88,6 +96,15 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
    */
   public boolean isPayer() {
     return _isPayer;
+  }
+
+  @Override
+  public String toString() {
+    String result = "Annuity:";
+    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
+      result += _payments[looppayment].toString();
+    }
+    return result;
   }
 
   @Override

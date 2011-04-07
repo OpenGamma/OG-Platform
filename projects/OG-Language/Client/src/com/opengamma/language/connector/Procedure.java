@@ -9,22 +9,22 @@ public abstract class Procedure extends com.opengamma.language.connector.UserMes
   private static final long serialVersionUID = 1l;
   public Procedure () {
   }
-  protected Procedure (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected Procedure (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
   }
   protected Procedure (final Procedure source) {
     super (source);
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
   }
-  public static Procedure fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static Procedure fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.connector.Procedure".equals (className)) break;
       try {
-        return (com.opengamma.language.connector.Procedure)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.connector.Procedure)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

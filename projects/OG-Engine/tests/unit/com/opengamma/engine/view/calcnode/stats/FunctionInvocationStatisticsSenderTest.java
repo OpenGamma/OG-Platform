@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.time.Duration;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class FunctionInvocationStatisticsSenderTest {
       }
 
       @Override
-      public void send(final FudgeFieldContainer message) {
+      public void send(final FudgeMsg message) {
         messages.incrementAndGet ();
         s_logger.debug ("Received {}", message);
         receiver.messageReceived(getFudgeContext (), new FudgeMsgEnvelope (message));

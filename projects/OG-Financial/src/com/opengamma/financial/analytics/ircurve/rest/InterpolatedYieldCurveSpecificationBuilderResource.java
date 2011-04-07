@@ -12,7 +12,7 @@ import javax.ws.rs.PathParam;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -49,8 +49,8 @@ public class InterpolatedYieldCurveSpecificationBuilderResource {
     final YieldCurveDefinition curveDefinition = dctx.fieldValueToObject(YieldCurveDefinition.class, payload.getMessage().getByName("definition"));
     final InterpolatedYieldCurveSpecification curveSpecification = getUnderlying().buildCurve(curveDate, curveDefinition);
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer msg = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(msg, "specification", null, curveSpecification, InterpolatedYieldCurveSpecification.class);
+    final MutableFudgeMsg msg = sctx.newMessage();
+    sctx.addToMessageWithClassHeaders(msg, "specification", null, curveSpecification, InterpolatedYieldCurveSpecification.class);
     return new FudgeMsgEnvelope(msg);
   }
 

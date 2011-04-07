@@ -5,9 +5,12 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+
 import org.testng.annotations.Test;
+
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -17,28 +20,29 @@ public class PaymentFixedTest {
   private static final double PAYMENT_TIME = 0.67;
   private static final double AMOUNT = 45.6;
   private static final String CURVE_NAME = "vfsmngsdjkflsadfk";
-  private static final PaymentFixed PAYMENT = new PaymentFixed(PAYMENT_TIME, AMOUNT, CURVE_NAME);
+  private static final Currency CUR = Currency.USD;
+  private static final PaymentFixed PAYMENT = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT, CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
-    new PaymentFixed(-1, AMOUNT, CURVE_NAME);
+    new PaymentFixed(CUR, -1, AMOUNT, CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
-    new PaymentFixed(PAYMENT_TIME, AMOUNT, null);
+    new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT, null);
   }
 
   @Test
   public void testHashCodeAndEquals() {
-    PaymentFixed other = new PaymentFixed(PAYMENT_TIME, AMOUNT, CURVE_NAME);
+    PaymentFixed other = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT, CURVE_NAME);
     assertEquals(other, PAYMENT);
     assertEquals(other.hashCode(), PAYMENT.hashCode());
-    other = new PaymentFixed(PAYMENT_TIME - 0.01, AMOUNT, CURVE_NAME);
+    other = new PaymentFixed(CUR, PAYMENT_TIME - 0.01, AMOUNT, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new PaymentFixed(PAYMENT_TIME, AMOUNT + 0.01, CURVE_NAME);
+    other = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT + 0.01, CURVE_NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new PaymentFixed(PAYMENT_TIME, AMOUNT, "hklhkldf");
+    other = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT, "hklhkldf");
     assertFalse(other.equals(PAYMENT));
   }
 

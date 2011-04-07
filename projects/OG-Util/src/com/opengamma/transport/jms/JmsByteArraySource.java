@@ -18,53 +18,74 @@ import com.opengamma.transport.ByteArraySource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * A byte array source for JMS.
+ * <p>
  * The {@code receiveTimeout} property on the supplied {@link JmsTemplate}
- * is completely ignored (and is actually changed dynamically by the
- * {@code JmsByteArraySource}).
+ * is completely ignored, being changed dynamically by this class.
  * The whole class is synchronized to ensure that the last message batch is maintained
  * properly, and use of the underlying {@link JmsTemplate} is handled properly.
- *
- * @author kirk
  */
 public class JmsByteArraySource implements ByteArraySource {
+
+  /**
+   * The underlying JMS template.
+   */
   private final JmsTemplate _jmsTemplate;
+  /**
+   * The last message batch.
+   */
   private final List<Message> _lastMessageBatch = Collections.synchronizedList(new ArrayList<Message>());
-  
-  public JmsByteArraySource(JmsTemplate jmsTemplate) {
+
+  /**
+   * Creates an instance wrapping a JMS template.
+   * 
+   * @param jmsTemplate  the JMS template, not null
+   */
+  public JmsByteArraySource(final JmsTemplate jmsTemplate) {
     ArgumentChecker.notNull(jmsTemplate, "jmsTemplate");
     _jmsTemplate = jmsTemplate;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the jmsTemplate
+   * Gets the underlying JMS template.
+   * 
+   * @return the underlying JMS template, not null
    */
   public JmsTemplate getJmsTemplate() {
     return _jmsTemplate;
   }
-  
+
+  /**
+   * Gets a copy of the last message batch.
+   * 
+   * @return the last batch, not null
+   */
   public List<Message> getLastMessageBatch() {
-    return new ArrayList<Message>(_lastMessageBatch);
+    synchronized (_lastMessageBatch) {  // need to sync as following line uses iterator
+      return new ArrayList<Message>(_lastMessageBatch);
+    }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public synchronized List<byte[]> batchReceive(long maxWaitInMilliseconds) {
+  public synchronized List<byte[]> batchReceive(final long maxWaitInMilliseconds) {
     getJmsTemplate().setReceiveTimeout(maxWaitInMilliseconds);
     Message message = getJmsTemplate().receive();
     if (message == null) {
       return Collections.emptyList();
     }
     _lastMessageBatch.clear();
-    List<byte[]> byteBatch = new LinkedList<byte[]>();
+    final List<byte[]> byteBatch = new LinkedList<byte[]>();
     getJmsTemplate().setReceiveTimeout(JmsTemplate.RECEIVE_TIMEOUT_NO_WAIT);
     
     while (message != null) {
       _lastMessageBatch.add(message);
       byte[] bytes = JmsByteArrayHelper.extractBytes(message);
       byteBatch.add(bytes);
-      
+
       message = getJmsTemplate().receive();
     }
-    
     return byteBatch;
   }
 
@@ -74,9 +95,9 @@ public class JmsByteArraySource implements ByteArraySource {
   }
 
   @Override
-  public synchronized byte[] receive(long maxWaitInMilliseconds) {
+  public synchronized byte[] receive(final long maxWaitInMilliseconds) {
     getJmsTemplate().setReceiveTimeout(maxWaitInMilliseconds);
-    Message message = getJmsTemplate().receive();
+    final Message message = getJmsTemplate().receive();
     byte[] bytes = JmsByteArrayHelper.extractBytes(message);
     _lastMessageBatch.clear();
     _lastMessageBatch.add(message);
@@ -87,5 +108,5 @@ public class JmsByteArraySource implements ByteArraySource {
   public synchronized byte[] receiveNoWait() {
     return receive(JmsTemplate.RECEIVE_TIMEOUT_NO_WAIT);
   }
-  
+
 }

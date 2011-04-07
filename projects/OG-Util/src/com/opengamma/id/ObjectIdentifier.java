@@ -9,9 +9,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -33,8 +33,8 @@ import com.opengamma.util.PublicAPI;
  * <p>
  * Real-world examples of {@code ObjectIdentifier} include instances of:
  * <ul>
- * <li>Database key - DbSec::123456</li>
- * <li>In memory key - MemSec::123456</li>
+ * <li>Database key - DbSec~123456</li>
+ * <li>In memory key - MemSec~123456</li>
  * </ul>
  * <p>
  * This class is immutable and thread-safe.
@@ -42,6 +42,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class ObjectIdentifier
     implements Comparable<ObjectIdentifier>, ObjectIdentifiable, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Fudge message key for the scheme.
@@ -81,7 +84,7 @@ public final class ObjectIdentifier
    * Obtains an identifier from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>}.
+   * which is {@code <SCHEME>~<VALUE>}.
    * 
    * @param oidStr  the object identifier to parse, not null
    * @return the object identifier, not null
@@ -89,7 +92,8 @@ public final class ObjectIdentifier
    */
   public static ObjectIdentifier parse(String oidStr) {
     ArgumentChecker.notEmpty(oidStr, "uidStr");
-    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(oidStr, "::");
+    oidStr = StringUtils.replace(oidStr, "::", "~");  // leniently parse old data
+    String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(oidStr, "~");
     switch (split.length) {
       case 2:
         return ObjectIdentifier.of(split[0], split[1]);
@@ -226,13 +230,13 @@ public final class ObjectIdentifier
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>}.
    * 
    * @return the identifier, not null
    */
   @Override
   public String toString() {
-    return new StrBuilder().append(_scheme).append(':').append(':').append(_value).toString();
+    return new StrBuilder().append(_scheme).append('~').append(_value).toString();
   }
 
   //-------------------------------------------------------------------------
@@ -245,7 +249,7 @@ public final class ObjectIdentifier
    * @param msg the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer msg) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg msg) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(msg, "msg");
     msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
@@ -261,7 +265,7 @@ public final class ObjectIdentifier
    * @param factory a message creator, not null
    * @return the serialized Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -273,7 +277,7 @@ public final class ObjectIdentifier
    * @param msg the Fudge message, not {@code null}
    * @return the object identifier, not null
    */
-  public static ObjectIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
+  public static ObjectIdentifier fromFudgeMsg(FudgeMsg msg) {
     String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
     String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return ObjectIdentifier.of(scheme, value);

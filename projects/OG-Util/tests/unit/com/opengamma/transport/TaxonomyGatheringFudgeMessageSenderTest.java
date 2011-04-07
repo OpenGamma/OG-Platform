@@ -16,9 +16,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.testng.annotations.BeforeMethod;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -26,49 +26,47 @@ import org.testng.annotations.Test;
  */
 @Test
 public class TaxonomyGatheringFudgeMessageSenderTest {
-  private File _tmpFile;
-  
-  @BeforeMethod
-  public void setupTmpFile() throws IOException {
-    _tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest", ".properties");
-    _tmpFile.deleteOnExit();
-  }
 
   public void noTaxonomyFileAvailableYet() throws IOException {
-    _tmpFile.delete();
+    File tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest_noTaxonomyFileAvailableYet", ".properties");
+    FileUtils.forceDelete(tmpFile);
+    FileUtils.forceDeleteOnExit(tmpFile);
     
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
-    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath());
-
+    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, tmpFile.getAbsolutePath());
+    
     assertTrue(gatheringSender.getCurrentTaxonomy().isEmpty());
   }
 
   @Test(timeOut = 10000)
   public void taxonomyGathering() throws IOException, InterruptedException {
-    _tmpFile.delete();
+    File tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest_taxonomyGathering", ".properties");
+    FileUtils.forceDelete(tmpFile);
+    FileUtils.forceDeleteOnExit(tmpFile);
+    
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
-    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath(), context, 1000L);
+    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, tmpFile.getAbsolutePath(), context, 1000L);
     
-    MutableFudgeFieldContainer msg1 = context.newMessage();
+    MutableFudgeMsg msg1 = context.newMessage();
     msg1.add("name1", 1);
     msg1.add("name2", 1);
     msg1.add("name3", 1);
     msg1.add("name1", 1);
-    MutableFudgeFieldContainer msg2 = context.newMessage();
+    MutableFudgeMsg msg2 = context.newMessage();
     msg1.add("name4", msg2);
     msg2.add(14, 1);
     msg2.add("name5", "foo");
     
     gatheringSender.send(msg1);
-
+    
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name1"));
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name2"));
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name3"));
@@ -78,11 +76,11 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     
     Properties props = new Properties();
     gatheringSender.waitForNextWrite();
-    InputStream is = new FileInputStream(_tmpFile);
+    InputStream is = new FileInputStream(tmpFile);
     props.load(new BufferedInputStream(is));
     is.close();
     
-    for(Map.Entry<Object, Object> propEntry : props.entrySet()) {
+    for (Map.Entry<Object, Object> propEntry : props.entrySet()) {
       Integer ordinal = gatheringSender.getCurrentTaxonomy().get(propEntry.getValue());
       assertEquals(ordinal.intValue(), Integer.parseInt((String) propEntry.getKey()));
     }
@@ -91,20 +89,23 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
 
   @Test(timeOut = 20000)
   public void validFileLoadingOnStartup() throws IOException, InterruptedException {
-    _tmpFile.delete();
+    File tmpFile = File.createTempFile("TaxonomyGatheringFudgeMessageSenderTest_validFileLoadingOnStartup", ".properties");
+    FileUtils.forceDelete(tmpFile);
+    FileUtils.forceDeleteOnExit(tmpFile);
+    
     FudgeContext context = new FudgeContext();
     CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
-    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath(), context, 1000L);
+    TaxonomyGatheringFudgeMessageSender gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, tmpFile.getAbsolutePath(), context, 1000L);
     
-    MutableFudgeFieldContainer msg1 = context.newMessage();
+    MutableFudgeMsg msg1 = context.newMessage();
     msg1.add("name1", 1);
     msg1.add("name2", 1);
     msg1.add("name3", 1);
     msg1.add("name1", 1);
-    MutableFudgeFieldContainer msg2 = context.newMessage();
+    MutableFudgeMsg msg2 = context.newMessage();
     msg1.add("name4", msg2);
     msg2.add(14, 1);
     msg2.add("name5", "foo");
@@ -114,7 +115,7 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     gatheringSender.getTimer().cancel();
 
     // Now reload the file.
-    gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, _tmpFile.getAbsolutePath(), context, 5000L);
+    gatheringSender = new TaxonomyGatheringFudgeMessageSender(fudgeSender, tmpFile.getAbsolutePath(), context, 5000L);
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name1"));
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name2"));
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name3"));
@@ -122,4 +123,5 @@ public class TaxonomyGatheringFudgeMessageSenderTest {
     assertTrue(gatheringSender.getCurrentTaxonomy().containsKey("name5"));
     assertEquals(5, gatheringSender.getCurrentTaxonomy().size());
   }
+
 }

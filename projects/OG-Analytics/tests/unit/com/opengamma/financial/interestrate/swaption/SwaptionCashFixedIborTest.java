@@ -22,10 +22,11 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
@@ -37,12 +38,8 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -75,16 +72,16 @@ public class SwaptionCashFixedIborTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_RECEIVER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER);
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY_PAYER = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, FIXED_IS_PAYER);
   // Swaption construction: All combinations
-  private static final ZZZSwapFixedIborDefinition SWAP_DEFINITION_PAYER = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
-  private static final ZZZSwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = new SwapFixedIborDefinition(FIXED_ANNUITY_PAYER, IBOR_ANNUITY_RECEIVER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = new SwapFixedIborDefinition(FIXED_ANNUITY_RECEIVER, IBOR_ANNUITY_PAYER);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_PAYER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_RECEIVER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_RECEIVER, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_PAYER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, !IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_RECEIVER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_RECEIVER, !IS_LONG);
   // to derivatives
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
-  private static final String FUNDING_CURVE_NAME = " Funding";
-  private static final String FORWARD_CURVE_NAME = " Forward";
+  private static final String FUNDING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final FixedCouponSwap<Payment> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_PAYER = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -100,8 +97,6 @@ public class SwaptionCashFixedIborTest {
   // Volatility and pricing functions
   SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  //Interpolation method
-  private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
 
   @Test
   public void testPriceBlack() {
@@ -122,12 +117,12 @@ public class SwaptionCashFixedIborTest {
     double priceShortPayer = funcShortPayer.evaluate(data) * (SWAPTION_SHORT_PAYER.isLong() ? 1.0 : -1.0);
     Function1D<BlackFunctionData, Double> funcShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
     double priceShortReceiver = funcShortReceiver.evaluate(data) * (SWAPTION_SHORT_RECEIVER.isLong() ? 1.0 : -1.0);
-    // Check hard-coded values
-    double expectedPvbp = 190050636.579;
+    // From previous run
+    double expectedPvbp = 190280584.377;
     assertEquals(expectedPvbp, pvbp, 1E-2);
-    double expectedPriceLongPayer = 1729721.240;
+    double expectedPriceLongPayer = 1553341.170;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
-    double expectedPriceLongReceiver = 27685.862;
+    double expectedPriceLongReceiver = 39008.571;
     assertEquals(expectedPriceLongReceiver, priceLongReceiver, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -137,25 +132,9 @@ public class SwaptionCashFixedIborTest {
 
   @Test
   public void testPriceSABRSurface() {
-    // Yield curves
-    YieldCurveBundle CURVES = new YieldCurveBundle();
-    CURVES.setCurve(FUNDING_CURVE_NAME, CURVE_5);
-    CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
-    // Parameter surfaces are expiry - maturity - parameter
-    InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.5, 1, 2, 0.5, 1, 2}, new double[] {1, 5, 1, 5, 1, 5,}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05},
-        new GridInterpolator2D(LINEAR, LINEAR));
-    VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
-    InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.5, 1, 2, 0.5, 1, 2}, new double[] {1, 5, 1, 5, 1, 5,}, new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
-        new GridInterpolator2D(LINEAR, LINEAR));
-    VolatilitySurface betaVolatility = new VolatilitySurface(betaSurface);
-    InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(new double[] {0.5, 1, 2, 0.5, 1, 2}, new double[] {1, 5, 1, 5, 1, 5,}, new double[] {0.50, 0.40, 0.30, 0.30, 0.30, 0.30},
-        new GridInterpolator2D(LINEAR, LINEAR));
-    VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
-    InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.5, 1, 2, 0.5, 1, 2}, new double[] {1, 5, 1, 5, 1, 5,},
-        new double[] {-0.25, -0.20, -0.10, 0.00, -0.10, 0.00}, new GridInterpolator2D(LINEAR, LINEAR));
-    VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    SABRInterestRateParameter sabrParameter = new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility);
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption pricing.
     double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
     double priceShortPayer = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
@@ -164,5 +143,8 @@ public class SwaptionCashFixedIborTest {
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
+    // From previous run
+    double expectedPriceLongPayer = 1599203.405;
+    assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
   }
 }

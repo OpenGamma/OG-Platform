@@ -20,13 +20,13 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _initialFloatingRate = initialFloatingRate;
     _spread = spread;
   }
-  protected FloatingInterestRateLeg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected FloatingInterestRateLeg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not present");
     try {
-      _floatingReferenceRateIdentifier = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _floatingReferenceRateIdentifier = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FloatingInterestRateLeg - field 'floatingReferenceRateIdentifier' is not UniqueIdentifier message", e);
@@ -58,29 +58,29 @@ public class FloatingInterestRateLeg extends com.opengamma.financial.security.sw
     _initialFloatingRate = source._initialFloatingRate;
     _spread = source._spread;
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_floatingReferenceRateIdentifier != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _floatingReferenceRateIdentifier.getClass (), com.opengamma.id.UniqueIdentifier.class);
       _floatingReferenceRateIdentifier.toFudgeMsg (fudgeContext, fudge1);
       msg.add (FLOATING_REFERENCE_RATE_IDENTIFIER_KEY, null, fudge1);
     }
     msg.add (INITIAL_FLOATING_RATE_KEY, null, _initialFloatingRate);
     msg.add (SPREAD_KEY, null, _spread);
   }
-  public static FloatingInterestRateLeg fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static FloatingInterestRateLeg fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.swap.FloatingInterestRateLeg".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.swap.FloatingInterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.swap.FloatingInterestRateLeg)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

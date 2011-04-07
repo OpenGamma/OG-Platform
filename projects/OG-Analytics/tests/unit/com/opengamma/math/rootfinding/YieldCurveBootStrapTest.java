@@ -5,10 +5,10 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -51,6 +52,7 @@ import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -78,6 +80,7 @@ Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmar
  */
 
 public class YieldCurveBootStrapTest {
+  private static final Currency CUR = Currency.USD;
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
@@ -489,8 +492,8 @@ public class YieldCurveBootStrapTest {
       indexFixing[i] = 0.25 * i + sigma * (i == 0 ? RANDOM.nextDouble() / 2 : (RANDOM.nextDouble() - 0.5));
       indexMaturity[i] = 0.25 * (1 + i) + sigma * (RANDOM.nextDouble() - 0.5);
     }
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(fixed, 1.0, fundingCurveName, true); //<-
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(CUR, fixed, 1.0, fundingCurveName, true); //<-
+    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(CUR, floating, indexFixing, indexMaturity, yearFrac, 1.0, fundingCurveName, liborCurveName, false);
     return new FixedFloatSwap(fixedLeg, floatingLeg);
   }
 

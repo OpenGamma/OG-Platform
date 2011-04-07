@@ -5,9 +5,10 @@
  */
 package com.opengamma.language.context;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.connector.MessageSender;
+import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
@@ -43,7 +44,7 @@ public class MutableSessionContext extends SessionContext {
 
   @Override
   public void initContextWithStash(final SessionContextInitializationEventHandler preInitialize,
-      final FudgeFieldContainer stash) {
+      final FudgeMsg stash) {
     if (_initialized) {
       throw new IllegalStateException("initContext or initContextWithStash already called");
     }
@@ -76,6 +77,10 @@ public class MutableSessionContext extends SessionContext {
   }
 
   // Standard context members
+
+  public void setStashMessage(final StashMessage stashMessage) {
+    setValue(STASH_MESSAGE, stashMessage);
+  }
 
   public void setMessageSender(final MessageSender messageSender) {
     setValue(MESSAGE_SENDER, messageSender);

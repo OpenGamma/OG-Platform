@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/language/connector/UserMessage.proto:12(10)
 package com.opengamma.language.connector;
 public class UserMessage implements java.io.Serializable {
   private static final long serialVersionUID = -37149920464748l;
@@ -14,12 +15,12 @@ public class UserMessage implements java.io.Serializable {
       _payload = payload;
     }
   }
-  protected UserMessage (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected UserMessage (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByOrdinal (PAYLOAD_ORDINAL);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a UserMessage - field 'payload' is not present");
     try {
-      _payload = com.opengamma.language.connector.UserMessagePayload.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _payload = com.opengamma.language.connector.UserMessagePayload.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a UserMessage - field 'payload' is not UserMessagePayload message", e);
@@ -52,29 +53,29 @@ public class UserMessage implements java.io.Serializable {
   public UserMessage clone () {
     return new UserMessage (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_handle != null)  {
       msg.add (null, HANDLE_ORDINAL, _handle);
     }
     if (_payload != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _payload.getClass (), com.opengamma.language.connector.UserMessagePayload.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _payload.getClass (), com.opengamma.language.connector.UserMessagePayload.class);
       _payload.toFudgeMsg (fudgeContext, fudge1);
       msg.add (null, PAYLOAD_ORDINAL, fudge1);
     }
   }
-  public static UserMessage fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static UserMessage fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.language.connector.UserMessage".equals (className)) break;
       try {
-        return (com.opengamma.language.connector.UserMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.language.connector.UserMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

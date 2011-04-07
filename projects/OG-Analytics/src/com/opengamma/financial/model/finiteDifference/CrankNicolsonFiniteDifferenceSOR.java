@@ -10,12 +10,18 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.surface.Surface;
 
 /**
- * 
+ * Crank-Nicolson scheme using SOR algorithm to solve the matrix system at each time step 
  */
-public class CrankNicolsonFiniteDifferenceSOR {
+public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDESolver {
 
   private static final double THETA = 0.5;
 
+  @Override
+  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+    return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
+  }
+
+  @Override
   public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
@@ -81,14 +87,14 @@ public class CrankNicolsonFiniteDifferenceSOR {
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData, t);
+      q[0] = sum + lowerBoundary.getConstant(pdeData, t, dx);
 
       temp = upperBoundary.getRightMatrixCondition(pdeData, t);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xSteps - k];
       }
-      q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
+      q[xSteps] = sum + upperBoundary.getConstant(pdeData, t, dx);
 
       // SOR
       final double omega = 1.0;

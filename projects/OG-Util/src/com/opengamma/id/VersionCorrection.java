@@ -11,9 +11,9 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -42,6 +42,9 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public final class VersionCorrection implements Comparable<VersionCorrection>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Version-correction instance representing the latest version and correction.
@@ -103,24 +106,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   public static VersionCorrection ofCorrectedTo(InstantProvider correctedTo) {
     return of(null, correctedTo);
   }
-
-//  /**
-//   * Parses an {@code Identifier} from a formatted scheme and value.
-//   * <p>
-//   * This parses the identifier from the form produced by {@code toString()}
-//   * which is {@code <SCHEME>::<VALUE>}.
-//   * 
-//   * @param str  the identifier to parse, not null
-//   * @return the identifier, not null
-//   * @throws IllegalArgumentException if the identifier cannot be parsed
-//   */
-//  public static VersionCorrection parse(String str) {
-//    int pos = str.indexOf("::");
-//    if (pos < 0) {
-//      throw new IllegalArgumentException("Invalid identifier format: " + str);
-//    }
-//    return new VersionCorrection(IdentificationScheme.of(str.substring(0, pos)), str.substring(pos + 2));
-//  }
 
   /**
    * Creates a version-correction combination.
@@ -241,13 +226,13 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Returns the version-correction instants separated by a dash.
+   * Returns the version-correction instants separated by a tilde.
    * 
    * @return the string version, not null
    */
   @Override
   public String toString() {
-    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + ".C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
+    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + "~C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
   }
 
   //-------------------------------------------------------------------------
@@ -260,7 +245,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param message the message to serialize into, not {@code null}
    * @return the serialized message
    */
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     if (_versionAsOf != null) {
@@ -280,7 +265,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -292,7 +277,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * @param msg the Fudge message, not {@code null}
    * @return the identifier
    */
-  public static VersionCorrection fromFudgeMsg(FudgeFieldContainer msg) {
+  public static VersionCorrection fromFudgeMsg(FudgeMsg msg) {
     Instant version = msg.getValue(Instant.class, "VersionAsOf");
     Instant correction = msg.getValue(Instant.class, "CorrectedTo");
     return VersionCorrection.of(version, correction);

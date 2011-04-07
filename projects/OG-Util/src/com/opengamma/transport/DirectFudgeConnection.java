@@ -8,7 +8,7 @@ package com.opengamma.transport;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
@@ -33,7 +33,7 @@ public class DirectFudgeConnection {
     }
 
     @Override
-    public void send(FudgeFieldContainer message) {
+    public void send(FudgeMsg message) {
       _messages1To2.incrementAndGet();
       if (_end2Receiver != null) {
         _end2Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));
@@ -76,7 +76,7 @@ public class DirectFudgeConnection {
     }
 
     @Override
-    public void send(FudgeFieldContainer message) {
+    public void send(FudgeMsg message) {
       _messages2To1.incrementAndGet();
       if (_end1Receiver != null) {
         _end1Receiver.messageReceived(_fudgeContext, new FudgeMsgEnvelope(message));

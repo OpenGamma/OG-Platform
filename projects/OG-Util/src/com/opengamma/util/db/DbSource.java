@@ -5,7 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.Timestamp;
+
 import javax.sql.DataSource;
+import javax.time.Instant;
+import javax.time.TimeSource;
 
 import org.hibernate.SessionFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -166,6 +170,29 @@ public class DbSource {
    */
   public TransactionTemplate getTransactionTemplate() {
     return _transactionTemplate;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the transaction template.
+   * @return the transaction template, may be null
+   */
+  public Instant now() {
+    Timestamp ts = getJdbcTemplate().queryForObject(getDialect().sqlSelectNow(), Timestamp.class);
+    return DbDateUtils.fromSqlTimestamp(ts);
+  }
+
+  /**
+   * Gets a time-source based on the current database timestamp.
+   * @return the database time-source, may be null
+   */
+  public TimeSource timeSource() {
+    return new TimeSource() {
+      @Override
+      public Instant instant() {
+        return now();
+      }
+    };
   }
 
   //-------------------------------------------------------------------------

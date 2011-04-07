@@ -9,7 +9,7 @@ import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
@@ -53,8 +53,8 @@ public class RemoteInterpolatedYieldCurveSpecificationBuilder implements Interpo
     ArgumentChecker.notNull(curveDefinition, "curveDefinition");
     final RestTarget target = getTargetBase().resolve(curveDate.toString());
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
-    final MutableFudgeFieldContainer defnMsg = sctx.newMessage();
-    sctx.objectToFudgeMsgWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
+    final MutableFudgeMsg defnMsg = sctx.newMessage();
+    sctx.addToMessageWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
     final FudgeMsgEnvelope specMsg = getRestClient().post(target, defnMsg);
     if (specMsg == null) {
       return null;

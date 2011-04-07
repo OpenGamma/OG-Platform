@@ -27,30 +27,45 @@ import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * An RPC message sender/receiver that uses JMS.
+ * <p>
+ * This is a simple implementation based on JMS.
  */
 public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implements ByteArrayRequestSender {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayRequestSender.class);
-  
+
+  /**
+   * The executor service.
+   */
   private final ExecutorService _executor;
 
-  public JmsByteArrayRequestSender(String destinationName,
-      JmsTemplate jmsTemplate) {
+  /**
+   * Creates an instance associated with a destination and template.
+   * 
+   * @param destinationName  the destination name, not null
+   * @param jmsTemplate  the template, not null
+   */
+  public JmsByteArrayRequestSender(final String destinationName, final JmsTemplate jmsTemplate) {
     this(destinationName, jmsTemplate, Executors.newCachedThreadPool());
   }
-  
-  public JmsByteArrayRequestSender(String destinationName,
-      JmsTemplate jmsTemplate,
-      ExecutorService executor) {
+
+  /**
+   * Creates an instance associated with a destination and template, specifying
+   * the executor to use.
+   * 
+   * @param destinationName  the destination name, not null
+   * @param jmsTemplate  the template, not null
+   * @param executor  the executor, not null
+   */
+  public JmsByteArrayRequestSender(final String destinationName, final JmsTemplate jmsTemplate, final ExecutorService executor) {
     super(destinationName, jmsTemplate);
-    
     ArgumentChecker.notNull(executor, "executor");
     _executor = executor;
   }
-  
 
+  //-------------------------------------------------------------------------
   @Override
   public void sendRequest(final byte[] request,
       final ByteArrayMessageReceiver responseReceiver) {
@@ -62,27 +77,27 @@ public class JmsByteArrayRequestSender extends AbstractJmsByteArraySender implem
           @Override
           public Object doInJms(Session session) throws JMSException {
             try {
-              TemporaryTopic tempTopic = session.createTemporaryTopic();
+              final TemporaryTopic tempTopic = session.createTemporaryTopic();
               s_logger.debug("Requesting response to temp topic {}", tempTopic);
-              MessageConsumer consumer = session.createConsumer(tempTopic);
-              BytesMessage bytesMessage = session.createBytesMessage();
+              final MessageConsumer consumer = session.createConsumer(tempTopic);
+              final BytesMessage bytesMessage = session.createBytesMessage();
               bytesMessage.writeBytes(request);
               bytesMessage.setJMSReplyTo(tempTopic);
-              Destination requestDestination = getJmsTemplate().getDestinationResolver().resolveDestinationName(session, getDestinationName(), getJmsTemplate().isPubSubDomain());
-              MessageProducer producer = session.createProducer(requestDestination);
+              final Destination requestDestination = getJmsTemplate().getDestinationResolver().resolveDestinationName(session, getDestinationName(), getJmsTemplate().isPubSubDomain());
+              final MessageProducer producer = session.createProducer(requestDestination);
               producer.send(bytesMessage);
-              Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
+              final  Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
               if (response == null) {
                 // TODO UTL-37.
                 s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
                 return null;
               }
-              byte[] bytes = JmsByteArrayHelper.extractBytes(response);
+              final byte[] bytes = JmsByteArrayHelper.extractBytes(response);
               consumer.close();
               s_logger.debug("Dispatching response of length {}", bytes.length);
               responseReceiver.messageReceived(bytes);
-            
-            } catch (Exception e) {
+
+            } catch (Exception ex) {
               // TODO UTL-37.
               s_logger.error("Unexpected exception while waiting for a response to send to {}", responseReceiver);
             }

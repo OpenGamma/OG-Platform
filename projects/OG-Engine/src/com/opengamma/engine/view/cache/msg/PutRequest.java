@@ -5,7 +5,7 @@
 package com.opengamma.engine.view.cache.msg;
 public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitPutRequest (this); }
-  private static final long serialVersionUID = 924741509130398338l;
+  private static final long serialVersionUID = 924741509869311438l;
   private String _viewName;
   public static final String VIEW_NAME_KEY = "viewName";
   private String _calculationConfigurationName;
@@ -14,9 +14,9 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
   public static final String SNAPSHOT_TIMESTAMP_KEY = "snapshotTimestamp";
   private java.util.List<Long> _identifier;
   public static final String IDENTIFIER_KEY = "identifier";
-  private java.util.List<org.fudgemsg.FudgeFieldContainer> _data;
+  private java.util.List<org.fudgemsg.FudgeMsg> _data;
   public static final String DATA_KEY = "data";
-  public PutRequest (String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier, java.util.Collection<? extends org.fudgemsg.FudgeFieldContainer> data) {
+  public PutRequest (String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier, java.util.Collection<? extends org.fudgemsg.FudgeMsg> data) {
     if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
     _viewName = viewName;
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
@@ -34,16 +34,16 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
     }
     if (data == null) throw new NullPointerException ("'data' cannot be null");
     else {
-      final java.util.List<org.fudgemsg.FudgeFieldContainer> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (data);
+      final java.util.List<org.fudgemsg.FudgeMsg> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (data);
       if (data.size () == 0) throw new IllegalArgumentException ("'data' cannot be an empty list");
-      for (java.util.ListIterator<org.fudgemsg.FudgeFieldContainer> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        org.fudgemsg.FudgeFieldContainer fudge2 = fudge1.next ();
+      for (java.util.ListIterator<org.fudgemsg.FudgeMsg> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
+        org.fudgemsg.FudgeMsg fudge2 = fudge1.next ();
         if (fudge2 == null) throw new NullPointerException ("List element of 'data' cannot be null");
       }
       _data = fudge0;
     }
   }
-  protected PutRequest (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected PutRequest (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
@@ -84,11 +84,11 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
     }
     fudgeFields = fudgeMsg.getAllByName (DATA_KEY);
     if (fudgeFields.size () == 0) throw new IllegalArgumentException ("Fudge message is not a PutRequest - field 'data' is not present");
-    _data = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (fudgeFields.size ());
+    _data = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (fudgeFields.size ());
     for (org.fudgemsg.FudgeField fudge2 : fudgeFields) {
       try {
-        final org.fudgemsg.FudgeFieldContainer fudge3;
-        fudge3 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudge2);
+        final org.fudgemsg.FudgeMsg fudge3;
+        fudge3 = fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudge2);
         _data.add (fudge3);
       }
       catch (IllegalArgumentException e) {
@@ -96,7 +96,7 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
       }
     }
   }
-  public PutRequest (Long correlationId, String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier, java.util.Collection<? extends org.fudgemsg.FudgeFieldContainer> data) {
+  public PutRequest (Long correlationId, String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier, java.util.Collection<? extends org.fudgemsg.FudgeMsg> data) {
     super (correlationId);
     if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
     _viewName = viewName;
@@ -115,10 +115,10 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
     }
     if (data == null) throw new NullPointerException ("'data' cannot be null");
     else {
-      final java.util.List<org.fudgemsg.FudgeFieldContainer> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (data);
+      final java.util.List<org.fudgemsg.FudgeMsg> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (data);
       if (data.size () == 0) throw new IllegalArgumentException ("'data' cannot be an empty list");
-      for (java.util.ListIterator<org.fudgemsg.FudgeFieldContainer> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        org.fudgemsg.FudgeFieldContainer fudge2 = fudge1.next ();
+      for (java.util.ListIterator<org.fudgemsg.FudgeMsg> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
+        org.fudgemsg.FudgeMsg fudge2 = fudge1.next ();
         if (fudge2 == null) throw new NullPointerException ("List element of 'data' cannot be null");
       }
       _data = fudge0;
@@ -136,19 +136,19 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
     }
     if (source._data == null) _data = null;
     else {
-      _data = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (source._data);
+      _data = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (source._data);
     }
   }
   public PutRequest clone () {
     return new PutRequest (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_viewName != null)  {
       msg.add (VIEW_NAME_KEY, null, _viewName);
@@ -163,18 +163,18 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
       }
     }
     if (_data != null)  {
-      for (org.fudgemsg.FudgeFieldContainer fudge1 : _data) {
-        msg.add (DATA_KEY, null, (fudge1 instanceof org.fudgemsg.ImmutableFudgeFieldContainer) ? fudge1 : fudgeContext.newMessage (fudge1));
+      for (org.fudgemsg.FudgeMsg fudge1 : _data) {
+        msg.add (DATA_KEY, null, (fudge1 instanceof org.fudgemsg.MutableFudgeMsg) ? fudgeContext.newMessage (fudge1) : fudge1);
       }
     }
   }
-  public static PutRequest fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static PutRequest fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.cache.msg.PutRequest".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.cache.msg.PutRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.engine.view.cache.msg.PutRequest)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action
@@ -229,31 +229,31 @@ public class PutRequest extends com.opengamma.engine.view.cache.msg.CacheMessage
     if (_identifier == null) _identifier = new java.util.ArrayList<Long> ();
     _identifier.add (identifier);
   }
-  public java.util.List<org.fudgemsg.FudgeFieldContainer> getData () {
+  public java.util.List<org.fudgemsg.FudgeMsg> getData () {
     return java.util.Collections.unmodifiableList (_data);
   }
-  public void setData (org.fudgemsg.FudgeFieldContainer data) {
+  public void setData (org.fudgemsg.FudgeMsg data) {
     if (data == null) throw new NullPointerException ("'data' cannot be null");
     else {
-      _data = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (1);
+      _data = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (1);
       addData (data);
     }
   }
-  public void setData (java.util.Collection<? extends org.fudgemsg.FudgeFieldContainer> data) {
+  public void setData (java.util.Collection<? extends org.fudgemsg.FudgeMsg> data) {
     if (data == null) throw new NullPointerException ("'data' cannot be null");
     else {
-      final java.util.List<org.fudgemsg.FudgeFieldContainer> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> (data);
+      final java.util.List<org.fudgemsg.FudgeMsg> fudge0 = new java.util.ArrayList<org.fudgemsg.FudgeMsg> (data);
       if (data.size () == 0) throw new IllegalArgumentException ("'data' cannot be an empty list");
-      for (java.util.ListIterator<org.fudgemsg.FudgeFieldContainer> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
-        org.fudgemsg.FudgeFieldContainer fudge2 = fudge1.next ();
+      for (java.util.ListIterator<org.fudgemsg.FudgeMsg> fudge1 = fudge0.listIterator (); fudge1.hasNext (); ) {
+        org.fudgemsg.FudgeMsg fudge2 = fudge1.next ();
         if (fudge2 == null) throw new NullPointerException ("List element of 'data' cannot be null");
       }
       _data = fudge0;
     }
   }
-  public void addData (org.fudgemsg.FudgeFieldContainer data) {
+  public void addData (org.fudgemsg.FudgeMsg data) {
     if (data == null) throw new NullPointerException ("'data' cannot be null");
-    if (_data == null) _data = new java.util.ArrayList<org.fudgemsg.FudgeFieldContainer> ();
+    if (_data == null) _data = new java.util.ArrayList<org.fudgemsg.FudgeMsg> ();
     _data.add (data);
   }
   public String toString () {

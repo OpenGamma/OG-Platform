@@ -135,6 +135,18 @@
     <ClInclude Include="com_opengamma_language_function_Result.h">
       <Filter>Header Files\Fudge</Filter>
     </ClInclude>
+    <ClInclude Include="com_opengamma_language_connector_Custom.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_function_Custom.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_livedata_Custom.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
+    <ClInclude Include="com_opengamma_language_procedure_Custom.h">
+      <Filter>Header Files\Fudge</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -237,6 +249,18 @@
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_function_Result.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_connector_Custom.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Custom.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Custom.c">
+      <Filter>Source Files\Fudge</Filter>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Custom.c">
       <Filter>Source Files\Fudge</Filter>
     </ClCompile>
   </ItemGroup>

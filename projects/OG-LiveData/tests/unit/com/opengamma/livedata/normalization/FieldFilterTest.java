@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
@@ -27,12 +27,12 @@ public class FieldFilterTest {
     fieldsToAccept.add("Bar");
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeFieldContainer normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
     assertEquals("1", normalized.getString("Foo"));
     assertEquals(2.0, normalized.getDouble("Bar"), 0.0001);
     assertNull(normalized.getByName("Baz"));
@@ -45,10 +45,10 @@ public class FieldFilterTest {
     fieldsToAccept.add("Bar");
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo2", "1");
     
-    MutableFudgeFieldContainer normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
     assertNull(normalized);
   }
   
@@ -57,10 +57,10 @@ public class FieldFilterTest {
     Set<String> fieldsToAccept = new HashSet<String>();
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo", "1");
     
-    MutableFudgeFieldContainer normalized = filter.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = filter.apply(msg, new FieldHistoryStore());
     assertNull(normalized);
   }
   

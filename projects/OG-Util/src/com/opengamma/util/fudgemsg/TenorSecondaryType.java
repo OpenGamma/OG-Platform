@@ -9,7 +9,7 @@ import javax.time.calendar.Period;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.util.time.Tenor;
 
@@ -31,7 +31,7 @@ public final class TenorSecondaryType extends SecondaryFieldType<Tenor, String> 
    * Restricted constructor.
    */
   private TenorSecondaryType() {
-    super(StringFieldType.INSTANCE, Tenor.class);
+    super(FudgeWireType.STRING, Tenor.class);
   }
 
   //-------------------------------------------------------------------------

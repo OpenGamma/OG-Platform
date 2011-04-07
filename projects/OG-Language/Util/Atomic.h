@@ -20,20 +20,26 @@ public:
 	CAtomicInt (unsigned int nValue = 0) {
 		m_nValue = nValue;
 	}
-	int DecrementAndGet () {
+	static int DecrementAndGet (volatile unsigned int *pnValue) {
 #ifdef _WIN32
-		return InterlockedDecrement (&m_nValue);
+		return InterlockedDecrement (pnValue);
 #else
 		// Note this only reliably returns 0
-		return apr_atomic_dec32 (&m_nValue);
+		return apr_atomic_dec32 (pnValue);
+#endif
+	}
+	int DecrementAndGet () {
+		return DecrementAndGet (&m_nValue);
+	}
+	static int IncrementAndGet (volatile unsigned int *pnValue) {
+#ifdef _WIN32
+		return InterlockedIncrement (pnValue);
+#else
+		return apr_atomic_inc32 (pnValue) + 1;
 #endif
 	}
 	int IncrementAndGet () {
-#ifdef _WIN32
-		return InterlockedIncrement (&m_nValue);
-#else
-		return apr_atomic_inc32 (&m_nValue) + 1;
-#endif
+		return IncrementAndGet (&m_nValue);
 	}
 	int Get () {
 #ifdef _WIN32

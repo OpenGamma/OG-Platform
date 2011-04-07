@@ -8,8 +8,8 @@ package com.opengamma.engine.fudgemsg;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
@@ -51,25 +51,25 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   protected static final String FIELD_PARENT = "parent";
 
   // -------------------------------------------------------------------------
-  private static FudgeFieldContainer encodePositions(final FudgeSerializationContext context, final Collection<Position> collection) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  private static FudgeMsg encodePositions(final FudgeSerializationContext context, final Collection<Position> collection) {
+    final MutableFudgeMsg msg = context.newMessage();
     for (Position position : collection) {
       msg.add(null, null, PositionBuilder.buildMessageImpl(context, position));
     }
     return msg;
   }
 
-  private static FudgeFieldContainer encodeSubNodes(final FudgeSerializationContext context, final Collection<PortfolioNode> collection) {
-    final MutableFudgeFieldContainer msg = context.newMessage();
+  private static FudgeMsg encodeSubNodes(final FudgeSerializationContext context, final Collection<PortfolioNode> collection) {
+    final MutableFudgeMsg msg = context.newMessage();
     for (PortfolioNode node : collection) {
       msg.add(null, null, buildMessageImpl(context, node));
     }
     return msg;
   }
 
-  private static MutableFudgeFieldContainer buildMessageImpl(final FudgeSerializationContext context, final PortfolioNode node) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueId());
+  private static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final PortfolioNode node) {
+    final MutableFudgeMsg message = context.newMessage();
+    context.addToMessage(message, FIELD_IDENTIFIER, null, node.getUniqueId());
     message.add(FIELD_NAME, node.getName());
     message.add(FIELD_POSITIONS, encodePositions(context, node.getPositions()));
     message.add(FIELD_SUBNODES, encodeSubNodes(context, node.getChildNodes()));
@@ -77,34 +77,34 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   }
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
-    final MutableFudgeFieldContainer message = buildMessageImpl(context, node);
-    context.objectToFudgeMsg(message, FIELD_PARENT, null, node.getParentNodeId());
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final PortfolioNode node) {
+    final MutableFudgeMsg message = buildMessageImpl(context, node);
+    context.addToMessage(message, FIELD_PARENT, null, node.getParentNodeId());
     return message;
   }
 
   // -------------------------------------------------------------------------
-  private static void readPositions(FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl node) {
+  private static void readPositions(FudgeDeserializationContext context, FudgeMsg message, PortfolioNodeImpl node) {
     for (FudgeField field : message) {
-      if (field.getValue() instanceof FudgeFieldContainer) {
-        final PositionImpl position = PositionBuilder.buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
+      if (field.getValue() instanceof FudgeMsg) {
+        final PositionImpl position = PositionBuilder.buildObjectImpl(context, (FudgeMsg) field.getValue());
         position.setParentNodeId(node.getUniqueId());
         node.addPosition(position);
       }
     }
   }
 
-  private static void readSubNodes(FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl node) {
+  private static void readSubNodes(FudgeDeserializationContext context, FudgeMsg message, PortfolioNodeImpl node) {
     for (FudgeField field : message) {
-      if (field.getValue() instanceof FudgeFieldContainer) {
-        final PortfolioNodeImpl child = buildObjectImpl(context, (FudgeFieldContainer) field.getValue());
+      if (field.getValue() instanceof FudgeMsg) {
+        final PortfolioNodeImpl child = buildObjectImpl(context, (FudgeMsg) field.getValue());
         child.setParentNodeId(node.getUniqueId());
         node.addChildNode(child);
       }
     }
   }
 
-  private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+  private static PortfolioNodeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     final FudgeField idField = message.getByName(FIELD_IDENTIFIER);
     final UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
@@ -112,13 +112,13 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     if (id != null) {
       node.setUniqueId(id);
     }
-    readPositions(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_POSITIONS)), node);
-    readSubNodes(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_SUBNODES)), node);
+    readPositions(context, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_POSITIONS)), node);
+    readSubNodes(context, message.getFieldValue(FudgeMsg.class, message.getByName(FIELD_SUBNODES)), node);
     return node;
   }
 
   @Override
-  public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     final PortfolioNodeImpl node = buildObjectImpl(context, message);
     final FudgeField parentField = message.getByName(FIELD_PARENT);
     final UniqueIdentifier parentId = (parentField != null) ? context.fieldValueToObject(UniqueIdentifier.class, parentField) : null;

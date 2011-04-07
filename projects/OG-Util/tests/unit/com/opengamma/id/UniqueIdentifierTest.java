@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -24,7 +24,7 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -53,7 +53,7 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals("version", test.getVersion());
-    assertEquals("Scheme::value::version", test.toString());
+    assertEquals("Scheme~value~version", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -81,7 +81,7 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   public void test_factory_String_String_String_emptyVersion() {
@@ -89,23 +89,23 @@ public class UniqueIdentifierTest {
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals(null, test.getVersion());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   //-------------------------------------------------------------------------
   public void test_parse_version() {
-    UniqueIdentifier test = UniqueIdentifier.parse("Scheme::value::version");
+    UniqueIdentifier test = UniqueIdentifier.parse("Scheme~value~version");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
     assertEquals("version", test.getVersion());
-    assertEquals("Scheme::value::version", test.toString());
+    assertEquals("Scheme~value~version", test.toString());
   }
 
   public void test_parse_noVersion() {
-    UniqueIdentifier test = UniqueIdentifier.parse("Scheme::value");
+    UniqueIdentifier test = UniqueIdentifier.parse("Scheme~value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -120,7 +120,7 @@ public class UniqueIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat3() {
-    UniqueIdentifier.parse("Scheme::value::version::other");
+    UniqueIdentifier.parse("Scheme~value~version~other");
   }
 
   //-------------------------------------------------------------------------
@@ -347,7 +347,7 @@ public class UniqueIdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_noVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
@@ -357,7 +357,7 @@ public class UniqueIdentifierTest {
 
   public void test_fudgeEncoding_version() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
     

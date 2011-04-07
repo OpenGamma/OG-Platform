@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
@@ -21,12 +21,12 @@ public class FieldNameChangeTest {
   public void fieldNameChange() {
     FieldNameChange nameChange = new FieldNameChange("Foo", "Bar");
     
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("Foo", "1");
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeFieldContainer normalized = nameChange.apply(msg, new FieldHistoryStore());
+    MutableFudgeMsg normalized = nameChange.apply(msg, new FieldHistoryStore());
     assertEquals(3, normalized.getAllFields().size());
     assertNull(normalized.getByName("Foo"));
     assertEquals(2.0, (Double) normalized.getAllByName("Bar").get(0).getValue(), 0.0001);

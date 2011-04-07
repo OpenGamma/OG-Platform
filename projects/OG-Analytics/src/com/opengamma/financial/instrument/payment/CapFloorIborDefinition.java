@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a cap/floor on Ibor.
+ * Class describing a caplet/floorlet on Ibor. The notional is positive for long the option and negative for short the option.
  */
 public class CapFloorIborDefinition extends CouponIborDefinition implements CapFloor {
 
@@ -115,14 +115,14 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The Ibor cap/floor has already fixed, it is now a fixed coupon.
-      return new CouponFixed(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
     } else { // Ibor is not fixed yet, all the details are required.
       final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
       final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
       final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
       //TODO: Definition has no spread and time version has one: to be standardized.
-      return new CapFloorIbor(paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(),
-          forwardCurveName, _strike, _isCap);
+      return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
     }
   }
 

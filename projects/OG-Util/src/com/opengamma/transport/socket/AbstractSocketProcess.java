@@ -23,8 +23,8 @@ import java.util.HashSet;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -88,7 +88,7 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
    * 
    * @param endPoint An end-point description.
    */
-  public void setServer(final FudgeFieldContainer endPoint) {
+  public void setServer(final FudgeMsg endPoint) {
     ArgumentChecker.notNull(endPoint, "endPoint");
     if (!AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
       throw new IllegalArgumentException("End point is not a ServerSocket - " + endPoint);
@@ -197,8 +197,8 @@ public abstract class AbstractSocketProcess implements Lifecycle, EndPointDescri
   }
 
   @Override
-  public FudgeFieldContainer getEndPointDescription(final FudgeContext fudgeContext) {
-    final MutableFudgeFieldContainer desc = fudgeContext.newMessage();
+  public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
+    final MutableFudgeMsg desc = fudgeContext.newMessage();
     desc.add(AbstractServerSocketProcess.TYPE_KEY, AbstractServerSocketProcess.TYPE_VALUE);
     if (getInetAddresses() != null) {
       for (InetAddress addr : getInetAddresses()) {

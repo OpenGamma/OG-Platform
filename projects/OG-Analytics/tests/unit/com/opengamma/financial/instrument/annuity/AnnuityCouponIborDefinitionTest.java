@@ -104,6 +104,25 @@ public class AnnuityCouponIborDefinitionTest {
   }
 
   @Test
+  public void testFrom() {
+    ZonedDateTime settleDate = DateUtil.getUTCDate(2014, 3, 20);
+    Period INDEX_TENOR = Period.ofMonths(3);
+    DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, INDEX, IS_PAYER);
+    ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 20)};
+    ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 18), DateUtil.getUTCDate(2014, 6, 18), DateUtil.getUTCDate(2014, 9, 18), DateUtil.getUTCDate(2014, 12, 18)};
+    ZonedDateTime[] startPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 20), DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22)};
+    ZonedDateTime[] endPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 23)};
+    for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
+      assertEquals(paymentDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getPaymentDate());
+      assertEquals(fixingDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingDate());
+      assertEquals(startPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixindPeriodStartDate());
+      assertEquals(endPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixindPeriodEndDate());
+    }
+  }
+
+  @Test
   public void testEqualHash() {
     CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date

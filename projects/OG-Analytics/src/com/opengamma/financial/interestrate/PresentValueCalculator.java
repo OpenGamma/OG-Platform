@@ -110,7 +110,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
     SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
-    return method.price(swaption, sabr);
+    return method.presentValue(swaption, sabr);
   }
 
   @Override
@@ -121,7 +121,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
     SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
     SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
-    return method.price(swaption, sabr);
+    return method.presentValue(swaption, sabr);
   }
 
   @Override
@@ -170,7 +170,8 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve liborCurve = curves.getCurve(payment.getForwardCurveName());
-    final double forward = (liborCurve.getDiscountFactor(payment.getFixingTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
+    //    final double forward = (liborCurve.getDiscountFactor(payment.getFixingTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
+    final double forward = (liborCurve.getDiscountFactor(payment.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1) / payment.getFixingYearFraction();
     return payment.getNotional() * (forward + payment.getSpread()) * payment.getPaymentYearFraction() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
   }
 
@@ -213,7 +214,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
-      return replication.price(payment, sabrBundle);
+      return replication.presentValue(payment, sabrBundle);
     }
     // Implementation comment: if not SABR data, price without convexity adjustment is used.
     ParRateCalculator parRate = ParRateCalculator.getInstance();
@@ -230,7 +231,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       CapFloorCMSReplicationSABRMethod replication = new CapFloorCMSReplicationSABRMethod();
-      return replication.price(payment, sabrBundle);
+      return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
   }

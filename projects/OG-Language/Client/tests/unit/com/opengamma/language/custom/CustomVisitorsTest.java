@@ -6,6 +6,9 @@
 
 package com.opengamma.language.custom;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
 import org.testng.annotations.Test;
 
 /**
@@ -13,21 +16,87 @@ import org.testng.annotations.Test;
  */
 public class CustomVisitorsTest {
 
+  private class CustomMessage extends com.opengamma.language.connector.Custom {
+  }
+
+  private class CustomSubMessage extends CustomMessage {
+  }
+
+  private class CustomUnregisteredMessage extends com.opengamma.language.connector.Custom {
+  }
+
+  private class CustomFunction extends com.opengamma.language.function.Custom {
+  }
+
+  private class CustomLiveData extends com.opengamma.language.livedata.Custom {
+  }
+
+  private class CustomProcedure extends com.opengamma.language.procedure.Custom {
+  }
+
+  private void registerVisitors(final CustomVisitors<String, Integer> visitors) {
+    visitors.register(CustomMessage.class, new CustomMessageVisitor<CustomMessage, String, Integer>() {
+      @Override
+      public String visit(CustomMessage message, Integer data) {
+        assertNotNull(message);
+        assertNotNull(data);
+        return "M" + message.getClass().getSimpleName() + data;
+      }
+    });
+    visitors.register(CustomFunction.class, new CustomFunctionVisitor<CustomFunction, String, Integer>() {
+      @Override
+      public String visit(CustomFunction message, Integer data) {
+        assertNotNull(message);
+        assertNotNull(data);
+        return "F" + message.getClass().getSimpleName() + data;
+      }
+    });
+    visitors.register(CustomLiveData.class, new CustomLiveDataVisitor<CustomLiveData, String, Integer>() {
+      @Override
+      public String visit(CustomLiveData message, Integer data) {
+        assertNotNull(message);
+        assertNotNull(data);
+        return "L" + message.getClass().getSimpleName() + data;
+      }
+    });
+    visitors.register(CustomProcedure.class, new CustomProcedureVisitor<CustomProcedure, String, Integer>() {
+      @Override
+      public String visit(CustomProcedure message, Integer data) {
+        assertNotNull(message);
+        assertNotNull(data);
+        return "P" + message.getClass().getSimpleName() + data;
+      }
+    });
+  }
+
   @Test
   public void testBasicBehaviour() {
-    // TODO: register a visitor for each message type
-    // TODO: test each message type
+    final CustomVisitors<String, Integer> visitors = new CustomVisitors<String, Integer>();
+    registerVisitors(visitors);
+    assertEquals("MCustomMessage1", visitors.visit(new CustomMessage(), 1));
+    assertEquals("FCustomFunction2", visitors.visit(new CustomFunction(), 2));
+    assertEquals("LCustomLiveData3", visitors.visit(new CustomLiveData(), 3));
+    assertEquals("PCustomProcedure4", visitors.visit(new CustomProcedure(), 4));
   }
 
   @Test
   public void testInheritanceBehaviour() {
-    // TODO: register visitors for each message type
-    // TODO: test sub-types of each
+    final CustomVisitors<String, Integer> visitors = new CustomVisitors<String, Integer>();
+    registerVisitors(visitors);
+    assertEquals("MCustomSubMessage42", visitors.visit(new CustomSubMessage(), 42));
   }
 
-  @Test
-  public void testNoVisitor() {
-    // TODO: test 
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testNoVisitor1() {
+    final CustomVisitors<String, Integer> visitors = new CustomVisitors<String, Integer>();
+    assertEquals("MCustomMessage42", visitors.visit(new CustomMessage(), 42));
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testNoVisitor2() {
+    final CustomVisitors<String, Integer> visitors = new CustomVisitors<String, Integer>();
+    registerVisitors(visitors);
+    assertEquals("MCustomUnregisteredMessage42", visitors.visit(new CustomUnregisteredMessage(), 42));
   }
 
 }

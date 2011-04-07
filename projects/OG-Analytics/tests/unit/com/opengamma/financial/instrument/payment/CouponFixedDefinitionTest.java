@@ -67,7 +67,7 @@ public class CouponFixedDefinitionTest {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
     double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     String fundingCurve = "Funding";
-    CouponFixed couponFixed = new CouponFixed(paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, RATE);
+    CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, RATE);
     CouponFixed convertedDefinition = FIXED_COUPON.toDerivative(REFERENCE_DATE, fundingCurve);
     assertEquals(couponFixed, convertedDefinition);
   }

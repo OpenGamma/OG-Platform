@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,14 +110,14 @@ public class MarketDataDistributor {
     return _distributionSpec;
   }
 
-  private synchronized FudgeFieldContainer getLastKnownValues() {
+  private synchronized FudgeMsg getLastKnownValues() {
     if (_lastKnownValues == null) {
       return null;
     }
     return _lastKnownValues.getLastKnownValues();
   }
   
-  private synchronized void updateLastKnownValues(FudgeFieldContainer lastKnownValue) {
+  private synchronized void updateLastKnownValues(FudgeMsg lastKnownValue) {
     if (_lastKnownValues == null) {
       _lastKnownValues = new FieldHistoryStore();
     }
@@ -152,8 +152,8 @@ public class MarketDataDistributor {
    * @return the normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
-  private FudgeFieldContainer normalize(FudgeFieldContainer msg) {
-    FudgeFieldContainer normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _history);
+  private FudgeMsg normalize(FudgeMsg msg) {
+    FudgeMsg normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _history);
     return normalizedMsg;
   }
   
@@ -162,8 +162,8 @@ public class MarketDataDistributor {
    * 
    * @param msg Unnormalized market data from underlying market data API.
    */
-  public synchronized void updateFieldHistory(FudgeFieldContainer msg) {
-    FudgeFieldContainer normalizedMsg = normalize(msg);
+  public synchronized void updateFieldHistory(FudgeMsg msg) {
+    FudgeMsg normalizedMsg = normalize(msg);
     if (normalizedMsg != null) {
       updateLastKnownValues(normalizedMsg);
     }
@@ -176,8 +176,8 @@ public class MarketDataDistributor {
    * 
    * @param liveDataFields Unnormalized market data from underlying market data API.
    */
-  public synchronized void distributeLiveData(FudgeFieldContainer liveDataFields) {
-    FudgeFieldContainer normalizedMsg;
+  public synchronized void distributeLiveData(FudgeMsg liveDataFields) {
+    FudgeMsg normalizedMsg;
     try {
       normalizedMsg = normalize(liveDataFields);
     } catch (RuntimeException e) {

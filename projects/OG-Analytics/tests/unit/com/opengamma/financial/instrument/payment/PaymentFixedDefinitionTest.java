@@ -5,13 +5,15 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -70,7 +72,7 @@ public class PaymentFixedDefinitionTest {
     double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     //    double paymentTime = 7.0 / 365.0; //TODO: precision?
     String fundingCurve = "Funding";
-    PaymentFixed paymentFixed = new PaymentFixed(paymentTime, AMOUNT, fundingCurve);
+    PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT, fundingCurve);
     PaymentFixed convertedDefinition = FIXED_PAYMENT.toDerivative(REFERENCE_DATE, fundingCurve);
     assertEquals(paymentFixed, convertedDefinition);
   }

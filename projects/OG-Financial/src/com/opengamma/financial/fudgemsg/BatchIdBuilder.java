@@ -9,8 +9,8 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -33,15 +33,15 @@ public class BatchIdBuilder implements FudgeBuilder<BatchId> {
   private static final String TIME_KEY = "observationTime";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, BatchId object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, BatchId object) {
+    MutableFudgeMsg msg = context.newMessage();
     msg.add(DATE_KEY, null, object.getObservationDate());
     msg.add(TIME_KEY, null, object.getObservationTime());
     return msg;
   }
 
   @Override
-  public BatchId buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public BatchId buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     FudgeField dateField = message.getByName(DATE_KEY);
     FudgeField timeField = message.getByName(TIME_KEY);
 

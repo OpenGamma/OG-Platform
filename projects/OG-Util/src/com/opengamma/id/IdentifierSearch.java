@@ -15,9 +15,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -318,8 +318,8 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @param factory a message creator, not {@code null}
    * @return the serialized Fudge message
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
-    MutableFudgeFieldContainer msg = factory.newMessage();
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
+    MutableFudgeMsg msg = factory.newMessage();
     for (Identifier identifier : getIdentifiers()) {
       msg.add("identifier", identifier.toFudgeMsg(factory));
     }
@@ -333,10 +333,10 @@ public final class IdentifierSearch implements Iterable<Identifier>, Serializabl
    * @param msg the Fudge message, not null
    * @return the identifier bundle
    */
-  public static IdentifierSearch fromFudgeMsg(FudgeFieldContainer msg) {
+  public static IdentifierSearch fromFudgeMsg(FudgeMsg msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();
     for (FudgeField field : msg.getAllByName("identifier")) {
-      identifiers.add(Identifier.fromFudgeMsg((FudgeFieldContainer) field.getValue()));
+      identifiers.add(Identifier.fromFudgeMsg((FudgeMsg) field.getValue()));
     }
     IdentifierSearchType type = IdentifierSearchType.valueOf(msg.getString("searchType"));
     return new IdentifierSearch(identifiers, type);

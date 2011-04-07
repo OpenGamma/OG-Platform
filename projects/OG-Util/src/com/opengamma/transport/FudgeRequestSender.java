@@ -6,7 +6,7 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * Fudge message based RPC style calling interface. 
@@ -32,5 +32,5 @@ public interface FudgeRequestSender {
    * @param request message to send
    * @param responseReceiver callback for a received message
    */
-  void sendRequest(FudgeFieldContainer request, FudgeMessageReceiver responseReceiver);
+  void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver);
 }

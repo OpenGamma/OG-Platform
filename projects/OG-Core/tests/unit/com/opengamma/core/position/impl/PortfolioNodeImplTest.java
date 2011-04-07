@@ -43,7 +43,7 @@ public class PortfolioNodeImplTest {
     assertEquals(0, test.getChildNodes().size());
     assertEquals(0, test.getPositions().size());
     assertEquals(0, test.size());
-    assertEquals("PortfolioNode[A::B, 0 child-nodes, 0 positions]", test.toString());
+    assertEquals("PortfolioNode[A~B, 0 child-nodes, 0 positions]", test.toString());
   }
 
   public void test_construction_String_null() {
@@ -53,7 +53,7 @@ public class PortfolioNodeImplTest {
     assertEquals(0, test.getChildNodes().size());
     assertEquals(0, test.getPositions().size());
     assertEquals(0, test.size());
-    assertEquals("PortfolioNode[A::B, 0 child-nodes, 0 positions]", test.toString());
+    assertEquals("PortfolioNode[A~B, 0 child-nodes, 0 positions]", test.toString());
   }
 
   //-------------------------------------------------------------------------

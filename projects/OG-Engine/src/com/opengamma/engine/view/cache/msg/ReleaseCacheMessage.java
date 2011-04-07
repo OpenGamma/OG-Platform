@@ -14,7 +14,7 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
     _viewName = viewName;
     _timestamp = timestamp;
   }
-  protected ReleaseCacheMessage (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected ReleaseCacheMessage (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (VIEW_NAME_KEY);
@@ -49,26 +49,26 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
   public ReleaseCacheMessage clone () {
     return new ReleaseCacheMessage (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_viewName != null)  {
       msg.add (VIEW_NAME_KEY, null, _viewName);
     }
     msg.add (TIMESTAMP_KEY, null, _timestamp);
   }
-  public static ReleaseCacheMessage fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static ReleaseCacheMessage fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.engine.view.cache.msg.ReleaseCacheMessage".equals (className)) break;
       try {
-        return (com.opengamma.engine.view.cache.msg.ReleaseCacheMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.engine.view.cache.msg.ReleaseCacheMessage)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

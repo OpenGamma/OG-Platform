@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -21,10 +22,10 @@ public class CouponIbor extends CouponFloating {
   private final String _forwardCurveName;
 
   //TODO: Should the spread be in CouponIbor or in a more generic coupon?
-  //TODO: Should the index be stored at the CouponIbor level?
 
   /**
    * Constructor from all details.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
@@ -36,9 +37,9 @@ public class CouponIbor extends CouponFloating {
    * @param spread The spread.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public CouponIbor(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime, double fixingPeriodEndTime,
-      double fixingYearFraction, double spread, String forwardCurveName) {
-    super(paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
+  public CouponIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
+      double fixingPeriodEndTime, double fixingYearFraction, double spread, String forwardCurveName) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
     Validate.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
@@ -52,6 +53,7 @@ public class CouponIbor extends CouponFloating {
 
   /**
    * Constructor from details with spread defaulted to 0.
+   * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
@@ -62,9 +64,9 @@ public class CouponIbor extends CouponFloating {
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public CouponIbor(double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime, double fixingPeriodEndTime,
-      double fixingYearFraction, String forwardCurveName) {
-    this(paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
+  public CouponIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
+      double fixingPeriodEndTime, double fixingYearFraction, String forwardCurveName) {
+    this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
   }
 
   /**
@@ -116,8 +118,8 @@ public class CouponIbor extends CouponFloating {
 
   @Override
   public String toString() {
-    return super.toString() + ", fixing start = " + _fixingPeriodStartTime + ", fixing end = " + _fixingPeriodEndTime + ", fixing year fraction = " + _fixingYearFraction + ", spread = " + _spread
-        + ", forward curve = " + _forwardCurveName;
+    return super.toString() + ", fixing : [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingYearFraction + "], spread = " + _spread + ", forward curve = "
+        + _forwardCurveName;
   }
 
   @Override
@@ -168,12 +170,12 @@ public class CouponIbor extends CouponFloating {
   }
 
   public CouponIbor withSpread(final double spread) {
-    return new CouponIbor(getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+    return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getFixingPeriodStartTime(), getFixingPeriodEndTime(),
         getFixingYearFraction(), spread, getForwardCurveName());
   }
 
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
   }
 
   @Override

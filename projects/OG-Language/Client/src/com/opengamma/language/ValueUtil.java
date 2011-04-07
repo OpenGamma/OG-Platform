@@ -6,7 +6,8 @@
 
 package com.opengamma.language;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,13 +22,27 @@ public final class ValueUtil {
   private ValueUtil() {
   }
 
-  public static Value of(final boolean boolValue) {
+  public static boolean isNull(final Value value) {
+    if (value == null) {
+      return true;
+    }
+    return (value.getBoolValue() == null)
+        && (value.getDoubleValue() == null)
+        && (value.getErrorValue() == null)
+        && (value.getIntValue() == null)
+        && (value.getMessageValue() == null)
+        && (value.getStringValue() == null);
+  }
+
+  public static Value of(final Boolean boolValue) {
+    ArgumentChecker.notNull(boolValue, "boolValue");
     final Value value = new Value();
     value.setBoolValue(boolValue);
     return value;
   }
 
-  public static Value of(final double doubleValue) {
+  public static Value of(final Double doubleValue) {
+    ArgumentChecker.notNull(doubleValue, "doubleValue");
     final Value value = new Value();
     value.setDoubleValue(doubleValue);
     return value;
@@ -39,13 +54,14 @@ public final class ValueUtil {
     return value;
   }
 
-  public static Value of(final int intValue) {
+  public static Value of(final Integer intValue) {
+    ArgumentChecker.notNull(intValue, "intValue");
     final Value value = new Value();
     value.setIntValue(intValue);
     return value;
   }
 
-  public static Value of(final FudgeFieldContainer messageValue) {
+  public static Value of(final FudgeMsg messageValue) {
     ArgumentChecker.notNull(messageValue, "messageValue");
     final Value value = new Value();
     value.setMessageValue(messageValue);
@@ -57,6 +73,136 @@ public final class ValueUtil {
     final Value value = new Value();
     value.setStringValue(stringValue);
     return value;
+  }
+
+  public static Boolean toBool(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue();
+    } else if (data.getIntValue() != null) {
+      return data.getIntValue() != 0;
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue() != 0;
+    } else {
+      return null;
+    }
+  }
+
+  public static Double toDouble(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue();
+    } else if (data.getIntValue() != null) {
+      return (double) data.getIntValue();
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue() ? 1.0 : 0.0;
+    } else if (data.getStringValue() != null) {
+      return Double.parseDouble(data.getStringValue());
+    } else {
+      return null;
+    }
+  }
+
+  public static Integer toError(final Value data) {
+    if (data == null) {
+      return null;
+    }
+    if (data.getErrorValue() != null) {
+      return data.getErrorValue();
+    } else {
+      return null;
+    }
+  }
+
+  public static Integer toInt(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getErrorValue() != null) {
+      return null;
+    } else if (data.getIntValue() != null) {
+      return data.getIntValue();
+    } else if (data.getDoubleValue() != null) {
+      return data.getDoubleValue().intValue();
+    } else if (data.getBoolValue() != null) {
+      return data.getBoolValue() ? 1 : 0;
+    } else if (data.getStringValue() != null) {
+      return Integer.parseInt(data.getStringValue());
+    } else {
+      return null;
+    }
+  }
+
+  public static FudgeMsg toMessage(final Value data) {
+    if (data == null) {
+      return null;
+    } else if (data.getMessageValue() != null) {
+      return data.getMessageValue();
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Displayable form of the Value object.
+   * 
+   * @param value value to convert to a string
+   * @param quoted {@code true} to surround strings in quote marks and escape them, {@code false} otherwise
+   * @return a displayable string representation
+   */
+  public static String toString(final Value value, final boolean quoted) {
+    if (value == null) {
+      return null;
+    }
+    final StringBuilder sb = new StringBuilder();
+    if (value.getErrorValue() != null) {
+      sb.append("{Error ").append(value.getErrorValue());
+    }
+    if (value.getBoolValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getBoolValue());
+    }
+    if (value.getDoubleValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getDoubleValue());
+    }
+    if (value.getIntValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getIntValue());
+    }
+    if (value.getMessageValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(value.getMessageValue());
+    }
+    if (value.getStringValue() != null) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      if (quoted) {
+        sb.append("\"");
+        sb.append(StringEscapeUtils.escapeJava(value.getStringValue()));
+        sb.append("\"");
+      } else {
+        sb.append(value.getStringValue());
+      }
+    }
+    if (value.getErrorValue() != null) {
+      sb.append("}");
+    }
+    return sb.toString();
   }
 
 }

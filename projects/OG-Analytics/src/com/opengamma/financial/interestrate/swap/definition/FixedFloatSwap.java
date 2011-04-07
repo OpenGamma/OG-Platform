@@ -11,6 +11,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -28,6 +29,7 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
 
   /**
    * Sets up a basic fixed float swap for testing purposes. For a real world swap, set up the fixed and floating leg separately and pass them to other constructor
+   * @param currency The payment currency.
    * @param fixedPaymentTimes Time in years of fixed payments 
    * @param floatingPaymentTimes  Time in Years of floating payments
    * @param couponRate fixed rate paid on the notional amount on fixed payment dates (amount paid is notional*rate*yearFraction)
@@ -35,8 +37,9 @@ public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
    * @param liborCurveName Name of curve from which forward rates are calculated
    * @param isPayer TODO
    */
-  public FixedFloatSwap(final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName, boolean isPayer) {
-    this(new AnnuityCouponFixed(fixedPaymentTimes, couponRate, fundingCurveName, isPayer), new AnnuityCouponIbor(floatingPaymentTimes, fundingCurveName, liborCurveName, !isPayer));
+  public FixedFloatSwap(Currency currency, final double[] fixedPaymentTimes, final double[] floatingPaymentTimes, final double couponRate, final String fundingCurveName, final String liborCurveName,
+      boolean isPayer) {
+    this(new AnnuityCouponFixed(currency, fixedPaymentTimes, couponRate, fundingCurveName, isPayer), new AnnuityCouponIbor(currency, floatingPaymentTimes, fundingCurveName, liborCurveName, !isPayer));
   }
 
   public AnnuityCouponIbor getFloatingLeg() {

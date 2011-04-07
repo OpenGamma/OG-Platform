@@ -13,7 +13,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -30,7 +30,7 @@ public class VersionCorrectionTest {
     VersionCorrection test = VersionCorrection.LATEST;
     assertEquals(null, test.getVersionAsOf());
     assertEquals(null, test.getCorrectedTo());
-    assertEquals("VLATEST.CLATEST", test.toString());
+    assertEquals("VLATEST~CLATEST", test.toString());
   }
 
   //-------------------------------------------------------------------------
@@ -38,21 +38,21 @@ public class VersionCorrectionTest {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
     assertEquals(INSTANT1, test.getVersionAsOf());
     assertEquals(INSTANT2, test.getCorrectedTo());
-    assertEquals("V1970-01-01T00:00:01Z.C1970-01-01T00:00:02Z", test.toString());
+    assertEquals("V1970-01-01T00:00:01Z~C1970-01-01T00:00:02Z", test.toString());
   }
 
   public void test_of_InstantInstant_nullVersion() {
     VersionCorrection test = VersionCorrection.of((InstantProvider) null, INSTANT2);
     assertEquals(null, test.getVersionAsOf());
     assertEquals(INSTANT2, test.getCorrectedTo());
-    assertEquals("VLATEST.C1970-01-01T00:00:02Z", test.toString());
+    assertEquals("VLATEST~C1970-01-01T00:00:02Z", test.toString());
   }
 
   public void test_of_InstantInstant_nullCorrection() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, (InstantProvider) null);
     assertEquals(INSTANT1, test.getVersionAsOf());
     assertEquals(null, test.getCorrectedTo());
-    assertEquals("V1970-01-01T00:00:01Z.CLATEST", test.toString());
+    assertEquals("V1970-01-01T00:00:01Z~CLATEST", test.toString());
   }
 
   public void test_of_InstantInstant_nulls() {
@@ -226,7 +226,7 @@ public class VersionCorrectionTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding_notNull() {
     VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
@@ -236,7 +236,7 @@ public class VersionCorrectionTest {
 
   public void test_fudgeEncoding_nulls() {
     VersionCorrection test = VersionCorrection.of(null, null);
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(0, msg.getNumFields());
     

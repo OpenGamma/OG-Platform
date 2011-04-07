@@ -7,8 +7,8 @@ package com.opengamma.financial.fudgemsg;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -28,16 +28,16 @@ import com.opengamma.util.time.Tenor;
 public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIncomeStripWithSecurity> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, FixedIncomeStripWithSecurity object) {
-    MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, "type", null, object.getInstrumentType());
-    context.objectToFudgeMsg(message, "tenor", null, object.getTenor());
-    context.objectToFudgeMsg(message, "resolvedTenor", null, object.getResolvedTenor());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, FixedIncomeStripWithSecurity object) {
+    MutableFudgeMsg message = context.newMessage();
+    context.addToMessage(message, "type", null, object.getInstrumentType());
+    context.addToMessage(message, "tenor", null, object.getTenor());
+    context.addToMessage(message, "resolvedTenor", null, object.getResolvedTenor());
     ZonedDateTimeBuilder zonedDateTimeBuilder = new ZonedDateTimeBuilder();
-    MutableFudgeFieldContainer subMessage = zonedDateTimeBuilder.buildMessage(context, object.getMaturity());
-    context.objectToFudgeMsg(message, "maturity", null, subMessage);
-    context.objectToFudgeMsg(message, "identifier", null, object.getSecurityIdentifier());
-    context.objectToFudgeMsgWithClassHeaders(message, "security", null, object.getSecurity());
+    MutableFudgeMsg subMessage = zonedDateTimeBuilder.buildMessage(context, object.getMaturity());
+    context.addToMessage(message, "maturity", null, subMessage);
+    context.addToMessage(message, "identifier", null, object.getSecurityIdentifier());
+    context.addToMessageWithClassHeaders(message, "security", null, object.getSecurity());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add("numFutures", object.getNumberOfFuturesAfterTenor());
     }
@@ -45,7 +45,7 @@ public class FixedIncomeStripWithSecurityBuilder implements FudgeBuilder<FixedIn
   }
 
   @Override
-  public FixedIncomeStripWithSecurity buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public FixedIncomeStripWithSecurity buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     StripInstrumentType type = context.fieldValueToObject(StripInstrumentType.class, message.getByName("type"));
     Tenor tenor = context.fieldValueToObject(Tenor.class, message.getByName("tenor"));
     Tenor resolvedTenor = context.fieldValueToObject(Tenor.class, message.getByName("resolvedTenor"));

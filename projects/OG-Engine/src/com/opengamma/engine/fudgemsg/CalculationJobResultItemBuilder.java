@@ -7,8 +7,8 @@ package com.opengamma.engine.fudgemsg;
 
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -32,20 +32,20 @@ public class CalculationJobResultItemBuilder implements FudgeBuilder<Calculation
   private static final String MISSING_INPUTS_FIELD_NAME = "missingInputs";
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, CalculationJobResultItem object) {
-    MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, ITEM_FIELD_NAME, null, object.getItem());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CalculationJobResultItem object) {
+    MutableFudgeMsg msg = context.newMessage();
+    context.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
     msg.add(INVOCATION_RESULT_FIELD_NAME, object.getResult().name());
     msg.add(EXCEPTION_CLASS_FIELD_NAME, object.getExceptionClass());
     msg.add(EXCEPTION_MSG_FIELD_NAME, object.getExceptionMsg());
     msg.add(STACK_TRACE_FIELD_NAME, object.getStackTrace());
-    context.objectToFudgeMsg(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
+    context.addToMessage(msg, MISSING_INPUTS_FIELD_NAME, null, object.getMissingInputs());
     return msg;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public CalculationJobResultItem buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public CalculationJobResultItem buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     CalculationJobItem item = context.fudgeMsgToObject(CalculationJobItem.class, message.getMessage(ITEM_FIELD_NAME));
     String resultName = message.getString(INVOCATION_RESULT_FIELD_NAME);
     InvocationResult result = InvocationResult.valueOf(resultName);

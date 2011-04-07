@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.PublicAPI;
 
@@ -57,6 +57,6 @@ public interface LiveDataValueUpdate {
    * 
    * @return market data
    */
-  FudgeFieldContainer getFields();
+  FudgeMsg getFields();
 
 }

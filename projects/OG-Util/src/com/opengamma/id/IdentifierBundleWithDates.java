@@ -20,9 +20,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,6 +36,9 @@ import com.opengamma.util.ArgumentChecker;
  * This class is immutable and thread-safe.
  */
 public final class IdentifierBundleWithDates implements Iterable<IdentifierWithDates>, Serializable, Comparable<IdentifierBundleWithDates> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Singleton empty bundle.
@@ -309,7 +312,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
   }
 
   //-------------------------------------------------------------------------
-  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory factory, final MutableFudgeFieldContainer message) {
+  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
     ArgumentChecker.notNull(factory, "factory");
     ArgumentChecker.notNull(message, "message");
     for (IdentifierWithDates identifier : getIdentifiers()) {
@@ -323,7 +326,7 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
    * @param factory  the Fudge context, not null
    * @return the Fudge message, not null
    */
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
     return toFudgeMsg(factory, factory.newMessage());
   }
 
@@ -332,13 +335,13 @@ public final class IdentifierBundleWithDates implements Iterable<IdentifierWithD
    * @param msg  the Fudge message, not null
    * @return the pair, not null
    */
-  public static IdentifierBundleWithDates fromFudgeMsg(FudgeFieldContainer msg) {
+  public static IdentifierBundleWithDates fromFudgeMsg(FudgeMsg msg) {
     Set<IdentifierWithDates> identifiers = new HashSet<IdentifierWithDates>();
     for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
-      if (field.getValue() instanceof FudgeFieldContainer == false) {
+      if (field.getValue() instanceof FudgeMsg == false) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }
-      identifiers.add(IdentifierWithDates.fromFudgeMsg((FudgeFieldContainer) field.getValue()));
+      identifiers.add(IdentifierWithDates.fromFudgeMsg((FudgeMsg) field.getValue()));
     }
     return new IdentifierBundleWithDates(identifiers);
   }

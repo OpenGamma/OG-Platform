@@ -7,8 +7,8 @@ package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.fudgemsg.FudgeMsgField;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.UnmodifiableFudgeField;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
@@ -28,13 +28,13 @@ public class CurrencyTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
-        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getCode())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getCode())));
   }
 
   @Test
   public void testFromUniqueIdentifier() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Currency.class,
-        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.getUniqueId().toString())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getUniqueId().toString())));
   }
 
 }

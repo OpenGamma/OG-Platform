@@ -32,6 +32,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -51,6 +53,8 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/timeseries")
 public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(WebAllTimeSeriesResource.class);
   
   /**
    * Creates the resource.
@@ -182,8 +186,14 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     
     URI uri = null;
     if (identifiers.size() == 1) {
-      UniqueIdentifier uid = added.get(identifiers.iterator().next());
-      uri = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+      Identifier requestIdentifier = identifiers.iterator().next();
+      UniqueIdentifier uid = added.get(requestIdentifier);
+      if (uid != null) {
+        uri = data().getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+      } else {
+        uri = uri(data());
+        s_logger.warn("No timeseries added for {} ", requestIdentifier);
+      }
     } else {
       uri = uri(data(), identifiers);
     }

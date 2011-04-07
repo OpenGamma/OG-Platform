@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.client.ViewClient;
@@ -98,8 +98,8 @@ public class DataViewClientResource {
   @Path(PATH_LATEST_RESULT)
   public Response getLatestResult() {
     FudgeSerializationContext context = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, PATH_LATEST_RESULT, null, getViewClient().getLatestResult());
+    MutableFudgeMsg msg = context.newMessage();
+    context.addToMessage(msg, PATH_LATEST_RESULT, null, getViewClient().getLatestResult());
     return Response.ok(new FudgeMsgEnvelope(msg)).build();
   }
   
@@ -148,8 +148,8 @@ public class DataViewClientResource {
   @Path(PATH_RUN_ONE_CYCLE)
   public Response runOneCycle(Long valuationTime) {
     FudgeSerializationContext context = getFudgeSerializationContext();
-    MutableFudgeFieldContainer msg = context.newMessage();
-    context.objectToFudgeMsg(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
+    MutableFudgeMsg msg = context.newMessage();
+    context.addToMessage(msg, PATH_RUN_ONE_CYCLE, null, getViewClient().runOneCycle(valuationTime));
     return Response.ok(new FudgeMsgEnvelope(msg)).build();
   }
 

@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
@@ -114,7 +113,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         IdentifierSearch.canMatch(exchangeKeys) == false) {
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())

@@ -15,12 +15,12 @@ public class BondFutureDeliverable implements java.io.Serializable {
     }
     _conversionFactor = conversionFactor;
   }
-  protected BondFutureDeliverable (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected BondFutureDeliverable (final org.fudgemsg.FudgeMsg fudgeMsg) {
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (IDENTIFIERS_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'identifiers' is not present");
     try {
-      _identifiers = com.opengamma.id.IdentifierBundle.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _identifiers = com.opengamma.id.IdentifierBundle.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a BondFutureDeliverable - field 'identifiers' is not IdentifierBundle message", e);
@@ -45,27 +45,27 @@ public class BondFutureDeliverable implements java.io.Serializable {
   public BondFutureDeliverable clone () {
     return new BondFutureDeliverable (this);
   }
-  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext) {
+  public org.fudgemsg.FudgeMsg toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext) {
     if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
-    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    final org.fudgemsg.MutableFudgeMsg msg = fudgeContext.newMessage ();
     toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     if (_identifiers != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.IdentifierBundle.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _identifiers.getClass (), com.opengamma.id.IdentifierBundle.class);
       _identifiers.toFudgeMsg (fudgeContext, fudge1);
       msg.add (IDENTIFIERS_KEY, null, fudge1);
     }
     msg.add (CONVERSION_FACTOR_KEY, null, _conversionFactor);
   }
-  public static BondFutureDeliverable fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static BondFutureDeliverable fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.future.BondFutureDeliverable".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.future.BondFutureDeliverable)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.future.BondFutureDeliverable)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

@@ -6,9 +6,11 @@
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
+
+import org.fudgemsg.UnmodifiableFudgeField;
+import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
-import org.fudgemsg.FudgeMsgField;
-import org.fudgemsg.types.StringFieldType;
+
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 
 /**
@@ -26,7 +28,7 @@ public class StripInstrumentTypeTest extends FinancialTestBase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(StripInstrumentType.class,
-        FudgeMsgField.of(StringFieldType.INSTANCE, s_ref.name())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.name())));
   }
 
 }

@@ -16,7 +16,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,18 +62,18 @@ public class CachingFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public FudgeFieldContainer get(long identifier) {
+  public FudgeMsg get(long identifier) {
     final Element cacheElement = getCache().get(identifier);
     if (cacheElement != null) {
-      return (FudgeFieldContainer) cacheElement.getObjectValue();
+      return (FudgeMsg) cacheElement.getObjectValue();
     }
-    final FudgeFieldContainer data = getUnderlying().get(identifier);
+    final FudgeMsg data = getUnderlying().get(identifier);
     getCache().put(new Element(identifier, data));
     return data;
   }
 
   @Override
-  public void put(final long identifier, final FudgeFieldContainer data) {
+  public void put(final long identifier, final FudgeMsg data) {
     getUnderlying().put(identifier, data);
     getCache().put(new Element(identifier, data));
   }
@@ -84,13 +84,13 @@ public class CachingFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public Map<Long, FudgeFieldContainer> get(Collection<Long> identifiers) {
-    final Map<Long, FudgeFieldContainer> result = new HashMap<Long, FudgeFieldContainer>();
+  public Map<Long, FudgeMsg> get(Collection<Long> identifiers) {
+    final Map<Long, FudgeMsg> result = new HashMap<Long, FudgeMsg>();
     final List<Long> missing = new ArrayList<Long>(identifiers.size());
     for (Long identifier : identifiers) {
       final Element cacheElement = getCache().get(identifier);
       if (cacheElement != null) {
-        result.put(identifier, (FudgeFieldContainer) cacheElement.getObjectValue());
+        result.put(identifier, (FudgeMsg) cacheElement.getObjectValue());
       } else {
         missing.add(identifier);
       }
@@ -100,12 +100,12 @@ public class CachingFudgeMessageStore implements FudgeMessageStore {
     }
     if (missing.size() == 1) {
       final Long missingIdentifier = missing.get(0);
-      final FudgeFieldContainer data = getUnderlying().get(missingIdentifier);
+      final FudgeMsg data = getUnderlying().get(missingIdentifier);
       result.put(missingIdentifier, data);
       getCache().put(new Element(missingIdentifier, data));
     } else {
-      final Map<Long, FudgeFieldContainer> missingData = getUnderlying().get(missing);
-      for (Map.Entry<Long, FudgeFieldContainer> data : missingData.entrySet()) {
+      final Map<Long, FudgeMsg> missingData = getUnderlying().get(missing);
+      for (Map.Entry<Long, FudgeMsg> data : missingData.entrySet()) {
         result.put(data.getKey(), data.getValue());
         getCache().put(new Element(data.getKey(), data.getValue()));
       }
@@ -114,9 +114,9 @@ public class CachingFudgeMessageStore implements FudgeMessageStore {
   }
 
   @Override
-  public void put(final Map<Long, FudgeFieldContainer> data) {
+  public void put(final Map<Long, FudgeMsg> data) {
     getUnderlying().put(data);
-    for (Map.Entry<Long, FudgeFieldContainer> element : data.entrySet()) {
+    for (Map.Entry<Long, FudgeMsg> element : data.entrySet()) {
       getCache().put(new Element(element.getKey(), element.getValue()));
     }
   }

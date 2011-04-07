@@ -7,7 +7,7 @@ package com.opengamma.id;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 /**
  * Defines an Identifier as a Fudge type using a String.
@@ -20,6 +20,9 @@ import org.fudgemsg.types.StringFieldType;
  */
 public final class IdentifierFudgeType extends SecondaryFieldType<Identifier, String> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton instance of the type.
    */
@@ -30,7 +33,7 @@ public final class IdentifierFudgeType extends SecondaryFieldType<Identifier, St
    * Creates an instance.
    */
   private IdentifierFudgeType() {
-    super(StringFieldType.INSTANCE, Identifier.class);
+    super(FudgeWireType.STRING, Identifier.class);
   }
 
   // -------------------------------------------------------------------------

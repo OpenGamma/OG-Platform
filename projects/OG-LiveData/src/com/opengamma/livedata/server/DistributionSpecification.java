@@ -7,7 +7,7 @@ package com.opengamma.livedata.server;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -77,8 +77,8 @@ public class DistributionSpecification {
    * @return the normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
-  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg, FieldHistoryStore history) {
-    FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
+  public FudgeMsg getNormalizedMessage(FudgeMsg msg, FieldHistoryStore history) {
+    FudgeMsg normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
         history);
     
     if (normalizedMsg == null) {
@@ -95,7 +95,7 @@ public class DistributionSpecification {
    * @param msg Message received from underlying market data API in its native format.
    * @return A normalized message, calculated assuming there is no market data history.
    */
-  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
+  public FudgeMsg getNormalizedMessage(FudgeMsg msg) {
     FieldHistoryStore history = new FieldHistoryStore();
     return getNormalizedMessage(msg, history);  
   }

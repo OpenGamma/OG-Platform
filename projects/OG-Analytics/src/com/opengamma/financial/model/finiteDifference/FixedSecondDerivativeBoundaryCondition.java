@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finiteDifference;
 
 /**
- * 
+ * boundary condition, i.e. d^2u/dx^2(A,t) = f(t), where A is the boundary level, and f(t) is some specified function of time
  */
 public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition {
 
@@ -19,8 +19,8 @@ public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t) {
-    return _secondDev;
+  public double getConstant(final PDEDataBundle data, final double t, final double dx) {
+    return _secondDev * dx * dx;
   }
 
   @Override

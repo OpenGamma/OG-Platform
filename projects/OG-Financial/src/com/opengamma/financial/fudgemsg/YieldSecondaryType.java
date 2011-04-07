@@ -7,7 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
-import org.fudgemsg.types.StringFieldType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -24,7 +24,7 @@ public final class YieldSecondaryType extends SecondaryFieldType<YieldConvention
   public static final YieldSecondaryType INSTANCE = new YieldSecondaryType();
 
   private YieldSecondaryType() {
-    super(StringFieldType.INSTANCE, YieldConvention.class);
+    super(FudgeWireType.STRING, YieldConvention.class);
   }
 
   @Override

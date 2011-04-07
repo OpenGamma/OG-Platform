@@ -28,13 +28,13 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     if (currency == null) throw new NullPointerException ("currency' cannot be null");
     _currency = currency;
   }
-  protected FutureSecurity (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  protected FutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (EXPIRY_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'expiry' is not present");
     try {
-      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeFieldContainer.class, fudgeField));
+      _expiry = com.opengamma.util.time.Expiry.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
       throw new IllegalArgumentException ("Fudge message is not a FutureSecurity - field 'expiry' is not Expiry message", e);
@@ -88,10 +88,10 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
     _settlementExchange = source._settlementExchange;
     _currency = source._currency;
   }
-  public void toFudgeMsg (final org.fudgemsg.FudgeMessageFactory fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
     if (_expiry != null)  {
-      final org.fudgemsg.MutableFudgeFieldContainer fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _expiry.getClass (), com.opengamma.util.time.Expiry.class);
       _expiry.toFudgeMsg (fudgeContext, fudge1);
       msg.add (EXPIRY_KEY, null, fudge1);
     }
@@ -105,13 +105,13 @@ public abstract class FutureSecurity extends com.opengamma.financial.security.Fi
       msg.add (CURRENCY_KEY, null, _currency);
     }
   }
-  public static FutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+  public static FutureSecurity fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {
     final java.util.List<org.fudgemsg.FudgeField> types = fudgeMsg.getAllByOrdinal (0);
     for (org.fudgemsg.FudgeField field : types) {
       final String className = (String)field.getValue ();
       if ("com.opengamma.financial.security.future.FutureSecurity".equals (className)) break;
       try {
-        return (com.opengamma.financial.security.future.FutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeFieldContainer.class).invoke (null, fudgeMsg);
+        return (com.opengamma.financial.security.future.FutureSecurity)Class.forName (className).getDeclaredMethod ("fromFudgeMsg", org.fudgemsg.FudgeMsg.class).invoke (null, fudgeMsg);
       }
       catch (Throwable t) {
         // no-action

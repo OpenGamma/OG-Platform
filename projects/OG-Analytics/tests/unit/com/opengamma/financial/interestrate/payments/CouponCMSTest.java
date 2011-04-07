@@ -26,7 +26,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
-import com.opengamma.financial.instrument.swap.ZZZSwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
@@ -42,11 +42,11 @@ import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVol
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.tuple.DoublesPair;
 
 public class CouponCMSTest {
   //Swap 5Y
@@ -71,16 +71,18 @@ public class CouponCMSTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER);
   // CMS coupon construction
   private static final CMSIndex CMS_INDEX = new CMSIndex(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
-  private static final ZZZSwapFixedIborDefinition SWAP_DEFINITION = new ZZZSwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
-  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
-  private static final ZonedDateTime FIXING_DATE = DateUtil.getUTCDate(2010, 12, 30);
-  private static final ZonedDateTime ACCRUAL_START_DATE = DateUtil.getUTCDate(2011, 1, 5);
-  private static final ZonedDateTime ACCRUAL_END_DATE = DateUtil.getUTCDate(2011, 4, 5);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
+  private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2014, 6, 17); // Prefixed
+  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
+  private static final ZonedDateTime ACCRUAL_START_DATE = SETTLEMENT_DATE;
+  private static final ZonedDateTime ACCRUAL_END_DATE = PAYMENT_DATE;
   private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
-  private static final CouponCMSDefinition CMS_COUPON_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP_DEFINITION,
-      CMS_INDEX);
+  private static final CouponCMSDefinition CMS_COUPON_RECEIVER_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
+      SWAP_DEFINITION, CMS_INDEX);
+  private static final CouponCMSDefinition CMS_COUPON_PAYER_DEFINITION = CouponCMSDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, -NOTIONAL, FIXING_DATE,
+      SWAP_DEFINITION, CMS_INDEX);
   // to derivatives
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
@@ -88,7 +90,8 @@ public class CouponCMSTest {
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final FixedCouponSwap<Payment> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
-  private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final CouponCMS CMS_COUPON_RECEIVER = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final CouponCMS CMS_COUPON_PAYER = (CouponCMS) CMS_COUPON_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   // Calculators
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
@@ -99,9 +102,9 @@ public class CouponCMSTest {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
     double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
-    assertEquals(fixingTime, CMS_COUPON.getFixingTime(), 1E-10);
-    assertEquals(SWAP, CMS_COUPON.getUnderlyingSwap());
-    assertEquals(NOTIONAL, CMS_COUPON.getNotional(), 1E-10);
+    assertEquals(fixingTime, CMS_COUPON_RECEIVER.getFixingTime(), 1E-10);
+    assertEquals(SWAP, CMS_COUPON_RECEIVER.getUnderlyingSwap());
+    assertEquals(NOTIONAL, CMS_COUPON_RECEIVER.getNotional(), 1E-10);
   }
 
   @Test
@@ -110,8 +113,8 @@ public class CouponCMSTest {
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     double forward = PRC.visit(SWAP, curves);
-    double discountFactor = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON.getPaymentTime());
-    CMSIntegrant integrant = new CMSIntegrant(CMS_COUPON, sabrParameter, forward);
+    double discountFactor = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CMS_COUPON_RECEIVER.getPaymentTime());
+    CMSIntegrant integrant = new CMSIntegrant(CMS_COUPON_RECEIVER, sabrParameter, forward);
     double factor = discountFactor / integrant.h(forward) * integrant.G(forward);
     double strike = 0; //CMS swap is equivalent to CMS cap with strike 0 (when rates are always positive).
     double strikePart = integrant.k(strike) * integrant.bs(strike, forward);
@@ -119,59 +122,24 @@ public class CouponCMSTest {
     double relativeTolerance = 1.0;
     int nbIteration = 15;
     RungeKuttaIntegrator1D integratorOG = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, nbIteration);
-    double integrationInterval = 0.50;
+    double integrationInterval = 1.00;
     double integralPart;
     try {
       integralPart = integratorOG.integrate(integrant, strike, strike + integrationInterval);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON.getNotional() * CMS_COUPON.getPaymentYearFraction();
-    assertEquals(10161.601, priceCMS, 1E-2);
+    double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON_RECEIVER.getNotional() * CMS_COUPON_RECEIVER.getPaymentYearFraction();
+    assertEquals(8854.551, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
-
     CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod(integrationInterval);
-    double priceCMS_method = replication.price(CMS_COUPON, sabrBundle);
-    assertEquals(priceCMS, priceCMS_method, 2E-1); // Different precision in integration.
-    double priceCMS_calculator = PVC.visit(CMS_COUPON, sabrBundle);
+    double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
+    assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
+    double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);
     assertEquals(priceCMS_method, priceCMS_calculator, 2E-1);// Different precision in integration.
-    double priceCMS_noConvexity = PVC.visit(CMS_COUPON, curves);// Price without convexity adjustment.
-    assertEquals(priceCMS_calculator, priceCMS_noConvexity, 50.0);
+    double priceCMS_noConvexity = PVC.visit(CMS_COUPON_RECEIVER, curves);// Price without convexity adjustment.
+    assertEquals(priceCMS_calculator, priceCMS_noConvexity, 400.0);
     assertEquals(priceCMS_calculator > priceCMS_noConvexity, true);
-
-    //    // Performance analysis.
-    //    long startTime, endTime;
-    //    int nbTest = 10;
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      priceCMS_calculator = replication.price(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication (" + integrationInterval + "): " + (endTime - startTime) + " ms / price: " + priceCMS_calculator);
-    //    integrationInterval = 1.00;
-    //    replication.setIntegrationInterval(integrationInterval);
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      priceCMS_calculator = replication.price(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication (" + integrationInterval + "): " + (endTime - startTime) + " ms / price: " + priceCMS_calculator);
-    //    integrationInterval = 0.50;
-    //    replication.setIntegrationInterval(integrationInterval);
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      priceCMS_calculator = replication.price(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication (" + integrationInterval + "): " + (endTime - startTime) + " ms / price: " + priceCMS_calculator);
-    //    integrationInterval = 1.00;
-    //    replication.setIntegrationInterval(integrationInterval);
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest; looptest++) {
-    //      priceCMS_calculator = replication.price(CMS_COUPON, sabrBundle);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest + " CMS swap by replication (" + integrationInterval + "): " + (endTime - startTime) + " ms / price: " + priceCMS_calculator);
   }
 
   @Test
@@ -180,22 +148,22 @@ public class CouponCMSTest {
     // SABR Hagan volatility function
     SABRInterestRateParameter sabrParameterHagan = TestsDataSets.createSABR1(new SABRHaganVolatilityFunction());
     SABRInterestRateDataBundle sabrHaganBundle = new SABRInterestRateDataBundle(sabrParameterHagan, curves);
-    double priceHagan = PVC.visit(CMS_COUPON, sabrHaganBundle);
+    double priceHagan = PVC.visit(CMS_COUPON_RECEIVER, sabrHaganBundle);
     // From previous run
-    assertEquals(10161.737, priceHagan, 1E-2);
+    assertEquals(8853.207, priceHagan, 1E-2);
     // No convexity adjustment
-    double priceNoConvexity = PVC.visit(CMS_COUPON, curves);
-    assertEquals(priceHagan, priceNoConvexity, 50.0);
+    double priceNoConvexity = PVC.visit(CMS_COUPON_RECEIVER, curves);
+    assertEquals(priceHagan, priceNoConvexity, 400.0);
     // SABR Hagan alternative volatility function
     SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     SABRInterestRateDataBundle sabrHaganAltBundle = new SABRInterestRateDataBundle(sabrParameterHaganAlt, curves);
-    double priceHaganAlt = PVC.visit(CMS_COUPON, sabrHaganAltBundle);
-    assertEquals(priceHagan, priceHaganAlt, 1);
+    double priceHaganAlt = PVC.visit(CMS_COUPON_RECEIVER, sabrHaganAltBundle);
+    assertEquals(priceHagan, priceHaganAlt, 40.0);
     // SABR Berestycki volatility function
     SABRInterestRateParameter sabrParameterBerestycki = TestsDataSets.createSABR1(new SABRBerestyckiVolatilityFunction());
     SABRInterestRateDataBundle sabrBerestyckiBundle = new SABRInterestRateDataBundle(sabrParameterBerestycki, curves);
-    double priceBerestycki = PVC.visit(CMS_COUPON, sabrBerestyckiBundle);
-    assertEquals(priceHagan, priceBerestycki, 1);
+    double priceBerestycki = PVC.visit(CMS_COUPON_RECEIVER, sabrBerestyckiBundle);
+    assertEquals(priceHagan, priceBerestycki, 5);
     // SABR Johnson volatility function
     //    SABRInterestRateParameter sabrParameterJohnson = TestsDataSets.createSABR1(new SABRJohnsonVolatilityFunction());
     //    SABRInterestRateDataBundle sabrJohnsonBundle = new SABRInterestRateDataBundle(sabrParameterJohnson, curves);
@@ -204,9 +172,8 @@ public class CouponCMSTest {
     // SABR Paulot volatility function ! Does not work well !
     SABRInterestRateParameter sabrParameterPaulot = TestsDataSets.createSABR1(new SABRPaulotVolatilityFunction());
     SABRInterestRateDataBundle sabrPaulotBundle = new SABRInterestRateDataBundle(sabrParameterPaulot, curves);
-    double pricePaulot = PVC.visit(CMS_COUPON, sabrPaulotBundle);
-    assertEquals(priceHagan, pricePaulot, 1);
-
+    double pricePaulot = PVC.visit(CMS_COUPON_RECEIVER, sabrPaulotBundle);
+    assertEquals(priceHagan, pricePaulot, 15);
   }
 
   private class CMSIntegrant extends Function1D<Double, Double> {
@@ -231,18 +198,12 @@ public class CouponCMSTest {
       _nbFixedPeriod = cmsCoupon.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCoupon.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
-      _delta = cmsCoupon.getPaymentTime() - cmsCoupon.getFixingTime();
-      //FIXME: The delta definition should be improved.
-      _eta = -_delta / _tau;
+      _delta = cmsCoupon.getPaymentTime() - cmsCoupon.getSettlementTime();
+      _eta = -_delta;
       _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCoupon.getFixingTime();
-      // FIXME: A better notion of maturity is required
       AnnuityCouponFixed annuityFixed = cmsCoupon.getUnderlyingSwap().getFixedLeg();
-      double maturity = annuityFixed.getNthPayment(0).getPaymentYearFraction();
-      if (annuityFixed.getNumberOfPayments() >= 2) {
-        maturity += annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - annuityFixed.getNthPayment(0).getPaymentTime();
-      }
-      _maturity = maturity;
+      _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCoupon.getSettlementTime();
       _forward = forward;
     }
 
@@ -306,7 +267,7 @@ public class CouponCMSTest {
 
     double bs(double strike, double forward) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, true);
-      double volatility = _sabrParameter.getVolatility(new DoublesPair(_timeToExpiry, _maturity), strike, forward);
+      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, forward);
       BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
       Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);

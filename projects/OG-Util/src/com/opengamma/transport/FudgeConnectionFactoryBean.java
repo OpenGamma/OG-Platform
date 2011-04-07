@@ -8,7 +8,7 @@ package com.opengamma.transport;
 import java.util.concurrent.ExecutorService;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
 import com.opengamma.transport.socket.SocketFudgeConnection;
@@ -49,7 +49,7 @@ public class FudgeConnectionFactoryBean extends SingletonFactoryBean<FudgeConnec
     return _endPointDescriptionProvider;
   }
 
-  private FudgeFieldContainer resolveEndPointDescription() {
+  private FudgeMsg resolveEndPointDescription() {
     if (_endPointDescriptionProvider != null) {
       ArgumentChecker.notNull(getFudgeContext(), "fudgeContext");
       return _endPointDescriptionProvider.getEndPointDescription(getFudgeContext());
@@ -60,7 +60,7 @@ public class FudgeConnectionFactoryBean extends SingletonFactoryBean<FudgeConnec
 
   @Override
   protected FudgeConnection createObject() {
-    final FudgeFieldContainer endPoint = resolveEndPointDescription();
+    final FudgeMsg endPoint = resolveEndPointDescription();
     ArgumentChecker.notNull(endPoint, "endPointDescription");
     if (AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
       final SocketFudgeConnection connection = (getExecutorService() != null) ? new SocketFudgeConnection(getFudgeContext(), getExecutorService()) : new SocketFudgeConnection(getFudgeContext());

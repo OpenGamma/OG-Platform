@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.normalization;
 
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
 
@@ -32,8 +32,8 @@ public interface NormalizationRule {
    * Null is a valid return value and means that the message should
    * not be sent to the client at all.
    */
-  MutableFudgeFieldContainer apply(
-      MutableFudgeFieldContainer msg,
+  MutableFudgeMsg apply(
+      MutableFudgeMsg msg,
       FieldHistoryStore fieldHistory);
 
 }

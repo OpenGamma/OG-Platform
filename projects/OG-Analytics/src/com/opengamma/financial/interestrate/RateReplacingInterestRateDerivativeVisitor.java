@@ -43,7 +43,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
       coupons[i] = rate;
       yearFrac[i] = temp.getPaymentYearFraction();
     }
-    return new Bond(times, coupons, yearFrac, bond.getAccruedInterest(), payments[0].getFundingCurveName());
+    return new Bond(bond.getCurrency(), times, coupons, yearFrac, bond.getAccruedInterest(), payments[0].getFundingCurveName());
   }
 
   @Override
@@ -64,7 +64,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public CouponFixed visitFixedCouponPayment(final CouponFixed payment, final Double rate) {
-    return new CouponFixed(payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate);
+    return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate);
   }
 
   // TODO is this really correct?

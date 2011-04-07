@@ -11,8 +11,8 @@ import java.util.List;
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -30,20 +30,20 @@ import com.opengamma.util.money.Currency;
 public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeBuilder implements FudgeBuilder<InterpolatedYieldCurveSpecificationWithSecurities> {
 
   @Override
-  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, InterpolatedYieldCurveSpecificationWithSecurities object) {
-    MutableFudgeFieldContainer message = context.newMessage();
-    context.objectToFudgeMsg(message, "curveDate", null, object.getCurveDate());
+  public MutableFudgeMsg buildMessage(FudgeSerializationContext context, InterpolatedYieldCurveSpecificationWithSecurities object) {
+    MutableFudgeMsg message = context.newMessage();
+    context.addToMessage(message, "curveDate", null, object.getCurveDate());
     message.add("name", object.getName());
-    context.objectToFudgeMsg(message, "currency", null, object.getCurrency());
-    context.objectToFudgeMsg(message, "interpolator", null, object.getInterpolator());
+    context.addToMessage(message, "currency", null, object.getCurrency());
+    context.addToMessage(message, "interpolator", null, object.getInterpolator());
     for (FixedIncomeStripWithSecurity resolvedStrip : object.getStrips()) {
-      context.objectToFudgeMsg(message, "resolvedStrips", null, resolvedStrip);
+      context.addToMessage(message, "resolvedStrips", null, resolvedStrip);
     }
     return message; 
   }
 
   @Override
-  public InterpolatedYieldCurveSpecificationWithSecurities buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public InterpolatedYieldCurveSpecificationWithSecurities buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     LocalDate curveDate = context.fieldValueToObject(LocalDate.class, message.getByName("curveDate"));
     String name = message.getString("name");
     Currency currency = context.fieldValueToObject(Currency.class, message.getByName("currency"));

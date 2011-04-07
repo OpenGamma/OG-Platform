@@ -62,7 +62,7 @@ public class DataPositionsResourceTest {
 
   @Test
   public void testFindPosition() {
-    DataPositionResource test = _resource.findPosition("Test::PosA");
+    DataPositionResource test = _resource.findPosition("Test~PosA");
     assertSame(_resource, test.getPositionsResource());
     assertEquals(UniqueIdentifier.of("Test", "PosA"), test.getUrlPositionId());
   }

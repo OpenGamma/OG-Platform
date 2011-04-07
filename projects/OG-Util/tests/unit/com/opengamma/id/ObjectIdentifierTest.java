@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -23,7 +23,7 @@ public class ObjectIdentifierTest {
     ObjectIdentifier test = ObjectIdentifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -48,10 +48,10 @@ public class ObjectIdentifierTest {
 
   //-------------------------------------------------------------------------
   public void test_parse() {
-    ObjectIdentifier test = ObjectIdentifier.parse("Scheme::value");
+    ObjectIdentifier test = ObjectIdentifier.parse("Scheme~value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -66,7 +66,7 @@ public class ObjectIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat3() {
-    ObjectIdentifier.parse("Scheme::value::other");
+    ObjectIdentifier.parse("Scheme~value~other");
   }
 
   //-------------------------------------------------------------------------
@@ -185,7 +185,7 @@ public class ObjectIdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding() {
     ObjectIdentifier test = ObjectIdentifier.of("id1", "value1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     

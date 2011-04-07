@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -25,7 +25,7 @@ public class IdentifierTest {
     Identifier test = Identifier.of(SCHEME, "value");
     assertEquals("Scheme", test.getScheme().getName());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -47,7 +47,7 @@ public class IdentifierTest {
     Identifier test = Identifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme().getName());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -67,10 +67,10 @@ public class IdentifierTest {
 
   //-------------------------------------------------------------------------
   public void test_parse() {
-    Identifier test = Identifier.parse("Scheme::value");
+    Identifier test = Identifier.parse("Scheme~value");
     assertEquals(SCHEME, test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -151,7 +151,7 @@ public class IdentifierTest {
   //-------------------------------------------------------------------------
   public void test_fudgeEncoding() {
     Identifier test = Identifier.of("id1", "value1");
-    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     

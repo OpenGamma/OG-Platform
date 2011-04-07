@@ -24,8 +24,8 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
     final String curveName = annuity.getNthPayment(0).getFundingCurveName();
     final double notional = annuity.getNthPayment(0).getNotional();
     final PaymentFixed[] fixedPayments = new PaymentFixed[2];
-    fixedPayments[0] = new PaymentFixed(0, notional, curveName);
-    fixedPayments[1] = new PaymentFixed(annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
+    fixedPayments[0] = new PaymentFixed(annuity.getCurrency(), 0, notional, curveName);
+    fixedPayments[1] = new PaymentFixed(annuity.getCurrency(), annuity.getNthPayment(annuity.getNumberOfPayments() - 1).getPaymentTime(), -notional, curveName);
 
     return new GenericAnnuity<PaymentFixed>(fixedPayments);
   }

@@ -6,56 +6,69 @@
 package com.opengamma.transport;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * 
- * @author yomi
+ * A sender of Fudge messages.
  */
 public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
 
-  private FudgeContext _fudgeContext;
+  /**
+   * The underlying sender.
+   */
   private ByteArrayRequestSender _underlying;
+  /**
+   * The Fudge context.
+   */
+  private FudgeContext _fudgeContext;
 
+  /**
+   * Creates an instance based on an underlying sender.
+   * 
+   * @param underlying  the underlying sender, not null
+   */
   public ByteArrayFudgeRequestSender(ByteArrayRequestSender underlying) {
     this(underlying, new FudgeContext());
   }
 
-  public ByteArrayFudgeRequestSender(ByteArrayRequestSender underlying,
-      FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+  /**
+   * Creates an instance based on an underlying sender.
+   * 
+   * @param underlying  the underlying sender, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
+  public ByteArrayFudgeRequestSender(ByteArrayRequestSender underlying, FudgeContext fudgeContext) {
     ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
     _underlying = underlying;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the underlying sender.
+   * 
+   * @return the underlying sender, not null
+   */
+  public ByteArrayRequestSender getUnderlying() {
+    return _underlying;
   }
 
   @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
-  public ByteArrayRequestSender getUnderlying() {
-    return _underlying;
-  }
 
+  //-------------------------------------------------------------------------
   @Override
-  public void sendRequest(FudgeFieldContainer request,
-      FudgeMessageReceiver responseReceiver) {
+  public void sendRequest(FudgeMsg request, FudgeMessageReceiver responseReceiver) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(responseReceiver, "responseReceiver");
-    if (!(request instanceof FudgeMsg)) {
-      throw new OpenGammaRuntimeException("request not a FudgeMsg Type");
-    }
-    FudgeMsg msg = (FudgeMsg) request;
-    byte[] bytes = getFudgeContext().toByteArray(msg);
-    
+    byte[] bytes = getFudgeContext().toByteArray(request);
     ByteArrayMessageReceiver receiver = new ByteArrayFudgeMessageReceiver(responseReceiver, getFudgeContext());
     _underlying.sendRequest(bytes, receiver);
   }
-  
+
 }
