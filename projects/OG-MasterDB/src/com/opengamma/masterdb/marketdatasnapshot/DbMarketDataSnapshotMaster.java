@@ -12,8 +12,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.hsqldb.types.Types;
@@ -98,7 +96,7 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
 
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
 
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())

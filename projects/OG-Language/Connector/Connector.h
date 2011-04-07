@@ -96,7 +96,7 @@ public:
 	bool Send (FudgeMsg msgPayload);
 	// TODO: change the callback to take a <Message>_isClass function instead of a string
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
-	bool RemoveCallback (CCallback *poCallback);
+	bool RemoveCallback (CCallback *poCallback, bool *pbUsed = NULL);
 };
 
 #endif /* ifndef __inc_og_language_connector_connector_h */

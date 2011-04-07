@@ -12,8 +12,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.hsqldb.types.Types;
@@ -137,7 +135,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("config_type", value.getClass().getName())
+      .addValue("config_type", document.getDocumentClass().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     return document;
@@ -174,7 +172,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
 
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -324,7 +322,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       }
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
-      ConfigDocument<Object> doc = new ConfigDocument<Object>();
+      ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
       UniqueIdentifier uniqueIdentifier = createUniqueIdentifier(docOid, docId);
       doc.setUniqueId(uniqueIdentifier);
       UniqueIdentifiables.setInto(value, uniqueIdentifier);

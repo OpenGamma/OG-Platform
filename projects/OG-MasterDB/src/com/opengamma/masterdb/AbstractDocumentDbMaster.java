@@ -160,7 +160,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(extractor, "extractor");
     s_logger.debug("getByOidInstants {}", objectId);
     
-    final VersionCorrection vc = versionCorrection.withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = versionCorrection.withLatestFixed(now());
     final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final List<D> docs = namedJdbc.query(sqlGetByOidInstants(), args, extractor);
@@ -389,7 +389,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
           @Override
           public D doInTransaction(final TransactionStatus status) {
             // insert new row
-            final Instant now = Instant.now(getTimeSource());
+            final Instant now = now();
             document.setVersionFromInstant(now);
             document.setVersionToInstant(null);
             document.setCorrectionFromInstant(now);
@@ -428,7 +428,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             // load old row
             final D oldDoc = getCheckLatestVersion(beforeId);
             // update old row
-            final Instant now = Instant.now(getTimeSource());
+            final Instant now = now();
             oldDoc.setVersionToInstant(now);
             updateVersionToInstant(oldDoc);
             // insert new row
@@ -467,7 +467,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             // load old row
             final D oldDoc = getCheckLatestVersion(uniqueId);
             // update old row
-            final Instant now = Instant.now(getTimeSource());
+            final Instant now = now();
             oldDoc.setVersionToInstant(now);
             updateVersionToInstant(oldDoc);
             return oldDoc;
@@ -501,7 +501,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             // load old row
             final D oldDoc = getCheckLatestCorrection(beforeId);
             // update old row
-            final Instant now = Instant.now(getTimeSource());
+            final Instant now = now();
             oldDoc.setCorrectionToInstant(now);
             updateCorrectionToInstant(oldDoc);
             // insert new row

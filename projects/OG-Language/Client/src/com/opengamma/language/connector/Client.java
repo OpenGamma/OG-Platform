@@ -34,6 +34,7 @@ import org.fudgemsg.wire.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.language.connector.ConnectorMessage.Operation;
 import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextInitializationEventHandler;
@@ -56,6 +57,7 @@ public class Client implements Runnable {
   private FudgeStreamReader _inputPipe;
   private FudgeStreamWriter _outputPipe;
   private volatile boolean _poisoned;
+  private FudgeMsg _stashMessage;
 
   protected Client(ClientContext clientContext, final String inputPipeName, final String outputPipeName,
       final SessionContext session) {
@@ -182,6 +184,17 @@ public class Client implements Runnable {
           }
 
         });
+        context.setStashMessage(new StashMessage() {
+          @Override
+          public FudgeMsg get() {
+            return getStashMessage();
+          }
+
+          @Override
+          public void put(final FudgeMsg message) {
+            setStashMessage(message);
+          }
+        });
       }
 
       @Override
@@ -194,6 +207,9 @@ public class Client implements Runnable {
 
   private void initializeContext(final FudgeMsg stash) {
     s_logger.info("Initializing session context");
+    synchronized (this) {
+      _stashMessage = stash;
+    }
     if (stash != null) {
       getSessionContext().initContextWithStash(getSessionInitializer(), stash);
     } else {
@@ -378,6 +394,18 @@ public class Client implements Runnable {
         }
       }
     };
+  }
+
+  protected void setStashMessage(final FudgeMsg stashMessage) {
+    synchronized (this) {
+      _stashMessage = stashMessage;
+    }
+    final ConnectorMessage msg = new ConnectorMessage(Operation.STASH, stashMessage);
+    getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg.toFudgeMsg(getClientContext().getFudgeContext()), 0, MessageDirectives.CLIENT));
+  }
+
+  protected synchronized FudgeMsg getStashMessage() {
+    return _stashMessage;
   }
 
 }

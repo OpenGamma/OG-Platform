@@ -16,3 +16,4 @@
 MANIFEST.MF
 build.number
 .settings/
+/tests/

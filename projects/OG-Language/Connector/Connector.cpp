@@ -408,10 +408,13 @@ bool CConnector::AddCallback (const TCHAR *pszClass, CCallback *poCallback) {
 
 // After the callback is removed, there may still be entries in the queue for it. The reference to the callback
 // will only be discarded after a OnThreadDisconnect has been sent to it.
-bool CConnector::RemoveCallback (CCallback *poCallback) {
+bool CConnector::RemoveCallback (CCallback *poCallback, bool *pbUsed) {
 	if (!poCallback) {
 		LOGWARN (TEXT ("Null callback object"));
 		return false;
+	}
+	if (pbUsed) {
+		*pbUsed = false;
 	}
 	bool bFound = false;
 	m_oControlMutex.Enter ();
@@ -424,7 +427,11 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 			if (poEntry->m_bUsed) {
 				CAsynchronous::COperation *poDispatch = new CConnectorThreadDisconnectDispatch (poEntry);
 				if (poDispatch) {
-					if (!m_poDispatch->Run (poDispatch)) {
+					if (m_poDispatch->Run (poDispatch)) {
+						if (pbUsed) {
+							*pbUsed = true;
+						}
+					} else {
 						delete poDispatch;
 						LOGWARN (TEXT ("Couldn't dispatch disconnect message"));
 					}

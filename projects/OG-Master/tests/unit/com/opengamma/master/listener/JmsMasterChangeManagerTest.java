@@ -173,7 +173,7 @@ public class JmsMasterChangeManagerTest {
   }
 
   private ConfigDocument<Identifier> createTestDocument() {
-    final ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    final ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("TEST");
     doc.setValue(Identifier.of("A", "B"));
     return doc;

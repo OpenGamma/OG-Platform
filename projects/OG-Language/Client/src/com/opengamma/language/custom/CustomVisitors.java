@@ -6,6 +6,9 @@
 
 package com.opengamma.language.custom;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,16 +21,30 @@ import com.opengamma.util.ArgumentChecker;
 public class CustomVisitors<T1, T2> implements CustomFunctionVisitorRegistry<T1, T2>,
     CustomLiveDataVisitorRegistry<T1, T2>, CustomMessageVisitorRegistry<T1, T2>, CustomProcedureVisitorRegistry<T1, T2> {
 
+  private final ConcurrentMap<Class<?>, Object> _visitors = new ConcurrentHashMap<Class<?>, Object>();
+
   private void registerImpl(final Class<?> clazz, final Object visitor) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(visitor, "visitor");
-    throw new UnsupportedOperationException();
+    _visitors.put(clazz, visitor);
   }
 
   /**
    * @throws UnsupportedOperationException if there is no registered visitor for the custom class
    */
+  @SuppressWarnings("unchecked")
   private <M> M getVisitor(final Class<?> clazz) {
+    Object visitor = _visitors.get(clazz);
+    if (visitor != null) {
+      return (M) visitor;
+    }
+    if (clazz.getSuperclass() != null) {
+      visitor = getVisitor(clazz.getSuperclass());
+      if (visitor != null) {
+        _visitors.putIfAbsent(clazz, visitor);
+        return (M) visitor;
+      }
+    }
     throw new UnsupportedOperationException();
   }
 

@@ -177,6 +177,21 @@ public abstract class DbHelper {
 
   //-------------------------------------------------------------------------
   /**
+   * Builds SQL to query the current timestamp.
+   * This is typically the start of the transaction.
+   * The column name to read is "NOW_TIMESTAMP".
+   * 
+   * @return the entire SQL select clause, not space terminated, not null
+   */
+  public String sqlSelectNow() {
+    // use SQL standard
+    // works on Postgres and MySQL
+    // Oracle uses SELECT systimestamp FROM dual
+    return "SELECT CURRENT_TIMESTAMP AS NOW_TIMESTAMP";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the LOB handler used for BLOBs and CLOBs.
    * Subclasses will return different handlers for different dialects.
    * @return the LOB handler, not null

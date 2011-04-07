@@ -8,6 +8,7 @@ package com.opengamma.language.context;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.language.connector.MessageSender;
+import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.definition.DefinitionRepository;
 import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionRepository;
@@ -44,6 +45,10 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
    * The repository of published procedures.
    */
   protected static final String PROCEDURE_REPOSITORY = "procedureRepository";
+  /**
+   * The stash message.
+   */
+  protected static final String STASH_MESSAGE = "stashMessage";
 
   /* package */SessionContext(final UserContext userContext) {
     super(userContext);
@@ -76,6 +81,10 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
   public abstract void doneContext();
 
   // Standard context members
+
+  public StashMessage getStashMessage() {
+    return getValue(STASH_MESSAGE);
+  }
 
   public MessageSender getMessageSender() {
     return getValue(MESSAGE_SENDER);
