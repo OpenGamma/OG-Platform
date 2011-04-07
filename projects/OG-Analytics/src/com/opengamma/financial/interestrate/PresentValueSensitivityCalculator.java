@@ -16,6 +16,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -134,6 +136,14 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
   @Override
   public Map<String, List<DoublesPair>> visitBond(final Bond bond, final YieldCurveBundle curves) {
     return visit(bond.getAnnuity(), curves);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitBondTransaction(final BondTransaction<? extends Payment> bond, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(bond);
+    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    return method.presentValueSensitivity(bond, curves).getSensitivity();
   }
 
   @Override

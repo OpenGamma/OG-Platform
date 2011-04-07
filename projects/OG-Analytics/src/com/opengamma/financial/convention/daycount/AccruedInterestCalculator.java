@@ -220,7 +220,7 @@ public final class AccruedInterestCalculator {
     return accruedInterest;
   }
 
-  private static double getAccruedInterest(final DayCount dayCount, final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime date,
+  public static double getAccruedInterest(final DayCount dayCount, final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime date,
       final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear, final boolean isEndOfMonthConvention) {
     if (dayCount instanceof ActualActualICMANormal) {
       if (isEndOfMonthConvention) {
