@@ -37,7 +37,7 @@ public class PositionImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
+    assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -57,7 +57,7 @@ public class PositionImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals("Position[, 1 Bundle[A::B]]", test.toString());
+    assertEquals("Position[, 1 Bundle[A~B]]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -77,7 +77,7 @@ public class PositionImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
+    assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -102,7 +102,7 @@ public class PositionImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals("Position[B::C, 1 Bundle[A::B]]", test.toString());
+    assertEquals("Position[B~C, 1 Bundle[A~B]]", test.toString());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
@@ -129,7 +129,7 @@ public class PositionImplTest {
     assertEquals(BigDecimal.ONE, test.getQuantity());
     assertEquals(1, test.getSecurityKey().size());
     assertEquals(Identifier.of("A", "B"), test.getSecurityKey().getIdentifiers().iterator().next());
-    assertEquals(true, test.toString().startsWith("Position[B::C, 1"));
+    assertEquals(true, test.toString().startsWith("Position[B~C, 1"));
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)

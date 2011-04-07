@@ -6,7 +6,7 @@
 
 package com.opengamma.language.invoke;
 
-import java.util.List;
+import java.util.Map;
 
 import com.opengamma.language.convert.ValueConversionContext;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -28,9 +28,9 @@ public interface TypeConverter {
    * Returns the set of types the converter will attempt to convert directly into the given type.
    * 
    * @param targetType the desired type, not {@code null}. This will only be invoked for types that return {@code true} from {@link #canConvertTo}.
-   * @return the list of types it can convert to the target type, not {@code null} and not empty 
+   * @return the types it can convert to the target type with the conversion cost, not {@code null} and not empty 
    */
-  List<JavaTypeInfo<?>> getConversionsTo(JavaTypeInfo<?> targetType);
+  Map<JavaTypeInfo<?>, Integer> getConversionsTo(JavaTypeInfo<?> targetType);
 
   /**
    * Converts a value to a specified type if possible. If the conversion is not possible indicates the

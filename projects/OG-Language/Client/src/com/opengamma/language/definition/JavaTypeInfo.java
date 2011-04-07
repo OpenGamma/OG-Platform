@@ -6,9 +6,7 @@
 
 package com.opengamma.language.definition;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.Array;
 
 import org.springframework.util.ObjectUtils;
 
@@ -27,13 +25,22 @@ public final class JavaTypeInfo<T> {
    */
   public static final class Builder<T> {
 
-    private final Class<T> _rawClass;
+    private Class<T> _rawClass;
     private boolean _allowNull;
     private boolean _hasDefaultValue;
     private T _defaultValue;
 
     private Builder(final Class<T> rawClass) {
       _rawClass = rawClass;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Builder<T[]> arrayOf() {
+      if (_hasDefaultValue) {
+        throw new IllegalStateException();
+      }
+      _rawClass = (Class<T>) Array.newInstance(_rawClass, 0).getClass();
+      return (Builder<T[]>) this;
     }
 
     public Builder<T> allowNull() {
@@ -61,7 +68,13 @@ public final class JavaTypeInfo<T> {
     }
 
     public JavaTypeInfo<T> get() {
-      return new JavaTypeInfo<T>(_rawClass, _allowNull, _hasDefaultValue, _defaultValue);
+      final JavaTypeInfo<?>[] parameter;
+      if (_rawClass.isArray()) {
+        parameter = new JavaTypeInfo<?>[] {builder(_rawClass.getComponentType()).get() };
+      } else {
+        parameter = null;
+      }
+      return new JavaTypeInfo<T>(_rawClass, _allowNull, _hasDefaultValue, _defaultValue, parameter);
     }
 
   }
@@ -70,13 +83,20 @@ public final class JavaTypeInfo<T> {
   private final boolean _allowNull;
   private final boolean _hasDefaultValue;
   private final T _defaultValue;
+  private final JavaTypeInfo<?>[] _parameter;
 
   private JavaTypeInfo(final Class<T> rawClass, final boolean allowNull, final boolean hasDefaultValue,
-      final T defaultValue) {
+      final T defaultValue, final JavaTypeInfo<?>[] parameter) {
     _rawClass = rawClass;
     _allowNull = allowNull;
     _hasDefaultValue = hasDefaultValue;
     _defaultValue = defaultValue;
+    _parameter = parameter;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public JavaTypeInfo<?> arrayOf() {
+    return new JavaTypeInfo<Object>((Class<Object>) Array.newInstance(_rawClass, 0).getClass(), _allowNull, false, null, new JavaTypeInfo<?>[] {this });
   }
 
   public Class<T> getRawClass() {
@@ -85,6 +105,27 @@ public final class JavaTypeInfo<T> {
 
   public boolean isAllowNull() {
     return _allowNull;
+  }
+
+  public boolean isArray() {
+    return _rawClass.isArray();
+  }
+
+  public int getArrayDimension() {
+    int dimensions = 0;
+    JavaTypeInfo<?> t = this;
+    while (t.isArray()) {
+      dimensions++;
+      t = t._parameter[0];
+    }
+    return dimensions;
+  }
+
+  public JavaTypeInfo<?> getArrayElementType() {
+    if (!isArray()) {
+      throw new IllegalStateException();
+    }
+    return _parameter[0];
   }
 
   public boolean isDefaultValue() {
@@ -159,16 +200,20 @@ public final class JavaTypeInfo<T> {
     return sb.toString();
   }
 
+  /**
+   * Return a simplified {@link #toString} that is suitable for the client as it may be shown to a user.
+   * The raw {@code toString} should contain sufficient extra information to be useful in a diagnostic
+   * log but may not be particularly pretty.
+   * 
+   * @return the string
+   */
+  public String toClientString() {
+    return getRawClass().getSimpleName();
+  }
+
   public static <T> Builder<T> builder(final Class<T> rawClass) {
     ArgumentChecker.notNull(rawClass, "rawClass");
     return new Builder<T>(rawClass);
-  }
-
-  public static List<JavaTypeInfo<?>> asList(final JavaTypeInfo<?>... types) {
-    if (types.length == 1) {
-      return Collections.<JavaTypeInfo<?>>singletonList(types[0]);
-    }
-    return Arrays.asList(types);
   }
 
 }

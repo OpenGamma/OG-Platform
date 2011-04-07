@@ -100,7 +100,7 @@ public class RESTMethodTest {
 
   @Test
   public void testGetSecurityByBundle() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1::v1"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurity(Arrays.asList("d1~v1"));
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);
@@ -111,7 +111,7 @@ public class RESTMethodTest {
 
   @Test
   public void testGetSecurities() {
-    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1::v1", "d2::v2"));
+    final FudgeMsgEnvelope fme = getSecuritySourceResource().getSecurities(Arrays.asList("d1~v1", "d2~v2"));
     assertNotNull(fme);
     final FudgeMsg msg = fme.getMessage();
     assertNotNull(msg);

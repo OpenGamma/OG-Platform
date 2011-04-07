@@ -1,9 +1,11 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/language/connector/ConnectorMessage.proto:12(10)
 package com.opengamma.language.connector;
 public class ConnectorMessage implements java.io.Serializable {
-  private static final long serialVersionUID = 50678242354005l;
+  private static final long serialVersionUID = 50678589418965l;
+  // Created from com/opengamma/language/connector/ConnectorMessage.proto:14(9)
   public enum Operation {
     HEARTBEAT (1),
     POISON (2),
@@ -78,7 +80,7 @@ public class ConnectorMessage implements java.io.Serializable {
       msg.add (null, OPERATION_ORDINAL, _operation.getFudgeEncoding ());
     }
     if (_stash != null)  {
-      msg.add (null, STASH_ORDINAL, fudgeContext.newMessage (_stash));
+      msg.add (null, STASH_ORDINAL, (_stash instanceof org.fudgemsg.MutableFudgeMsg) ? fudgeContext.newMessage (_stash) : _stash);
     }
   }
   public static ConnectorMessage fromFudgeMsg (final org.fudgemsg.FudgeMsg fudgeMsg) {

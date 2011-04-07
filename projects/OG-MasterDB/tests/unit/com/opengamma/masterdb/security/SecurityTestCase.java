@@ -475,7 +475,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
 
   protected abstract <T extends ManageableSecurity> void assertSecurity(final Class<T> securityClass, final T security);
 
-  public <T extends ManageableSecurity> void testSecurities(final Class<T> securityClass, final Collection<T> securities) {
+  protected <T extends ManageableSecurity> void assertSecurities(final Class<T> securityClass, final Collection<T> securities) {
     String securityType = null;
     Class<?> c = securityClass;
     while (c != null) {
@@ -494,8 +494,19 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     }
   }
 
-  public <T extends ManageableSecurity> void testSecurities(final Class<T> securityClass) {
-    testSecurities(securityClass, permuteTestObjects(securityClass));
+  protected <T extends ManageableSecurity> void assertSecurities(final Class<T> securityClass) {
+    if (isInitialized()) {
+      assertSecurities(securityClass, permuteTestObjects(securityClass));
+    }
+  }
+
+  /**
+   * Allow subclasses to block testing.
+   * 
+   * @return true if initialized
+   */
+  protected boolean isInitialized() {
+    return true;
   }
 
   // SecurityMasterTestCaseMethods
@@ -503,133 +514,133 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   @Override
   @Test
   public void testAgricultureFutureSecurity() {
-    testSecurities(AgricultureFutureSecurity.class);
+    assertSecurities(AgricultureFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testBondFutureSecurity() {
-    testSecurities(BondFutureSecurity.class);
+    assertSecurities(BondFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testBondOptionSecurity() {
-    testSecurities(BondOptionSecurity.class);
+    assertSecurities(BondOptionSecurity.class);
   }
 
   @Override
   @Test
   public void testCashSecurity() {
-    testSecurities(CashSecurity.class);
+    assertSecurities(CashSecurity.class);
   }
 
   @Override
   @Test
   public void testCorporateBondSecurity() {
-    testSecurities(CorporateBondSecurity.class);
+    assertSecurities(CorporateBondSecurity.class);
   }
 
   @Override
   @Test
   public void testEnergyFutureSecurity() {
-    testSecurities(EnergyFutureSecurity.class);
+    assertSecurities(EnergyFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testEquityOptionSecurity() {
-    testSecurities(EquityOptionSecurity.class);
+    assertSecurities(EquityOptionSecurity.class);
   }
 
   @Override
   @Test
   public void testEquitySecurity() {
-    testSecurities(EquitySecurity.class);
+    assertSecurities(EquitySecurity.class);
   }
 
   @Override
   @Test
   public void testFRASecurity() {
-    testSecurities(FRASecurity.class);
+    assertSecurities(FRASecurity.class);
   }
 
   @Override
   @Test
   public void testFXFutureSecurity() {
-    testSecurities(FXFutureSecurity.class);
+    assertSecurities(FXFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testFXOptionSecurity() {
-    testSecurities(FXOptionSecurity.class);
+    assertSecurities(FXOptionSecurity.class);
   }
 
   @Override
   @Test
   public void testForwardSwapSecurity() {
-    testSecurities(ForwardSwapSecurity.class);
+    assertSecurities(ForwardSwapSecurity.class);
   }
 
   @Override
   @Test
   public void testFutureOptionSecurity() {
-    testSecurities(FutureOptionSecurity.class);
+    assertSecurities(FutureOptionSecurity.class);
   }
 
   @Override
   @Test
   public void testGovernmentBondSecurity() {
-    testSecurities(GovernmentBondSecurity.class);
+    assertSecurities(GovernmentBondSecurity.class);
   }
 
   @Override
   @Test
   public void testIndexFutureSecurity() {
-    testSecurities(IndexFutureSecurity.class);
+    assertSecurities(IndexFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testInterestRateFutureSecurity() {
-    testSecurities(InterestRateFutureSecurity.class);
+    assertSecurities(InterestRateFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testMetalFutureSecurity() {
-    testSecurities(MetalFutureSecurity.class);
+    assertSecurities(MetalFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testMunicipalBondSecurity() {
-    testSecurities(MunicipalBondSecurity.class);
+    assertSecurities(MunicipalBondSecurity.class);
   }
 
   @Override
   @Test
   public void testOptionOptionSecurity() {
-    testSecurities(OptionOptionSecurity.class);
+    assertSecurities(OptionOptionSecurity.class);
   }
 
   @Override
   @Test
   public void testStockFutureSecurity() {
-    testSecurities(StockFutureSecurity.class);
+    assertSecurities(StockFutureSecurity.class);
   }
 
   @Override
   @Test
   public void testSwapOptionSecurity() {
-    testSecurities(SwaptionSecurity.class);
+    assertSecurities(SwaptionSecurity.class);
   }
 
   @Override
   @Test
   public void testSwapSecurity() {
-    testSecurities(SwapSecurity.class);
+    assertSecurities(SwapSecurity.class);
   }
 
 }

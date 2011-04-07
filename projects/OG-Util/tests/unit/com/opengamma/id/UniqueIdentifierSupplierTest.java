@@ -17,9 +17,9 @@ public class UniqueIdentifierSupplierTest {
 
   public void test_basics() {
     UniqueIdentifierSupplier test = new UniqueIdentifierSupplier("Scheme");
-    assertEquals(UniqueIdentifier.parse("Scheme::1"), test.get());
-    assertEquals(UniqueIdentifier.parse("Scheme::2"), test.get());
-    assertEquals(UniqueIdentifier.parse("Scheme::3"), test.get());
+    assertEquals(UniqueIdentifier.parse("Scheme~1"), test.get());
+    assertEquals(UniqueIdentifier.parse("Scheme~2"), test.get());
+    assertEquals(UniqueIdentifier.parse("Scheme~3"), test.get());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -34,9 +34,9 @@ public class UniqueIdentifierSupplierTest {
 
   public void test_prefix() {
     UniqueIdentifierSupplier test = new UniqueIdentifierSupplier("Prefixing");
-    assertEquals(UniqueIdentifier.parse("Prefixing::A-1"), test.getWithValuePrefix("A-"));
-    assertEquals(UniqueIdentifier.parse("Prefixing::A-2"), test.getWithValuePrefix("A-"));
-    assertEquals(UniqueIdentifier.parse("Prefixing::B-3"), test.getWithValuePrefix("B-"));
+    assertEquals(UniqueIdentifier.parse("Prefixing~A-1"), test.getWithValuePrefix("A-"));
+    assertEquals(UniqueIdentifier.parse("Prefixing~A-2"), test.getWithValuePrefix("A-"));
+    assertEquals(UniqueIdentifier.parse("Prefixing~B-3"), test.getWithValuePrefix("B-"));
   }
 
 }

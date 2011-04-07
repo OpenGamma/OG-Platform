@@ -10,24 +10,33 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
- * 
- *
- * @author kirk
+ * Helper class to aid with the use of JMS.
  */
 public final class JmsByteArrayHelper {
+
+  /**
+   * Restricted constructor.
+   */
   private JmsByteArrayHelper() {
   }
 
-  public static byte[] extractBytes(Message message) {
-    if (!(message instanceof BytesMessage)) {
-      throw new IllegalArgumentException("JmsByteArrayMessageDispatcher can only dispatch BytesMessage instances.");
+  //-------------------------------------------------------------------------
+  /**
+   * Extracts the byte array from a JMS message.
+   * 
+   * @param message  the JMS message, not null
+   * @return the extracted byte array, not null
+   */
+  public static byte[] extractBytes(final Message message) {
+    if (message instanceof BytesMessage == false) {
+      throw new IllegalArgumentException("Message must be an instanceof BytesMessage");
     }
-    BytesMessage bytesMessage = (BytesMessage) message;
-    byte[] bytes = null;
+    final BytesMessage bytesMessage = (BytesMessage) message;
+    final byte[] bytes;
     try {
       long bodyLength = bytesMessage.getBodyLength();
       if (bodyLength > Integer.MAX_VALUE) {
-        throw new IllegalArgumentException("Can only dispatch 2GB messages. Received one of length " + bodyLength);
+        throw new IllegalArgumentException("Message too large, maximum size is 2GB, received one of length " + bodyLength);
       }
       bytes = new byte[(int) bodyLength];
       bytesMessage.readBytes(bytes);
@@ -36,4 +45,5 @@ public final class JmsByteArrayHelper {
     }
     return bytes;
   }
+
 }

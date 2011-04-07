@@ -99,8 +99,8 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     HashMap<YieldCurveKey,YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey,YieldCurveSnapshot>();
     
     
-    MarketDataValueSpecification specA = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, UniqueIdentifier.parse("XXX::AAA"));
-    MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueIdentifier.parse("XXX::AAA"));
+    MarketDataValueSpecification specA = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, UniqueIdentifier.of("XXX", "AAA"));
+    MarketDataValueSpecification specB = new MarketDataValueSpecification(MarketDataValueType.SECURITY, UniqueIdentifier.of("XXX", "AAA"));
     
     values.put(specA, new ValueSnapshot(12,null));
     values.put(specB, new ValueSnapshot(12,Double.valueOf(11)));

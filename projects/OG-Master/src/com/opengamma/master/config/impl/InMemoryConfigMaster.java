@@ -132,7 +132,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     final UniqueIdentifier uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
     UniqueIdentifiables.setInto(value, uniqueId);
-    final ConfigDocument<Object> doc = new ConfigDocument<Object>();
+    final ConfigDocument<Object> doc = new ConfigDocument<Object>(document.getDocumentClass());
     doc.setName(document.getName());
     doc.setValue(value);
     doc.setUniqueId(uniqueId);

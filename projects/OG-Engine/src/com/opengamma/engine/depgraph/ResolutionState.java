@@ -190,7 +190,8 @@ import com.opengamma.util.tuple.Pair;
 
   public Pair<DependencyNode, ValueSpecification> getLastValid() {
     if (_lastValid == null) {
-      throw new UnsatisfiableDependencyGraphException(getValueRequirement());
+      throw new UnsatisfiableDependencyGraphException(getValueRequirement(), "No last valid")
+          .addState("ResolutionState", this);
     }
     return _lastValid;
   }

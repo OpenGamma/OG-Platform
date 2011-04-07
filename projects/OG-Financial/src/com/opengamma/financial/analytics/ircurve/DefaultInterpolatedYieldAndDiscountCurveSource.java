@@ -34,7 +34,7 @@ public class DefaultInterpolatedYieldAndDiscountCurveSource extends ConfigDBInte
    */
   public void addDefinition(Currency currency, String name, YieldCurveDefinition definition) {
     MasterConfigSource configSource = (MasterConfigSource) getConfigSource();
-    ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>();
+    ConfigDocument<YieldCurveDefinition> doc = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
     doc.setName(name + "_" + currency.getCode());
     doc.setValue(definition);
     ConfigMasterUtils.storeByName(configSource.getMaster(), doc);

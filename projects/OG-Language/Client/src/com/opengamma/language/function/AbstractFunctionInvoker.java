@@ -10,9 +10,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.language.Data;
+import com.opengamma.language.DataUtil;
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.AbstractException;
 import com.opengamma.language.invoke.AbstractInvoker;
 import com.opengamma.language.invoke.ParameterConverter;
 import com.opengamma.language.invoke.ResultConverter;
@@ -45,16 +47,20 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
 
   @Override
   public final Result invoke(final SessionContext sessionContext, final List<Data> parameterValue) {
-    final Object[] parameters = convertParameters(sessionContext, parameterValue);
-    final Object resultObject = invokeImpl(sessionContext, parameters);
-    if (resultObject == null) {
-      return null;
+    try {
+      final Object[] parameters = convertParameters(sessionContext, parameterValue);
+      final Object resultObject = invokeImpl(sessionContext, parameters);
+      if (resultObject == null) {
+        return null;
+      }
+      final Data resultData = convertResult(sessionContext, resultObject);
+      if (resultData == null) {
+        return null;
+      }
+      return new Result(Collections.singleton(resultData));
+    } catch (AbstractException e) {
+      return new Result(Collections.singleton(DataUtil.of(e.getValue())));
     }
-    final Data resultData = convertResult(sessionContext, resultObject);
-    if (resultData == null) {
-      return null;
-    }
-    return new Result(Collections.singleton(resultData));
   }
 
 }

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -32,6 +33,7 @@ import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
@@ -85,10 +87,16 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     out.put("type", type);
         
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      ConfigSearchResult<Object> searchResult = data().getConfigMaster().search(searchRequest);
+      ConfigSearchResult<Object> searchResult = null;
+      if (searchRequest.getType() != null) {
+        searchResult = data().getConfigMaster().search(searchRequest);
+      } else {
+        searchResult = new ConfigSearchResult<Object>();
+        searchResult.setPaging(Paging.of(searchResult.getDocuments(), searchRequest.getPagingRequest()));
+      }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
-    }
+    } 
     return out;
   }
   
@@ -110,7 +118,8 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configxml") String xml,
+      @FormParam("className") String className) {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
     if (name == null || xml == null) {
@@ -121,35 +130,49 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
+      if (className == null) {
+        out.put("err_classNameMissing", true);
+      }
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    ConfigDocument<Object> doc = new ConfigDocument<Object>();
+    
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(getClass(className));
     doc.setName(name);
     doc.setValue(parseXML(xml));
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
   }
-  
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response postJSON(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configxml") String xml,
+      @FormParam("className") String className) {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    if (name == null || xml == null || className == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    ConfigDocument<Object> doc = new ConfigDocument<Object>();
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(getClass(className));
     doc.setName(name);
     doc.setValue(parseXML(xml));
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.created(uri).build();
   }
+  
+  private Class<?> getClass(String className) {
+    try {
+      return Class.forName(className);
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Could not find Class for " + className, ex);
+    }
+  }
+  
   
   //-------------------------------------------------------------------------
   @Path("{configId}")

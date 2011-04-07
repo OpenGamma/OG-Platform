@@ -98,6 +98,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     ConfigDocument<?> test = _cfgMaster.get(uid);
     assertNotNull(test);
     if (test.getValue() instanceof Identifier) {
+      assertEquals(test.getDocumentClass(), Identifier.class);
       assert101((ConfigDocument<Identifier>)test);
     } else {
       Assert.fail();

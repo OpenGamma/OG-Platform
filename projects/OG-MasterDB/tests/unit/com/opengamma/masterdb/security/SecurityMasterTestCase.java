@@ -34,17 +34,34 @@ import com.opengamma.master.security.SecuritySearchResult;
  * Generic TestCase for a SecurityMaster implementation. Either inherit from it, or
  * delegate through the SecurityMasterTestCaseMethods interface.
  */
-public abstract class SecurityMasterTestCase extends SecurityTestCase {
-  // abstract to stop it being seen as a test class
+public class SecurityMasterTestCase extends SecurityTestCase {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityMasterTestCase.class);
 
   private final SecurityMaster _secMaster;
 
+  /**
+   * TestNG constructor.
+   */
+  public SecurityMasterTestCase() {
+    _secMaster = null;  // handle TestNG
+  }
+
+  /**
+   * Normal constructor.
+   * 
+   * @param secMaster  the security master
+   */
   public SecurityMasterTestCase(final SecurityMaster secMaster) {
     _secMaster = secMaster;
   }
 
+  @Override
+  protected boolean isInitialized() {
+    return _secMaster != null;  // handle TestNG
+  }
+
+  //-------------------------------------------------------------------------
   private UniqueIdentifier putSecurity(final ManageableSecurity security) {
     s_logger.debug("putting security = {}", security);
     SecurityDocument document = new SecurityDocument();
