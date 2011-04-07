@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/PayoffStyle.proto:72(10)
 package com.opengamma.financial.security.option;
 public class FixedStrikeLookbackPayoffStyle extends com.opengamma.financial.security.option.PayoffStyle implements java.io.Serializable {
   public <T> T accept (PayoffStyleVisitor<T> visitor) { return visitor.visitFixedStrikeLookbackPayoffStyle(this); }
