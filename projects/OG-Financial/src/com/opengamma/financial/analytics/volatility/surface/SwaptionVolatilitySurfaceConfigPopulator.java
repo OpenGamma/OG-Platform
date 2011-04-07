@@ -49,14 +49,14 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   }
   
   private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> makeConfigDocument(VolatilitySurfaceDefinition<Tenor, Tenor> definition) {
-    ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>>();
+    ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> configDocument = new ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>>(VolatilitySurfaceDefinition.class);
     configDocument.setName(definition.getName() + "_" + definition.getCurrency().getCode());
     configDocument.setValue(definition);
     return configDocument;
   }
   
   private static ConfigDocument<VolatilitySurfaceSpecification> makeConfigDocument(VolatilitySurfaceSpecification specification) {
-    ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>();
+    ConfigDocument<VolatilitySurfaceSpecification> configDocument = new ConfigDocument<VolatilitySurfaceSpecification>(VolatilitySurfaceSpecification.class);
     configDocument.setName(specification.getName() + "_" + specification.getCurrency().getCode());
     configDocument.setValue(specification);
     return configDocument;

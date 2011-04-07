@@ -46,7 +46,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_noConfig() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     _cfgMaster.add(doc);
   }
 
@@ -54,7 +54,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
   public void test_add_add() {
     Instant now = Instant.now(_cfgMaster.getTimeSource());
     
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("TestConfig");
     doc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> test = _cfgMaster.add(doc);
@@ -75,7 +75,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
   
   @Test
   public void test_add_addThenGet() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("TestConfig");
     doc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> added = _cfgMaster.add(doc);
