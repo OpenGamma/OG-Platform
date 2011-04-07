@@ -22,6 +22,7 @@ static CFudgeInitialiser g_oInitialiseFudge;
 
 class CClientService::CRunnerThread : public CThread {
 private:
+	CMutex m_oStashMutex;
 	FudgeMsg m_msgStash;
 	CClientService *m_poService;
 	unsigned long m_lHeartbeatTimeout;
@@ -40,13 +41,17 @@ private:
 			assert (0);
 			return false;
 		}
-		if (bWithStash && m_msgStash) {
-			if ((status = ConnectorMessage_setStash (msg, m_msgStash)) != FUDGE_OK) {
-				LOGFATAL (TEXT ("Couldn't create message, status ") << status);
-				assert (0);
-				status = FUDGE_OK;
-				// Not good, but can carry on
+		if (bWithStash) {
+			m_oStashMutex.Enter ();
+			if (m_msgStash) {
+				if ((status = ConnectorMessage_setStash (msg, m_msgStash)) != FUDGE_OK) {
+					LOGFATAL (TEXT ("Couldn't create message, status ") << status);
+					assert (0);
+					status = FUDGE_OK;
+					// Not good, but can carry on
+				}
 			}
+			m_oStashMutex.Leave ();
 		}
 		bool bResult = m_poService->Send (MESSAGE_DIRECTIVES_CLIENT, msg);
 		FudgeMsg_release (msg);
@@ -67,6 +72,9 @@ private:
 protected:
 	~CRunnerThread () {
 		LOGDEBUG (TEXT ("Runner thread destroyed"));
+		if (m_msgStash) {
+			FudgeMsg_release (m_msgStash);
+		}
 	}
 public:
 	CRunnerThread (CClientService *poService) : CThread () {
@@ -180,6 +188,16 @@ endMessageLoop:
 		m_poService->ClosePipes ();
 		m_poService->SetState (bStatus ? STOPPED : ERRORED);
 		LOGINFO (TEXT ("Runner thread stopped"));
+	}
+	void SetStash (FudgeMsg msgStash) {
+		m_oStashMutex.Enter ();
+		if (m_msgStash) {
+			LOGDEBUG (TEXT ("Discarding old stash message"));
+			FudgeMsg_release (m_msgStash);
+		}
+		FudgeMsg_retain (msgStash);
+		m_msgStash = msgStash;
+		m_oStashMutex.Leave ();
 	}
 };
 
@@ -425,9 +443,23 @@ bool CClientService::DispatchAndRelease (FudgeMsgEnvelope env) {
 				LOGFATAL (TEXT ("Received poison from Java framework"));
 				assert (0);
 				break;
-			case STASH :
-				TODO (TEXT ("Store the stash message"));
+			case STASH : {
+				FudgeMsg msgStash;
+				if (ConnectorMessage_getStash (msg, &msgStash) == FUDGE_OK) {
+					LOGDEBUG (TEXT ("Storing stash message"));
+					m_oStateMutex.Enter ();
+					if (m_poRunner) {
+						m_poRunner->SetStash (msgStash);
+					} else {
+						LOGWARN (TEXT ("No runner thread"));
+					}
+					m_oStateMutex.Leave ();
+					FudgeMsg_release (msgStash);
+				} else {
+					LOGWARN (TEXT ("No stash message attached"));
+				}
 				break;
+						 }
 			default :
 				LOGWARN (TEXT ("Invalid client message - operation ") << op);
 				break;
