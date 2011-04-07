@@ -37,7 +37,7 @@ public class HestonPDETestCase {
   private static final double KAPPA = 0.2;
   private static final double THETA = 0.07;
   private static final double OMEGA = 0.2;
-  private static final double RHO = -0.50;
+  private static final double RHO = -0.50;// changed from -0.5
 
   private static final double STRIKE = 0.06;
   private static final double T = 1.0;
@@ -78,6 +78,9 @@ public class HestonPDETestCase {
     F_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity
     V_LOWER = new SecondDerivativeBoundaryCondition2D(0.0, 0.0);
     V_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * V0);
+    // F_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity
+    // V_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0);
+    // V_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * V0);
 
     // TODO these more sophisticated boundary conditions don't work
     // V_LOWER = new DirichletBoundaryCondition2D(FunctionalDoublesSurface.from(volZeroBoundary), 0); // TODO should be solving the convection PDE on this boundary
@@ -164,6 +167,8 @@ public class HestonPDETestCase {
 
     double[][] res = solver.solve(DATA, timeSteps, spotSteps, volSqrSteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER);
 
+    // int xSteps = res.length - 1;
+    // int ySteps = res[0].length - 1;
     // for (int j = 0; j <= ySteps; j++) {
     // System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
     // }

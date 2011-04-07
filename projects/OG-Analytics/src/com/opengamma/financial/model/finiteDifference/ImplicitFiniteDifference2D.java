@@ -6,15 +6,12 @@
 package com.opengamma.financial.model.finiteDifference;
 
 import com.opengamma.math.cube.Cube;
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 
 /**
  * <b>Note</b> this is for testing purposes and is not recommended for actual use 
  */
 public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   private static final double THETA = 0.5;
 
   @Override
@@ -42,8 +39,6 @@ public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
     double[] y = new double[ySteps + 1];
     final double[] q = new double[size];
 
-    final double[][] mx = new double[size][size];
-
     double currentX = 0;
     double currentY = 0;
     int index;
@@ -63,7 +58,7 @@ public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
 
     double t = 0.0;
     double a, b, c, d, e, f;
-    double[] w = new double[9];
+    double[][] w = new double[size][9];
 
     for (int n = 0; n < tSteps; n++) {
       t += dt;
@@ -77,45 +72,31 @@ public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
           d = pdeData.getD(t, x[i], y[j]);
           e = pdeData.getE(t, x[i], y[j]);
           f = pdeData.getF(t, x[i], y[j]);
-          w[0] = 1 - (2 * dtdx2 * a - dt * c) - (2 * dtdy2 * d);
-          w[1] = dtdxdy * e / 4.0;
-          w[2] = (dtdx2 * a + 0.5 * dtdx * b);
-          w[3] = -dtdxdy * e / 4.0;
-          w[4] = (dtdy2 * d - 0.5 * dtdy * f);
-          w[5] = (dtdy2 * d + 0.5 * dtdy * f);
-          w[6] = -dtdxdy * e / 4.0;
-          w[7] = (dtdx2 * a - 0.5 * dtdx * b);
-          w[8] = dtdxdy * e / 4.0;
 
-          mx[index][index] = w[0];
-          mx[index][index - xSteps] = w[1];
-          mx[index][index + 1] = w[2];
-          mx[index][index + 2 + xSteps] = w[3];
-          mx[index][index - xSteps - 1] = w[4];
-          mx[index][index + xSteps + 1] = w[5];
-          mx[index][index - xSteps - 2] = w[6];
-          mx[index][index - 1] = w[7];
-          mx[index][index + xSteps] = w[8];
+          w[index][0] = dtdxdy * e / 4.0;
+          w[index][1] = (dtdy2 * d - 0.5 * dtdy * f);
+          w[index][2] = -dtdxdy * e / 4.0;
+
+          w[index][3] = (dtdx2 * a - 0.5 * dtdx * b);
+          w[index][4] = 1 - (2 * dtdx2 * a - dt * c) - (2 * dtdy2 * d);
+          w[index][5] = (dtdx2 * a + 0.5 * dtdx * b);
+
+          w[index][6] = -dtdxdy * e / 4.0;
+          w[index][7] = (dtdy2 * d + 0.5 * dtdy * f);
+          w[index][8] = dtdxdy * e / 4.0;
 
           q[index] = u[index];
         }
       }
 
       // The y boundary conditions
+      double[][][] yBoundary = new double[2][xSteps + 1][];
+
       for (int i = 0; i <= xSteps; i++) {
-        double[] temp = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
-        for (int k = 0; k < temp.length; k++) {
-          int offset = k * (xSteps + 1);
-          mx[i][offset + i] = temp[k];
-        }
+        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
 
-        temp = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
-        for (int k = 0; k < temp.length; k++) {
-          int offset = (ySteps - k) * (xSteps + 1);
-          mx[i + ySteps * (xSteps + 1)][offset + i] = temp[k];
-        }
-
-        temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           int offset = k * (xSteps + 1);
@@ -133,22 +114,14 @@ public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
       }
 
       // The x boundary conditions
+      double[][][] xBoundary = new double[2][ySteps - 1][];
 
       for (int j = 1; j < ySteps; j++) {
-        double[] temp = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+
+        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
         int offset = j * (xSteps + 1);
-        for (int k = 0; k < temp.length; k++) {
-          mx[offset][offset + k] = temp[k];
-        }
-
-        temp = xUpperBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
-        offset = (j + 1) * (xSteps + 1) - 1;
-        for (int k = 0; k < temp.length; k++) {
-          mx[offset][offset - k] = temp[k];
-        }
-
-        temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
-        offset = j * (xSteps + 1);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset + k];
@@ -164,39 +137,100 @@ public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
         q[offset] = sum + xLowerBoundary.getConstant(pdeData, t, y[j], dx);
       }
 
-      // debug
-      // for (int i = 0; i < size; i++) {
-      // for (int j = 0; j < size; j++) {
-      // System.out.print(mx[i][j] + "\t");
-      // }
-      // System.out.print("\n");
-      // }
-
       // SOR
       final double omega = 1.0;
       double scale = 1.0;
       double errorSqr = Double.POSITIVE_INFINITY;
       double sum;
+      int l;
       while (errorSqr / (scale + 1e-10) > 1e-18) {
         errorSqr = 0.0;
         scale = 0.0;
-        for (int l = 0; l < size; l++) {
-          sum = 0;
-          for (int k = 0; k < size; k++) {
-            sum += mx[l][k] * u[k];
+        // solve for the innards first
+        for (int i = 1; i < xSteps; i++) {
+          for (int j = 1; j < ySteps; j++) {
+            l = j * (xSteps + 1) + i;
+            sum = 0;
+            sum += w[l][0] * u[l - xSteps - 2];
+            sum += w[l][1] * u[l - xSteps - 1];
+            sum += w[l][2] * u[l - xSteps];
+            sum += w[l][3] * u[l - 1];
+            sum += w[l][4] * u[l];
+            sum += w[l][5] * u[l + 1];
+            sum += w[l][6] * u[l + xSteps];
+            sum += w[l][7] * u[l + xSteps + 1];
+            sum += w[l][8] * u[l + xSteps + 2];
+
+            double correction = omega / w[l][4] * (q[l] - sum);
+            // if (freeBoundary != null) {
+            // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
+            // }
+            errorSqr += correction * correction;
+            u[l] += correction;
+            scale += u[l] * u[l];
           }
-          double correction = omega / mx[l][l] * (q[l] - sum);
-          // if (freeBoundary != null) {
-          // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
-          // }
+        }
+
+        // the lower y boundary
+        for (int i = 0; i <= xSteps; i++) {
+          sum = 0;
+          l = i;
+          double[] temp = yBoundary[0][i];
+          for (int k = 0; k < temp.length; k++) {
+            int offset = k * (xSteps + 1);
+            sum += temp[k] * u[offset + i];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
         }
-      }
 
-      // DecompositionResult dcompResult = DCOMP.evaluate(new DoubleMatrix2D(mx));
-      // u = dcompResult.solve(q);
+        // the upper y boundary
+        for (int i = 0; i <= xSteps; i++) {
+          sum = 0;
+          l = (xSteps + 1) * ySteps + i;
+          double[] temp = yBoundary[1][i];
+          for (int k = 0; k < temp.length; k++) {
+            int offset = (ySteps - k) * (xSteps + 1);
+            sum += temp[k] * u[offset + i];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+        // the lower x boundary
+        for (int j = 1; j < ySteps; j++) {
+          sum = 0;
+          l = j * (xSteps + 1);
+          double[] temp = xBoundary[0][j - 1];
+          for (int k = 0; k < temp.length; k++) {
+            sum += temp[k] * u[l + k];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+        // the upper x boundary
+        for (int j = 1; j < ySteps; j++) {
+          sum = 0;
+          l = (j + 1) * (xSteps + 1) - 1;
+          double[] temp = xBoundary[1][j - 1];
+          for (int k = 0; k < temp.length; k++) {
+            sum += temp[k] * u[l - k];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+      } // end of SOR
+
     } // time loop
 
     // unpack vector to matrix

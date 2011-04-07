@@ -16,22 +16,22 @@ public class ImplicitFiniteDifference2DTest {
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
   private static final ConvectionDiffusionPDESolver2D SOLVER = new ImplicitFiniteDifference2D();
 
-  @Test(enabled = false)
+  @Test
   public void testSpreadOption() {
 
-    int timeSteps = 1000;
-    int xSteps = 40;
-    int ySteps = 40;
+    int timeSteps = 40;
+    int xSteps = 100;
+    int ySteps = 100;
 
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test(enabled = false)
+  @Test
   public void testHeston() {
 
-    int timeSteps = 100;
-    int xSteps = 50;
-    int ySteps = 50;
+    int timeSteps = 200;
+    int xSteps = 80;
+    int ySteps = 20;
 
     HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
   }

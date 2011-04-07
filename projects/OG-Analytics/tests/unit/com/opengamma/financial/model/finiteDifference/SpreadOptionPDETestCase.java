@@ -35,7 +35,7 @@ public class SpreadOptionPDETestCase {
   private static final double RATE = 0.0;
   private static final double VOL_A = 0.20;
   private static final double VOL_B = 0.30;
-  private static final double RHO = -0.50;
+  private static final double RHO = -0.5;// used to be -0.5
 
   private static final ConvectionDiffusion2DPDEDataBundle DATA;
 
@@ -58,7 +58,12 @@ public class SpreadOptionPDETestCase {
     };
 
     A_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0);
+    // A_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * SPOT_A);
+    // B_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0);
+    // B_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * SPOT_B);
+
     A_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * SPOT_A);
+    // B_LOWER = new SecondDerivativeBoundaryCondition2D(0.0, 0);
     B_LOWER = new DirichletBoundaryCondition2D(FunctionalDoublesSurface.from(bZeroBoundary), 0.0);// option value = Spot_A when Spot_B = 0
     B_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * SPOT_B);
 
@@ -129,7 +134,8 @@ public class SpreadOptionPDETestCase {
         Validate.isTrue(xy.length == 2);
         double x = xy[0];
         double y = xy[1];
-        return Math.max(x - y, 0);
+        return Math.max(x - y, 0);// debug
+        // return Math.max(x - SPOT_A, 0);
       }
     };
 
