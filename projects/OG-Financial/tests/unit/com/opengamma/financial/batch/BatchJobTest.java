@@ -231,7 +231,7 @@ public class BatchJobTest {
   public void initView() throws Exception {
     ViewInternal testView = ViewTestUtils.getMockView();
     
-    final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
+    final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     cfgDocument.setValue(testView.getDefinition());

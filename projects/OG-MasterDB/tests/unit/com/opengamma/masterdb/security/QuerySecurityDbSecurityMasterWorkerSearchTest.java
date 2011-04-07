@@ -88,6 +88,56 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(1, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
   }
+  
+  @Test
+  public void test_search_identifier() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifierValue("B");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+  }
+    
+  @Test
+  public void test_search_identifier_case() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifierValue("hi");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_identifier_noMatch() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifierValue("FooBar");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+  
+  @Test
+  public void test_search_identifier_wildcard() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifierValue("H*");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_identifier_wildcardCase() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setIdentifierValue("h*");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
 
   //-------------------------------------------------------------------------
   @Test
@@ -104,11 +154,10 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.setName("TestSecurity102");
     SecuritySearchResult test = _secMaster.search(request);
-    
     assertEquals(1, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
   }
-
+  
   @Test
   public void test_search_name_case() {
     SecuritySearchRequest request = new SecuritySearchRequest();
@@ -264,9 +313,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
-  public void test_search_oneKey_Any_GH() {
+  public void test_search_oneKey_Any_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(Identifier.of("G", "H"));
+    request.addSecurityKey(Identifier.of("G", "HI"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -276,7 +325,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_oneKey_Any_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(Identifier.of("A", "H"));
+    request.addSecurityKey(Identifier.of("A", "HI"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -296,9 +345,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
-  public void test_search_twoKeys_EF_GH() {
+  public void test_search_twoKeys_EF_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(Identifier.of("E", "F"), Identifier.of("G", "H"));
+    request.addSecurityKeys(Identifier.of("E", "F"), Identifier.of("G", "HI"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -310,7 +359,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_twoKeys_Any_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(Identifier.of("E", "H"), Identifier.of("A", "D"));
+    request.addSecurityKeys(Identifier.of("E", "HI"), Identifier.of("A", "D"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -355,9 +404,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
-  public void test_search_oneKey_All_GH() {
+  public void test_search_oneKey_All_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(Identifier.of("G", "H"));
+    request.addSecurityKey(Identifier.of("G", "HI"));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -368,7 +417,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_oneKey_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKey(Identifier.of("A", "H"));
+    request.addSecurityKey(Identifier.of("A", "HI"));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -403,7 +452,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_twoKeys_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "H")));
+    request.addSecurityKeys(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "HI")));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -423,9 +472,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
-  public void test_search_threeKeys_All_AB_CD_GH() {
+  public void test_search_threeKeys_All_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H"));
+    request.addSecurityKeys(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "HI"));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -436,7 +485,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_threeKeys_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F"), Identifier.of("A", "H")));
+    request.addSecurityKeys(IdentifierBundle.of(Identifier.of("C", "D"), Identifier.of("E", "F"), Identifier.of("A", "HI")));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -479,9 +528,9 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   @Test
-  public void test_search_threeKeys_Exact_AB_CD_GH() {
+  public void test_search_threeKeys_Exact_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addSecurityKeys(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "H"));
+    request.addSecurityKeys(Identifier.of("A", "B"), Identifier.of("C", "D"), Identifier.of("G", "HI"));
     request.getSecurityKeys().setSearchType(IdentifierSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     

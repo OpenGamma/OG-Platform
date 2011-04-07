@@ -67,7 +67,7 @@ public class DbConfigMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_single_type() throws Exception {
-    ConfigDocument<Identifier> addDoc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> addDoc = new ConfigDocument<Identifier>(Identifier.class);
     addDoc.setName("Config test");
     addDoc.setValue(Identifier.of("A", "B"));
     ConfigDocument<Identifier> added = _cfgMaster.add(addDoc);
@@ -82,13 +82,13 @@ public class DbConfigMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_multiple_types() throws Exception {
-    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>(Identifier.class);
     identifierDoc.setName("Identifier test");
     identifierDoc.setValue(Identifier.of("A", "B"));
     
     ConfigDocument<Identifier> addedIdentifier = _cfgMaster.add(identifierDoc);
     
-    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>();
+    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
     bundleDoc.setName("Bundle test");
     bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
     ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
@@ -103,13 +103,13 @@ public class DbConfigMasterTest extends DBTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_get_invalid_type() throws Exception {
-    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> identifierDoc = new ConfigDocument<Identifier>(Identifier.class);
     identifierDoc.setName("Identifier test");
     identifierDoc.setValue(Identifier.of("A", "B"));
     
     _cfgMaster.add(identifierDoc);
     
-    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>();
+    ConfigDocument<IdentifierBundle> bundleDoc = new ConfigDocument<IdentifierBundle>(IdentifierBundle.class);
     bundleDoc.setName("Bundle test");
     bundleDoc.setValue(IdentifierBundle.of(Identifier.of("A", "B"), Identifier.of("C", "D")));
     ConfigDocument<IdentifierBundle> addedBundle = _cfgMaster.add(bundleDoc);
