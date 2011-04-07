@@ -9,10 +9,6 @@ import java.util.List;
 
 import javax.time.TimeSource;
 
-import org.fudgemsg.FudgeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -25,9 +21,8 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.listener.BasicMasterChangeManager;
 import com.opengamma.master.listener.MasterChangeManager;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.db.DbSource;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A config master implementation using a database for persistence.
@@ -40,25 +35,20 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This class is mutable but must be treated as immutable after configuration.
  * 
  */
-public class DbConfigMaster implements ConfigMaster {
-  
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbConfigMaster.class);
+public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
 
   /**
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbCfg";
-  /**
-   * The Fudge context.
-   */
-  protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
-  
+
   /**
    * The change manager.
    */
   private MasterChangeManager _changeManager = new BasicMasterChangeManager();
-  
+  /**
+   * The worker.
+   */
   private DbConfigWorker _worker;
 
   /**
@@ -67,67 +57,38 @@ public class DbConfigMaster implements ConfigMaster {
    * @param dbSource  the database source combining all configuration, not null
    */
   public DbConfigMaster(DbSource dbSource) {
+    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     _worker = new DbConfigWorker(dbSource, IDENTIFIER_SCHEME_DEFAULT);
     _worker.setChangeManager(_changeManager);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Sets the time-source that determines the current time.
    * 
    * @param timeSource  the time-source, not null
    */
   public void setTimeSource(final TimeSource timeSource) {
-    ArgumentChecker.notNull(timeSource, "timeSource");
-    s_logger.debug("installed TimeSource: {}", timeSource);
+    super.setTimeSource(timeSource);
     _worker.setTimeSource(timeSource);
   }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the time-source that determines the current time.
-   * 
-   * @return the time-source, not null
-   */
-  public TimeSource getTimeSource() {
-    return _worker.getTimeSource();
-  }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the scheme in use for unique identifier.
-   * 
-   * @return the scheme, not null
-   */
-  public String getIdentifierScheme() {
-    return _worker.getIdentifierScheme();
-  }
-  
+
   /**
    * Sets the scheme in use for unique identifier.
    * 
    * @param scheme  the scheme for unique identifier, not null
    */
   public void setIdentifierScheme(final String scheme) {
-    ArgumentChecker.notNull(scheme, "scheme");
-    s_logger.debug("installed IdentifierScheme: {}", scheme);
+    super.setIdentifierScheme(scheme);
     _worker.setIdentifierScheme(scheme);
   }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the database source.
-   * 
-   * @return the database source, not null
-   */
-  public DbSource getDbSource() {
-    return _worker.getDbSource();
-  }
 
+  //-------------------------------------------------------------------------
   @Override
   public MasterChangeManager changeManager() {
     return _changeManager;
   }
-  
+
   @Override
   public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
     return _worker.get(uniqueId);

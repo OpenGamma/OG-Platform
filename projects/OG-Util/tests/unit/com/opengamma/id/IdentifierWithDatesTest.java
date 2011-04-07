@@ -32,7 +32,7 @@ public class IdentifierWithDatesTest {
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertEquals(VALID_FROM, test.getValidFrom());
     assertEquals(VALID_TO, test.getValidTo());
-    assertEquals("Scheme::value:S:2010-01-01:E:2010-12-01", test.toString());
+    assertEquals("Scheme~value~S~2010-01-01~E~2010-12-01", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -45,7 +45,7 @@ public class IdentifierWithDatesTest {
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertNull(test.getValidFrom());
     assertEquals(VALID_TO, test.getValidTo());
-    assertEquals("Scheme::value:E:2010-12-01", test.toString());
+    assertEquals("Scheme~value~E~2010-12-01", test.toString());
   }
 
   public void test_factory_Identifier_LocalDate_LocalDate_nullValidTo() {
@@ -53,7 +53,7 @@ public class IdentifierWithDatesTest {
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertNull(test.getValidTo());
     assertEquals(VALID_FROM, test.getValidFrom());
-    assertEquals("Scheme::value:S:2010-01-01", test.toString());
+    assertEquals("Scheme~value~S~2010-01-01", test.toString());
   }
   
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -63,17 +63,17 @@ public class IdentifierWithDatesTest {
 
   //-------------------------------------------------------------------------
   public void test_parse() {
-    IdentifierWithDates test = IdentifierWithDates.parse("Scheme::value:S:2010-01-01:E:2010-12-01");
+    IdentifierWithDates test = IdentifierWithDates.parse("Scheme~value~S~2010-01-01~E~2010-12-01");
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertEquals(VALID_FROM, test.getValidFrom());
     assertEquals(VALID_TO, test.getValidTo());
     
-    test = IdentifierWithDates.parse("Scheme::value:S:2010-01-01");
+    test = IdentifierWithDates.parse("Scheme~value~S~2010-01-01");
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertEquals(VALID_FROM, test.getValidFrom());
     assertNull(test.getValidTo());
     
-    test = IdentifierWithDates.parse("Scheme::value:E:2010-12-01");
+    test = IdentifierWithDates.parse("Scheme~value~E~2010-12-01");
     assertEquals(IDENTIFIER, test.asIdentifier());
     assertEquals(VALID_TO, test.getValidTo());
     assertNull(test.getValidFrom());

@@ -46,6 +46,12 @@ public class HSQLDbHelper extends DbHelper {
   }
 
   @Override
+  public String sqlSelectNow() {
+    return "SELECT * FROM (VALUES(current_timestamp)) AS V(NOW_TIMESTAMP)";
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public LobHandler getLobHandler() {
     DefaultLobHandler handler = new DefaultLobHandler();
     handler.setWrapAsLob(true);
