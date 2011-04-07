@@ -143,6 +143,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         i++;
       }
     }
+    
+    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
+    
     searchWithPaging(request.getPagingRequest(), sqlSearchSecurities(request, args), args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
       loadDetail(result.getDocuments());
@@ -178,6 +181,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
       where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
     }
+    if (request.getIdentifierValue() != null) {
+      where += sqlSelectIdentifierValue(request.getIdentifierValue());
+    }
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT sec_security.id FROM sec_security " +  where;
@@ -189,6 +195,24 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM sec_security " + where;
     return new String[] {search, count};
+  }
+
+  /**
+   * Gets the SQL to match identifier value
+   * 
+   * @param identifierValue the identifier value, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectIdentifierValue(String identifierValue) {
+    String select = "SELECT DISTINCT security_id " +
+        "FROM sec_security2idkey, sec_security main " +
+        "WHERE security_id = main.id " +
+        "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+        "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+        "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+    String sql = "AND id IN (" + select + ") ";
+    s_logger.debug("match identifierValue SQL {}", sql);
+    return sql;
   }
 
   /**

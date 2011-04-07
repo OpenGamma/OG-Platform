@@ -76,9 +76,10 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
   
@@ -88,18 +89,20 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
+      @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, uriInfo);
     return getFreemarker().build("securities/jsonsecurities.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String identifier, String type, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
+    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
