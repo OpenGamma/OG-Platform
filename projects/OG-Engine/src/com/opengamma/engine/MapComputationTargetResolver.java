@@ -30,11 +30,23 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
 
   /**
    * Adds a target to the resolver.
+   * 
    * @param target  the target to add, not null
    */
   public void addTarget(final ComputationTarget target) {
     ArgumentChecker.notNull(target, "target");
     _backingMap.put(target.toSpecification(), target);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a string suitable for debugging.
+   * 
+   * @return the string, not null
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[map=" + _backingMap + "]";
   }
 
 }
