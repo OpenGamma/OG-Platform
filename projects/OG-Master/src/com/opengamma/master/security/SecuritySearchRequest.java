@@ -41,7 +41,7 @@ import com.opengamma.util.RegexUtils;
 @PublicSPI
 @BeanDefinition
 public class SecuritySearchRequest extends AbstractSearchRequest {
-
+  
   /**
    * The set of security object identifiers, null to not limit by security object identifiers.
    * Note that an empty set will return no securities.
@@ -53,6 +53,16 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private IdentifierSearch _securityKeys;
+  /**
+   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * search is useful for exact machine searching.
+   */
+  @PropertyDefinition
+  private String _identifierValue;
   /**
    * The security name, wildcards allowed, null to not match on name.
    */
@@ -192,6 +202,13 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (getSecurityType() != null && getSecurityType().equals(security.getSecurityType()) == false) {
       return false;
     }
+    if (getIdentifierValue() != null) {
+      for (Identifier identifier : security.getIdentifiers()) {
+        if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue()) == false) {
+          return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -217,6 +234,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return getSecurityIds();
       case 807958868:  // securityKeys
         return getSecurityKeys();
+      case 2085582408:  // identifierValue
+        return getIdentifierValue();
       case 3373707:  // name
         return getName();
       case 808245914:  // securityType
@@ -236,6 +255,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
+        return;
+      case 2085582408:  // identifierValue
+        setIdentifierValue((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -292,6 +314,46 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    */
   public final Property<IdentifierSearch> securityKeys() {
     return metaBean().securityKeys().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
+   * @return the value of the property
+   */
+  public String getIdentifierValue() {
+    return _identifierValue;
+  }
+
+  /**
+   * Sets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
+   * @param identifierValue  the new value of the property
+   */
+  public void setIdentifierValue(String identifierValue) {
+    this._identifierValue = identifierValue;
+  }
+
+  /**
+   * Gets the the {@code identifierValue} property.
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code identifiers}
+   * search is useful for exact machine searching.
+   * @return the property, not null
+   */
+  public final Property<String> identifierValue() {
+    return metaBean().identifierValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -398,6 +460,10 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
     /**
+     * The meta-property for the {@code identifierValue} property.
+     */
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(this, "identifierValue", String.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -419,6 +485,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("securityIds", _securityIds);
       temp.put("securityKeys", _securityKeys);
+      temp.put("identifierValue", _identifierValue);
       temp.put("name", _name);
       temp.put("securityType", _securityType);
       temp.put("fullDetail", _fullDetail);
@@ -455,6 +522,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<IdentifierSearch> securityKeys() {
       return _securityKeys;
+    }
+
+    /**
+     * The meta-property for the {@code identifierValue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> identifierValue() {
+      return _identifierValue;
     }
 
     /**

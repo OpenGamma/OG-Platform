@@ -135,7 +135,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("config_type", value.getClass().getName())
+      .addValue("config_type", document.getDocumentClass().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     return document;
@@ -322,7 +322,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       }
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
-      ConfigDocument<Object> doc = new ConfigDocument<Object>();
+      ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);
       UniqueIdentifier uniqueIdentifier = createUniqueIdentifier(docOid, docId);
       doc.setUniqueId(uniqueIdentifier);
       UniqueIdentifiables.setInto(value, uniqueIdentifier);
