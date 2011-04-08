@@ -5,6 +5,8 @@
  */
 package com.opengamma.master.config;
 
+import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
+
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -26,9 +28,33 @@ public final class ConfigMasterUtils {
    * @param document  the document to store, not null
    * @return the updated result, not null
    */
-  @SuppressWarnings("unchecked")
   public static <T> ConfigDocument<T> storeByName(final ConfigMaster master, final ConfigDocument<T> document) {
-    
+
+    final int maxRetries = 10; //IGN-101 This is so high because the tests hammer this function with the same name
+    int retries = 0;
+
+    if (document.getUniqueId() == null) {
+      while (true) {
+        try {
+          return storeByNameInner(master, document);
+        } catch (IllegalArgumentException ex) {
+          if (++retries == maxRetries) {
+            throw ex;
+          }
+        } catch (IncorrectUpdateSemanticsDataAccessException ex) {
+          if (++retries == maxRetries) {
+            throw ex;
+          }
+        }
+
+        document.setUniqueId(null);
+      }
+    } else {
+      return storeByNameInner(master, document);
+    }
+  }
+
+  private static <T> ConfigDocument<T> storeByNameInner(final ConfigMaster master, final ConfigDocument<T> document) {
     ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>();
     searchRequest.setType((Class<T>) document.getDocumentClass());
     searchRequest.setName(document.getName());
