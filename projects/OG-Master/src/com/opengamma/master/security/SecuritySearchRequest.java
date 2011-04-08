@@ -58,7 +58,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    * null to not match by identifier value.
    * This matches against the {@link Identifier#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
-   * This method is suitable for human searching, whereas the {@code identifiers}
+   * This method is suitable for human searching, whereas the {@code securityKeys}
    * search is useful for exact machine searching.
    */
   @PropertyDefinition
@@ -201,6 +201,13 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     }
     if (getSecurityType() != null && getSecurityType().equals(security.getSecurityType()) == false) {
       return false;
+    }
+    if (getIdentifierValue() != null) {
+      for (Identifier identifier : security.getIdentifiers()) {
+        if (RegexUtils.wildcardMatch(getIdentifierValue(), identifier.getValue()) == false) {
+          return false;
+        }
+      }
     }
     return true;
   }
