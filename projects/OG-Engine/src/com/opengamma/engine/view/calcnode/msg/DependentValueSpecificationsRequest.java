@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/engine/view/calcnode/msg/DependentValueSpecificationsRequest.proto:13(12)
 package com.opengamma.engine.view.calcnode.msg;
 public class DependentValueSpecificationsRequest extends com.opengamma.engine.view.calcnode.msg.ViewProcessorQueryMessage implements java.io.Serializable {
   private static final long serialVersionUID = 1125952727l;

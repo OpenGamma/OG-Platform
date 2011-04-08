@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/ExerciseType.proto:16(10)
 package com.opengamma.financial.security.option;
 public class AmericanExerciseType extends com.opengamma.financial.security.option.ExerciseType implements java.io.Serializable {
   public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitAmericanExerciseType (this); }

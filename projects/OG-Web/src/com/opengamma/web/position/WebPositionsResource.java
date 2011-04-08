@@ -67,9 +67,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   public String get(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
+      @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr) {
-    FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr);
     return getFreemarker().build("positions/positions.ftl", out);
   }
   
@@ -78,19 +79,21 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   public String getJSON(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
+      @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
       @QueryParam("maxquantity") String maxQuantityStr) {
-    FlexiBean out = createSearchResultData(page, pageSize, minQuantityStr, maxQuantityStr);
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr);
     return getFreemarker().build("positions/jsonpositions.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String minQuantityStr, String maxQuantityStr) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String minQuantityStr, String maxQuantityStr) {
     minQuantityStr = StringUtils.defaultString(minQuantityStr).replace(",", "");
     maxQuantityStr = StringUtils.defaultString(maxQuantityStr).replace(",", "");
     FlexiBean out = createRootData();
     
     PositionSearchRequest searchRequest = new PositionSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
+    searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     if (NumberUtils.isNumber(minQuantityStr)) {
       searchRequest.setMinQuantity(NumberUtils.createBigDecimal(minQuantityStr));
     }

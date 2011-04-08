@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/future/FXFutureSecurity.proto:12(10)
 package com.opengamma.financial.security.future;
 public class FXFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitFXFutureSecurity (this); }
