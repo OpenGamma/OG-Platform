@@ -10,6 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
@@ -31,10 +32,11 @@ public class BondIborDescriptionDefinition extends BondDescriptionDefinition<Cou
    * @param coupon The bond Ibor coupons. The coupons notional and currency should be in line with the bond nominal.
    * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The calendar used to compute the standard settlement date.
    * @param dayCount The coupon day count convention.
    */
-  public BondIborDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponIborDefinition coupon, int exCouponDays, int settlementDays, DayCount dayCount) {
-    super(nominal, coupon, exCouponDays, settlementDays, dayCount);
+  public BondIborDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponIborDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
+    super(nominal, coupon, exCouponDays, settlementDays, calendar, dayCount);
   }
 
   /**
@@ -56,10 +58,9 @@ public class BondIborDescriptionDefinition extends BondDescriptionDefinition<Cou
     Validate.notNull(dayCount, "Day count");
     Validate.notNull(businessDay, "Business day convention");
     AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
-    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate), 
-        DEFAULT_NOTIONAL)};
+    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate), DEFAULT_NOTIONAL)};
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
-    return new BondIborDescriptionDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, dayCount);
+    return new BondIborDescriptionDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
   }
 
 }

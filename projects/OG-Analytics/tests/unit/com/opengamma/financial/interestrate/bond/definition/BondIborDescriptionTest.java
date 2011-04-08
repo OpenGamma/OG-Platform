@@ -3,9 +3,7 @@ package com.opengamma.financial.interestrate.bond.definition;
 import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -24,7 +22,6 @@ import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -58,10 +55,10 @@ public class BondIborDescriptionTest {
     BOND_DESCRIPTION_DEFINITION.getCoupon().getNthPayment(0).fixingProcess(FIRST_FIXING); // First coupon has fixed.
     COUPON_DEFINITION.getNthPayment(0).fixingProcess(FIRST_FIXING);
   }
-  private static final ZonedDateTime REFERENCE_DATE_2 = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
-  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC), BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final double SPOT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_2, SPOT_DATE);
+  //  private static final ZonedDateTime REFERENCE_DATE_2 = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+  //  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC), BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
+  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  //  private static final double SPOT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_2, SPOT_DATE);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -69,16 +66,16 @@ public class BondIborDescriptionTest {
   private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   @SuppressWarnings("unchecked")
   private static final GenericAnnuity<Payment> COUPON = (GenericAnnuity<Payment>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final BondIborDescription BOND_DESCRIPTION = new BondIborDescription(NOMINAL, COUPON, SPOT_TIME);
+  private static final BondIborDescription BOND_DESCRIPTION = new BondIborDescription(NOMINAL, COUPON);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominal() {
-    new BondIborDescription(null, COUPON, SPOT_TIME);
+    new BondIborDescription(null, COUPON);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
-    new BondIborDescription(NOMINAL, null, SPOT_TIME);
+    new BondIborDescription(NOMINAL, null);
   }
 
   @Test
