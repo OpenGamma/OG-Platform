@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/future/BondFutureSecurity.proto:13(10)
 package com.opengamma.financial.security.future;
 public class BondFutureDeliverable implements java.io.Serializable {
   private static final long serialVersionUID = 39623133256803l;

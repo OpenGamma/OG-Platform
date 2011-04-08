@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/swap/ForwardSwapSecurity.proto:9(10)
 package com.opengamma.financial.security.swap;
 public class ForwardSwapSecurity extends com.opengamma.financial.security.swap.SwapSecurity implements java.io.Serializable {
   public <T> T accept (SwapSecurityVisitor<T> visitor) { return visitor.visitForwardSwapSecurity (this); }

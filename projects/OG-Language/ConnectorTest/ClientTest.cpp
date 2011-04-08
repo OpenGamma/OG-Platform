@@ -141,12 +141,57 @@ static void Message () {
 	FudgeMsg_release (msg);
 }
 
+static void Stash () {
+	int i = GetTickCount ();
+	FudgeMsg msgUser;
+	FudgeMsg msgTest;
+	ASSERT (FudgeMsg_create (&msgTest) == FUDGE_OK);
+	ASSERT (Test_addClass (msgTest) == FUDGE_OK);
+	ASSERT (Test_setOperation (msgTest, CRASH_REQUEST) == FUDGE_OK);
+	ASSERT (Test_setNonce (msgTest, i + 1) == FUDGE_OK);
+	ASSERT (FudgeMsg_create (&msgUser) == FUDGE_OK);
+	ASSERT (UserMessage_setHandle (msgUser, i) == FUDGE_OK);
+	ASSERT (UserMessage_setFudgeMsgPayload (msgUser, msgTest) == FUDGE_OK);
+	FudgeMsg_release (msgTest);
+	CMessageCallback message;
+	g_poService->SetMessageReceivedCallback (&message);
+	LOGDEBUG (TEXT ("Sending CRASH_REQUEST message"));
+	ASSERT (g_poService->Send (msgUser));
+	FudgeMsg_release (msgUser);
+	CThread::Sleep (TIMEOUT_CALLBACK);
+	LOGDEBUG (TEXT ("Sending STASH_REQUEST message"));
+	ASSERT (FudgeMsg_create (&msgTest) == FUDGE_OK);
+	ASSERT (Test_addClass (msgTest) == FUDGE_OK);
+	ASSERT (Test_setOperation (msgTest, STASH_REQUEST) == FUDGE_OK);
+	ASSERT (Test_setNonce (msgTest, i + 3) == FUDGE_OK);
+	ASSERT (FudgeMsg_create (&msgUser) == FUDGE_OK);
+	ASSERT (UserMessage_setHandle (msgUser, i + 2) == FUDGE_OK);
+	ASSERT (UserMessage_setFudgeMsgPayload (msgUser, msgTest) == FUDGE_OK);
+	FudgeMsg_release (msgTest);
+	int n;
+	for (n = 0; !g_poService->Send (msgUser) && (n < TIMEOUT_START / 100); n++) {
+		CThread::Sleep (100);
+	}
+	FudgeMsg_release (msgUser);
+	LOGDEBUG (TEXT ("Waiting for response"));
+	FudgeMsg msg;
+	for (n = 0; !(msg = message.GetMessage ()) && (n < TIMEOUT_MESSAGE / 100); n++) {
+		CThread::Sleep (100);
+	}
+	ASSERT (msg);
+	int j;
+	ASSERT (UserMessage_getHandle (msg, &j) == FUDGE_OK);
+	ASSERT (i + 2 == j);
+	FudgeMsg_release (msg);
+}
+
 // The messaging is tested by the tests for Connector
 
 BEGIN_TESTS (ClientTest)
 	TEST (StartStop)
 	TEST (Heartbeat)
 	TEST (Message)
+	TEST (Stash)
 	BEFORE_TEST (Start)
 	AFTER_TEST (Stop)
 END_TESTS

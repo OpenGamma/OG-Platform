@@ -94,7 +94,6 @@ public:
 	bool Call (FudgeMsg msgPayload, FudgeMsg *pmsgResponse, unsigned long lTimeout);
 	CCall *Call (FudgeMsg msgPayload);
 	bool Send (FudgeMsg msgPayload);
-	// TODO: change the callback to take a <Message>_isClass function instead of a string
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
 	bool RemoveCallback (CCallback *poCallback, bool *pbUsed = NULL);
 };

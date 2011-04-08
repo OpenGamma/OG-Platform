@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/future/CommodityFutureSecurity.proto:12(19)
 package com.opengamma.financial.security.future;
 public abstract class CommodityFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
   private static final long serialVersionUID = 40741415860027857l;

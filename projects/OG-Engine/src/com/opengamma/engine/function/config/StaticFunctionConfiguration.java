@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/engine/function/config/StaticFunctionConfiguration.proto:9(10)
 package com.opengamma.engine.function.config;
 public class StaticFunctionConfiguration extends com.opengamma.engine.function.config.FunctionConfiguration implements java.io.Serializable {
   private static final long serialVersionUID = 1144487394l;

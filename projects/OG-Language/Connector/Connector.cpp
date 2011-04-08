@@ -122,31 +122,54 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 	if (UserMessage_getHandle (msg, &handle) == FUDGE_OK) {
 		m_oSynchronousCalls.PostAndRelease (handle, msgPayload);
 	} else {
-		FudgeField field;
-		if ((FudgeMsg_getFieldByOrdinal (&field, msgPayload, 0) == FUDGE_OK) && (field.type == FUDGE_TYPE_STRING)) {
-			m_oControlMutex.Enter ();
-			CCallbackEntry *poCallback = m_poCallbacks;
-			while (poCallback) {
-				if (poCallback->IsClass (field.data.string)) {
-					LOGDEBUG (TEXT ("Dispatching message to user callback"));
-					CAsynchronous::COperation *poDispatch = new CConnectorMessageDispatch (poCallback, msgPayload);
-					if (poDispatch) {
-						poCallback->m_bUsed = true;
-						if (!m_poDispatch->Run (poDispatch)) {
-							delete poDispatch;
-							LOGWARN (TEXT ("Couldn't dispatch message to user callback"));
-						}
-					} else {
-						LOGFATAL (TEXT ("Out of memory"));
-					}
-					// Stop on first matching callback -- is it ever useful to register multiple callbacks for the same message class?
-					break;
-				}
-				poCallback = poCallback->m_poNext;
+		int nFields = FudgeMsg_numFields (msgPayload);
+		FudgeField field[8];
+		FudgeField *pField;
+		if (nFields <= (sizeof (field) / sizeof (FudgeField))) {
+			pField = field;
+		} else {
+			LOGDEBUG (TEXT ("Allocating buffer for ") << nFields << TEXT (" fields"));
+			pField = (FudgeField*)malloc (sizeof (FudgeField) * nFields);
+			if (!pField) {
+				LOGFATAL (TEXT ("Out of memory"));
+				FudgeMsg_release (msgPayload);
+				return;
 			}
+		}
+		if (FudgeMsg_getFields (pField, nFields, msgPayload) > 0) {
+			int i;
+			m_oControlMutex.Enter ();
+			for (i = 0; i < nFields; i++) {
+				if ((pField[i].flags & FUDGE_FIELD_HAS_ORDINAL) && (pField[i].ordinal == 0) && (pField[i].type == FUDGE_TYPE_STRING)) {
+					CCallbackEntry *poCallback = m_poCallbacks;
+					while (poCallback) {
+						if (poCallback->IsClass (pField[i].data.string)) {
+							LOGDEBUG (TEXT ("Dispatching message to user callback"));
+							CAsynchronous::COperation *poDispatch = new CConnectorMessageDispatch (poCallback, msgPayload);
+							if (poDispatch) {
+								poCallback->m_bUsed = true;
+								if (!m_poDispatch->Run (poDispatch)) {
+									delete poDispatch;
+									LOGWARN (TEXT ("Couldn't dispatch message to user callback"));
+								}
+							} else {
+								LOGFATAL (TEXT ("Out of memory"));
+							}
+							// Stop of first matching callback
+							goto dispatched;
+						}
+						poCallback = poCallback->m_poNext;
+					}
+				}
+			}
+			LOGWARN (TEXT ("Ignoring message"));
+dispatched:
 			m_oControlMutex.Leave ();
 		} else {
-			LOGWARN (TEXT ("Message didn't have class string at ordinal 0"));
+			LOGWARN (TEXT ("Couldn't fetch fields from message payload"));
+		}
+		if (pField != field) {
+			free (pField);
 		}
 		FudgeMsg_release (msgPayload);
 	}

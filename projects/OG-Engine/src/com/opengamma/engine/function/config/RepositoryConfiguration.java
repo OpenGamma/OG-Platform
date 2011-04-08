@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/engine/function/config/RepositoryConfiguration.proto:9(10)
 package com.opengamma.engine.function.config;
 public class RepositoryConfiguration implements java.io.Serializable {
   private static final long serialVersionUID = -2595680220l;

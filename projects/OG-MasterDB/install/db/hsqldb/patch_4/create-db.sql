@@ -6,7 +6,9 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-create sequence hibernate_sequence start with 1 increment by 1;
+
+    create sequence hibernate_sequence start with 1 increment by 1;
+
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -41,6 +43,7 @@ CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 -- CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
+
 
 -- create-db-refdata.sql
 
@@ -148,6 +151,7 @@ CREATE TABLE exg_exchange2idkey (
     constraint exg_fk_exgidkey2idkey foreign key (idkey_id) references exg_idkey (id)
 );
 -- exg_exchange2idkey is fully dependent of exg_exchange
+
 
 -- create-db-security.sql: Security Master
 
@@ -1225,3 +1229,5 @@ CREATE TABLE tss_identifier (
 );
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
+
+
