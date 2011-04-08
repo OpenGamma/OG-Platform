@@ -7,7 +7,7 @@
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
 
-    create sequence hibernate_sequence start 1 increment 1;
+    create sequence hibernate_sequence start with 1 increment by 1;
 
 -- create-db-config.sql: Config Master
 
@@ -17,7 +17,7 @@
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE cfg_config_seq
+CREATE SEQUENCE cfg_config_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -30,7 +30,7 @@ CREATE TABLE cfg_config (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     config_type varchar(255) not null,
-    config bytea not null,
+    config blob not null,
     primary key (id),
     constraint cfg_chk_config_ver_order check (ver_from_instant <= ver_to_instant),
     constraint cfg_chk_config_corr_order check (corr_from_instant <= corr_to_instant),
@@ -42,7 +42,7 @@ CREATE INDEX ix_cfg_config_ver_to_instant ON cfg_config(ver_to_instant);
 CREATE INDEX ix_cfg_config_corr_from_instant ON cfg_config(corr_from_instant);
 CREATE INDEX ix_cfg_config_corr_to_instant ON cfg_config(corr_to_instant);
 CREATE INDEX ix_cfg_config_name ON cfg_config(name);
-CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
+-- CREATE INDEX ix_cfg_config_nameu ON cfg_config(upper(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 
 
@@ -54,7 +54,7 @@ CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE hol_holiday_seq
+CREATE SEQUENCE hol_holiday_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -84,7 +84,7 @@ CREATE INDEX ix_hol_holiday_ver_to_instant ON hol_holiday(ver_to_instant);
 CREATE INDEX ix_hol_holiday_corr_from_instant ON hol_holiday(corr_from_instant);
 CREATE INDEX ix_hol_holiday_corr_to_instant ON hol_holiday(corr_to_instant);
 CREATE INDEX ix_hol_holiday_name ON hol_holiday(name);
-CREATE INDEX ix_hol_holiday_nameu ON hol_holiday(upper(name));
+-- CREATE INDEX ix_hol_holiday_nameu ON hol_holiday(upper(name));
 CREATE INDEX ix_hol_holiday_provider_scheme ON hol_holiday(provider_scheme);
 CREATE INDEX ix_hol_holiday_provider_value ON hol_holiday(provider_value);
 CREATE INDEX ix_hol_holiday_holiday_type ON hol_holiday(hol_type);
@@ -108,9 +108,9 @@ CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE exg_exchange_seq
+CREATE SEQUENCE exg_exchange_seq as bigint
     start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE exg_idkey_seq
+CREATE SEQUENCE exg_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -123,7 +123,7 @@ CREATE TABLE exg_exchange (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     time_zone varchar(255),
-    detail bytea not null,
+    detail blob not null,
     primary key (id),
     constraint exg_chk_exchange_ver_order check (ver_from_instant <= ver_to_instant),
     constraint exg_chk_exchange_corr_order check (corr_from_instant <= corr_to_instant)
@@ -134,7 +134,7 @@ CREATE INDEX ix_exg_exchange_ver_to_instant ON exg_exchange(ver_to_instant);
 CREATE INDEX ix_exg_exchange_corr_from_instant ON exg_exchange(corr_from_instant);
 CREATE INDEX ix_exg_exchange_corr_to_instant ON exg_exchange(corr_to_instant);
 CREATE INDEX ix_exg_exchange_name ON exg_exchange(name);
-CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(upper(name));
+-- CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(upper(name));
 
 CREATE TABLE exg_idkey (
     id bigint not null,
@@ -162,9 +162,9 @@ CREATE TABLE exg_exchange2idkey (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE sec_security_seq
+CREATE SEQUENCE sec_security_seq as bigint
     start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE sec_idkey_seq
+CREATE SEQUENCE sec_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -188,7 +188,7 @@ CREATE INDEX ix_sec_security_ver_to_instant ON sec_security(ver_to_instant);
 CREATE INDEX ix_sec_security_corr_from_instant ON sec_security(corr_from_instant);
 CREATE INDEX ix_sec_security_corr_to_instant ON sec_security(corr_to_instant);
 CREATE INDEX ix_sec_security_name ON sec_security(name);
-CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
+-- CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
 CREATE INDEX ix_sec_security_sec_type ON sec_security(sec_type);
 
 CREATE TABLE sec_idkey (
@@ -543,7 +543,7 @@ CREATE TABLE sec_swap (
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE prt_master_seq
+CREATE SEQUENCE prt_master_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
@@ -566,7 +566,7 @@ CREATE INDEX ix_prt_portfolio_ver_to_instant ON prt_portfolio(ver_to_instant);
 CREATE INDEX ix_prt_portfolio_corr_from_instant ON prt_portfolio(corr_from_instant);
 CREATE INDEX ix_prt_portfolio_corr_to_instant ON prt_portfolio(corr_to_instant);
 CREATE INDEX ix_prt_portfolio_name ON prt_portfolio(name);
-CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(upper(name));
+-- CREATE INDEX ix_prt_portfolio_nameu ON prt_portfolio(upper(name));
 
 CREATE TABLE prt_node (
     id bigint not null,
@@ -612,9 +612,9 @@ CREATE INDEX ix_prt_position_node_id ON prt_position(node_id);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE pos_master_seq
+CREATE SEQUENCE pos_master_seq as bigint
     start with 1000 increment by 1 no cycle;
-CREATE SEQUENCE pos_idkey_seq
+CREATE SEQUENCE pos_idkey_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby, not accepted by Postgresql
 
@@ -647,7 +647,7 @@ CREATE TABLE pos_trade (
     position_oid bigint not null,
     quantity decimal(31,8) not null,
     trade_date date not null,
-    trade_time time null,
+    trade_time time(6) null,
     zone_offset int null,
     cparty_scheme varchar(255) not null,
     cparty_value varchar(255) not null,
@@ -1115,121 +1115,76 @@ rsk_run.run_time_id = rsk_observation_datetime.id and
 rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
 rsk_failure_reason.rsk_failure_id = rsk_failure.id and
 rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
-DROP TABLE IF EXISTS tss_identifier CASCADE;
-DROP TABLE IF EXISTS tss_identification_scheme CASCADE;
-DROP TABLE IF EXISTS tss_data_point CASCADE;
-DROP TABLE IF EXISTS tss_data_point_delta CASCADE;
-DROP TABLE IF EXISTS tss_meta_data CASCADE;
-DROP TABLE IF EXISTS tss_identifier_bundle CASCADE;
-DROP TABLE IF EXISTS tss_data_source CASCADE;
-DROP TABLE IF EXISTS tss_data_provider CASCADE;
-DROP TABLE IF EXISTS tss_data_field CASCADE;
-DROP TABLE IF EXISTS tss_observation_time CASCADE;
-
-DROP SEQUENCE IF EXISTS tss_data_field_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_data_provider_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_data_source_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identification_scheme_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identifier_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_observation_time_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_identifier_bundle_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS tss_meta_data_id_seq CASCADE;
-
-
-CREATE SEQUENCE tss_data_field_id_seq START 1;
-CREATE SEQUENCE tss_data_provider_id_seq START 1;
-CREATE SEQUENCE tss_data_source_id_seq START 1;
-CREATE SEQUENCE tss_identification_scheme_id_seq START 1;
-CREATE SEQUENCE tss_identifier_id_seq START 1;
-CREATE SEQUENCE tss_observation_time_id_seq START 1;
-CREATE SEQUENCE tss_identifier_bundle_id_seq START 1;
-CREATE SEQUENCE tss_meta_data_id_seq START 1;
-
 CREATE TABLE tss_data_source (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_source_id_seq'),
+	id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_data_source_id_seq OWNED BY tss_data_source.id;
 CREATE UNIQUE INDEX idx_data_source_name on tss_data_source(name);
 
 CREATE TABLE tss_data_provider (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_provider_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_data_provider_id_seq OWNED BY tss_data_provider.id;
 CREATE UNIQUE INDEX idx_data_provider_name on tss_data_provider(name);
 
 CREATE TABLE tss_data_field (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_data_field_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_data_field_id_seq OWNED BY tss_data_field.id;
 CREATE UNIQUE INDEX idx_data_field_name on tss_data_field(name);
 
 CREATE TABLE tss_observation_time (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_observation_time_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_observation_time_id_seq OWNED BY tss_observation_time.id;
 CREATE UNIQUE INDEX idx_observation_time_name on tss_observation_time(name);
 
 CREATE TABLE tss_identification_scheme (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identification_scheme_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_identification_scheme_id_seq OWNED BY tss_identification_scheme.id;
 CREATE UNIQUE INDEX idx_identification_scheme_name on tss_identification_scheme(name);
 
 CREATE TABLE tss_identifier_bundle (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identifier_bundle_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(255)
 );
-ALTER SEQUENCE tss_identifier_bundle_id_seq OWNED BY tss_identifier_bundle.id;
 CREATE UNIQUE INDEX idx_identifier_bundle_name on tss_identifier_bundle(name);
 
 CREATE TABLE tss_meta_data (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_meta_data_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	active INTEGER NOT NULL
-	  CONSTRAINT active_constraint CHECK (active IN (0,1)),
+	  CONSTRAINT active_constraint CHECK ( active IN (0, 1)),
 	bundle_id BIGINT NOT NULL
-	  constraint fk_meta_bundle  REFERENCES tss_identifier_bundle(id),
+	  constraint fk_tsk_bundle  REFERENCES tss_identifier_bundle(id),
 	data_source_id BIGINT NOT NULL
-	  constraint fk_meta_data_source  REFERENCES tss_data_source(id),
+	  constraint fk_tsk_data_source  REFERENCES tss_data_source(id),
 	data_provider_id BIGINT NOT NULL
-	  constraint fk_meta_data_provider  REFERENCES tss_data_provider(id),
+	  constraint fk_tsk_data_provider  REFERENCES tss_data_provider(id),
 	data_field_id BIGINT NOT NULL
-	  constraint fk_meta_data_field  REFERENCES tss_data_field(id),
+	  constraint fk_tsk_data_field  REFERENCES tss_data_field(id),
 	observation_time_id BIGINT NOT NULL
-	  constraint fk_meta_observation_time  REFERENCES tss_observation_time(id)
+	  constraint fk_tsk_observation_time  REFERENCES tss_observation_time(id)
 );
-ALTER SEQUENCE tss_meta_data_id_seq OWNED BY tss_meta_data.id;
 CREATE INDEX idx_meta_data ON tss_meta_data (active, data_source_id, data_provider_id, data_field_id, observation_time_id);
 
 CREATE TABLE tss_data_point (
 	meta_data_id BIGINT NOT NULL
 	  constraint fk_dp_meta_data  REFERENCES tss_meta_data (id),
 	ts_date date NOT NULL,
-	value DOUBLE PRECISION NOT NULL,
+	value DOUBLE NOT NULL,
 	PRIMARY KEY (meta_data_id, ts_date)
 );
 
@@ -1238,16 +1193,17 @@ CREATE TABLE tss_data_point_delta (
 	  constraint fk_dp_delta_meta_data  REFERENCES tss_meta_data (id),
 	time_stamp TIMESTAMP NOT NULL,
 	ts_date date NOT NULL,
-	old_value DOUBLE PRECISION NOT NULL,
+	old_value DOUBLE NOT NULL,
 	operation char(1) NOT NULL
 	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q'))
 );
+
 
 CREATE TABLE tss_intraday_data_point (
 	meta_data_id BIGINT NOT NULL
 	  constraint fk_i_dp_meta_data  REFERENCES tss_meta_data (id),
 	ts_date TIMESTAMP NOT NULL,
-	value DOUBLE PRECISION NOT NULL,
+	value DOUBLE NOT NULL,
 	PRIMARY KEY (meta_data_id, ts_date)
 );
 
@@ -1256,15 +1212,14 @@ CREATE TABLE tss_intraday_data_point_delta (
 	  constraint fk_i_dp_delta_meta_data  REFERENCES tss_meta_data (id),
 	time_stamp TIMESTAMP NOT NULL,
 	ts_date TIMESTAMP NOT NULL,
-	old_value DOUBLE PRECISION NOT NULL,
+	old_value DOUBLE NOT NULL,
 	operation char(1) NOT NULL
 	 CONSTRAINT operation_constraint_i CHECK ( operation IN ('I', 'U', 'D', 'Q'))
 );
 
 CREATE TABLE tss_identifier (
-	id BIGINT NOT NULL
-	  PRIMARY KEY
-	  DEFAULT nextval('tss_identifier_id_seq'),
+	id BIGINT
+	  GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
 	bundle_id BIGINT NOT NULL
 	  constraint fk_identifier_bundle  REFERENCES tss_identifier_bundle(id),
 	identification_scheme_id BIGINT NOT NULL
@@ -1273,10 +1228,9 @@ CREATE TABLE tss_identifier (
 	valid_from date,
 	valid_to date
 );
-
-ALTER SEQUENCE tss_identifier_id_seq OWNED BY tss_identifier.id;
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
+
 
 -- create-db-marketdatasnapshot.sql
 
@@ -1286,7 +1240,7 @@ CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
-CREATE SEQUENCE snp_snapshot_seq
+CREATE SEQUENCE snp_snapshot_seq as bigint
     start with 1000 increment by 1 no cycle;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
 
@@ -1299,7 +1253,7 @@ CREATE TABLE snp_snapshot (
     corr_to_instant timestamp not null,
     name varchar(255) not null,
     time_zone varchar(255),
-    detail bytea not null,
+    detail blob not null,
     primary key (id),
     constraint snp_chk_snapshot_ver_order check (ver_from_instant <= ver_to_instant),
     constraint snp_chk_snapshot_corr_order check (corr_from_instant <= corr_to_instant)
@@ -1310,5 +1264,4 @@ CREATE INDEX ix_snp_snapshot_ver_to_instant ON snp_snapshot(ver_to_instant);
 CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant);
 CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
 CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
-CREATE INDEX ix_snp_snapshot_nameu ON snp_snapshot(upper(name));
 
