@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/swap/Notional.proto:12(19)
 package com.opengamma.financial.security.swap;
 public abstract class Notional implements java.io.Serializable {
   public abstract <T> T accept (NotionalVisitor<T> visitor);

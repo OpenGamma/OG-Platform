@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/cash/CashSecurity.proto:9(10)
 package com.opengamma.financial.security.cash;
 public class CashSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept(CashSecurityVisitor<T> visitor) { return visitor.visitCashSecurity(this); }

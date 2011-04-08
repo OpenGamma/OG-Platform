@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/bond/BondSecurity.proto:12(19)
 package com.opengamma.financial.security.bond;
 public abstract class BondSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public abstract <T> T accept(BondSecurityVisitor<T> visitor);

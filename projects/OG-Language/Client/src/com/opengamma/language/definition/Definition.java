@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/definition/Definition.proto:14(10)
 package com.opengamma.language.definition;
 public class Definition implements java.io.Serializable {
   private static final long serialVersionUID = -7791427280735659141l;

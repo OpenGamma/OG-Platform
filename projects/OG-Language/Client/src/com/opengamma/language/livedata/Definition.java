@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/livedata/Definition.proto:12(10)
 package com.opengamma.language.livedata;
 public class Definition extends com.opengamma.language.definition.Definition implements java.io.Serializable {
   private static final long serialVersionUID = 1l;

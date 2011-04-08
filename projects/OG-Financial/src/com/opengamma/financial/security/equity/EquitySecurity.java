@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/equity/EquitySecurity.proto:12(10)
 package com.opengamma.financial.security.equity;
 public class EquitySecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           /**
