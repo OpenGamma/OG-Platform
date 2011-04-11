@@ -26,12 +26,12 @@ public class ImplicitFiniteDifference2DTest {
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testHeston() {
 
     int timeSteps = 200;
-    int xSteps = 80;
-    int ySteps = 20;
+    int xSteps = 100;
+    int ySteps = 100;
 
     HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
   }

@@ -16,7 +16,7 @@ public class OperatorSplittingTest {
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
   private static final ConvectionDiffusionPDESolver2D SOLVER = new OperatorSplittingFiniteDifference2D();
 
-  @Test
+  @Test(enabled = false)
   public void testSpreadOption() {
 
     int timeSteps = 10;
@@ -30,8 +30,8 @@ public class OperatorSplittingTest {
   public void testHeston() {
 
     int timeSteps = 25;
-    int xSteps = 80;
-    int ySteps = 80;
+    int xSteps = 100;
+    int ySteps = 100;
 
     HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
   }

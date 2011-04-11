@@ -34,7 +34,7 @@ public class HestonPDETestCase {
 
   private static final double F0 = 0.05;
   private static final double V0 = 0.01;
-  private static final double KAPPA = 0.2;
+  private static final double KAPPA = 0.2;// changed from 0.2
   private static final double THETA = 0.07;
   private static final double OMEGA = 0.2;
   private static final double RHO = -0.50;// changed from -0.5
@@ -167,19 +167,19 @@ public class HestonPDETestCase {
 
     double[][] res = solver.solve(DATA, timeSteps, spotSteps, volSqrSteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER);
 
-    // int xSteps = res.length - 1;
-    // int ySteps = res[0].length - 1;
-    // for (int j = 0; j <= ySteps; j++) {
-    // System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
-    // }
-    // System.out.print("\n");
-    // for (int i = 0; i <= xSteps; i++) {
-    // System.out.print(F_LOWER.getLevel() + i * deltaX);
-    // for (int j = 0; j <= ySteps; j++) {
-    // System.out.print("\t" + res[i][j]);
-    // }
-    // System.out.print("\n");
-    // }
+    int xSteps = res.length - 1;
+    int ySteps = res[0].length - 1;
+    for (int j = 0; j <= ySteps; j++) {
+      System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
+    }
+    System.out.print("\n");
+    for (int i = 0; i <= xSteps; i++) {
+      System.out.print(F_LOWER.getLevel() + i * deltaX);
+      for (int j = 0; j <= ySteps; j++) {
+        System.out.print("\t" + res[i][j]);
+      }
+      System.out.print("\n");
+    }
 
     // TODO There is no guarantee that F0 and V0 are grid points (it depends on the chosen step sizes), so we should do a surface interpolation (what fun!)
     double pdfPrice = res[(int) (F0 / deltaX)][(int) (V0 / deltaY)];
@@ -188,11 +188,11 @@ public class HestonPDETestCase {
     FFTPricer pricer = new FFTPricer();
     final CharacteristicExponent heston = new HestonCharacteristicExponent(KAPPA, THETA, V0, OMEGA, RHO);
 
-    final int n = 21;
+    final int n = 51;
     final double alpha = -0.5;
-    final double tol = 1e-9;
+    final double tol = 1e-12;
     EuropeanVanillaOption option = new EuropeanVanillaOption(F0, T, true);
-    final BlackFunctionData data = new BlackFunctionData(F0, 1.0, 0.3);
+    final BlackFunctionData data = new BlackFunctionData(F0, 1.0, 0.2);
     final double[][] strikeNprice = pricer.price(data, option, heston, STRIKE / 2, STRIKE * 2, n, alpha, tol);
 
     int nStrikes = strikeNprice.length;
