@@ -1,0 +1,4 @@
+These docs are designed to be built with Dexy.
+
+If you have Ruby and WEBrick installed, you can run server.rb
+to run a mini web server showing the contents of output/ dir.

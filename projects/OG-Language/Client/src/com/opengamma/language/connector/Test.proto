@@ -19,8 +19,10 @@ namespace com.opengamma.language.connector {
       VOID_REQUEST;     // asynchronous call - no action needed
       VOID_REQUEST_A;   // must respond with VOID_RESPONSE_A asynchronously
       VOID_RESPONSE_A;
-      CRASH_REQUEST;    // must abend the JVM somehow
+      CRASH_REQUEST;    // must abend the JVM somehow, after registering a stash message
       PAUSE_REQUEST;    // must pause the JVM somehow so the heartbeat fails
+      STASH_REQUEST;    // must assert that it received the expected stash message, and respond with STASH_RESPONSE
+      STASH_RESPONSE; 
     }
     
     required Operation operation = 1;

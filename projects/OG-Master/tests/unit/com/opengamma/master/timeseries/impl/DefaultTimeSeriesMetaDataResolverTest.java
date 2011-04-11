@@ -61,7 +61,7 @@ public class DefaultTimeSeriesMetaDataResolverTest {
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
-    ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>();
+    ConfigDocument<TimeSeriesMetaDataConfiguration> testDoc = new ConfigDocument<TimeSeriesMetaDataConfiguration>(TimeSeriesMetaDataConfiguration.class);
     testDoc.setName(CONFIG_DOC_NAME);
     testDoc.setValue(createRules());
     ConfigMasterUtils.storeByName(configMaster, testDoc);

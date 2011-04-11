@@ -13,6 +13,8 @@ package com.opengamma.financial.convention.frequency;
  */
 public interface Frequency {
 
+  //TODO: Improve frequency to have a "toPeriod" and a "paymentPerYear".
+
   /**
    * Never convention name.
    */

@@ -47,7 +47,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noConfigId() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
     _cfgMaster.correct(doc);
@@ -55,7 +55,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_correct_noConfig() {
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setUniqueId(UniqueIdentifier.of("DbCfg", "101", "0"));
     _cfgMaster.correct(doc);
   }
@@ -63,7 +63,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_correct_notFound() {
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "0", "0");
-    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> doc = new ConfigDocument<Identifier>(Identifier.class);
     doc.setUniqueId(uid);
     doc.setName("Name");
     doc.setValue(Identifier.of("A", "B"));
@@ -76,7 +76,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     
     UniqueIdentifier uid = UniqueIdentifier.of("DbCfg", "101", "0");
     ConfigDocument<Identifier> base = _cfgMaster.get(uid, Identifier.class);
-    ConfigDocument<Identifier> input = new ConfigDocument<Identifier>();
+    ConfigDocument<Identifier> input = new ConfigDocument<Identifier>(Identifier.class);
     input.setUniqueId(uid);
     input.setName("Name");
     input.setValue(Identifier.of("A", "B"));

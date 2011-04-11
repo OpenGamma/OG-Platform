@@ -146,12 +146,12 @@ public class SpreadOptionPDETestCase {
 
     double[][] res = solver.solve(DATA, timeSteps, spotASteps, spotBSteps, T, A_LOWER, A_UPPER, B_LOWER, B_UPPER);
 
-    for (int i = 0; i <= spotASteps; i++) {
-      for (int j = 0; j <= spotBSteps; j++) {
-        System.out.print(res[i][j] + "\t");
-      }
-      System.out.print("\n");
-    }
+    // for (int i = 0; i <= spotASteps; i++) {
+    // for (int j = 0; j <= spotBSteps; j++) {
+    // System.out.print(res[i][j] + "\t");
+    // }
+    // System.out.print("\n");
+    // }
 
     double vol = Math.sqrt(VOL_A * VOL_A + VOL_B * VOL_B - 2 * RHO * VOL_A * VOL_B);
     double forward = SPOT_A / SPOT_B;

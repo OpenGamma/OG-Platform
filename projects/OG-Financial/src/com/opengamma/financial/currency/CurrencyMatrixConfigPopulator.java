@@ -27,7 +27,7 @@ public class CurrencyMatrixConfigPopulator {
   }
 
   public static ConfigMaster populateCurrencyMatrixConfigMaster(ConfigMaster cfgMaster) {
-    ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>();
+    ConfigDocument<CurrencyMatrix> doc = new ConfigDocument<CurrencyMatrix>(CurrencyMatrix.class);
     doc.setName("BloombergLiveData");
     doc.setValue(createBloombergConversionMatrix());
     ConfigMasterUtils.storeByName(cfgMaster, doc);

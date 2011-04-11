@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/definition/Parameter.proto:12(10)
 package com.opengamma.language.definition;
 public class Parameter implements java.io.Serializable {
   private static final long serialVersionUID = -1626374043775451l;

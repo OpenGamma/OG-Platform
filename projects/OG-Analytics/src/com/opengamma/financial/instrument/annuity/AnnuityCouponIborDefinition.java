@@ -81,6 +81,38 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
   }
 
   /**
+   * Annuity builder from the conventions and common characteristics.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityCouponIborDefinition fromAccrualUnadjusted(ZonedDateTime settlementDate, ZonedDateTime maturityDate, double notional, IborIndex index, boolean isPayer) {
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(maturityDate, "maturity date");
+    Validate.notNull(index, "index");
+    Validate.isTrue(notional > 0, "notional <= 0");
+    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor());
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getBusinessDayConvention(), index.getCalendar());
+    double sign = isPayer ? -1.0 : 1.0;
+    CouponIborDefinition[] coupons = new CouponIborDefinition[paymentDates.length];
+    //First coupon uses settlement date
+    CouponFixedDefinition coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDatesUnadjusted[0], index.getDayCount().getDayCountFraction(settlementDate,
+        paymentDatesUnadjusted[0]), sign * notional, 0.0);
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, index.getBusinessDayConvention(), index.getCalendar(), -index.getSettlementDays());
+    coupons[0] = CouponIborDefinition.from(coupon, fixingDate, index);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], index.getDayCount().getDayCountFraction(
+          paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn]), sign * notional, 0.0);
+      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDatesUnadjusted[loopcpn - 1], index.getBusinessDayConvention(), index.getCalendar(), -index.getSettlementDays());
+      coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index);
+    }
+    return new AnnuityCouponIborDefinition(coupons);
+  }
+
+  /**
    * Builder from an Ibor annuity with spread. Ignores the spread.
    * @param annuity The Ibor annuity zith spread. 
    * @return The annuity.

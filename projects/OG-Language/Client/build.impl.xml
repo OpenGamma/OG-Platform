@@ -10,16 +10,20 @@
 			<arg value="-Xinclude=stdafx.h" />
 			<arg value="-s${src.dir}" />
 			<arg value="${src.dir}/com/opengamma/language/Data.proto" />
+			<arg value="${src.dir}/com/opengamma/language/connector/Custom.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/ConnectorMessage.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
 			<arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/Available.proto" />
+			<arg value="${src.dir}/com/opengamma/language/function/Custom.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/Invoke.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/QueryAvailable.proto" />
 			<arg value="${src.dir}/com/opengamma/language/function/Result.proto" />
 			<arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
+			<arg value="${src.dir}/com/opengamma/language/livedata/Custom.proto" />
 			<arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
 			<arg value="${src.dir}/com/opengamma/language/procedure/Available.proto" />
+			<arg value="${src.dir}/com/opengamma/language/procedure/Custom.proto" />
 			<arg value="${src.dir}/com/opengamma/language/procedure/QueryAvailable.proto" />
 		</java>
 	</target>

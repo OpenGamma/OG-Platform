@@ -87,6 +87,14 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     return _isPayer;
   }
 
+  /**
+   * The number of payments of the annuity.
+   * @return The number of payments.
+   */
+  public int getNumberOfPayments() {
+    return _payments.length;
+  }
+
   @Override
   public String toString() {
     String result = "Annuity:";

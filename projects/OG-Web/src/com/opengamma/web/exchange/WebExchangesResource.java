@@ -20,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -103,6 +104,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
@@ -134,13 +136,39 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       String html = getFreemarker().build("exchanges/exchanges-add.ftl", out);
       return Response.ok(html).build();
     }
+    URI uri = createExchange(name, idScheme, idValue, regionScheme, regionValue);
+    return Response.seeOther(uri).build();
+  }
+
+  private URI createExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
     Identifier id = Identifier.of(idScheme, idValue);
     Identifier region = Identifier.of(regionScheme, regionValue);
     ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
     ExchangeDocument doc = new ExchangeDocument(exchange);
     ExchangeDocument added = data().getExchangeMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.seeOther(uri).build();
+    return uri;
+  }
+  
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response postJSON(
+      @FormParam("name") String name,
+      @FormParam("idscheme") String idScheme,
+      @FormParam("idvalue") String idValue,
+      @FormParam("regionscheme") String regionScheme,
+      @FormParam("regionvalue") String regionValue) {
+    name = StringUtils.trimToNull(name);
+    idScheme = StringUtils.trimToNull(idScheme);
+    idValue = StringUtils.trimToNull(idValue);
+    regionScheme = StringUtils.trimToNull(regionScheme);
+    regionValue = StringUtils.trimToNull(regionValue);
+    if (name == null || idScheme == null || idValue == null) {
+      return Response.status(Status.BAD_REQUEST).build();
+    }
+    URI uri = createExchange(name, idScheme, idValue, regionScheme, regionValue);
+    return Response.created(uri).build();
   }
 
   //-------------------------------------------------------------------------

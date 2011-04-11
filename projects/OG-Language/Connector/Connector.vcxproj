@@ -82,6 +82,7 @@
     <ClInclude Include="Alert.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="com_opengamma_language_connector_ConnectorMessage.h" />
+    <ClInclude Include="com_opengamma_language_connector_Custom.h" />
     <ClInclude Include="com_opengamma_language_connector_Function.h" />
     <ClInclude Include="com_opengamma_language_connector_LiveData.h" />
     <ClInclude Include="com_opengamma_language_connector_Procedure.h" />
@@ -93,16 +94,19 @@
     <ClInclude Include="com_opengamma_language_definition_Parameter.h" />
     <ClInclude Include="com_opengamma_language_function_Available.h" />
     <ClInclude Include="com_opengamma_language_function_Available_Entry.h" />
+    <ClInclude Include="com_opengamma_language_function_Custom.h" />
     <ClInclude Include="com_opengamma_language_function_Definition.h" />
     <ClInclude Include="com_opengamma_language_function_Invoke.h" />
     <ClInclude Include="com_opengamma_language_function_QueryAvailable.h" />
     <ClInclude Include="com_opengamma_language_function_Result.h" />
     <ClInclude Include="com_opengamma_language_livedata_Available.h" />
     <ClInclude Include="com_opengamma_language_livedata_Available_Entry.h" />
+    <ClInclude Include="com_opengamma_language_livedata_Custom.h" />
     <ClInclude Include="com_opengamma_language_livedata_Definition.h" />
     <ClInclude Include="com_opengamma_language_livedata_QueryAvailable.h" />
     <ClInclude Include="com_opengamma_language_procedure_Available.h" />
     <ClInclude Include="com_opengamma_language_procedure_Available_Entry.h" />
+    <ClInclude Include="com_opengamma_language_procedure_Custom.h" />
     <ClInclude Include="com_opengamma_language_procedure_Definition.h" />
     <ClInclude Include="com_opengamma_language_procedure_QueryAvailable.h" />
     <ClInclude Include="com_opengamma_language_Value.h" />
@@ -122,6 +126,10 @@
     <ClCompile Include="Alert.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="com_opengamma_language_connector_ConnectorMessage.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_connector_Custom.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
@@ -169,6 +177,10 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="com_opengamma_language_function_Custom.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="com_opengamma_language_function_Definition.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
@@ -193,6 +205,10 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Custom.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="com_opengamma_language_livedata_Definition.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
@@ -206,6 +222,10 @@
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_procedure_Available_Entry.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_procedure_Custom.c">
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CompileAsCpp</CompileAs>
     </ClCompile>

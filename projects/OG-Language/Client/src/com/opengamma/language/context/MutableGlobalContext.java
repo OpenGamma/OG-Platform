@@ -47,7 +47,13 @@ public class MutableGlobalContext extends GlobalContext {
   // Standard context members
 
   public void setSystemSettings(final Properties properties) {
+    ArgumentChecker.notNull(properties, "properties");
     setValue(SYSTEM_SETTINGS, properties);
+  }
+
+  public void replaceSystemSettings(final Properties properties) {
+    ArgumentChecker.notNull(properties, "properties");
+    replaceValue(SYSTEM_SETTINGS, properties);
   }
 
   public void setFunctionDefinitionFilter(final FunctionDefinitionFilter functionDefinitionFilter) {

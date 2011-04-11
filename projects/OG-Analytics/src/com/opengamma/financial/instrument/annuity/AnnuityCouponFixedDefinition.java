@@ -12,8 +12,12 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.ActualActualICMA;
+import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
@@ -95,6 +99,40 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     }
     return new AnnuityCouponFixedDefinition(coupons);
 
+  }
+
+  public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(Currency currency, ZonedDateTime settlementDate, ZonedDateTime maturityDate, Period period, Calendar calendar, DayCount dayCount,
+      BusinessDayConvention businessDay, boolean isEOM, double notional, double fixedRate, boolean isPayer) {
+    Validate.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actua lActual ICMA");
+    double sign = isPayer ? -1.0 : 1.0;
+    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period);
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
+    //First coupon uses settlement date
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional,
+        fixedRate);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], dayCount.getDayCountFraction(
+          paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn]), sign * notional, fixedRate);
+    }
+
+    return new AnnuityCouponFixedDefinition(coupons);
+  }
+
+  public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(Currency currency, ZonedDateTime settlementDate, ZonedDateTime maturityDate, Period period, int nbPaymentPerYear, Calendar calendar,
+      DayCount dayCount, BusinessDayConvention businessDay, boolean isEOM, double notional, double fixedRate, boolean isPayer) {
+    double sign = isPayer ? -1.0 : 1.0;
+    ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period);
+    ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
+    //First coupon uses settlement date
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDatesUnadjusted[0], dayCount.getAccruedInterest(settlementDate, paymentDates[0], paymentDates[0], 1.0,
+        nbPaymentPerYear), sign * notional, fixedRate);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], dayCount.getAccruedInterest(
+          paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate);
+    }
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   @Override

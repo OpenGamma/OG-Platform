@@ -167,19 +167,19 @@ public class HestonPDETestCase {
 
     double[][] res = solver.solve(DATA, timeSteps, spotSteps, volSqrSteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER);
 
-    int xSteps = res.length - 1;
-    int ySteps = res[0].length - 1;
-    for (int j = 0; j <= ySteps; j++) {
-      System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
-    }
-    System.out.print("\n");
-    for (int i = 0; i <= xSteps; i++) {
-      System.out.print(F_LOWER.getLevel() + i * deltaX);
-      for (int j = 0; j <= ySteps; j++) {
-        System.out.print("\t" + res[i][j]);
-      }
-      System.out.print("\n");
-    }
+    // int xSteps = res.length - 1;
+    // int ySteps = res[0].length - 1;
+    // for (int j = 0; j <= ySteps; j++) {
+    // System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
+    // }
+    // System.out.print("\n");
+    // for (int i = 0; i <= xSteps; i++) {
+    // System.out.print(F_LOWER.getLevel() + i * deltaX);
+    // for (int j = 0; j <= ySteps; j++) {
+    // System.out.print("\t" + res[i][j]);
+    // }
+    // System.out.print("\n");
+    // }
 
     // TODO There is no guarantee that F0 and V0 are grid points (it depends on the chosen step sizes), so we should do a surface interpolation (what fun!)
     double pdfPrice = res[(int) (F0 / deltaX)][(int) (V0 / deltaY)];
