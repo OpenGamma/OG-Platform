@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/swap/SwapLeg.proto:24(19)
 package com.opengamma.financial.security.swap;
 public abstract class InterestRateLeg extends com.opengamma.financial.security.swap.SwapLeg implements java.io.Serializable {
   private static final long serialVersionUID = 1l;

@@ -18,26 +18,33 @@ import org.springframework.jms.core.MessageCreator;
 import com.opengamma.transport.ByteArrayMessageSender;
 
 /**
- * 
- *
- * @author kirk
+ * A message sender that uses JMS.
+ * <p>
+ * This is a simple implementation based on JMS.
  */
-public class JmsByteArrayMessageSender
-    extends AbstractJmsByteArraySender
-    implements ByteArrayMessageSender {
+public class JmsByteArrayMessageSender extends AbstractJmsByteArraySender implements ByteArrayMessageSender {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSender.class);
-  
-  public JmsByteArrayMessageSender(String destinationName, JmsTemplate jmsTemplate) {
+
+  /**
+   * Creates an instance associated with a destination and template.
+   * 
+   * @param destinationName  the destination name, not null
+   * @param jmsTemplate  the template, not null
+   */
+  public JmsByteArrayMessageSender(final String destinationName, final JmsTemplate jmsTemplate) {
     super(destinationName, jmsTemplate);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void send(final byte[] message) {
     s_logger.debug("Sending message size {} to {}", message.length, getDestinationName());
     getJmsTemplate().send(getDestinationName(), new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
-        BytesMessage bytesMessage = session.createBytesMessage();
+        final BytesMessage bytesMessage = session.createBytesMessage();
         bytesMessage.writeBytes(message);
         return bytesMessage;
       }

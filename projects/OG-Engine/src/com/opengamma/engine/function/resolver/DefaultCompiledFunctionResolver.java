@@ -179,64 +179,83 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>> provided in the compilation
           // context? This could do away with the need for our "priority" levels as that can do ALL ordering. We should wrap it at construction in something
           // that will detect the equality case and trigger an exception.
-          Arrays.<Pair<ResolutionRule, Set<ValueSpecification>>> sort(found, s_ruleComparator);
+          Arrays.<Pair<ResolutionRule, Set<ValueSpecification>>>sort(found, s_ruleComparator);
           for (int i = 0; i < rulesFound; i++) {
             applicableRules.add(found[i]);
           }
         }
       }
       cached = _targetCache.putIfAbsent(atNode.getComputationTarget(), applicableRules);
-      if (cached == null) {
-        cached = applicableRules;
-      }
+      cached = _targetCache.get(atNode.getComputationTarget());
     }
-    final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> values = cached.iterator();
-    return new Iterator<Pair<ParameterizedFunction, ValueSpecification>>() {
+    return new It(atNode, requirement, cached, getFunctionCompilationContext());
+  }
 
-      private Pair<ParameterizedFunction, ValueSpecification> _next;
-      private boolean _satisfied;
+  /**
+   * Iterator.
+   */
+  private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
+    private final DependencyNode _atNode;
+    private final ValueRequirement _requirement;
+    private final List<Pair<ResolutionRule, Set<ValueSpecification>>> _valueList;
+    private final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> _values;
+    private final FunctionCompilationContext _functionCompilationContext;
+    private Pair<ParameterizedFunction, ValueSpecification> _next;
+    private boolean _satisfied;
 
-      private void takeNext() {
-        if (_next != null) {
+    private It(DependencyNode atNode, ValueRequirement requirement,
+        List<Pair<ResolutionRule, Set<ValueSpecification>>> values,
+        FunctionCompilationContext functionCompilationContext) {
+      _atNode = atNode;
+      _requirement = requirement;
+      _valueList = values;
+      _values = values.iterator();
+      _functionCompilationContext = functionCompilationContext;
+    }
+
+    private void takeNext() {
+      if (_next != null) {
+        return;
+      }
+      while (_values.hasNext()) {
+        final Pair<ResolutionRule, Set<ValueSpecification>> value = _values.next();
+        final ValueSpecification result = value.getKey().getResult(_requirement, _atNode, _functionCompilationContext, value.getValue());
+        if (result != null) {
+          _next = Pair.of(value.getKey().getFunction(), result);
+          _satisfied = true;
           return;
         }
-        while (values.hasNext()) {
-          final Pair<ResolutionRule, Set<ValueSpecification>> value = values.next();
-          final ValueSpecification result = value.getKey().getResult(requirement, atNode, getFunctionCompilationContext(), value.getValue());
-          if (result != null) {
-            _next = Pair.of(value.getKey().getFunction(), result);
-            _satisfied = true;
-            return;
-          }
-        }
-        if (!_satisfied) {
-          throw new UnsatisfiableDependencyGraphException(requirement);
-        }
       }
-
-      @Override
-      public boolean hasNext() {
-        if (_next == null) {
-          takeNext();
-        }
-        return _next != null;
+      if (!_satisfied) {
+        throw new UnsatisfiableDependencyGraphException(_requirement, "No specification for requirement")
+            .addState("values List<Pair<ResolutionRule, Set<ValueSpecification>>>", _valueList)
+            .addState("atNode DependencyNode", _atNode)
+            .addState("functionCompilationContext FunctionCompilationContext", _functionCompilationContext);
       }
+    }
 
-      @Override
-      public Pair<ParameterizedFunction, ValueSpecification> next() {
-        if (_next == null) {
-          takeNext();
-        }
-        final Pair<ParameterizedFunction, ValueSpecification> result = _next;
-        _next = null;
-        return result;
+    @Override
+    public boolean hasNext() {
+      if (_next == null) {
+        takeNext();
       }
+      return _next != null;
+    }
 
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException();
+    @Override
+    public Pair<ParameterizedFunction, ValueSpecification> next() {
+      if (_next == null) {
+        takeNext();
       }
+      final Pair<ParameterizedFunction, ValueSpecification> result = _next;
+      _next = null;
+      return result;
+    }
 
-    };
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
   }
+
 }

@@ -1,0 +1,22 @@
+{
+  "index.html|jinja|hd|ft|split" : {
+    "allinputs" : true
+  },
+  "*.textile|jinja|textile|hd|ft" : {
+    "allinputs" : true,
+    "inputs" : ["og*.tex|jinja|hd|ft|latex"]
+  },
+  "og*.tex|jinja|hd|ft|latex" : {
+    "allinputs" : true
+  },
+  "javadoc-data.json|javadocs" : {},
+  "_*.html|dexy" : {},
+  "_*.tex|dexy" : {},
+  "*.png|cp" : {},
+  "*.css|cp" : {},
+  "*.svg|cp" : {},
+  "*.eot|cp" : {},
+  "*.ttf|cp" : {},
+  "*.woff|cp" : {}
+}
+

@@ -53,7 +53,7 @@ private:
 	CStateChange *m_poStateChangeCallback;
 	CMutex m_oMessageReceivedMutex;
 	CMessageReceived *m_poMessageReceivedCallback;
-	CThread *m_poRunner;
+	CRunnerThread *m_poRunner;
 	CSemaphore m_oPipesSemaphore;
 	CClientPipes *m_poPipes;
 	CClientJVM *m_poJVM;

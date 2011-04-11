@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.interestrate.annuity.definition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -49,6 +52,22 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
 
   public double getCouponRate() {
     return getNthPayment(0).getFixedRate(); // all coupons are the same value
+  }
+
+  /**
+   * Remove the payments paying on or before the given time.
+   * @param trimTime The time.
+   * @return The trimmed annuity.
+   */
+  @Override
+  public AnnuityCouponFixed trimBefore(double trimTime) {
+    List<CouponFixed> list = new ArrayList<CouponFixed>();
+    for (CouponFixed payment : getPayments()) {
+      if (payment.getPaymentTime() > trimTime) {
+        list.add(payment);
+      }
+    }
+    return new AnnuityCouponFixed(list.toArray(getPayments()));
   }
 
   /**

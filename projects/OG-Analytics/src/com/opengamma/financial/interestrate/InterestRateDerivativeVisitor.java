@@ -10,6 +10,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
+import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
@@ -38,9 +39,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visit(InterestRateDerivative derivative, S data);
 
+  T visitBond(Bond bond, S data);
+
   T visitBondForward(BondForward bondForward, S data);
 
   T visitBondFuture(BondFuture bondFuture, S data);
+
+  T visitBondTransaction(BondTransaction<? extends Payment> bond, S data);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity, S data);
 
@@ -62,8 +67,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
-  T visitBond(Bond bond, S data);
-
   T visitCash(Cash cash, S data);
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
@@ -84,9 +87,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visit(InterestRateDerivative derivative);
 
+  T visitBond(Bond bond);
+
   T visitBondForward(BondForward bondForward);
 
   T visitBondFuture(BondFuture bondFuture);
+
+  T visitBondTransaction(BondTransaction<? extends Payment> bond);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity);
 
@@ -107,8 +114,6 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitFloatingRateNote(FloatingRateNote frn);
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap);
-
-  T visitBond(Bond bond);
 
   T visitCash(Cash cash);
 

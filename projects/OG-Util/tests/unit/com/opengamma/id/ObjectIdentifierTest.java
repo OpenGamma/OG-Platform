@@ -23,7 +23,7 @@ public class ObjectIdentifierTest {
     ObjectIdentifier test = ObjectIdentifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -48,10 +48,10 @@ public class ObjectIdentifierTest {
 
   //-------------------------------------------------------------------------
   public void test_parse() {
-    ObjectIdentifier test = ObjectIdentifier.parse("Scheme::value");
+    ObjectIdentifier test = ObjectIdentifier.parse("Scheme~value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
-    assertEquals("Scheme::value", test.toString());
+    assertEquals("Scheme~value", test.toString());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -66,7 +66,7 @@ public class ObjectIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat3() {
-    ObjectIdentifier.parse("Scheme::value::other");
+    ObjectIdentifier.parse("Scheme~value~other");
   }
 
   //-------------------------------------------------------------------------

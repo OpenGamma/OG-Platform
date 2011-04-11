@@ -1,10 +1,12 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/language/connector/Test.proto:12(10)
 package com.opengamma.language.connector;
 public class Test extends com.opengamma.language.connector.UserMessagePayload implements java.io.Serializable {
   public <T1,T2> T1 accept (final UserMessagePayloadVisitor<T1,T2> visitor, final T2 data) { return visitor.visitTest (this, data); }
   private static final long serialVersionUID = 48456185335614l;
+  // Created from com/opengamma/language/connector/Test.proto:14(9)
   public enum Operation {
     ECHO_REQUEST,
     ECHO_REQUEST_A,
@@ -14,7 +16,9 @@ public class Test extends com.opengamma.language.connector.UserMessagePayload im
     VOID_REQUEST_A,
     VOID_RESPONSE_A,
     CRASH_REQUEST,
-    PAUSE_REQUEST;
+    PAUSE_REQUEST,
+    STASH_REQUEST,
+    STASH_RESPONSE;
   }
   private com.opengamma.language.connector.Test.Operation _operation;
   public static final int OPERATION_ORDINAL = 1;

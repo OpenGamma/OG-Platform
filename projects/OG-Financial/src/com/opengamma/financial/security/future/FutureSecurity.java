@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/future/FutureSecurity.proto:12(19)
 package com.opengamma.financial.security.future;
 public abstract class FutureSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public abstract <T> T accept(FutureSecurityVisitor<T> visitor);

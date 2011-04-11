@@ -54,6 +54,7 @@ public interface AbstractMaster<D extends AbstractDocument> {
   /**
    * Adds a document to the data store.
    * <p>
+   * This always adds to the data store, even if the document was previously added.
    * The version instant, correction instant and identifier will be set in the response.
    * 
    * @param document  the document, not null

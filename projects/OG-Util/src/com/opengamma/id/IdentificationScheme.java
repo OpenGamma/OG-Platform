@@ -28,6 +28,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class IdentificationScheme implements Serializable, Comparable<IdentificationScheme> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Computing cache for the schemes.
    */

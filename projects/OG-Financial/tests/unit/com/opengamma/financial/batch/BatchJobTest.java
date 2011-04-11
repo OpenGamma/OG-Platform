@@ -238,7 +238,7 @@ public class BatchJobTest {
   public void initViewProcessor() throws Exception {
     UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
     
-    final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>();
+    final ConfigDocument<ViewDefinition> cfgDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     cfgDocument.setUniqueId(UniqueIdentifier.of("BatchJobTest", "1"));
     cfgDocument.setName("MyView");
     

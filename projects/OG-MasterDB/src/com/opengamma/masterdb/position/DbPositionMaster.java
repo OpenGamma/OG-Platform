@@ -132,7 +132,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -154,6 +154,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       args.addValue("trade_provider_scheme", request.getTradeProviderKey().getScheme().getName());
       args.addValue("trade_provider_value", request.getTradeProviderKey().getValue());
     }
+    
+    args.addValueNullIgnored("key_value", getDbHelper().sqlWildcardAdjustValue(request.getIdentifierValue()));
+    
     searchWithPaging(request.getPagingRequest(), sqlSearchPositions(request), args, new PositionDocumentExtractor(), result);
     return result;
   }
@@ -201,6 +204,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     if (request.getSecurityKeys() != null && request.getSecurityKeys().size() > 0) {
       where += sqlSelectMatchingSecurityKeys(request.getSecurityKeys());
     }
+    if (request.getIdentifierValue() != null) {
+      where += sqlSelectIdentifierValue(request.getIdentifierValue());
+    }
     where += sqlAdditionalWhere();
     
     String selectFromWhereInner = "SELECT id FROM pos_position " + where;
@@ -210,6 +216,22 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     return new String[] {search, count};
   }
 
+  /**
+   * Gets the SQL to match identifier value
+   * 
+   * @param identifierValue the identifier value, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectIdentifierValue(String identifierValue) {    
+    String select = "SELECT DISTINCT position_id " +
+        "FROM pos_position2idkey, pos_position main " +
+        "WHERE position_id = main.id " +
+        "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
+        "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
+        "AND idkey_id IN ( SELECT id FROM pos_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
+    return "AND id IN (" + select + ") ";
+  }
+  
   /**
    * Gets the SQL to match the {@code IdentifierSearch}.
    * 
@@ -522,7 +544,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   protected ManageableTrade getTradeByInstants(final UniqueIdentifier uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getTradeByLatest {}", uniqueId);
-    final Instant now = Instant.now(getTimeSource());
+    final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("trade_oid", extractOid(uniqueId))
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))

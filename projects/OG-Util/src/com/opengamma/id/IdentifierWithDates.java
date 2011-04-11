@@ -26,6 +26,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class IdentifierWithDates implements Identifiable, Comparable<IdentifierWithDates>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Fudge message key for the valid_from.
    */
@@ -63,7 +66,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
    * Obtains an identifier with dates from a formatted scheme and value.
    * <p>
    * This parses the identifier from the form produced by {@code toString()}
-   * which is {@code <SCHEME>::<VALUE>:S:<VALID_FROM>:E:<VALID_TO>}.
+   * which is {@code <SCHEME>~<VALUE>~S~<VALID_FROM>~E~<VALID_TO>}.
    * 
    * @param str  the identifier to parse, not null
    * @return the identifier, not null
@@ -74,8 +77,8 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
     Identifier identifier = null;
     LocalDate validFrom = null;
     LocalDate validTo = null;
-    int startPos = str.indexOf(":S:");
-    int endPos = str.indexOf(":E");
+    int startPos = str.indexOf("~S~");
+    int endPos = str.indexOf("~E~");
     if (startPos > 0) {
       identifier = Identifier.parse(str.substring(0, startPos));
       if (endPos > 0) {
@@ -170,7 +173,7 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   }
 
   /**
-   * Returns the identifier in the form {@code <SCHEME>::<VALUE>:S:<VALID_FROM>:E:<VALID_TO>}.
+   * Returns the identifier in the form {@code <SCHEME>~<VALUE>~S~<VALID_FROM>~E~<VALID_TO>}.
    * 
    * @return the identifier, not null
    */
@@ -178,10 +181,10 @@ public final class IdentifierWithDates implements Identifiable, Comparable<Ident
   public String toString() {
     StringBuilder buf = new StringBuilder(_identifier.toString());
     if (_validFrom != null) {
-      buf.append(":S:").append(_validFrom.toString());
+      buf.append("~S~").append(_validFrom.toString());
     }
     if (_validTo != null) {
-      buf.append(":E:").append(_validTo.toString());
+      buf.append("~E~").append(_validTo.toString());
     }
     return buf.toString();
   }

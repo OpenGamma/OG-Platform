@@ -41,6 +41,9 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Singleton empty bundle.
    */

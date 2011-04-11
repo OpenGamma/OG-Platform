@@ -269,6 +269,57 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     
     assertEquals(0, test.getDocuments().size());
   }
+  
+  @Test
+  public void test_search_identifier() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setIdentifierValue("S100");
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_identifier_case() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setIdentifierValue("s100");
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert100(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_identifier_noMatch() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setIdentifierValue("FooBar");
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+  
+  @Test
+  public void test_search_identifier_wildcard() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setIdentifierValue("OR*");
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert122(test.getDocuments().get(0));
+    assert123(test.getDocuments().get(1));
+  }
+  
+  @Test
+  public void test_search_identifier_wildcardCase() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.setIdentifierValue("or*");
+    PositionSearchResult test = _posMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert122(test.getDocuments().get(0));
+    assert123(test.getDocuments().get(1));
+  }
 
   //-------------------------------------------------------------------------
   @Test

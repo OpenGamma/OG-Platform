@@ -4,7 +4,7 @@ foo~
 *.log
 build/
 dist/
-docs/
+javadoc
 ivy/
 lib/
 tests/classes/

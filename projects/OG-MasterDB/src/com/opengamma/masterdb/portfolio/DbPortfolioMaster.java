@@ -112,7 +112,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
       return result;
     }
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now(getTimeSource()));
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
@@ -358,7 +358,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    */
   protected ManageablePortfolioNode getNodeByInstants(final UniqueIdentifier uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getNodeByLatest {}", uniqueId);
-    final Instant now = Instant.now(getTimeSource());
+    final Instant now = now();
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("node_oid", extractOid(uniqueId))
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))

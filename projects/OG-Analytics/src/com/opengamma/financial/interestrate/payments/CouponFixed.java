@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -17,9 +19,17 @@ public class CouponFixed extends PaymentFixed {
   private final double _fixedRate;
   private final double _notional;
   private final double _paymentYearFraction;
+  /**
+   * The start date of the coupon accrual period. Can be null if of no use.
+   */
+  private final ZonedDateTime _accrualStartDate;
+  /**
+   * The end date of the coupon accrual period. Can be null if of no use.
+   */
+  private final ZonedDateTime _accrualEndDate;
 
   /**
-   * Constructor from all details.
+   * Constructor from all details but accrual dates.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
@@ -33,6 +43,31 @@ public class CouponFixed extends PaymentFixed {
     _notional = notional;
     Validate.isTrue(paymentYearFraction >= 0, "payment year fraction < 0");
     _paymentYearFraction = paymentYearFraction;
+    _accrualStartDate = null;
+    _accrualEndDate = null;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param fundingCurveName Name of the funding curve.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   * @param accrualStartDate The start date of the coupon accrual period.
+   * @param accrualEndDate The end date of the coupon accrual period.
+   * @
+   */
+  public CouponFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, final double rate, ZonedDateTime accrualStartDate,
+      ZonedDateTime accrualEndDate) {
+    super(currency, paymentTime, paymentYearFraction * notional * rate, fundingCurveName);
+    _fixedRate = rate;
+    _notional = notional;
+    Validate.isTrue(paymentYearFraction >= 0, "payment year fraction < 0");
+    _paymentYearFraction = paymentYearFraction;
+    _accrualStartDate = accrualStartDate;
+    _accrualEndDate = accrualEndDate;
   }
 
   /**
@@ -69,6 +104,22 @@ public class CouponFixed extends PaymentFixed {
    */
   public double getPaymentYearFraction() {
     return _paymentYearFraction;
+  }
+
+  /**
+   * Gets the _accrualStartDate field.
+   * @return The accrual start date.
+   */
+  public ZonedDateTime getAccrualStartDate() {
+    return _accrualStartDate;
+  }
+
+  /**
+   * Gets the _accrualEndDate field.
+   * @return The accrual end date.
+   */
+  public ZonedDateTime getAccrualEndDate() {
+    return _accrualEndDate;
   }
 
   public CouponFixed withUnitCoupon() {

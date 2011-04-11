@@ -74,7 +74,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
       return false;
     }
     if (getType() != null) {
-      return getType().isInstance(document.getValue());
+      return getType().equals(document.getDocumentClass());
     }
     return true;
   }

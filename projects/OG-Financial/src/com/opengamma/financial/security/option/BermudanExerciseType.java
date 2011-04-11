@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/ExerciseType.proto:30(10)
 package com.opengamma.financial.security.option;
 public class BermudanExerciseType extends com.opengamma.financial.security.option.ExerciseType implements java.io.Serializable {
   public <T> T accept (ExerciseTypeVisitor<T> visitor) { return visitor.visitBermudanExerciseType (this); }
