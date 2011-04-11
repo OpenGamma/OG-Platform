@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/fra/FRASecurity.proto:9(10)
 package com.opengamma.financial.security.fra;
 public class FRASecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public <T> T accept(FRASecurityVisitor<T> visitor) { return visitor.visitFRASecurity(this); }

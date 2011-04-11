@@ -41,7 +41,6 @@ public class SwaptionCashFixedIborSABRMethod {
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     double pvbp = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
-    //    double strike = annuityFixed.getNthPayment(0).getFixedRate();
     // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     // TODO: A better notion of maturity may be required (using period?)
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
@@ -72,10 +71,7 @@ public class SwaptionCashFixedIborSABRMethod {
     // Derivative of the cash annuity with respect to the forward.
     double pvbpDf = SwapFixedIborMethod.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
-    //    double strike = annuityFixed.getNthPayment(0).getFixedRate();
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
-    //    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
     double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, swaption.getStrike(), forward);
     double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
@@ -108,11 +104,8 @@ public class SwaptionCashFixedIborSABRMethod {
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     double pvbp = SwapFixedIborMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
-    //    double strike = annuityFixed.getNthPayment(0).getFixedRate();
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
-    //    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
     double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, swaption.getStrike(), forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);

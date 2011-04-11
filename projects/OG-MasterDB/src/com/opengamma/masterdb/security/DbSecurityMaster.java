@@ -208,9 +208,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         "AND main.ver_from_instant <= :version_as_of_instant AND main.ver_to_instant > :version_as_of_instant " +
         "AND main.corr_from_instant <= :corrected_to_instant AND main.corr_to_instant > :corrected_to_instant " +
         "AND idkey_id IN ( SELECT id FROM sec_idkey WHERE " + getDbHelper().sqlWildcardQuery("UPPER(key_value) ", "UPPER(:key_value)", identifierValue) + ") ";
-    String sql = "AND id IN (" + select + ") ";
-    s_logger.debug("match identifierValue SQL {}", sql);
-    return sql;
+    return "AND id IN (" + select + ") ";
   }
 
   /**

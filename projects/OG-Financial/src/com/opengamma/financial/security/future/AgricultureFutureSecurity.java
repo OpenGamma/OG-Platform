@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/future/CommodityFutureSecurity.proto:20(10)
 package com.opengamma.financial.security.future;
 public class AgricultureFutureSecurity extends com.opengamma.financial.security.future.CommodityFutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitAgricultureFutureSecurity (this); }

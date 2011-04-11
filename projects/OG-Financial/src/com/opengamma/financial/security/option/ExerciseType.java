@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/ExerciseType.proto:9(19)
 package com.opengamma.financial.security.option;
 public abstract class ExerciseType implements java.io.Serializable {
   public abstract <T> T accept (ExerciseTypeVisitor<T> visitor);

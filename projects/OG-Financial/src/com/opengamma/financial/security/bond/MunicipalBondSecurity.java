@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/bond/MunicipalBondSecurity.proto:12(10)
 package com.opengamma.financial.security.bond;
 public class MunicipalBondSecurity extends com.opengamma.financial.security.bond.BondSecurity implements java.io.Serializable {
   public <T> T accept (BondSecurityVisitor<T> visitor) { return visitor.visitMunicipalBondSecurity (this); }

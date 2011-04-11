@@ -86,7 +86,7 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
 
   @Override
   public UserMessagePayload visitTest(final Test message, final SessionContext session) {
-    return TestMessageHandler.testMessage(message, session.getMessageSender());
+    return TestMessageHandler.testMessage(message, session);
   }
 
   @Override

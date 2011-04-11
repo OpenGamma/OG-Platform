@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -39,13 +40,13 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     VolatilitySurfaceDefinition<Tenor, Tenor> us = new VolatilitySurfaceDefinition<Tenor, Tenor>("DEFAULT", Currency.USD,
                                                                                                  "DUNNO", timeToExpiry, swapLength);
 
-    configMaster.add(makeConfigDocument(us));
-    
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
+        
     Tenor[] timeToExpiryTest = new Tenor[] {Tenor.ofMonths(1), Tenor.ofMonths(3) };
     Tenor[] swapLengthTest = new Tenor[] {Tenor.ofYears(1), Tenor.ofYears(2) };
     VolatilitySurfaceDefinition<Tenor, Tenor> test = new VolatilitySurfaceDefinition<Tenor, Tenor>("TEST", Currency.USD,
         "DUNNO", timeToExpiryTest, swapLengthTest);
-    configMaster.add(makeConfigDocument(test));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(test));
   }
   
   private static ConfigDocument<VolatilitySurfaceDefinition<Tenor, Tenor>> makeConfigDocument(VolatilitySurfaceDefinition<Tenor, Tenor> definition) {
@@ -68,6 +69,6 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
   private static void populateVolatilitySurfaceSpecifications(ConfigMaster configMaster) {
     SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
     VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, surfaceInstrumentProvider);
-    configMaster.add(makeConfigDocument(us));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
   }
 }

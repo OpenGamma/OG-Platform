@@ -6,10 +6,14 @@
 
 package com.opengamma.language.connector;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.language.connector.Test.Operation;
+import com.opengamma.language.context.SessionContext;
 
 /**
  * Responds to the Test message to allow an unit test of the messaging infrastructures.
@@ -26,12 +30,16 @@ import com.opengamma.language.connector.Test.Operation;
    * @param sender message sender for asynchronous messages
    */
   @SuppressWarnings("deprecation")
-  public static UserMessagePayload testMessage(final Test message, final MessageSender sender) {
+  public static UserMessagePayload testMessage(final Test message, final SessionContext context) {
     switch (message.getOperation()) {
-      case CRASH_REQUEST:
+      case CRASH_REQUEST: {
         s_logger.info ("CRASH_REQUEST - calling system.exit");
+        final MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+        msg.add("foo", null, 42);
+        context.getStashMessage().put(msg);
         System.exit (1);
         return null;
+      }
       case ECHO_REQUEST:
         s_logger.info("ECHO_REQUEST - returning ECHO_RESPONSE");
         message.setOperation(Operation.ECHO_RESPONSE);
@@ -39,7 +47,7 @@ import com.opengamma.language.connector.Test.Operation;
       case ECHO_REQUEST_A:
         s_logger.info("ECHO_REQUEST_A - sending ECHO_RESPONSE_A asynchronously");
         message.setOperation(Operation.ECHO_RESPONSE_A);
-        sender.send(message.clone());
+        context.getMessageSender().send(message.clone());
         s_logger.info("ECHO_REQUEST_A - returning ECHO_RESPONSE");
         message.setOperation(Operation.ECHO_RESPONSE);
         return message;
@@ -65,13 +73,25 @@ import com.opengamma.language.connector.Test.Operation;
         }
         Thread.currentThread().suspend();
         return null;
+      case STASH_REQUEST: {
+        s_logger.info("STASH_REQUEST - checking stash");
+        final FudgeMsg msg = context.getStashMessage().get();
+        if (msg != null) {
+          s_logger.debug("Stash = {}", msg);
+          if (msg.getInt("foo") == 42) {
+            message.setOperation(Operation.STASH_RESPONSE);
+            return message;
+          }
+        }
+        return null;
+      }
       case VOID_REQUEST:
         s_logger.info("VOID_REQUEST - no response");
         return null;
       case VOID_REQUEST_A:
         s_logger.info("VOID_REQUEST_A - sending VOID_RESPONSE_A asynchronously");
         message.setOperation(Operation.VOID_RESPONSE_A);
-        sender.send(message);
+        context.getMessageSender().send(message);
         return null;
       case VOID_RESPONSE_A:
         throw new IllegalArgumentException ("VOID_RESPONSE_A should not have been sent by the server");

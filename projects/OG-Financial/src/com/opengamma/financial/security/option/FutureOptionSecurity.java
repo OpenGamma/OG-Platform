@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/FutureOptionSecurity.proto:9(10)
 package com.opengamma.financial.security.option;
 public class FutureOptionSecurity extends com.opengamma.financial.security.option.OptionSecurity implements java.io.Serializable {
   public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitFutureOptionSecurity (this); }

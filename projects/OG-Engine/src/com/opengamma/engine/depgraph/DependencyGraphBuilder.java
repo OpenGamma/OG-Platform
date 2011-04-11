@@ -154,9 +154,12 @@ public class DependencyGraphBuilder {
 
   // Note the order requirements are considered can affect function choices and resultant graph construction (see [ENG-259]).
   private ResolutionState resolveValueRequirement(final ValueRequirement requirement, final DependencyNode dependent) {
-    final ComputationTarget target = getTargetResolver().resolve(requirement.getTargetSpecification());
+    ComputationTargetResolver targetResolver = getTargetResolver();
+    final ComputationTarget target = targetResolver.resolve(requirement.getTargetSpecification());
     if (target == null) {
-      throw new UnsatisfiableDependencyGraphException(requirement);
+      throw new UnsatisfiableDependencyGraphException(requirement, "No ComputationTarget")
+          .addState("targetResolver ComputationTargetResolver", targetResolver)
+          .addState("dependent DependencyNode", dependent);
     }
     s_logger.info("Resolving target requirement for {} on {}", requirement, target);
     // Find existing nodes in the graph
@@ -274,13 +277,13 @@ public class DependencyGraphBuilder {
             if (!pendingInputStates && resolved.isSingle()) {
               resolved.removeFirst();
             }
-          } catch (Throwable t) {
+          } catch (Throwable ex) {
             // Note catch Throwable rather than the UnsatisfiedDependencyGraphException in case functionDefinition.getRequirements went wrong
-            s_logger.debug("Backtracking on dependency graph error", t);
+            s_logger.debug("Backtracking on dependency graph error", ex);
             graphNode.clearInputs();
             resolved.removeFirst();
             if (resolved.isEmpty()) {
-              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
+              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
             }
             continue;
           }
@@ -320,12 +323,12 @@ public class DependencyGraphBuilder {
           if (!pendingInputStates && resolved.isSingle()) {
             resolved.removeFirst();
           }
-        } catch (UnsatisfiableDependencyGraphException e) {
-          s_logger.debug("Backtracking on dependency graph error", e);
+        } catch (UnsatisfiableDependencyGraphException ex) {
+          s_logger.debug("Backtracking on dependency graph error", ex);
           graphNode.clearInputs();
           resolved.removeFirst();
           if (resolved.isEmpty()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
           }
           continue;
         }
@@ -338,12 +341,12 @@ public class DependencyGraphBuilder {
         final Set<ValueSpecification> newOutputValues;
         try {
           newOutputValues = functionDefinition.getResults(getCompilationContext(), graphNode.getComputationTarget(), requirementLookup);
-        } catch (Throwable t) {
+        } catch (Throwable ex) {
           // detect failure from .getResults
-          s_logger.debug("Deep backtracking at late resolution failure", t);
+          s_logger.debug("Deep backtracking at late resolution failure", ex);
           graphNode.clearInputs();
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), t);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
           }
           continue;
         }
@@ -380,7 +383,11 @@ public class DependencyGraphBuilder {
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
             if (resolved.isEmpty() || !resolved.removeDeepest()) {
-              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement());
+              throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), "Deep backtracing failed")
+                  .addState("resolved ResolutonState", resolved)
+                  .addState("functionDefinition CompiledFunctionDefinition", functionDefinition)
+                  .addState("newOutputValues Set<ValueSpecification>", newOutputValues)
+                  .addState("originalOutputValues Set<ValueSpecification>", originalOutputValues);
             }
             continue;
           }
@@ -397,16 +404,16 @@ public class DependencyGraphBuilder {
               graphNode.addInputValue(inputValue.getSecond());
             }
           }
-        } catch (Throwable e) {
+        } catch (Throwable ex) {
           // Catch Throwable in case getAdditionalRequirements fails
-          s_logger.debug("Deep backtracking on dependency graph error", e);
+          s_logger.debug("Deep backtracking on dependency graph error", ex);
           graphNode.clearInputs();
           if (originalOutputValues != null) {
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);
           }
           if (resolved.isEmpty() || !resolved.removeDeepest()) {
-            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), e);
+            throw new UnsatisfiableDependencyGraphException(resolved.getValueRequirement(), ex);
           }
           continue;
         }

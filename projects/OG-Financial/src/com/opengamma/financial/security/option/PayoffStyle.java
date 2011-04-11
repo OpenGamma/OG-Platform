@@ -1,6 +1,7 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
+// Created from com/opengamma/financial/security/option/PayoffStyle.proto:9(19)
 package com.opengamma.financial.security.option;
 public abstract class PayoffStyle implements java.io.Serializable {
   public abstract <T> T accept (PayoffStyleVisitor<T> visitor);

@@ -31,7 +31,6 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
    * The cache manager.
    */
   private final CacheManager _cacheManager;
-  
   /**
    * The cache.
    */
@@ -39,6 +38,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
 
   /**
    * Creates an instance using the specified cache manager.
+   * 
    * @param underlying  the underlying resolver, not null
    * @param cacheManager  the cache manager, not null
    */
@@ -56,6 +56,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   //-------------------------------------------------------------------------
   /**
    * Gets the cache manager.
+   * 
    * @return the cache manager, not null
    */
   protected CacheManager getCacheManager() {
@@ -66,10 +67,10 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
     switch (specification.getType()) {
-      case POSITION :
-      case TRADE :
-      case PORTFOLIO_NODE :
-      case SECURITY :
+      case POSITION:
+      case TRADE:
+      case PORTFOLIO_NODE:
+      case SECURITY:
         final Element e = _computationTarget.get(specification);
         if (e != null) {
           return (ComputationTarget) e.getValue();
@@ -80,7 +81,7 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
           }
           return ct;
         }
-      default :
+      default:
         return super.resolve(specification);
     }
   }
@@ -90,17 +91,17 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
   public void cachePositions(Collection<Position> positions) {
     addToCache(positions, ComputationTargetType.POSITION);
   }
-  
+
   @Override
   public void cacheTrades(Collection<Trade> trades) {
     addToCache(trades, ComputationTargetType.TRADE);
   }
-  
+
   @Override
   public void cacheSecurities(Collection<Security> securities) {
     addToCache(securities, ComputationTargetType.SECURITY);
   }
-  
+
   @Override
   public void cachePortfolioNodeHierarchy(PortfolioNode root) {
     addToCache(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, root.getUniqueId()), new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, root));
@@ -108,18 +109,27 @@ public class DefaultCachingComputationTargetResolver extends ForwardingComputati
       cachePortfolioNodeHierarchy(child);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   private void addToCache(ComputationTargetSpecification specification, ComputationTarget ct) {
     _computationTarget.put(new Element(specification, ct));
   }
-  
+
   private void addToCache(Collection<? extends UniqueIdentifiable> targets, ComputationTargetType targetType) {
     for (UniqueIdentifiable target : targets) {
       addToCache(new ComputationTargetSpecification(targetType, target.getUniqueId()), new ComputationTarget(targetType, target));
     }
   }
 
-  
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a string suitable for debugging.
+   * 
+   * @return the string, not null
+   */
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[underlying=" + getUnderlying() + "]";
+  }
 
 }

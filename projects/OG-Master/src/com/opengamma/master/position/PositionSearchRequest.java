@@ -60,6 +60,16 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private IdentifierSearch _securityKeys;
   /**
+   * The identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * search is useful for exact machine searching.
+   */
+  @PropertyDefinition
+  private String _identifierValue;
+  /**
    * The position data provider key to match, null to not match on provider.
    * This field is useful when receiving updates from the same provider.
    */
@@ -251,6 +261,8 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return getTradeIds();
       case 807958868:  // securityKeys
         return getSecurityKeys();
+      case 2085582408:  // identifierValue
+        return getIdentifierValue();
       case -370050619:  // positionProviderKey
         return getPositionProviderKey();
       case -510247254:  // tradeProviderKey
@@ -275,6 +287,9 @@ public class PositionSearchRequest extends AbstractSearchRequest {
         return;
       case 807958868:  // securityKeys
         setSecurityKeys((IdentifierSearch) newValue);
+        return;
+      case 2085582408:  // identifierValue
+        setIdentifierValue((String) newValue);
         return;
       case -370050619:  // positionProviderKey
         setPositionProviderKey((Identifier) newValue);
@@ -355,6 +370,46 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    */
   public final Property<IdentifierSearch> securityKeys() {
     return metaBean().securityKeys().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * search is useful for exact machine searching.
+   * @return the value of the property
+   */
+  public String getIdentifierValue() {
+    return _identifierValue;
+  }
+
+  /**
+   * Sets the identifier value, matching against the <b>value</b> of the identifiers,
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * search is useful for exact machine searching.
+   * @param identifierValue  the new value of the property
+   */
+  public void setIdentifierValue(String identifierValue) {
+    this._identifierValue = identifierValue;
+  }
+
+  /**
+   * Gets the the {@code identifierValue} property.
+   * null to not match by identifier value.
+   * This matches against the {@link Identifier#getValue() value} of the identifier
+   * and does not match against the key. Wildcards are allowed.
+   * This method is suitable for human searching, whereas the {@code securityKeys}
+   * search is useful for exact machine searching.
+   * @return the property, not null
+   */
+  public final Property<String> identifierValue() {
+    return metaBean().identifierValue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -488,6 +543,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
     /**
+     * The meta-property for the {@code identifierValue} property.
+     */
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(this, "identifierValue", String.class);
+    /**
      * The meta-property for the {@code positionProviderKey} property.
      */
     private final MetaProperty<Identifier> _positionProviderKey = DirectMetaProperty.ofReadWrite(this, "positionProviderKey", Identifier.class);
@@ -514,6 +573,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
       temp.put("positionIds", _positionIds);
       temp.put("tradeIds", _tradeIds);
       temp.put("securityKeys", _securityKeys);
+      temp.put("identifierValue", _identifierValue);
       temp.put("positionProviderKey", _positionProviderKey);
       temp.put("tradeProviderKey", _tradeProviderKey);
       temp.put("minQuantity", _minQuantity);
@@ -559,6 +619,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<IdentifierSearch> securityKeys() {
       return _securityKeys;
+    }
+
+    /**
+     * The meta-property for the {@code identifierValue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> identifierValue() {
+      return _identifierValue;
     }
 
     /**
