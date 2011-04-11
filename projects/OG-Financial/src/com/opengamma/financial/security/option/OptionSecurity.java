@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/option/OptionSecurity.proto:17(19)
 package com.opengamma.financial.security.option;
 public abstract class OptionSecurity extends com.opengamma.financial.security.FinancialSecurity implements java.io.Serializable {
           public abstract <T> T accept (OptionSecurityVisitor<T> visitor);

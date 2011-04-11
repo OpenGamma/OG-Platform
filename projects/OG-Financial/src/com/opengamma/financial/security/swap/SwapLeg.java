@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/swap/SwapLeg.proto:12(19)
 package com.opengamma.financial.security.swap;
 public abstract class SwapLeg implements java.io.Serializable {
   public abstract <T> T accept (SwapLegVisitor<T> visitor);

@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/engine/view/cache/msg/SpecificationLookupRequest.proto:9(10)
 package com.opengamma.engine.view.cache.msg;
 public class SpecificationLookupRequest extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitSpecificationLookupRequest (this); }

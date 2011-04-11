@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/DateTimeWithZone.proto:9(10)
 package com.opengamma.financial.security;
 public class DateTimeWithZone implements java.io.Serializable {
           public javax.time.calendar.ZonedDateTime toZonedDateTime () {
