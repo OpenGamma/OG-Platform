@@ -10,8 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The semi-standard deviation of a series of data is a less general version of a partial moment (see {@link PartialMomentCalculator}). Instead of a user-defined
- * threshold, the mean is used.
+ * The semi-standard deviation of a series of data is the partial moment (see {@link PartialMomentCalculator}) calculated with the mean as the threshold.
  */
 public class SemiStandardDeviationCalculator extends Function1D<double[], Double> {
   private static final MeanCalculator MEAN = new MeanCalculator();
