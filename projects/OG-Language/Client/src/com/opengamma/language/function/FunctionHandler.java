@@ -56,7 +56,7 @@ public class FunctionHandler implements FunctionVisitor<UserMessagePayload, Sess
     }
     s_logger.debug("Invoking {}", function.getName());
     final List<Data> parameters = message.getParameter();
-    return function.getInvoker().invoke(context, (parameters != null) ? parameters : Collections.<Data> emptyList());
+    return function.getInvoker().invoke(context, (parameters != null) ? parameters : Collections.<Data>emptyList());
   }
 
   @Override

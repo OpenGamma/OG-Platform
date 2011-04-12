@@ -11,7 +11,7 @@ import java.util.Map;
 import com.opengamma.math.function.Function;
 
 /**
- * 
+ * Factory class for descriptive statistics calculators.
  */
 public final class StatisticsCalculatorFactory {
   /** Mean */
@@ -108,6 +108,11 @@ public final class StatisticsCalculatorFactory {
   private StatisticsCalculatorFactory() {
   }
 
+  /**
+   * @param name Given a name, returns the appropriate calculator
+   * @return The calculator
+   * @throws IllegalArgumentException If a calculator does not exist for the name
+   */
   public static Function<double[], Double> getCalculator(final String name) {
     final Function<double[], Double> calculator = s_staticInstances.get(name);
     if (calculator != null) {
@@ -116,6 +121,10 @@ public final class StatisticsCalculatorFactory {
     throw new IllegalArgumentException("Could not get calculator for " + name);
   }
 
+  /**
+   * @param calculator Given a calculator, returns the appropriate name
+   * @return The calculator
+   */
   public static String getCalculatorName(final Function<double[], Double> calculator) {
     if (calculator == null) {
       return null;

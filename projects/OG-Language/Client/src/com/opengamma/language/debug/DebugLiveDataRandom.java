@@ -29,7 +29,7 @@ public class DebugLiveDataRandom implements PublishedLiveData {
   @Override
   public MetaLiveData getMetaLiveData() {
     // TODO: invocation
-    return new MetaLiveData("DebugLiveDataRandom", Collections.<MetaParameter> emptyList());
+    return new MetaLiveData("DebugLiveDataRandom", Collections.<MetaParameter>emptyList());
   }
 
 }

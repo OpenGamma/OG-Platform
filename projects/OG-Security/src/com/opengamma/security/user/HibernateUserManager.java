@@ -66,13 +66,13 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   public User getUser(final String username) {
     ArgumentChecker.notNull(username, "User name");
     
-    return (User) _hibernateTemplate.execute(new HibernateCallback() {
+    return _hibernateTemplate.execute(new HibernateCallback<User>() {
       @Override
-      public Object doInHibernate(Session session) throws HibernateException,
+      public User doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("User.one.byUsername");
         query.setString("username", username);
-        return query.uniqueResult();
+        return (User) query.uniqueResult();
       }
     });
   }
@@ -81,13 +81,13 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   public UserGroup getUserGroup(final String name) {
     ArgumentChecker.notNull(name, "Group name");
     
-    return (UserGroup) _hibernateTemplate.execute(new HibernateCallback() {
+    return _hibernateTemplate.execute(new HibernateCallback<UserGroup>() {
       @Override
-      public Object doInHibernate(Session session) throws HibernateException,
+      public UserGroup doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("UserGroup.one.byName");
         query.setString("name", name);
-        return query.uniqueResult();
+        return (UserGroup) query.uniqueResult();
       }
     });
   }
@@ -96,13 +96,13 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   public Authority getAuthority(final String regex) {
     ArgumentChecker.notNull(regex, "Authority");
     
-    return (Authority) _hibernateTemplate.execute(new HibernateCallback() {
+    return _hibernateTemplate.execute(new HibernateCallback<Authority>() {
       @Override
-      public Object doInHibernate(Session session) throws HibernateException,
+      public Authority doInHibernate(Session session) throws HibernateException,
           SQLException {
         Query query = session.getNamedQuery("Authority.one.byAuthorityRegex");
         query.setString("regex", regex);
-        return query.uniqueResult();
+        return (Authority) query.uniqueResult();
       }
     });
   }

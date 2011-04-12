@@ -18,10 +18,15 @@ import com.opengamma.math.function.Function1D;
  * \\end{align*}
  * }
  * where {@latex.inline $\\overline{x}$} is the sample mean and {@latex.inline $\\mu_2$} is the unbiased estimator of the population variance.
+ * <p> Fisher kurtosis is also known as the <i>excess kurtosis</i>.
  */
 public class SampleFisherKurtosisCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();
 
+  /**
+   * @param x The array of data, not null. Must contain at least four data points.
+   * @return The sample Fisher kurtosis
+   */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
@@ -36,7 +41,9 @@ public class SampleFisherKurtosisCalculator extends Function1D<double[], Double>
       sum += diffSq * diffSq;
     }
     final int n = x.length;
-    variance /= n - 1;
-    return n * (n + 1.) * sum / ((n - 1.) * (n - 2.) * (n - 3.) * variance * variance) - 3 * (n - 1.) * (n - 1.) / ((n - 2.) * (n - 3.));
+    final double n1 = n - 1;
+    final double n2 = n1 - 1;
+    variance /= n1;
+    return n * (n + 1.) * sum / (n1 * n2 * (n - 3.) * variance * variance) - 3 * n1 * n1 / (n2 * (n - 3.));
   }
 }

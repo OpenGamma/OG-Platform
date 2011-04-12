@@ -73,19 +73,19 @@ public class CustomVisitors<T1, T2> implements CustomFunctionVisitorRegistry<T1,
   }
 
   public <M extends com.opengamma.language.function.Custom> T1 visit(final M message, final T2 data) {
-    return this.<CustomFunctionVisitor<M, T1, T2>> getVisitor(message.getClass()).visit(message, data);
+    return this.<CustomFunctionVisitor<M, T1, T2>>getVisitor(message.getClass()).visit(message, data);
   }
 
   public <M extends com.opengamma.language.livedata.Custom> T1 visit(final M message, final T2 data) {
-    return this.<CustomLiveDataVisitor<M, T1, T2>> getVisitor(message.getClass()).visit(message, data);
+    return this.<CustomLiveDataVisitor<M, T1, T2>>getVisitor(message.getClass()).visit(message, data);
   }
 
   public <M extends com.opengamma.language.connector.Custom> T1 visit(final M message, final T2 data) {
-    return this.<CustomMessageVisitor<M, T1, T2>> getVisitor(message.getClass()).visit(message, data);
+    return this.<CustomMessageVisitor<M, T1, T2>>getVisitor(message.getClass()).visit(message, data);
   }
 
   public <M extends com.opengamma.language.procedure.Custom> T1 visit(final M message, final T2 data) {
-    return this.<CustomProcedureVisitor<M, T1, T2>> getVisitor(message.getClass()).visit(message, data);
+    return this.<CustomProcedureVisitor<M, T1, T2>>getVisitor(message.getClass()).visit(message, data);
   }
 
 }

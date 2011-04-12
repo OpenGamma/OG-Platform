@@ -36,6 +36,7 @@ public class WebConfigVersionsResource extends AbstractWebConfigResource {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @GET
   public String get() {
     ConfigHistoryRequest request = new ConfigHistoryRequest(data().getConfig().getUniqueId(), Object.class);

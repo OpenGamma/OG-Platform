@@ -10,7 +10,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The sample standard deviation of a series of data is defined as the square root of the sample variance (see {@link SampleVarianceCalculator}).
+ * Calculates the sample standard deviation of a series of data. The sample standard deviation of a series of data is defined as the square root of 
+ * the sample variance (see {@link SampleVarianceCalculator}).
  */
 public class SampleStandardDeviationCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> VARIANCE = new SampleVarianceCalculator();
