@@ -6,16 +6,13 @@
 package com.opengamma.financial.model.finiteDifference;
 
 import com.opengamma.math.cube.Cube;
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 
 /**
  * Craig-Sneyd splitting
  * <b>Note</b> this is for testing purposes and is not recommended for actual use 
  */
 public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
-
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  //private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   // Theta = 0 - explicit
   private static final double THETA = 0.5;
 
@@ -42,7 +39,7 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
     double[] x = new double[xSteps + 1];
     double[] y = new double[ySteps + 1];
     final double[] vx = new double[xSteps + 1];
-    final double[] vy = new double[ySteps + 1];
+    //final double[] vy = new double[ySteps + 1];
     final double[] q = new double[xSteps + 1];
     final double[] r = new double[ySteps + 1];
     final double[][] mx = new double[xSteps + 1][xSteps + 1];
@@ -64,7 +61,7 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
     }
 
     double t = 0.0;
-    double a, b, c, d, e, f, aa, bb, cc;
+    double a, b, c, d, e, f; //, aa, bb, cc;
 
     for (int n = 0; n < tSteps; n++) {
       // t += dt / 2;
@@ -141,7 +138,7 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
             max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
+            for (int k = min; k <= max; k++) { // mx is tri-diagonal so only need 3 steps here
               sum += mx[l][k] * vx[k];
             }
             double correction = omega / mx[l][l] * (q[l] - sum);
@@ -244,7 +241,7 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
         double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          sum += temp[k] * v[k][j];// TODO this should be vold
+          sum += temp[k] * v[k][j]; // TODO this should be vold
         }
         sum += xLowerBoundary.getConstant(pdeData, t, y[j], dx);
 

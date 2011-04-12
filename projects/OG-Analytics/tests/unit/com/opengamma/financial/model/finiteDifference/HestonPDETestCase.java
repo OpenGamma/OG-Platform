@@ -56,23 +56,23 @@ public class HestonPDETestCase {
 
   static {
 
-    final Function<Double, Double> volZeroBoundary = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tx) {
-        Validate.isTrue(tx.length == 2);
-        double x = tx[1];
-        return Math.max(x - STRIKE, 0);
-      }
-    };
-
-    final Function<Double, Double> volInfiniteBoundary = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... tx) {
-        Validate.isTrue(tx.length == 2);
-        double x = tx[1];
-        return x;
-      }
-    };
+//    final Function<Double, Double> volZeroBoundary = new Function<Double, Double>() {
+//      @Override
+//      public Double evaluate(final Double... tx) {
+//        Validate.isTrue(tx.length == 2);
+//        double x = tx[1];
+//        return Math.max(x - STRIKE, 0);
+//      }
+//    };
+//
+//    final Function<Double, Double> volInfiniteBoundary = new Function<Double, Double>() {
+//      @Override
+//      public Double evaluate(final Double... tx) {
+//        Validate.isTrue(tx.length == 2);
+//        double x = tx[1];
+//        return x;
+//      }
+//    };
 
     F_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0); // option worth zero if spot is zero
     F_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity

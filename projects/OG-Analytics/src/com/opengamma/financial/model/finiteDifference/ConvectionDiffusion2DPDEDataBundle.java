@@ -26,8 +26,13 @@ public class ConvectionDiffusion2DPDEDataBundle implements ParabolicPDEDataBundl
 
   private final Surface<Double, Double, Double> _initialCondition;
 
-  public ConvectionDiffusion2DPDEDataBundle(final Cube<Double, Double, Double, Double> a, final Cube<Double, Double, Double, Double> b, final Cube<Double, Double, Double, Double> c,
-      final Cube<Double, Double, Double, Double> d, final Cube<Double, Double, Double, Double> e, final Cube<Double, Double, Double, Double> f, final Surface<Double, Double, Double> initialCondition) {
+  public ConvectionDiffusion2DPDEDataBundle(final Cube<Double, Double, Double, Double> a, 
+      final Cube<Double, Double, Double, Double> b, 
+      final Cube<Double, Double, Double, Double> c,
+      final Cube<Double, Double, Double, Double> d, 
+      final Cube<Double, Double, Double, Double> e, 
+      final Cube<Double, Double, Double, Double> f, 
+      final Surface<Double, Double, Double> initialCondition) {
     Validate.notNull(a, "null a");
     Validate.notNull(b, "null b");
     Validate.notNull(c, "null c");

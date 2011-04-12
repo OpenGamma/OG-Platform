@@ -11,7 +11,7 @@ package com.opengamma.financial.model.finiteDifference;
 public class PDEResults1D {
 
   private double[] _f;
-  private double[] _x;
+  //private double[] _x;
 
   double getFunctionValue(int index) {
     return _f[index];

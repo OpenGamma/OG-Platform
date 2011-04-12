@@ -8,8 +8,6 @@ package com.opengamma.financial.model.finiteDifference;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.cube.Cube;
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 
 /**
  * Craig-Sneyd splitting
@@ -17,7 +15,7 @@ import com.opengamma.math.linearalgebra.LUDecompositionCommons;
  */
 public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  //private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   // Theta = 0 - explicit
   private static final double THETA = 0.5;
 
@@ -49,21 +47,7 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
     final double[] r = new double[ySteps + 1];
     final double[][] mx = new double[xSteps + 1][xSteps + 1];
     final double[][] my = new double[ySteps + 1][ySteps + 1];
-
-    double currentX = 0;
-    double currentY = 0;
-
-    for (int j = 0; j <= ySteps; j++) {
-      currentY = yLowerBoundary.getLevel() + j * dy;
-      y[j] = currentY;
-    }
-    for (int i = 0; i <= xSteps; i++) {
-      currentX = xLowerBoundary.getLevel() + i * dx;
-      x[i] = currentX;
-      for (int j = 0; j <= ySteps; j++) {
-        v[i][j] = pdeData.getInitialValue(x[i], y[j]);
-      }
-    }
+    initializeMatrices(pdeData, xSteps, ySteps, xLowerBoundary, yLowerBoundary, dx, dy, v, x, y);
 
     double t = 0.0;
     double a, b, c, d, e, f;
@@ -204,29 +188,7 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
         final double omega = 1.5;
         double scale = 1.0;
         double errorSqr = Double.POSITIVE_INFINITY;
-        int min, max;
-        int count = 0;
-        while (errorSqr / (scale + 1e-10) > 1e-18 && count < 1000) {
-          errorSqr = 0.0;
-          scale = 0.0;
-          for (int l = 0; l <= xSteps; l++) {
-            min = (l == xSteps ? 0 : Math.max(0, l - 1));
-            max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
-            sum = 0;
-            // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
-              sum += mx[l][k] * vt[k][j];
-            }
-            double correction = omega / mx[l][l] * (q[l] - sum);
-            // if (freeBoundary != null) {
-            // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
-            // }
-            errorSqr += correction * correction;
-            vt[l][j] += correction;
-            scale += vt[l][j] * vt[l][j];
-          }
-          count++;
-        }
+        int count = applyCorrection(xSteps, vt, q, mx, j, omega, scale, errorSqr);
         Validate.isTrue(count < 1000, "SOR exceeded max interations");
       }
 
@@ -361,6 +323,53 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
     } // time loop
     return v;
 
+  }
+
+  private int applyCorrection(final int xSteps, double[][] vt, final double[] q, final double[][] mx, int j, final double omega, double scale, double errorSqr) {
+    double sum;
+    int min;
+    int max;
+    int count = 0;
+    while (errorSqr / (scale + 1e-10) > 1e-18 && count < 1000) {
+      errorSqr = 0.0;
+      scale = 0.0;
+      for (int l = 0; l <= xSteps; l++) {
+        min = (l == xSteps ? 0 : Math.max(0, l - 1));
+        max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
+        sum = 0;
+        // for (int k = 0; k <= xSteps; k++) {
+        for (int k = min; k <= max; k++) { // mx is tri-diagonal so only need 3 steps here
+          sum += mx[l][k] * vt[k][j];
+        }
+        double correction = omega / mx[l][l] * (q[l] - sum);
+        // if (freeBoundary != null) {
+        // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
+        // }
+        errorSqr += correction * correction;
+        vt[l][j] += correction;
+        scale += vt[l][j] * vt[l][j];
+      }
+      count++;
+    }
+    return count;
+  }
+
+  private void initializeMatrices(ConvectionDiffusion2DPDEDataBundle pdeData, final int xSteps, final int ySteps, BoundaryCondition2D xLowerBoundary, BoundaryCondition2D yLowerBoundary, double dx,
+      double dy, double[][] v, double[] x, double[] y) {
+    double currentX = 0;
+    double currentY = 0;
+
+    for (int j = 0; j <= ySteps; j++) {
+      currentY = yLowerBoundary.getLevel() + j * dy;
+      y[j] = currentY;
+    }
+    for (int i = 0; i <= xSteps; i++) {
+      currentX = xLowerBoundary.getLevel() + i * dx;
+      x[i] = currentX;
+      for (int j = 0; j <= ySteps; j++) {
+        v[i][j] = pdeData.getInitialValue(x[i], y[j]);
+      }
+    }
   }
 
   // private double[][] solveSOR(double[][] m, double[][] v)

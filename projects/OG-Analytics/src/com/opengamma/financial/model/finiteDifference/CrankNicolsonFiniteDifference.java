@@ -110,7 +110,9 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
   }
 
   /**
-   * <b>NOTE</b> not implemented 
+   * {@inheritDoc}
+   * <b>NOTE</b> not implemented
+   * @throws NotImplementedException 
    */
   @Override
   public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,

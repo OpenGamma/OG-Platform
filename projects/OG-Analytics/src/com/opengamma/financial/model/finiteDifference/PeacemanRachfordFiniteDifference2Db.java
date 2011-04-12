@@ -8,8 +8,6 @@ package com.opengamma.financial.model.finiteDifference;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.cube.Cube;
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 
 /**
  *  Peaceman-Rachford splitting with boundary conditions applied at each of the 4 steps 
@@ -17,9 +15,9 @@ import com.opengamma.math.linearalgebra.LUDecompositionCommons;
  */
 public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionPDESolver2D {
 
-  private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  //private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   // Theta = 0 - explicit
-  private static final double THETA = 0.5;
+  //private static final double THETA = 0.5;
   private static final int SOR_MAX = 5000;
 
   @Override
@@ -164,7 +162,7 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
             max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
+            for (int k = min; k <= max; k++) {  // mx is tri-diagonal so only need 3 steps here
               sum += mx[l][k] * vt[k][j];
             }
             double correction = omega / mx[l][l] * (q[l] - sum);

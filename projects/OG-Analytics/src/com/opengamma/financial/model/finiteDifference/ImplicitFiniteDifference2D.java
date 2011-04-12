@@ -12,8 +12,6 @@ import com.opengamma.math.cube.Cube;
  */
 public class ImplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
-  private static final double THETA = 0.5;
-
   @Override
   public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, int tSteps, int xSteps, int ySteps, double tMax, BoundaryCondition2D xLowerBoundary, BoundaryCondition2D xUpperBoundary,
       BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary) {

@@ -26,10 +26,10 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   private static final SABRFormulaData DATA = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO);
   private static final double T = 4.5;
   private static final double STRIKE = 0.0450;
-  private static final double STRIKE_0 = 0.00;
+//  private static final double STRIKE_0 = 0.00;
   private static final EuropeanVanillaOption CALL_ATM = new EuropeanVanillaOption(FORWARD, T, true);
   private static final EuropeanVanillaOption CALL_STRIKE = new EuropeanVanillaOption(STRIKE, T, true);
-  private static final EuropeanVanillaOption CALL_STRIKE_0 = new EuropeanVanillaOption(STRIKE_0, T, true);
+//  private static final EuropeanVanillaOption CALL_STRIKE_0 = new EuropeanVanillaOption(STRIKE_0, T, true);
 
   @Override
   protected VolatilityFunctionProvider<SABRFormulaData> getFunction() {
@@ -37,7 +37,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   @Test
-  public void testATMSmothness() {
+  public void testATMSmoothness() {
     // Test if the Hagan volatility function implementation around ATM is numerically stable enough (the finite difference slope should be small enough).
     double timeToExpiry = 1;
     boolean isCall = true;
