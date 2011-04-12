@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.fd;
@@ -21,27 +21,28 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
   private static final int SOR_MAX = 5000;
 
   @Override
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, int tSteps, int xSteps, int ySteps, double tMax, BoundaryCondition2D xLowerBoundary, BoundaryCondition2D xUpperBoundary,
-      BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary) {
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary, 
+      final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary) {
     return solve(pdeData, tSteps, xSteps, ySteps, tMax, xLowerBoundary, xUpperBoundary, yLowerBoundary, yUpperBoundary, null);
   }
 
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, BoundaryCondition2D xLowerBoundary,
-      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
+  @Override
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary,
+      final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
 
-    double dt = tMax / (tSteps);
-    double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
-    double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
-    double dtdx2 = dt / dx / dx;
-    double dtdx = dt / dx;
-    double dtdy2 = dt / dy / dy;
-    double dtdy = dt / dy;
+    final double dt = tMax / (tSteps);
+    final double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
+    final double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
+    final double dtdx2 = dt / dx / dx;
+    final double dtdx = dt / dx;
+    final double dtdy2 = dt / dy / dy;
+    final double dtdy = dt / dy;
 
-    double[][] v = new double[xSteps + 1][ySteps + 1];
-    double[][] vt = new double[xSteps + 1][ySteps + 1];
+    final double[][] v = new double[xSteps + 1][ySteps + 1];
+    final double[][] vt = new double[xSteps + 1][ySteps + 1];
 
-    double[] x = new double[xSteps + 1];
-    double[] y = new double[ySteps + 1];
+    final double[] x = new double[xSteps + 1];
+    final double[] y = new double[ySteps + 1];
 
     final double[] q = new double[xSteps + 1];
     final double[] r = new double[ySteps + 1];
@@ -162,10 +163,10 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
             max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {  // mx is tri-diagonal so only need 3 steps here
+            for (int k = min; k <= max; k++) { // mx is tri-diagonal so only need 3 steps here
               sum += mx[l][k] * vt[k][j];
             }
-            double correction = omega / mx[l][l] * (q[l] - sum);
+            final double correction = omega / mx[l][l] * (q[l] - sum);
             // if (freeBoundary != null) {
             // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
             // }
@@ -275,7 +276,7 @@ public class PeacemanRachfordFiniteDifference2Db implements ConvectionDiffusionP
             for (int k = min; k <= max; k++) {
               sum += my[l][k] * v[i][k];
             }
-            double correction = omega / my[l][l] * (r[l] - sum);
+            final double correction = omega / my[l][l] * (r[l] - sum);
             // if (freeBoundary != null) {
             // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
             // }

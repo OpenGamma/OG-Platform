@@ -118,6 +118,11 @@
   <module name="SuppressionFilter">
     <property name="file" value="${basedir}/../../common/checkstyle-suppressions.xml"/>
   </module>
+  <module name="RegexpHeader">
+    <property name="headerFile" value="${basedir}/../../common/checkstyle-header.txt"/>
+    <property name="fileExtensions" value="java,proto"/>
+    <!-- property name="severity" value="error"/   proto generated files cause errors-->
+  </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
     <property name="onCommentFormat" value="CSON"/>
@@ -125,6 +130,7 @@
   <module name="FileLength"/>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
+    <property name="severity" value="error"/>
   </module>
   <module name="NewlineAtEndOfFile"/>
   <module name="SuppressWithNearbyCommentFilter">

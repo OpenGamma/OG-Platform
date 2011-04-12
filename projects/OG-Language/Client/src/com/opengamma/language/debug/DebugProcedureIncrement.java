@@ -29,7 +29,7 @@ public class DebugProcedureIncrement implements PublishedProcedure {
   @Override
   public MetaProcedure getMetaProcedure() {
     // TODO: invocation
-    return new MetaProcedure("DebugProcedureIncrement", Collections.<MetaParameter> emptyList(), 1);
+    return new MetaProcedure("DebugProcedureIncrement", Collections.<MetaParameter>emptyList(), 1);
   }
 
 }

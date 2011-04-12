@@ -148,7 +148,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      */
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String> emptySet());
+      _properties.put(propertyName.intern(), Collections.<String>emptySet());
       return this;
     }
 
@@ -198,7 +198,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       if (_optional != null) {
         for (String optionalProperty : _optional) {
           if (!_properties.containsKey(optionalProperty)) {
-            _properties.put(optionalProperty, Collections.<String> emptySet());
+            _properties.put(optionalProperty, Collections.<String>emptySet());
           }
         }
         return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.unmodifiableSet(_optional));
@@ -206,7 +206,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String> emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(_properties), Collections.<String>emptySet());
       }
     }
   }
@@ -390,7 +390,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         // We've just built a map containing only the other property values, so return that original
         return properties;
       } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String> emptySet());
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
       }
     }
 
