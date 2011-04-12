@@ -10,6 +10,9 @@ package com.opengamma;
  */
 public class OpenGammaRuntimeException extends RuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates an exception with a message.
    * 

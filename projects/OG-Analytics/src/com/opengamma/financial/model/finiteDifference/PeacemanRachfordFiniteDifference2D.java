@@ -5,15 +5,17 @@
  */
 package com.opengamma.financial.model.finiteDifference;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.cube.Cube;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 
 /**
- * Craig-Sneyd splitting
+ * Peaceman-Rachford splitting
  * <b>Note</b> this is for testing purposes and is not recommended for actual use 
  */
-public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
+public class PeacemanRachfordFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
   // Theta = 0 - explicit
@@ -35,14 +37,13 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
     double dtdx = dt / dx;
     double dtdy2 = dt / dy / dy;
     double dtdy = dt / dy;
-    double dtdxdy = dt / dy / dx;
 
     double[][] v = new double[xSteps + 1][ySteps + 1];
-    double[][] vStar = new double[xSteps + 1][ySteps + 1];
+
+    double[][] vRight = new double[xSteps + 1][ySteps + 1];
     double[] x = new double[xSteps + 1];
     double[] y = new double[ySteps + 1];
-    final double[] vx = new double[xSteps + 1];
-    final double[] vy = new double[ySteps + 1];
+
     final double[] q = new double[xSteps + 1];
     final double[] r = new double[ySteps + 1];
     final double[][] mx = new double[xSteps + 1][xSteps + 1];
@@ -64,35 +65,37 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
     }
 
     double t = 0.0;
-    double a, b, c, d, e, f, aa, bb, cc;
+    double a, b, c, d, f;
 
     for (int n = 0; n < tSteps; n++) {
       // t += dt / 2;
 
-      // stag 1 x terms and the cross
-      for (int j = 1; j < ySteps; j++) {
-
-        for (int i = 1; i < xSteps; i++) {
-
-          a = pdeData.getA(t, x[i], y[j]);
-          b = pdeData.getB(t, x[i], y[j]);
+      // stag 1 Explicit in y, implicit in x
+      for (int i = 1; i < xSteps; i++) {
+        for (int j = 1; j < ySteps; j++) {
           c = pdeData.getC(t, x[i], y[j]);
           d = pdeData.getD(t, x[i], y[j]);
           f = pdeData.getF(t, x[i], y[j]);
-          e = pdeData.getE(t, x[i], y[j]);
-          // aa = (dtdx2 * a - 0.5 * dtdx * b);
-          // bb = 1 - (2 * dtdx2 * a - dt * c);
-          // cc = (dtdx2 * a + 0.5 * dtdx * b);
 
-          q[i] = v[i][j];
-          q[i] -= (1 - THETA) * (dtdx2 * a * (v[i + 1][j] + v[i - 1][j] - 2 * v[i][j]) + 0.5 * dtdx * b * (v[i + 1][j] - v[i - 1][j]) + 0.5 * dt * c * v[i][j]);
-          q[i] -= dtdy2 * d * (v[i][j + 1] + v[i][j - 1] - 2 * v[i][j]) + 0.5 * dtdy * f * (v[i][j + 1] - v[i][j - 1]) + 0.5 * dt * c * v[i][j];
-          q[i] -= 0.25 * dtdxdy * e * (v[i + 1][j + 1] + v[i - 1][j - 1] - v[i + 1][j - 1] - v[i - 1][j + 1]);
+          vRight[i][j] = (1 - 0.25 * dt * c) * v[i][j];
+          vRight[i][j] -= 0.5 * dtdy2 * d * (v[i][j + 1] + v[i][j - 1] - 2 * v[i][j]);
+          vRight[i][j] -= 0.25 * dtdy * f * (v[i][j + 1] - v[i][j - 1]);
+        }
+      }
 
-          // should we resample a,b & c at t+dt/2?
-          mx[i][i - 1] = THETA * (dtdx2 * a - dtdx * b);
-          mx[i][i] = 1 + THETA * (-2 * dtdx2 * a + 0.5 * dt * c);
-          mx[i][i + 1] = THETA * (dtdx2 * a + dtdx * b);
+      t += dt / 2;
+
+      for (int j = 1; j < ySteps; j++) {
+        for (int i = 1; i < xSteps; i++) {
+          a = pdeData.getA(t, x[i], y[j]);
+          b = pdeData.getB(t, x[i], y[j]);
+          c = pdeData.getC(t, x[i], y[j]);
+
+          mx[i][i - 1] = 0.5 * (dtdx2 * a - 0.5 * dtdx * b);
+          mx[i][i] = 1 + 0.5 * (-2 * dtdx2 * a + 0.5 * dt * c);
+          mx[i][i + 1] = 0.5 * (dtdx2 * a + 0.5 * dtdx * b);
+
+          q[i] = vRight[i][j];
         }
 
         double[] temp = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
@@ -118,22 +121,13 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
         }
         q[xSteps] = sum + xUpperBoundary.getConstant(pdeData, t, y[j], dx);
 
-        // final DoubleMatrix2D mM = new DoubleMatrix2D(mx);
-        // final DecompositionResult res = DCOMP.evaluate(mM);
-        // double[] vNew = res.solve(q);
-        // for (int i = 0; i <= xSteps; i++) {
-        // v[i][j] = vNew[i];
-        // }
-
-        for (int i = 0; i <= xSteps; i++) {
-          vx[i] = v[i][j];
-        }
         // SOR
-        final double omega = 1.0;
+        final double omega = 1.5;
         double scale = 1.0;
         double errorSqr = Double.POSITIVE_INFINITY;
         int min, max;
-        while (errorSqr / (scale + 1e-10) > 1e-18) {
+        int count = 0;
+        while (errorSqr / (scale + 1e-10) > 1e-18 && count < 1000) {
           errorSqr = 0.0;
           scale = 0.0;
           for (int l = 0; l <= xSteps; l++) {
@@ -142,42 +136,85 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
             for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
-              sum += mx[l][k] * vx[k];
+              sum += mx[l][k] * v[k][j];
             }
             double correction = omega / mx[l][l] * (q[l] - sum);
             // if (freeBoundary != null) {
             // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
             // }
             errorSqr += correction * correction;
-            vx[l] += correction;
-            scale += vx[l] * vx[l];
+            v[l][j] += correction;
+            scale += v[l][j] * v[l][j];
           }
+          count++;
         }
-        for (int i = 0; i <= xSteps; i++) {
-          vStar[i][j] = vx[i];
-        }
+        Validate.isTrue(count < 1000, "SOR exceeded max interations");
       }
-      // copy the boundary points from the previous level
+
+      // get the y = 0 and y = yStep boundaries
       for (int i = 0; i <= xSteps; i++) {
-        vStar[i][0] = v[i][0];
-        vStar[i][ySteps] = v[i][ySteps];
+
+        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        double sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          sum += temp[k] * v[i][k];// TODO this should be vold
+        }
+        sum += yLowerBoundary.getConstant(pdeData, t, x[i], dy);
+
+        temp = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        for (int k = 1; k < temp.length; k++) {
+          sum -= temp[k] * v[i][k];
+        }
+        v[i][0] = sum / temp[0];
+
+        temp = yUpperBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          sum += temp[k] * v[i][ySteps - k];
+        }
+        sum += yUpperBoundary.getConstant(pdeData, t, x[i], dy);
+
+        temp = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        for (int k = 1; k < temp.length; k++) {
+          sum -= temp[k] * v[i][ySteps - k];
+        }
+        v[i][ySteps] = sum / temp[0];
       }
 
-      // stag 2 y terms
-      for (int i = 1; i < xSteps; i++) {
+      // // copy the boundary points from the previous level
+      // for (int i = 0; i <= xSteps; i++) {
+      // vStar[i][0] = v[i][0];
+      // vStar[i][ySteps] = v[i][ySteps];
+      // }
 
+      // stag 2 explicit in x, implicit in y
+      for (int j = 1; j < ySteps; j++) {
+        for (int i = 1; i < xSteps; i++) {
+
+          a = pdeData.getA(t, x[i], y[j]);
+          b = pdeData.getB(t, x[i], y[j]);
+          c = pdeData.getC(t, x[i], y[j]);
+
+          vRight[i][j] = (1 - 0.25 * dt * c) * v[i][j];
+          vRight[i][j] -= 0.5 * dtdx2 * a * (v[i + 1][j] + v[i - 1][j] - 2 * v[i][j]);
+          vRight[i][j] -= 0.25 * dtdx * b * (v[i + 1][j] - v[i - 1][j]);
+        }
+      }
+
+      t += dt / 2;
+
+      for (int i = 1; i < xSteps; i++) {
         for (int j = 1; j < ySteps; j++) {
 
           c = pdeData.getC(t, x[i], y[j]);
           d = pdeData.getD(t, x[i], y[j]);
           f = pdeData.getF(t, x[i], y[j]);
 
-          r[j] = vStar[i][j];
-          r[j] += THETA * (dtdy2 * d * (v[i][j + 1] + v[i][j - 1] - 2 * v[i][j]) + 0.5 * dtdy * f * (v[i][j + 1] - v[i][j - 1]) + 0.5 * dt * c * v[i][j]);
+          my[j][j - 1] = 0.5 * (dtdy2 * d - 0.5 * dtdy * f);
+          my[j][j] = 1 + 0.5 * (-2 * dtdy2 * d + 0.5 * dt * c);
+          my[j][j + 1] = 0.5 * (dtdy2 * d + 0.5 * dtdy * f);
 
-          my[j][j - 1] = THETA * (dtdy2 * d - dtdy * f);
-          my[j][j] = 1 + THETA * (-2 * dtdy2 * d + 0.5 * dt * c);
-          my[j][j + 1] = THETA * (dtdy2 * d + dtdx * f);
+          r[j] = vRight[i][j];
         }
 
         double[] temp = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
@@ -203,19 +240,12 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
         }
         r[ySteps] = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
 
-        // final DoubleMatrix2D mM = new DoubleMatrix2D(mx);
-        // final DecompositionResult res = DCOMP.evaluate(mM);
-        // double[] vNew = res.solve(r);
-        // for (int j = 0; j <= ySteps; j++) {
-        // v[i][j] = vNew[j];
-        // }
-
-        //
         // SOR
-        final double omega = 1.0;
+        final double omega = 1.5;
         double scale = 1.0;
         double errorSqr = Double.POSITIVE_INFINITY;
-        while (errorSqr / (scale + 1e-10) > 1e-18) {
+        int count = 0;
+        while (errorSqr / (scale + 1e-10) > 1e-18 && count < 1000) {
           errorSqr = 0.0;
           scale = 0.0;
           int min, max;
@@ -235,7 +265,9 @@ public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionP
             v[i][l] += correction;
             scale += v[i][l] * v[i][l];
           }
+          count++;
         }
+        Validate.isTrue(count < 1000, "SOR exceeded max interations");
       }
 
       // still have to handle the i = 0 and i = xSteps boundary

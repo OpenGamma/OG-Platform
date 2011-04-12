@@ -14,7 +14,7 @@ import com.opengamma.id.IdentifierBundle;
 /**
  * Key to represent time-series meta-data.
  */
-/* package */ class MetaDataKey {
+/* package */ final class MetaDataKey {
 
   private final IdentifierBundle _dsids;
   private final String _dataSource;
@@ -32,22 +32,19 @@ import com.opengamma.id.IdentifierBundle;
     _configName = configName;
   }
   
+  //-------------------------------------------------------------------------
   public IdentifierBundle getIdentifiers() {
     return _dsids;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public int hashCode() {
-    return ObjectUtils.hashCode(_dsids) ^ ObjectUtils.hashCode(_field) ^ ObjectUtils.hashCode(_dataProvider) ^ ObjectUtils.hashCode(_dataSource);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
+  public boolean equals(Object object) {
+    if (object == this) {
       return true;
     }
-    if ((obj instanceof MetaDataKey)) {
-      MetaDataKey other = (MetaDataKey) obj;
+    if ((object instanceof MetaDataKey)) {
+      MetaDataKey other = (MetaDataKey) object;
       return ObjectUtils.equals(_field, other._field) &&
           ObjectUtils.equals(_dsids, _dsids) &&
           ObjectUtils.equals(_dataProvider, other._dataProvider) &&
@@ -56,6 +53,12 @@ import com.opengamma.id.IdentifierBundle;
           ObjectUtils.equals(_configName, other._configName);
     }
     return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return ObjectUtils.hashCode(_dsids) ^ ObjectUtils.hashCode(_field) ^
+            ObjectUtils.hashCode(_dataProvider) ^ ObjectUtils.hashCode(_dataSource);
   }
 
 }

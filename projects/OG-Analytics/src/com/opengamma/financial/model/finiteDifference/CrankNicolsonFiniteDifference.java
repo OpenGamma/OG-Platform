@@ -41,36 +41,36 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
 
     double a, b, c, aa, bb, cc;
 
-    for (int j = 0; j <= xSteps; j++) {
-      currentX = lowerBoundary.getLevel() + j * dx;
-      x[j] = currentX;
+    for (int i = 0; i <= xSteps; i++) {
+      currentX = lowerBoundary.getLevel() + i * dx;
+      x[i] = currentX;
       final double value = pdeData.getInitialValue(currentX);
-      f[j] = value;
+      f[i] = value;
     }
 
     double t = 0.0;
-    for (int i = 0; i < tSteps; i++) {
+    for (int n = 0; n < tSteps; n++) {
       t += dt;
 
-      for (int j = 1; j < xSteps; j++) {
-        a = pdeData.getA(t - dt, x[j]);
-        b = pdeData.getB(t - dt, x[j]);
-        c = pdeData.getC(t - dt, x[j]);
+      for (int i = 1; i < xSteps; i++) {
+        a = pdeData.getA(t - dt, x[i]);
+        b = pdeData.getB(t - dt, x[i]);
+        c = pdeData.getC(t - dt, x[i]);
         aa = THETA * (-nu1 * a + 0.5 * nu2 * b);
         bb = 1 + THETA * (2 * nu1 * a - dt * c);
         cc = THETA * (-nu1 * a - 0.5 * nu2 * b);
-        q[j] = aa * f[j - 1] + bb * f[j] + cc * f[j + 1];
+        q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
         // TODO could store these
-        a = pdeData.getA(t, x[j]);
-        b = pdeData.getB(t, x[j]);
-        c = pdeData.getC(t, x[j]);
+        a = pdeData.getA(t, x[i]);
+        b = pdeData.getB(t, x[i]);
+        c = pdeData.getC(t, x[i]);
         aa = (-nu1 * a + 0.5 * nu2 * b);
         bb = (2 * nu1 * a - dt * c);
         cc = (-nu1 * a - 0.5 * nu2 * b);
-        m[j][j - 1] = (THETA - 1) * aa;
-        m[j][j] = 1 + (THETA - 1) * bb;
-        m[j][j + 1] = (THETA - 1) * cc;
+        m[i][i - 1] = (THETA - 1) * aa;
+        m[i][i] = 1 + (THETA - 1) * bb;
+        m[i][i + 1] = (THETA - 1) * cc;
       }
 
       double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, t);

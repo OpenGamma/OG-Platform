@@ -8,31 +8,32 @@ package com.opengamma.financial.model.finiteDifference;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * NOT WORKING 
  */
-public class ExplicitFiniteDifference2DTest {
+public class CraigSneydTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
-  private static final ConvectionDiffusionPDESolver2D SOLVER = new ExplicitFiniteDifference2D();
+  private static final ConvectionDiffusionPDESolver2D SOLVER = new CraigSneydFiniteDifference2D();
 
-  // @Test
+  @Test
   public void testSpreadOption() {
 
-    int timeSteps = 5000;
+    int timeSteps = 10;
     int xSteps = 100;
     int ySteps = 100;
 
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testHeston() {
 
-    int timeSteps = 5000;
-    int xSteps = 80;
-    int ySteps = 80;
+    int timeSteps = 20;
+    int xSteps = 100;
+    int ySteps = 100;
 
     HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
+
 }

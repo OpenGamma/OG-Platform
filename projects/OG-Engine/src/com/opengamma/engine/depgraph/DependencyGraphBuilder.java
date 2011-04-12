@@ -133,10 +133,14 @@ public class DependencyGraphBuilder {
     checkInjectedInputs();
 
     for (ValueRequirement requirement : requirements) {
-      final ResolutionState resolutionState = resolveValueRequirement(requirement, null);
-      Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(resolutionState);
-      s_logger.debug("Terminal node {} producing {}", terminalNode.getFirst(), terminalNode.getSecond());
-      _graph.addTerminalOutputValue(terminalNode.getSecond());
+      try {
+        final ResolutionState resolutionState = resolveValueRequirement(requirement, null);
+        Pair<DependencyNode, ValueSpecification> terminalNode = addTargetRequirement(resolutionState);
+        s_logger.debug("Terminal node {} producing {}", terminalNode.getFirst(), terminalNode.getSecond());
+        _graph.addTerminalOutputValue(terminalNode.getSecond());
+      } catch (UnsatisfiableDependencyGraphException udge) {
+        s_logger.debug("Problem building dep-graph", udge);
+      }
     }
   }
 
