@@ -135,7 +135,7 @@ public class PeacemanRachfordFiniteDifference2D implements ConvectionDiffusionPD
             max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
+            for (int k = min; k <= max; k++) { // mx is tri-diagonal so only need 3 steps here
               sum += mx[l][k] * v[k][j];
             }
             double correction = omega / mx[l][l] * (q[l] - sum);
@@ -157,7 +157,7 @@ public class PeacemanRachfordFiniteDifference2D implements ConvectionDiffusionPD
         double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          sum += temp[k] * v[i][k];// TODO this should be vold
+          sum += temp[k] * v[i][k]; // TODO this should be vold
         }
         sum += yLowerBoundary.getConstant(pdeData, t, x[i], dy);
 
@@ -276,7 +276,7 @@ public class PeacemanRachfordFiniteDifference2D implements ConvectionDiffusionPD
         double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, t, y[j]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          sum += temp[k] * v[k][j];// TODO this should be vold
+          sum += temp[k] * v[k][j]; // TODO this should be vold
         }
         sum += xLowerBoundary.getConstant(pdeData, t, y[j], dx);
 

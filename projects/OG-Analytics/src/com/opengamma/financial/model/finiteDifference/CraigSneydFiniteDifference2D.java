@@ -214,7 +214,7 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
             max = (l == 0 ? xSteps : Math.min(xSteps, l + 1));
             sum = 0;
             // for (int k = 0; k <= xSteps; k++) {
-            for (int k = min; k <= max; k++) {// mx is tri-diagonal so only need 3 steps here
+            for (int k = min; k <= max; k++) { // mx is tri-diagonal so only need 3 steps here
               sum += mx[l][k] * vt[k][j];
             }
             double correction = omega / mx[l][l] * (q[l] - sum);
