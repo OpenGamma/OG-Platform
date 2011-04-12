@@ -123,8 +123,12 @@ public class DependencyGraphBuilderTest {
     ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
 
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(Sets.newHashSet(helper.getRequirement1()));
-    builder.addTarget(Collections.singleton(anotherReq));
+    try {
+      builder.addTargetImpl(helper.getRequirement1());
+    } catch (UnsatisfiableDependencyGraphException e) {
+      Assert.fail("Unexpected exception", e);
+    }
+    builder.addTargetImpl(anotherReq);
   }
 
   public void doubleLevelNoLiveData() {
@@ -267,8 +271,12 @@ public class DependencyGraphBuilderTest {
     final DepGraphTestHelper helper = new DepGraphTestHelper();
     helper.addFunctionProducing2();
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getRequirement2());
-    builder.addTarget(helper.getRequirement2Beta());
+    try {
+      builder.addTargetImpl(helper.getRequirement2());
+    } catch (UnsatisfiableDependencyGraphException e) {
+      Assert.fail("Unexpected exception", e);
+    }
+    builder.addTargetImpl(helper.getRequirement2Beta());
   }
 
   public void testFunctionWithProperty() {
@@ -291,7 +299,7 @@ public class DependencyGraphBuilderTest {
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    builder.addTarget(helper.getRequirement2Bar());
+    builder.addTargetImpl(helper.getRequirement2Bar());
   }
 
   public void testFunctionWithStaticConversion() {
