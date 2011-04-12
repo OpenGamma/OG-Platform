@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,19 +11,40 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
- * A snapshot of market data taken at a particular time and potentially altered by hand
- * 
- * It differs from ( LiveDataSnapshot + overrides ) in that market values can be overriden or updated separately for Yield Curves or other structured objects. 
+ * A snapshot of market data taken at a particular instant, potentially altered by hand.
+ * <p>
+ * This snapshot differs from {@code ( LiveDataSnapshot + overrides )} in that market
+ * values can be overridden or updated separately for yield curves or other structured objects. 
  */
 @PublicSPI
 public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
 
+  /**
+   * Gets the name of the snapshot.
+   * 
+   * @return the name
+   */
   String getName();
 
+  /**
+   * Gets the basis view name.
+   * 
+   * @return the basis view name
+   */
   String getBasisViewName(); //TODO we need to record version information
 
+  /**
+   * Gets the global set of values.
+   * 
+   * @return the override values
+   */
   UnstructuredMarketDataSnapshot getGlobalValues();
 
+  /**
+   * Gets the yield curves.
+   * 
+   * @return the yield curves
+   */
   Map<YieldCurveKey, YieldCurveSnapshot> getYieldCurves();
 
 }
