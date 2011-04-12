@@ -65,6 +65,7 @@ private:
 	}
 protected:
 	void OnThreadExit () {
+		CAsynchronous::OnThreadExit ();
 		m_poConnector->OnDispatchThreadDisconnect ();
 	}
 public:
@@ -488,4 +489,11 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 	}
 	m_oControlMutex.Leave ();
 	return bFound;
+}
+
+bool CConnector::RecycleDispatchThread () {
+	m_oControlMutex.Enter ();
+	bool bResult = m_poDispatch ? m_poDispatch->RecycleThread () : false;
+	m_oControlMutex.Leave ();
+	return bResult;
 }

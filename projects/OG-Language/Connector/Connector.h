@@ -95,6 +95,7 @@ public:
 	bool Send (FudgeMsg msgPayload);
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
 	bool RemoveCallback (CCallback *poCallback);
+	bool RecycleDispatchThread ();
 };
 
 #endif /* ifndef __inc_og_language_connector_connector_h */

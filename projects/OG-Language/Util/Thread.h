@@ -31,11 +31,12 @@ public:
 class CThread : public IRunnable {
 private:
 	CAtomicInt m_oRefCount;
+	int m_nThreadId;
 #ifdef _WIN32
 	HANDLE m_hThread;
-	DWORD m_dwThreadId;
 	static DWORD WINAPI StartProc (void *pObject);
 #else
+	static CAtomicInt s_oNextThreadId;
 	apr_thread_t *m_pThread;
 	CSemaphore m_oTerminate;
 	CMemoryPool m_oPool;
@@ -52,6 +53,7 @@ protected:
 	}
 public:
 	CThread () : IRunnable (), m_oRefCount (1) {
+		m_nThreadId = 0;
 #ifdef _WIN32
 		m_hThread = NULL;
 #else
@@ -70,7 +72,7 @@ public:
 #ifdef _WIN32
 		assert (!m_hThread);
 		Retain ();
-		m_hThread = CreateThread (NULL, 0, StartProc, this, 0, &m_dwThreadId);
+		m_hThread = CreateThread (NULL, 0, StartProc, this, 0, (PDWORD)&m_nThreadId);
 		if (!m_hThread) {
 			Release (this);
 			return false;
@@ -84,16 +86,12 @@ public:
 			Release (this);
 			return false;
 		}
+		m_nThreadId = s_oNextThreadId.IncrementAndGet ();
 #endif
 		return true;
 	}
 	int GetThreadId () {
-#ifdef _WIN32
-		return m_dwThreadId;
-#else
-		// TODO
-		return 0;
-#endif
+		return m_nThreadId;
 	}
 	bool Wait (unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
 #ifdef _WIN32
@@ -147,11 +145,13 @@ public:
 		apr_thread_yield ();
 #endif
 	}
-#ifndef _WIN32
 	static void *CurrentRef () {
-#ifdef HAVE_PTHREAD
+#ifdef _WIN32
+		return (void*)GetCurrentThreadId ();
+#elif defined (HAVE_PTHREAD)
 		return (void*)pthread_self ();
 #else
+		// TODO
 		return NULL;
 #endif
 	}
@@ -160,7 +160,6 @@ public:
 		pthread_kill ((pthread_t)pThreadRef, SIGALRM);
 #endif
 	}
-#endif
 };
 
 #endif /* ifndef __inc_og_language_util_thread_h */
