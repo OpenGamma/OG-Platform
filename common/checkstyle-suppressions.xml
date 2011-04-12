@@ -5,4 +5,5 @@
 
 <suppressions>
     <suppress checks=".*" files=".*Test" />
+    <suppress checks=".*" files="javax.time.i18n.*" />
 </suppressions>
