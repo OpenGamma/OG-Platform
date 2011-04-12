@@ -326,6 +326,7 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
 
   }
 
+  //TODO there is almost identical code lines 297-319 
   private int applyCorrection(final int steps, final double[][] v, final double[] q, final double[][] mx, final int j, final double omega, double scale, double errorSqr) {
     double sum;
     int min;
