@@ -78,12 +78,11 @@ public:
 		return bResult;
 	}
 	bool Disconnected () {
+		m_oMutex.Enter ();
 		LOGDEBUG (TEXT ("messages=") << m_nMessages << TEXT (", disconnects=") << m_nDisconnects);
-		if (m_nMessages > 0) {
-			return m_nDisconnects == 1;
-		} else {
-			return m_nDisconnects == 0;
-		}
+		bool bResult = (m_nDisconnects == 1);
+		m_oMutex.Leave ();
+		return bResult;
 	}
 };
 
