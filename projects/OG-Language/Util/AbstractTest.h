@@ -27,7 +27,13 @@ public:
 	static void Main (int argc, TCHAR **argv);
 #endif /* ifndef __cplusplus_cli */
 	static void InitialiseLogs ();
-	static void Fail ();
+	static void Fail () {
+#ifdef __cplusplus_cli
+    	Assert::Fail ();
+#else
+    	exit (1);
+#endif /* ifdef __cplusplus_cli */
+	}
 };
 
 #define ASSERT(_expr_) \
