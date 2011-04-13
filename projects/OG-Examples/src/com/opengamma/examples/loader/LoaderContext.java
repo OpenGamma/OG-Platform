@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples;
+package com.opengamma.examples.loader;
 
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
