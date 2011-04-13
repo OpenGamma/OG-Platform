@@ -76,18 +76,12 @@ CAsynchronous::~CAsynchronous () {
 
 class CAsynchronousRunnerThread : public CThread {
 private:
-#ifdef _WIN32
-	HMODULE m_hDll;
-#endif /* ifdef _WIN32 */
 	CAsynchronous *m_poCaller;
 public:
 	CAsynchronousRunnerThread (CAsynchronous *poCaller)
 	: CThread () {
 		poCaller->Retain ();
 		m_poCaller = poCaller;
-#ifdef _WIN32
-		GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPTSTR)CAsynchronous::Release, &m_hDll);
-#endif /* ifdef _WIN32 */
 	}
 	~CAsynchronousRunnerThread () {
 		if (m_poCaller) {
@@ -99,14 +93,6 @@ public:
 		m_poCaller->OnThreadExit ();
 		CAsynchronous::Release (m_poCaller);
 		m_poCaller = NULL;
-#ifdef _WIN32
-		if (m_hDll) {
-// TODO: this will introduce a memory leak. Need to support FreeLibraryAndExitThread natively within CThread
-			FreeLibraryAndExitThread (m_hDll, 0);
-		} else {
-			LOGFATAL (TEXT ("No module handle to free library with"));
-		}
-#endif /* ifdef _WIN32 */
 	}
 };
 
