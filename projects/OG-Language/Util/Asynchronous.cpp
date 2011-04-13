@@ -43,11 +43,11 @@ void CAsynchronous::COperation::MustReschedule () {
 }
 
 CAsynchronous::CAsynchronous ()
-: m_oRefCount (1), m_semaphore (0, 1) {
+: m_oRefCount (1), m_semQueue (0, 1), m_semThread (1, 1) {
 	m_poHead = m_poTail = NULL;
 	m_poRunner = NULL;
 	m_bWaiting = false;
-	m_bPoison = FALSE;
+	m_bPoison = false;
 	m_lTimeoutAbortPeriod = DEFAULT_TIMEOUT_ABORT_PERIOD;
 	m_lTimeoutInactivity = DEFAULT_TIMEOUT_INACTIVITY;
 	m_lTimeoutInfoPeriod = DEFAULT_TIMEOUT_INFO_PERIOD;
@@ -95,7 +95,7 @@ public:
 		}
 	}
 	void Run () {
-		m_poCaller->MakeCallbacks ();
+		m_poCaller->MakeCallbacks (this);
 		m_poCaller->OnThreadExit ();
 		CAsynchronous::Release (m_poCaller);
 		m_poCaller = NULL;
@@ -110,21 +110,28 @@ public:
 	}
 };
 
-void CAsynchronous::MakeCallbacks () {
+void CAsynchronous::MakeCallbacks (CThread *poRunner) {
+	LOGDEBUG (TEXT ("Waiting for thread control semaphore"));
+	m_semThread.Wait ();
+	LOGDEBUG (TEXT ("Thread control semaphore signalled"));
 	while (!m_bPoison) {
 		EnterCriticalSection ();
+		if (poRunner != m_poRunner) goto abandonLoop;
 		while (!m_poHead) {
 			m_bWaiting = true;
 			LeaveCriticalSection ();
 			LOGDEBUG ("List is empty - waiting on semaphore");
-			if (!m_semaphore.Wait (GetTimeoutInactivity ())) {
+			if (!m_semQueue.Wait (GetTimeoutInactivity ())) {
 				LOGDEBUG ("Thread inactivity timeout reached");
 				EnterCriticalSection ();
+				if (poRunner != m_poRunner) goto abandonLoop;
 				if (!m_poHead) {
 					LOGINFO ("Terminating idle callback thread");
 					CThread::Release (m_poRunner);
 					m_poRunner = NULL;
 					m_bWaiting = false;
+					LOGDEBUG (TEXT ("Signalling thread control semaphore"));
+					m_semThread.Signal ();
 					LeaveCriticalSection ();
 					return;
 				} else {
@@ -137,7 +144,8 @@ void CAsynchronous::MakeCallbacks () {
 				goto abortLoop;
 			}
 			EnterCriticalSection ();
-			m_bWaiting = FALSE;
+			if (poRunner != m_poRunner) goto abandonLoop;
+			m_bWaiting = false;
 		}
 		COperation *poOperation = m_poHead;
 		if (!(m_poHead = poOperation->m_poNext)) {
@@ -194,6 +202,15 @@ abortLoop:
 	m_bWaiting = false;
 	LeaveCriticalSection ();
 	LOGDEBUG ("Callback thread aborted");
+	return;
+abandonLoop:
+	// Already in critical section
+	LOGDEBUG (TEXT ("Signalling thread control semaphore"));
+	m_semThread.Signal ();
+	m_bWaiting = false;
+	LeaveCriticalSection ();
+	LOGINFO (TEXT ("Callback thread abandonned"));
+	return;
 }
 
 bool CAsynchronous::Run (COperation *poOperation) {
@@ -206,7 +223,11 @@ bool CAsynchronous::Run (COperation *poOperation) {
 	if (!m_bPoison) {
 		if (!m_poRunner) {
 			m_poRunner = new CAsynchronousRunnerThread (this);
-			if (m_poRunner->Start ()) {
+			if (!m_poRunner) {
+				LOGFATAL (TEXT ("Out of memory"));
+				bResult = false;
+				goto abortRun;
+			} else if (m_poRunner->Start ()) {
 				LOGINFO (TEXT ("Callback thread created, ID ") << m_poRunner->GetThreadId ());
 			} else {
 				LOGFATAL (TEXT ("Couldn't create callback thread, error ") << GetLastError ());
@@ -223,9 +244,12 @@ bool CAsynchronous::Run (COperation *poOperation) {
 				m_poHead = poOperation;
 				if (m_bWaiting) {
 					LOGDEBUG ("Signalling semaphore");
-					if (!m_semaphore.Signal ()) {
+					if (!m_semQueue.Signal ()) {
 						LOGWARN (TEXT ("Couldn't signal semaphore, error ") << GetLastError ());
 					}
+					// Clear the waiting flag, e.g. if there is another call to Run before the
+					// dispatch thread completes its wait and clears it itself.
+					m_bWaiting = false;
 				}
 			}
 			m_poTail = poOperation;
@@ -247,6 +271,40 @@ abortRun:
 void CAsynchronous::Poison () {
 	EnterCriticalSection ();
 	m_bPoison = true;
-	m_semaphore.Signal ();
+	m_semQueue.Signal ();
 	LeaveCriticalSection ();
+}
+
+bool CAsynchronous::RecycleThread () {
+	bool bResult = false;
+	EnterCriticalSection ();
+	if (m_poRunner) {
+		CAsynchronousRunnerThread *poNewThread = new CAsynchronousRunnerThread (this);
+		if (poNewThread) {
+			if (poNewThread->Start ()) {
+				LOGINFO (TEXT ("Callback thread created, ID ") << poNewThread->GetThreadId ());
+				CThread::Release (m_poRunner);
+				m_poRunner = poNewThread;
+				if (m_bWaiting) {
+					LOGDEBUG (TEXT ("Signalling semaphore"));
+					if (!m_semQueue.Signal ()) {
+						LOGWARN (TEXT ("Couldn't signal semaphore, error ") << GetLastError ());
+					}
+					// Clear the waiting flag, e.g. if there is another call to Run or RecycleThread
+					// before the dispatch thread completes its wait and clear it itself.
+					m_bWaiting = false;
+				}
+				bResult = true;
+			} else {
+				LOGERROR (TEXT ("Couldn't create callback thread, error ") << GetLastError ());
+				CThread::Release (poNewThread);
+			}
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
+		}
+	} else {
+		LOGWARN (TEXT ("Runner thread not active"));
+	}
+	LeaveCriticalSection ();
+	return bResult;
 }

@@ -40,13 +40,14 @@ private:
 	COperation *m_poTail;
 	CThread *m_poRunner;
 	bool m_bWaiting;
-	CSemaphore m_semaphore;
+	CSemaphore m_semQueue;
+	CSemaphore m_semThread;
 	bool m_bPoison;
 	long m_lTimeoutInactivity;
 	long m_lTimeoutReschedule;
 	long m_lTimeoutInfoPeriod;
 	long m_lTimeoutAbortPeriod;
-	void MakeCallbacks ();
+	void MakeCallbacks (CThread *poRunner);
 	friend class CAsynchronousRunnerThread;
 protected:
 	CAsynchronous ();
@@ -71,6 +72,7 @@ public:
 	void SetTimeoutInfoPeriod (long lTimeoutInfoPeriod) { m_lTimeoutInfoPeriod = lTimeoutInfoPeriod; }
 	long GetTimeoutAbortPeriod () { return m_lTimeoutAbortPeriod; }
 	void SetTimeoutAbortPeriod (long lTimeoutAbortPeriod) { m_lTimeoutAbortPeriod = lTimeoutAbortPeriod; }
+	bool RecycleThread ();
 };
 
 #endif /* ifndef __inc_og_language_asynchronous_h */

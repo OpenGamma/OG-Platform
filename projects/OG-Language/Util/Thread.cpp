@@ -13,6 +13,10 @@
 
 LOGGING (com.opengamma.language.util.Thread);
 
+#ifndef _WIN32
+CAtomicInt CThread::s_oNextThreadId;
+#endif /* ifndef _WIN32 */
+
 #ifdef _WIN32
 DWORD CThread::StartProc (void *pObject) {
 #else
