@@ -70,7 +70,7 @@ public class BondTenorFunction extends NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getPosition()), getUniqueId()));
+      return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, target.getSecurity()), getUniqueId()));
     }
     return null;
   }

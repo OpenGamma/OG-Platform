@@ -41,7 +41,7 @@ public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES, target.getPosition()), getUniqueId()));
+    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES, target.getSecurity()), getUniqueId()));
   }
 
   @Override

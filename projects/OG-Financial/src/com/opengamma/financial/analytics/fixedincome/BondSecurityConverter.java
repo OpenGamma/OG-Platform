@@ -35,7 +35,6 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -52,15 +51,21 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     _conventionSource = conventionSource;
   }
 
+  //TODO use the domicile instead of currency?
   @Override
   public BondDefinition visitCorporateBondSecurity(final CorporateBondSecurity security) {
-    throw new NotImplementedException();
+    final String domicile = security.getIssuerDomicile();
+    Validate.notNull(domicile, "bond security domicile cannot be null");
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
+    return visitBondSecurity(security, convention);
   }
 
+  //TODO use the domicile instead of currency?
   @Override
   public BondDefinition visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    final Currency currency = security.getCurrency();
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
+    final String domicile = security.getIssuerDomicile();
+    Validate.notNull(domicile, "bond security domicile cannot be null");
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
