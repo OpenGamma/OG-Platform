@@ -57,8 +57,34 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addAUDFixedIncomeInstruments();
     addCHFFixedIncomeInstruments();
     addUSDCAPMDefinition();
-    addUSDTreasuryBondConvention();
-    addGBPTreasuryBondConvention();
+    addUSTreasuryBondConvention();
+    addUSCorporateBondConvention();
+    addGBTreasuryBondConvention();
+    addGBCorporateBondConvention();
+    addLUTreasuryBondConvention();
+    addLUCorporateBondConvention();
+    addBHTreasuryBondConvention();
+    addBHCorporateBondConvention();
+    addSETreasuryBondConvention();
+    addSECorporateBondConvention();
+    addDKTreasuryBondConvention();
+    addDKCorporateBondConvention();
+    addFRTreasuryBondConvention();
+    addFRCorporateBondConvention();
+    addCHTreasuryBondConvention();
+    addCHCorporateBondConvention();
+    addPLTreasuryBondConvention();
+    addPLCorporateBondConvention();
+    addESTreasuryBondConvention();
+    addESCorporateBondConvention();
+    addNLTreasuryBondConvention();
+    addNLCorporateBondConvention();
+    addDETreasuryBondConvention();
+    addDECorporateBondConvention();
+    addITTreasuryBondConvention();
+    addITCorporateBondConvention();
+    addHUTreasuryBondConvention();
+    addHUCorporateBondConvention();
     addUSDBondFutureConvention();
     addGBPBondFutureConvention();
   }
@@ -548,8 +574,13 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_CAPM")), "USD_CAPM", "US0003M Index", "SPX Index");
   }
 
-  private void addUSDTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_TREASURY_BOND_CONVENTION")), "USD_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
+  private void addUSTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "US_TREASURY_BOND_CONVENTION")), "US_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
+  }
+  
+  //TODO need to get the correct convention
+  private void addUSCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1, true);
   }
 
   private void addUSDBondFutureConvention() {
@@ -557,12 +588,137 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), SimpleYieldConvention.MONEY_MARKET);
   }
 
-  private void addGBPTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_TREASURY_BOND_CONVENTION")), "GBP_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  private void addGBTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  private void addGBCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
   }
 
   private void addGBPBondFutureConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION")), "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0,
         DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), SimpleYieldConvention.MONEY_MARKET);
   }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addLUTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_TREASURY_BOND_CONVENTION")), "LU_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addLUCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_CORPORATE_BOND_CONVENTION")), "LU_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addHUTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addHUCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addITTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "IT_TREASURY_BOND_CONVENTION")), "IT_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addITCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "IT_CORPORATE_BOND_CONVENTION")), "IT_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addDETreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DE_TREASURY_BOND_CONVENTION")), "DE_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addDECorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DE_CORPORATE_BOND_CONVENTION")), "DE_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addESTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ES_TREASURY_BOND_CONVENTION")), "ES_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addESCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ES_CORPORATE_BOND_CONVENTION")), "ES_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addDKTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_TREASURY_BOND_CONVENTION")), "DK_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addDKCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addNLTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "NL_TREASURY_BOND_CONVENTION")), "NL_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addNLCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "NL_CORPORATE_BOND_CONVENTION")), "NL_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addCHTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addCHCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addPLTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_TREASURY_BOND_CONVENTION")), "PL_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addPLCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_CORPORATE_BOND_CONVENTION")), "PL_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addFRTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FR_TREASURY_BOND_CONVENTION")), "FR_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addFRCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FR_CORPORATE_BOND_CONVENTION")), "FR_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addBHTreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_TREASURY_BOND_CONVENTION")), "BH_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addBHCorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_CORPORATE_BOND_CONVENTION")), "BH_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+  
+  //TODO all of the conventions named treasury need to be changed
+  private void addSETreasuryBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_TREASURY_BOND_CONVENTION")), "SE_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed
+  private void addSECorporateBondConvention() {
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+  }
+
 }

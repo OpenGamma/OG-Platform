@@ -112,17 +112,17 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     private final ZonedDateTime _effectiveDate;
     private final ZonedDateTime _maturityDate;
     private final Calendar _calendar;
-    private final ConventionBundle _conventions;
+//    private final ConventionBundle _conventions;
     private final Currency _currency;
-    private final String _currencyCode;
+//    private final String _currencyCode;
 
     public MySwapLegVisitor(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Calendar calendar, final ConventionBundle conventions, final Currency currency) {
       _effectiveDate = effectiveDate;
       _maturityDate = maturityDate;
       _calendar = calendar;
-      _conventions = conventions;
+//      _conventions = conventions;
       _currency = currency;
-      _currencyCode = _currency.getCode();
+//      _currencyCode = _currency.getCode();
     }
 
     @Override

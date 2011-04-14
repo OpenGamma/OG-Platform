@@ -9,7 +9,10 @@ import com.opengamma.id.Identifier;
 
 /**
  * Provides instruments for each point on the surface
+ * @param <X> The type of the start tenor 
+ * @param <Y> The type of the maturity tenor
  */
 public interface SurfaceInstrumentProvider<X, Y> {
-  public Identifier getInstrument(X startTenor, Y maturity);
+  
+  Identifier getInstrument(X startTenor, Y maturity);
 }
