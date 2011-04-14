@@ -11,7 +11,6 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -24,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.bond.BondSecurityToBondDefinitionConverter;
+import com.opengamma.financial.analytics.fixedincome.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -37,8 +36,8 @@ public class BondTenorFunction extends NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.POSITION) {
-      final Security security = target.getPosition().getSecurity();
+    if (target.getType() == ComputationTargetType.SECURITY) {
+      final Security security = target.getSecurity();
       return security instanceof BondSecurity;
     }
     return false;
@@ -46,18 +45,20 @@ public class BondTenorFunction extends NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.SECURITY;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Position position = target.getPosition();
+    final BondSecurity security = (BondSecurity) target.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final BondDefinition bond = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond((BondSecurity) position.getSecurity(), true);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext
+        .getConventionBundleSource(executionContext);
+    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource);
+    BondDefinition bond = (BondDefinition) security.accept(visitor);
     final LocalDate[] nominalDates = bond.getNominalDates();
     final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;
-    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, position), getUniqueId());
+    final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.BOND_TENOR, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, t));
   }
 
