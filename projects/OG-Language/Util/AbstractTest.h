@@ -11,6 +11,10 @@
 
 #include "Logging.h"
 
+#ifdef __cplusplus_cli
+using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
+#endif /* ifdef __cplusplus_cli */
+
 class CAbstractTest {
 private:
 	const TCHAR *m_pszName;
@@ -27,7 +31,13 @@ public:
 	static void Main (int argc, TCHAR **argv);
 #endif /* ifndef __cplusplus_cli */
 	static void InitialiseLogs ();
-	static void Fail ();
+	static void Fail () {
+#ifdef __cplusplus_cli
+    	Assert::Fail ();
+#else
+    	exit (1);
+#endif /* ifdef __cplusplus_cli */
+	}
 };
 
 #define ASSERT(_expr_) \
@@ -37,7 +47,6 @@ public:
 	}
 
 #ifdef __cplusplus_cli
-using namespace Microsoft::VisualStudio::TestTools::UnitTesting;
 #define BEGIN_TESTS_(automatic, label) \
 	static bool s_bAutomatic = automatic; \
 	[TestClass] \
