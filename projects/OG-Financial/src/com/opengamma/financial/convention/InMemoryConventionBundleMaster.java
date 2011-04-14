@@ -603,12 +603,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   
   //TODO all of the conventions named treasury need to be changed
   private void addLUTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_TREASURY_BOND_CONVENTION")), "LU_TREASURY_BOND_CONVENTION", true, true, 7, 1, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_TREASURY_BOND_CONVENTION")), "LU_TREASURY_BOND_CONVENTION", true, true, 7, 2, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addLUCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_CORPORATE_BOND_CONVENTION")), "LU_CORPORATE_BOND_CONVENTION", true, true, 7, 1, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_CORPORATE_BOND_CONVENTION")), "LU_CORPORATE_BOND_CONVENTION", true, true, 7, 2, true);
   }
   
   //TODO all of the conventions named treasury need to be changed
