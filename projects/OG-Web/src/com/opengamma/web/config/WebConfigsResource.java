@@ -136,10 +136,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(getClass(className));
+    Object obj = parseXML(xml);
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(obj.getClass());
     doc.setName(name);
-    doc.setValue(parseXML(xml));
+    doc.setValue(obj);
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();

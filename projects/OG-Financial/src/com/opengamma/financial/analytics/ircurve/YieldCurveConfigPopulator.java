@@ -90,6 +90,14 @@ public class YieldCurveConfigPopulator {
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
+//    Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = CurveDefinitionAndSpecifications.buildSyntheticCurveSpecificationBuilderConfigurations();
+//    for (Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : syntheticConfigurations.entrySet()) {
+//      ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
+//      doc.setName("SYNTHETIC_" + entry.getKey().getCode());
+//      doc.setValue(entry.getValue());
+//      ConfigMasterUtils.storeByName(configMaster, doc);
+//    }
+
 //    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
 //    doc.setName("DEFAULT_USD");
 //    doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());
