@@ -11,6 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -54,7 +55,8 @@ public class BondTenorFunction extends NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext
         .getConventionBundleSource(executionContext);
-    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     BondDefinition bond = (BondDefinition) security.accept(visitor);
     final LocalDate[] nominalDates = bond.getNominalDates();
     final double t = DateUtil.getDaysBetween(nominalDates[0], nominalDates[nominalDates.length - 1]) / 365;

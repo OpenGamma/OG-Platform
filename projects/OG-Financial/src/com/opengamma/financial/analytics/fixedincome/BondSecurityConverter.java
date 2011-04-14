@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -43,15 +45,17 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   private static final Logger s_logger = LoggerFactory.getLogger(BondSecurityConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
+  private final RegionSource _regionSource;
 
-  public BondSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
+  public BondSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, RegionSource regionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
+    Validate.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
+    _regionSource = regionSource;
   }
 
-  //TODO use the domicile instead of currency?
   @Override
   public BondDefinition visitCorporateBondSecurity(final CorporateBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
@@ -60,7 +64,6 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     return visitBondSecurity(security, convention);
   }
 
-  //TODO use the domicile instead of currency?
   @Override
   public BondDefinition visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
@@ -71,7 +74,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
 
   public BondDefinition visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, security.getCurrency());
+    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
     if (frequency instanceof PeriodFrequency) {
