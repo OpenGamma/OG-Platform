@@ -589,11 +589,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addGBTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", false, true, 6, 0, true);
   }
   
   private void addGBCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", false, true, 6, 0, true);
   }
 
   private void addGBPBondFutureConvention() {
