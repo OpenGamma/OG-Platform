@@ -6,14 +6,13 @@
 package com.opengamma.engine.view.client;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.ViewCycleReference;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.compilation.ViewDefinitionCompilationListener;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -138,35 +137,18 @@ public interface ViewClient extends UniqueIdentifiable {
   
   //-------------------------------------------------------------------------
   /**
-   * Sets (or replaces) the view compilation listener.
-   * <p>
-   * Any evaluation model provided to the listener applies to all future computation results until further notice, and
-   * replaces any object previously provided. Metadata notifications and result notifications are provided serially, never
-   * concurrently.
-   * 
-   * @param compilationListener  the compilation listener, or {@code null} to remove any existing listener.
-   */
-  void setCompilationListener(ViewDefinitionCompilationListener compilationListener);
-  
-  /**
    * Sets (or replaces) the result listener.
    * 
-   * @param resultListener  the result listener, or {@code null} to remove any existing listener.
+   * @param resultListener  the result listener, or {@code null} to remove an existing listener.
    */
-  void setResultListener(ComputationResultListener resultListener);
+  void setResultListener(ViewResultListener resultListener);
 
   /**
-   * Sets (or replaces) the delta result listener.
-   * 
-   * @param deltaResultListener  the new listener, or {@code null} to remove any existing listener.
-   */
-  void setDeltaResultListener(DeltaComputationResultListener deltaResultListener);
-
-  /**
-   * Sets the minimum time between successive results delivered to listeners, thus providing the ability to throttle
-   * the rate of updates. This is achieved by merging any updates which arrive in between the minimum period, and
-   * releasing only a single, merged update at the correct time. Set this to 0 to specify no minimum period between
-   * updates; this is the only setting for which updates may be passed straight through synchronously.
+   * Sets the minimum time between successive results delivered to the listener, thus providing the ability to throttle
+   * the rate of updates. Even when this is in use, an update may still require multiple calls to the listener, for
+   * example the notification of errors and/or compilation results. This is achieved by merging any updates which
+   * arrive in between the minimum period, and releasing only a single, merged update at the correct time. Set this to
+   * 0 to specify an unrestricted rate of updates.
    * 
    * @param periodMillis  the minimum time between updates, or 0 to specify unlimited updates.
    */
@@ -183,6 +165,17 @@ public interface ViewClient extends UniqueIdentifiable {
    * Resumes the flow of results exposed through this client.
    */
   void resume();
+  
+  /**
+   * Gets whether the attached view process has completed from the perspective of the client. This is consistent with
+   * any data flow restrictions being applied through this view client, so may occur after the process actually
+   * completes. This is intended for batch processing; if the view process is running with an infinite number of
+   * evaluation times then this method will block forever. 
+   * 
+   * @return {@code true} if the attached view process has completed, {@code false} otherwise
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  boolean isCompleted();
   
   /**
    * Blocks until the view process completes from the perspective of the client. This is consistent with any data flow
@@ -207,6 +200,14 @@ public interface ViewClient extends UniqueIdentifiable {
   boolean isResultAvailable();
   
   /**
+   * Gets the latest compiled view definition. This is consistent with any data flow restrictions being applied through
+   * this view client, so does not necessarily represent the most recent state of the view process.
+   * 
+   * @return the latest compiled view definition, or {@code null} if no compilation has yet been produced
+   */
+  CompiledViewDefinition getLatestCompiledViewDefinition();
+  
+  /**
    * Gets the full result from the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
    * <p>
@@ -218,17 +219,7 @@ public interface ViewClient extends UniqueIdentifiable {
    */
   ViewComputationResultModel getLatestResult();
   
-  /**
-   * Gets the latest compiled view definition. This is consistent with any data flow restrictions being applied through
-   * this view client, so does not necessarily represent the most recent state of the view process.
-   * <p>
-   * This value is consistent with the compiled view definition provided to any
-   * {@link ViewDefinitionCompilationListener} during a callback.
-   * 
-   * @return the latest compiled view definition, or {@code null} if it has not yet been compiled
-   */
-  CompiledViewDefinition getLatestCompiledViewDefinition();
-  
+  //-------------------------------------------------------------------------
   /**
    * Gets whether this client supports access to view cycles.
    *  
@@ -247,18 +238,24 @@ public interface ViewClient extends UniqueIdentifiable {
   /**
    * Creates a reference to the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
-   * <p>
-   * When called from a result listener, this method will return a reference to the view cycle which generated that
-   * result.
    * 
    * @return a reference to the latest view cycle, or {@code null} if the latest cycle is not available
    * @throws UnsupportedOperationException if this client does not support referencing computation cycles.
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  ViewCycleReference createLatestCycleReference();
+  EngineResourceReference<? extends ViewCycle> createLatestCycleReference();
   
   /**
-   * Terminates this client, detaching it from any process, disconnecting it from any listeners, and releasing any
+   * Creates a reference to a specific view cycle.
+   * 
+   * @param cycleId  the unique identifier of the view cycle, not null
+   * @return a reference to the view cycle, or {@code null} if not found
+   */
+  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Terminates this client, detaching it from any process, disconnecting it from any listener, and releasing any
    * resources. This method <b>must</b> be called to avoid resource leaks. A terminated client is no longer useful and
    * must be discarded.
    */

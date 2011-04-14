@@ -35,7 +35,7 @@ public class ManagementServiceTest {
   
   private static final String ANOTHER_TEST_VIEW = "ANOTHER_TEST_VIEW";
   private static final Logger s_logger = LoggerFactory.getLogger(ManagementServiceTest.class);
-  private static final int MBEANS_IN_TEST_VIEWPROCESSOR = 3;
+  private static final int MBEANS_IN_TEST_VIEWPROCESSOR = 1;
   private MBeanServer _mBeanServer;
   private TotallingGraphStatisticsGathererProvider _statisticsProvider;
   private ViewProcessorTestEnvironment _env;

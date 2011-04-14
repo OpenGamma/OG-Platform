@@ -43,7 +43,7 @@ import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -55,14 +55,14 @@ import com.opengamma.util.tuple.Pair;
  * The cycle is thread-safe for readers, for example obtaining the current state or the result, but is only designed
  * for a single executor.
  */
-public class SingleComputationCycle implements ViewCycleInternal {
+public class SingleComputationCycle implements ViewCycle, EngineResource {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   
   // Injected inputs
   private final UniqueIdentifier _cycleId;
   private final UniqueIdentifier _viewProcessId;
   private final ViewProcessContext _viewProcessContext;
-  private final CompiledViewDefinitionImpl _compiledViewDefinition;
+  private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
@@ -89,7 +89,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId,
-      ViewProcessContext viewProcessContext, CompiledViewDefinitionImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions) {
+      ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
 
@@ -196,7 +196,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
   }
   
   @Override
-  public CompiledViewDefinitionImpl getCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition() {
     return _compiledViewDefinition;
   }
   
@@ -236,8 +236,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
    *                               Execution of any outstanding jobs will be cancelled, but {@link #releaseResources()}
    *                               still must be called.
    */
-  @Override
-  public void execute(ViewCycleInternal previousCycle) throws InterruptedException {    
+  public void execute(SingleComputationCycle previousCycle) throws InterruptedException {    
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -292,12 +291,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
     _state = ViewCycleState.EXECUTED;
     _endTime = System.nanoTime();
   }
-  
-  @Override
-  public ViewComputationCache getComputationCache(String calcConfigName) {
-    return _cachesByCalculationConfiguration.get(calcConfigName);
-  }
-  
+ 
   //-------------------------------------------------------------------------
   private void prepareInputs() {
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getCompiledViewDefinition().getLiveDataRequirements();
@@ -360,6 +354,10 @@ public class SingleComputationCycle implements ViewCycleInternal {
     }
   }
   
+  private ViewComputationCache getComputationCache(String calcConfigName) {
+    return _cachesByCalculationConfiguration.get(calcConfigName);
+  }
+  
   /**
    * Determine which live data inputs have changed between iterations, and:
    * <ul>
@@ -369,7 +367,7 @@ public class SingleComputationCycle implements ViewCycleInternal {
    * 
    * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
    */
-  private void computeDelta(ViewCycleInternal previousCycle) {
+  private void computeDelta(SingleComputationCycle previousCycle) {
     if (previousCycle.getState() != ViewCycleState.EXECUTED) {
       throw new IllegalArgumentException("State of previous cycle must be " + ViewCycleState.EXECUTED);
     }
@@ -447,7 +445,8 @@ public class SingleComputationCycle implements ViewCycleInternal {
   }
 
   //--------------------------------------------------------------------------
-  public void releaseResources() {
+  @Override
+  public void release() {
     if (getState() == ViewCycleState.DESTROYED) {
       throw new IllegalStateException("View cycle " + getUniqueId() +  " has already been released");
     }

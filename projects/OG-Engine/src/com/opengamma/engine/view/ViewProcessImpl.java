@@ -12,18 +12,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.livedata.LiveDataInjector;
+import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
+import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -41,7 +46,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ObjectIdentifier _cycleObjectId;
-  private final ViewCycleManagerImpl _viewCycleManager;
+  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   
   private final AtomicLong _cycleVersion = new AtomicLong();
 
@@ -52,14 +57,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    */
   private final Semaphore _processLock = new Semaphore(1);
 
-  private final Set<ViewProcessListener> _listeners = new HashSet<ViewProcessListener>();
+  private final Set<ViewResultListener> _listeners = new HashSet<ViewResultListener>();
 
   private volatile ViewProcessState _state = ViewProcessState.STOPPED;
   
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
 
-  private final AtomicReference<CompiledViewDefinitionImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionImpl>();
+  private final AtomicReference<CompiledViewDefinitionWithGraphsImpl> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinitionWithGraphsImpl>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
   /**
@@ -69,23 +74,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param definition  the view definition, not null
    * @param executionOptions  the view execution options, not null
    * @param viewProcessContext  the process context, not null
-   * @param viewCycleManager  the view cycle manager, not null
-   * @param cycleObjectId  the object identifier of cycles, not null 
+   * @param cycleManager  the view cycle manager, not null
+   * @param cycleObjectId  the object identifier of cycles, not null
    */
   public ViewProcessImpl(UniqueIdentifier viewProcessId, ViewDefinition definition,
-      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext, ViewCycleManagerImpl viewCycleManager,
-      ObjectIdentifier cycleObjectId) {
+      ViewExecutionOptions executionOptions, ViewProcessContext viewProcessContext,
+      EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectIdentifier cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
-    ArgumentChecker.notNull(viewCycleManager, "viewCycleManager");
+    ArgumentChecker.notNull(cycleManager, "cycleManager");
+    ArgumentChecker.notNull(cycleObjectId, "cycleObjectId");
 
     _viewProcessId = viewProcessId;
     _definition = definition;
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
-    _viewCycleManager = viewCycleManager;
+    _cycleManager = cycleManager;
     _cycleObjectId = cycleObjectId;
   }
   
@@ -187,15 +193,31 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return UniqueIdentifier.of(_cycleObjectId, cycleVersion);
   }
   
-  public void viewCompiled(CompiledViewDefinitionImpl compiledViewDefinition) {
-    _latestCompiledViewDefinition.set(compiledViewDefinition);
-    for (ViewProcessListener listener : _listeners) {
+  public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    lock();
+    try {
+      _latestCompiledViewDefinition.set(compiledViewDefinition);
+      for (ViewResultListener listener : _listeners) {
+        try {
+          listener.viewDefinitionCompiled(compiledViewDefinition);
+        } catch (Exception e) {
+          logListenerError(listener, e);
+        }
+      }
+    } finally {
+      unlock();
+    }
+  }
+  
+  public void viewDefinitionCompilationFailed(Instant instant, Exception exception) {
+    s_logger.error("View definition compilation failed for " + instant + ": ", exception);
+    for (ViewResultListener listener : _listeners) {
       try {
-        listener.viewDefinitionCompiled(compiledViewDefinition);
+        listener.viewDefinitionCompilationFailed(instant, exception);
       } catch (Exception e) {
         logListenerError(listener, e);
       }
-    }
+    }   
   }
   
   public void cycleCompleted(ViewCycle cycle) {
@@ -223,36 +245,25 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     ViewComputationResultModel previousResult = _latestResult.get();
     _latestResult.set(result);
     
-    ViewDeltaResultModel deltaResult = null;
-    if (!_listeners.isEmpty()) {
-      for (ViewProcessListener listener : _listeners) {
-        try {
-          if (listener.isDeltaResultRequired()) {
-            if (deltaResult == null) {
-              deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
-            }
-            listener.result(result, deltaResult);
-          } else {
-            listener.result(result, null);
-          }
-        } catch (Exception e) {
-          logListenerError(listener, e);
-        }
+    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(getDefinition(), previousResult, result);
+    for (ViewResultListener listener : _listeners) {
+      try {
+        listener.cycleCompleted(result, deltaResult);
+      } catch (Exception e) {
+        logListenerError(listener, e);
       }
     }
   }
   
-  public void processError(ViewProcessErrorType errorType, String details, Exception exception) {
-    s_logger.error("View process error " + errorType + " occurred: " + details, exception);
-    if (!_listeners.isEmpty()) {
-      for (ViewProcessListener listener : _listeners) {
-        try {
-          listener.error(errorType, details, exception);
-        } catch (Exception e) {
-          logListenerError(listener, e);
-        }
+  public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+    s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);
+    for (ViewResultListener listener : _listeners) {
+      try {
+        listener.cycleExecutionFailed(executionOptions, exception);
+      } catch (Exception e) {
+        logListenerError(listener, e);
       }
-    }
+    }    
   }
   
   public void processCompleted() {
@@ -265,13 +276,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       unlock();
     }
     
-    if (!_listeners.isEmpty()) {
-      for (ViewProcessListener listener : _listeners) {
-        try {
-          listener.processCompleted();
-        } catch (Exception e) {
-          logListenerError(listener, e);
-        }
+    for (ViewResultListener listener : _listeners) {
+      try {
+        listener.processCompleted();
+      } catch (Exception e) {
+        logListenerError(listener, e);
       }
     }
   }
@@ -345,8 +354,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return _viewProcessContext;
   }
   
-  private ViewCycleManagerImpl getCycleManager() {
-    return _viewCycleManager;
+  private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
+    return _cycleManager;
   }
 
   //-------------------------------------------------------------------------
@@ -358,20 +367,23 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * @param listener  the listener, not null
    * @return the permission provider for the process, not null
    */
-  public ViewPermissionProvider attachListener(ViewProcessListener listener) {
+  public ViewPermissionProvider attachListener(ViewResultListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      if (!_listeners.add(listener)) {
+      if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
           startComputationJob();
         } else {
           // Push initial state to listener
-          CompiledViewDefinitionImpl latestCompilation = _latestCompiledViewDefinition.get();
+          CompiledViewDefinitionWithGraphsImpl latestCompilation = _latestCompiledViewDefinition.get();
           if (latestCompilation != null) {
             listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
-            listener.result(_latestResult.get(), null);
+          }
+          ViewComputationResultModel latestResult = _latestResult.get();
+          if (latestResult != null) {
+            listener.cycleCompleted(latestResult, null);
           }
         }
       }
@@ -389,7 +401,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * 
    * @param listener  the listener, not null 
    */
-  public void detachListener(ViewProcessListener listener) {
+  public void detachListener(ViewResultListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
     lock();
@@ -456,40 +468,29 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private void shutdownCore() {
     // Caller MUST NOT hold the semaphore
     boolean isInterrupting;
-    final Set<ViewProcessListener> listeners;
+    final Set<ViewResultListener> listeners;
     lock();
     try {
       isInterrupting = getState() == ViewProcessState.RUNNING;
       setState(ViewProcessState.TERMINATED);
       
-      listeners = new HashSet<ViewProcessListener>(_listeners);
+      listeners = new HashSet<ViewResultListener>(_listeners);
       _listeners.clear();
       terminateComputationJob();
     } finally {
       unlock();
     }
-
-    // Don't hold semaphore while calling out
-    if (isInterrupting) {
-      for (ViewProcessListener listener : listeners) {
-        try {
-          listener.error(ViewProcessErrorType.VIEW_PROCESS_TERMINATED, "View process was shut down while running", null);
-        } catch (Exception e) {
-          logListenerError(listener, e);
-        }
-      }
-    }
     
-    for (ViewProcessListener listener : listeners) {
+    for (ViewResultListener listener : listeners) {
       try {
-        listener.shutdown();
+        listener.processTerminated(isInterrupting);
       } catch (Exception e) {
         logListenerError(listener, e);
       }
     }
   }
 
-  private void logListenerError(ViewProcessListener listener, Exception e) {
+  private void logListenerError(ViewResultListener listener, Exception e) {
     s_logger.error("Error while calling listener " + listener, e);
   }
   

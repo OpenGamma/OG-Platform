@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 
 /**
- * Tests {@link CompiledViewDefinitionImpl}.
+ * Tests {@link CompiledViewDefinitionWithGraphsImpl}.
  */
 @Test
 public class CompiledViewDefinitionTest {
@@ -170,24 +170,24 @@ public class CompiledViewDefinitionTest {
     return graph;
   }
 
-  private CompiledViewDefinitionImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
+  private CompiledViewDefinitionWithGraphsImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
     final Map<String, DependencyGraph> map = new HashMap<String, DependencyGraph>();
     for (DependencyGraph graph : graphs) {
       map.put(graph.getCalcConfName(), graph);
     }
-    return new CompiledViewDefinitionImpl(mock(ViewDefinition.class), map, null, 0);
+    return new CompiledViewDefinitionWithGraphsImpl(mock(ViewDefinition.class), map, null, 0);
   }
 
   @Test
   public void testNoValidityTimes() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes());
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes());
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
   }
 
   @Test
   public void testNoStartTime1() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneEndTime(_time0), graphTwoEndTimes(_time1, _time2));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneEndTime(_time0), graphTwoEndTimes(_time1, _time2));
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
     assertTrue(model.isValidFor(_time0));
     assertFalse(model.isValidFor(_time1));
@@ -195,7 +195,7 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testNoStartTime2() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneEndTime(_time1), graphTwoEndTimes(_time0, _time2));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneEndTime(_time1), graphTwoEndTimes(_time0, _time2));
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MIN_VALUE)));
     assertTrue(model.isValidFor(_time0));
     assertFalse(model.isValidFor(_time1));
@@ -203,7 +203,7 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testNoEndTime1() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time2), graphTwoStartTimes(_time0, _time1));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time2), graphTwoStartTimes(_time0, _time1));
     assertFalse(model.isValidFor(_time1));
     assertTrue(model.isValidFor(_time2));
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
@@ -211,7 +211,7 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testNoEndTime2() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time1), graphTwoStartTimes(_time0, _time2));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time1), graphTwoStartTimes(_time0, _time2));
     assertFalse(model.isValidFor(_time1));
     assertTrue(model.isValidFor(_time2));
     assertTrue(model.isValidFor(Instant.ofEpochMillis(Long.MAX_VALUE)));
@@ -219,7 +219,7 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testStartEndTime() {
-    final CompiledViewDefinitionImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2), graphOneEndTime(_time3), graphTwoEndTimes(
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2), graphOneEndTime(_time3), graphTwoEndTimes(
         _time4, _time5));
     assertFalse(model.isValidFor(_time1));
     assertTrue(model.isValidFor(_time2));

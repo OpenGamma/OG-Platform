@@ -6,7 +6,8 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.EngineResourceManager;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -72,10 +73,10 @@ public interface ViewProcessor extends UniqueIdentifiable {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the view cycle manager through which references to computation cycles may be obtained.
+   * Gets the resource manager for view cycles.
    * 
-   * @return the view cycle manager, not null
+   * @return the resource manager for view cycles, not null
    */
-  ViewCycleManager getViewCycleManager();
+  EngineResourceManager<? extends ViewCycle> getViewCycleManager();
   
 }

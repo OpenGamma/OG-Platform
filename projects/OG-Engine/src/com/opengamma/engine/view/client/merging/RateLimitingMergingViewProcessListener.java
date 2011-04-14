@@ -10,8 +10,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.opengamma.engine.view.ViewProcessListener;
-import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
+import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,7 +35,7 @@ public class RateLimitingMergingViewProcessListener extends MergingViewProcessLi
    */
   private AtomicLong _lastUpdateTimeMillis = new AtomicLong();
   
-  public RateLimitingMergingViewProcessListener(ViewProcessListener underlying, ViewCycleManagerImpl cycleManager, Timer timer) {
+  public RateLimitingMergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager, Timer timer) {
     super(underlying, cycleManager);
     ArgumentChecker.notNull(timer, "timer");
     _timer = timer;

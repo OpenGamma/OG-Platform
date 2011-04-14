@@ -48,7 +48,7 @@ public class ViewDefinitionCompilerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new CompiledViewDefinitionImpl(null, null, null, 0);
+    new CompiledViewDefinitionWithGraphsImpl(null, null, null, 0);
   }
 
   public void testEmptyView() {
@@ -84,7 +84,7 @@ public class ViewDefinitionCompilerTest {
 
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
 
-    CompiledViewDefinitionImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
     assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
     assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
@@ -138,7 +138,7 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    CompiledViewDefinitionImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
     assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -192,7 +192,7 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    CompiledViewDefinitionImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
     assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -229,7 +229,7 @@ public class ViewDefinitionCompilerTest {
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
 
     assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
@@ -271,7 +271,7 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
-    CompiledViewDefinitionImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
     assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
     assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
     assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
@@ -290,7 +290,7 @@ public class ViewDefinitionCompilerTest {
     assertTargets(compiledViewDefinition);
   }
 
-  private void assertTargets(CompiledViewDefinitionImpl compiledViewDefinition, UniqueIdentifier... targets) {
+  private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueIdentifier... targets) {
     Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
     Set<ComputationTarget> actualTargets = compiledViewDefinition.getComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());

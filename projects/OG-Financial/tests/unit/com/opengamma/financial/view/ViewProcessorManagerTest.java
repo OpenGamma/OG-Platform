@@ -30,7 +30,7 @@ import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessorInternal;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.id.UniqueIdentifier;
@@ -156,7 +156,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewCycleManager getViewCycleManager() {
+    public EngineResourceManager getViewCycleManager() {
       return null;
     }
   }

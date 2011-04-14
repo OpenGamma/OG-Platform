@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import javax.time.Instant;
 
@@ -22,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSequence {
 
-  private final Queue<ViewCycleExecutionOptions> _executionSequence;
+  private final LinkedList<ViewCycleExecutionOptions> _executionSequence;
   
   public ArbitraryViewCycleExecutionSequence(Collection<ViewCycleExecutionOptions> executionSequence) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
@@ -52,6 +51,10 @@ public class ArbitraryViewCycleExecutionSequence implements ViewCycleExecutionSe
       executionSequence.add(new ViewCycleExecutionOptions(valuationTime, valuationTime));
     }
     return new ArbitraryViewCycleExecutionSequence(executionSequence);
+  }
+  
+  public List<ViewCycleExecutionOptions> getRemainingSequence() {
+    return Collections.unmodifiableList(_executionSequence);
   }
   
   @Override

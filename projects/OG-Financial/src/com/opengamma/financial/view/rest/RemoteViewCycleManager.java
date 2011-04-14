@@ -8,32 +8,21 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
-import com.opengamma.engine.view.calc.ViewCycleManager;
-import com.opengamma.engine.view.calc.ViewCycleReference;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.rest.FudgeRestClient;
-
-import com.sun.jersey.api.client.ClientResponse;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
 
 /**
- * Remote implementation of {@link ViewCycleManager}.
+ * Remote implementation of {@link EngineResourceManager<ViewCycle>}
  */
-public class RemoteViewCycleManager implements ViewCycleManager {
+public class RemoteViewCycleManager extends RemoteEngineResourceManager<ViewCycle> {
 
-  private final URI _baseUri;
-  private final ScheduledExecutorService _scheduler;
-  private final FudgeRestClient _client; 
-  
   public RemoteViewCycleManager(URI baseUri, ScheduledExecutorService scheduler) {
-    _baseUri = baseUri;
-    _scheduler = scheduler;
-    _client = FudgeRestClient.create();
+    super(baseUri, scheduler);
   }
-  
+
   @Override
-  public ViewCycleReference createReference(UniqueIdentifier cycleId) {
-    ClientResponse response = _client.access(_baseUri).post(ClientResponse.class);
-    return new RemoteViewCycleReference(response.getLocation(), _scheduler);
+  protected EngineResourceReference<ViewCycle> getRemoteReference(URI baseUri, ScheduledExecutorService scheduler) {
+    return new RemoteViewCycleReference(baseUri, scheduler);
   }
-    
+
 }

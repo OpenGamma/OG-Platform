@@ -10,10 +10,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 
 /**
- * RESTful resource for {@link CompiledViewDefinitionImpl}.
+ * RESTful resource for {@link CompiledViewDefinitionWithGraphsImpl}.
  */
 public class DataCompiledViewDefinitionResource {
 

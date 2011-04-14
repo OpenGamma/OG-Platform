@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * RESTful resource for a {@link ViewProcess}.
  */
-@Path("/data/viewprocessors/{viewProcessorId}/processes/{viewProcessId}")
+@Path("/data/viewProcessors/{viewProcessorId}/processes/{viewProcessId}")
 public class DataViewProcessResource {
 
   private final ViewProcess _viewProcess;

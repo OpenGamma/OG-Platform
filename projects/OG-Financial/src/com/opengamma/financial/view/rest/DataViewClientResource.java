@@ -14,8 +14,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import com.opengamma.engine.view.calc.ViewCycleReference;
+import org.fudgemsg.FudgeMsg;
+
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
@@ -27,13 +31,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * RESTful resource for a view client.
  */
-@Path("/data/viewprocessors/{viewProcessId}/clients/{viewClientId}")
+@Path("/data/viewProcessors/{viewProcessId}/clients/{viewClientId}")
 @Consumes(FudgeRest.MEDIA)
 @Produces(FudgeRest.MEDIA)
 public class DataViewClientResource {
 
   //CSOFF: just constants
-  public static final String PATH_UNIQUE_IDENTIFIER = "uniqueIdentifier";
+  public static final String PATH_UNIQUE_ID = "id";
   public static final String PATH_USER = "user";
   public static final String PATH_STATE = "state";
   public static final String PATH_IS_ATTACHED = "isAttached";
@@ -43,29 +47,37 @@ public class DataViewClientResource {
   public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "overrides";
   public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
+  public static final String PATH_COMPLETED = "completed";
   public static final String PATH_RESULT_AVAILABLE = "resultAvailable";
   public static final String PATH_LATEST_RESULT = "latestResult";
-  public static final String PATH_LATEST_COMPILED_DEFINITION = "latestCompiledViewDefinition";
+  public static final String PATH_LATEST_COMPILED_VIEW_DEFINITION = "latestCompiledViewDefinition";
   public static final String PATH_VIEW_CYCLE_ACCESS_SUPPORTED = "viewCycleAccessSupported";
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
+  public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_SHUTDOWN = "shutdown";
   
+  public static final String PATH_START_JMS_COMPILATION_STREAM = "startJmsCompilationStream";
+  public static final String PATH_STOP_JMS_COMPILATION_STREAM = "stopJmsCompilationStream";
   public static final String PATH_START_JMS_RESULT_STREAM = "startJmsResultStream";
-  public static final String PATH_STOP_JMS_RESULT_STREAM = "endJmsResultStream";
+  public static final String PATH_STOP_JMS_RESULT_STREAM = "stopJmsResultStream";
   public static final String PATH_START_JMS_DELTA_STREAM = "startJmsDeltaStream";
-  public static final String PATH_STOP_JMS_DELTA_STREAM = "endJmsDeltaStream";
+  public static final String PATH_STOP_JMS_DELTA_STREAM = "stopJmsDeltaStream";
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
+  
+  public static final String UPDATE_PERIOD_FIELD = "updatePeriod";
+  public static final String VIEW_CYCLE_ACCESS_SUPPORTED_FIELD = "isViewCycleAccessSupported";
   //CSON: just constants
   
   private final ViewClient _viewClient;
-  private final DataViewCycleManagerResource _viewCycleManagerResource;
+  private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
   private final JmsResultPublisher _resultPublisher;
   
-  public DataViewClientResource(ViewClient viewClient, DataViewCycleManagerResource viewCycleManagerResource, JmsByteArrayMessageSenderService messageSenderService, String topicPrefix) {
+  public DataViewClientResource(ViewClient viewClient,
+      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource,
+      JmsByteArrayMessageSenderService messageSenderService, String topicPrefix) {
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
-    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix,
-        messageSenderService);
+    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, messageSenderService);
   }
   
   private ViewClient getViewClient() {
@@ -74,7 +86,7 @@ public class DataViewClientResource {
   
   //-------------------------------------------------------------------------
   @GET
-  @Path(PATH_UNIQUE_IDENTIFIER)
+  @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
     return Response.ok(getViewClient().getUniqueId()).build();
   }
@@ -105,8 +117,7 @@ public class DataViewClientResource {
     ArgumentChecker.notNull(request.getViewDefinitionName(), "viewDefinitionName");
     ArgumentChecker.notNull(request.getExecutionOptions(), "executionOptions");
     ArgumentChecker.notNull(request.isNewBatchProcess(), "isNewBatchProcess");
-    getViewClient().attachToViewProcess(request.getViewDefinitionName(), request.getExecutionOptions(),
-        request.isNewBatchProcess());
+    getViewClient().attachToViewProcess(request.getViewDefinitionName(), request.getExecutionOptions(), request.isNewBatchProcess());
     return Response.ok().build();
   }
   
@@ -131,10 +142,12 @@ public class DataViewClientResource {
     return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
   }
   
+  //-------------------------------------------------------------------------  
   @POST
   @Path(PATH_START_JMS_RESULT_STREAM)
   public Response startResultStream() {
-    return Response.ok(_resultPublisher.startPublishingResults()).build();
+    _resultPublisher.startPublishingResults();
+    return Response.ok(_resultPublisher.getDestinationName()).build();
   }
   
   @POST
@@ -144,22 +157,12 @@ public class DataViewClientResource {
     return Response.ok().build();
   }
   
-  @POST
-  @Path(PATH_START_JMS_DELTA_STREAM)
-  public Response startDeltaStream() {
-    return Response.ok(_resultPublisher.startPublishingDeltas()).build();
-  }
-  
-  @POST
-  @Path(PATH_STOP_JMS_DELTA_STREAM)
-  public Response endDeltaStream() {
-    _resultPublisher.stopPublishingDeltas();
-    return Response.ok().build();
-  }
-  
+  //-------------------------------------------------------------------------
   @PUT
   @Path(PATH_UPDATE_PERIOD)
-  public Response setUpdatePeriod(long periodMillis) {
+  @Consumes(FudgeRest.MEDIA)
+  public Response setUpdatePeriod(FudgeMsg msg) {
+    long periodMillis = msg.getLong(UPDATE_PERIOD_FIELD);
     getViewClient().setUpdatePeriod(periodMillis);
     return Response.ok().build();
   }
@@ -180,6 +183,12 @@ public class DataViewClientResource {
   }
   
   @GET
+  @Path(PATH_COMPLETED)
+  public Response isCompleted() {
+    return Response.ok(getViewClient().isCompleted()).build();
+  }
+  
+  @GET
   @Path(PATH_RESULT_AVAILABLE)
   public Response isResultAvailable() {
     return Response.ok(getViewClient().isResultAvailable()).build();
@@ -191,11 +200,13 @@ public class DataViewClientResource {
     return Response.ok(getViewClient().getLatestResult()).build();
   }
   
-  @Path(PATH_LATEST_COMPILED_DEFINITION)
-  public DataCompiledViewDefinitionResource getLatestCompiledViewDefinition() {
-    return new DataCompiledViewDefinitionResource(getViewClient().getLatestCompiledViewDefinition());
+  @GET
+  @Path(PATH_LATEST_COMPILED_VIEW_DEFINITION)
+  public Response getLatestCompiledViewDefinition() {
+    return Response.ok(getViewClient().getLatestCompiledViewDefinition()).build();
   }
   
+  //-------------------------------------------------------------------------
   @GET
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
   public Response isViewCycleAccessSupported() {
@@ -204,18 +215,36 @@ public class DataViewClientResource {
   
   @POST
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
-  public Response setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
+  public Response setViewCycleAccessSupported(FudgeMsg msg) {
+    boolean isViewCycleAccessSupported = msg.getBoolean(VIEW_CYCLE_ACCESS_SUPPORTED_FIELD);
     getViewClient().setViewCycleAccessSupported(isViewCycleAccessSupported);
     return Response.ok().build();
   }
   
+  @POST
   @Path(PATH_CREATE_LATEST_CYCLE_REFERENCE)
   public Response createLatestCycleReference() {
-    ViewCycleReference reference = getViewClient().createLatestCycleReference();
+    EngineResourceReference<? extends ViewCycle> reference = getViewClient().createLatestCycleReference();
+    return getReferenceResponse(reference);
+  }
+  
+  @POST
+  @Path(PATH_CREATE_CYCLE_REFERENCE)
+  @Consumes(FudgeRest.MEDIA)
+  public Response createCycleReference(UniqueIdentifier cycleId) {
+    EngineResourceReference<? extends ViewCycle> reference = getViewClient().createCycleReference(cycleId);
+    return getReferenceResponse(reference);
+  }
+
+  private Response getReferenceResponse(EngineResourceReference<? extends ViewCycle> reference) {
+    if (reference == null) {
+      return Response.ok().status(Status.NO_CONTENT).build();
+    }
     URI referenceUri = _viewCycleManagerResource.manageReference(reference);
     return Response.ok().location(referenceUri).build();
   }
   
+  //-------------------------------------------------------------------------
   @POST
   @Path(PATH_SHUTDOWN)
   public Response shutdown() {

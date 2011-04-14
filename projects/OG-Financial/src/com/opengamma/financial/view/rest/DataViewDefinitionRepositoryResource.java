@@ -20,11 +20,6 @@ import com.opengamma.util.ArgumentChecker;
  * RESTful resource for {@link ViewDefinitionRepository}
  */
 public class DataViewDefinitionRepositoryResource {
-
-  //CSOFF: just constants
-  public static final String PATH_NAMES = "names";
-  public static final String PATH_DEFINITION = "definition";
-  //CSON: just constants
   
   private final ViewDefinitionRepository _repository;
   
@@ -35,12 +30,11 @@ public class DataViewDefinitionRepositoryResource {
   
   //-------------------------------------------------------------------------
   @GET
-  @Path(PATH_NAMES)
   public Set<String> getDefinitionNames() {
     return _repository.getDefinitionNames();
   }
   
-  @Path(PATH_DEFINITION + "/{definitionName}")
+  @Path("{definitionName}")
   public DataViewDefinitionResource getViewDefinition(@PathParam("definitionName") String definitionName) {
     return new DataViewDefinitionResource(definitionName, _repository);
   }
@@ -51,7 +45,7 @@ public class DataViewDefinitionRepositoryResource {
   }
   
   public static URI uriDefinition(URI baseUri, String definitionName) {
-    return UriBuilder.fromUri(baseUri).path(PATH_DEFINITION).segment(definitionName).build();
+    return UriBuilder.fromUri(baseUri).segment(definitionName).build();
   }
   
 }

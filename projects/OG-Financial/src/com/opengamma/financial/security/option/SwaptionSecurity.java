@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/option/SwaptionSecurity.proto:9(10)
 package com.opengamma.financial.security.option;
 public class SwaptionSecurity extends com.opengamma.financial.security.option.OptionSecurity implements java.io.Serializable {
   public <T> T accept (OptionSecurityVisitor<T> visitor) { return visitor.visitSwaptionSecurity (this); }

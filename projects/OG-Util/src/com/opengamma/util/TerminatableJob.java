@@ -34,10 +34,17 @@ public abstract class TerminatableJob implements Runnable {
     }
     
     preStart();
-    while (!isTerminated()) {
-      runOneCycle();
+    try {
+      while (!isTerminated()) {
+        runOneCycle();
+      }
+    } finally {
+      // Want to ensure that even if the job terminates with an exception (e.g. InterruptedException), the tidy-up
+      // semantics of postRunCycle are preserved
+      if (isTerminated()) {
+        postRunCycle();
+      }
     }
-    postRunCycle();
   }
 
   /**

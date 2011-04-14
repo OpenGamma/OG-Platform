@@ -17,14 +17,13 @@ import javax.time.InstantProvider;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.test.TestComputationResultListener;
-import com.opengamma.engine.test.TestViewCompilationListener;
+import com.opengamma.engine.test.TestViewResultListener;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -107,10 +106,7 @@ public class ViewTest {
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     
-    TestViewCompilationListener compilationListener = new TestViewCompilationListener();
-    client.setCompilationListener(compilationListener);
-    
-    TestComputationResultListener resultListener = new TestComputationResultListener();
+    TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
     
     final long time0 = System.currentTimeMillis();
@@ -122,15 +118,15 @@ public class ViewTest {
     ViewComputationJob computationJob = env.getCurrentComputationJob(viewProcess);
     Thread computationThread = env.getCurrentComputationThread(viewProcess);
     
-    CompiledViewDefinitionImpl compilationModel1 = (CompiledViewDefinitionImpl) compilationListener.getResult(Timeout.standardTimeoutMillis());
-    assertEquals(time0, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
+    CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
+    assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
     
     computationJob.liveDataChanged();
-    assertEquals(time0 + 10, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
-    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
+    assertEquals(time0 + 10, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
-    CompiledViewDefinitionImpl compiledViewDefinition = new CompiledViewDefinitionImpl(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(compilationModel1.getViewDefinition(), compilationModel1.getDependencyGraphsByConfiguration(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId()) {
       @Override
       public boolean isValidFor(final InstantProvider timestampProvider) {
         Instant timestamp = timestampProvider.toInstant();
@@ -141,18 +137,18 @@ public class ViewTest {
     
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.liveDataChanged();
-    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
-    assertEquals(time0 + 20, resultListener.getResult(10 * Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
+    assertEquals(time0 + 20, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    resultListener.assertNoCalls();
 
     // time0 + 30 requires a rebuild
     computationJob.liveDataChanged();
-    CompiledViewDefinition compilationModel2 = compilationListener.getResult(Timeout.standardTimeoutMillis());
+    CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
-    assertEquals(time0 + 30, resultListener.getResult(Timeout.standardTimeoutMillis()).getValuationTime().toEpochMillisLong());
+    assertEquals(time0 + 30, resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime().toEpochMillisLong());
+    resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());
     
-    compilationListener.assertNoResult(Timeout.standardTimeoutMillis());
-    resultListener.assertNoResult(Timeout.standardTimeoutMillis());
+    resultListener.assertNoCalls(Timeout.standardTimeoutMillis());
     
     assertTrue(executionOptions.getExecutionSequence().isEmpty());
     

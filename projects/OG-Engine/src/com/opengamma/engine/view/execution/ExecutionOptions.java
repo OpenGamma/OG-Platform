@@ -8,10 +8,12 @@ package com.opengamma.engine.view.execution;
 import javax.time.Instant;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
  * Provides standard view process execution options.
  */
+@PublicAPI
 public class ExecutionOptions implements ViewExecutionOptions {
 
   private ViewCycleExecutionSequence _executionSequence;
@@ -20,12 +22,12 @@ public class ExecutionOptions implements ViewExecutionOptions {
   private final Integer _maxSuccessiveDeltaCycles;
   private final boolean _compileOnly;
   
-  public ExecutionOptions(ViewCycleExecutionSequence evaluationTimeSequence, boolean liveDataTriggerEnabled) {
-    this(evaluationTimeSequence, liveDataTriggerEnabled, null);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean liveDataTriggerEnabled) {
+    this(executionSequence, liveDataTriggerEnabled, null);
   }
   
-  public ExecutionOptions(ViewCycleExecutionSequence evaluationTimeSequence, boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
-    this(evaluationTimeSequence, false, liveDataTriggerEnabled, null, false);
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles) {
+    this(executionSequence, false, liveDataTriggerEnabled, null, false);
   }
   
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
@@ -46,6 +48,10 @@ public class ExecutionOptions implements ViewExecutionOptions {
   
   public static ViewExecutionOptions realTime() {
     return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), true);
+  }
+  
+  public static ViewExecutionOptions likeRealTime(ViewCycleExecutionSequence cycleExecutionSequence) {
+    return new ExecutionOptions(cycleExecutionSequence, true);
   }
   
   public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence) {

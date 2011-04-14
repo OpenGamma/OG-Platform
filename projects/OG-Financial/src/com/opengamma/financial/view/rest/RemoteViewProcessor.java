@@ -9,14 +9,17 @@ import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.jms.ConnectionFactory;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.ViewCycleManager;
+import com.opengamma.engine.view.calc.EngineResourceManager;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
@@ -65,22 +68,26 @@ public class RemoteViewProcessor implements ViewProcessor {
 
   //-------------------------------------------------------------------------
   @Override
-  public ViewClient createViewClient(UserPrincipal clientUser) {
+  public RemoteViewClient createViewClient(UserPrincipal clientUser) {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
     ClientResponse response = _client.access(uri).post(ClientResponse.class, clientUser);
+    if (response.getStatus() != Status.CREATED.getStatusCode()) {
+      throw new OpenGammaRuntimeException("Could not create view client: " + response);
+    }
     URI clientLocation = response.getLocation();
     return new RemoteViewClient(this, clientLocation, OpenGammaFudgeContext.getInstance(), _jmsTemplate, _scheduler);
   }
 
   @Override
   public ViewClient getViewClient(UniqueIdentifier clientId) {
-    URI clientUri = DataViewProcessorResource.uriClient(_baseUri, clientId);
+    URI clientsBaseUri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
+    URI clientUri = DataViewProcessorResource.uriClient(clientsBaseUri, clientId);
     return new RemoteViewClient(this, clientUri, OpenGammaFudgeContext.getInstance(), _jmsTemplate, _scheduler);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ViewCycleManager getViewCycleManager() {
+  public EngineResourceManager<ViewCycle> getViewCycleManager() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CYCLES).build();
     return new RemoteViewCycleManager(uri, _scheduler);
   }

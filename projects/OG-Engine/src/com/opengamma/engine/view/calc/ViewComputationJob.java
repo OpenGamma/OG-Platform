@@ -25,9 +25,8 @@ import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
-import com.opengamma.engine.view.ViewProcessErrorType;
 import com.opengamma.engine.view.ViewProcessImpl;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -48,11 +47,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private final ViewProcessImpl _viewProcess;
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _processContext;
-  private final ViewCycleManagerImpl _cycleManager;
+  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager;
   private final boolean _executeCycles;
   
   private double _numExecutions;
-  private ViewCycleReferenceImpl _previousCycleReference;
+  private EngineResourceReference<SingleComputationCycle> _previousCycleReference;
   
   // Nanoseconds - all 0 initially so that a full computation will run 
   private long _eligibleForDeltaComputationFromNanos;
@@ -61,7 +60,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private long _fullComputationRequiredByNanos;
   private int _deltasSinceLastFull;
   
-  private CompiledViewDefinitionImpl _latestCompiledViewDefinition;
+  private CompiledViewDefinitionWithGraphsImpl _latestCompiledViewDefinition;
   private final Set<ValueRequirement> _liveDataSubscriptions = new HashSet<ValueRequirement>();
   private final Set<ValueRequirement> _pendingSubscriptions = Collections.newSetFromMap(new ConcurrentHashMap<ValueRequirement, Boolean>());
   private CountDownLatch _pendingSubscriptionLatch;
@@ -77,7 +76,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private double _totalTimeNanos;
   
   public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
-      ViewProcessContext processContext, ViewCycleManagerImpl cycleManager) {
+      ViewProcessContext processContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(processContext, "processContext");
@@ -105,7 +104,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     return _processContext;
   }
   
-  private ViewCycleManagerImpl getCycleManager() {
+  private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
     return _cycleManager;
   }
   
@@ -167,7 +166,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       return;
     }
     
-    ViewCycleReferenceImpl cycleReference;
+    EngineResourceReference<SingleComputationCycle> cycleReference;
     try {
       cycleReference = createCycle(executionOptions);
     } catch (Exception e) {
@@ -182,7 +181,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
         // Execution failed
         s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
         cycleReference.release();
-        cycleExecutionError(executionOptions, e);
+        cycleExecutionFailed(executionOptions, e);
         return;
       }
     }
@@ -195,7 +194,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     if (_executeCycles) {
-      cycleCompleted(cycleReference.getCycle());
+      cycleCompleted(cycleReference.get());
     }
     
     if (getExecutionOptions().getExecutionSequence().isEmpty()) {
@@ -218,10 +217,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
   }
 
-  private void cycleExecutionError(ViewCycleExecutionOptions executionOptions, Exception e) {
+  private void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     try {
-      getViewProcess().processError(ViewProcessErrorType.EXECUTE_VIEW_CYCLE_ERROR,
-          "Execution failed for cycle with execution options " + executionOptions, e);
+      getViewProcess().cycleExecutionFailed(executionOptions, exception);
     } catch (Exception vpe) {
       s_logger.error("Error notifying the view process " + getViewProcess() + " of the cycle execution error", vpe);
     }
@@ -307,8 +305,8 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     return ViewCycleType.NONE;
   }
   
-  private void executeViewCycle(ViewCycleType cycleType, ViewCycleReferenceImpl cycleReference) throws Exception {
-    ViewCycleInternal deltaCycle;
+  private void executeViewCycle(ViewCycleType cycleType, EngineResourceReference<SingleComputationCycle> cycleReference) throws Exception {
+    SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
       _deltasSinceLastFull = 0;
@@ -316,11 +314,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     } else {
       s_logger.info("Performing delta computation");
       _deltasSinceLastFull++;
-      deltaCycle = _previousCycleReference.getCycle();
+      deltaCycle = _previousCycleReference.get();
     }
     
     try {
-      cycleReference.getCycle().execute(deltaCycle);
+      cycleReference.get().execute(deltaCycle);
     } catch (InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
@@ -333,7 +331,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
       throw e;
     }
     
-    long duration = cycleReference.getCycle().getDurationNanos();
+    long duration = cycleReference.get().getDurationNanos();
     _totalTimeNanos += duration;
     _numExecutions += 1.0;
     s_logger.info("Last latency was {} ms, Average latency is {} ms", duration / NANOS_PER_MILLISECOND, (_totalTimeNanos / _numExecutions) / NANOS_PER_MILLISECOND);
@@ -374,36 +372,42 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   }
   
   //-------------------------------------------------------------------------
-  private ViewCycleReferenceImpl createCycle(ViewCycleExecutionOptions executionOptions) {
+  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions) {
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
-    CompiledViewDefinitionImpl compiledView = getCompiledViewDefinition(executionOptions.getValuationTime());
-    return getCycleManager().createViewCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(),
-        compiledView, executionOptions);
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCompiledViewDefinition(executionOptions.getValuationTime());
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions);
+    return getCycleManager().manage(cycle);
   }
   
-  private CompiledViewDefinitionImpl getCompiledViewDefinition(Instant valuationTime) {
+  private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime) {
     long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
-    CompiledViewDefinitionImpl compiledView = getLatestCompiledViewDefinition();
+    CompiledViewDefinitionWithGraphsImpl compiledView = getLatestCompiledViewDefinition();
     if (compiledView != null && compiledView.isValidFor(valuationTime) && functionInitId == compiledView.getFunctionInitId()) {
       // Existing cached model is valid (an optimisation for the common case of similar, increasing evaluation times)
       return compiledView;
     }
     
     try {
+      s_logger.warn("About to compile view definition");
       compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
+      s_logger.warn("Finished compiling view definition");
     } catch (Exception e) {
-      getViewProcess().processError(ViewProcessErrorType.VIEW_DEFINITION_COMPILE_ERROR, null, e);
+      getViewProcess().viewDefinitionCompilationFailed(valuationTime, e);
       throw new OpenGammaRuntimeException("Error compiling view definition", e);
     }
     setLatestCompiledViewDefinition(compiledView);
     
+    s_logger.warn("Notifying clients of compiled view definition");
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
-    getViewProcess().viewCompiled(compiledView);
+    getViewProcess().viewDefinitionCompiled(compiledView);
+    s_logger.warn("Finished notifying clients of compiled view definition");
     
     // Update the live data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
+    s_logger.warn("Setting live data subscriptions");
     setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
+    s_logger.warn("Finished setting live data subscriptions");
     return compiledView;
   }
   
@@ -414,7 +418,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    * 
    * @return the latest compiled view definition, or {@code null} if no cycles have yet completed
    */
-  public CompiledViewDefinitionImpl getLatestCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphsImpl getLatestCompiledViewDefinition() {
     return _latestCompiledViewDefinition;
   }
   
@@ -425,7 +429,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    * 
    * @param latestCompiledViewDefinition  the compiled view definition, may be {@code null}
    */
-  public void setLatestCompiledViewDefinition(CompiledViewDefinitionImpl latestCompiledViewDefinition) {
+  public void setLatestCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
   
@@ -529,7 +533,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     ValueSpecification valueSpecification = new ValueSpecification(value, LiveDataSourcingFunction.UNIQUE_ID);
-    CompiledViewDefinitionImpl compiledView = getLatestCompiledViewDefinition();
+    CompiledViewDefinitionWithGraphsImpl compiledView = getLatestCompiledViewDefinition();
     if (compiledView == null) {
       return;
     }

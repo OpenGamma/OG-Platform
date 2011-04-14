@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/master/security/ManageableSecurity.proto:12(10)
 package com.opengamma.master.security;
 public class ManageableSecurity implements java.io.Serializable, com.opengamma.core.security.Security, com.opengamma.id.MutableUniqueIdentifiable {
           /**

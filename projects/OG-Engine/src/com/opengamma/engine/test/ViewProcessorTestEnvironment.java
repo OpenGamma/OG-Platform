@@ -49,7 +49,7 @@ import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
-import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory;
@@ -154,7 +154,7 @@ public class ViewProcessorTestEnvironment {
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
   
-  public CompiledViewDefinitionImpl compileViewDefinition(Instant instant) {
+  public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(Instant instant) {
     if (getViewProcessor() == null) {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }

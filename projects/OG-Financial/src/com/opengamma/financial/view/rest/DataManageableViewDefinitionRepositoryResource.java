@@ -35,7 +35,6 @@ public class DataManageableViewDefinitionRepositoryResource extends DataViewDefi
 
   //-------------------------------------------------------------------------
   @POST
-  @Path(PATH_DEFINITION)
   @Consumes(FudgeRest.MEDIA)
   public Response addViewDefinition(@Context UriInfo uriInfo, AddViewDefinitionRequest addRequest) {
     addRequest.checkValid();
@@ -45,7 +44,7 @@ public class DataManageableViewDefinitionRepositoryResource extends DataViewDefi
             uriInfo.getBaseUri(), addRequest.getViewDefinition().getName())).build();
   }
   
-  @Path(PATH_DEFINITION + "/{definitionName}")
+  @Path("{definitionName}")
   public DataViewDefinitionResource getViewDefinition(@PathParam("definitionName") String definitionName) {
     return new DataManageableViewDefinitionResource(definitionName, _repository);
   }

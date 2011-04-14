@@ -57,8 +57,7 @@ public class ViewCalculationResultModelImplTest {
    */
 
   public void addValue() {
-    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
-    };
+    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() { };
     resultModel.ensureCalculationConfigurationNames(Arrays.asList("Default"));
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNotNull(calcResult);

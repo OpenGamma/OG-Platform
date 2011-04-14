@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * RESTful back-end to provide access to view processors
  */
-@Path("/data/viewprocessors")
+@Path("/data/viewProcessors")
 public class DataViewProcessorsResource {
   
   private final Map<UniqueIdentifier, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueIdentifier, DataViewProcessorResource>();

@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/Data.proto:15(10)
 package com.opengamma.language;
 public class Data implements java.io.Serializable {
   private static final long serialVersionUID = -25046238613169372l;

@@ -8,18 +8,35 @@ package com.opengamma.engine.view;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.time.Instant;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.RealTimeViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -113,10 +130,121 @@ public class ViewProcessorTest {
       }
     };
     tryAttach.start();
-    assertFalse (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    resume.run ();
-    assertTrue (latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+    assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+    resume.run();
+    assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
     vp.stop();
+  }
+  
+  @Test
+  public void testCycleManagement_realTimeInterrupted() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
+    client.setResultListener(listener);
+    client.attachToViewProcess(env.getViewDefinition().getName(), ExecutionOptions.batch(new RealTimeViewCycleExecutionSequence()));
+    listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
+    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    Thread computationThread = env.getCurrentComputationThread(viewProcess);
+    
+    client.shutdown();
+    computationThread.join();
+    
+    assertEquals(0, vp.getViewCycleManager().getResourceCount());
+  }
+  
+  @Test
+  public void testCycleManagement_processCompletes() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10));
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    client.waitForCompletion();
+    client.shutdown();
+    
+    assertEquals(0, vp.getViewCycleManager().getResourceCount());
+  }
+  
+  public void testCycleManagement_processCompletesWithReferences() throws InterruptedException {
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    env.init();
+    ViewProcessorImpl vp = env.getViewProcessor();
+    vp.start();
+    
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.setViewCycleAccessSupported(true);
+    final List<EngineResourceReference<? extends ViewCycle>> references = new ArrayList<EngineResourceReference<? extends ViewCycle>>();
+    ViewResultListener resultListener = new AbstractViewResultListener() {
+      
+      @Override
+      public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+        EngineResourceReference<? extends ViewCycle> reference = client.createLatestCycleReference();
+        if (reference != null) {
+          references.add(reference);
+        }
+      }
+      
+    };
+    client.setResultListener(resultListener);
+    ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10));
+    client.attachToViewProcess(env.getViewDefinition().getName(), executionOptions);
+    
+    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    UniqueIdentifier viewProcessId = viewProcess.getUniqueId();
+    
+    client.waitForCompletion();
+    client.shutdown();
+    
+    assertEquals(10, references.size());
+    assertEquals(10, vp.getViewCycleManager().getResourceCount());
+    
+    Set<UniqueIdentifier> cycleIds = new HashSet<UniqueIdentifier>();
+    for (EngineResourceReference<? extends ViewCycle> reference : references) {
+      assertEquals(viewProcessId, reference.get().getViewProcessId());
+      cycleIds.add(reference.get().getUniqueId());
+      reference.release();
+    }
+    
+    // Expect distinct cycles
+    assertEquals(10, cycleIds.size());
+    assertEquals(0, vp.getViewCycleManager().getResourceCount());
+  }
+  
+  private ViewCycleExecutionSequence generateExecutionSequence(int cycleCount) {
+    Collection<Instant> valuationTimes = new ArrayList<Instant>(cycleCount);
+    Instant now = Instant.now();
+    for (int i = 0; i < cycleCount; i++) {
+      valuationTimes.add(now.plus(i, TimeUnit.MINUTES));
+    }
+    return ArbitraryViewCycleExecutionSequence.of(valuationTimes);
+  }
+  
+  private class CycleCountingViewResultListener extends AbstractViewResultListener {
+    
+    private final CountDownLatch _cycleLatch;
+
+    public CycleCountingViewResultListener(int requiredCycleCount) {
+      _cycleLatch = new CountDownLatch(requiredCycleCount);
+    }
+    
+    @Override
+    public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+      _cycleLatch.countDown();
+    }
+    
+    public void awaitCycles(long timeoutMillis) throws InterruptedException {
+      _cycleLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+    }
+    
   }
 
 }

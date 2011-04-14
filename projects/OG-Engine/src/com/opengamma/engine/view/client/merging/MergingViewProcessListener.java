@@ -10,44 +10,52 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.Instant;
+
 import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessErrorType;
-import com.opengamma.engine.view.ViewProcessListener;
-import com.opengamma.engine.view.calc.ViewCycleManagerImpl;
-import com.opengamma.engine.view.calc.ViewCycleRetainer;
+import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
+import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.CycleCompletedCall;
+import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
+import com.opengamma.engine.view.listener.ProcessCompletedCall;
+import com.opengamma.engine.view.listener.ProcessTerminatedCall;
+import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
+import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Collects and merges view process updates, releasing them only when {@link #drain()} is called. Also ensures that
  * different update types are passed to the underlying listener in the correct order when drained.
  */
-public class MergingViewProcessListener implements ViewProcessListener {
+public class MergingViewProcessListener implements ViewResultListener {
   
   private final ReentrantLock _mergerLock = new ReentrantLock();
-  private final ViewProcessListener _underlying;
+  private final ViewResultListener _underlying;
   
   private boolean _isPassThrough = true;
   private boolean _isLatestResultCycleRetained;
-  private ViewCycleRetainer _cycleRetainer;
+  private EngineResourceRetainer _cycleRetainer;
   
   /**
    * The time at which an update was last received.
    */
   private final AtomicLong _lastUpdateMillis = new AtomicLong(0);
   
-  private final List<Function<ViewProcessListener, ?>> _callQueue = new LinkedList<Function<ViewProcessListener, ?>>();
+  private final List<Function<ViewResultListener, ?>> _callQueue = new LinkedList<Function<ViewResultListener, ?>>();
   
   private int _currentResultCompilationIndex = -1;
   private int _resultIndex = -1;
   private int _futureResultCompilationIndex = -1;
   
-  public MergingViewProcessListener(ViewProcessListener underlying, ViewCycleManagerImpl cycleManager) {
+  public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
-    _cycleRetainer = new ViewCycleRetainer(cycleManager);
+    _cycleRetainer = new EngineResourceRetainer(cycleManager);
   }
   
   //-------------------------------------------------------------------------
@@ -116,11 +124,6 @@ public class MergingViewProcessListener implements ViewProcessListener {
   
   //-------------------------------------------------------------------------
   @Override
-  public boolean isDeltaResultRequired() {
-    return getUnderlying().isDeltaResultRequired();
-  }
-
-  @Override
   public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
     _mergerLock.lock();
     try {
@@ -139,16 +142,30 @@ public class MergingViewProcessListener implements ViewProcessListener {
       _mergerLock.unlock();
     }
   }
+  
+  @Override
+  public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().viewDefinitionCompilationFailed(valuationTime, exception);
+      } else {
+        _callQueue.add(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
 
   @Override
-  public void result(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+  public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     _mergerLock.lock();
     try {
       if (isLatestResultCycleRetained() && fullResult != null) {
         getCycleRetainer().replaceRetainedCycle(fullResult.getViewCycleId());
       }
       if (isPassThrough()) {
-        getUnderlying().result(fullResult, deltaResult);
+        getUnderlying().cycleCompleted(fullResult, deltaResult);
       } else {
         
         // Result merging is the most complicated. It is based on the following rules:
@@ -160,14 +177,14 @@ public class MergingViewProcessListener implements ViewProcessListener {
         // Result collapsing
         if (_resultIndex != -1) {
           // There's an old result call in the queue - find it and move to end
-          ResultCall resultCall;
+          CycleCompletedCall resultCall;
           int lastIndex = _callQueue.size() - 1;
           if (_resultIndex == lastIndex) {
             // Old result is already at end of queue
-            resultCall = (ResultCall) _callQueue.get(lastIndex);
+            resultCall = (CycleCompletedCall) _callQueue.get(lastIndex);
           } else {
             // Old result is elsewhere in queue - pull to end and update indices
-            resultCall = (ResultCall) _callQueue.remove(_resultIndex);
+            resultCall = (CycleCompletedCall) _callQueue.remove(_resultIndex);
             _callQueue.add(resultCall);
             if (_futureResultCompilationIndex > _resultIndex) {
               _futureResultCompilationIndex--;
@@ -179,7 +196,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
           resultCall.update(fullResult, deltaResult);
         } else {
           // No existing result call - add new one
-          ResultCall resultCall = new ResultCall(fullResult, deltaResult);
+          CycleCompletedCall resultCall = new CycleCompletedCall(fullResult, deltaResult);
           _resultIndex = _callQueue.size();
           _callQueue.add(resultCall);
         }
@@ -203,21 +220,21 @@ public class MergingViewProcessListener implements ViewProcessListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
-  public void error(ViewProcessErrorType errorType, String details, Exception exception) {
+  public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().error(errorType, details, exception);
+        getUnderlying().cycleExecutionFailed(executionOptions, exception);
       } else {
-        _callQueue.add(new ErrorCall(errorType, details, exception));
+        _callQueue.add(new CycleExecutionFailedCall(executionOptions, exception));
       }
     } finally {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
   public void processCompleted() {
     _mergerLock.lock();
@@ -231,15 +248,15 @@ public class MergingViewProcessListener implements ViewProcessListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
-  public void shutdown() {
+  public void processTerminated(boolean executionInterrupted) {
     _mergerLock.lock();
     try {
       if (isPassThrough()) {
-        getUnderlying().shutdown();
+        getUnderlying().processTerminated(executionInterrupted);
       } else {
-        _callQueue.add(new ShutdownCall());
+        _callQueue.add(new ProcessTerminatedCall(executionInterrupted));
       }
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
@@ -251,7 +268,7 @@ public class MergingViewProcessListener implements ViewProcessListener {
   public void drain() {
     _mergerLock.lock();
     try {
-      for (Function<ViewProcessListener, ?> call : _callQueue) {
+      for (Function<ViewResultListener, ?> call : _callQueue) {
         call.apply(getUnderlying());
       }
       _callQueue.clear();
@@ -281,11 +298,11 @@ public class MergingViewProcessListener implements ViewProcessListener {
   }
   
   //-------------------------------------------------------------------------
-  private ViewProcessListener getUnderlying() {
+  private ViewResultListener getUnderlying() {
     return _underlying;
   }
   
-  private ViewCycleRetainer getCycleRetainer() {
+  private EngineResourceRetainer getCycleRetainer() {
     return _cycleRetainer;
   }
   

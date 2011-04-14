@@ -14,7 +14,7 @@ import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -57,9 +57,9 @@ public class RemoteViewCycle implements ViewCycle {
   }
 
   @Override
-  public CompiledViewDefinition getCompiledViewDefinition() {
+  public CompiledViewDefinitionWithGraphs getCompiledViewDefinition() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_COMPILED_VIEW_DEFINITION).build();
-    return new RemoteCompiledViewDefinition(uri);
+    return new RemoteCompiledViewDefinitionWithGraphs(uri);
   }
 
   @Override
