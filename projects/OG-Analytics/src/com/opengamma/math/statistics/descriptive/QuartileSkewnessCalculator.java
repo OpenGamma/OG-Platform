@@ -12,18 +12,28 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
+ * Calculates the quartile skewness coefficient, which is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\text{QS} = \\frac{Q_1 - 2Q_2 + Q_3}{Q_3 - Q_1}
+ * \\end{align*}
+ * }
+ * where {@latex.inline $Q_1$}, {@latex.inline $Q_2$} and {@latex.inline $Q_3$} are the first, second and third quartiles.
+ * <p> 
+ * The quartile skewness coefficient is also known as the Bowley skewness.
  */
 public class QuartileSkewnessCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _median = new MedianCalculator();
+  private static final Function1D<double[], Double> MEDIAN = new MedianCalculator();
 
+  /**
+   * @param x The array of data, not null. Must contain at least three points.
+   * @return The quartile skewness.
+   */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 3) {
-      throw new IllegalArgumentException("Need at least three points to calculate IQR");
-    }
     final int n = x.length;
+    Validate.isTrue(n >= 3, "Need at least three points to calculate interquartile range");
     if (n == 3) {
       return (x[2] - 2 * x[1] + x[0]) / 2.;
     }
@@ -37,9 +47,9 @@ public class QuartileSkewnessCalculator extends Function1D<double[], Double> {
       lower = Arrays.copyOfRange(copy, 0, n / 2 + 1);
       upper = Arrays.copyOfRange(copy, n / 2, n);
     }
-    final double q1 = _median.evaluate(lower);
-    final double q2 = _median.evaluate(x);
-    final double q3 = _median.evaluate(upper);
+    final double q1 = MEDIAN.evaluate(lower);
+    final double q2 = MEDIAN.evaluate(x);
+    final double q3 = MEDIAN.evaluate(upper);
     return (q1 - 2 * q2 + q3) / (q3 - q1);
   }
 

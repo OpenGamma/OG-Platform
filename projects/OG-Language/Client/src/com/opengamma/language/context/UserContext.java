@@ -43,12 +43,12 @@ public abstract class UserContext extends AbstractContext<GlobalContext> {
 
   protected abstract void doneContext();
 
-  /* package */synchronized void addSessionContext(final SessionContext sessionContext) {
+  /* package */ synchronized void addSessionContext(final SessionContext sessionContext) {
     _sessionContexts.add(sessionContext);
     s_logger.info("Session created for user {}", getUserName());
   }
 
-  /* package */synchronized void removeSessionContext(final SessionContext sessionContext) {
+  /* package */ synchronized void removeSessionContext(final SessionContext sessionContext) {
     if (!_sessionContexts.remove(sessionContext)) {
       throw new IllegalStateException("Session context " + sessionContext + " was not in the active session set");
     }

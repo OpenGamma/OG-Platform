@@ -65,6 +65,7 @@ private:
 	}
 protected:
 	void OnThreadExit () {
+		CAsynchronous::OnThreadExit ();
 		m_poConnector->OnDispatchThreadDisconnect ();
 	}
 public:
@@ -79,10 +80,6 @@ void CConnector::CCallbackEntry::OnMessage (FudgeMsg msgPayload) {
 	} else {
 		LOGDEBUG (TEXT ("Callback object unregistered, discarding message payload"));
 	}
-}
-
-void CConnector::CCallbackEntry::OnThreadDisconnect () {
-	m_poCallback->OnThreadDisconnect ();
 }
 
 void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState) {
@@ -147,7 +144,6 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 							LOGDEBUG (TEXT ("Dispatching message to user callback"));
 							CAsynchronous::COperation *poDispatch = new CConnectorMessageDispatch (poCallback, msgPayload);
 							if (poDispatch) {
-								poCallback->m_bUsed = true;
 								if (!m_poDispatch->Run (poDispatch)) {
 									delete poDispatch;
 									LOGWARN (TEXT ("Couldn't dispatch message to user callback"));
@@ -178,10 +174,14 @@ dispatched:
 void CConnector::OnDispatchThreadDisconnect () {
 	LOGINFO (TEXT ("Dispatcher thread disconnected"));
 	m_oControlMutex.Enter ();
-	CCallbackEntry *poCallback = m_poCallbacks;
-	while (poCallback) {
-		poCallback->OnThreadDisconnect ();
-		poCallback = poCallback->m_poNext;
+	if (m_poDispatch) {
+		CCallbackEntry *poCallback = m_poCallbacks;
+		while (poCallback) {
+			poCallback->OnThreadDisconnect ();
+			poCallback = poCallback->m_poNext;
+		}
+	} else {
+		LOGDEBUG (TEXT ("Thread disconnect messages already sent at stop"));
 	}
 	m_oControlMutex.Leave ();
 }
@@ -241,6 +241,11 @@ CConnector::~CConnector () {
 	assert (!m_oStartupSemaphorePtr.Get ());
 	while (m_poCallbacks) {
 		CCallbackEntry *poCallback = m_poCallbacks;
+		// Note: If there is still a m_poDispatch we could issue a disconnect. However if the
+		// user was too naughty not to call Stop() or remove the callbacks before deleting
+		// then they don't really deserve the notifications. More specifically if the sequence
+		// of execution breaks to that point then the notifications probably aren't going to
+		// help the recovery and are probably best not sent.
 		m_poCallbacks = poCallback->m_poNext;
 		CCallbackEntry::Release (poCallback);
 	}
@@ -271,7 +276,25 @@ CConnector *CConnector::Start (const TCHAR *pszLanguage) {
 bool CConnector::Stop () {
 	m_oControlMutex.Enter ();
 	bool bResult = m_poClient->Stop ();
-	if (m_poDispatch) {
+	if (bResult && m_poDispatch) {
+		// The dispatch will later call back to OnThreadDisconnect, but this may be too late if there
+		// are callbacks removed before then. Setting m_poDispatch to NULL will suppress the calls
+		// made from there, and also from the RemoveCallback method. Instead the disconnects are
+		// injected before we submit the poison.
+		LOGDEBUG (TEXT ("Scheduling disconnect messages to callbacks"));
+		CCallbackEntry *poEntry = m_poCallbacks;
+		while (poEntry) {
+			CAsynchronous::COperation *poDispatch = new CConnectorThreadDisconnectDispatch (poEntry);
+			if (poDispatch) {
+				if (!m_poDispatch->Run (poDispatch)) {
+					delete poDispatch;
+					LOGWARN (TEXT ("Couldn't dispatch disconnect message"));
+				}
+			} else {
+				LOGFATAL (TEXT ("Out of memory"));
+			}
+			poEntry = poEntry->m_poNext;
+		}
 		LOGDEBUG (TEXT ("Poisoning asynchronous dispatch"));
 		CAsynchronous::PoisonAndRelease (m_poDispatch);
 		m_poDispatch = NULL;
@@ -431,13 +454,10 @@ bool CConnector::AddCallback (const TCHAR *pszClass, CCallback *poCallback) {
 
 // After the callback is removed, there may still be entries in the queue for it. The reference to the callback
 // will only be discarded after a OnThreadDisconnect has been sent to it.
-bool CConnector::RemoveCallback (CCallback *poCallback, bool *pbUsed) {
+bool CConnector::RemoveCallback (CCallback *poCallback) {
 	if (!poCallback) {
 		LOGWARN (TEXT ("Null callback object"));
 		return false;
-	}
-	if (pbUsed) {
-		*pbUsed = false;
 	}
 	bool bFound = false;
 	m_oControlMutex.Enter ();
@@ -447,14 +467,12 @@ bool CConnector::RemoveCallback (CCallback *poCallback, bool *pbUsed) {
 		if (poEntry->IsCallback (poCallback)) {
 			*ppoPrevious = poEntry->m_poNext;
 			poEntry->FreeString ();
-			if (poEntry->m_bUsed) {
+			// If there is no dispatcher the disconnects will have already been sent, or will shortly
+			// be sent by the thread's shutdown process.
+			if (m_poDispatch) {
 				CAsynchronous::COperation *poDispatch = new CConnectorThreadDisconnectDispatch (poEntry);
 				if (poDispatch) {
-					if (m_poDispatch->Run (poDispatch)) {
-						if (pbUsed) {
-							*pbUsed = true;
-						}
-					} else {
+					if (!m_poDispatch->Run (poDispatch)) {
 						delete poDispatch;
 						LOGWARN (TEXT ("Couldn't dispatch disconnect message"));
 					}
@@ -471,4 +489,11 @@ bool CConnector::RemoveCallback (CCallback *poCallback, bool *pbUsed) {
 	}
 	m_oControlMutex.Leave ();
 	return bFound;
+}
+
+bool CConnector::RecycleDispatchThread () {
+	m_oControlMutex.Enter ();
+	bool bResult = m_poDispatch ? m_poDispatch->RecycleThread () : false;
+	m_oControlMutex.Leave ();
+	return bResult;
 }

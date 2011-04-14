@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * In memory HDP for testing.
+ * In memory data source, typically used for testing.
  */
 public class MockHistoricalDataSource implements HistoricalDataSource {
 

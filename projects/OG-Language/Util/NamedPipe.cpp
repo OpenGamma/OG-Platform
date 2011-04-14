@@ -28,7 +28,7 @@ CNamedPipe::~CNamedPipe () {
 	if (IsServer ()) {
 		int file = GetFile ();
 		if (file) {
-			close (GetFile ());
+			close (file);
 			SetFile (0);
 			if (unlink (m_pszName)) {
 				LOGWARN (TEXT ("Couldn't delete pipe ") << m_pszName << TEXT (", error ") << GetLastError ());

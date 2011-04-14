@@ -8,33 +8,42 @@ package com.opengamma.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Calculates the n<sup>th</sup> sample central moment of a series of data.
+ * <p>
+ * The sample central moment {@latex.inline $\\mu_n$} of a series of data {@latex.inline $x_1, x_2, \\dots, x_s$} is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\mu_n = \\frac{1}{s}\\sum_{i=1}^s (x_i - \\overline{x})^n
+ * \\end{align*}
+ * }
+ * where {@latex.inline $\\overline{x}$} is the mean.
  */
 public class SampleCentralMomentCalculator extends Function1D<double[], Double> {
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private final int _n;
-  private final Function1D<double[], Double> _mean = new MeanCalculator();
 
+  /**
+   * @param n The degree of the moment to calculate, cannot be negative
+   */
   public SampleCentralMomentCalculator(final int n) {
-    ArgumentChecker.notNegative(n, "n");
-    if (n < 0) {
-      throw new IllegalArgumentException("N must be greater than or equal to zero");
-    }
+    Validate.isTrue(n >= 0, "n must be >= 0");
     _n = n;
   }
 
+  /**
+   * @param x The array of data, not null. Must contain at least two data points.
+   * @return The sample central moment.
+   */
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least 2 data points to calculate moment");
-    }
+    Validate.isTrue(x.length >= 2, "Need at least 2 data points to calculate central moment");
     if (_n == 0) {
       return 1.;
     }
-    final double mu = _mean.evaluate(x);
+    final double mu = MEAN.evaluate(x);
     double sum = 0;
     for (final Double d : x) {
       sum += Math.pow(d - mu, _n);

@@ -1,0 +1,11 @@
+<ivy-module version="2.0">
+	<info organisation="com.opengamma" module="og-examples" status="integration"/>
+	<publications>
+		<artifact name="og-examples" type="jar"/>
+	</publications>
+	<dependencies>
+        <dependency name="og-web" rev="latest.integration" />
+		
+        <exclude org="org.junit" />
+	</dependencies>
+</ivy-module>
