@@ -613,12 +613,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   
   //TODO all of the conventions named treasury need to be changed
   private void addHUTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 0, 2, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addHUCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 0, 2, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
@@ -652,13 +652,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   //TODO all of the conventions named treasury need to be changed
+  //TODO the ex-dividend days is wrong
   private void addDKTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_TREASURY_BOND_CONVENTION")), "DK_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_TREASURY_BOND_CONVENTION")), "DK_TREASURY_BOND_CONVENTION", true, true, 30, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
+  //TODO the ex-dividend days is wrong
   private void addDKCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true, true, 30, 3, true);
   }
   
   //TODO all of the conventions named treasury need to be changed
@@ -673,22 +675,22 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
 
   //TODO all of the conventions named treasury need to be changed
   private void addCHTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addCHCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addPLTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_TREASURY_BOND_CONVENTION")), "PL_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_TREASURY_BOND_CONVENTION")), "PL_TREASURY_BOND_CONVENTION", true, true, 10, 2, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addPLCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_CORPORATE_BOND_CONVENTION")), "PL_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "PL_CORPORATE_BOND_CONVENTION")), "PL_CORPORATE_BOND_CONVENTION", true, true, 10, 2, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
@@ -703,22 +705,22 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   
   //TODO all of the conventions named treasury need to be changed
   private void addBHTreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_TREASURY_BOND_CONVENTION")), "BH_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_TREASURY_BOND_CONVENTION")), "BH_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addBHCorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_CORPORATE_BOND_CONVENTION")), "BH_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_CORPORATE_BOND_CONVENTION")), "BH_CORPORATE_BOND_CONVENTION", true, true, 0, 1, true);
   }
   
   //TODO all of the conventions named treasury need to be changed
   private void addSETreasuryBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_TREASURY_BOND_CONVENTION")), "SE_TREASURY_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_TREASURY_BOND_CONVENTION")), "SE_TREASURY_BOND_CONVENTION", true, true, 4, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed
   private void addSECorporateBondConvention() {
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 7, 0, true);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 4, 3, true);
   }
 
 }
