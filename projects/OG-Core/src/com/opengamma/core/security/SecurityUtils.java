@@ -57,6 +57,10 @@ public class SecurityUtils {
    * Identification scheme for ActivFeed tickers.
    */
   public static final IdentificationScheme ACTIVFEED_TICKER = IdentificationScheme.of("ACTIVFEED_TICKER");
+  /**
+   * Identification scheme for OpenGamma synthetic instruments.
+   */
+  public static final IdentificationScheme OG_SYNTHETIC_TICKER = IdentificationScheme.of("OG_SYNTHETIC_TICKER");
 
   /**
    * Restricted constructor.
