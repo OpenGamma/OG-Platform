@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -226,6 +227,17 @@ public class ObjectsPairTest {
     assertEquals(1, c.hashCode());
     assertEquals(0, d.hashCode());
     // can't test for different hash codes as they might not be different
+  }
+
+  public void test_mapEntry() {
+    ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
+    SimpleEntry<Integer, String> b = new SimpleEntry<Integer, String>(1, "Hello");
+    
+    assertTrue(a.equals(a));
+    assertTrue(a.equals(b));
+    assertTrue(b.equals(a));
+    assertTrue(b.equals(b));
+    assertEquals(a.hashCode(), b.hashCode());
   }
 
   public void test_toString() {

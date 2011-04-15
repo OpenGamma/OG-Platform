@@ -47,7 +47,6 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.interestrate.bond.BondFutureCalculator;
 import com.opengamma.financial.interestrate.bond.BondFutureImpliedRepoRateCalculator;
-import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.BondFutureDeliverableBasketDataBundle;
@@ -76,7 +75,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final Position position = target.getPosition();
     final BondFutureSecurity security = (BondFutureSecurity) position.getSecurity();
     final ZonedDateTime firstDeliveryDate = security.getExpiry().getExpiry();
-    final ZonedDateTime lastDeliveryDate = firstDeliveryDate.plusMonths(1);
+    //final ZonedDateTime lastDeliveryDate = firstDeliveryDate.plusMonths(1);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
@@ -105,7 +104,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
     final ConventionBundle convention = conventionSource.getConventionBundle(conventionId);
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final boolean isEOMConvention = convention.isEOMConvention();
-    final int settlementDays = convention.getSettlementDays();
+    //final int settlementDays = convention.getSettlementDays();
     for (final BondFutureDeliverable del : bonds) {
       final IdentifierBundle id = del.getIdentifiers();
       final Security sec = executionContext.getSecuritySource().getSecurity(id);
@@ -115,7 +114,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
         final BondConvention bondConvention = new BondConvention(0, daycount, businessDayConvention, calendar, isEOMConvention, (currency.getCode() + "_TREASURY_BOND"),
             convention.getExDividendDays(), SimpleYieldConvention.US_TREASURY_EQUIVALANT);
         final BondDefinition bondDefinition = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource).getBond(bondSec, true);
-        final Bond bond = bondDefinition.toDerivative(now.toLocalDate(), "dummy");
+        //final Bond bond = bondDefinition.toDerivative(now.toLocalDate(), "dummy");
         priceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, bondSec.getUniqueId());
         priceObject = inputs.getValue(priceRequirement);
         if (priceObject == null) {

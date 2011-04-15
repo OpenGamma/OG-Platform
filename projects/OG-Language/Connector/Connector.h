@@ -17,7 +17,19 @@
 
 class CConnector : public CClientService::CStateChange, public CClientService::CMessageReceived {
 public:
-	class CCallback;
+	class CCallback {
+	private:
+		friend class CConnector;
+		CAtomicInt m_oRefCount;
+	protected:
+		virtual void OnMessage (FudgeMsg msgPayload) = 0;
+		virtual void OnThreadDisconnect () { }
+	public:
+		CCallback () : m_oRefCount (1) { }
+		virtual ~CCallback () { assert (!m_oRefCount.Get ()); }
+		void Retain () { m_oRefCount.IncrementAndGet (); }
+		static void Release (CCallback *poCallback) { if (!poCallback->m_oRefCount.DecrementAndGet ()) delete poCallback; }
+	};
 private:
 	CAtomicInt m_oRefCount;
 	CClientService *m_poClient;
@@ -30,17 +42,17 @@ private:
 		CCallback *m_poCallback;
 	public:
 		CCallbackEntry *m_poNext;
-		bool m_bUsed;
 		CCallbackEntry (FudgeString strClass, CCallback *poCallback, CCallbackEntry *poNext)
 			: m_oRefCount (1) {
 			m_strClass = strClass;
+			poCallback->Retain ();
 			m_poCallback = poCallback;
 			m_poNext = poNext;
-			m_bUsed = false;
 		}
 		~CCallbackEntry () {
 			assert (m_oRefCount.Get () == 0);
 			if (m_strClass) FudgeString_release (m_strClass);
+			CCallback::Release (m_poCallback);
 		}
 		void Retain () { m_oRefCount.IncrementAndGet (); }
 		static void Release (CCallbackEntry *poEntry) { if (!poEntry->m_oRefCount.DecrementAndGet ()) delete poEntry; }
@@ -48,7 +60,7 @@ private:
 		bool IsCallback (CCallback *poCallback) { return m_poCallback == poCallback; }
 		void FreeString () { FudgeString_release (m_strClass); m_strClass = NULL; }
 		void OnMessage (FudgeMsg msgPayload);
-		void OnThreadDisconnect ();
+		void OnThreadDisconnect () { m_poCallback->OnThreadDisconnect (); }
 	};
 	class CCallbackEntry *m_poCallbacks;
 	CSynchronousCalls m_oSynchronousCalls;
@@ -72,19 +84,6 @@ public:
 		bool Cancel ();
 		bool WaitForResult (FudgeMsg *pmsgResponse, unsigned long lTimeout);
 	};
-	class CCallback {
-	private:
-		friend class CConnector;
-		CAtomicInt m_oRefCount;
-	protected:
-		virtual void OnMessage (FudgeMsg msgPayload) = 0;
-		virtual void OnThreadDisconnect () { }
-	public:
-		CCallback () : m_oRefCount (1) { }
-		virtual ~CCallback () { assert (!m_oRefCount.Get ()); }
-		void Retain () { m_oRefCount.IncrementAndGet (); }
-		static void Release (CCallback *poCallback) { if (!poCallback->m_oRefCount.DecrementAndGet ()) delete poCallback; }
-	};
 	~CConnector ();
 	static CConnector *Start (const TCHAR *pszLanguageID);
 	bool Stop ();
@@ -95,7 +94,8 @@ public:
 	CCall *Call (FudgeMsg msgPayload);
 	bool Send (FudgeMsg msgPayload);
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
-	bool RemoveCallback (CCallback *poCallback, bool *pbUsed = NULL);
+	bool RemoveCallback (CCallback *poCallback);
+	bool RecycleDispatchThread ();
 };
 
 #endif /* ifndef __inc_og_language_connector_connector_h */

@@ -28,7 +28,7 @@ CNamedPipe::~CNamedPipe () {
 	if (IsServer ()) {
 		int file = GetFile ();
 		if (file) {
-			close (GetFile ());
+			close (file);
 			SetFile (0);
 			if (unlink (m_pszName)) {
 				LOGWARN (TEXT ("Couldn't delete pipe ") << m_pszName << TEXT (", error ") << GetLastError ());
@@ -166,6 +166,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 			SetLastError (ec);
 			return 0;
 		}
+		LOGINFO (TEXT ("Created pipe ") << pszName);
 		return file;
 	} else {
 		int sock;
@@ -204,6 +205,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				SetLastError (ec);
 				return 0;
 			}
+			LOGINFO (TEXT ("Created server Unix Domain Socket ") << pszName);
 		} else {
 			if (connect (sock, (struct sockaddr*)&addr, sizeof (addr.sun_family) + _tcslen (addr.sun_path))) {
 				int ec = GetLastError ();
@@ -236,6 +238,7 @@ static FILE_REFERENCE _CreatePipe (const TCHAR *pszName, bool bServer, bool bExc
 				SetLastError (ec);
 				return 0;
 			}
+			LOGINFO (TEXT ("Connected to Unix Domain Socket ") << pszName);
 		}
 		return sock;
 	}

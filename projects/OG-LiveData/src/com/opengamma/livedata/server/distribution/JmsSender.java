@@ -5,8 +5,7 @@
  */
 package com.opengamma.livedata.server.distribution;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -45,7 +44,7 @@ public class JmsSender implements MarketDataSender {
   private long _lastSequenceNumber;
   
   private volatile boolean _interrupted; // = false;
-  private final Lock _lock = new ReentrantLock();
+  private final Semaphore _lock = new Semaphore(1);
   
   public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor) {
     ArgumentChecker.notNull(jmsTemplate, "JMS template");
@@ -63,19 +62,19 @@ public class JmsSender implements MarketDataSender {
 
   @Override
   public void sendMarketData(LiveDataValueUpdateBean data) {
-    _lock.lock();
+    _lock.acquireUninterruptibly();
     try {
       _cumulativeDelta.liveDataReceived(data.getFields());
       _lastSequenceNumber = data.getSequenceNumber(); 
       
       if (_interrupted) {
         s_logger.debug("{}: Interrupted - not sending message", this);
-        return;      
+        return;
       }
       
       send();
     } finally {
-      _lock.unlock();
+      _lock.release();
     }
   }
   
@@ -114,18 +113,19 @@ public class JmsSender implements MarketDataSender {
     _interrupted = true;
   }
 
+  /**
+   * Marks the sender as active again to stop batching up pending messages, and triggers a send
+   * if a send is not already active. Note that it is not safe to call this method from the JMS
+   * invoked transportResume message. For example ActiveMQ holds a lock to do an initial 'send'
+   * and then gains a lock for the failover while another thread holds the lock for the failover
+   * as it calls the notifications so sending will cause deadlock. 
+   */
   public void transportResumed() {
     s_logger.info("Transport resumed {}", this);
     _interrupted = false;
-    
-    // tryLock() is used to avoid deadlock.
-    // When send() is called for the first time, a connection to JMS is created.
-    // This call may result in transportResumed() being called from a second thread
-    // (not the thread which called send()). Moreover, the thread that called send() waits
-    // for this second thread to complete. This is certainly what happens with ActiveMQ.
-    // If you just used lock() here, a deadlock arises in this situation.
-    boolean gotLock = _lock.tryLock();
-    if (gotLock) {
+    // tryAcquire() is used to avoid re-entry to the send method if a sendMarketData is already
+    // active as that will hold the semaphore.
+    if (_lock.tryAcquire()) {
       try {
         if (!_cumulativeDelta.isEmpty()) {
           send();
@@ -133,7 +133,7 @@ public class JmsSender implements MarketDataSender {
       } catch (RuntimeException e) {
         s_logger.error("transportResumed() failed", e);
       } finally {
-        _lock.unlock();
+        _lock.release();
       }
     }
   }
