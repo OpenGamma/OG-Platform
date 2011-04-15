@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -388,26 +389,20 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     }
     
     try {
-      s_logger.warn("About to compile view definition");
       compiledView = ViewDefinitionCompiler.compile(getViewProcess().getDefinition(), getProcessContext().asCompilationServices(), valuationTime);
-      s_logger.warn("Finished compiling view definition");
     } catch (Exception e) {
       getViewProcess().viewDefinitionCompilationFailed(valuationTime, e);
       throw new OpenGammaRuntimeException("Error compiling view definition", e);
     }
     setLatestCompiledViewDefinition(compiledView);
     
-    s_logger.warn("Notifying clients of compiled view definition");
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
     // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
     getViewProcess().viewDefinitionCompiled(compiledView);
-    s_logger.warn("Finished notifying clients of compiled view definition");
     
     // Update the live data subscriptions to whatever is now required, ensuring the computation cycle can find the
     // required input data when it is executed.
-    s_logger.warn("Setting live data subscriptions");
     setLiveDataSubscriptions(compiledView.getLiveDataRequirements().keySet());
-    s_logger.warn("Finished setting live data subscriptions");
     return compiledView;
   }
   
