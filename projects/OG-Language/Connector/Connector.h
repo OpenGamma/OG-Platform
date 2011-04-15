@@ -33,6 +33,7 @@ public:
 private:
 	CAtomicInt m_oRefCount;
 	CClientService *m_poClient;
+	// TODO: rename this to just m_oMutex
 	CMutex m_oControlMutex;
 	CAtomicPointer<CSemaphore*> m_oStartupSemaphorePtr;
 	class CCallbackEntry {
@@ -65,7 +66,13 @@ private:
 	class CCallbackEntry *m_poCallbacks;
 	CSynchronousCalls m_oSynchronousCalls;
 	CAsynchronous *m_poDispatch;
+	CAtomicPointer<IRunnable*> m_oOnEnterRunningState;
+	CAtomicPointer<IRunnable*> m_oOnExitRunningState;
+	CAtomicPointer<IRunnable*> m_oOnEnterStableNonRunningState;
 	CConnector (CClientService *poClient);
+	void OnEnterRunningState ();
+	void OnExitRunningState ();
+	void OnEnterStableNonRunningState ();
 	friend class CConnectorMessageDispatch;
 	friend class CConnectorThreadDisconnectDispatch;
 	friend class CConnectorDispatcher;
@@ -96,6 +103,10 @@ public:
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
 	bool RemoveCallback (CCallback *poCallback);
 	bool RecycleDispatchThread ();
+	// The CConnector will take ownership of these references and delete them when done (or another callback set)
+	void OnEnterRunningState (IRunnable *poRunnable);
+	void OnExitRunningState (IRunnable *poRunnable);
+	void OnEnterStableNonRunningState (IRunnable *poRunnable);
 };
 
 #endif /* ifndef __inc_og_language_connector_connector_h */

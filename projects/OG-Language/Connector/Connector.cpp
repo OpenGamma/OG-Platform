@@ -82,30 +82,58 @@ void CConnector::CCallbackEntry::OnMessage (FudgeMsg msgPayload) {
 	}
 }
 
+static void _GetRunAndRestore (CAtomicPointer<IRunnable*> *poPtr) {
+	IRunnable *poRunnable = poPtr->GetAndSet (NULL);
+	if (poRunnable) {
+		LOGDEBUG (TEXT ("Calling user extension"));
+		poRunnable->Run ();
+		if (poPtr->CompareAndSet (poRunnable, NULL) != NULL) {
+			LOGDEBUG (TEXT ("Deleting replaced user extension"));
+			delete poRunnable;
+		}
+	}
+}
+
+void CConnector::OnEnterRunningState () {
+	LOGINFO (TEXT ("Entered running state"));
+	// Make sure all of the semaphores for synchronous calls are "unsignalled" (all get signalled when the client stops)
+	m_oSynchronousCalls.ClearAllSemaphores ();
+	// If in "startup" mode then signal the startup semaphore to release any waiting threads
+	CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
+	if (poSemaphore) {
+		poSemaphore->Signal ();
+		m_oStartupSemaphorePtr.Set (poSemaphore);
+	}
+	_GetRunAndRestore (&m_oOnEnterRunningState);
+}
+
+void CConnector::OnExitRunningState () {
+	LOGINFO (TEXT ("Left running state"));
+	// No longer running, so signal any message semaphores
+	m_oSynchronousCalls.SignalAllSemaphores ();
+	_GetRunAndRestore (&m_oOnExitRunningState);
+}
+
+void CConnector::OnEnterStableNonRunningState () {
+	LOGINFO (TEXT ("Entered stable non-running state"));
+	// If in "startup" mode then signal the startup semaphore to release any waiting threads
+	CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
+	if (poSemaphore) {
+		poSemaphore->Signal ();
+		m_oStartupSemaphorePtr.Set (poSemaphore);
+	}
+	_GetRunAndRestore (&m_oOnEnterStableNonRunningState);
+}
+
 void CConnector::OnStateChange (ClientServiceState ePreviousState, ClientServiceState eNewState) {
 	LOGDEBUG (TEXT ("State changed from ") << ePreviousState << TEXT (" to ") << eNewState);
 	if (eNewState == RUNNING) {
-		LOGINFO (TEXT ("Entered running state"));
-		// Make sure all of the semaphores for synchronous calls are "unsignalled" (all get signalled when the client stops)
-		m_oSynchronousCalls.ClearAllSemaphores ();
-		// If in "startup" mode then signal the startup semaphore to release any waiting threads
-		CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
-		if (poSemaphore) {
-			poSemaphore->Signal ();
-			m_oStartupSemaphorePtr.Set (poSemaphore);
-		}
+		OnEnterRunningState ();
 	} else if (ePreviousState == RUNNING) {
-		LOGINFO (TEXT ("Left running state"));
-		// No longer running, so signal any message semaphores
-		m_oSynchronousCalls.SignalAllSemaphores ();
+		// NOTE: there are no transitions from RUNNING to STOPPED or ERRORED; must go via POISONED or STOPPING
+		OnExitRunningState ();
 	} else if ((eNewState == STOPPED ) || (eNewState == ERRORED)) {
-		LOGINFO (TEXT ("Entered stable non-running state"));
-		// If in "startup" mode then signal the startup semaphore to release any waiting threads
-		CSemaphore *poSemaphore = m_oStartupSemaphorePtr.GetAndSet (NULL);
-		if (poSemaphore) {
-			poSemaphore->Signal ();
-			m_oStartupSemaphorePtr.Set (poSemaphore);
-		}
+		OnEnterStableNonRunningState ();
 	}
 }
 
@@ -255,6 +283,9 @@ CConnector::~CConnector () {
 	}
 	LOGDEBUG (TEXT ("Releasing client"));
 	CClientService::Release (m_poClient);
+	OnEnterRunningState (NULL);
+	OnExitRunningState (NULL);
+	OnEnterStableNonRunningState (NULL);
 }
 
 CConnector *CConnector::Start (const TCHAR *pszLanguage) {
@@ -496,4 +527,24 @@ bool CConnector::RecycleDispatchThread () {
 	bool bResult = m_poDispatch ? m_poDispatch->RecycleThread () : false;
 	m_oControlMutex.Leave ();
 	return bResult;
+}
+
+static void _Replace (CAtomicPointer<IRunnable*> *poPtr, IRunnable *poNewValue) {
+	IRunnable *poPrevious = poPtr->GetAndSet (poNewValue);
+	if (poPrevious) {
+		LOGDEBUG (TEXT ("Deleting previous callback"));
+		delete poPrevious;
+	}
+}
+
+void CConnector::OnEnterRunningState (IRunnable *poOnEnterRunningState) {
+	_Replace (&m_oOnEnterRunningState, poOnEnterRunningState);
+}
+
+void CConnector::OnExitRunningState (IRunnable *poOnExitRunningState) {
+	_Replace (&m_oOnExitRunningState, poOnExitRunningState);
+}
+
+void CConnector::OnEnterStableNonRunningState (IRunnable *poOnEnterStableNonRunningState) {
+	_Replace (&m_oOnEnterStableNonRunningState, poOnEnterStableNonRunningState);
 }
