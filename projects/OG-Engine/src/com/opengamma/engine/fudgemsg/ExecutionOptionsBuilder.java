@@ -24,7 +24,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   private static final String EXECUTION_SEQUENCE_FIELD = "executionSequence";
   private static final String RUN_AS_FAST_AS_POSSIBLE_FIELD = "runAsFastAsPossible";
   private static final String LIVE_DATA_TRIGGER_ENABLED_FIELD = "liveDataTriggerEnabled";
-  private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "liveDataTriggerEnabled";
+  private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String COMPILE_ONLY_FIELD = "compileOnly";
 
   @Override
