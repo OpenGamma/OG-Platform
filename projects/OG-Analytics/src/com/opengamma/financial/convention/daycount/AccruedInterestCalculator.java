@@ -175,7 +175,7 @@ public final class AccruedInterestCalculator {
     }
     LocalDate exDividendDate = nominalDates[index + 1];
     for (int i = 0; i < exDividendDays; i++) {
-      if (!calendar.isWorkingDay(exDividendDate)) {
+      while (!calendar.isWorkingDay(exDividendDate)) {
         exDividendDate = exDividendDate.minusDays(1);
       }
       exDividendDate = exDividendDate.minusDays(1);
