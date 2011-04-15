@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.StubCalculator;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * Utility to calculate the accrued interest.
@@ -151,10 +152,11 @@ public final class AccruedInterestCalculator {
    * @param isEndOfMonthConvention  whether to use end of month rules
    * @param exDividendDays the number of ex-dividend days
    * @param index The index of the previous coupon in the nominalDates
+   * @param calendar The working day calendar to be used in calculating ex-dividend dates
    * @return the accrued interest
    */
   public static double getAccruedInterest(final DayCount dayCount, final LocalDate settlementDate, final LocalDate[] nominalDates, final double coupon, final double paymentsPerYear,
-      final boolean isEndOfMonthConvention, final int exDividendDays, final int index) {
+      final boolean isEndOfMonthConvention, final int exDividendDays, final int index, final Calendar calendar) {
     Validate.notNull(dayCount, "day-count");
     Validate.notNull(settlementDate, "date");
     Validate.noNullElements(nominalDates, "nominalDates");
@@ -170,6 +172,13 @@ public final class AccruedInterestCalculator {
       accruedInterest = 0;
     } else {
       accruedInterest = getAccruedInterest(dayCount, index, length, previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, isEndOfMonthConvention);
+    }
+    LocalDate exDividendDate = nominalDates[index + 1];
+    for (int i = 0; i < exDividendDays; i++) {
+      if (!calendar.isWorkingDay(exDividendDate)) {
+        exDividendDate = exDividendDate.minusDays(1);
+      }
+      exDividendDate = exDividendDate.minusDays(1);
     }
     if (exDividendDays != 0 && nominalDates[index + 1].minusDays(exDividendDays).isBefore(settlementDate)) {
       return accruedInterest - coupon;

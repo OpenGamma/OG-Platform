@@ -21,7 +21,9 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -87,7 +89,11 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
-    final DayCount daycount = security.getDayCountConvention();
+    DayCount daycount = security.getDayCountConvention();
+    //TODO remove this when the bonds load correctly
+    if (daycount instanceof ActualActualISDA) {
+      daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    }
     final boolean isEOMConvention = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);
