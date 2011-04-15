@@ -49,14 +49,20 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
    * Creates an instance.
    */
   public InMemoryConventionBundleMaster() {
-    addUSDFixedIncomeInstruments();
-    addGBPFixedIncomeInstruments();
-    addEURFixedIncomeInstruments();
-    addJPYFixedIncomeInstruments();
-    addCADFixedIncomeInstruments();
-    addAUDFixedIncomeInstruments();
-    addCHFFixedIncomeInstruments();
-    addUSDCAPMDefinition();
+    addUSFixedIncomeInstruments();
+    addGBFixedIncomeInstruments();
+    addEUFixedIncomeInstruments();
+    addJPFixedIncomeInstruments();
+    addCAFixedIncomeInstruments();
+    addAUFixedIncomeInstruments();
+    addCHFixedIncomeInstruments();
+    addHUFixedIncomeInstruments();
+    addITFixedIncomeInstruments();
+    addDEFixedIncomeInstruments();
+    addDKFixedIncomeInstruments();
+    addFRFixedIncomeInstruments();
+    addSEFixedIncomeInstruments();
+    addUSCAPMDefinition();
     addUSTreasuryBondConvention();
     addUSCorporateBondConvention();
     addGBTreasuryBondConvention();
@@ -85,8 +91,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addITCorporateBondConvention();
     addHUTreasuryBondConvention();
     addHUCorporateBondConvention();
-    addUSDBondFutureConvention();
-    addGBPBondFutureConvention();
+    addUSBondFutureConvention();
+    addGBBondFutureConvention();
   }
 
   //-------------------------------------------------------------------------
@@ -196,7 +202,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     return results;
   }
 
-  private void addUSDFixedIncomeInstruments() {
+  private void addUSFixedIncomeInstruments() {
     // NOTE THESE ONLY APPLY TO US LIBOR RATES
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -317,9 +323,41 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, nullPeriod, 2);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IRFUTURE")), "USD_IRFUTURE", act360, following, null, 2, 0.25);
+    
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP1D")), "USDCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP1M")), "USDCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP2M")), "USDCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP3M")), "USDCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP4M")), "USDCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP5M")), "USDCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP6M")), "USDCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP7M")), "USDCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP8M")), "USDCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP9M")), "USDCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP10M")), "USDCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP11M")), "USDCASHP11M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP12M")), "USDCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP2Y")), "USDSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP3Y")), "USDSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP4Y")), "USDSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP5Y")), "USDSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP6Y")), "USDSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP7Y")), "USDSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP8Y")), "USDSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP9Y")), "USDSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP10Y")), "USDSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP12Y")), "USDSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP15Y")), "USDSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP20Y")), "USDSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP25Y")), "USDSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP30Y")), "USDSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP40Y")), "USDSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP50Y")), "USDSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDSWAPP80Y")), "USDSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
 
-  private void addEURFixedIncomeInstruments() {
+  private void addEUFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -367,9 +405,41 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
+    
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1M")), "EURCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP2M")), "EURCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP3M")), "EURCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP4M")), "EURCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP5M")), "EURCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP6M")), "EURCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP7M")), "EURCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP8M")), "EURCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP9M")), "EURCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP10M")), "EURCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP11M")), "EURCASHP11M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP12M")), "EURCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP2Y")), "EURSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP3Y")), "EURSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP4Y")), "EURSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP5Y")), "EURSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP6Y")), "EURSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP7Y")), "EURSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP8Y")), "EURSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP9Y")), "EURSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP10Y")), "EURSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP12Y")), "EURSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP15Y")), "EURSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP20Y")), "EURSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP25Y")), "EURSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP30Y")), "EURSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP40Y")), "EURSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP50Y")), "EURSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURSWAPP80Y")), "EURSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
 
-  private void addJPYFixedIncomeInstruments() {
+  private void addJPFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -415,7 +485,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp);
   }
 
-  private void addCADFixedIncomeInstruments() {
+  private void addCAFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -447,7 +517,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //Don't know how we're going to put that in
   }
 
-  private void addGBPFixedIncomeInstruments() {
+  private void addGBFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -495,9 +565,40 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_IRFUTURE")), "GBP_IRFUTURE", act365, following, null, 2, 0.25);
+    
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP1D")), "GBPCASHP1D", act365, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP1M")), "GBPCASHP1M", act365, modified, Period.ofMonths(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP2M")), "GBPCASHP2M", act365, modified, Period.ofMonths(2), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP3M")), "GBPCASHP3M", act365, modified, Period.ofMonths(3), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP4M")), "GBPCASHP4M", act365, modified, Period.ofMonths(4), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP5M")), "GBPCASHP5M", act365, modified, Period.ofMonths(5), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP6M")), "GBPCASHP6M", act365, modified, Period.ofMonths(6), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP7M")), "GBPCASHP7M", act365, modified, Period.ofMonths(7), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP8M")), "GBPCASHP8M", act365, modified, Period.ofMonths(8), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP9M")), "GBPCASHP9M", act365, modified, Period.ofMonths(9), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP10M")), "GBPCASHP10M", act365, modified, Period.ofMonths(10), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP11M")), "GBPCASHP11M", act365, modified, Period.ofMonths(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP12M")), "GBPCASHP12M", act365, modified, Period.ofMonths(12), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP2Y")), "GBPSWAPP2Y", act365, modified, Period.ofYears(2), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP3Y")), "GBPSWAPP3Y", act365, modified, Period.ofYears(3), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP4Y")), "GBPSWAPP4Y", act365, modified, Period.ofYears(4), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP5Y")), "GBPSWAPP5Y", act365, modified, Period.ofYears(5), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP6Y")), "GBPSWAPP6Y", act365, modified, Period.ofYears(6), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP7Y")), "GBPSWAPP7Y", act365, modified, Period.ofYears(7), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP8Y")), "GBPSWAPP8Y", act365, modified, Period.ofYears(8), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP9Y")), "GBPSWAPP9Y", act365, modified, Period.ofYears(9), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP10Y")), "GBPSWAPP10Y", act365, modified, Period.ofYears(10), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP12Y")), "GBPSWAPP12Y", act365, modified, Period.ofYears(12), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP15Y")), "GBPSWAPP15Y", act365, modified, Period.ofYears(15), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP20Y")), "GBPSWAPP20Y", act365, modified, Period.ofYears(20), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP25Y")), "GBPSWAPP25Y", act365, modified, Period.ofYears(25), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP30Y")), "GBPSWAPP30Y", act365, modified, Period.ofYears(30), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP40Y")), "GBPSWAPP40Y", act365, modified, Period.ofYears(40), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP50Y")), "GBPSWAPP50Y", act365, modified, Period.ofYears(50), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPSWAPP80Y")), "GBPSWAPP80Y", act365, modified, Period.ofYears(80), 0);
   }
 
-  private void addAUDFixedIncomeInstruments() {
+  private void addAUFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -522,7 +623,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "AUD 3m Bill"), au);
   }
 
-  private void addCHFFixedIncomeInstruments() {
+  private void addCHFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -568,9 +669,254 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO check reference rate
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360, modified, semiAnnual, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
+    
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP1D")), "CHFCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP1M")), "CHFCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP2M")), "CHFCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP3M")), "CHFCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP4M")), "CHFCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP5M")), "CHFCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP6M")), "CHFCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP7M")), "CHFCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP8M")), "CHFCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP9M")), "CHFCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP10M")), "CHFCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP11M")), "CHFCASHP11M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP12M")), "CHFCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP2Y")), "CHFSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP3Y")), "CHFSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP4Y")), "CHFSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP5Y")), "CHFSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP6Y")), "CHFSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP7Y")), "CHFSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP8Y")), "CHFSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP9Y")), "CHFSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP10Y")), "CHFSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP12Y")), "CHFSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP15Y")), "CHFSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP20Y")), "CHFSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP25Y")), "CHFSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP30Y")), "CHFSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP40Y")), "CHFSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP50Y")), "CHFSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFSWAPP80Y")), "CHFSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
 
-  private void addUSDCAPMDefinition() {
+  private void addHUFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP1D")), "HUFCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP1M")), "HUFCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP2M")), "HUFCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP3M")), "HUFCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP4M")), "HUFCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP5M")), "HUFCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP6M")), "HUFCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP7M")), "HUFCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP8M")), "HUFCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP9M")), "HUFCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP10M")), "HUFCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP11M")), "HUFCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFCASHP12M")), "HUFCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP2Y")), "HUFSWAPP2Y", act365, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP3Y")), "HUFSWAPP3Y", act365, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP4Y")), "HUFSWAPP4Y", act365, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP5Y")), "HUFSWAPP5Y", act365, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP6Y")), "HUFSWAPP6Y", act365, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP7Y")), "HUFSWAPP7Y", act365, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP8Y")), "HUFSWAPP8Y", act365, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP9Y")), "HUFSWAPP9Y", act365, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP10Y")), "HUFSWAPP10Y", act365, modified, Period.ofYears(10), 2);
+  }
+  
+  private void addITFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP1D")), "ITLCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP1M")), "ITLCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP2M")), "ITLCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP3M")), "ITLCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP4M")), "ITLCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP5M")), "ITLCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP6M")), "ITLCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP7M")), "ITLCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP8M")), "ITLCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP9M")), "ITLCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP10M")), "ITLCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP11M")), "ITLCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLCASHP12M")), "ITLCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP2Y")), "ITLSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP3Y")), "ITLSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP4Y")), "ITLSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP5Y")), "ITLSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP6Y")), "ITLSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP7Y")), "ITLSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP8Y")), "ITLSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP9Y")), "ITLSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP10Y")), "ITLSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP12Y")), "ITLSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP15Y")), "ITLSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP20Y")), "ITLSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP25Y")), "ITLSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP30Y")), "ITLSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP40Y")), "ITLSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP50Y")), "ITLSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP60Y")), "ITLSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
+  }
+  
+  private void addDEFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP1D")), "DEMCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP1M")), "DEMCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP2M")), "DEMCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP3M")), "DEMCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP4M")), "DEMCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP5M")), "DEMCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP6M")), "DEMCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP7M")), "DEMCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP8M")), "DEMCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP9M")), "DEMCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP10M")), "DEMCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP11M")), "DEMCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMCASHP12M")), "DEMCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP2Y")), "DEMSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP3Y")), "DEMSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP4Y")), "DEMSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP5Y")), "DEMSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP6Y")), "DEMSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP7Y")), "DEMSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP8Y")), "DEMSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP9Y")), "DEMSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP10Y")), "DEMSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP12Y")), "DEMSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP15Y")), "DEMSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP20Y")), "DEMSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP25Y")), "DEMSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP30Y")), "DEMSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP40Y")), "DEMSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP50Y")), "DEMSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP60Y")), "DEMSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
+  }
+  
+  private void addDKFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP1D")), "DKKCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP1M")), "DKKCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP2M")), "DKKCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP3M")), "DKKCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP4M")), "DKKCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP5M")), "DKKCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP6M")), "DKKCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP7M")), "DKKCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP8M")), "DKKCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP9M")), "DKKCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP10M")), "DKKCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP11M")), "DKKCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKCASHP12M")), "DKKCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP2Y")), "DKKSWAPP2Y", act360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP3Y")), "DKKSWAPP3Y", act360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP4Y")), "DKKSWAPP4Y", act360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP5Y")), "DKKSWAPP5Y", act360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP6Y")), "DKKSWAPP6Y", act360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP7Y")), "DKKSWAPP7Y", act360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP8Y")), "DKKSWAPP8Y", act360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP9Y")), "DKKSWAPP9Y", act360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP10Y")), "DKKSWAPP10Y", act360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP12Y")), "DKKSWAPP12Y", act360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP15Y")), "DKKSWAPP15Y", act360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP20Y")), "DKKSWAPP20Y", act360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP25Y")), "DKKSWAPP25Y", act360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DKKSWAPP30Y")), "DKKSWAPP30Y", act360, modified, Period.ofYears(30), 2);
+  }
+
+  private void addFRFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP1D")), "FRFCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP1M")), "FRFCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP2M")), "FRFCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP3M")), "FRFCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP4M")), "FRFCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP5M")), "FRFCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP6M")), "FRFCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP7M")), "FRFCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP8M")), "FRFCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP9M")), "FRFCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP10M")), "FRFCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP11M")), "FRFCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFCASHP12M")), "FRFCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP2Y")), "FRFSWAPP2Y", thirty360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP3Y")), "FRFSWAPP3Y", thirty360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP4Y")), "FRFSWAPP4Y", thirty360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP5Y")), "FRFSWAPP5Y", thirty360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP6Y")), "FRFSWAPP6Y", thirty360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP7Y")), "FRFSWAPP7Y", thirty360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP8Y")), "FRFSWAPP8Y", thirty360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP9Y")), "FRFSWAPP9Y", thirty360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP10Y")), "FRFSWAPP10Y", thirty360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP12Y")), "FRFSWAPP12Y", thirty360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP15Y")), "FRFSWAPP15Y", thirty360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP20Y")), "FRFSWAPP20Y", thirty360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP25Y")), "FRFSWAPP25Y", thirty360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP30Y")), "FRFSWAPP30Y", thirty360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP40Y")), "FRFSWAPP40Y", thirty360, modified, Period.ofYears(40), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP50Y")), "FRFSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP60Y")), "FRFSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
+  }
+  
+  private void addSEFixedIncomeInstruments() {
+    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    //Identifiers for external data 
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP1D")), "SEKCASHP1D", act360, following, Period.ofDays(1), 0);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP1M")), "SEKCASHP1M", act360, modified, Period.ofMonths(1), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP2M")), "SEKCASHP2M", act360, modified, Period.ofMonths(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP3M")), "SEKCASHP3M", act360, modified, Period.ofMonths(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP4M")), "SEKCASHP4M", act360, modified, Period.ofMonths(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP5M")), "SEKCASHP5M", act360, modified, Period.ofMonths(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP6M")), "SEKCASHP6M", act360, modified, Period.ofMonths(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP7M")), "SEKCASHP7M", act360, modified, Period.ofMonths(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP8M")), "SEKCASHP8M", act360, modified, Period.ofMonths(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP9M")), "SEKCASHP9M", act360, modified, Period.ofMonths(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP10M")), "SEKCASHP10M", act360, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP11M")), "SEKCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP12M")), "SEKCASHP12M", act360, modified, Period.ofMonths(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP2Y")), "SEKSWAPP2Y", act360, modified, Period.ofYears(2), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP3Y")), "SEKSWAPP3Y", act360, modified, Period.ofYears(3), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP4Y")), "SEKSWAPP4Y", act360, modified, Period.ofYears(4), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP5Y")), "SEKSWAPP5Y", act360, modified, Period.ofYears(5), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP6Y")), "SEKSWAPP6Y", act360, modified, Period.ofYears(6), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP7Y")), "SEKSWAPP7Y", act360, modified, Period.ofYears(7), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP8Y")), "SEKSWAPP8Y", act360, modified, Period.ofYears(8), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP9Y")), "SEKSWAPP9Y", act360, modified, Period.ofYears(9), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP10Y")), "SEKSWAPP10Y", act360, modified, Period.ofYears(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP12Y")), "SEKSWAPP12Y", act360, modified, Period.ofYears(12), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP15Y")), "SEKSWAPP15Y", act360, modified, Period.ofYears(15), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP20Y")), "SEKSWAPP20Y", act360, modified, Period.ofYears(20), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP25Y")), "SEKSWAPP25Y", act360, modified, Period.ofYears(25), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP30Y")), "SEKSWAPP30Y", act360, modified, Period.ofYears(30), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP40Y")), "SEKSWAPP40Y", act360, modified, Period.ofYears(40), 2);
+  }
+  
+  private void addUSCAPMDefinition() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_CAPM")), "USD_CAPM", "US0003M Index", "SPX Index");
   }
 
@@ -583,7 +929,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1, true);
   }
 
-  private void addUSDBondFutureConvention() {
+  private void addUSBondFutureConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_BOND_FUTURE_DELIVERABLE_CONVENTION")), "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0,
         DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), SimpleYieldConvention.MONEY_MARKET);
   }
@@ -596,12 +942,12 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", false, true, 6, 0, true);
   }
 
-  private void addGBPBondFutureConvention() {
+  private void addGBBondFutureConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION")), "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0,
         DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), SimpleYieldConvention.MONEY_MARKET);
   }
   
-  //TODO all of the conventions named treasury need to be changed
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
   private void addLUTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_TREASURY_BOND_CONVENTION")), "LU_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
   }

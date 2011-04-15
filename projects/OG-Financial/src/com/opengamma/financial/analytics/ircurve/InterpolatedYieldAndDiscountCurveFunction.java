@@ -59,9 +59,9 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
+public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SimpleInterpolatedYieldAndDiscountCurveFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldAndDiscountCurveFunction.class);
 
   /**
    * Resultant value specification property for the curve result. Note these should be moved into either the ValuePropertyNames class
@@ -78,7 +78,7 @@ public class SimpleInterpolatedYieldAndDiscountCurveFunction extends AbstractFun
   private final boolean _isYieldCurve;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
 
-  public SimpleInterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
+  public InterpolatedYieldAndDiscountCurveFunction(final Currency currency, final String name, final boolean isYieldCurve) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(name, "Name");
     _definition = null;
