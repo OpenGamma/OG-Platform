@@ -8,7 +8,6 @@ package com.opengamma.engine.view.client;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
@@ -42,7 +41,6 @@ import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
-
 
 /**
  * Tests ViewClient
@@ -126,8 +124,6 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    assertFalse(client.isResultAvailable());
-    assertNull(client.getLatestResult());
     
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);

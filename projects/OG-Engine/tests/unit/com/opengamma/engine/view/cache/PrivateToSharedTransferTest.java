@@ -73,11 +73,12 @@ public class PrivateToSharedTransferTest {
     final Set<Integer> missing = new HashSet<Integer>();
     final DefaultViewComputationCacheSource source = new DefaultViewComputationCacheSource(identifiers,
         FudgeContext.GLOBAL_DEFAULT, createInMemoryFudgeMessageStoreFactory(FudgeContext.GLOBAL_DEFAULT));
+    final UniqueIdentifier viewProcessId = UniqueIdentifier.of("Test", "ViewProcess");
     source.setMissingValueLoader(new MissingValueLoader() {
 
       @Override
       public FudgeMsg findMissingValue(final ViewComputationCacheKey cache, final long identifier) {
-        assertEquals("Test View", cache.getViewProcessId());
+        assertEquals(viewProcessId, cache.getViewProcessId());
         assertEquals("Default", cache.getCalculationConfigurationName());
         final ValueSpecification spec = identifiers.getValueSpecification(identifier);
         int i = Integer.parseInt(spec.getValueName());
@@ -106,7 +107,7 @@ public class PrivateToSharedTransferTest {
       }
 
     });
-    final ViewComputationCache cache = source.getCache(UniqueIdentifier.of("Test", "ViewProcess"), "Default", System.currentTimeMillis());
+    final ViewComputationCache cache = source.getCache(viewProcessId, "Default", System.currentTimeMillis());
     final ValueSpecification[] specs = createValueSpecifications(4);
     cache.putPrivateValue(new ComputedValue(specs[0], "Zero"));
     cache.putSharedValue(new ComputedValue(specs[1], "One"));
