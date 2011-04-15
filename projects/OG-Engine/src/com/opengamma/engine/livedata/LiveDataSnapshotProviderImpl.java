@@ -100,10 +100,6 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     _liveDataClient.subscribe(user, liveDataSpecs, this);
   }
 
-  /**
-   * @param requirement
-   * @param liveDataSpec
-   */
   protected void registerLiveDataSpec(ValueRequirement requirement, LiveDataSpecification liveDataSpec) {
     Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
     if (requirementsForSpec == null) {

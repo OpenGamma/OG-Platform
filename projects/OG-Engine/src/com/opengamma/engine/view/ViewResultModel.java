@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -23,16 +24,23 @@ import com.opengamma.util.PublicAPI;
 public interface ViewResultModel {
 
   /**
-   * Returns the name of the view this contains results for.
+   * Gets the unique identifier of the view process responsible for the results.
    * 
-   * @return the view name
+   * @return the unique identifier, not null
    */
-  String getViewName();
+  UniqueIdentifier getViewProcessId();
+  
+  /**
+   * Gets the unique identifier of the view cycle responsible for the results.
+   * 
+   * @return the unique identifier, not null
+   */
+  UniqueIdentifier getViewCycleId();
 
   /**
-   * Returns the snapshot time at which live data values were taken for this result.
+   * Returns the time for which the results were computed. 
    * 
-   * @return the snapshot time
+   * @return the time for which the results were computed, not null
    */
   Instant getValuationTime();
 

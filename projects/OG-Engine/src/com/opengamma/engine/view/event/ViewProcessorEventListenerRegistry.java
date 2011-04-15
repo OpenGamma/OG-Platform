@@ -7,9 +7,12 @@ package com.opengamma.engine.view.event;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
- * Registered listeners for registering and unregistering ViewProcessorEventListener and sending notifications to registrants.
- *  <p/>
+ * Registered listeners for registering and unregistering ViewProcessorEventListener and sending notifications to
+ * registrants.
+ *  <p>
  * There is one of these per ViewProcessor. It is a composite listener.
  */
 public class ViewProcessorEventListenerRegistry implements ViewProcessorEventListener {
@@ -20,16 +23,16 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
   private final CopyOnWriteArraySet<ViewProcessorEventListener> _listeners = new CopyOnWriteArraySet<ViewProcessorEventListener>();
 
   @Override
-  public void notifyViewAdded(String viewName) {
+  public void notifyViewProcessAdded(UniqueIdentifier viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
-      listener.notifyViewAdded(viewName);
+      listener.notifyViewProcessAdded(viewProcessId);
     }
   }
 
   @Override
-  public void notifyViewRemoved(String viewName) {
+  public void notifyViewProcessRemoved(UniqueIdentifier viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
-      listener.notifyViewRemoved(viewName);
+      listener.notifyViewProcessRemoved(viewProcessId);
     }
   }
 

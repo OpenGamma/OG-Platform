@@ -33,15 +33,14 @@ public class ViewDeltaResultModelMergerTest {
   
   public void testMerger() {
     ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
-    assertNull(merger.consume());
+    assertNull(merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult1 = new InMemoryViewDeltaResultModel();
     deltaResult1.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
     deltaResult1.addValue(CONFIG_1, getComputedValue("value1", 1));
     deltaResult1.addValue(CONFIG_1, getComputedValue("value2", 2));
     merger.merge(deltaResult1);
-    assertResultsEqual(deltaResult1, merger.consume());
-    assertNull(merger.consume());
+    assertResultsEqual(deltaResult1, merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult2 = new InMemoryViewDeltaResultModel();
     deltaResult2.setCalculationConfigurationNames(Collections.singleton(CONFIG_1));
@@ -55,8 +54,7 @@ public class ViewDeltaResultModelMergerTest {
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value1", 3));
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
     
-    assertResultsEqual(expectedMergedResult, merger.consume());
-    assertNull(merger.consume());
+    assertResultsEqual(expectedMergedResult, merger.getLatestResult());
     
     InMemoryViewDeltaResultModel deltaResult3 = new InMemoryViewDeltaResultModel();
     deltaResult3.setCalculationConfigurationNames(Collections.singleton(CONFIG_2));
@@ -71,8 +69,7 @@ public class ViewDeltaResultModelMergerTest {
     expectedMergedResult.addValue(CONFIG_1, getComputedValue("value2", 2));
     expectedMergedResult.addValue(CONFIG_2, getComputedValue("value3", 4));
     
-    assertResultsEqual(expectedMergedResult, merger.consume());
-    assertNull(merger.consume());
+    assertResultsEqual(expectedMergedResult, merger.getLatestResult());
   }
   
   public void testHandlesPartiallyEmptyModels() {
