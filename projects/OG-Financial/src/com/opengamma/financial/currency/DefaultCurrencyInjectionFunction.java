@@ -8,6 +8,7 @@ package com.opengamma.financial.currency;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -15,9 +16,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -78,9 +81,17 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
   }
 
   protected static String getViewDefaultCurrencyISO(final FunctionCompilationContext context) {
-    final Set<String> currencies = context.getViewCalculationConfiguration().getDefaultProperties().getValues(ValuePropertyNames.CURRENCY);
+    ViewCalculationConfiguration viewCalculationConfiguration = context.getViewCalculationConfiguration();
+    if (viewCalculationConfiguration == null) {
+      throw new OpenGammaRuntimeException("View calculation configuration not found in function compilation context");
+    }
+    ValueProperties defaultProperties = viewCalculationConfiguration.getDefaultProperties();
+    if (defaultProperties == null) {
+      throw new IllegalStateException("No default properties found for the view calculation configuration");
+    }
+    final Set<String> currencies = defaultProperties.getValues(ValuePropertyNames.CURRENCY);
     if (currencies == null) {
-      throw new IllegalStateException("Default currency not set for the view");
+      throw new IllegalStateException("Default currency not set for the view calculation configuration");
     }
     if (currencies.size() != 1) {
       throw new IllegalStateException("Invalid default currency - " + currencies);
