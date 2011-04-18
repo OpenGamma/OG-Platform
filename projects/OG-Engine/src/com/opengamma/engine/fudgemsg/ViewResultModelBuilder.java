@@ -31,6 +31,7 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public abstract class ViewResultModelBuilder {
   private static final String FIELD_VIEWPROCESSID = "viewProcessId";
+  private static final String FIELD_VIEWCYCLEID = "viewCycleId";
   private static final String FIELD_VALUATIONTS = "valuationTS";
   private static final String FIELD_RESULTTS = "resultTS";
   private static final String FIELD_RESULTS = "results";
@@ -38,6 +39,7 @@ public abstract class ViewResultModelBuilder {
   protected static MutableFudgeMsg createResultModelMessage(final FudgeSerializationContext context, final ViewResultModel resultModel) {
     final MutableFudgeMsg message = context.newMessage();
     message.add(FIELD_VIEWPROCESSID, resultModel.getViewProcessId());
+    message.add(FIELD_VIEWCYCLEID, resultModel.getViewCycleId());
     message.add(FIELD_VALUATIONTS, resultModel.getValuationTime());
     message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
     final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
@@ -52,6 +54,7 @@ public abstract class ViewResultModelBuilder {
 
   protected InMemoryViewResultModel bootstrapCommonDataFromMessage(final FudgeDeserializationContext context, final FudgeMsg message) {
     final UniqueIdentifier viewProcessId = message.getValue(UniqueIdentifier.class, FIELD_VIEWPROCESSID);
+    final UniqueIdentifier viewCycleId = message.getValue(UniqueIdentifier.class, FIELD_VIEWCYCLEID);
     final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_VALUATIONTS));
     final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
     final Map<String, ViewCalculationResultModel> configurationMap = new HashMap<String, ViewCalculationResultModel>();
@@ -85,6 +88,7 @@ public abstract class ViewResultModelBuilder {
     }
     
     resultModel.setViewProcessId(viewProcessId);
+    resultModel.setViewCycleId(viewCycleId);
     resultModel.setValuationTime(inputDataTimestamp);
     resultModel.setResultTimestamp(resultTimestamp);
     
