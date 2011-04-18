@@ -14,6 +14,9 @@
 #include <Util/Fudge.h>
 #include "Client.h"
 #include "SynchronousCalls.h"
+#ifdef _WIN32
+#include <Util/Library.h>
+#endif /* ifdef _WIN32 */
 
 class CConnector : public CClientService::CStateChange, public CClientService::CMessageReceived {
 public:
@@ -21,12 +24,30 @@ public:
 	private:
 		friend class CConnector;
 		CAtomicInt m_oRefCount;
+#ifdef _WIN32
+		CLibraryLock *m_poModuleLock;
+#endif /* ifdef _WIN32 */
 	protected:
+#ifdef _WIN32
+		void LockModule (PVOID pAddressInModule) {
+			assert (!m_poModuleLock);
+			m_poModuleLock = CLibraryLock::CreateFromAddress (pAddressInModule);
+		}
+#endif /* ifdef _WIN32 */
 		virtual void OnMessage (FudgeMsg msgPayload) = 0;
 		virtual void OnThreadDisconnect () { }
+		virtual ~CCallback () {
+			assert (!m_oRefCount.Get ());
+#ifdef _WIN32
+			CLibraryLock::UnlockAndDelete (m_poModuleLock);
+#endif /* ifdef _WIN32 */
+		}
 	public:
-		CCallback () : m_oRefCount (1) { }
-		virtual ~CCallback () { assert (!m_oRefCount.Get ()); }
+		CCallback () : m_oRefCount (1) {
+#ifdef _WIN32
+			m_poModuleLock = NULL;
+#endif /* ifdef _WIN32 */
+		}
 		void Retain () { m_oRefCount.IncrementAndGet (); }
 		static void Release (CCallback *poCallback) { if (!poCallback->m_oRefCount.DecrementAndGet ()) delete poCallback; }
 	};
