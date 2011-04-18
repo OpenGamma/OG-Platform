@@ -18,9 +18,12 @@ public class BondIborTransaction extends BondTransaction<Payment> {
    * @param bondTransaction The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlement Transaction settlement payment (time and amount).
+   * @param bondStandard Description of the underlying bond with standard settlement date.
+   * @param spotTime Description of the standard spot time.
+   * @param notionalStandard The notional at the standard spot time.
    */
-  public BondIborTransaction(BondIborDescription bondTransaction, double quantity, PaymentFixed settlement) {
-    super(bondTransaction, quantity, settlement);
+  public BondIborTransaction(BondIborDescription bondTransaction, double quantity, PaymentFixed settlement, BondIborDescription bondStandard, double spotTime, double notionalStandard) {
+    super(bondTransaction, quantity, settlement, bondStandard, spotTime, notionalStandard);
   }
 
 }

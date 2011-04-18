@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeMsg;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -24,7 +25,6 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
-import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -73,11 +73,11 @@ public class DataViewClientResource {
   private final JmsResultPublisher _resultPublisher;
   
   public DataViewClientResource(ViewClient viewClient,
-      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource,
-      JmsByteArrayMessageSenderService messageSenderService, String topicPrefix) {
+      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsTemplate jmsTemplate,
+      String topicPrefix) {
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
-    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, messageSenderService);
+    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, jmsTemplate);
   }
   
   private ViewClient getViewClient() {
@@ -249,6 +249,7 @@ public class DataViewClientResource {
   @Path(PATH_SHUTDOWN)
   public Response shutdown() {
     getViewClient().shutdown();
+    stopResultStream();
     return Response.ok().build();
   }
   

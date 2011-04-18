@@ -220,4 +220,23 @@ public class TestsDataSets {
     return curves;
   }
 
+  /**
+   * Create a yield curve bundle with tthree curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * and one called "Forward" with a constant rate of 4.5%.
+   * @return The yield curve bundle.
+   */
+  public static YieldCurveBundle createCurvesBond1() {
+    final String CREDIT_CURVE_NAME = "Credit";
+    final String DISCOUNTING_CURVE_NAME = "Discounting";
+    final String FORWARD_CURVE_NAME = "Forward";
+    final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
+    final YieldAndDiscountCurve CURVE_45 = new YieldCurve(ConstantDoublesCurve.from(0.045));
+    YieldCurveBundle curves = new YieldCurveBundle();
+    curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
+    curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);
+    curves.setCurve(FORWARD_CURVE_NAME, CURVE_45);
+    return curves;
+  }
+
 }

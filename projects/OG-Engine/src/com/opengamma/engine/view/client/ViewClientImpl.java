@@ -88,6 +88,7 @@ public class ViewClientImpl implements ViewClient {
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
+        
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
         _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition);
         

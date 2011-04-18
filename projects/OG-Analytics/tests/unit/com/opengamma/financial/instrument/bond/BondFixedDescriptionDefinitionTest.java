@@ -84,7 +84,7 @@ public class BondFixedDescriptionDefinitionTest {
     AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0,
         RATE, false);
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
-    new BondFixedDescriptionDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
+    new BondFixedDescriptionDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -92,7 +92,7 @@ public class BondFixedDescriptionDefinitionTest {
     AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0,
         RATE, true);
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0)});
-    new BondFixedDescriptionDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
+    new BondFixedDescriptionDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
   }
 
   @Test

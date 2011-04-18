@@ -12,6 +12,9 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -48,7 +51,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class BondZSpreadFunction extends AbstractFunction.NonCompiledInvoker {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFunction.class);
   private static final BondCalculator DIRTY_PRICE_CALCULATOR = BondCalculatorFactory.getBondCalculator(BondCalculatorFactory.BOND_DIRTY_PRICE);
 
   public BondZSpreadFunction() {
