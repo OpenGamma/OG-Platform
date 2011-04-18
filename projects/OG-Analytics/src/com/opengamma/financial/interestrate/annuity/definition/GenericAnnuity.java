@@ -100,6 +100,14 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   /**
+   * Return the discounting (or funding) curve name.
+   * @return The name.
+   */
+  public String getDiscountCurve() {
+    return getNthPayment(0).getFundingCurveName();
+  }
+
+  /**
    * Remove the payments paying on or before the given time.
    * @param trimTime The time.
    * @return The trimmed annuity.

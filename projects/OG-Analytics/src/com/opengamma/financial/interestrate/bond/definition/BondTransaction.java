@@ -29,23 +29,43 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
    */
   private final double _quantity;
   /**
-   * The transaction settlement payment (time and amount). Can be null if the settlement took place already.
+   * The transaction settlement payment (time and amount). Will be time 0 and amount 0 if the settlement took place already.
    */
   private final PaymentFixed _settlement;
+  /**
+   * Description of the underlying bond with standard settlement date. Used for clean/dirty price calculation.
+   */
+  private final BondDescription<C> _bondStandard;
+  /**
+   * Description of the standard spot time. Used for clean/dirty price calculation.
+   */
+  private final double _spotTime;
+  /**
+   * The notional at the standard spot time.
+   */
+  private final double _notionalStandard;
 
   /**
    * Bond transaction constructor from the transaction details.
    * @param bondPurchased The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlement Transaction settlement payment (time and amount). Can be null if the settlement took place already.
+   * @param bondStandard Description of the underlying bond with standard settlement date.
+   * @param spotTime Description of the standard spot time.
+   * @param notionalStandard The notional at the standard spot time.
    */
-  public BondTransaction(BondDescription<C> bondPurchased, double quantity, PaymentFixed settlement) {
+  public BondTransaction(BondDescription<C> bondPurchased, double quantity, PaymentFixed settlement, BondDescription<C> bondStandard, double spotTime, double notionalStandard) {
     Validate.notNull(bondPurchased, "Bond underlying the transaction");
     Validate.notNull(settlement, "Settlement payment");
+    Validate.notNull(bondStandard, "Bond underlying with standard settlement date");
     // TODO: Check coherence of bond with settlement.
+    // TODO: Check coherence of quantity with settlement (sign).
     this._bondPurchased = bondPurchased;
     this._quantity = quantity;
     this._settlement = settlement;
+    _bondStandard = bondStandard;
+    _spotTime = spotTime;
+    _notionalStandard = notionalStandard;
   }
 
   /**
@@ -72,6 +92,30 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
     return _settlement;
   }
 
+  /**
+   * Gets the _bondStandard field.
+   * @return the _bondStandard
+   */
+  public BondDescription<C> getBondStandard() {
+    return _bondStandard;
+  }
+
+  /**
+   * Gets the _spotTime field.
+   * @return the _spotTime
+   */
+  public double getSpotTime() {
+    return _spotTime;
+  }
+
+  /**
+   * Gets the _notionalStandard field.
+   * @return the _notionalStandard
+   */
+  public double getNotionalStandard() {
+    return _notionalStandard;
+  }
+
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitBondTransaction(this, data);
@@ -84,13 +128,14 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
 
   @Override
   public String toString() {
-    String result = "Bond Transaction: Quantity=" + _quantity + "\n";
+    String result = "Bond Transaction: Quantity=" + _quantity + ", Spot time=" + _spotTime + ", Notional std=" + _notionalStandard + "\n";
     if (_settlement == null) {
       result += "Settlement in the past\n";
     } else {
       result += "Settlement: " + _settlement.toString() + "\n";
     }
-    result += "Underlying: " + _bondPurchased.toString();
+    result += "Underlying: " + _bondPurchased.toString() + "\n";
+    result += "Standard: " + _bondStandard.toString();
     return result;
   }
 
@@ -99,10 +144,15 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
     final int prime = 31;
     int result = 1;
     result = prime * result + _bondPurchased.hashCode();
+    result = prime * result + _bondStandard.hashCode();
     long temp;
+    temp = Double.doubleToLongBits(_notionalStandard);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_quantity);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + ((_settlement == null) ? 0 : _settlement.hashCode());
+    temp = Double.doubleToLongBits(_spotTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -118,13 +168,22 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
       return false;
     }
     BondTransaction<?> other = (BondTransaction<?>) obj;
-    if (Double.doubleToLongBits(_quantity) != Double.doubleToLongBits(other._quantity)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_bondPurchased, other._bondPurchased)) {
       return false;
     }
+    if (!ObjectUtils.equals(_bondStandard, other._bondStandard)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notionalStandard) != Double.doubleToLongBits(other._notionalStandard)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_quantity) != Double.doubleToLongBits(other._quantity)) {
+      return false;
+    }
     if (!ObjectUtils.equals(_settlement, other._settlement)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spotTime) != Double.doubleToLongBits(other._spotTime)) {
       return false;
     }
     return true;
