@@ -4,26 +4,28 @@
 package com.opengamma.engine.view.cache.msg;
 public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitReleaseCacheMessage (this); }
-  private static final long serialVersionUID = 33883987139272l;
-  private String _viewName;
-  public static final String VIEW_NAME_KEY = "viewName";
+  private static final long serialVersionUID = -51557833422991l;
+  private com.opengamma.id.UniqueIdentifier _viewProcessId;
+  public static final String VIEW_PROCESS_ID_KEY = "viewProcessId";
   private long _timestamp;
   public static final String TIMESTAMP_KEY = "timestamp";
-  public ReleaseCacheMessage (String viewName, long timestamp) {
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+  public ReleaseCacheMessage (com.opengamma.id.UniqueIdentifier viewProcessId, long timestamp) {
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
     _timestamp = timestamp;
   }
   protected ReleaseCacheMessage (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (VIEW_NAME_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewName' is not present");
+    fudgeField = fudgeMsg.getByName (VIEW_PROCESS_ID_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewProcessId' is not present");
     try {
-      _viewName = fudgeField.getValue ().toString ();
+      _viewProcessId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewName' is not string", e);
+      throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'viewProcessId' is not UniqueIdentifier message", e);
     }
     fudgeField = fudgeMsg.getByName (TIMESTAMP_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'timestamp' is not present");
@@ -34,16 +36,21 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
       throw new IllegalArgumentException ("Fudge message is not a ReleaseCacheMessage - field 'timestamp' is not long", e);
     }
   }
-  public ReleaseCacheMessage (Long correlationId, String viewName, long timestamp) {
+  public ReleaseCacheMessage (Long correlationId, com.opengamma.id.UniqueIdentifier viewProcessId, long timestamp) {
     super (correlationId);
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
     _timestamp = timestamp;
   }
   protected ReleaseCacheMessage (final ReleaseCacheMessage source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    _viewName = source._viewName;
+    if (source._viewProcessId == null) _viewProcessId = null;
+    else {
+      _viewProcessId = source._viewProcessId;
+    }
     _timestamp = source._timestamp;
   }
   public ReleaseCacheMessage clone () {
@@ -57,8 +64,10 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
   }
   public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
-    if (_viewName != null)  {
-      msg.add (VIEW_NAME_KEY, null, _viewName);
+    if (_viewProcessId != null)  {
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewProcessId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      _viewProcessId.toFudgeMsg (fudgeContext, fudge1);
+      msg.add (VIEW_PROCESS_ID_KEY, null, fudge1);
     }
     msg.add (TIMESTAMP_KEY, null, _timestamp);
   }
@@ -76,12 +85,14 @@ public class ReleaseCacheMessage extends com.opengamma.engine.view.cache.msg.Cac
     }
     return new ReleaseCacheMessage (fudgeMsg);
   }
-  public String getViewName () {
-    return _viewName;
+  public com.opengamma.id.UniqueIdentifier getViewProcessId () {
+    return _viewProcessId;
   }
-  public void setViewName (String viewName) {
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+  public void setViewProcessId (com.opengamma.id.UniqueIdentifier viewProcessId) {
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
   }
   public long getTimestamp () {
     return _timestamp;

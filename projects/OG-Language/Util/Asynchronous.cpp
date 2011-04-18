@@ -76,18 +76,12 @@ CAsynchronous::~CAsynchronous () {
 
 class CAsynchronousRunnerThread : public CThread {
 private:
-#ifdef _WIN32
-	HMODULE m_hDll;
-#endif /* ifdef _WIN32 */
 	CAsynchronous *m_poCaller;
 public:
 	CAsynchronousRunnerThread (CAsynchronous *poCaller)
 	: CThread () {
 		poCaller->Retain ();
 		m_poCaller = poCaller;
-#ifdef _WIN32
-		GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPTSTR)CAsynchronous::Release, &m_hDll);
-#endif /* ifdef _WIN32 */
 	}
 	~CAsynchronousRunnerThread () {
 		if (m_poCaller) {
@@ -99,14 +93,6 @@ public:
 		m_poCaller->OnThreadExit ();
 		CAsynchronous::Release (m_poCaller);
 		m_poCaller = NULL;
-#ifdef _WIN32
-		if (m_hDll) {
-// TODO: this will introduce a memory leak. Need to support FreeLibraryAndExitThread natively within CThread
-			FreeLibraryAndExitThread (m_hDll, 0);
-		} else {
-			LOGFATAL (TEXT ("No module handle to free library with"));
-		}
-#endif /* ifdef _WIN32 */
 	}
 };
 
@@ -186,30 +172,31 @@ void CAsynchronous::MakeCallbacks (CThread *poRunner) {
 abortLoop:
 	LOGDEBUG ("Callback thread aborting");
 	EnterCriticalSection ();
+	// Fall through to abandonLoop
+abandonLoop:
+	// Already in critical section when called from above
 	while (m_poHead) {
 		COperation *poOperation = m_poHead;
 		m_poHead = poOperation->m_poNext;
 		if (poOperation->m_bVital) {
-			LOGINFO ("Running vital operation");
+			LOGINFO (TEXT ("Running vital operation"));
 			poOperation->Run ();
 		} else {
-			LOGDEBUG ("Discarding operation");
+			LOGDEBUG (TEXT ("Discarding operation"));
 		}
 		delete poOperation;
 	}
-	CThread::Release (m_poRunner);
-	m_poRunner = NULL;
+	if (m_poRunner != poRunner) {
+		LOGDEBUG (TEXT ("Signalling thread control semaphore"));
+		m_semThread.Signal ();
+		LOGINFO (TEXT ("Callback thread abandonned"));
+	} else {
+		CThread::Release (m_poRunner);
+		m_poRunner = NULL;
+		LOGINFO (TEXT ("Callback thread aborted"));
+	}
 	m_bWaiting = false;
 	LeaveCriticalSection ();
-	LOGDEBUG ("Callback thread aborted");
-	return;
-abandonLoop:
-	// Already in critical section
-	LOGDEBUG (TEXT ("Signalling thread control semaphore"));
-	m_semThread.Signal ();
-	m_bWaiting = false;
-	LeaveCriticalSection ();
-	LOGINFO (TEXT ("Callback thread abandonned"));
 	return;
 }
 

@@ -17,6 +17,8 @@
 #endif
 #include "MemoryPool.h"
 #include "Semaphore.h"
+#else
+#include "Library.h"
 #endif
 
 #include "Atomic.h"
@@ -33,6 +35,7 @@ private:
 	CAtomicInt m_oRefCount;
 	int m_nThreadId;
 #ifdef _WIN32
+	CLibraryLock *m_poModuleLock;
 	HANDLE m_hThread;
 	static DWORD WINAPI StartProc (void *pObject);
 #else
@@ -46,6 +49,7 @@ protected:
 	~CThread () {
 		assert (m_oRefCount.Get () == 0);
 #ifdef _WIN32
+		assert (!m_poModuleLock);
 		if (m_hThread) CloseHandle (m_hThread);
 #else
 		if (m_pThread) apr_thread_detach (m_pThread);
@@ -55,6 +59,7 @@ public:
 	CThread () : IRunnable (), m_oRefCount (1) {
 		m_nThreadId = 0;
 #ifdef _WIN32
+		m_poModuleLock = NULL;
 		m_hThread = NULL;
 #else
 		m_pThread = NULL;
@@ -68,28 +73,7 @@ public:
 			delete poThread;
 		}
 	}
-	bool Start () { // NOT RE-ENTRANT
-#ifdef _WIN32
-		assert (!m_hThread);
-		Retain ();
-		m_hThread = CreateThread (NULL, 0, StartProc, this, 0, (PDWORD)&m_nThreadId);
-		if (!m_hThread) {
-			Release (this);
-			return false;
-		}
-#else
-		assert (!m_pThread);
-		apr_threadattr_t *pAttr;
-		if (!PosixLastError (apr_threadattr_create (&pAttr, m_oPool))) return false;
-		Retain ();
-		if (!PosixLastError (apr_thread_create (&m_pThread, pAttr, StartProc, this, m_oPool))) {
-			Release (this);
-			return false;
-		}
-		m_nThreadId = s_oNextThreadId.IncrementAndGet ();
-#endif
-		return true;
-	}
+	bool Start (); // NOT RE-ENTRANT
 	int GetThreadId () {
 		return m_nThreadId;
 	}

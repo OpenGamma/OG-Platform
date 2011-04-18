@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_asynchronous_h
-#define __inc_og_language_asynchronous_h
+#ifndef __inc_og_language_util_asynchronous_h
+#define __inc_og_language_util_asynchronous_h
 
 // Base class for an asynchronous callback service
 
@@ -75,4 +75,4 @@ public:
 	bool RecycleThread ();
 };
 
-#endif /* ifndef __inc_og_language_asynchronous_h */
+#endif /* ifndef __inc_og_language_util_asynchronous_h */

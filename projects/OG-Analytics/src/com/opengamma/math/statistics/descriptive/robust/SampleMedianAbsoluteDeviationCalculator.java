@@ -14,21 +14,19 @@ import com.opengamma.math.statistics.descriptive.MedianCalculator;
  * 
  */
 public class SampleMedianAbsoluteDeviationCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _median = new MedianCalculator();
+  private static final Function1D<double[], Double> MEDIAN = new MedianCalculator();
 
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 2) {
-      throw new IllegalArgumentException("Need at least two data points to calculate MAD");
-    }
-    final double median = _median.evaluate(x);
     final int n = x.length;
+    Validate.isTrue(n > 1, "Need at least two data points to calculate MAD");
+    final double median = MEDIAN.evaluate(x);
     final double[] diff = new double[n];
     for (int i = 0; i < n; i++) {
       diff[i] = Math.abs(x[i] - median);
     }
-    return _median.evaluate(diff);
+    return MEDIAN.evaluate(diff);
   }
 
 }

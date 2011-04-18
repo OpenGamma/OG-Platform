@@ -5,44 +5,88 @@
  */
 package com.opengamma.engine.view.permission;
 
-import com.opengamma.engine.view.View;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 
 /**
- * A simple permission checker which allows access to any view, but does not allow access to the results unless the
- * user is entitled to view each of the live data inputs. 
+ * Default implementation of {@code ViewPermissionProvider}.
  */
 public class DefaultViewPermissionProvider implements ViewPermissionProvider {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultViewPermissionProvider.class);
+  
+  private final SecuritySource _securitySource;
+  private final LiveDataEntitlementChecker _entitlementChecker;
+  
+  public DefaultViewPermissionProvider(SecuritySource securitySource, LiveDataEntitlementChecker entitlementChecker) {
+    _securitySource = securitySource;
+    _entitlementChecker = entitlementChecker;
+  }
+  
+  private SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+  
+  private LiveDataEntitlementChecker getEntitlementChecker() {
+    return _entitlementChecker;
+  }
+  
+  //-------------------------------------------------------------------------
   @Override
-  public boolean hasPermission(ViewPermission permission, UserPrincipal user, View view) {
+  public boolean canAccessCompiledViewDefinition(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
+    // REVIEW jonathan 2011-03-28 -- if/when we have fine-grained per-user permissions on view definitions or view
+    // processes, then this would need to check against those.
+    return true;
+  }
+
+  @Override
+  public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
+    s_logger.info("Checking that {} is entitled to computation results from {}", user, viewEvaluationModel);
+    Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications(viewEvaluationModel);
+    Map<LiveDataSpecification, Boolean> entitlements;
     try {
-      assertPermission(permission, user, view);
+      entitlements = getEntitlementChecker().isEntitled(user, requiredLiveData);
+    } catch (Exception e) {
+      s_logger.warn("Failed to perform entitlement checking. Failing open - assuming entitled.", e);
       return true;
-    } catch (ViewPermissionException e) {
+    }
+    ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
+    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
+      if (!entry.getValue().booleanValue()) {
+        failures.add(entry.getKey());
+      }
+    }
+
+    if (!failures.isEmpty()) {
+      s_logger.warn("User {} is not entitled to view computation results from {} because they do not have permission to: {}", new Object[] {user, viewEvaluationModel, failures});
       return false;
     }
-  }
-
-  @Override
-  public void assertPermission(ViewPermission permission, UserPrincipal user, View view) {
-    ArgumentChecker.notNull(permission, "permission");
-    ArgumentChecker.notNull(user, "user");
-    ArgumentChecker.notNull(view, "view");
     
-    switch (permission) {
-      case ACCESS:
-        return;
-      case READ_RESULTS:
-        // REVIEW jonathan 2010-08-18 -- this is probably way too strict. Live data agreements normally allow access to
-        // derived data even if the user is not entitled to the raw inputs. Anyway, that's the benefit of a pluggable
-        // permission provider.
-        view.assertAccessToLiveDataRequirements(user);
-        return;
-      default:
-        throw new IllegalArgumentException("Unsupported permission: " + permission);
-    }
+    return true;
   }
 
+  //-------------------------------------------------------------------------
+  private Collection<LiveDataSpecification> getRequiredLiveDataSpecifications(CompiledViewDefinition viewEvaluationModel) {
+    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
+    Set<ValueRequirement> liveDataRequirements = viewEvaluationModel.getLiveDataRequirements().keySet();
+    for (ValueRequirement requirement : liveDataRequirements) {
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecuritySource());
+      returnValue.add(liveDataSpec);
+    }
+    return returnValue;
+  }
+  
 }

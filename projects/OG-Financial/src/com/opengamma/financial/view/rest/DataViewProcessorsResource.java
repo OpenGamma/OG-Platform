@@ -8,7 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,52 +18,48 @@ import javax.ws.rs.core.Response;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * RESTful back-end to provide access to view processors
  */
-@Path("viewProcessor")
+@Path("/data/viewProcessors")
 public class DataViewProcessorsResource {
-
-  // CSOFF: just constants
-  public static final String DEFAULT_VIEW_PROCESSOR_NAME = "0";
-  // CSON: just constants
   
-  private final Map<String, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<String, DataViewProcessorResource>();
+  private final Map<UniqueIdentifier, DataViewProcessorResource> _viewProcessorResourceMap = new HashMap<UniqueIdentifier, DataViewProcessorResource>();
   
   public DataViewProcessorsResource() {
   }
 
   public DataViewProcessorsResource(final ViewProcessor viewProcessor, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext,
-      ExecutorService executorService) {
-    addViewProcessor(DEFAULT_VIEW_PROCESSOR_NAME, viewProcessor, connectionFactory, topicPrefix, fudgeContext, executorService);
+      ScheduledExecutorService scheduler) {
+    addViewProcessor(viewProcessor, connectionFactory, topicPrefix, fudgeContext, scheduler);
   }
 
-  public DataViewProcessorsResource(final Map<String, ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext,
-      ExecutorService executorService) {
-    for (Map.Entry<String, ViewProcessor> viewProcessor : viewProcessors.entrySet()) {
-      addViewProcessor(viewProcessor.getKey(), viewProcessor.getValue(), connectionFactory, topicPrefix, fudgeContext, executorService);
-    }
-  }
-
-  public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors, final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext,
-      ExecutorService executorService) {
-    int i = 0;
+  public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors,
+      final ActiveMQConnectionFactory connectionFactory, final String topicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     for (ViewProcessor viewProcessor : viewProcessors) {
-      addViewProcessor(Integer.toString(i++), viewProcessor, connectionFactory, topicPrefix, fudgeContext, executorService);
+      addViewProcessor(viewProcessor, connectionFactory, topicPrefix, fudgeContext, scheduler);
     }
   }
 
   //-------------------------------------------------------------------------
-  public void addViewProcessor(String name, ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String topicPrefix, FudgeContext fudgeContext, ExecutorService executorService) {
-    _viewProcessorResourceMap.put(name, new DataViewProcessorResource(viewProcessor, connectionFactory, topicPrefix, fudgeContext, executorService));
+  public void addViewProcessor(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory,
+      String topicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+    if (_viewProcessorResourceMap.get(viewProcessor.getUniqueId()) != null) {
+      throw new OpenGammaRuntimeException("A view processor with the ID " + viewProcessor.getUniqueId() + " is already being managed");
+    }
+    _viewProcessorResourceMap.put(viewProcessor.getUniqueId(),
+        new DataViewProcessorResource(viewProcessor, connectionFactory, topicPrefix, fudgeContext, scheduler));
   }
   
   //-------------------------------------------------------------------------
-  @Path("{name}")
-  public DataViewProcessorResource findViewProcessor(@PathParam("name") String name) {
-    return _viewProcessorResourceMap.get(name);
+  
+  @Path("{viewProcessorId}")
+  public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
+    return _viewProcessorResourceMap.get(UniqueIdentifier.parse(viewProcessorId));
   }
   
   @GET

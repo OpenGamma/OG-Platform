@@ -8,6 +8,7 @@ package com.opengamma.financial.instrument.bond;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
@@ -36,11 +37,15 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
    */
   private final int _settlementDays;
   /**
+   * The calendar used to compute the standard settlement date.
+   */
+  private final Calendar _calendar;
+  /**
    * The coupon day count convention.
    */
   private final DayCount _dayCount;
   /**
-   * The bond issuer.
+   * The bond issuer name.
    */
   private final String _issuer;
   /**
@@ -54,9 +59,10 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
    * @param coupon The bond coupons. The coupons notional and currency should be in line with the bond nominal.
    * @param exCouponDays Number of days before the payment of the coupon is detached from the bond (and paid to the then owner).
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
+   * @param calendar The calendar used to compute the standard settlement date.
    * @param dayCount The coupon day count convention.
    */
-  public BondDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, DayCount dayCount) {
+  public BondDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityDefinition<C> coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(dayCount, "Day count");
@@ -68,6 +74,7 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
     this._exCouponDays = exCouponDays;
     this._settlementDays = settlementDays;
     this._dayCount = dayCount;
+    _calendar = calendar;
     _issuer = "";
     _repoType = "";
   }
@@ -134,6 +141,14 @@ public abstract class BondDescriptionDefinition<C extends CouponDefinition> {
    */
   public Currency getCurrency() {
     return _nominal.getCurrency();
+  }
+
+  /**
+   * Gets the _calendar field.
+   * @return the _calendar
+   */
+  public Calendar getCalendar() {
+    return _calendar;
   }
 
   @Override

@@ -182,6 +182,38 @@ public final class ScheduleCalculator {
     return false;
   }
 
+  /**
+    * Return a date adjusted by a certain number of business days.
+    * @param date The initial date.
+    * @param calendar The calendar.
+    * @param settlementDays The number of days of the adjustment. Can be negative or positive.
+    * @return The adjusted dates.
+    */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final Calendar calendar, final int settlementDays) {
+    Validate.notNull(date);
+    Validate.notNull(calendar);
+    ZonedDateTime result;
+    result = date;
+    if (settlementDays != 0) {
+      if (settlementDays > 0) {
+        for (int loopday = 0; loopday < settlementDays; loopday++) {
+          result = result.plusDays(1);
+          while (!calendar.isWorkingDay(result.toLocalDate())) {
+            result = result.plusDays(1);
+          }
+        }
+      } else {
+        for (int loopday = 0; loopday < -settlementDays; loopday++) {
+          result = result.minusDays(1);
+          while (!calendar.isWorkingDay(result.toLocalDate())) {
+            result = result.minusDays(1);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
     Validate.notNull(date);
     Validate.notNull(convention);
