@@ -27,29 +27,31 @@ void *CThread::StartProc (apr_thread_t *handle, void *pObject) {
 #ifndef _WIN32
 	poThread->m_oTerminate.Signal ();
 #else /* ifndef _WIN32 */
-	HMODULE hModule = poThread->m_hModule;
-	poThread->m_hModule = NULL;
+	CLibraryLock *poModuleLock = poThread->m_poModuleLock;
+	poThread->m_poModuleLock = NULL;
 #endif /* ifndef _WIN32 */
 	CThread::Release (poThread);
+	return
 #ifdef _WIN32
-	if (hModule) {
-		FreeLibraryAndExitThread (hModule, 0);
-	}
-#endif /* ifndef _WIN32 */
-	return 0;
+		CLibraryLock::UnlockDeleteAndExitThread (poModuleLock, 0)
+#else /* ifdef _WIN32 */
+		0
+#endif /* ifdef _WIN32 */
+		;
 }
 
 bool CThread::Start () {
 #ifdef _WIN32
 	assert (!m_hThread);
-	if (!GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (LPCTSTR)CThread::StartProc, &m_hModule)) {
+	m_poModuleLock = CLibraryLock::CreateFromAddress (CThread::StartProc);
+	if (!m_poModuleLock) {
 		return false;
 	}
 	Retain ();
 	m_hThread = CreateThread (NULL, 0, StartProc, this, 0, (PDWORD)&m_nThreadId);
 	if (!m_hThread) {
-		FreeLibrary (m_hModule);
-		m_hModule = NULL;
+		CLibraryLock::UnlockAndDelete (m_poModuleLock);
+		m_poModuleLock = NULL;
 		Release (this);
 		return false;
 	}

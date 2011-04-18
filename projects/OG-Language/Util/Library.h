@@ -71,4 +71,49 @@ public:
 	}
 };
 
+#ifdef _WIN32
+class CLibraryLock {
+private:
+	HMODULE m_hDll;
+	CLibraryLock (HMODULE hDll) {
+		m_hDll = hDll;
+	}
+	~CLibraryLock () {
+		assert (!m_hDll);
+	}
+	static HMODULE GetModuleHandleAndDelete (CLibraryLock *poLock) {
+		if (poLock) {
+			HMODULE hDll = poLock->m_hDll;
+			poLock->m_hDll = NULL;
+			delete poLock;
+			return hDll;
+		} else {
+			return NULL;
+		}
+	}
+public:
+	static CLibraryLock *CreateFromAddress (PVOID pAddressInLibrary) {
+		HMODULE hDll = NULL;
+		if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (PCTSTR)pAddressInLibrary, &hDll)) {
+			return new CLibraryLock (hDll);
+		} else {
+			return NULL;
+		}
+	}
+	static void UnlockAndDelete (CLibraryLock *poLock) {
+		HMODULE hDll = GetModuleHandleAndDelete (poLock);
+		if (hDll) {
+			FreeLibrary (hDll);
+		}
+	}
+	static DWORD UnlockDeleteAndExitThread (CLibraryLock *poLock, DWORD dwExitCode) {
+		HMODULE hDll = GetModuleHandleAndDelete (poLock);
+		if (hDll) {
+			FreeLibraryAndExitThread (hDll, dwExitCode);
+		}
+		return dwExitCode;
+	}
+};
+#endif /* ifdef _WIN32 */
+
 #endif /* ifndef __inc_og_language_util_library_h */
