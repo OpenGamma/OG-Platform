@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.smile.function;
@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 /**
- * 
+ * Tests related to the Hagan et al. approximation of the SABR implied volatility.
  */
 public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
 
@@ -115,11 +115,11 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     assertEquals(derivativeN_FD, volatilityAdjoint[5], 1E-6);
   }
 
-  //  @Test
-  //  public void testVolatilityAdjoint0() {
-  //    // Price
-  //    double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE_0).evaluate(DATA);
-  //    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_STRIKE_0, DATA);
-  //    assertEquals(volatility, volatilityAdjoint[0], 1E-6);
-  //  }
+  @Test
+  public void testVolatilityAdjoint0() {
+    // Price
+    double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE_0).evaluate(DATA);
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_STRIKE_0, DATA);
+    assertEquals(volatility, volatilityAdjoint[0], 1E-6);
+  }
 }

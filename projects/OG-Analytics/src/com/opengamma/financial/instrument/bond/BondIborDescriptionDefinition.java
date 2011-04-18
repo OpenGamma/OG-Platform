@@ -58,7 +58,8 @@ public class BondIborDescriptionDefinition extends BondDescriptionDefinition<Cou
     Validate.notNull(dayCount, "Day count");
     Validate.notNull(businessDay, "Business day convention");
     AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
-    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate), DEFAULT_NOTIONAL)};
+    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate),
+        DEFAULT_NOTIONAL)};
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
     return new BondIborDescriptionDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
   }
