@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -54,7 +55,8 @@ public abstract class BondFunction extends NonCompiledInvoker {
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext
         .getConventionBundleSource(executionContext);
-    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY,

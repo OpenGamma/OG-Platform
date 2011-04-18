@@ -1,11 +1,9 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/livedata/Available.proto:12(10)
 package com.opengamma.language.livedata;
 public class Available extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
   private static final long serialVersionUID = 43233298658l;
-  // Created from com/opengamma/language/livedata/Available.proto:14(12)
   public static class Entry implements java.io.Serializable {
     private static final long serialVersionUID = -48244976843417l;
     private int _identifier;

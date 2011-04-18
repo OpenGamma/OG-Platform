@@ -55,8 +55,7 @@ public class BondSecurityToBondDefinitionConverter {
   public BondDefinition getBond(final BondSecurity security, final boolean rollToSettlement) {
     Validate.notNull(security);
     Validate.notNull(rollToSettlement);
-    final Currency currency = security.getCurrency();
-    final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_TREASURY_BOND_CONVENTION");
+    final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, security.getIssuerDomicile() + "_TREASURY_BOND_CONVENTION");
     final ConventionBundle convention = _conventionSource.getConventionBundle(id);
     return getBond(security, rollToSettlement, convention);
   }

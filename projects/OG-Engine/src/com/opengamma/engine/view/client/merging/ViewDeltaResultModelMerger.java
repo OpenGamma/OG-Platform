@@ -16,11 +16,15 @@ import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 /**
  * Provides the ability to merge {@link ViewDeltaResultModel} instances.
  */
-public class ViewDeltaResultModelMerger implements IncrementalMerger<ViewDeltaResultModel> {
+public class ViewDeltaResultModelMerger {
 
   private InMemoryViewDeltaResultModel _currentMergedResult;
   
-  @Override
+  /**
+   * Adds a new result.
+   * 
+   * @param newResult  the new result to merge
+   */
   public void merge(ViewDeltaResultModel newResult) {
     if (_currentMergedResult == null) {
       // Start of a new result
@@ -46,8 +50,12 @@ public class ViewDeltaResultModelMerger implements IncrementalMerger<ViewDeltaRe
     }
   }
 
-  @Override
-  public ViewDeltaResultModel consume() {
+  /**
+   * Retrieves the latest merged result.
+   * 
+   * @return  the latest merged result, or {@link null} to indicate no change
+   */
+  public ViewDeltaResultModel getLatestResult() {
     if (_currentMergedResult == null) {
       return null;
     }
@@ -56,10 +64,7 @@ public class ViewDeltaResultModelMerger implements IncrementalMerger<ViewDeltaRe
       return null;
     }
     
-    ViewDeltaResultModel result = _currentMergedResult;
-    // This is a delta merger so now that we've consumed the latest deltas, the next delta should start empty
-    _currentMergedResult = null;
-    return result;
+    return _currentMergedResult;
   }
 
 }

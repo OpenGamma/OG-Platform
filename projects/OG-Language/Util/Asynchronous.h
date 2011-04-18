@@ -4,8 +4,8 @@
  * Please see distribution for license.
  */
 
-#ifndef __inc_og_language_asynchronous_h
-#define __inc_og_language_asynchronous_h
+#ifndef __inc_og_language_util_asynchronous_h
+#define __inc_og_language_util_asynchronous_h
 
 // Base class for an asynchronous callback service
 
@@ -40,13 +40,14 @@ private:
 	COperation *m_poTail;
 	CThread *m_poRunner;
 	bool m_bWaiting;
-	CSemaphore m_semaphore;
+	CSemaphore m_semQueue;
+	CSemaphore m_semThread;
 	bool m_bPoison;
 	long m_lTimeoutInactivity;
 	long m_lTimeoutReschedule;
 	long m_lTimeoutInfoPeriod;
 	long m_lTimeoutAbortPeriod;
-	void MakeCallbacks ();
+	void MakeCallbacks (CThread *poRunner);
 	friend class CAsynchronousRunnerThread;
 protected:
 	CAsynchronous ();
@@ -71,6 +72,7 @@ public:
 	void SetTimeoutInfoPeriod (long lTimeoutInfoPeriod) { m_lTimeoutInfoPeriod = lTimeoutInfoPeriod; }
 	long GetTimeoutAbortPeriod () { return m_lTimeoutAbortPeriod; }
 	void SetTimeoutAbortPeriod (long lTimeoutAbortPeriod) { m_lTimeoutAbortPeriod = lTimeoutAbortPeriod; }
+	bool RecycleThread ();
 };
 
-#endif /* ifndef __inc_og_language_asynchronous_h */
+#endif /* ifndef __inc_og_language_util_asynchronous_h */

@@ -64,7 +64,7 @@ final class MathCurve {
       context.addToMessage(message, CURVE_NAME_FIELD_NAME, null, object.getName());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public InterpolatedDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final double[] x = context.fieldValueToObject(double[].class, message.getByName(X_DATA_FIELD_NAME));
@@ -83,7 +83,7 @@ final class MathCurve {
     private static final String CURVE_FUNCTION_FIELD_NAME = "function";
     private static final String CURVE_NAME_FIELD_NAME = "name";
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     public FunctionalDoublesCurve buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
       final String name = context.fieldValueToObject(String.class, message.getByName(CURVE_NAME_FIELD_NAME));

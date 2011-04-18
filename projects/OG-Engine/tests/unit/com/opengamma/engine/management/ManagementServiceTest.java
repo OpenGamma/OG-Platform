@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -20,10 +20,12 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessorImpl;
-import com.opengamma.engine.view.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
@@ -33,7 +35,7 @@ public class ManagementServiceTest {
   
   private static final String ANOTHER_TEST_VIEW = "ANOTHER_TEST_VIEW";
   private static final Logger s_logger = LoggerFactory.getLogger(ManagementServiceTest.class);
-  private static final int MBEANS_IN_TEST_VIEWPROCESSOR = 3;
+  private static final int MBEANS_IN_TEST_VIEWPROCESSOR = 1;
   private MBeanServer _mBeanServer;
   private TotallingGraphStatisticsGathererProvider _statisticsProvider;
   private ViewProcessorTestEnvironment _env;
@@ -69,14 +71,14 @@ public class ManagementServiceTest {
   public void testRegistrationService() throws Exception {
     ViewProcessorImpl vp = _env.getViewProcessor();
     vp.start();
-    ManagementService.registerMBeans(vp, ViewProcessorTestEnvironment.TEST_USER, _statisticsProvider, _mBeanServer);
+    ManagementService.registerMBeans(vp, _statisticsProvider, _mBeanServer);
     assertEquals(MBEANS_IN_TEST_VIEWPROCESSOR, _mBeanServer.queryNames(new ObjectName("com.opengamma:*"), null).size());
   }
   
   public void testRegistrationServiceListensForViewAdded() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     viewProcessor.start();
-    ManagementService.registerMBeans(viewProcessor, ViewProcessorTestEnvironment.TEST_USER, _statisticsProvider, _mBeanServer);
+    ManagementService.registerMBeans(viewProcessor, _statisticsProvider, _mBeanServer);
     assertEquals(MBEANS_IN_TEST_VIEWPROCESSOR, _mBeanServer.queryNames(new ObjectName("com.opengamma:*"), null).size());
     addAnotherView(viewProcessor);
     s_logger.debug("after adding new views");
@@ -88,8 +90,8 @@ public class ManagementServiceTest {
     ViewDefinition anotherDefinition = new ViewDefinition(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
     anotherDefinition.addViewCalculationConfiguration(_env.getViewDefinition().getCalculationConfiguration(ViewProcessorTestEnvironment.TEST_CALC_CONFIG_NAME));
     _env.getViewDefinitionRepository().addDefinition(anotherDefinition);
-    //creates a new view
-    viewprocessor.getView(ANOTHER_TEST_VIEW, ViewProcessorTestEnvironment.TEST_USER);
+    ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.attachToViewProcess(ANOTHER_TEST_VIEW, ExecutionOptions.realTime(), false);
   }
   
   

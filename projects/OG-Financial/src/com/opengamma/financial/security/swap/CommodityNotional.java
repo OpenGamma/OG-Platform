@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/swap/Notional.proto:22(10)
 package com.opengamma.financial.security.swap;
 public class CommodityNotional extends com.opengamma.financial.security.swap.Notional implements java.io.Serializable {
   public <T> T accept (NotionalVisitor<T> visitor) { return visitor.visitCommodityNotional (this); }

@@ -23,6 +23,11 @@ public abstract class AbstractLiveDataSnapshotProvider implements LiveDataSnapsh
     _listeners.add(listener);
   }
   
+  @Override
+  public void removeListener(LiveDataSnapshotListener listener) {
+    _listeners.remove(listener);
+  }
+  
   /** 
    * @return Collection will be unmodifiable. Iterating over it will not throw {@code ConcurrentModificationException}.
    */

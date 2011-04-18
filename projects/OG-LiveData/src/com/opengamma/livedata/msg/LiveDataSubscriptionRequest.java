@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/livedata/msg/LiveDataSubscriptionRequest.proto:26(10)
 package com.opengamma.livedata.msg;
 public class LiveDataSubscriptionRequest implements java.io.Serializable {
   private static final long serialVersionUID = 666128997025752l;

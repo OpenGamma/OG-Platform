@@ -66,6 +66,56 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   public static final Currency CAD = of("CAD");
 
   /**
+   * The currency 'DKK' - Dutch Krone
+   */
+  public static final Currency DKK = of("DKK");
+  
+  /**
+   * The currency 'DEM' - Deutsche Mark
+   */
+  public static final Currency DEM = of("DEM");
+  
+  /**
+   * The currency 'CZK' - Czeck Krona
+   */
+  public static final Currency CZK = of("CZK");
+  
+  /**
+   * The currency 'SEK' - Swedish Krona
+   */
+  public static final Currency SEK = of("SEK");
+  
+  /**
+   * The currency 'SKK' - Slovak Korona
+   */
+  public static final Currency SKK = of("SKK"); 
+  
+  /**
+   * The currency 'ITL' - Italian Lira
+   */
+  public static final Currency ITL = of("ITL");
+  
+  /**
+   * The currency 'HUF' = Hugarian Forint
+   */
+  public static final Currency HUF = of("HUF");
+  
+  /**
+   * The currency 'HKD' - Hong Kong Dollar
+   */
+  public static final Currency HKD = of("HKD");
+  
+  /**
+   * The currency 'FRF' - French Franc
+   */
+  public static final Currency FRF = of("FRF");
+  
+  /**
+   * The currency 'NOK' - Norwegian Krone 
+   */
+  public static final Currency NOK = of("NOK");
+  
+  /**
    * The currency code, not null.
    */
   private final String _code;

@@ -12,6 +12,9 @@ package com.opengamma;
  */
 public class DataNotFoundException extends OpenGammaRuntimeException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates an exception with a message.
    * 

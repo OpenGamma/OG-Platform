@@ -1,22 +1,23 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/engine/view/cache/msg/FindMessage.proto:9(10)
 package com.opengamma.engine.view.cache.msg;
 public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessage implements java.io.Serializable {
   public CacheMessage accept (CacheMessageVisitor visitor) { return visitor.visitFindMessage (this); }
-  private static final long serialVersionUID = -5661669885779352616l;
-  private String _viewName;
-  public static final String VIEW_NAME_KEY = "viewName";
+  private static final long serialVersionUID = 7664734915286717441l;
+  private com.opengamma.id.UniqueIdentifier _viewProcessId;
+  public static final String VIEW_PROCESS_ID_KEY = "viewProcessId";
   private String _calculationConfigurationName;
   public static final String CALCULATION_CONFIGURATION_NAME_KEY = "calculationConfigurationName";
   private long _snapshotTimestamp;
   public static final String SNAPSHOT_TIMESTAMP_KEY = "snapshotTimestamp";
   private java.util.List<Long> _identifier;
   public static final String IDENTIFIER_KEY = "identifier";
-  public FindMessage (String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier) {
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+  public FindMessage (com.opengamma.id.UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier) {
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
     _calculationConfigurationName = calculationConfigurationName;
     _snapshotTimestamp = snapshotTimestamp;
@@ -35,13 +36,13 @@ public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessag
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     java.util.List<org.fudgemsg.FudgeField> fudgeFields;
-    fudgeField = fudgeMsg.getByName (VIEW_NAME_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FindMessage - field 'viewName' is not present");
+    fudgeField = fudgeMsg.getByName (VIEW_PROCESS_ID_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FindMessage - field 'viewProcessId' is not present");
     try {
-      _viewName = fudgeField.getValue ().toString ();
+      _viewProcessId = com.opengamma.id.UniqueIdentifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a FindMessage - field 'viewName' is not string", e);
+      throw new IllegalArgumentException ("Fudge message is not a FindMessage - field 'viewProcessId' is not UniqueIdentifier message", e);
     }
     fudgeField = fudgeMsg.getByName (CALCULATION_CONFIGURATION_NAME_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a FindMessage - field 'calculationConfigurationName' is not present");
@@ -71,10 +72,12 @@ public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessag
       }
     }
   }
-  public FindMessage (Long correlationId, String viewName, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier) {
+  public FindMessage (Long correlationId, com.opengamma.id.UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp, java.util.Collection<? extends Long> identifier) {
     super (correlationId);
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
     if (calculationConfigurationName == null) throw new NullPointerException ("calculationConfigurationName' cannot be null");
     _calculationConfigurationName = calculationConfigurationName;
     _snapshotTimestamp = snapshotTimestamp;
@@ -92,7 +95,10 @@ public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessag
   protected FindMessage (final FindMessage source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    _viewName = source._viewName;
+    if (source._viewProcessId == null) _viewProcessId = null;
+    else {
+      _viewProcessId = source._viewProcessId;
+    }
     _calculationConfigurationName = source._calculationConfigurationName;
     _snapshotTimestamp = source._snapshotTimestamp;
     if (source._identifier == null) _identifier = null;
@@ -111,8 +117,10 @@ public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessag
   }
   public void toFudgeMsg (final org.fudgemsg.FudgeMsgFactory fudgeContext, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (fudgeContext, msg);
-    if (_viewName != null)  {
-      msg.add (VIEW_NAME_KEY, null, _viewName);
+    if (_viewProcessId != null)  {
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializationContext.addClassHeader (fudgeContext.newMessage (), _viewProcessId.getClass (), com.opengamma.id.UniqueIdentifier.class);
+      _viewProcessId.toFudgeMsg (fudgeContext, fudge1);
+      msg.add (VIEW_PROCESS_ID_KEY, null, fudge1);
     }
     if (_calculationConfigurationName != null)  {
       msg.add (CALCULATION_CONFIGURATION_NAME_KEY, null, _calculationConfigurationName);
@@ -138,12 +146,14 @@ public class FindMessage extends com.opengamma.engine.view.cache.msg.CacheMessag
     }
     return new FindMessage (fudgeMsg);
   }
-  public String getViewName () {
-    return _viewName;
+  public com.opengamma.id.UniqueIdentifier getViewProcessId () {
+    return _viewProcessId;
   }
-  public void setViewName (String viewName) {
-    if (viewName == null) throw new NullPointerException ("viewName' cannot be null");
-    _viewName = viewName;
+  public void setViewProcessId (com.opengamma.id.UniqueIdentifier viewProcessId) {
+    if (viewProcessId == null) throw new NullPointerException ("'viewProcessId' cannot be null");
+    else {
+      _viewProcessId = viewProcessId;
+    }
   }
   public String getCalculationConfigurationName () {
     return _calculationConfigurationName;

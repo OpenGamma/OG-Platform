@@ -82,16 +82,16 @@ public class RemoteViewComputationCacheSource extends DefaultViewComputationCach
 
     @Override
     protected CacheMessage visitReleaseCacheMessage(final ReleaseCacheMessage message) {
-      s_logger.debug("Releasing cache {}/{}", message.getViewName(), message.getTimestamp());
+      s_logger.debug("Releasing cache {}/{}", message.getViewProcessId(), message.getTimestamp());
       // [ENG-256] make sure we don't cause a cascade of messages if e.g. release called on a client, must cause release on server, which must send release to other clients but these must not generate
       // further messages
-      releaseCaches(message.getViewName(), message.getTimestamp());
+      releaseCaches(message.getViewProcessId(), message.getTimestamp());
       return null;
     }
 
     @Override
     protected CacheMessage visitFindMessage(final FindMessage message) {
-      final DefaultViewComputationCache cache = findCache(message.getViewName(), message
+      final DefaultViewComputationCache cache = findCache(message.getViewProcessId(), message
           .getCalculationConfigurationName(), message.getSnapshotTimestamp());
       if (cache != null) {
         final List<Long> identifiers = message.getIdentifier();

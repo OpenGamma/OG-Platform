@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/financial/security/future/InterestRateFutureSecurity.proto:12(10)
 package com.opengamma.financial.security.future;
 public class InterestRateFutureSecurity extends com.opengamma.financial.security.future.FutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitInterestRateFutureSecurity (this); }

@@ -27,6 +27,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -76,7 +77,7 @@ public class MultipleNodeExecutorTest {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification("Test View", graph.getCalcConfName(), 1L, JobIdSource.getId());
+        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalcConfName(), 1L, JobIdSource.getId());
       }
 
       @Override

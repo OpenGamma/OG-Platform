@@ -5,128 +5,125 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.CycleCompletedCall;
+import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
+import com.opengamma.engine.view.listener.ProcessCompletedCall;
+import com.opengamma.engine.view.listener.ProcessTerminatedCall;
+import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
+import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 
 /**
- * 
+ * Publishes asynchronous results from a view client over JMS.
  */
-public class JmsResultPublisher implements ComputationResultListener, DeltaComputationResultListener {
+public class JmsResultPublisher implements ViewResultListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsResultPublisher.class);
+  private static final String SEQUENCE_NUMBER_FIELD_NAME = "#";
   
   private final ViewClient _viewClient;
   private final FudgeContext _fudgeContext;
   private final FudgeSerializationContext _fudgeSerializationContext;
-  private final String _topicPrefix;
-  private final JmsByteArrayMessageSenderService _messageSenderService;
-  private final ReentrantLock _configLock = new ReentrantLock();
+  private final JmsByteArrayMessageSender _sender;
+  private final ReentrantLock _lock = new ReentrantLock();
   
-  private JmsByteArrayMessageSender _resultSender;
-  private JmsByteArrayMessageSender _deltaSender;
+  private final AtomicLong _sequenceNumber = new AtomicLong();
 
-  public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, String topicPrefix, JmsByteArrayMessageSenderService messageSenderService) {
+  public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, String destinationPrefix, JmsByteArrayMessageSenderService messageSenderService) {
     _viewClient = viewClient;
     _fudgeContext = fudgeContext;
     _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
-    _topicPrefix = topicPrefix;
-    _messageSenderService = messageSenderService;
+    String destinationName = getDestinationName(viewClient, destinationPrefix);
+    _sender = messageSenderService.getMessageSender(destinationName);
   }
   
-  public String startPublishingResults() {
-    _configLock.lock();
+  public void startPublishingResults() {
+    _lock.lock();
     try {
-      if (_resultSender == null) {
-        String topic = getTopicName(_viewClient, "computation");
-        s_logger.info("Set up JMS {}", topic);
-        _resultSender = _messageSenderService.getMessageSender(topic);
-      }
-      s_logger.debug("Setting listener {} on view client {}'s computation result", this, _viewClient);
+      s_logger.debug("Setting listener {} on view client {}'s results", this, _viewClient);
       _viewClient.setResultListener(this);
-      return _resultSender.getDestinationName();
     } finally {
-      _configLock.unlock();
+      _lock.unlock();
     }
   }
   
   public void stopPublishingResults() {
-    _configLock.lock();
+    _lock.lock();
     try {
-      s_logger.debug("Removing listener {} from view client {}'s computation result", this, _viewClient);
+      s_logger.debug("Removing listener {} from view client {}'s results", this, _viewClient);
       _viewClient.setResultListener(null);
-      _resultSender = null;
     } finally {
-      _configLock.unlock();
+      _lock.unlock();
     }
+  }
+
+  public String getDestinationName() {
+    return _sender.getDestinationName();
   }
   
-  public String startPublishingDeltas() {
-    _configLock.lock();
-    try {
-      if (_deltaSender == null) {
-        String topic = getTopicName(_viewClient, "delta");
-        s_logger.info("Set up JMS {}", topic);
-        // [ENG-107] the message sender job drops stuff if the JMS can't keep up, which may be a problem here
-        _deltaSender = _messageSenderService.getMessageSender(topic);
-      }
-      s_logger.debug("Setting listener {} on view client {}'s delta result", this, _viewClient);
-      _viewClient.setDeltaResultListener(this);
-      return _deltaSender.getDestinationName();
-    } finally {
-      _configLock.unlock();
-    }
-  }
-  
-  public void stopPublishingDeltas() {
-    _configLock.lock();
-    try {
-      s_logger.debug("Removing listener {} from view client {}'s computation result", this, _viewClient);
-      _viewClient.setDeltaResultListener(null);
-      _deltaSender = null;
-    } finally {
-      _configLock.unlock();
-    }
-  }
+  //-------------------------------------------------------------------------
+  @Override
+  public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
+    send(new ViewDefinitionCompiledCall(compiledViewDefinition));
+  }  
   
   @Override
-  public UserPrincipal getUser() {
-    return _viewClient.getUser();
-  }
-  
-  @Override
-  public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    s_logger.info("Write {} to JMS {}", resultModel, _resultSender);
-    FudgeMsg resultModelMsg = _fudgeSerializationContext.objectToFudgeMsg(resultModel);
-    s_logger.debug("Results in Fudge msg {}", resultModelMsg);
-    byte[] fudgeMsg = _fudgeContext.toByteArray(resultModelMsg);
-    s_logger.debug("Writing {} bytes data", fudgeMsg.length);
-    _resultSender.send(fudgeMsg);
+  public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+    send(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
   }
 
   @Override
-  public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
-    s_logger.info("Write {} to JMS {}", deltaModel, _deltaSender);
-    byte[] fudgeMsg = _fudgeContext.toByteArray(_fudgeSerializationContext.objectToFudgeMsg(deltaModel));
-    s_logger.debug("Writing {} bytes data", fudgeMsg.length);
-    _deltaSender.send(fudgeMsg);
+  public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    send(new CycleCompletedCall(fullResult, deltaResult));
+  }
+
+  @Override
+  public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+    send(new CycleExecutionFailedCall(executionOptions, exception));
+  }
+
+  @Override
+  public void processCompleted() {
+    send(new ProcessCompletedCall());
+  }
+
+  @Override
+  public void processTerminated(boolean executionInterrupted) {
+    send(new ProcessTerminatedCall(executionInterrupted));
+  }
+
+  //-------------------------------------------------------------------------
+  private String getDestinationName(ViewClient viewClient, String prefix) {
+    return prefix + "-" + viewClient.getUniqueId();
   }
   
-  private String getTopicName(ViewClient viewClient, String suffix) {
-    return _topicPrefix + "-" + viewClient.getUniqueId() + "-" + suffix;
+  private void send(Object result) {
+    s_logger.debug("Result received to forward over JMS: {}", result);
+    MutableFudgeMsg resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
+    FudgeSerializationContext.addClassHeader(resultMsg, result.getClass());
+    long sequenceNumber = _sequenceNumber.getAndIncrement();
+    resultMsg.add(SEQUENCE_NUMBER_FIELD_NAME, sequenceNumber);
+    s_logger.debug("Sending result as fudge message with sequence number {}: {}", sequenceNumber, resultMsg);
+    byte[] resultMsgByteArray = _fudgeContext.toByteArray(resultMsg);
+    _sender.send(resultMsgByteArray);
   }
   
 }

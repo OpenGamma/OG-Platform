@@ -1,15 +1,12 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/engine/view/calcnode/msg/Invocations.proto:9(10)
 package com.opengamma.engine.view.calcnode.msg;
 public class Invocations extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitInvocationsMessage (this); }
   private static final long serialVersionUID = 61190450818l;
-  // Created from com/opengamma/engine/view/calcnode/msg/Invocations.proto:11(12)
   public static class PerConfiguration implements java.io.Serializable {
     private static final long serialVersionUID = 55883427781428l;
-    // Created from com/opengamma/engine/view/calcnode/msg/Invocations.proto:15(14)
     public static class PerFunction implements java.io.Serializable {
       private static final long serialVersionUID = -2696372187157615071l;
       private String _identifier;

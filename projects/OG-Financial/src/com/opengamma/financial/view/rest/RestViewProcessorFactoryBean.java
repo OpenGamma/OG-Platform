@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
@@ -23,7 +23,7 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
   private ActiveMQConnectionFactory _connectionFactory;
   private String _topicPrefix;
   private FudgeContext _fudgeContext;
-  private ExecutorService _executorService;
+  private ScheduledExecutorService _scheduler;
    
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
@@ -57,12 +57,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     _fudgeContext = fudgeContext;
   }
   
-  public ExecutorService getExecutorService() {
-    return _executorService;
+  public ScheduledExecutorService getScheduler() {
+    return _scheduler;
   }
   
-  public void setExecutorService(ExecutorService executorService) {
-    _executorService = executorService;
+  public void setExecutorService(ScheduledExecutorService scheduler) {
+    _scheduler = scheduler;
   }
 
   @Override
@@ -76,12 +76,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     if (_topicPrefix == null) {
       throw new OpenGammaRuntimeException("The topicPrefix property must be set");
     }
-    if (_executorService == null) {
-      throw new OpenGammaRuntimeException("The executorService property must be set");
+    if (_scheduler == null) {
+      throw new OpenGammaRuntimeException("The scheduler property must be set");
     }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(DataViewProcessorsResource.DEFAULT_VIEW_PROCESSOR_NAME, getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext(), getExecutorService());
+    resource.addViewProcessor(getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext(), getScheduler());
     return resource;
   }
 

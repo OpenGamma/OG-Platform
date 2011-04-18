@@ -37,7 +37,7 @@ public class CouponFixed extends PaymentFixed {
    * @param notional Coupon notional.
    * @param rate The coupon fixed rate.
    */
-  public CouponFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, final double rate) {
+  public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate) {
     super(currency, paymentTime, paymentYearFraction * notional * rate, fundingCurveName);
     _fixedRate = rate;
     _notional = notional;
@@ -57,10 +57,9 @@ public class CouponFixed extends PaymentFixed {
    * @param rate The coupon fixed rate.
    * @param accrualStartDate The start date of the coupon accrual period.
    * @param accrualEndDate The end date of the coupon accrual period.
-   * @
    */
-  public CouponFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, final double rate, ZonedDateTime accrualStartDate,
-      ZonedDateTime accrualEndDate) {
+  public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate, 
+      final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, paymentYearFraction * notional * rate, fundingCurveName);
     _fixedRate = rate;
     _notional = notional;
@@ -78,7 +77,7 @@ public class CouponFixed extends PaymentFixed {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param rate The coupon fixed rate.
    */
-  public CouponFixed(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, final double rate) {
+  public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double rate) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, 1.0, rate);
   }
 
@@ -151,7 +150,7 @@ public class CouponFixed extends PaymentFixed {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -161,7 +160,7 @@ public class CouponFixed extends PaymentFixed {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixed other = (CouponFixed) obj;
+    final CouponFixed other = (CouponFixed) obj;
     if (Double.doubleToLongBits(_fixedRate) != Double.doubleToLongBits(other._fixedRate)) {
       return false;
     }
@@ -175,12 +174,12 @@ public class CouponFixed extends PaymentFixed {
   }
 
   @Override
-  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitFixedCouponPayment(this, data);
   }
 
   @Override
-  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
     return visitor.visitFixedCouponPayment(this);
   }
 }

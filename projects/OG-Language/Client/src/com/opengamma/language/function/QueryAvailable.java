@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/function/QueryAvailable.proto:12(10)
 package com.opengamma.language.function;
 public class QueryAvailable extends com.opengamma.language.connector.Function implements java.io.Serializable {
   public <T1,T2> T1 accept (final FunctionVisitor<T1,T2> visitor, final T2 data) { return visitor.visitQueryAvailable (this, data); }

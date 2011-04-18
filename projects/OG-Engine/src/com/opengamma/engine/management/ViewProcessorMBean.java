@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,6 +7,7 @@ package com.opengamma.engine.management;
 
 import java.util.Set;
 
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A management bean for a ViewProcessor
@@ -15,26 +16,26 @@ import java.util.Set;
 public interface ViewProcessorMBean {
   
   /**
-   * Gets the names of the views to which the view processor can provide access. Not all of these views are necessarily
-   * initialized, less so being processed.
+   * Gets a collection of the view processes currently being managed by this view processor. A view process could be in
+   * any state, and might have finished producing new results. 
    * 
-   * @return a set of view names
+   * @return a collection of the current view processes, not null
    */
-  Set<String> getViewNames();
+  Set<UniqueIdentifier> getViewProcesses();
   
   /**
-   * Start this ViewProcessor
+   * Start this view processor
    */
   void start();
 
   /**
-   * Stop this ViewProcessor.
+   * Stop this view processor
    * 
    */
   void stop();
 
   /**
-   * Check whether this ViewProcessor is currently running.
+   * Check whether this view processor is currently running.
    * @return whether the component is currently running
    */
   boolean isRunning();

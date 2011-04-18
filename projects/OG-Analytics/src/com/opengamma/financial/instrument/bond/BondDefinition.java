@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.bond;
@@ -189,7 +189,8 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final LocalDate settlementDate = getSettlementDate(date, calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
     double accruedInterest = 0;
-    accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(), position);
+    accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(), 
+      position, calendar);
     accrualTime = accruedInterest / coupon;
     final double timeBetweenCoupons = 1. / _couponsPerYear;
     final double[] paymentTimes = new double[n - position - 1];

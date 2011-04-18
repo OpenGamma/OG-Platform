@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/engine/view/calcnode/msg/Ready.proto:9(10)
 package com.opengamma.engine.view.calcnode.msg;
 public class Ready extends com.opengamma.engine.view.calcnode.msg.RemoteCalcNodeMessage implements java.io.Serializable {
   public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitReadyMessage (this); }

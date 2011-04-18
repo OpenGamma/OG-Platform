@@ -16,15 +16,13 @@ import com.opengamma.math.statistics.descriptive.MedianCalculator;
  * 
  */
 public class InterquartileRangeCalculator extends Function1D<double[], Double> {
-  private final Function1D<double[], Double> _median = new MedianCalculator();
+  private static final Function1D<double[], Double> MEDIAN = new MedianCalculator();
 
   @Override
   public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    if (x.length < 4) {
-      throw new IllegalArgumentException("Need at least four points to calculate IQR");
-    }
     final int n = x.length;
+    Validate.isTrue(n > 3, "Need at least four points to calculate IQR");
     final double[] copy = Arrays.copyOf(x, n);
     Arrays.sort(copy);
     double[] lower, upper;
@@ -35,6 +33,6 @@ public class InterquartileRangeCalculator extends Function1D<double[], Double> {
       lower = Arrays.copyOfRange(copy, 0, n / 2 + 1);
       upper = Arrays.copyOfRange(copy, n / 2, n);
     }
-    return _median.evaluate(upper) - _median.evaluate(lower);
+    return MEDIAN.evaluate(upper) - MEDIAN.evaluate(lower);
   }
 }

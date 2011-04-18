@@ -49,8 +49,31 @@ public:
 	}
 };
 
+class CThreadRecordingOperation : public CAsynchronous::COperation {
+private:
+	void **m_ppThreadRef;
+public:
+	CThreadRecordingOperation (void **ppThreadRef) {
+		m_ppThreadRef = ppThreadRef;
+	}
+	void Run () {
+		*m_ppThreadRef = CThread::CurrentRef ();
+	}
+};
+
+class CDummyThread : public CThread {
+public:
+	CDummyThread () : CThread () {
+		ASSERT (Start ());
+	}
+	void Run () {
+		Sleep (TIMEOUT_COMPLETE);
+	}
+};
+
 static void BasicOperations () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
+	ASSERT (poCaller);
 	int nRun1 = 0, nRun2 = 0, nRun3 = 0;
 	CTestAsyncOperation1 *poRun1 = new CTestAsyncOperation1 (0, &nRun1);
 	CTestAsyncOperation1 *poRun2 = new CTestAsyncOperation1 (2, &nRun2);
@@ -67,6 +90,7 @@ static void BasicOperations () {
 
 static void VitalOperations () {
 	CAsynchronous *poCaller = CAsynchronous::Create ();
+	ASSERT (poCaller);
 	int nRun1 = 0, nRun2 = 0, nRun3 = 0, nRun4 = 0, nRun5 = 0;
 	CTestAsyncOperation2 *poRun1 = new CTestAsyncOperation2 (false, &nRun1);
 	CTestAsyncOperation2 *poRun2 = new CTestAsyncOperation2 (false, &nRun2);
@@ -88,7 +112,56 @@ static void VitalOperations () {
 	ASSERT (nRun5 == 1);
 }
 
+static void ThreadIdleTimeout () {
+	CAsynchronous *poCaller = CAsynchronous::Create ();
+	ASSERT (poCaller);
+	poCaller->SetTimeoutInactivity (TIMEOUT_COMPLETE / 2);
+	void *pThread1 = NULL;
+	void *pThread2 = NULL;
+	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&pThread1);
+	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&pThread2);
+	ASSERT (poCaller->Run (poRun1));
+	ASSERT (poCaller->Run (poRun2));
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
+	ASSERT (pThread1 == pThread2);
+	poRun2 = new CThreadRecordingOperation (&pThread2);
+	CThread::Sleep (TIMEOUT_COMPLETE);
+	// Some O/Ss will re-use the thread ID/reference data so create a dummy thread
+	CThread *poDummyThread = new CDummyThread ();
+	CThread::Release (poDummyThread);
+	ASSERT (poCaller->Run (poRun2));
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
+	if (pThread2) {
+		ASSERT (pThread1 != pThread2);
+	} else {
+		LOGWARN (TEXT ("ThreadIdleTimeout test might have failed - no thread identity"));
+	}
+	CAsynchronous::Release (poCaller);
+}
+
+static void ThreadRecycling () {
+	CAsynchronous *poCaller = CAsynchronous::Create ();
+	ASSERT (poCaller);
+	void *pThread1 = NULL;
+	void *pThread2 = NULL;
+	CThreadRecordingOperation *poRun1 = new CThreadRecordingOperation (&pThread1);
+	CThreadRecordingOperation *poRun2 = new CThreadRecordingOperation (&pThread2);
+	ASSERT (poCaller->Run (poRun1));
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
+	if (pThread1) {
+		ASSERT (poCaller->RecycleThread ());
+		ASSERT (poCaller->Run (poRun2));
+		CThread::Sleep (TIMEOUT_COMPLETE / 6);
+		ASSERT (pThread1 != pThread2);
+	} else {
+		LOGWARN (TEXT ("ThreadRecycling test might have failed - no thread identity"));
+	}
+	CAsynchronous::Release (poCaller);
+}
+
 BEGIN_TESTS (AsynchronousTest)
 	TEST (BasicOperations)
 	TEST (VitalOperations)
+	TEST (ThreadIdleTimeout)
+	TEST (ThreadRecycling)
 END_TESTS

@@ -26,16 +26,19 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.position.impl.MockPositionSource;
+import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
@@ -87,15 +90,30 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     _batchJob.getParameters().setViewName("test_view");
     
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
-    ViewImpl view = ViewTestUtils.getMockView();
-    _batchJobRun.setView(view);
+    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    
+    UniqueIdentifier portfolioId = UniqueIdentifier.of("foo", "bar");
+    
+    MockPositionSource positionSource = new MockPositionSource();
+    positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));
+    env.setPositionSource(positionSource);
+    
+    ViewDefinition viewDefinition = new ViewDefinition("mock_view", portfolioId, "ViewTestUser");
+    env.setViewDefinition(viewDefinition);
+    
+    env.init();
+    
+    CompiledViewDefinition compiledViewDefinition = env.compileViewDefinition(Instant.now());
+    _batchJobRun.setCompiledViewDefinition(compiledViewDefinition);
+    
+    _batchJobRun.setViewProcessor(env.getViewProcessor());
     
     ConfigDocument<ViewDefinition> doc = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     doc.setUniqueId(UniqueIdentifier.of("Test", "1", "1"));
     doc.setName("Name");
     doc.setVersionFromInstant(Instant.EPOCH);
     doc.setVersionFromInstant(Instant.EPOCH);
-    doc.setValue(view.getDefinition());
+    doc.setValue(env.getViewDefinition());
     _batchJobRun.setViewDefinitionConfig(doc);
     
     _batchJob.addRun(_batchJobRun);
@@ -560,7 +578,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.setResultTimestamp(now);
     result.setValuationTime(now);
-    result.setViewName("testview");
+    result.setViewProcessId(UniqueIdentifier.of("Test", "ViewProcess"));
     
     ComputationTargetSpecification spec = new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12345", null)); 
     result.addLiveData(new ComputedValue(

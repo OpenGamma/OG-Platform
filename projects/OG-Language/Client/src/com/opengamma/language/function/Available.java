@@ -1,11 +1,9 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/function/Available.proto:12(10)
 package com.opengamma.language.function;
 public class Available extends com.opengamma.language.connector.Function implements java.io.Serializable {
   private static final long serialVersionUID = 43552799486l;
-  // Created from com/opengamma/language/function/Available.proto:14(12)
   public static class Entry implements java.io.Serializable {
     private static final long serialVersionUID = -48247048773915l;
     private int _identifier;

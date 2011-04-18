@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/function/Custom.proto:12(19)
 package com.opengamma.language.function;
 public abstract class Custom extends com.opengamma.language.connector.Function implements java.io.Serializable {
   public <T1,T2> T1 accept (final FunctionVisitor<T1,T2> visitor, final T2 data) { return visitor.visitCustom (this, data); }

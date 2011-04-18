@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,9 +47,9 @@ public class CalculationJob implements Serializable {
    */
   private boolean _cancelled;
 
-  public CalculationJob(String viewName, String calcConfigName, long functionInitializationTimestamp, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems,
+  public CalculationJob(UniqueIdentifier viewProcessId, String calcConfigName, long functionInitializationTimestamp, long iterationTimestamp, long jobId, List<CalculationJobItem> jobItems,
       final CacheSelectHint cacheSelect) {
-    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId), 0, null, jobItems, cacheSelect);
+    this(new CalculationJobSpecification(viewProcessId, calcConfigName, iterationTimestamp, jobId), 0, null, jobItems, cacheSelect);
   }
 
   public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems,
