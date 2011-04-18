@@ -377,13 +377,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
           startComputationJob();
         } else {
           // Push initial state to listener
-          CompiledViewDefinitionWithGraphsImpl latestCompilation = _latestCompiledViewDefinition.get();
-          if (latestCompilation != null) {
-            listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
-          }
-          ViewComputationResultModel latestResult = _latestResult.get();
-          if (latestResult != null) {
-            listener.cycleCompleted(latestResult, null);
+          try {
+            CompiledViewDefinitionWithGraphsImpl latestCompilation = _latestCompiledViewDefinition.get();
+            if (latestCompilation != null) {
+              listener.viewDefinitionCompiled(_latestCompiledViewDefinition.get());
+              ViewComputationResultModel latestResult = _latestResult.get();
+              if (latestResult != null) {
+                listener.cycleCompleted(latestResult, null);
+              }
+            }
+          } catch (Exception e) {
+            s_logger.error("Failed to push initial state to listener during attachment");
+            logListenerError(listener, e);
           }
         }
       }
