@@ -153,6 +153,20 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param periodMillis  the minimum time between updates, or 0 to specify unlimited updates.
    */
   void setUpdatePeriod(long periodMillis);
+  
+  /**
+   * Gets the result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   * 
+   * @return the result mode, not null
+   */
+  ViewResultMode getResultMode();
+  
+  /**
+   * Sets the result mode in which this view client should operate.
+   * 
+   * @param viewResultMode  the result mode, not null
+   */
+  void setResultMode(ViewResultMode viewResultMode);
 
   //-------------------------------------------------------------------------
   /**
