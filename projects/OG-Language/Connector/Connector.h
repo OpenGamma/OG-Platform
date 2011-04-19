@@ -54,8 +54,7 @@ public:
 private:
 	CAtomicInt m_oRefCount;
 	CClientService *m_poClient;
-	// TODO: rename this to just m_oMutex
-	CMutex m_oControlMutex;
+	CMutex m_oMutex;
 	CAtomicPointer<CSemaphore*> m_oStartupSemaphorePtr;
 	class CCallbackEntry {
 	private:

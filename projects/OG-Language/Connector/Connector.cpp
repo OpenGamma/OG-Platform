@@ -163,7 +163,7 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 		}
 		if (FudgeMsg_getFields (pField, nFields, msgPayload) > 0) {
 			int i;
-			m_oControlMutex.Enter ();
+			m_oMutex.Enter ();
 			for (i = 0; i < nFields; i++) {
 				if ((pField[i].flags & FUDGE_FIELD_HAS_ORDINAL) && (pField[i].ordinal == 0) && (pField[i].type == FUDGE_TYPE_STRING)) {
 					CCallbackEntry *poCallback = m_poCallbacks;
@@ -188,7 +188,7 @@ void CConnector::OnMessageReceived (FudgeMsg msg) {
 			}
 			LOGWARN (TEXT ("Ignoring message"));
 dispatched:
-			m_oControlMutex.Leave ();
+			m_oMutex.Leave ();
 		} else {
 			LOGWARN (TEXT ("Couldn't fetch fields from message payload"));
 		}
@@ -201,7 +201,7 @@ dispatched:
 
 void CConnector::OnDispatchThreadDisconnect () {
 	LOGINFO (TEXT ("Dispatcher thread disconnected"));
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	if (m_poDispatch) {
 		CCallbackEntry *poCallback = m_poCallbacks;
 		while (poCallback) {
@@ -211,7 +211,7 @@ void CConnector::OnDispatchThreadDisconnect () {
 	} else {
 		LOGDEBUG (TEXT ("Thread disconnect messages already sent at stop"));
 	}
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 }
 
 CConnector::CCall::CCall (CSynchronousCallSlot *poSlot) {
@@ -305,7 +305,7 @@ CConnector *CConnector::Start (const TCHAR *pszLanguage) {
 }
 
 bool CConnector::Stop () {
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	bool bResult = m_poClient->Stop ();
 	if (bResult && m_poDispatch) {
 		// The dispatch will later call back to OnThreadDisconnect, but this may be too late if there
@@ -330,13 +330,13 @@ bool CConnector::Stop () {
 		CAsynchronous::PoisonAndRelease (m_poDispatch);
 		m_poDispatch = NULL;
 	}
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 	return bResult;
 }
 
 bool CConnector::WaitForStartup (unsigned long lTimeout) {
 	CSemaphore oStartupSemaphore (0, 1);
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	m_oStartupSemaphorePtr.Set (&oStartupSemaphore);
 	ClientServiceState eState = m_poClient->GetState ();
 	if ((eState != RUNNING) && (eState != STOPPED) && (eState != ERRORED)) {
@@ -353,7 +353,7 @@ retryLock:
 		CThread::Yield ();
 		goto retryLock;
 	}
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 	eState = m_poClient->GetState ();
 	LOGDEBUG (TEXT ("Client is in state ") << eState);
 	return eState == RUNNING;
@@ -477,9 +477,9 @@ bool CConnector::AddCallback (const TCHAR *pszClass, CCallback *poCallback) {
 		LOGERROR (TEXT ("Couldn't create Fudge string from ") << pszClass);
 		return false;
 	}
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	m_poCallbacks = new CCallbackEntry (strClass, poCallback, m_poCallbacks);
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 	return true;
 }
 
@@ -491,7 +491,7 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 		return false;
 	}
 	bool bFound = false;
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	CCallbackEntry **ppoPrevious = &m_poCallbacks;
 	CCallbackEntry *poEntry = m_poCallbacks;
 	while (poEntry) {
@@ -518,14 +518,14 @@ bool CConnector::RemoveCallback (CCallback *poCallback) {
 		ppoPrevious = &poEntry->m_poNext;
 		poEntry = poEntry->m_poNext;
 	}
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 	return bFound;
 }
 
 bool CConnector::RecycleDispatchThread () {
-	m_oControlMutex.Enter ();
+	m_oMutex.Enter ();
 	bool bResult = m_poDispatch ? m_poDispatch->RecycleThread () : false;
-	m_oControlMutex.Leave ();
+	m_oMutex.Leave ();
 	return bResult;
 }
 
