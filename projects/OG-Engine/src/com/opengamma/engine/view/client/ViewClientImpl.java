@@ -382,6 +382,12 @@ public class ViewClientImpl implements ViewClient {
       _clientLock.unlock();
     }
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "ViewClient[" + getUniqueId() + "]";
+  }
 
   //-------------------------------------------------------------------------
   private void processCompleted() {

@@ -29,6 +29,20 @@ public interface ViewProcessorEventListener {
   void notifyViewProcessRemoved(UniqueIdentifier viewProcessId);
   
   /**
+   * Called immediately after a view client has been created.
+   * 
+   * @param viewClientId  the unique identifier of the view client that has been created
+   */
+  void notifyViewClientAdded(UniqueIdentifier viewClientId);
+  
+  /**
+   * Called immediately after a view client has been removed.
+   * 
+   * @param viewClientId  the unique identifier of the view client that has been removed
+   */
+  void notifyViewClientRemoved(UniqueIdentifier viewClientId);
+  
+  /**
    * Called immediately after a view processor starts up
    */
   void notifyViewProcessorStarted();
