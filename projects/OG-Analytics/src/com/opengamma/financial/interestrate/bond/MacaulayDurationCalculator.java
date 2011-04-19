@@ -17,6 +17,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 public class MacaulayDurationCalculator extends BondCalculator {
   private static final YieldSensitivityCalculator YIELD_SENSITIVITY_CALCULATOR = YieldSensitivityCalculator.getInstance();
   private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
+  private static final MacaulayDurationCalculator INSTANCE = new MacaulayDurationCalculator();
+
+  public static MacaulayDurationCalculator getInstance() {
+    return INSTANCE;
+  }
 
   @Override
   public Double calculate(final Bond bond, final double dirtyPrice) {
