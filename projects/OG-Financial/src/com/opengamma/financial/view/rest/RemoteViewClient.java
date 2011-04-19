@@ -47,6 +47,9 @@ import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link ViewClient}.
+ * <p>
+ * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote
+ * view client to a single engine-side view client may result in undesired behaviour including inconsistencies.
  */
 public class RemoteViewClient implements ViewClient {
 
