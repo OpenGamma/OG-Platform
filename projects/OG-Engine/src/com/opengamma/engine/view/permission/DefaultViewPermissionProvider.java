@@ -56,7 +56,13 @@ public class DefaultViewPermissionProvider implements ViewPermissionProvider {
   public boolean canAccessComputationResults(UserPrincipal user, CompiledViewDefinition viewEvaluationModel) {
     s_logger.info("Checking that {} is entitled to computation results from {}", user, viewEvaluationModel);
     Collection<LiveDataSpecification> requiredLiveData = getRequiredLiveDataSpecifications(viewEvaluationModel);
-    Map<LiveDataSpecification, Boolean> entitlements = getEntitlementChecker().isEntitled(user, requiredLiveData);
+    Map<LiveDataSpecification, Boolean> entitlements;
+    try {
+      entitlements = getEntitlementChecker().isEntitled(user, requiredLiveData);
+    } catch (Exception e) {
+      s_logger.warn("Failed to perform entitlement checking. Failing open - assuming entitled.", e);
+      return true;
+    }
     ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
     for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
       if (!entry.getValue().booleanValue()) {

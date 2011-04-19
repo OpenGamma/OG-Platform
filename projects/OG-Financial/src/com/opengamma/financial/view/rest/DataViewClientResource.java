@@ -17,14 +17,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeMsg;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.FudgeRest;
-import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -45,6 +46,7 @@ public class DataViewClientResource {
   public static final String PATH_ATTACH_DIRECT = "attachDirect";
   public static final String PATH_DETACH = "detach";
   public static final String PATH_LIVE_DATA_OVERRIDE_INJECTOR = "overrides";
+  public static final String PATH_RESULT_MODE = "resultMode";
   public static final String PATH_RESUME = "resume";
   public static final String PATH_PAUSE = "pause";
   public static final String PATH_COMPLETED = "completed";
@@ -73,11 +75,11 @@ public class DataViewClientResource {
   private final JmsResultPublisher _resultPublisher;
   
   public DataViewClientResource(ViewClient viewClient,
-      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource,
-      JmsByteArrayMessageSenderService messageSenderService, String topicPrefix) {
+      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsTemplate jmsTemplate,
+      String topicPrefix) {
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
-    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, messageSenderService);
+    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, jmsTemplate);
   }
   
   private ViewClient getViewClient() {
@@ -168,6 +170,20 @@ public class DataViewClientResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Path(PATH_RESULT_MODE)
+  public Response getResultMode() {
+    return Response.ok(getViewClient().getResultMode()).build();
+  }
+  
+  @PUT
+  @Path(PATH_RESULT_MODE)
+  public Response setResultMode(ViewResultMode viewResultMode) {
+    getViewClient().setResultMode(viewResultMode);
+    return Response.ok().build();
+  }
+  
+  //-------------------------------------------------------------------------
   @POST
   @Path(PATH_PAUSE)
   public Response pause() {
@@ -249,6 +265,7 @@ public class DataViewClientResource {
   @Path(PATH_SHUTDOWN)
   public Response shutdown() {
     getViewClient().shutdown();
+    stopResultStream();
     return Response.ok().build();
   }
   

@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -28,11 +29,13 @@ import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.transport.jms.JmsByteArrayMessageSender;
-import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
+import com.opengamma.transport.jms.QueueingJmsByteArrayMessageSender;
 
 /**
  * Publishes asynchronous results from a view client over JMS.
+ * <p>
+ * Always call {@link #stopPublishingResults()} when this result publisher is no longer required to ensure that
+ * associated resources are tidied up.
  */
 public class JmsResultPublisher implements ViewResultListener {
 
@@ -42,23 +45,28 @@ public class JmsResultPublisher implements ViewResultListener {
   private final ViewClient _viewClient;
   private final FudgeContext _fudgeContext;
   private final FudgeSerializationContext _fudgeSerializationContext;
-  private final JmsByteArrayMessageSender _sender;
+  private final String _destinationName;
+  private final JmsTemplate _jmsTemplate;
   private final ReentrantLock _lock = new ReentrantLock();
-  
   private final AtomicLong _sequenceNumber = new AtomicLong();
+  
+  private volatile QueueingJmsByteArrayMessageSender _sender;
 
-  public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, String destinationPrefix, JmsByteArrayMessageSenderService messageSenderService) {
+  public JmsResultPublisher(ViewClient viewClient, FudgeContext fudgeContext, String destinationPrefix, JmsTemplate jmsTemplate) {
     _viewClient = viewClient;
     _fudgeContext = fudgeContext;
     _fudgeSerializationContext = new FudgeSerializationContext(fudgeContext);
-    String destinationName = getDestinationName(viewClient, destinationPrefix);
-    _sender = messageSenderService.getMessageSender(destinationName);
+    _jmsTemplate = jmsTemplate;
+    _destinationName = getDestinationName(viewClient, destinationPrefix);
   }
   
   public void startPublishingResults() {
     _lock.lock();
     try {
       s_logger.debug("Setting listener {} on view client {}'s results", this, _viewClient);
+      if (_sender == null) {
+        _sender = new QueueingJmsByteArrayMessageSender(_destinationName, _jmsTemplate);
+      }
       _viewClient.setResultListener(this);
     } finally {
       _lock.unlock();
@@ -70,13 +78,17 @@ public class JmsResultPublisher implements ViewResultListener {
     try {
       s_logger.debug("Removing listener {} from view client {}'s results", this, _viewClient);
       _viewClient.setResultListener(null);
+      if (_sender != null) {
+        _sender.shutdown();
+        _sender = null;
+      }
     } finally {
       _lock.unlock();
     }
   }
 
   public String getDestinationName() {
-    return _sender.getDestinationName();
+    return _destinationName;
   }
   
   //-------------------------------------------------------------------------

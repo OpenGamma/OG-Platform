@@ -31,8 +31,8 @@ public class ViewProcess implements ViewProcessMBean {
   /**
    * Create a management View
    * 
-   * @param viewProcess the underlying View
-   * @param viewProcessor the viewProcessor processing the view
+   * @param viewProcess the underlying view process
+   * @param viewProcessor the view processor responsible for the view process
    */
   public ViewProcess(ViewProcessInternal viewProcess, com.opengamma.engine.view.ViewProcessor viewProcessor) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
@@ -42,7 +42,7 @@ public class ViewProcess implements ViewProcessMBean {
   }
 
   /**
-   * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewName>"
+   * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorId>,name=<viewProcessId>"
    */
   static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId) {
     ObjectName objectName;

@@ -29,6 +29,9 @@ public class ViewComputationResultModelBuilder extends ViewResultModelBuilder im
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
     final MutableFudgeMsg message = ViewResultModelBuilder.createResultModelMessage(context, resultModel);
     
+    // Prevent subclass headers from being added to the message later, ensuring that this builder will be used for deserialization
+    FudgeSerializationContext.addClassHeader(message, ViewComputationResultModel.class);
+    
     final MutableFudgeMsg liveDataMsg = context.newMessage();
     for (ComputedValue value : resultModel.getAllLiveData()) {
       context.addToMessage(liveDataMsg, null, 1, value);

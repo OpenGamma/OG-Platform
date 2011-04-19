@@ -1,0 +1,17 @@
+/*
+ * Common generic styles
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * @note This file should be right after the reset sheet
+ */
+
+html, body {
+    background-color: #f3f3f3;
+    overflow: hidden;
+}
+
+#container {
+    border-bottom: 2px solid #313b44;
+}

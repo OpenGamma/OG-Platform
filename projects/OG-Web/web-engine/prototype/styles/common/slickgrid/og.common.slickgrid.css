@@ -1,0 +1,130 @@
+/*
+ * Custom Slickgrid styles
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/* Remove borders from cells */
+.slick-row {
+    border: none;
+}
+
+/* Remove borders from cells */
+.slick-cell, .slick-headerrow-column { 
+    border: none!important;
+    padding: 0 0 0 4px;
+}
+
+/* Set default font color */
+.ui-widget-content.slick-row {
+    color: #999;
+}
+
+/* Set 'link' colour */
+.ui-widget-content .slick-cell.og-link {
+    color: #487287;
+}
+
+.slick-row .og-uppercase {
+    text-transform: uppercase;
+}
+
+/* Highlight rows on hover */
+.slick-row:hover,
+.slick-row:hover .slick-cell.og-link {
+    background-color: #487287;
+    color: #fff;
+}
+
+/* Fix vertical alignment */
+.ui-widget-content .slick-cell {
+    line-height: 22px;
+}
+
+/* Position icons in cells */
+.slick-row .og-clock-active,
+.slick-row .og-clock-stopped {
+    padding-left: 0;
+}
+
+/* Position icons in cells */
+.slick-row .og-clock-active:before,
+.slick-row .og-clock-stopped:before {
+    margin-top: 5px;
+    padding-right: 4px;
+}
+
+/* Add prompt for title text, TODO: replace with a generic class & JS tooltip */
+.slick-row .og-clock-active span,
+.slick-row .og-clock-stopped span {
+    border-bottom: 1px dotted;
+}
+
+/* Add spacer when no clock */
+.slick-row .og-no-clock {
+    padding-left: 13px;
+}
+
+/* Empty cell */
+.slick-row .og-no-content {
+    color: #ddd;
+    display: block;
+    text-align: center;
+}
+
+/* Excess Column header */
+.slick-header-columns {
+    background-color: #f3f3f3;
+    height: 30px;
+    background-image: -webkit-gradient(linear, left top, left bottom,
+        color-stop(0.0, #f9f9f9),
+        color-stop(0.50, #f2f3f5),
+        color-stop(0.51, #eaebed)
+    );
+    background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
+}
+
+.slick-header-column.ui-state-default {
+    border-left: 1px solid #fff;
+    border-right: 1px solid #d9d9d9;
+    height: 22px;
+    line-height: 22px;
+}
+
+/* Column header text */
+.slick-header-columns span {
+    color: #999;
+}
+
+/* Column header - replace with gradient */
+.slick-header-columns div {
+    background-color: #f7f7f7;
+    background: -webkit-gradient(linear, left top, left bottom, from(#f9f9f8), to(#fefefe));
+    background: -moz-linear-gradient(top,  #f9f9f8,  #fefefe);
+    border-left: 1px solid #fff;
+}
+
+.ui-state-default {
+    border-top: none!important;
+}
+
+
+
+
+
+
+.slick-headerrow-column.ui-state-default {
+    padding: 3px 2px 0 3px;
+    height: auto;
+}
+
+.slick-headerrow-column {
+    padding: 0;
+    height: auto;
+}
+
+.slick-headerrow-column input {
+    margin: 0;
+    padding: 0;
+}

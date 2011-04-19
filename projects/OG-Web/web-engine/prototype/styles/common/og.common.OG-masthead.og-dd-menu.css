@@ -1,0 +1,53 @@
+/*
+ * Drop Down Menu for Masthead (extension of OG-masthead)
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+#OG-masthead .og-dd-menu {
+  background-color: #fff;
+  display: none;
+  left: 0;
+  min-width: 100px;
+  padding: 0;
+  position: absolute;
+  top: 25px;
+  z-index: 10;
+  border: 1px solid #487287;
+  border-top: none;
+}
+
+#OG-masthead .og-dd-menu ul {
+  margin-top: 3px;
+  white-space: nowrap;
+  width: 100%;
+}
+
+#OG-masthead .og-dd-menu a {
+  display: block;
+  padding: 3px 20px 3px 8px;
+}
+
+#OG-masthead .og-dd-menu a:focus {
+  outline: none;
+}
+
+#OG-masthead .og-dd-menu a:hover {
+  background-color: #487287;
+  color: #fff;
+}
+
+#OG-masthead .og-dd-menu li {
+  display: block;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+#OG-masthead .og-dd-menu ul {
+  border-right: none;
+}
+
+#OG-masthead .open .OG-dd-menu  {
+  display: block;
+}

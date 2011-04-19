@@ -1,0 +1,11 @@
+.OG-gradient-01 {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #dfdfdf;
+  height: 30px;
+  background-image: -webkit-gradient(linear, left top, left bottom,
+      color-stop(0.0, #f9f9f9),
+      color-stop(0.50, #f2f3f5),
+      color-stop(0.51, #eaebed)
+  );
+  background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
+}
