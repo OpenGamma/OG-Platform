@@ -1,0 +1,11 @@
+.OG-message {
+    -moz-border-radius-topright: 2px;
+    -webkit-border-radius-top-right: 2px;
+    background-color: #313b44;
+    border-top-right-radius: 2px;
+    bottom: 0;
+    color: #fff;
+    padding: 2px 4px 0 2px;
+    position: absolute;
+    left: 0;
+}

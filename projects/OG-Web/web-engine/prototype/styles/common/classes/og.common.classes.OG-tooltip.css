@@ -1,0 +1,43 @@
+.OG-tooltip {
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    background: #313b44;
+    border-radius: 2px;
+    color: #fff;
+    content: 'url(/prototype/images/common/sprites/icons.png)';
+    display: none;
+    padding: 3px;
+    position: absolute;
+    z-index: 2;
+}
+
+.OG-tooltip.og-top:before {
+    background: url(/prototype/images/common/sprites/icons.png);
+    background-position: 0 -10px;
+    bottom: -3px;
+    content: '';
+    display: inline-block;
+    height: 3px;
+    position: absolute;
+    left: 50%;
+    margin-left: -2px;
+    width: 10px;
+}
+
+/* Warning */
+.OG-tooltip.og-top.og-danger {
+    background: #960505;
+}
+
+.OG-tooltip.og-top.og-danger:before {
+    background-position: 0 -20px;
+}
+
+/* Off */
+.OG-tooltip.og-top.og-off {
+    background: #cdcdcd;
+}
+
+.OG-tooltip.og-top.og-off:before {
+    background-position: 0 -30px;
+}
