@@ -50,8 +50,12 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
     super(init(currency, paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
   }
 
+  /**
+   * Return the coupon rate of the annuity first coupon.
+   * @return The rate.
+   */
   public double getCouponRate() {
-    return getNthPayment(0).getFixedRate(); // all coupons are the same value
+    return getNthPayment(0).getFixedRate();
   }
 
   /**

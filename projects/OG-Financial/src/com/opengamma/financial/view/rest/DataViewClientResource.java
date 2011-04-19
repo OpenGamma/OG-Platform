@@ -6,7 +6,9 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
 
+import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -57,6 +59,7 @@ public class DataViewClientResource {
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
   public static final String PATH_SHUTDOWN = "shutdown";
+  public static final String PATH_HEARTBEAT = "heartbeat";
   
   public static final String PATH_START_JMS_COMPILATION_STREAM = "startJmsCompilationStream";
   public static final String PATH_STOP_JMS_COMPILATION_STREAM = "stopJmsCompilationStream";
@@ -73,6 +76,7 @@ public class DataViewClientResource {
   private final ViewClient _viewClient;
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
   private final JmsResultPublisher _resultPublisher;
+  private final AtomicLong _lastAccessed = new AtomicLong();
   
   public DataViewClientResource(ViewClient viewClient,
       DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsTemplate jmsTemplate,
@@ -80,28 +84,44 @@ public class DataViewClientResource {
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
     _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, jmsTemplate);
+    updateLastAccessed();
   }
   
-  private ViewClient getViewClient() {
+  /*package*/ ViewClient getViewClient() {
     return _viewClient;
+  }
+  
+  /*package*/ Instant getLastAccessed() {
+    return Instant.ofEpochMillis(_lastAccessed.get());
+  }
+  
+  //-------------------------------------------------------------------------
+  @POST
+  @Path(PATH_HEARTBEAT)
+  public Response heartbeat() {
+    updateLastAccessed();
+    return Response.ok().build();
   }
   
   //-------------------------------------------------------------------------
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getUniqueId()).build();
   }
   
   @GET
   @Path(PATH_USER)
   public Response getUser() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getUser()).build();
   }
   
   @GET
   @Path(PATH_STATE)
   public Response getState() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getState()).build();
   }
   
@@ -109,6 +129,7 @@ public class DataViewClientResource {
   @GET
   @Path(PATH_IS_ATTACHED)
   public Response isAttached() {
+    updateLastAccessed();
     return Response.ok(getViewClient().isAttached()).build();
   }
   
@@ -116,6 +137,7 @@ public class DataViewClientResource {
   @Consumes(FudgeRest.MEDIA)
   @Path(PATH_ATTACH_SEARCH)
   public Response attachToViewProcess(AttachToViewProcessRequest request) {
+    updateLastAccessed();
     ArgumentChecker.notNull(request.getViewDefinitionName(), "viewDefinitionName");
     ArgumentChecker.notNull(request.getExecutionOptions(), "executionOptions");
     ArgumentChecker.notNull(request.isNewBatchProcess(), "isNewBatchProcess");
@@ -127,6 +149,7 @@ public class DataViewClientResource {
   @Consumes(FudgeRest.MEDIA)
   @Path(PATH_ATTACH_DIRECT)
   public Response attachToViewProcess(UniqueIdentifier viewProcessId) {
+    updateLastAccessed();
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     getViewClient().attachToViewProcess(viewProcessId);
     return Response.ok().build();
@@ -135,12 +158,14 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_DETACH)
   public Response detachFromViewProcess() {
+    updateLastAccessed();
     getViewClient().detachFromViewProcess();
     return Response.ok().build();
   }
   
   @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
   public LiveDataInjectorResource getLiveDataOverrideInjector() {
+    updateLastAccessed();
     return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
   }
   
@@ -148,6 +173,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_START_JMS_RESULT_STREAM)
   public Response startResultStream() {
+    updateLastAccessed();
     _resultPublisher.startPublishingResults();
     return Response.ok(_resultPublisher.getDestinationName()).build();
   }
@@ -155,6 +181,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_STOP_JMS_RESULT_STREAM)
   public Response stopResultStream() {
+    updateLastAccessed();
     _resultPublisher.stopPublishingResults();
     return Response.ok().build();
   }
@@ -164,6 +191,7 @@ public class DataViewClientResource {
   @Path(PATH_UPDATE_PERIOD)
   @Consumes(FudgeRest.MEDIA)
   public Response setUpdatePeriod(FudgeMsg msg) {
+    updateLastAccessed();
     long periodMillis = msg.getLong(UPDATE_PERIOD_FIELD);
     getViewClient().setUpdatePeriod(periodMillis);
     return Response.ok().build();
@@ -173,12 +201,14 @@ public class DataViewClientResource {
   @GET
   @Path(PATH_RESULT_MODE)
   public Response getResultMode() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getResultMode()).build();
   }
   
   @PUT
   @Path(PATH_RESULT_MODE)
   public Response setResultMode(ViewResultMode viewResultMode) {
+    updateLastAccessed();
     getViewClient().setResultMode(viewResultMode);
     return Response.ok().build();
   }
@@ -187,6 +217,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_PAUSE)
   public Response pause() {
+    updateLastAccessed();
     getViewClient().pause();
     return Response.ok().build();
   }
@@ -194,6 +225,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_RESUME)
   public Response resume() {
+    updateLastAccessed();
     getViewClient().resume();
     return Response.ok().build();
   }
@@ -201,24 +233,28 @@ public class DataViewClientResource {
   @GET
   @Path(PATH_COMPLETED)
   public Response isCompleted() {
+    updateLastAccessed();
     return Response.ok(getViewClient().isCompleted()).build();
   }
   
   @GET
   @Path(PATH_RESULT_AVAILABLE)
   public Response isResultAvailable() {
+    updateLastAccessed();
     return Response.ok(getViewClient().isResultAvailable()).build();
   }
   
   @GET
   @Path(PATH_LATEST_RESULT)
   public Response getLatestResult() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getLatestResult()).build();
   }
   
   @GET
   @Path(PATH_LATEST_COMPILED_VIEW_DEFINITION)
   public Response getLatestCompiledViewDefinition() {
+    updateLastAccessed();
     return Response.ok(getViewClient().getLatestCompiledViewDefinition()).build();
   }
   
@@ -226,12 +262,14 @@ public class DataViewClientResource {
   @GET
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
   public Response isViewCycleAccessSupported() {
+    updateLastAccessed();
     return Response.ok(getViewClient().isViewCycleAccessSupported()).build();
   }
   
   @POST
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
   public Response setViewCycleAccessSupported(FudgeMsg msg) {
+    updateLastAccessed();
     boolean isViewCycleAccessSupported = msg.getBoolean(VIEW_CYCLE_ACCESS_SUPPORTED_FIELD);
     getViewClient().setViewCycleAccessSupported(isViewCycleAccessSupported);
     return Response.ok().build();
@@ -240,6 +278,7 @@ public class DataViewClientResource {
   @POST
   @Path(PATH_CREATE_LATEST_CYCLE_REFERENCE)
   public Response createLatestCycleReference() {
+    updateLastAccessed();
     EngineResourceReference<? extends ViewCycle> reference = getViewClient().createLatestCycleReference();
     return getReferenceResponse(reference);
   }
@@ -248,11 +287,13 @@ public class DataViewClientResource {
   @Path(PATH_CREATE_CYCLE_REFERENCE)
   @Consumes(FudgeRest.MEDIA)
   public Response createCycleReference(UniqueIdentifier cycleId) {
+    updateLastAccessed();
     EngineResourceReference<? extends ViewCycle> reference = getViewClient().createCycleReference(cycleId);
     return getReferenceResponse(reference);
   }
 
   private Response getReferenceResponse(EngineResourceReference<? extends ViewCycle> reference) {
+    updateLastAccessed();
     if (reference == null) {
       return Response.ok().status(Status.NO_CONTENT).build();
     }
@@ -267,6 +308,11 @@ public class DataViewClientResource {
     getViewClient().shutdown();
     stopResultStream();
     return Response.ok().build();
+  }
+  
+  //-------------------------------------------------------------------------
+  private void updateLastAccessed() {
+    _lastAccessed.set(System.currentTimeMillis());
   }
   
 }

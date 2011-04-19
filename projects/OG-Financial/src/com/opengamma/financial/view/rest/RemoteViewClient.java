@@ -8,12 +8,14 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -47,6 +49,9 @@ import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link ViewClient}.
+ * <p>
+ * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote
+ * view client to a single engine-side view client may result in undesired behaviour including inconsistencies.
  */
 public class RemoteViewClient implements ViewClient {
 
@@ -66,6 +71,7 @@ public class RemoteViewClient implements ViewClient {
   private final FudgeContext _fudgeContext;
   private final JmsTemplate _jmsTemplate;
   private final ScheduledExecutorService _scheduler;
+  private final ScheduledFuture<?> _scheduledHeartbeat;
   
   public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
@@ -83,6 +89,15 @@ public class RemoteViewClient implements ViewClient {
       }
       
     };
+    
+    _scheduledHeartbeat = scheduler.scheduleAtFixedRate(new Runnable() {
+
+      @Override
+      public void run() {
+        heartbeat();
+      }
+      
+    }, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2, TimeUnit.MILLISECONDS);
   }
 
   //-------------------------------------------------------------------------
@@ -222,7 +237,8 @@ public class RemoteViewClient implements ViewClient {
         try {
           listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
         } catch (Exception e) {
-          s_logger.warn("Disregarding result message because couldn't parse: " + msgEnvelope.getMessage(), e);
+          s_logger.warn("Caught exception parsing message", e);
+          s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
           return;
         }
         dispatchListenerCall(listenerCall);
@@ -376,6 +392,7 @@ public class RemoteViewClient implements ViewClient {
   //-------------------------------------------------------------------------
   @Override
   public void shutdown() {
+    stopHeartbeating();
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
     _client.access(uri).post();
   }
@@ -383,6 +400,22 @@ public class RemoteViewClient implements ViewClient {
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) {
     return UriBuilder.fromUri(baseUri).path(path).build();
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Externally visible for testing
+   */
+  public void heartbeat() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_HEARTBEAT);
+    _client.access(uri).post();
+  }
+  
+  /**
+   * Externally visible for testing
+   */
+  public void stopHeartbeating() {
+    _scheduledHeartbeat.cancel(true);
   }
   
 }

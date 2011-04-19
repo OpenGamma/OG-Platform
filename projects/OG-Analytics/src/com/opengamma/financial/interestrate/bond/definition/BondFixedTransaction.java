@@ -9,7 +9,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
- * Describes a transaction on a fixed coupon bond issue.
+ * Describes a transaction on a fixed coupon bond transaction.
  */
 public class BondFixedTransaction extends BondTransaction<CouponFixed> {
 
@@ -35,8 +35,8 @@ public class BondFixedTransaction extends BondTransaction<CouponFixed> {
   }
 
   /**
-   * Gets the _accruedInterestAtSpot field.
-   * @return the _accruedInterestAtSpot
+   * Gets the accrued interest at the standard settlement date (spot).
+   * @return The accrued interest at spot.
    */
   public double getAccruedInterestAtSpot() {
     return _accruedInterestAtSpot;

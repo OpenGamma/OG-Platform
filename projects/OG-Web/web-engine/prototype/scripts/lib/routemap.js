@@ -37,7 +37,7 @@
             throw new Error('See ' + url + ' for reference versions of Array.prototype methods available in JS 1.8');
     })([], 'https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/');
     var routes /* internal reference to RouteMap */, active_routes = {}, added_routes = {}, flat_pages = [],
-        last = 0, current = 0, encode = encodeURIComponent, decode = decodeURIComponent,
+        last = 0, current = 0, encode = encodeURIComponent, decode = decodeURIComponent, has = 'hasOwnProperty',
         EQ = '=' /* equal string */, SL = '/' /* slash string */, PR = '#' /* default prefix string */,
         token_exp = /\*|:|\?/, star_exp = /(^([^\*:\?]+):\*)|(^\*$)/, scalar_exp = /^:([^\*:\?]+)(\??)$/,
         keyval_exp = /^([^\*:\?]+):(\??)$/, trailing_slash_exp = new RegExp('([^' + SL + '])$'),
@@ -75,13 +75,13 @@
                         keyval_keys = keyvals.reduce(function (acc, val) {return (acc[val.name] = 0) || acc;}, {}),
                         required_scalars_length = scalars.filter(function (val) {return val.required;}).length,
                         required_keyvals = keyvals.filter(function (val) {return val.required;})
-                            .every(function (val) {return request.keyvals.hasOwnProperty(val.name);});
+                            .every(function (val) {return request.keyvals[has](val.name);});
                     // not enough parameters are supplied in the request for this rule
                     if (required_scalars_length > request.scalars.length || !required_keyvals) return 0;
                     if (!rule_set.rules.star) { // too many params are only a problem if the rule isn't a wildcard
                         if (request.scalars.length > scalars.length) return 0; // if too many scalars are supplied
                         for (keyval in request.keyvals) // if too many keyvals are supplied
-                            if (request.keyvals.hasOwnProperty(keyval) && !keyval_keys.hasOwnProperty(keyval)) return 0;
+                            if (request.keyvals[has](keyval) && !keyval_keys[has](keyval)) return 0;
                     }
                     request.scalars.slice(0, scalars.length) // populate args scalars
                         .forEach(function (scalar, index) {args[scalars[index].name] = decode(scalar);});
@@ -91,7 +91,7 @@
                     });
                     if (rule_set.rules.star) { // all unused scalars and keyvals go into the * argument (still encoded)
                         star = request.scalars.slice(scalars.length, request.scalars.length);
-                        for (keyval in request.keyvals) if (request.keyvals.hasOwnProperty(keyval))
+                        for (keyval in request.keyvals) if (request.keyvals[has](keyval))
                             star.push([keyval, request.keyvals[keyval]].join(EQ));
                         args[rule_set.rules.star] = star.join(SL);
                     }
@@ -157,7 +157,7 @@
                 return memo[route] = compiled_route;
             };
         })();
-    return pub[namespace] = (routes) = { // parens around routes to satisfy JSDoc's caprice
+    pub[namespace] = (routes) = { // parens around routes to satisfy JSDoc's caprice
         /**
          * adds a rule to the internal table of routes and methods
          * @name RouteMap.add

@@ -13,10 +13,14 @@ import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * A wrapper class for a GenericAnnuity containing CouponIbor.
  */
 public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
 
+  /**
+   * Constructor from an array of Ibor coupons.
+   * @param payments The coupons array.
+   */
   public AnnuityCouponIbor(final CouponIbor[] payments) {
     super(payments);
   }

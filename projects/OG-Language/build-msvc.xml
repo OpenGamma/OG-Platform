@@ -12,23 +12,39 @@
 			<param name="compile.type" value="${msbuild.config}${msbuild.platform}" />
 		</antcall>
 	</target>
-	<target name="compile-win32" if="msvc.win32">
+	<target name="compile-win32-debug" if="msvc.Debug">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Debug" />
-			<param name="msbuild.platform" value="Win32" />
 		</antcall>
+	</target>
+	<target name="compile-win32-release" if="msvc.Release">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Release" />
+		</antcall>
+	</target>
+	<target name="compile-win32" if="msvc.Win32">
+		<antcall target="compile-win32-debug">
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="compile-win32-release">
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
 	</target>
-	<target name="compile-x64" if="msvc.x64">
+	<target name="compile-x64-debug" if="msvc.Debug">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Debug" />
-			<param name="msbuild.platform" value="x64" />
 		</antcall>
+	</target>
+	<target name="compile-x64-release" if="msvc.Release">
 		<antcall target="run-msbuild">
 			<param name="msbuild.config" value="Release" />
+		</antcall>
+	</target>
+	<target name="compile-x64" if="msvc.x64">
+		<antcall target="compile-x64-debug">
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="compile-x64-release">
 			<param name="msbuild.platform" value="x64" />
 		</antcall>
 	</target>
@@ -41,7 +57,7 @@
 	<property name="log4cxx.logfile" value="${log4cxx.configuration}.log" />
 	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
 	<property name="mstest.path" value="${env.Path};${mstest.additional.path}" />
-	<target name="run-mstest">
+	<target name="run-mstest" depends="run-msbuild">
 		<mkdir dir="${tests.results.dir}" />
 		<delete file="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
 		<exec executable="mstest" failonerror="false">
@@ -61,23 +77,39 @@
 			<arg value="${tests.results.dir}" />
 		</java>
 	</target>
-	<target name="tests-win32" depends="compile-win32" if="msvc.win32">
+	<target name="tests-win32-debug" if="msvc.Debug">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Debug" />
-			<param name="msbuild.platform" value="Win32" />
 		</antcall>
+	</target>
+	<target name="tests-win32-release" if="msvc.Release">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Release" />
+		</antcall>
+	</target>
+	<target name="tests-win32" if="msvc.Win32">
+		<antcall target="tests-win32-debug">
+			<param name="msbuild.platform" value="Win32" />
+		</antcall>
+		<antcall target="tests-win32-release">
 			<param name="msbuild.platform" value="Win32" />
 		</antcall>
 	</target>
-	<target name="tests-x64" depends="compile-x64" if="msvc.x64">
+	<target name="tests-x64-debug" if="msvc.Debug">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Debug" />
-			<param name="msbuild.platform" value="x64" />
 		</antcall>
+	</target>
+	<target name="tests-x64-release" if="msvc.Release">
 		<antcall target="run-mstest">
 			<param name="msbuild.config" value="Release" />
+		</antcall>
+	</target>
+	<target name="tests-x64" if="msvc.x64">
+		<antcall target="tests-x64-debug">
+			<param name="msbuild.platform" value="x64" />
+		</antcall>
+		<antcall target="tests-x64-release">
 			<param name="msbuild.platform" value="x64" />
 		</antcall>
 	</target>
