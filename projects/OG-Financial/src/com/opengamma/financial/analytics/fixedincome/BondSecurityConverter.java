@@ -124,7 +124,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
       schedule = temp;
     }
     if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+      s_logger.info("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
     }
     return schedule;
   }

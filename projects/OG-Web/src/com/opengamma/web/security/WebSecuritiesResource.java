@@ -136,6 +136,8 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       if (idValue == null) {
         out.put("err_idvalueMissing", true);
       }
+      out.put("idscheme", idScheme);
+      out.put("idvalue", idValue);
       String html = getFreemarker().build("securities/securities-add.ftl", out);
       return Response.ok(html).build();
     }

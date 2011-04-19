@@ -31,6 +31,7 @@ import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
@@ -46,6 +47,9 @@ import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Provides access to a remote {@link ViewClient}.
+ * <p>
+ * At most <b>one</b> remote view client is supported for any view client; attempting to attach more than one remote
+ * view client to a single engine-side view client may result in undesired behaviour including inconsistencies.
  */
 public class RemoteViewClient implements ViewClient {
 
@@ -264,6 +268,18 @@ public class RemoteViewClient implements ViewClient {
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add(DataViewClientResource.UPDATE_PERIOD_FIELD, periodMillis);
     _client.access(uri).put(msg);
+  }
+  
+  @Override
+  public ViewResultMode getResultMode() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_MODE);
+    return _client.access(uri).get(ViewResultMode.class);
+  }
+
+  @Override
+  public void setResultMode(ViewResultMode viewResultMode) {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_RESULT_MODE);
+    _client.access(uri).put(viewResultMode);
   }
   
   //-------------------------------------------------------------------------

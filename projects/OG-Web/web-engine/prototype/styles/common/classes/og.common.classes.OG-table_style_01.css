@@ -1,0 +1,33 @@
+.OG-table-style-01 {
+  border: 1px solid #ccc;
+  color: #999;
+  margin: 10px 0;
+  max-width: 800px;
+  width: 100%;
+}
+
+.OG-table-style-01 thead {
+  background-color: #ccc;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#d7d7d7));
+  background: -moz-linear-gradient(top,  #ccc,  #d7d7d7);
+  color: #626262;
+  text-shadow: 0 1px 0 #e4e4e4;
+}
+
+.OG-table-style-01 td {
+  padding: 5px;
+}
+
+.OG-table-style-01 tfoot tr {
+  background-color: #f0f0f0;
+}
+
+.OG-table-style-01 tfoot td {
+  padding: 3px;
+}
+
+.OG-table-style-01 tfoot input {
+  color: #ccc;
+  margin-right: 5px;
+  width: 200px;
+}
