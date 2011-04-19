@@ -181,7 +181,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     unlock();
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return "ViewProcess[" + getUniqueId() + " on " + getDefinitionName() + "]";
