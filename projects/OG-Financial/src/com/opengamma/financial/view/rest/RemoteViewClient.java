@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -237,7 +237,8 @@ public class RemoteViewClient implements ViewClient {
         try {
           listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
         } catch (Exception e) {
-          s_logger.warn("Disregarding result message because couldn't parse: " + msgEnvelope.getMessage(), e);
+          s_logger.warn("Caught exception parsing message", e);
+          s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
           return;
         }
         dispatchListenerCall(listenerCall);
