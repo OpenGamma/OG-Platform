@@ -17,7 +17,11 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 public class BondConvexityCalculator extends BondCalculator {
   private static final YieldSensitivityCalculator YIELD_SENSITIVITY_CALCULATOR = YieldSensitivityCalculator.getInstance();
   private static final BondDirtyPriceCalculator DIRTY_PRICE_CALCULATOR = BondDirtyPriceCalculator.getInstance();
+  private static final BondConvexityCalculator INSTANCE = new BondConvexityCalculator();
 
+  public static BondConvexityCalculator getInstance() {
+    return INSTANCE;
+  }
   /**
    * The convexity of a bond, i.e. the second derivative of its PV with respect to its <b>continuously compounded</b> yield divided by its PV
    * @param bond  A bond of known coupons 

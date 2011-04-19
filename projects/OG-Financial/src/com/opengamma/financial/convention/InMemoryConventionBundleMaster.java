@@ -885,6 +885,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP1D")), "SEKCASHP1D", act360, following, Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP1M")), "SEKCASHP1M", act360, modified, Period.ofMonths(1), 2);
@@ -896,8 +897,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP7M")), "SEKCASHP7M", act360, modified, Period.ofMonths(7), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP8M")), "SEKCASHP8M", act360, modified, Period.ofMonths(8), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP9M")), "SEKCASHP9M", act360, modified, Period.ofMonths(9), 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP10M")), "SEKCASHP10M", act360, modified, Period.ofMonths(10), 2);
-    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP11M")), "SEKCASHP11M", act360, modified, Period.ofMonths(11), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP10M")), "SEKCASHP10M", act365, modified, Period.ofMonths(10), 2);
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP11M")), "SEKCASHP11M", act365, modified, Period.ofMonths(11), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKCASHP12M")), "SEKCASHP12M", act360, modified, Period.ofMonths(12), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP2Y")), "SEKSWAPP2Y", act360, modified, Period.ofYears(2), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP3Y")), "SEKSWAPP3Y", act360, modified, Period.ofYears(3), 2);

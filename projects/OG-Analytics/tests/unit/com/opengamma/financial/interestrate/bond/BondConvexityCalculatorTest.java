@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class BondConvexityCalculatorTest {
-  private static final BondConvexityCalculator CC = new BondConvexityCalculator();
+  private static final BondConvexityCalculator CC = BondConvexityCalculator.getInstance();
   private static final String CURVE_NAME = "Test Curve";
   private static final Currency CUR = Currency.USD;
 
