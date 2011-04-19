@@ -21,6 +21,18 @@ public final class DataUtil {
   private DataUtil() {
   }
 
+  public static boolean isNull(final Data value) {
+    if (value.getSingle() != null) {
+      return ValueUtil.isNull(value.getSingle());
+    } else if (value.getLinear() != null) {
+      return false;
+    } else if (value.getMatrix() != null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   public static Data of(final Value value) {
     ArgumentChecker.notNull(value, "value");
     final Data data = new Data();
