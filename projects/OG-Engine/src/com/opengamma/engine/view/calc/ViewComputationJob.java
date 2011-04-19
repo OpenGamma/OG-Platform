@@ -178,6 +178,11 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     if (_executeCycles) {
       try {
         executeViewCycle(cycleType, cycleReference);
+      } catch (InterruptedException e) {
+        // Execution interrupted - don't propagate as failure
+        s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
+        cycleReference.release();
+        return;
       } catch (Exception e) {
         // Execution failed
         s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
