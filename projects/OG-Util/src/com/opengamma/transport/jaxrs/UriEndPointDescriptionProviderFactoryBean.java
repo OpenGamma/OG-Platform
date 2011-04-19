@@ -84,7 +84,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
       }
       Collection<String> localAddresses = getLocalNetworkAddresses();
       for (String address : localAddresses) {
-        String uri = "http://" + address + ":" + _port;
+        String uri = "http://" + address + ":" + _port + _local;
         _uris.add(uri);
         s_logger.debug("Publishing {}", uri);
       }
