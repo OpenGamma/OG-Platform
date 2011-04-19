@@ -20,7 +20,8 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double k = Math.max(option.getStrike(), 0.000001); // Floored at 0.01bp
+    // TODO: Improve treatment around strike/k=0?
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
@@ -82,7 +83,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
      */
     double[] volatilityAdjoint = new double[6];
 
-    final double strike = option.getStrike();
+    final double strike = Math.max(option.getStrike(), 0.000001);
     final double timeToExpiry = option.getTimeToExpiry();
     final double alpha = data.getAlpha();
     final double beta = data.getBeta();

@@ -29,7 +29,6 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
-import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 
 /**
  * RESTful resource for a {@link ViewProcessor}.
@@ -48,7 +47,6 @@ public class DataViewProcessorResource {
   private final ViewProcessor _viewProcessor;
   private final JmsTemplate _jmsTemplate;
   private final String _jmsTopicPrefix;
-  private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final ScheduledExecutorService _scheduler;
   
   private AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
@@ -59,7 +57,6 @@ public class DataViewProcessorResource {
     _jmsTemplate = new JmsTemplate(connectionFactory);
     _jmsTemplate.setPubSubDomain(true);
     
-    _jmsMessageSenderService = new JmsByteArrayMessageSenderService(_jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
     _scheduler = scheduler;
   }
@@ -89,7 +86,7 @@ public class DataViewProcessorResource {
     ViewClient viewClient = _viewProcessor.getViewClient(UniqueIdentifier.parse(viewClientId));
     URI viewProcessorUri = getViewProcessorUri(uriInfo);
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsMessageSenderService, _jmsTopicPrefix);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsTemplate, _jmsTopicPrefix);
   }
   
   @POST

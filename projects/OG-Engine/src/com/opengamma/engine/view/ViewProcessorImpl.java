@@ -162,8 +162,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   //-------------------------------------------------------------------------
   @Override
-  public Collection<ViewProcessInternal> getViewProcesses() {
-    return Collections.unmodifiableCollection(new ArrayList<ViewProcessInternal>(_allProcessesById.values()));
+  public Collection<ViewProcessImpl> getViewProcesses() {
+    return Collections.unmodifiableCollection(new ArrayList<ViewProcessImpl>(_allProcessesById.values()));
+  }
+  
+  @Override
+  public Collection<ViewClient> getViewClients() {
+    return Collections.unmodifiableCollection(new ArrayList<ViewClient>(_allClientsById.values()));
   }
   
   @Override
@@ -336,6 +341,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
   
   private void removeViewProcess(ViewProcessImpl viewProcess) {
+    s_logger.info("Removing view process {}", viewProcess);
     _processLock.lock();
     try {
       // Ignored if the process has already terminated (e.g. naturally)
@@ -381,6 +387,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     UniqueIdentifier clientId = UniqueIdentifier.of(CLIENT_SCHEME, idValue);
     ViewClientImpl client = new ViewClientImpl(clientId, this, clientUser, _clientResultTimer);
     _allClientsById.put(clientId, client);
+    _viewProcessorEventListenerRegistry.notifyViewClientAdded(clientId);
     return client;
   }
 
@@ -403,11 +410,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   public void removeViewClient(UniqueIdentifier clientId) {
     ArgumentChecker.notNull(clientId, "clientId");
     checkIdScheme(clientId, CLIENT_SCHEME);
+    s_logger.info("Removing view client {}", clientId);
     ViewClient client = _allClientsById.remove(clientId);
     if (client == null) {
       throw new DataNotFoundException("View client not found: " + clientId);
     }
     detachClientFromViewProcess(clientId);
+    _viewProcessorEventListenerRegistry.notifyViewClientRemoved(clientId);
   }
   
   //-------------------------------------------------------------------------
@@ -493,6 +502,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     OperationTimer timer = new OperationTimer(s_logger, "Starting on lifecycle call");
     _lifecycleLock.lock();
     try {
+      if (_isStarted) {
+        return;
+      }
       s_logger.info("Starting on lifecycle call.");
       _isStarted = true;
     } finally {
@@ -559,24 +571,31 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   @Override
   public void stop() {
+    _processLock.lock();
     _lifecycleLock.lock();
     try {
-      s_logger.info("Stopping on lifecycle call, terminating all running views.");
-      Collection<ViewProcessImpl> viewProcesses = _allProcessesById.values();
-      for (ViewProcessImpl viewProcess : viewProcesses) {
-        if (viewProcess.isRunning()) {
-          s_logger.info("Terminating view {} due to lifecycle stop call", viewProcess.getDefinition().getName());
-          viewProcess.stop();
-        }
-        _viewProcessorEventListenerRegistry.notifyViewProcessRemoved(viewProcess.getUniqueId());
+      if (!_isStarted) {
+        return;
       }
-      _allProcessesById.clear();
-      s_logger.info("All views terminated.");
+      s_logger.info("Stopping on lifecycle call - terminating all children");
+      
+      for (ViewProcessImpl viewProcess : getViewProcesses()) {
+        removeViewProcess(viewProcess);
+      }
+      s_logger.info("All view processes terminated.");
+      
+      for (ViewClient viewClient : getViewClients()) {
+        viewClient.shutdown();
+      }
+      _allClientsById.clear();
+      
       _isStarted = false;
+      
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
       _viewProcessorEventListenerRegistry.notifyViewProcessorStopped();
     } finally {
       _lifecycleLock.unlock();
+      _processLock.unlock();
     }
   }
   

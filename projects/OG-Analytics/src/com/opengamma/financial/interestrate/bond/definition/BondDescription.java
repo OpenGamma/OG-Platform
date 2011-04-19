@@ -26,25 +26,17 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
    * The bond coupons. The coupons notional should be in line with the bond nominal.
    */
   private final GenericAnnuity<C> _coupon;
-  /**
-   * Time to standard settlement (spot).
-   */
-  private final double _spotTime;
-
-  //TODO: Do we need _exCouponTime?
 
   /**
    * Bond constructor from the bond nominal and coupon.
    * @param nominal The notional payments.
    * @param coupon The bond coupons.
-   * @param spotTime Time to standard settlement.
    */
-  public BondDescription(GenericAnnuity<PaymentFixed> nominal, GenericAnnuity<C> coupon, double spotTime) {
+  public BondDescription(GenericAnnuity<PaymentFixed> nominal, GenericAnnuity<C> coupon) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     _nominal = nominal;
     _coupon = coupon;
-    _spotTime = spotTime;
   }
 
   /**
@@ -63,17 +55,9 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
     return _coupon;
   }
 
-  /**
-   * Gets the _settlementTime field.
-   * @return the _settlementTime
-   */
-  public double getSpotTime() {
-    return _spotTime;
-  }
-
   @Override
   public String toString() {
-    String result = "Bond Description: Spot time=" + _spotTime + "\n";
+    String result = "Bond Description:\n";
     result += "Nominal: " + _nominal.toString();
     result += "Coupon: " + _coupon.toString();
     return result;
@@ -85,9 +69,6 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
     int result = 1;
     result = prime * result + _coupon.hashCode();
     result = prime * result + _nominal.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_spotTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -107,9 +88,6 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
       return false;
     }
     if (!ObjectUtils.equals(_nominal, other._nominal)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_spotTime) != Double.doubleToLongBits(other._spotTime)) {
       return false;
     }
     return true;

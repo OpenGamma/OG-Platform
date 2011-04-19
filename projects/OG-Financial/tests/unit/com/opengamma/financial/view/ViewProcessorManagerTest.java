@@ -31,6 +31,7 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessorInternal;
 import com.opengamma.engine.view.calc.EngineResourceManager;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.id.UniqueIdentifier;
@@ -134,6 +135,11 @@ public class ViewProcessorManagerTest {
     public ViewProcess getViewProcess(UniqueIdentifier viewProcessId) {
       return null;
     }
+    
+    @Override
+    public Collection<ViewClient> getViewClients() {
+      return null;
+    }
 
     @Override
     public ViewClient createViewClient(UserPrincipal clientUser) {
@@ -156,9 +162,10 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public EngineResourceManager getViewCycleManager() {
+    public EngineResourceManager<ViewCycle> getViewCycleManager() {
       return null;
     }
+
   }
 
   //-------------------------------------------------------------------------
