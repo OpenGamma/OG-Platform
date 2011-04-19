@@ -93,24 +93,24 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
   }
 
   /**
-   * Gets the _bondStandard field.
-   * @return the _bondStandard
+   * Gets Description of the underlying bond with standard settlement date. Used for clean/dirty price calculation.
+   * @return The bond with standard settlement date.
    */
   public BondDescription<C> getBondStandard() {
     return _bondStandard;
   }
 
   /**
-   * Gets the _spotTime field.
-   * @return the _spotTime
+   * Gets the standard spot time.
+   * @return The spot time.
    */
   public double getSpotTime() {
     return _spotTime;
   }
 
   /**
-   * Gets the _notionalStandard field.
-   * @return the _notionalStandard
+   * Gets the notional at the standard spot time.
+   * @return The notional standard.
    */
   public double getNotionalStandard() {
     return _notionalStandard;

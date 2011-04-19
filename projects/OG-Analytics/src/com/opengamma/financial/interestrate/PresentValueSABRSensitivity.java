@@ -17,11 +17,11 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueSABRSensitivity {
 
+  //TODO: Should the currency/instrument (swaption, cap) be included in the map description?
   /**
    * The map containing the alpha sensitivity. The map linked the pair (expiry time, tenor) to a double (sensitivity).
    */
   private final Map<DoublesPair, Double> _alpha;
-  //TODO: Should the currency/instrument (swaption, cap) be included in the map description. 
   /**
   * The map containing the rho (correlation) sensitivity. The map linked the pair (expiry time, tenor) to a double (sensitivity).
   */

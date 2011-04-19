@@ -1,12 +1,14 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.annuity;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
@@ -18,8 +20,8 @@ import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponIborSpreadDefinition> {
 
   /**
-   * Constructor from a list of fixed coupons.
-   * @param payments The fixed coupons.
+   * Constructor from a list of Ibor-like coupons.
+   * @param payments The Ibor coupons.
    */
   public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments) {
     super(payments);
@@ -36,6 +38,9 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
    * @return The Ibor annuity.
    */
   public static AnnuityCouponIborSpreadDefinition from(ZonedDateTime settlementDate, Period tenor, double notional, IborIndex index, double spread, boolean isPayer) {
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(index, "index");
+    Validate.notNull(tenor, "tenor");
     AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settlementDate, tenor, notional, index, isPayer);
     CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[iborAnnuity.getPayments().length];
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
@@ -55,6 +60,9 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
    * @return The Ibor annuity.
    */
   public static AnnuityCouponIborSpreadDefinition from(ZonedDateTime settlementDate, ZonedDateTime maturityDate, double notional, IborIndex index, double spread, boolean isPayer) {
+    Validate.notNull(settlementDate, "settlement date");
+    Validate.notNull(index, "index");
+    Validate.notNull(maturityDate, "maturity date");
     AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, notional, index, isPayer);
     CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[iborAnnuity.getPayments().length];
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {

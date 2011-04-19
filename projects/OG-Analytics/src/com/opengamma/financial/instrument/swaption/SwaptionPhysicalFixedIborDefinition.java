@@ -48,7 +48,6 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
    */
   private SwaptionPhysicalFixedIborDefinition(ZonedDateTime expiryDate, double strike, SwapFixedIborDefinition underlyingSwap, boolean isCall, boolean isLong) {
     super(strike, new Expiry(expiryDate), isCall);
-    // A swaption payer can be consider as a call on the swap rate.
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
@@ -57,7 +56,8 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
   }
 
   /**
-   * Builder from the expiry date, the underlying swap and the long/short flqg.
+   * Builder from the expiry date, the underlying swap and the long/short flqg. The strike stored in the EuropeanVanillaOptionDefinition should not be used for pricing as the 
+   * strike can be different for each coupon and need to be computed at the pricing method level.
    * @param expiryDate The expiry date.
    * @param underlyingSwap The underlying swap.
    * @param isLong The long (true) / short (false) flag.
@@ -66,14 +66,13 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
   public static SwaptionPhysicalFixedIborDefinition from(ZonedDateTime expiryDate, SwapFixedIborDefinition underlyingSwap, boolean isLong) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
-    // A swaption payer can be consider as a call on the swap rate.
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
-    // Is working only for swap with same rate on all coupons and standard conventions.
+    // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
     return new SwaptionPhysicalFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
 
   /**
-   * Gets the _underlyingSwap field.
+   * Gets the underlying swap.
    * @return The underlying swap.
    */
   public SwapFixedIborDefinition getUnderlyingSwap() {
@@ -81,7 +80,7 @@ public final class SwaptionPhysicalFixedIborDefinition extends EuropeanVanillaOp
   }
 
   /**
-   * Gets the _isLong field.
+   * Gets the _isLong flag.
    * @return The Long (true)/Short (false) flag.
    */
   public boolean isLong() {

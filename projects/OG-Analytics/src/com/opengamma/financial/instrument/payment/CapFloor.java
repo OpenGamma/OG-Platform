@@ -6,7 +6,7 @@
 package com.opengamma.financial.instrument.payment;
 
 /**
- * Interface describing a generic cap/floor features.
+ * Interface describing generic cap/floor features.
  */
 public interface CapFloor {
 
@@ -17,15 +17,15 @@ public interface CapFloor {
   double geStrike();
 
   /**
-   * Gets the isCap flag.
+   * Gets the cap/floor flag.
    * @return Flag indicating a Cap (true) or Floor (false)
    */
   boolean isCap();
 
   /**
    * The pay-off of the cap/floor.
-   * @param fixing The fixing value to compute the pay-off: cap : (fixing-strike)^+ / floor : (strike-fixing)^+
-   * @return The pay-off
+   * @param fixing The fixing value to compute the pay-off
+   * @return The pay-off: cap = (fixing-strike)^+ / floor = (strike-fixing)^+
    */
   double payOff(double fixing);
 

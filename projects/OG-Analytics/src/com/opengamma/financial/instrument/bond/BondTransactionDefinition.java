@@ -42,7 +42,7 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
    */
   private final double _paymentAmount;
   /**
-   * The coupon index of the settlement date.
+   * The coupon index of the transaction settlement date.
    */
   private int _couponIndex;
   /**
@@ -82,16 +82,16 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
   }
 
   /**
-   * Gets the _underlyingBond field.
-   * @return the _underlyingBond
+   * Gets the bond underlying the transaction.
+   * @return The underlying Bond.
    */
   public BondDescriptionDefinition<C> getUnderlyingBond() {
     return _underlyingBond;
   }
 
   /**
-   * Gets the _quantity field.
-   * @return the _quantity
+   * Gets the number (or quantity) of bonds purchased (can be negative or positive).
+   * @return The quantity.
    */
   public double getQuantity() {
     return _quantity;
@@ -106,15 +106,15 @@ public abstract class BondTransactionDefinition<C extends CouponDefinition> impl
   }
 
   /**
-   * Gets the _price field.
-   * @return the _price
+   * Gets the price.
+   * @return The price.
    */
   public double getPrice() {
     return _price;
   }
 
   /**
-   * Gets the coupon index.
+   * Gets the coupon index of the transaction settlement date.
    * @return The coupon index of the settlement date.
    */
   public int getCouponIndex() {

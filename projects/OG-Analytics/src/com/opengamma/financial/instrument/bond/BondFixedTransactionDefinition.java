@@ -55,16 +55,16 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
   }
 
   /**
-   * Gets the _accruedInterestAtSettlement field.
-   * @return the _accruedInterestAtSettlement
+   * Gets the accrued interest at transaction settlement.
+   * @return The accrued interest at settlement.
    */
   public double getAccruedInterestAtSettlement() {
     return _accruedInterestAtSettlement;
   }
 
   /**
-   * Gets the _underlyingBond field.
-   * @return the _underlyingBond
+   * Gets the bond underlying the transaction.
+   * @return The underlying bond.
    */
   @Override
   public BondFixedDescriptionDefinition getUnderlyingBond() {
@@ -73,7 +73,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
 
   @Override
   public BondFixedTransaction toDerivative(LocalDate date, String... yieldCurveNames) {
-    // First yield curve used for coupon and notional (credit), the second for risk free settlement.
+    // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
     // TODO: Take the ex-coupon days into account.
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
