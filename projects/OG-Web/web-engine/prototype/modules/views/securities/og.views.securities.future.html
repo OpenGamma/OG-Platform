@@ -1,0 +1,27 @@
+<div class="OG-security">
+  <h1>
+    <span class="OG-editable">${name}</span>
+  </h1>
+  <div class="og-box">
+    <div class="og-lbl">
+        <div>Type</div>
+        <div>Expiry Date</div>
+        <div>Expiry Accuracy</div>
+        <div>Trading Exchange</div>
+        <div>Settlement Exchange</div>
+        <div>Redemption Value</div>
+    </div>
+    <div class="og-cnt">
+      <div><strong>${securityType}</strong></div>
+      <div><strong>${expirydate.datetime} - ${expirydate.timezone}</strong></div>
+      <div><strong>${expiryAccuracy}</strong></div>
+      <div><strong>${tradingExchange}</strong></div>
+      <div><strong>${settlementExchange}</strong></div>
+      <div><strong>${redemptionValue}</strong></div>
+    </div>
+  </div>
+  <div class="og-box">
+    <div class="og-lbl">Identifiers</div>
+    <div class="og-cnt og-js-identifiers"></div>
+  </div>
+</div>

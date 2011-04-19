@@ -1,0 +1,25 @@
+.OG-region {
+  margin: 10px 12px 20px 0;
+}
+
+/**
+ * TODO: Make common treeLines CSS
+ */
+.OG-region .og-treeLines {
+  background: url('../../../images/common/furniture/treeLines.png') 3px 0 no-repeat;
+  margin: 0 0 0 25px;
+  padding: 10px 0 6px 20px;
+}
+
+.OG-region .og-treeLinesLast {
+  background-position: 3px -575px;
+}
+
+.OG-region .og-tree {
+  margin-left: 22px;
+}
+
+.OG-region .og-treeLines table {
+  margin-top: -2px;
+  margin-bottom: 0;
+}

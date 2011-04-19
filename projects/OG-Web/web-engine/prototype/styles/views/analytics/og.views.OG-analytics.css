@@ -1,0 +1,21 @@
+#OG-analytics .og-title h1 {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 30px;
+}
+
+#OG-analytics .og-title {
+  background-color: #fff;
+  display: inline-block;
+  padding: 0 20px 0 5px;
+  min-width: 200px;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+
+
+
+
