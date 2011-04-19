@@ -60,6 +60,7 @@
 	<bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
 		<property name="brokerURL" value="${activeMQ.brokerURL}" />
 		<property name="transportListener" ref="activeMqTransportListener" />
+		<property name="sendTimeout" value="${activeMQ.sendTimeout}" />
 	</bean>
 	
 	<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
