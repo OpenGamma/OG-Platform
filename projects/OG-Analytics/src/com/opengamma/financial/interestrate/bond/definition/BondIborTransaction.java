@@ -9,12 +9,12 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
- * Describes a transaction on a fixed coupon bond issue.
+ * Describes a transaction on a Ibor floating coupon bond (Floating Rate Note) issue.
  */
 public class BondIborTransaction extends BondTransaction<Payment> {
 
   /**
-   * Fixed coupon bond transaction constructor from transaction details.
+   * Ibor coupon bond transaction constructor from transaction details.
    * @param bondTransaction The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlement Transaction settlement payment (time and amount).

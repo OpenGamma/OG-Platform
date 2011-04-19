@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.payments.PaymentFixed;
  */
 public abstract class BondDescription<C extends Payment> implements InterestRateDerivative {
   /**
-   * The notional payments. For bullet bond, it is restricted to a single payment.
+   * The nominal payments. For bullet bond, it is restricted to a single payment.
    */
   private final GenericAnnuity<PaymentFixed> _nominal;
   /**
@@ -40,7 +40,7 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
   }
 
   /**
-   * Gets the _nominal field.
+   * Gets the nominal payments.
    * @return The nominal payments.
    */
   public GenericAnnuity<PaymentFixed> getNominal() {
@@ -48,7 +48,7 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
   }
 
   /**
-   * Gets the _coupon field.
+   * Gets the coupons.
    * @return The coupons.
    */
   public GenericAnnuity<C> getCoupon() {

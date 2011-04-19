@@ -12,7 +12,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Class with the Hagan et al SABR volatility function.
+ * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  */
 public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;

@@ -42,7 +42,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Cou
 
   @Override
   public BondIborTransaction toDerivative(LocalDate date, String... yieldCurveNames) {
-    // First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
+    // Implementation note: First yield curve used for coupon and notional (credit), the second for discounting and the third for forward (Ibor).
     // TODO: Take the ex-coupon days into account.
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");

@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
- * 
+ * Class with methods related to bond transaction valued by discounting.
  */
 public class BondTransactionDiscountingMethod {
 

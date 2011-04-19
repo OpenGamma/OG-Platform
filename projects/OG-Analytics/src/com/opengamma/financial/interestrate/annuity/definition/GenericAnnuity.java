@@ -25,6 +25,9 @@ import com.opengamma.util.money.Currency;
  */
 public class GenericAnnuity<P extends Payment> implements InterestRateDerivative {
 
+  /**
+   * The list of the annuity payments.
+   */
   private final P[] _payments;
 
   /**
@@ -84,7 +87,7 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   /**
-   * Gets the payments field.
+   * Gets the payments array.
    * @return the payments
    */
   public P[] getPayments() {
@@ -92,15 +95,15 @@ public class GenericAnnuity<P extends Payment> implements InterestRateDerivative
   }
 
   /**
-   * Gets the _isPayer field.
-   * @return the _isPayer
+   * Gets the payer flag: payer (true) or receiver (false)
+   * @return The payer flag.
    */
   public boolean isPayer() {
     return _isPayer;
   }
 
   /**
-   * Return the discounting (or funding) curve name.
+   * Return the discounting (or funding) curve name. Deduced from the first payment.
    * @return The name.
    */
   public String getDiscountCurve() {

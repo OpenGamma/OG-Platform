@@ -21,7 +21,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a physical swaption with SABR model.
+ *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
  */
 public class SwaptionPhysicalFixedIborSABRMethod {
 
@@ -44,10 +44,10 @@ public class SwaptionPhysicalFixedIborSABRMethod {
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
     double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
-    // TODO: A better notion of maturity may be required (using period?)
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
+    // TODO: A better notion of maturity may be required (using period?)
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation: option required to pass the strike (in case the swap has non-constant coupon).
+    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
     double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strike, forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
@@ -57,7 +57,7 @@ public class SwaptionPhysicalFixedIborSABRMethod {
   }
 
   /**
-   * Computes the present value rate sensitivity of a physical delivery European swaption in the SABR model.
+   * Computes the present value rate sensitivity to rates of a physical delivery European swaption in the SABR model.
    * @param swaption The swaption.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.

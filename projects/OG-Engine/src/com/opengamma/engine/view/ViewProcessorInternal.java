@@ -22,15 +22,16 @@ import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 public interface ViewProcessorInternal extends ViewProcessor, Lifecycle {
 
   /**
-   * Gets a collection of the view processes currently being managed by this view processor. A view process could be in
-   * any state, and might have finished producing new results. 
+   * Gets an unmodifiable snapshot of the view processes currently being managed by this view processor. A view process
+   * could be in any state, and might have finished producing new results or even have been terminated. 
    * 
    * @return a collection of the current view processes, not null
    */
   Collection<? extends ViewProcess> getViewProcesses();
   
   /**
-   * Gets a collection of the view clients currently being managed by this view processor.
+   * Gets an unmodifiable collection of the view clients currently being managed by this view processor. A view client
+   * could be in any state, and might have been terminated.
    * 
    * @return a collection of the current view clients, not null
    */

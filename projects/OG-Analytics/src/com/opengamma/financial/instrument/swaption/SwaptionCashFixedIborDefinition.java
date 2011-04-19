@@ -70,9 +70,8 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
   public static SwaptionCashFixedIborDefinition from(ZonedDateTime expiryDate, SwapFixedIborDefinition underlyingSwap, boolean isLong) {
     Validate.notNull(expiryDate, "expiry date");
     Validate.notNull(underlyingSwap, "underlying swap");
-    // A swaption payer can be consider as a call on the swap rate.
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
-    // Is working only for swap with same rate on all coupons and standard conventions.
+    // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
     return new SwaptionCashFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
 
@@ -89,7 +88,7 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
   }
 
   /**
-   * Gets the _underlyingSwap field.
+   * Gets the underlying swap field.
    * @return The underlying swap.
    */
   public SwapFixedIborDefinition getUnderlyingSwap() {
@@ -97,7 +96,7 @@ public final class SwaptionCashFixedIborDefinition extends EuropeanVanillaOption
   }
 
   /**
-   * Gets the _isLong field.
+   * Gets the isLong flag.
    * @return The Long (true)/Short (false) flag.
    */
   public boolean isLong() {

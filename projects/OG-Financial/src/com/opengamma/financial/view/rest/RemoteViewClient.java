@@ -8,6 +8,8 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.jms.ExceptionListener;
@@ -69,6 +71,7 @@ public class RemoteViewClient implements ViewClient {
   private final FudgeContext _fudgeContext;
   private final JmsTemplate _jmsTemplate;
   private final ScheduledExecutorService _scheduler;
+  private final ScheduledFuture<?> _scheduledHeartbeat;
   
   public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
@@ -86,6 +89,15 @@ public class RemoteViewClient implements ViewClient {
       }
       
     };
+    
+    _scheduledHeartbeat = scheduler.scheduleAtFixedRate(new Runnable() {
+
+      @Override
+      public void run() {
+        heartbeat();
+      }
+      
+    }, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2, DataViewProcessorResource.VIEW_CLIENT_TIMEOUT_MILLIS / 2, TimeUnit.MILLISECONDS);
   }
 
   //-------------------------------------------------------------------------
@@ -380,6 +392,7 @@ public class RemoteViewClient implements ViewClient {
   //-------------------------------------------------------------------------
   @Override
   public void shutdown() {
+    stopHeartbeating();
     URI uri = getUri(_baseUri, DataViewClientResource.PATH_SHUTDOWN);
     _client.access(uri).post();
   }
@@ -387,6 +400,22 @@ public class RemoteViewClient implements ViewClient {
   //-------------------------------------------------------------------------
   private static URI getUri(URI baseUri, String path) {
     return UriBuilder.fromUri(baseUri).path(path).build();
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Externally visible for testing
+   */
+  public void heartbeat() {
+    URI uri = getUri(_baseUri, DataViewClientResource.PATH_HEARTBEAT);
+    _client.access(uri).post();
+  }
+  
+  /**
+   * Externally visible for testing
+   */
+  public void stopHeartbeating() {
+    _scheduledHeartbeat.cancel(true);
   }
   
 }

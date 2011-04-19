@@ -32,7 +32,7 @@ public class SwapFixedIborMethod {
   /**
    * Computes the conventional cash annuity of a swap. The computation is relevant only for standard swaps with constant notional and regular payments.
    * @param fixedCouponSwap The underlying swap.
-   * @param forward The swap forward.
+   * @param forward The swap forward rate.
    * @return The cash annuity.
    */
   public static double getAnnuityCash(FixedCouponSwap<? extends Payment> fixedCouponSwap, double forward) {

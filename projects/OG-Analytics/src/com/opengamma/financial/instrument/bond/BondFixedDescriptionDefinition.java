@@ -130,15 +130,15 @@ public class BondFixedDescriptionDefinition extends BondDescriptionDefinition<Co
   }
 
   /**
-   * Gets the _yieldConvention field.
-   * @return the _yieldConvention
+   * Gets the yield convention.
+   * @return The yield convention.
    */
   public YieldConvention getYieldConvention() {
     return _yieldConvention;
   }
 
   /**
-   * Gets the _couponPerYear field.
+   * Gets the number of coupon per year field.
    * @return The number of coupon per year.
    */
   public int getCouponPerYear() {
@@ -146,7 +146,7 @@ public class BondFixedDescriptionDefinition extends BondDescriptionDefinition<Co
   }
 
   /**
-   * Gets the _isEOM field.
+   * Gets the end-of-month flag.
    * @return The end-of-month convention flag.
    */
   public boolean isEOM() {
