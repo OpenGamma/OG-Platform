@@ -35,7 +35,21 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
       listener.notifyViewProcessRemoved(viewProcessId);
     }
   }
+  
+  @Override
+  public void notifyViewClientAdded(UniqueIdentifier viewClientId) {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewClientAdded(viewClientId);
+    }
+  }
 
+  @Override
+  public void notifyViewClientRemoved(UniqueIdentifier viewClientId) {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewClientRemoved(viewClientId);
+    }
+  }
+  
   /**
    * Adds a listener to the notification service. No guarantee is made that listeners will be
    * notified in the order they were added.

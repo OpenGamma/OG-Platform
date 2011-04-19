@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 
 /**
@@ -27,6 +28,13 @@ public interface ViewProcessorInternal extends ViewProcessor, Lifecycle {
    * @return a collection of the current view processes, not null
    */
   Collection<? extends ViewProcess> getViewProcesses();
+  
+  /**
+   * Gets a collection of the view clients currently being managed by this view processor.
+   * 
+   * @return a collection of the current view clients, not null
+   */
+  Collection<ViewClient> getViewClients();
   
   /**
    * Gets the function compilation service
