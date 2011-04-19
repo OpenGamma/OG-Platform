@@ -36,7 +36,8 @@ public class CycleCompletedCallBuilder implements FudgeBuilder<CycleCompletedCal
 
   @Override
   public CycleCompletedCall buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
-    ViewComputationResultModel fullResult = context.fieldValueToObject(ViewComputationResultModel.class, msg.getByName(FULL_RESULT_FIELD));
+    FudgeField fullResultField = msg.getByName(FULL_RESULT_FIELD);
+    ViewComputationResultModel fullResult = fullResultField != null ? context.fieldValueToObject(ViewComputationResultModel.class, fullResultField) : null;
     FudgeField deltaResultField = msg.getByName(DELTA_RESULT_FIELD);
     ViewDeltaResultModel deltaResult = deltaResultField != null ? context.fieldValueToObject(ViewDeltaResultModel.class, deltaResultField) : null;
     return new CycleCompletedCall(fullResult, deltaResult);
