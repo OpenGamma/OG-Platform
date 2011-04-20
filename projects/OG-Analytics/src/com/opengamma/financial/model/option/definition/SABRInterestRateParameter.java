@@ -7,6 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -24,7 +25,6 @@ public class SABRInterestRateParameter {
    * The alpha (volatility level) surface.
    */
   private final VolatilitySurface _alphaSurface;
-  //TODO: Should it be a surface of <double, Period>?
   /**
    * The beta (elasticity) surface.
    */
@@ -41,6 +41,10 @@ public class SABRInterestRateParameter {
    * The function containing the SABR volatility formula. Default is HaganVolatilityFunction.
    */
   private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
+  /**
+   * The standard day count for which the parameter surfaces are valid.
+   */
+  private final DayCount _dayCount;
 
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
@@ -48,16 +52,19 @@ public class SABRInterestRateParameter {
    * @param beta The beta parameters.
    * @param rho The rho parameters.
    * @param nu The nu parameters.
+   * @param dayCount The standard day count for which the parameter surfaces are valid.
    */
-  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu) {
+  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, DayCount dayCount) {
     Validate.notNull(alpha, "alpha surface");
     Validate.notNull(beta, "beta surface");
     Validate.notNull(rho, "rho surface");
     Validate.notNull(nu, "nu surface");
+    Validate.notNull(dayCount, "standard day count");
     _alphaSurface = alpha;
     _betaSurface = beta;
     _rhoSurface = rho;
     _nuSurface = nu;
+    _dayCount = dayCount;
     _sabrFunction = new SABRHaganVolatilityFunction();
   }
 
@@ -67,9 +74,10 @@ public class SABRInterestRateParameter {
    * @param beta The beta parameters.
    * @param rho The rho parameters.
    * @param nu The nu parameters.
+   * @param dayCount The standard day count for which the parameter surfaces are valid.
    * @param sabrFormula The SABR formula provider.
    */
-  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu,
+  public SABRInterestRateParameter(final VolatilitySurface alpha, final VolatilitySurface beta, final VolatilitySurface rho, final VolatilitySurface nu, DayCount dayCount,
       VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
     Validate.notNull(alpha, "alpha surface");
     Validate.notNull(beta, "beta surface");
@@ -80,6 +88,7 @@ public class SABRInterestRateParameter {
     _betaSurface = beta;
     _rhoSurface = rho;
     _nuSurface = nu;
+    _dayCount = dayCount;
     _sabrFunction = sabrFormula;
   }
 
@@ -117,6 +126,14 @@ public class SABRInterestRateParameter {
    */
   public double getNu(DoublesPair expiryMaturity) {
     return _nuSurface.getVolatility(expiryMaturity);
+  }
+
+  /**
+   * Gets the standard day count for which the parameter surfaces are valid.
+   * @return The day count.
+   */
+  public DayCount getDayCount() {
+    return _dayCount;
   }
 
   /**

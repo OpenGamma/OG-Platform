@@ -11,7 +11,7 @@ package com.opengamma.financial.instrument.payment;
 public interface CapFloor {
 
   /**
-   * Gets the strike.
+   * Gets the caplet/floorlet strike.
    * @return The strike
    */
   double geStrike();

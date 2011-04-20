@@ -329,7 +329,7 @@
 		<echo
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
-
+ 	
 	<target name="dist" depends="clean,publish-local">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
@@ -342,10 +342,10 @@
 			<fileset dir="${basedir}/scripts"/>
 		</copy>
 		<copy todir="${dist.dir}/${dist.name}/web-engine" failonerror="false">
-			<fileset dir="${basedir}/web-engine"/>
+			<fileset dir="${projects.dir}/OG-Web/web-engine"/>
 		</copy>
 	    <copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
-	        <fileset dir="${basedir}/web-marketdata"/>
+	        <fileset dir="${projects.dir}/OG-Web/web-marketdata"/>
         </copy>
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
         <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />

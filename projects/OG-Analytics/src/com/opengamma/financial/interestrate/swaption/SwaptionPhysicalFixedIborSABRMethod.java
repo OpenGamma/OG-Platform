@@ -41,16 +41,18 @@ public class SwaptionPhysicalFixedIborSABRMethod {
     Validate.notNull(sabrData);
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
-    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
+    double pvbpModified = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
+    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    double forwardModified = forward * pvbp / pvbpModified;
+    double strikeModified = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     // TODO: A better notion of maturity may be required (using period?)
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
-    double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strike, forward);
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
+    double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
+    BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
     Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return price;

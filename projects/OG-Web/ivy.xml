@@ -3,7 +3,9 @@
     
     <publications>
       <artifact name="og-web" type="jar"/>
+      <artifact name="web-engine" type="zip"/>
     </publications>
+    
     <dependencies>
         <dependency name="og-financial" rev="latest.integration" />
         <dependency name="og-analytics" rev="latest.integration" />
