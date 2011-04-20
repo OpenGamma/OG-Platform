@@ -5,7 +5,12 @@
 	</publications>
 	<dependencies>
         <dependency name="og-web" rev="latest.integration" />
-		
+        <dependency name="og-master" rev="latest.integration" />
+        <dependency name="og-masterdb" rev="latest.integration" />
+        
+		    <dependency org="org.eclipse" name="jetty" rev="7.0.1+" conf="*->jsp,servlets,start"/>
+		    
+		    <exclude org="org.apache.log4j" module="log4j" />
         <exclude org="org.junit" />
 	</dependencies>
 </ivy-module>

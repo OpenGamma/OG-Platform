@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.jetty;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -16,7 +19,11 @@ import com.opengamma.util.PlatformConfigUtils;
  */
 public abstract class AbstractJettyServer {
   
-  public static void run(String springConfig) {   
+  public static void run(final String springConfig) throws IOException {
+    String absolutePath = new File(springConfig).getCanonicalPath();
+    String baseDir = new File(".").getCanonicalPath();
+    String relativePath = absolutePath.substring(baseDir.length());
+    
     System.out.println("================================== SETUP LOGGING ============================================");
     
     // Logging
@@ -28,7 +35,7 @@ public abstract class AbstractJettyServer {
     
     // server
     try {
-      process(springConfig);
+      process(relativePath);
       System.exit(0);
     } catch (Throwable ex) {
       ex.printStackTrace();
@@ -36,7 +43,7 @@ public abstract class AbstractJettyServer {
     }
   }
   
-  public static void process(String springConfig) throws Exception {
+  private static void process(String springConfig) throws Exception {
     System.out.println("================================== JETTY START BEGINS =======================================");
     ApplicationContext appContext = new FileSystemXmlApplicationContext(springConfig);
     

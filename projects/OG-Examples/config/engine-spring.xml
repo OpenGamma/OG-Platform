@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Property file configuration -->
+  <bean id="engineSpringProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="false" />
+    <property name="location">
+      <value>classpath:engine-spring.properties</value>
+    </property>
+  </bean>
+
+	<bean id="server" class="org.eclipse.jetty.server.Server"
+		init-method="start" destroy-method="stop">
+
+		<property name="connectors">
+			<list>
+				<bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+					<property name="port" value="${port}" />
+					<property name="confidentialPort" value="${confidentialPort}" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="handler">
+			<bean id="handlerList" class="org.eclipse.jetty.server.handler.HandlerList">
+				<property name="handlers">
+					<list>
+						<bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
+							<property name="contextPath" value="/" />
+							<property name="descriptor" value="${descriptor}" />
+							<property name="resourceBase" value="${resourceBase}" />
+							<property name="defaultsDescriptor" value="./config/webdefaults.xml" />
+							<property name="initParams">
+								<map>
+									<entry key="contextConfigLocation" value="classpath:example-beans.xml" />
+								</map>
+							</property>
+							<property name="EventListeners">
+							 <list>
+							   <bean id="contextLoader" class="org.springframework.web.context.ContextLoaderListener"/>
+							 </list>
+							</property>
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+
+		<property name="stopAtShutdown" value="true" />
+		<property name="gracefulShutdown" value="1000" />
+		<property name="sendDateHeader" value="true" />
+		<property name="sendServerVersion" value="true" />
+
+	</bean>
+
+</beans>

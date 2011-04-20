@@ -1,0 +1,32 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.examples.livedata;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.calendar.LocalDate;
+
+import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.master.timeseries.TimeSeriesLoader;
+
+/**
+ * Mock timeseries loader to get the example engine server running
+ * 
+ * For fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters, please contact sales@opengamma.com
+ */
+public class MockTimeSeriesLoader implements TimeSeriesLoader {
+
+  @Override
+  public Map<Identifier, UniqueIdentifier> loadTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+    System.out.println("This is a placeholder timeseries loader. For fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters, " +
+      " please contact sales@opengamma.com.");
+    return Collections.emptyMap();
+  }
+
+}
