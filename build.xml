@@ -75,7 +75,7 @@
 		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target-->
-
+	<target name="init"/>
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
