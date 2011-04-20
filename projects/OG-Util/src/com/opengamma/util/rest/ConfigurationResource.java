@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -19,6 +20,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
+import com.opengamma.transport.jaxrs.FudgeRest;
 
 /**
  * Generic container for configuration objects - e.g. variant properties of a component that need
