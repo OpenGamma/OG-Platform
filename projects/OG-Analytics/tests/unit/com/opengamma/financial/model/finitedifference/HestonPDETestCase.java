@@ -9,11 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.finitedifference.BoundaryCondition2D;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusion2DPDEDataBundle;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition2D;
-import com.opengamma.financial.model.finitedifference.SecondDerivativeBoundaryCondition2D;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.fourier.CharacteristicExponent;
@@ -61,29 +56,29 @@ public class HestonPDETestCase {
 
   static {
 
-//    final Function<Double, Double> volZeroBoundary = new Function<Double, Double>() {
-//      @Override
-//      public Double evaluate(final Double... tx) {
-//        Validate.isTrue(tx.length == 2);
-//        double x = tx[1];
-//        return Math.max(x - STRIKE, 0);
-//      }
-//    };
-//
-//    final Function<Double, Double> volInfiniteBoundary = new Function<Double, Double>() {
-//      @Override
-//      public Double evaluate(final Double... tx) {
-//        Validate.isTrue(tx.length == 2);
-//        double x = tx[1];
-//        return x;
-//      }
-//    };
+    // final Function<Double, Double> volZeroBoundary = new Function<Double, Double>() {
+    // @Override
+    // public Double evaluate(final Double... tx) {
+    // Validate.isTrue(tx.length == 2);
+    // double x = tx[1];
+    // return Math.max(x - STRIKE, 0);
+    // }
+    // };
+    //
+    // final Function<Double, Double> volInfiniteBoundary = new Function<Double, Double>() {
+    // @Override
+    // public Double evaluate(final Double... tx) {
+    // Validate.isTrue(tx.length == 2);
+    // double x = tx[1];
+    // return x;
+    // }
+    // };
 
     F_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0); // option worth zero if spot is zero
     F_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity
     V_LOWER = new SecondDerivativeBoundaryCondition2D(0.0, 0.0);
     V_UPPER = new SecondDerivativeBoundaryCondition2D(0.0, 5 * V0);
-    // F_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * F0); // option price linear in spot for spot -> infinity
+    // F_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * F0); // a knock-out barrier
     // V_LOWER = new DirichletBoundaryCondition2D(0.0, 0.0);
     // V_UPPER = new DirichletBoundaryCondition2D(0.0, 5 * V0);
 
@@ -165,26 +160,28 @@ public class HestonPDETestCase {
     DATA = new ConvectionDiffusion2DPDEDataBundle(A, B, C, D, E, F, FunctionalDoublesSurface.from(payoff));
   }
 
-  public void testCallPrice(ConvectionDiffusionPDESolver2D solver, int timeSteps, int spotSteps, int volSqrSteps) {
+  public void testCallPrice(ConvectionDiffusionPDESolver2D solver, int timeSteps, int spotSteps, int volSqrSteps, boolean print) {
 
     double deltaX = (F_UPPER.getLevel() - F_LOWER.getLevel()) / spotSteps;
     double deltaY = (V_UPPER.getLevel() - V_LOWER.getLevel()) / volSqrSteps;
 
     double[][] res = solver.solve(DATA, timeSteps, spotSteps, volSqrSteps, T, F_LOWER, F_UPPER, V_LOWER, V_UPPER);
 
-    // int xSteps = res.length - 1;
-    // int ySteps = res[0].length - 1;
-    // for (int j = 0; j <= ySteps; j++) {
-    // System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
-    // }
-    // System.out.print("\n");
-    // for (int i = 0; i <= xSteps; i++) {
-    // System.out.print(F_LOWER.getLevel() + i * deltaX);
-    // for (int j = 0; j <= ySteps; j++) {
-    // System.out.print("\t" + res[i][j]);
-    // }
-    // System.out.print("\n");
-    // }
+    if (print) {
+      int xSteps = res.length - 1;
+      int ySteps = res[0].length - 1;
+      for (int j = 0; j <= ySteps; j++) {
+        System.out.print("\t" + (V_LOWER.getLevel() + j * deltaY));
+      }
+      System.out.print("\n");
+      for (int i = 0; i <= xSteps; i++) {
+        System.out.print(F_LOWER.getLevel() + i * deltaX);
+        for (int j = 0; j <= ySteps; j++) {
+          System.out.print("\t" + res[i][j]);
+        }
+        System.out.print("\n");
+      }
+    }
 
     // TODO There is no guarantee that F0 and V0 are grid points (it depends on the chosen step sizes), so we should do a surface interpolation (what fun!)
     double pdfPrice = res[(int) (F0 / deltaX)][(int) (V0 / deltaY)];

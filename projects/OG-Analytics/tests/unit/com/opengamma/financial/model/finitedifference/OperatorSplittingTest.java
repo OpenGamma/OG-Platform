@@ -7,19 +7,13 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.OperatorSplittingFiniteDifference2D;
-
-/**
- * NOT WORKING 
- */
 public class OperatorSplittingTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
   private static final ConvectionDiffusionPDESolver2D SOLVER = new OperatorSplittingFiniteDifference2D();
 
-  @Test(enabled = false)
+  @Test
   public void testSpreadOption() {
 
     int timeSteps = 10;
@@ -29,14 +23,15 @@ public class OperatorSplittingTest {
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test(enabled = false)
+  @Test
   public void testHeston() {
 
-    int timeSteps = 25;
-    int xSteps = 100;
-    int ySteps = 100;
+    int timeSteps = 40; // required twice the time steps of Craig-Sneyd
+    int xSteps = 150;
+    int ySteps = 40;
+    boolean print = false; // make sure this is false before commits
 
-    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
+    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
 
 }

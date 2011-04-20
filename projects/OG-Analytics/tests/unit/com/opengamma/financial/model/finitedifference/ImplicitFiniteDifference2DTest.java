@@ -7,9 +7,6 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.ImplicitFiniteDifference2D;
-
 /**
  * NOT WORKING
  */
@@ -29,14 +26,15 @@ public class ImplicitFiniteDifference2DTest {
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test(enabled = false)
+  @Test
   public void testHeston() {
 
-    int timeSteps = 200;
-    int xSteps = 100;
-    int ySteps = 100;
+    int timeSteps = 2000;// only have dt (rather that dt^2) convergence
+    int xSteps = 80;
+    int ySteps = 80;
+    boolean print = false; // make sure this is false before commits
 
-    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
+    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
 
 }

@@ -7,9 +7,6 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.ExplicitFiniteDifference2D;
-
 /**
  * 
  */
@@ -19,7 +16,7 @@ public class ExplicitFiniteDifference2DTest {
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
   private static final ConvectionDiffusionPDESolver2D SOLVER = new ExplicitFiniteDifference2D();
 
-  // @Test
+  @Test
   public void testSpreadOption() {
 
     int timeSteps = 5000;
@@ -35,7 +32,8 @@ public class ExplicitFiniteDifference2DTest {
     int timeSteps = 5000;
     int xSteps = 80;
     int ySteps = 80;
+    boolean print = false; // make sure this is false before commits
 
-    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
+    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
 }
