@@ -104,6 +104,7 @@ public class SwaptionPhysicalFixedIborTest {
   // Volatility and pricing functions
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  private static final DayCount DAY_COUNT_STANDARD = DayCountFactory.INSTANCE.getDayCount("30/360");
   //Interpolation method
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
 
@@ -202,7 +203,7 @@ public class SwaptionPhysicalFixedIborTest {
     InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 0.0, 0.5, 1, 2, 5}, new double[] {1, 1, 1, 1, 1, 5, 5, 5, 5, 5}, new double[] {0.50, 0.50,
         0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    SABRInterestRateParameter sabrParameter = new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility);
+    SABRInterestRateParameter sabrParameter = new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT_STANDARD);
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     // Swaption pricing.
     double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
@@ -226,7 +227,7 @@ public class SwaptionPhysicalFixedIborTest {
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
       // Step-up by 10bps
       coupon[loopcpn] = new CouponFixed(CUR, annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
-          * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
+          * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001, annuity.getNthPayment(loopcpn).getAccrualStartDate(), annuity.getNthPayment(loopcpn).getAccrualEndDate());
     }
     AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
     FixedCouponSwap<Payment> swapStepup = new FixedCouponSwap<Payment>(annuityStepUp, SWAP_PAYER.getSecondLeg());

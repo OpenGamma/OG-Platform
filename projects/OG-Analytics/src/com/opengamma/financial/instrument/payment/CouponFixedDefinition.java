@@ -123,7 +123,7 @@ public class CouponFixedDefinition extends CouponDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate());
+    return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override

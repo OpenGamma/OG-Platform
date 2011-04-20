@@ -14,6 +14,9 @@ import com.opengamma.util.money.Currency;
  */
 public class CouponFloating extends Coupon {
 
+  /**
+   * The floating coupon fixing time.
+   */
   private final double _fixingTime;
 
   /**
@@ -32,8 +35,8 @@ public class CouponFloating extends Coupon {
   }
 
   /**
-   * Gets the _fixingTime field.
-   * @return the _fixingTime
+   * Gets the floating coupon fixing time.
+   * @return The fixing time.
    */
   public double getFixingTime() {
     return _fixingTime;

@@ -16,8 +16,18 @@ import com.opengamma.util.money.Currency;
  * Class describing a fixed coupon.
  */
 public class CouponFixed extends PaymentFixed {
+
+  /**
+   * The coupon fixed rate.
+   */
   private final double _fixedRate;
+  /**
+   * The coupon notional.
+   */
   private final double _notional;
+  /**
+   * The payment period year fraction (or accrual factor).
+   */
   private final double _paymentYearFraction;
   /**
    * The start date of the coupon accrual period. Can be null if of no use.
@@ -58,7 +68,7 @@ public class CouponFixed extends PaymentFixed {
    * @param accrualStartDate The start date of the coupon accrual period.
    * @param accrualEndDate The end date of the coupon accrual period.
    */
-  public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate, 
+  public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, paymentYearFraction * notional * rate, fundingCurveName);
     _fixedRate = rate;
@@ -82,31 +92,31 @@ public class CouponFixed extends PaymentFixed {
   }
 
   /**
-   * Gets the _fixedRate field.
-   * @return the _fixedRate
+   * Gets the coupon fixed rate.
+   * @return The fixed rate.
    */
   public double getFixedRate() {
     return _fixedRate;
   }
 
   /**
-   * Gets the _notional field.
-   * @return the _notional
+   * Gets the coupon notional.
+   * @return The notional.
    */
   public double getNotional() {
     return _notional;
   }
 
   /**
-   * Gets the _paymentYearFraction field.
-   * @return the _paymentYearFraction
+   * Gets the payment period year fraction (or accrual factor).
+   * @return The payment year fraction.
    */
   public double getPaymentYearFraction() {
     return _paymentYearFraction;
   }
 
   /**
-   * Gets the _accrualStartDate field.
+   * Gets the start date of the coupon accrual period.
    * @return The accrual start date.
    */
   public ZonedDateTime getAccrualStartDate() {
@@ -114,7 +124,7 @@ public class CouponFixed extends PaymentFixed {
   }
 
   /**
-   * Gets the _accrualEndDate field.
+   * Gets the end date of the coupon accrual period.
    * @return The accrual end date.
    */
   public ZonedDateTime getAccrualEndDate() {

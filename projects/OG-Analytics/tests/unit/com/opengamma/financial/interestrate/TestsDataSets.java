@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -26,6 +28,10 @@ public class TestsDataSets {
    * Linear interpolator. Used for SABR parameters interpolation.
    */
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
+  /**
+   * The standard day count 30/360 used in the data set. 
+   */
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
 
   /**
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 10 years, maturity between 1 and 10 years. 
@@ -45,7 +51,7 @@ public class TestsDataSets {
     InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10},
         new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, sabrFunction);
+    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -76,7 +82,7 @@ public class TestsDataSets {
     InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10},
         new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, sabrFunction);
+    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -124,7 +130,7 @@ public class TestsDataSets {
     InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10},
         new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, sabrFunction);
+    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**
@@ -173,7 +179,7 @@ public class TestsDataSets {
         new double[] {0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.50 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift, 0.30 + shift},
         new GridInterpolator2D(LINEAR, LINEAR));
     VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
-    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, sabrFunction);
+    return new SABRInterestRateParameter(alphaVolatility, betaVolatility, rhoVolatility, nuVolatility, DAY_COUNT, sabrFunction);
   }
 
   /**

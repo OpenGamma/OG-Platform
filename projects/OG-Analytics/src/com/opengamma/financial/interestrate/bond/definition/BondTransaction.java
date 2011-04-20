@@ -58,11 +58,11 @@ public abstract class BondTransaction<C extends Payment> implements InterestRate
     Validate.notNull(bondPurchased, "Bond underlying the transaction");
     Validate.notNull(settlement, "Settlement payment");
     Validate.notNull(bondStandard, "Bond underlying with standard settlement date");
+    Validate.isTrue(quantity * settlement.getAmount() <= 0, "settlement amount should be opposite sign from quantity");
     // TODO: Check coherence of bond with settlement.
-    // TODO: Check coherence of quantity with settlement (sign).
-    this._bondPurchased = bondPurchased;
-    this._quantity = quantity;
-    this._settlement = settlement;
+    _bondPurchased = bondPurchased;
+    _quantity = quantity;
+    _settlement = settlement;
     _bondStandard = bondStandard;
     _spotTime = spotTime;
     _notionalStandard = notionalStandard;
