@@ -59,10 +59,8 @@
 	<target name="init-prompt" depends="check-user-env-and-password-present" unless="og.user.and.password.set">
 		<echo message="Please enter your credentials or use the defaults if you don't have an account"/>
 		<input message="${line.separator}Username" defaultvalue="opengamma-public" addproperty="opengamma.username"/>
-		<input message="Password" defaultvalue="opengamma" addproperty="opengamma.password">
-			<handler type="secure"/>
-	    </input>
-	    <echo message="Username: ${opengamma.username}, Password: ${opengamma.password}"/>
+		<input message="Password" defaultvalue="opengamma" addproperty="opengamma.password"/>
+		<!-- would like to use secure password handling, but it's going in a file and that only works on Ant 1.8 --> 
 	</target>
 	
 	<!-- copies the username and password properties from environment vairables if they're set -->
