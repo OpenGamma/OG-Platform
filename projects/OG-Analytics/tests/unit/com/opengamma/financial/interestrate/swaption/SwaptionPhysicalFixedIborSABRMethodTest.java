@@ -27,6 +27,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
@@ -124,6 +125,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
   }
 
+  /**
+   * Tests present value with respect to a hard-coded value. Tests against the explicit formula. Tests long/short parity and payer/receiver/swap parity.
+   */
   @Test
   public void testPresentValue() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
@@ -154,6 +158,29 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     double priceSwapReceiver = PVC.visit(SWAP_RECEIVER, curves);
     assertEquals(priceSwapPayer, priceLongPayer + priceShortReceiver, 1E-2);
     assertEquals(priceSwapReceiver, priceLongReceiver + priceShortPayer, 1E-2);
+  }
+
+  /**
+   * Test the absence of arbitrage between swaptions with same cash-flows but different conventions.
+   */
+  @Test
+  public void testPresentValueConventionArbitrage() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    double rate360 = 0.0360;
+    CMSIndex index360 = new CMSIndex(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/360"), INDEX, ANNUITY_TENOR);
+    SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, FIXED_IS_PAYER);
+    SwaptionPhysicalFixedIborDefinition swaption360Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap360, IS_LONG);
+    SwaptionPhysicalFixedIbor swaption360 = swaption360Definition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    double rate365 = 0.0365;
+    CMSIndex index365 = new CMSIndex(FIXED_PAYMENT_PERIOD, DayCountFactory.INSTANCE.getDayCount("Actual/365"), INDEX, ANNUITY_TENOR);
+    SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, FIXED_IS_PAYER);
+    SwaptionPhysicalFixedIborDefinition swaption365Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap365, IS_LONG);
+    SwaptionPhysicalFixedIbor swaption365 = swaption365Definition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    double price360 = PVC.visit(swaption360, sabrBundle);
+    double price365 = PVC.visit(swaption365, sabrBundle);
+    assertEquals(price360, price365, 1E-2);
   }
 
   @Test

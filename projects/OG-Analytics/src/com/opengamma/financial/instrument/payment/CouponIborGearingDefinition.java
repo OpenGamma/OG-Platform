@@ -13,7 +13,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Ibor-like floating coupon with a gearing (multiplicative) factor and a spread.
+ * Class describing a Ibor-like floating coupon with a gearing (multiplicative) factor and a spread. The coupon payment is: notional * accrual factor * (factor * Ibor + spread).
  */
 public class CouponIborGearingDefinition extends CouponIborDefinition {
 
@@ -66,16 +66,16 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   /**
-   * Gets the _spread field.
-   * @return the _spread
+   * Gets the spread.
+   * @return The spread
    */
   public double getSpread() {
     return _spread;
   }
 
   /**
-   * Gets the _spreadAmount field.
-   * @return the _spreadAmount
+   * Gets the fixed amount related to the spread.
+   * @return The spread amount.
    */
   public double getSpreadAmount() {
     return _spreadAmount;

@@ -9,13 +9,13 @@ import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 
 /**
- * A wrapper class for a AnnuityDefinition containing CouponIborDefinition.
+ * A wrapper class for a AnnuityDefinition containing CMS coupon Definition.
  */
 public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefinition> {
 
   /**
-   * Constructor from a list of fixed coupons.
-   * @param payments The fixed coupons.
+   * Constructor from a list of CMS coupons.
+   * @param payments The CMS coupons.
    */
   public AnnuityCouponCMSDefinition(final CouponCMSDefinition[] payments) {
     super(payments);

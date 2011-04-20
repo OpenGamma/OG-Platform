@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
@@ -12,7 +14,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
- * 
+ * Class with methods related to bond transaction valued by discounting.
  */
 public class BondTransactionDiscountingMethod {
 
@@ -37,6 +39,27 @@ public class BondTransactionDiscountingMethod {
     double pvCoupon = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
     double pvSettlement = PVC.visit(bond.getSettlement(), curves);
     return (pvNominal + pvCoupon) * bond.getQuantity() + pvSettlement;
+  }
+
+  /**
+   * Compute the present value of a bond transaction from its clean price.
+   * @param bond The bond transaction.
+   * @param curves The curve bundle.
+   * @param cleanPrice The bond clean price.
+   * @return The present value.
+   */
+  public double presentValueFromCleanPrice(BondTransaction<? extends Payment> bond, YieldCurveBundle curves, double cleanPrice) {
+    Validate.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
+    BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
+    double dfSettle = curves.getCurve(bondFixed.getBondStandard().getNominal().getDiscountCurve()).getDiscountFactor(bondFixed.getSpotTime());
+    double pvPriceStandard = (cleanPrice + bondFixed.getAccruedInterestAtSpot()) * bondFixed.getNotionalStandard() * dfSettle;
+    double pvNominalStandard = PVC.visit(bond.getBondStandard().getNominal(), curves);
+    double pvCouponStandard = PVC.visit(bond.getBondStandard().getCoupon(), curves);
+    double pvDiscountingStandard = (pvNominalStandard + pvCouponStandard);
+    double pvNominalTransaction = PVC.visit(bond.getBondTransaction().getNominal(), curves);
+    double pvCouponTransaction = PVC.visit(bond.getBondTransaction().getCoupon(), curves);
+    double pvDiscountingTransaction = (pvNominalTransaction + pvCouponTransaction);
+    return (pvDiscountingTransaction - pvDiscountingStandard) * bond.getQuantity() + pvPriceStandard;
   }
 
   /**

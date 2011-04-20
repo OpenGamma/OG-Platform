@@ -15,7 +15,13 @@ import com.opengamma.util.money.Currency;
  */
 public class Coupon extends Payment {
 
+  /**
+   * The payment period year fraction (or accrual factor).
+   */
   private final double _paymentYearFraction;
+  /**
+   * The coupon notional.
+   */
   private final double _notional;
 
   /**
@@ -34,16 +40,16 @@ public class Coupon extends Payment {
   }
 
   /**
-   * Gets the _paymentYearFraction field.
-   * @return the _paymentYearFraction
+   * Gets the payment year fraction (or accrual factor).
+   * @return The payment year fraction.
    */
   public double getPaymentYearFraction() {
     return _paymentYearFraction;
   }
 
   /**
-   * Gets the _notional field.
-   * @return the _notional
+   * Gets the coupon notional.
+   * @return The notional.
    */
   public double getNotional() {
     return _notional;

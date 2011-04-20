@@ -22,8 +22,8 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDefinition> {
 
   /**
-   * Constructor from a list of fixed coupons.
-   * @param payments The fixed coupons.
+   * Constructor from a list of Ibor-like coupons.
+   * @param payments The Ibor coupons.
    */
   public AnnuityCouponIborDefinition(final CouponIborDefinition[] payments) {
     super(payments);
@@ -76,12 +76,11 @@ public class AnnuityCouponIborDefinition extends AnnuityDefinition<CouponIborDef
       fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], index.getBusinessDayConvention(), index.getCalendar(), -index.getSettlementDays());
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, index);
     }
-
     return new AnnuityCouponIborDefinition(coupons);
   }
 
   /**
-   * Annuity builder from the conventions and common characteristics.
+   * Annuity builder from the conventions and common characteristics. The accrual dates are unadjusted. Often used for bonds.
    * @param settlementDate The settlement date.
    * @param maturityDate The annuity maturity date.
    * @param notional The notional.

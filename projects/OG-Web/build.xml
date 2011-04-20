@@ -1,5 +1,25 @@
-<project name="og-web" default="compile">
+<project name="og-web" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 	<property file="build.properties"/>
-	
+
 	<import file="${common.dir}/common.xml"/>
+
+	<target name="publish" depends="clean-build, jar, zip-web-app"
+	    description="--> publish this project in the ivy repository">
+		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+	      resolver="shared" pubrevision="${version}" status="release" />
+		<echo message="project ${ant.project.name} released with version ${version}" />
+	</target>
+
+	<target name="publish-local" depends="local-version, jar, zip-web-app"
+	    description="--> publish this project in the local ivy repository">
+		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+	      resolver="local" pubrevision="${version}" pubdate="${now}" status="integration"
+	      forcedeliver="true" />
+		<echo message="project ${ant.project.name} published locally with version ${version}" />
+	</target>
+
+	<property name="webapp.dir" value="web-engine" />
+	<target name="zip-web-app" description="--> tar up the web-app directory for publishing">
+		<zip destfile="${build.dir}/${webapp.dir}.zip" basedir="${webapp.dir}" />
+	</target>
 </project>

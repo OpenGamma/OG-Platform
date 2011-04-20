@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -26,7 +26,7 @@ public abstract class CouponDefinition extends PaymentDefinition {
    */
   private final ZonedDateTime _accrualEndDate;
   /**
-   * The accrual factor associated to the coupon accrual period.
+   * The accrual factor (or year fraction) associated to the coupon accrual period.
    */
   private final double _paymentYearFraction;
   /**
@@ -73,24 +73,24 @@ public abstract class CouponDefinition extends PaymentDefinition {
   }
 
   /**
-   * Gets the accrualStartDate field.
-   * @return the accrualStartDate
+   * Gets the accrual start date.
+   * @return The accrual start date.
    */
   public ZonedDateTime getAccrualStartDate() {
     return _accrualStartDate;
   }
 
   /**
-   * Gets the accrualEndDate field.
-   * @return the accrualEndDate
+   * Gets the accrual end date.
+   * @return The accrual end date.
    */
   public ZonedDateTime getAccrualEndDate() {
     return _accrualEndDate;
   }
 
   /**
-   * Gets the accrualFactor field.
-   * @return the accrualFactor
+   * Gets the accrual factor (or year fraction).
+   * @return The accrual factor.
    */
   public double getPaymentYearFraction() {
     return _paymentYearFraction;

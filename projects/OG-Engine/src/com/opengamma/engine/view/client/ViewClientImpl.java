@@ -47,9 +47,10 @@ public class ViewClientImpl implements ViewClient {
   private final UserPrincipal _user;
   private final EngineResourceRetainer _latestCycleRetainer;
   
-  private volatile boolean _isViewCycleAccessSupported;
+  private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
+  private final AtomicBoolean _isViewCycleAccessSupported = new AtomicBoolean(false);
+  private final AtomicBoolean _isAttached = new AtomicBoolean(false);
   private ViewClientState _state = ViewClientState.STARTED;
-  private AtomicBoolean _isAttached = new AtomicBoolean(false);
   
   // Per-process state
   private volatile ViewPermissionProvider _permissionProvider;
@@ -88,6 +89,7 @@ public class ViewClientImpl implements ViewClient {
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
+        
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
         _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition);
         
@@ -103,10 +105,13 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-        updateLatestResult(fullResult);
+        boolean isFirstResult = updateLatestResult(fullResult);
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.cycleCompleted(fullResult, deltaResult);
+          ViewResultMode resultMode = getResultMode();
+          ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
+          ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
+          listener.cycleCompleted(userFullResult, userDeltaResult);
         }
       }
 
@@ -254,6 +259,16 @@ public class ViewClientImpl implements ViewClient {
     _mergingViewProcessListener.setMinimumUpdatePeriodMillis(periodMillis);
   }
   
+  @Override
+  public ViewResultMode getResultMode() {
+    return _resultMode.get();
+  }
+
+  @Override
+  public void setResultMode(ViewResultMode viewResultMode) {
+    _resultMode.set(viewResultMode);
+  }
+  
   //-------------------------------------------------------------------------
   @Override
   public void pause() {
@@ -328,14 +343,14 @@ public class ViewClientImpl implements ViewClient {
   //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
-    return _isViewCycleAccessSupported;
+    return _isViewCycleAccessSupported.get();
   }
   
   @Override
   public void setViewCycleAccessSupported(boolean isViewCycleAccessSupported) {
     _clientLock.lock();
     try {
-      _isViewCycleAccessSupported = isViewCycleAccessSupported;
+      _isViewCycleAccessSupported.set(isViewCycleAccessSupported);
       _mergingViewProcessListener.setLatestResultCycleRetained(isViewCycleAccessSupported);
       if (!isViewCycleAccessSupported) {
         getLatestCycleRetainer().replaceRetainedCycle(null);
@@ -381,6 +396,12 @@ public class ViewClientImpl implements ViewClient {
       _clientLock.unlock();
     }
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "ViewClient[" + getUniqueId() + "]";
+  }
 
   //-------------------------------------------------------------------------
   private void processCompleted() {
@@ -403,15 +424,46 @@ public class ViewClientImpl implements ViewClient {
     return _latestCycleRetainer;
   }
   
-  private void updateLatestResult(ViewComputationResultModel result) {
+  /**
+   * Updates the latest result.
+   * 
+   * @param result  the new result
+   * @return {@code true} if the new result was the first, {@code false} otherwise
+   */
+  private boolean updateLatestResult(ViewComputationResultModel result) {
     if (isViewCycleAccessSupported()) {
       getLatestCycleRetainer().replaceRetainedCycle(result.getViewCycleId());
     }
-    _latestResult.set(result);
+    ViewComputationResultModel oldResult = _latestResult.getAndSet(result);
+    return oldResult == null;
   }
   
   private void updateLatestCompiledViewDefinition(CompiledViewDefinition compiledViewDefinition) {
     _latestCompiledViewDefinition.set(compiledViewDefinition);
+  }
+  
+  private boolean isFullResultRequired(ViewResultMode resultMode, boolean isFirstResult) {
+    switch (resultMode) {
+      case BOTH:
+      case FULL_ONLY:
+        return true;
+      case FULL_THEN_DELTA:
+        return isFirstResult;
+      default:
+        return false;
+    }
+  }
+  
+  private boolean isDeltaResultRequired(ViewResultMode resultMode, boolean isFirstResult) {
+    switch (resultMode) {
+      case BOTH:
+      case DELTA_ONLY:
+        return true;
+      case FULL_THEN_DELTA:
+        return !isFirstResult;
+      default:
+        return false;
+    }
   }
   
 }

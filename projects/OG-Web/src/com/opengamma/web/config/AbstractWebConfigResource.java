@@ -121,8 +121,7 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(FUDGE_CONTEXT, car));
     FudgeMsg message = fmr.nextMessage();
-    Object config = FUDGE_CONTEXT.fromFudgeMsg(message);
-    return config;
+    return FUDGE_CONTEXT.fromFudgeMsg(message);
   }
 
   protected String createXML(ConfigDocument<?> doc) {

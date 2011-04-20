@@ -6,9 +6,14 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,10 +31,10 @@ import org.springframework.jms.core.JmsTemplate;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
-import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 
 /**
  * RESTful resource for a {@link ViewProcessor}.
@@ -37,6 +42,11 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSenderService;
 @Path("/data/viewProcessors/{viewProcessorId}")
 public class DataViewProcessorResource {
 
+  /**
+   * The period after which, if a view client has not been accessed, it may be shut down.
+   */
+  public static final long VIEW_CLIENT_TIMEOUT_MILLIS = 30000;
+  
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
   public static final String PATH_UNIQUE_ID = "id";
@@ -48,10 +58,11 @@ public class DataViewProcessorResource {
   private final ViewProcessor _viewProcessor;
   private final JmsTemplate _jmsTemplate;
   private final String _jmsTopicPrefix;
-  private final JmsByteArrayMessageSenderService _jmsMessageSenderService;
   private final ScheduledExecutorService _scheduler;
   
-  private AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
+  private final AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
+  
+  private final ConcurrentMap<UniqueIdentifier, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueIdentifier, DataViewClientResource>();
   
   public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
@@ -59,9 +70,33 @@ public class DataViewProcessorResource {
     _jmsTemplate = new JmsTemplate(connectionFactory);
     _jmsTemplate.setPubSubDomain(true);
     
-    _jmsMessageSenderService = new JmsByteArrayMessageSenderService(_jmsTemplate);
     _jmsTopicPrefix = jmsTopicPrefix;
     _scheduler = scheduler;
+    
+    scheduler.scheduleAtFixedRate(new Runnable() {
+
+      @Override
+      public void run() {
+        shutdownStaleViewClients();
+      }
+      
+    }, VIEW_CLIENT_TIMEOUT_MILLIS, VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+  }
+  
+  private void shutdownStaleViewClients() {
+    Instant timeoutBefore = Instant.now().minus(VIEW_CLIENT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+    Iterator<DataViewClientResource> clientIterator = _createdViewClients.values().iterator();
+    while (clientIterator.hasNext()) {
+      DataViewClientResource clientResource = clientIterator.next();
+      if (clientResource.getViewClient().getState() == ViewClientState.TERMINATED) {
+        clientIterator.remove();
+        continue;
+      }
+      if (clientResource.getLastAccessed().isBefore(timeoutBefore)) {
+        clientIterator.remove();
+        clientResource.getViewClient().shutdown();
+      }
+    }
   }
   
   //-------------------------------------------------------------------------
@@ -85,11 +120,15 @@ public class DataViewProcessorResource {
   
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
-  public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") String viewClientId) {
-    ViewClient viewClient = _viewProcessor.getViewClient(UniqueIdentifier.parse(viewClientId));
+  public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") String viewClientIdString) {
+    UniqueIdentifier viewClientId = UniqueIdentifier.parse(viewClientIdString);
+    DataViewClientResource viewClientResource = _createdViewClients.get(viewClientId);
+    if (viewClientResource != null) {
+      return viewClientResource;
+    }
+    ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
     URI viewProcessorUri = getViewProcessorUri(uriInfo);
-    DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsMessageSenderService, _jmsTopicPrefix);
+    return createViewClientResource(viewClient, viewProcessorUri);
   }
   
   @POST
@@ -97,6 +136,11 @@ public class DataViewProcessorResource {
   @Consumes(FudgeRest.MEDIA)
   public Response createViewClient(@Context UriInfo uriInfo, UserPrincipal user) {
     ViewClient client = _viewProcessor.createViewClient(user);
+    URI viewProcessorUri = getViewProcessorUri(uriInfo);
+    // Required for heartbeating, but also acts as an optimisation for getViewClient because view clients created
+    // through the REST API should be accessed again through the same API, potentially many times.  
+    DataViewClientResource viewClientResource = createViewClientResource(client, viewProcessorUri);
+    _createdViewClients.put(client.getUniqueId(), viewClientResource);
     return Response.created(uriClient(uriInfo.getRequestUri(), client.getUniqueId())).build();
   }
   
@@ -136,6 +180,11 @@ public class DataViewProcessorResource {
       }
     }
     return resource;
+  }
+  
+  private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
+    DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsTemplate, _jmsTopicPrefix);
   }
   
 }

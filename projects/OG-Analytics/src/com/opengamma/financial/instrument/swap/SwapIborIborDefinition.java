@@ -12,7 +12,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinit
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 
 /**
- * 
+ * Class describing a Ibor for Ibor+spread payments swap. Both legs are in the same currency.
  */
 public class SwapIborIborDefinition extends SwapDefinition<CouponIborSpreadDefinition, CouponIborSpreadDefinition> {
   /**
@@ -22,11 +22,12 @@ public class SwapIborIborDefinition extends SwapDefinition<CouponIborSpreadDefin
    */
   public SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition firstLeg, AnnuityCouponIborSpreadDefinition secondLeg) {
     super(firstLeg, secondLeg);
+    Validate.isTrue(firstLeg.getNthPayment(0).getSpread() == 0.0, "spread of first leg should be 0");
     Validate.isTrue(firstLeg.getCurrency() == secondLeg.getCurrency(), "legs should have the same currency");
   }
 
   /**
-   * The leg with no spread.
+   * The Ibor-leg with no spread.
    * @return The annuity.
    */
   public AnnuityCouponIborSpreadDefinition getLegWithoutSpread() {
@@ -34,7 +35,7 @@ public class SwapIborIborDefinition extends SwapDefinition<CouponIborSpreadDefin
   }
 
   /**
-   * The leg with the spread.
+   * The Ibor-leg with the spread.
    * @return The annuity.
    */
   public AnnuityCouponIborSpreadDefinition getLegWithSpread() {

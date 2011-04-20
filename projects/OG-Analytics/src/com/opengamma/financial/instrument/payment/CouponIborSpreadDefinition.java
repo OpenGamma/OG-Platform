@@ -22,7 +22,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Ibor-like floating coupon with a spread.
+ * Class describing a Ibor-like floating coupon with a spread. The coupon payment is: notional * accrual factor * (Ibor + spread).
  */
 public class CouponIborSpreadDefinition extends CouponIborDefinition {
 
@@ -68,16 +68,16 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   }
 
   /**
-   * Gets the _spread field.
-   * @return The spread
+   * Gets the spread.
+   * @return The spread.
    */
   public double getSpread() {
     return _spread;
   }
 
   /**
-   * Gets the _spreadAmount field.
-   * @return The spread amount
+   * Gets the fixed amount related to the spread.
+   * @return The spread amount.
    */
   public double getSpreadAmount() {
     return _spreadAmount;

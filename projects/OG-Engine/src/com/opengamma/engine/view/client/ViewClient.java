@@ -23,12 +23,17 @@ import com.opengamma.util.PublicAPI;
  * external interaction for accessing computation results.
  * <p>
  * The client begins detached from any particular view process. In order to receive results, it must be attached to a
- * view process. This may create demand for the process to begin execution.
+ * view process. This creates demand for the process to execute, ensuring that it remains executing while the client is
+ * attached.
  * <p>
- * If the application requires asynchronous updates, it must set a full or delta result listener (or both) as required:
- * any new computation results will be delivered through these listeners. The application may poll for the latest full
- * result by calling {@link #getLatestResult()}. Listeners can be set or changed even when the client is detached from
- * a view process; this allows the necessary listeners to be in place before results commence.
+ * If the application requires asynchronous updates, it must set a result listener. This receives notifications of
+ * events from the view process. The result mode for this client may be controlled using
+ * {@link #setResultMode(ViewResultMode)}; this allows unwanted types of result to be filtered out, potentially
+ * avoiding the overhead of unnecessary serialisation.
+ * <p>
+ * The application may poll for the latest full result by calling {@link #getLatestResult()}. Listeners can be set or
+ * changed even when the client is detached from a view process; this allows the necessary listeners to be in place
+ * before results commence.
  * <p>
  * The per-client flow of results is controlled through {@link #pause()} and {@link #resume()}. By default, results
  * will flow immediately, but the client may be paused before attaching it to a view process.
@@ -153,6 +158,20 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param periodMillis  the minimum time between updates, or 0 to specify unlimited updates.
    */
   void setUpdatePeriod(long periodMillis);
+  
+  /**
+   * Gets the result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
+   * 
+   * @return the result mode, not null
+   */
+  ViewResultMode getResultMode();
+  
+  /**
+   * Sets the result mode in which this view client should operate.
+   * 
+   * @param viewResultMode  the result mode, not null
+   */
+  void setResultMode(ViewResultMode viewResultMode);
 
   //-------------------------------------------------------------------------
   /**

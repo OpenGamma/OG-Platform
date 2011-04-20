@@ -121,9 +121,10 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     return out;
   }
   
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.TEXT_HTML)
   public Response post(
       @FormParam("dataProvider") String dataProvider,
       @FormParam("dataField") String dataField,

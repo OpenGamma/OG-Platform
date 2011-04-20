@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -60,16 +60,16 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   /**
-   * Gets the rate field.
-   * @return the rate
+   * Gets the fixed rate.
+   * @return The rate.
    */
   public double getRate() {
     return _rate;
   }
 
   /**
-   * Gets the amount field.
-   * @return the amount
+   * Gets the payment amount.
+   * @return The amount.
    */
   public double getAmount() {
     return _amount;
@@ -123,7 +123,7 @@ public class CouponFixedDefinition extends CouponDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate());
+    return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override
