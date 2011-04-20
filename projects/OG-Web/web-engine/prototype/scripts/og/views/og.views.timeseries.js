@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, timeseries,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'timeseries',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {}, // The returned json for the details area
             formatter = og.common.slickgrid.formatters.timeseries,
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'timeseries',
@@ -139,6 +141,16 @@ $.register_module({
                     {name: 'favorites', handler: 'handler'}
                 ],
                 location: '.OG-toolbar .og-js-buttons'
+            },
+            default_page = function () {
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Timeseries',
+                        favorites_list: history.get_html('history.timeseries.favorites') || 'no favorited timeseries',
+                        recent_list: history.get_html('history.timeseries.recent') || 'no recently viewed timeseries',
+                        new_list: history.get_html('history.timeseries.new') || 'no new timeseries'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
@@ -155,7 +167,7 @@ $.register_module({
                 layout('default');
                 ui.toolbar(default_toolbar_options);
                 search.load($.extend(search_options, {url: args}));
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                default_page();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
@@ -188,15 +200,21 @@ $.register_module({
                 api.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.timeseries_functions;
+                        var f = details.timeseries_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.id,
+                            item: 'history.timeseries.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', json.identifiers);
-                            ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', json.timeseries.data);
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
+                            ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_timeseries_table('.OG-timeseries .og-js-table', {
-                                'fieldLabels': json.timeseries.fieldLabels,
-                                'data': json.timeseries.data
+                                'fieldLabels': details_json.timeseries.fieldLabels,
+                                'data': details_json.timeseries.data
                             }, stop_loading);
                             // Hook up CSV button
                             $('.OG-timeseries .og-js-timeSeriesCsv').click(function () {

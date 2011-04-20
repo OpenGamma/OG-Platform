@@ -34,6 +34,7 @@ $.register_module({
                 if (keys.length === size) delete data[keys.shift()];
                 data[key] = value;
                 keys.push(key);
+                return hashqueue;
             };
             hashqueue.serialize = function () {
                 return JSON.stringify({data: data, keys: keys, size: size}, function (key, value) {
