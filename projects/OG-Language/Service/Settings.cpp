@@ -64,54 +64,38 @@ const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
 
-CSettings::CSettings () : CAbstractSettings () {
-	m_pszDefaultJvmLibrary = NULL;
-	m_pszDefaultJarPath = NULL;
-}
-
-CSettings::~CSettings () {
-	if (m_pszDefaultJvmLibrary) {
-		delete m_pszDefaultJvmLibrary;
-		m_pszDefaultJvmLibrary = NULL;
-	}
-	if (m_pszDefaultJarPath) {
-		delete m_pszDefaultJarPath;
-		m_pszDefaultJarPath = NULL;
-	}
-}
-
-// TODO [PLAT-1118] Defer the scanning for defaults
-
+class CJvmLibraryDefault : public CAbstractSettingProvider {
+private:
 #ifdef _WIN32
-static BOOL _IsValidLibrary (PCTSTR pszLibrary) {
-	DWORD dwAttrib = GetFileAttributes (pszLibrary);
-	if (dwAttrib == INVALID_FILE_ATTRIBUTES) return FALSE;
-	// Try and load to verify that the library is the same bittage as this process
-	HMODULE hModule = LoadLibrary (pszLibrary);
-	if (hModule) {
-		FreeLibrary (hModule);
-		return TRUE;
-	} else {
-		DWORD dwError = GetLastError ();
-		if (dwError == ERROR_BAD_EXE_FORMAT) {
+	static BOOL IsValidLibrary (PCTSTR pszLibrary) {
+		DWORD dwAttrib = GetFileAttributes (pszLibrary);
+		if (dwAttrib == INVALID_FILE_ATTRIBUTES) return FALSE;
+		// Try and load to verify that the library is the same bittage as this process
+		HMODULE hModule = LoadLibrary (pszLibrary);
+		if (hModule) {
+			FreeLibrary (hModule);
+			return TRUE;
+		} else {
+			DWORD dwError = GetLastError ();
+			if (dwError == ERROR_BAD_EXE_FORMAT) {
 #if defined (_M_IX86)
-			LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 32-bit Windows module - try the 64-bit service"));
+				LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 32-bit Windows module - try the 64-bit service"));
 #elif defined (_M_X64)
-			LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 64-bit Windows module - try the 32-bit service"));
+				LOGERROR (TEXT ("Found ") << pszLibrary << TEXT (" but it is not a 64-bit Windows module - try the 32-bit service"));
 #else
 #error "Need correct error message for processor"
 #endif
-		} else {
-			LOGWARN (TEXT ("Found ") << pszLibrary << TEXT (" but couldn't load, error ") << dwError);
+			} else {
+				LOGWARN (TEXT ("Found ") << pszLibrary << TEXT (" but couldn't load, error ") << dwError);
+			}
+			return FALSE;
 		}
-		return FALSE;
 	}
-}
 #endif
 
 #define MAX_ENV_LEN 32767
-const TCHAR *CSettings::GetJvmLibrary () {
-	if (!m_pszDefaultJvmLibrary) {
+	TCHAR *CalculateString () {
+		TCHAR *pszLibrary = NULL;
 #ifdef _WIN32
 		TCHAR *pszPath = new TCHAR[MAX_ENV_LEN];
 		if (!pszPath) {
@@ -121,74 +105,74 @@ const TCHAR *CSettings::GetJvmLibrary () {
 		DWORD dwPath = GetEnvironmentVariable (TEXT ("JAVA_HOME"), pszPath, MAX_ENV_LEN);
 		if (dwPath != 0) {
 			size_t cb = dwPath + 20; // \bin\server\jvm.dll +\0
-			m_pszDefaultJvmLibrary = new TCHAR[cb];
-			if (!m_pszDefaultJvmLibrary) {
+			pszLibrary = new TCHAR[cb];
+			if (!pszLibrary) {
 				delete pszPath;
 				LOGERROR ("Out of memory");
 				return NULL;
 			}
-			StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\bin\\server\\jvm.dll"), pszPath);
-			if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-				LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from JAVA_HOME"));
+			StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\server\\jvm.dll"), pszPath);
+			if (_IsValidLibrary (pszLibrary)) {
+				LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
 			} else {
-				StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\bin\\client\\jvm.dll"), pszPath);
-				if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-					LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from JAVA_HOME"));
+				StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\client\\jvm.dll"), pszPath);
+				if (_IsValidLibrary (pszLibrary)) {
+					LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
 				} else {
 					LOGWARN (TEXT ("JAVA_HOME set but bin\\<server|client>\\jvm.dll doesn't exist"));
-					delete m_pszDefaultJvmLibrary;
-					m_pszDefaultJvmLibrary = NULL;
+					delete pszLibrary;
+					pszLibrary = NULL;
 				}
 			}
 		}
-		if (m_pszDefaultJvmLibrary == NULL) {
+		if (pszLibrary == NULL) {
 			DWORD dwPath = GetEnvironmentVariable (TEXT ("PATH"), pszPath, MAX_ENV_LEN);
 			if (dwPath != 0) {
 				TCHAR *nextToken;
 				TCHAR *psz = _tcstok_s (pszPath, TEXT (";"), &nextToken);
 				while (psz != NULL) {
 					size_t cb = dwPath + 27; // MAX( \java.exe +\0 , \server\jvm.dll +\0 , \..\jre\bin\server\jvm.dll + \0)
-					m_pszDefaultJvmLibrary = new TCHAR[cb];
-					if (!m_pszDefaultJvmLibrary) {
+					pszLibrary = new TCHAR[cb];
+					if (!pszLibrary) {
 						delete pszPath;
 						LOGERROR ("Out of memory");
 						return NULL;
 					}
-					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\java.exe"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					if (!_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-						delete m_pszDefaultJvmLibrary;
-						m_pszDefaultJvmLibrary = NULL;
+					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\java.exe"), psz);
+					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
+					if (!_IsValidLibrary (pszLibrary)) {
+						delete pszLibrary;
+						pszLibrary = NULL;
 						psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
 						continue;
 					}
-					LOGDEBUG (TEXT ("Default Java executable ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
-					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\server\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
+					LOGDEBUG (TEXT ("Default Java executable ") << pszLibrary << TEXT (" found from PATH"));
+					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\server\\jvm.dll"), psz);
+					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
+					if (_IsValidLibrary (pszLibrary)) {
+						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
-					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\..\\jre\\bin\\server\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
+					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\server\\jvm.dll"), psz);
+					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
+					if (_IsValidLibrary (pszLibrary)) {
+						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
-					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\client\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
+					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\client\\jvm.dll"), psz);
+					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
+					if (_IsValidLibrary (pszLibrary)) {
+						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
-					StringCchPrintf (m_pszDefaultJvmLibrary, cb, TEXT ("%s\\..\\jre\\bin\\client\\jvm.dll"), psz);
-					LOGDEBUG (TEXT ("Looking for ") << m_pszDefaultJvmLibrary);
-					if (_IsValidLibrary (m_pszDefaultJvmLibrary)) {
-						LOGINFO (TEXT ("Default jvm.dll ") << m_pszDefaultJvmLibrary << TEXT (" found from PATH"));
+					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\client\\jvm.dll"), psz);
+					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
+					if (_IsValidLibrary (pszLibrary)) {
+						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
-					delete m_pszDefaultJvmLibrary;
-					m_pszDefaultJvmLibrary = NULL;
+					delete pszLibrary;
+					pszLibrary = NULL;
 					psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
 					continue;
 				}
@@ -198,12 +182,18 @@ const TCHAR *CSettings::GetJvmLibrary () {
 #else
 		// TODO: Is there anything reasonably generic? The path on my Linux box included a processor (e.g. amd64) reference
 #endif
-		if (m_pszDefaultJvmLibrary == NULL) {
+		if (pszLibrary == NULL) {
 			LOGDEBUG ("No default JVM libraries found on JAVA_HOME or PATH");
-			m_pszDefaultJvmLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
+			pszLibrary = _tcsdup (DEFAULT_JVM_LIBRARY);
 		}
+		return pszLibrary;
 	}
-	return GetJvmLibrary (m_pszDefaultJvmLibrary);
+};
+
+static CJvmLibraryDefault g_oJvmLibraryDefault;
+
+const TCHAR *CSettings::GetJvmLibrary () {
+	return GetJvmLibrary (&g_oJvmLibraryDefault);
 }
 
 const TCHAR *CSettings::GetConnectionPipe () {
@@ -214,10 +204,12 @@ unsigned long CSettings::GetConnectionTimeout () {
 	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
+class CJarPathDefault : public CAbstractSettingProvider {
+protected:
 #define CLIENT_JAR_NAME		TEXT ("client.jar")
 #define CLIENT_JAR_LEN		10
-const TCHAR *CSettings::GetJarPath () {
-	if (!m_pszDefaultJarPath) {
+	TCHAR *CalculateString () {
+		TCHAR *pszJarPath = NULL;
 		// Scan backwards from the module to find a path which has Client.jar in. This works if all of the
 		// JARs and DLLs are in the same folder, but also in the case of a build system where we have sub-folders
 		// for the different configurations/platforms.
@@ -253,20 +245,26 @@ const TCHAR *CSettings::GetJarPath () {
 #endif
 					*pszEnd = 0;
 					LOGINFO (TEXT ("Found path ") << szPath << TEXT (" containing ") << CLIENT_JAR_NAME);
-					m_pszDefaultJarPath = _tcsdup (szPath);
+					pszJarPath = _tcsdup (szPath);
 					break;
 				}
 				pszEnd = _tcsrchr (szPath, PATH_CHAR);
 			}
-			if (!m_pszDefaultJarPath) {
+			if (!pszJarPath) {
 				LOGWARN (TEXT ("Couldn't find client library Jar on module path"));
-				m_pszDefaultJarPath = _tcsdup (TEXT ("."));
+				pszJarPath = _tcsdup (TEXT ("."));
 			}
 		} else {
-			m_pszDefaultJarPath = _tcsdup (TEXT ("."));
+			pszJarPath = _tcsdup (TEXT ("."));
 		}
+		return pszJarPath;
 	}
-	return GetJarPath (m_pszDefaultJarPath);
+};
+
+static CJarPathDefault g_oJarPathDefault;
+
+const TCHAR *CSettings::GetJarPath () {
+	return GetJarPath (&g_oJarPathDefault);
 }
 
 const TCHAR *CSettings::GetAnnotationCache () {

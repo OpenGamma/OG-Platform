@@ -199,6 +199,11 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefaul
 	return pszValue ? pszValue : pszDefault;
 }
 
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, CAbstractSettingProvider *poDefault) {
+	const TCHAR *pszValue = Get (pszKey);
+	return pszValue ? pszValue : poDefault->GetString ();
+}
+
 int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) {
 	const TCHAR * pszValue = Get (pszKey);
 	return pszValue ? _tstoi (pszValue) : nDefault;
@@ -234,4 +239,28 @@ bool CAbstractSettings::GetSettingsLocation (TCHAR * pszBuffer, size_t cbBufferL
 	} else {
 		return false;
 	}
+}
+
+CMutex CAbstractSettingProvider::s_oMutex;
+
+CAbstractSettingProvider::CAbstractSettingProvider () {
+	m_bCalculated = false;
+	m_pszValue = NULL;
+}
+
+CAbstractSettingProvider::~CAbstractSettingProvider () {
+	if (m_pszValue) {
+		delete m_pszValue;
+	}
+}
+
+const TCHAR *CAbstractSettingProvider::GetString () {
+	s_oMutex.Enter ();
+	if (!m_bCalculated) {
+		LOGDEBUG (TEXT ("Calculating default setting value"));
+		m_pszValue = CalculateString ();
+		m_bCalculated = true;
+	}
+	s_oMutex.Leave ();
+	return m_pszValue;
 }
