@@ -1,5 +1,6 @@
 /db/
 *.log
+common/build-projects.xml
 projects/Fudge-Java/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
