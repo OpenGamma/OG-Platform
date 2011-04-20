@@ -43,8 +43,8 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     Validate.notNull(pdeData, "pde data");
     final double dt = tMax / (tSteps);
     final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
-    final double nu1 = dt / dx / dx;
-    final double nu2 = dt / dx;
+    final double dtdx2 = dt / dx / dx;
+    final double dtdx = dt / dx;
 
     final double[] f = new double[xSteps + 1];
     final double[] x = new double[xSteps + 1];
@@ -72,18 +72,18 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         a = pdeData.getA(t - dt, x[i]);
         b = pdeData.getB(t - dt, x[i]);
         c = pdeData.getC(t - dt, x[i]);
-        aa = (1 - _theta) * (-nu1 * a + 0.5 * nu2 * b);
-        bb = 1 + (1 - _theta) * (2 * nu1 * a - dt * c);
-        cc = (1 - _theta) * (-nu1 * a - 0.5 * nu2 * b);
+        aa = (1 - _theta) * (-dtdx2 * a + 0.5 * dtdx * b);
+        bb = 1 + (1 - _theta) * (2 * dtdx2 * a - dt * c);
+        cc = (1 - _theta) * (-dtdx2 * a - 0.5 * dtdx * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
         // TODO could store these
         a = pdeData.getA(t, x[i]);
         b = pdeData.getB(t, x[i]);
         c = pdeData.getC(t, x[i]);
-        aa = (-nu1 * a + 0.5 * nu2 * b);
-        bb = (2 * nu1 * a - dt * c);
-        cc = (-nu1 * a - 0.5 * nu2 * b);
+        aa = (-dtdx2 * a + 0.5 * dtdx * b);
+        bb = (2 * dtdx2 * a - dt * c);
+        cc = (-dtdx2 * a - 0.5 * dtdx * b);
         m[i][i - 1] = -_theta * aa;
         m[i][i] = 1 - _theta * bb;
         m[i][i + 1] = -_theta * cc;
