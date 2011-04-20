@@ -10,16 +10,16 @@ import org.testng.annotations.Test;
 /**
  * NOT WORKING
  */
-public class ImplicitFiniteDifference2DTest {
+public class CrankNicolsonFiniteDifference2DTest {
 
   private static final HestonPDETestCase HESTON_TESTER = new HestonPDETestCase();
   private static final SpreadOptionPDETestCase SPREAD_OPTION_TESTER = new SpreadOptionPDETestCase();
-  private static final ConvectionDiffusionPDESolver2D SOLVER = new ImplicitFiniteDifference2D();
+  private static final ConvectionDiffusionPDESolver2D SOLVER = new CrankNicolsonFiniteDifference2D(0.5);// set up as Crank-Nicolson
 
   @Test
   public void testSpreadOption() {
 
-    int timeSteps = 40;
+    int timeSteps = 10;
     int xSteps = 100;
     int ySteps = 100;
 
@@ -29,7 +29,7 @@ public class ImplicitFiniteDifference2DTest {
   @Test
   public void testHeston() {
 
-    int timeSteps = 2000;// only have dt (rather that dt^2) convergence
+    int timeSteps = 10;
     int xSteps = 80;
     int ySteps = 80;
     boolean print = false; // make sure this is false before commits
