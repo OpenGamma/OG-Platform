@@ -1,0 +1,13 @@
+.OG-default {
+  margin: 10px 12px 20px 0;
+}
+
+.OG-default h2 {
+  margin: 15px 0 5px 0;
+}
+
+.OG-default .og-favorited,
+.OG-default .og-recent,
+.OG-default .og-new {
+  margin: 10px 0;
+}

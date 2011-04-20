@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, configs,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'configs',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {}, // The returned json for the details area
             /**
              * Options for SlickGrid.
              * Generate the search results columns.
@@ -122,7 +124,14 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_configs, args));
             },
             default_page = function () {
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Configs',
+                        favorites_list: history.get_html('history.configs.favorites') || 'no favorited configs',
+                        recent_list: history.get_html('history.configs.recent') || 'no recently viewed configs',
+                        new_list: history.get_html('history.configs.new') || 'no new configs'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             },
             state = {};
         module.rules = {
@@ -182,9 +191,14 @@ $.register_module({
                 api.configs.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.configs.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                             ui.content_editable({

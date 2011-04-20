@@ -27,7 +27,7 @@ public class BondFixedDescription extends BondDescription<CouponFixed> {
    * Fixed coupon bond constructor from the nominal and the coupons.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
-   * @param yieldConvention TODO
+   * @param yieldConvention The yield (to maturity) computation convention.
    */
   public BondFixedDescription(GenericAnnuity<PaymentFixed> nominal, AnnuityCouponFixed coupon, YieldConvention yieldConvention) {
     super(nominal, coupon);
