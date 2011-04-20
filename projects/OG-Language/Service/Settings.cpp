@@ -112,11 +112,11 @@ private:
 				return NULL;
 			}
 			StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\server\\jvm.dll"), pszPath);
-			if (_IsValidLibrary (pszLibrary)) {
+			if (IsValidLibrary (pszLibrary)) {
 				LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
 			} else {
 				StringCchPrintf (pszLibrary, cb, TEXT ("%s\\bin\\client\\jvm.dll"), pszPath);
-				if (_IsValidLibrary (pszLibrary)) {
+				if (IsValidLibrary (pszLibrary)) {
 					LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from JAVA_HOME"));
 				} else {
 					LOGWARN (TEXT ("JAVA_HOME set but bin\\<server|client>\\jvm.dll doesn't exist"));
@@ -140,7 +140,7 @@ private:
 					}
 					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\java.exe"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (!_IsValidLibrary (pszLibrary)) {
+					if (!IsValidLibrary (pszLibrary)) {
 						delete pszLibrary;
 						pszLibrary = NULL;
 						psz = _tcstok_s (NULL, TEXT (";"), &nextToken);
@@ -149,25 +149,25 @@ private:
 					LOGDEBUG (TEXT ("Default Java executable ") << pszLibrary << TEXT (" found from PATH"));
 					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\server\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (_IsValidLibrary (pszLibrary)) {
+					if (IsValidLibrary (pszLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\server\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (_IsValidLibrary (pszLibrary)) {
+					if (IsValidLibrary (pszLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\client\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (_IsValidLibrary (pszLibrary)) {
+					if (IsValidLibrary (pszLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
 					StringCchPrintf (pszLibrary, cb, TEXT ("%s\\..\\jre\\bin\\client\\jvm.dll"), psz);
 					LOGDEBUG (TEXT ("Looking for ") << pszLibrary);
-					if (_IsValidLibrary (pszLibrary)) {
+					if (IsValidLibrary (pszLibrary)) {
 						LOGINFO (TEXT ("Default jvm.dll ") << pszLibrary << TEXT (" found from PATH"));
 						break;
 					}
