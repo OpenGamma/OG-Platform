@@ -1,0 +1,23 @@
+.OG-field-box {
+  line-height: 200%;
+  margin: 10px;
+  padding-top: 5px;
+}
+
+.OG-field-box .og-lbl {
+  float: left;
+  margin-right: 10px;
+}
+
+.OG-field-box, .og-cnt {
+  overflow: hidden;
+}
+
+.OG-field-box .og-lbl {
+  color: #999;
+  width: 40%;
+}
+
+.OG-field-box {
+  border-top: 1px solid #e1e9ec;
+}

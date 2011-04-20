@@ -17,6 +17,8 @@
 #endif
 #include "MemoryPool.h"
 #include "Semaphore.h"
+#else
+#include "Library.h"
 #endif
 
 #include "Atomic.h"
@@ -33,7 +35,7 @@ private:
 	CAtomicInt m_oRefCount;
 	int m_nThreadId;
 #ifdef _WIN32
-	HMODULE m_hModule;
+	CLibraryLock *m_poModuleLock;
 	HANDLE m_hThread;
 	static DWORD WINAPI StartProc (void *pObject);
 #else
@@ -47,6 +49,7 @@ protected:
 	~CThread () {
 		assert (m_oRefCount.Get () == 0);
 #ifdef _WIN32
+		assert (!m_poModuleLock);
 		if (m_hThread) CloseHandle (m_hThread);
 #else
 		if (m_pThread) apr_thread_detach (m_pThread);
@@ -56,7 +59,7 @@ public:
 	CThread () : IRunnable (), m_oRefCount (1) {
 		m_nThreadId = 0;
 #ifdef _WIN32
-		m_hModule = NULL;
+		m_poModuleLock = NULL;
 		m_hThread = NULL;
 #else
 		m_pThread = NULL;

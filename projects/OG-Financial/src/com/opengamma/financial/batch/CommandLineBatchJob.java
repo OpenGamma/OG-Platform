@@ -30,6 +30,9 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.livedata.HistoricalLiveDataSnapshotProvider;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -503,14 +506,13 @@ public class CommandLineBatchJob {
         s_logger.info("Running {}", run);
   
         run.createViewDefinition();
-        run.createView();
-  
+        run.createViewProcessor();
+        
         _batchDbManager.startBatch(run);
-
-        run.getView().runOneCycle(
-            run.getValuationTime().toInstant().toEpochMillisLong(),
-            run.getView().getLiveDataSnapshotProvider(),
-            null);
+        
+        ViewClient client = run.getViewProcessor().createViewClient(UserPrincipal.getLocalUser());
+        client.attachToViewProcess(run.getViewDefinition().getName(), ExecutionOptions.batch(ArbitraryViewCycleExecutionSequence.of(run.getValuationTime())), true);
+        client.waitForCompletion();
 
         _batchDbManager.endBatch(run);
         

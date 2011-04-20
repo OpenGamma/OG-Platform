@@ -43,6 +43,7 @@
 
 	<import file="${common.dir}/common-ivy.xml"/>
 
+<<<<<<< HEAD
 	<target name="init" depends="get-build-projects-file-for-user"/>
 	
 	<!-- get user-specific build-projects.xml file -->
@@ -82,6 +83,30 @@
 		</condition>
 	</target>
 		
+=======
+	<!--
+		================================= target: load-ivy this target is not
+		necessary if you put ivy.jar in your ant lib directory if you already
+		have ivy 1.4 in your ant lib, you can simply remove this target
+		=================================
+	-->
+	<!-- target name="load-ivy" depends="download-ivy"-->
+		<!--
+			try to load ivy here from home ivy dir, in case the user has not
+			already dropped it into ant's lib dir (note that the latter copy will
+			always take precedence). We will not fail as long as ivy home lib dir
+			exists (it may be empty) and ivy is in at least one of ant's lib dir
+			or the ivy home lib dir.
+		-->
+		<!--path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+		<ivy:settings file="${common.dir}/ivysettings.xml" />
+	</target-->
+	<target name="init"/>
+>>>>>>> e4296ab0b1faf78b495903bdc3df11a49a6107b5
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">

@@ -38,7 +38,7 @@ import com.opengamma.util.money.Currency;
 public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncomeFutureInstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
-  private final ExchangeSource _exchangeSource;
+//  private final ExchangeSource _exchangeSource;
 
   public FutureSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
       final ExchangeSource exchangeSource) {
@@ -47,7 +47,7 @@ public class FutureSecurityConverter implements FutureSecurityVisitor<FixedIncom
     Validate.notNull(exchangeSource, "exchange source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
-    _exchangeSource = exchangeSource;
+//    _exchangeSource = exchangeSource;
   }
 
   @Override

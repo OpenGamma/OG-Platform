@@ -62,12 +62,12 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   public static SwaptionCashFixedIbor from(double expiryTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isLong) {
     Validate.notNull(underlyingSwap, "underlying swap");
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
-    // Is working only for swap with same rate on all coupons and standard conventions.
+    // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
     return new SwaptionCashFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
 
   /**
-   * Gets the _underlyingSwap field.
+   * Gets the underlying swap.
    * @return The underlying swap.
    */
   public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {

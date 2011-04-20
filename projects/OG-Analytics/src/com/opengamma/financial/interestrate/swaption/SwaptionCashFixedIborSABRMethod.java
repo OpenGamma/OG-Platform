@@ -25,7 +25,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price of a cash swaption with SABR model.
+ *  Class used to compute the price and sensitivity of cash-settled swaptions with SABR model.
  */
 public class SwaptionCashFixedIborSABRMethod {
 
@@ -34,6 +34,12 @@ public class SwaptionCashFixedIborSABRMethod {
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
 
+  /**
+   * Computes the present value of a cash-settled European swaption in the SABR model.
+   * @param swaption The swaption.
+   * @param sabrData The SABR data.
+   * @return The present value.
+   */
   public double presentValue(final SwaptionCashFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
@@ -54,7 +60,7 @@ public class SwaptionCashFixedIborSABRMethod {
   }
 
   /**
-   * Computes the present value rate sensitivity of a cash delivery European swaption in the SABR model.
+   * Computes the present value rate sensitivity of a cash delivery European swaption in the SABR model. The strike equivalent dependency on curve is ignored.
    * @param swaption The swaption.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.Cancellable;
 import com.opengamma.util.test.Timeout;
 
@@ -42,7 +43,7 @@ public class JobDispatcherTest {
   private static final AtomicLong s_jobId = new AtomicLong();
 
   protected static CalculationJobSpecification createTestJobSpec() {
-    return new CalculationJobSpecification("Test View", "default", System.currentTimeMillis(), s_jobId.incrementAndGet());
+    return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "default", System.currentTimeMillis(), s_jobId.incrementAndGet());
   }
 
   protected static List<CalculationJobItem> createTestJobItems() {

@@ -110,6 +110,11 @@ public class CombiningLiveDataSnapshotProvider implements LiveDataSnapshotProvid
   public void addListener(LiveDataSnapshotListener listener) {
     _listeners.add(listener);
   }
+  
+  @Override
+  public void removeListener(LiveDataSnapshotListener listener) {
+    _listeners.remove(listener);
+  }
 
   @Override
   public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {

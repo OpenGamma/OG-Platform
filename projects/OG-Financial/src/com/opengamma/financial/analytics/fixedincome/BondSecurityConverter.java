@@ -13,13 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -35,7 +39,6 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -44,29 +47,36 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
   private static final Logger s_logger = LoggerFactory.getLogger(BondSecurityConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
+  private final RegionSource _regionSource;
 
-  public BondSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
+  public BondSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, RegionSource regionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
+    Validate.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
+    _regionSource = regionSource;
   }
 
   @Override
   public BondDefinition visitCorporateBondSecurity(final CorporateBondSecurity security) {
-    throw new NotImplementedException();
+    final String domicile = security.getIssuerDomicile();
+    Validate.notNull(domicile, "bond security domicile cannot be null");
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
+    return visitBondSecurity(security, convention);
   }
 
   @Override
   public BondDefinition visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    final Currency currency = security.getCurrency();
-    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_TREASURY_BOND_CONVENTION"));
+    final String domicile = security.getIssuerDomicile();
+    Validate.notNull(domicile, "bond security domicile cannot be null");
+    final ConventionBundle convention = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
     return visitBondSecurity(security, convention);
   }
 
   public BondDefinition visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
     final LocalDate lastTradeDate = security.getLastTradeDate().getExpiry().toLocalDate();
-    final Calendar calendar = CalendarUtil.getCalendar(_holidaySource, security.getCurrency());
+    final Calendar calendar = CalendarUtil.getCalendar(_regionSource, _holidaySource, RegionUtils.financialRegionId(security.getIssuerDomicile()));
     final Frequency frequency = security.getCouponFrequency();
     final SimpleFrequency simpleFrequency;
     if (frequency instanceof PeriodFrequency) {
@@ -79,7 +89,11 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
     final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final LocalDate datedDate = security.getInterestAccrualDate().toZonedDateTime().toLocalDate();
     final int periodsPerYear = (int) simpleFrequency.getPeriodsPerYear();
-    final DayCount daycount = security.getDayCountConvention();
+    DayCount daycount = security.getDayCountConvention();
+    //TODO remove this when the bonds load correctly
+    if (daycount instanceof ActualActualISDA) {
+      daycount = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    }
     final boolean isEOMConvention = convention.isEOMConvention();
     final int settlementDays = convention.getSettlementDays();
     final LocalDate[] nominalDates = getBondSchedule(security, lastTradeDate, simpleFrequency, convention, datedDate);
@@ -110,7 +124,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeIns
       schedule = temp;
     }
     if (!schedule[1].toLocalDate().equals(security.getFirstCouponDate().toZonedDateTime().toLocalDate())) {
-      s_logger.warn("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
+      s_logger.info("Security first coupon date did not match calculated first coupon date: " + schedule[1].toLocalDate() + ", " + security.getFirstCouponDate().toZonedDateTime().toLocalDate());
     }
     return schedule;
   }

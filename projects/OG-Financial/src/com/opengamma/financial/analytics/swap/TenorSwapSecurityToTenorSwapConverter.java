@@ -11,8 +11,6 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
@@ -42,7 +40,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  */
 public class TenorSwapSecurityToTenorSwapConverter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(TenorSwapSecurityToTenorSwapConverter.class);
+  //private static final Logger s_logger = LoggerFactory.getLogger(TenorSwapSecurityToTenorSwapConverter.class);
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;
@@ -69,7 +67,8 @@ public class TenorSwapSecurityToTenorSwapConverter {
     }
   }
 
-  public TenorSwap getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String payLegCurveName, final String recieveLegCurveName, final double marketRate,
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  public TenorSwap<?> getSwap(final SwapSecurity swapSecurity, final String fundingCurveName, final String payLegCurveName, final String recieveLegCurveName, final double marketRate,
       final ZonedDateTime now) {
 
     Validate.notNull(swapSecurity, "swap security");

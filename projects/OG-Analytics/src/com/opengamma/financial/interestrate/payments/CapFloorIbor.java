@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -44,7 +44,8 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
     _isCap = isCap;
   }
 
-  public double getStrike() {
+  @Override
+  public double geStrike() {
     return _strike;
   }
 
@@ -89,11 +90,6 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public double geStrike() {
-    return 0;
   }
 
 }

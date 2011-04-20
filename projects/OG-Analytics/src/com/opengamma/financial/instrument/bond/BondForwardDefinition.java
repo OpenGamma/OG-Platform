@@ -48,7 +48,7 @@ public class BondForwardDefinition implements FixedIncomeInstrumentDefinition<Bo
     final BondConvention underlyingConvention = _underlyingBond.getConvention();
     final double coupon = underlyingBond.getCoupons()[0]; //TODO not necessarily - coupons might not be equal (unlikely but should be tested for)
     _accruedInterestAtDelivery = AccruedInterestCalculator.getAccruedInterest(underlyingConvention.getDayCount(), _forwardDate, _underlyingBond.getNominalDates(), coupon,
-        _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays());
+        _underlyingBond.getCouponsPerYear(), underlyingConvention.isEOM(), underlyingConvention.getExDividendDays(), underlyingConvention.getWorkingDayCalendar());
   }
 
   /**

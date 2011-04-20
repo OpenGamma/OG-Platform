@@ -1,0 +1,21 @@
+<div class="OG-timeseries">
+  <div class="og-identifiers og-js-identifiers"></div>
+  <div class="og-plotHeader">
+    <select>
+      <option>${dataField}</option>
+    </select>
+    <div>Observation time: ${observationTime}</div>
+  </div>
+  <div class="og-timeseriesPlot og-js-timeseriesPlot"></div>
+  <div class="og-plotMeta">
+    <div class="og-source">Source: ${dataSource}</div>
+    <div class="og-provider">Provider: ${dataProvider}</div>
+  </div>
+  <div class="og-dataPoints">
+    <div class="OG-clearFix">
+      <h2>Data Points</h2>
+      <button class="og-button-secondary .og-js-timeSeriesCsv">Download (CSV)</button>
+    </div>
+    <div class="og-js-table"></div>
+  </div>
+</div>

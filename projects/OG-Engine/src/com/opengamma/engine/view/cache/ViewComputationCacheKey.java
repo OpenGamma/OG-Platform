@@ -11,6 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,24 +19,24 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 /*package*/ class ViewComputationCacheKey implements Serializable {
-  private final String _viewName;
+  private final UniqueIdentifier _viewProcessId;
   private final String _calculationConfigurationName;
   private final long _snapshotTimestamp;
   
-  public ViewComputationCacheKey(String viewName, String calculationConfigurationName, long snapshotTimestamp) {
-    ArgumentChecker.notNull(viewName, "view name");
+  public ViewComputationCacheKey(UniqueIdentifier viewProcessId, String calculationConfigurationName, long snapshotTimestamp) {
+    ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(calculationConfigurationName, "calculation configuration name");
     
-    _viewName = viewName;
+    _viewProcessId = viewProcessId;
     _calculationConfigurationName = calculationConfigurationName;
     _snapshotTimestamp = snapshotTimestamp;
   }
 
   /**
-   * @return the viewName
+   * @return the view process id
    */
-  public String getViewName() {
-    return _viewName;
+  public UniqueIdentifier getViewProcessId() {
+    return _viewProcessId;
   }
 
   /**
@@ -62,7 +63,7 @@ import com.opengamma.util.ArgumentChecker;
             : _calculationConfigurationName.hashCode());
     result = prime * result
         + (int) (_snapshotTimestamp ^ (_snapshotTimestamp >>> 32));
-    result = prime * result + ((_viewName == null) ? 0 : _viewName.hashCode());
+    result = prime * result + ((_viewProcessId == null) ? 0 : _viewProcessId.hashCode());
     return result;
   }
 
@@ -76,7 +77,7 @@ import com.opengamma.util.ArgumentChecker;
     }
     ViewComputationCacheKey other = (ViewComputationCacheKey) obj;
     return (_snapshotTimestamp == other._snapshotTimestamp)
-          && ObjectUtils.equals(_viewName, other._viewName)
+          && ObjectUtils.equals(_viewProcessId, other._viewProcessId)
           && ObjectUtils.equals(_calculationConfigurationName, other._calculationConfigurationName);
   }
 

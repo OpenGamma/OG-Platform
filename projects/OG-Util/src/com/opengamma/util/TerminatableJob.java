@@ -5,37 +5,46 @@
  */
 package com.opengamma.util;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * The base class for any system which runs through a job, checking to
- * see whether it has been terminated before each cycle.
+ * A base class for any job which consists of cycles of work, and may be terminated between any two cycles. This
+ * implements {@link Runnable} so that it may be executed in its own thread.
  */
 public abstract class TerminatableJob implements Runnable {
 
   /**
-   * A flag indicating if the job has terminated.
+   * A flag to indicate whether the job has been started
+   */
+  private AtomicBoolean _started = new AtomicBoolean(false);
+  
+  /**
+   * A flag to indicate whether the job has terminated.
    */
   private volatile boolean _terminated;
 
   /**
    * Implements {@code Runnable} to add termination support.
-   * To add behavior, use the methods {@link #preStart()}, {@link #runOneCycle()}
-   * and {@link #postRunCycle()}.
+   * To add behaviour, use the methods {@link #preStart()}, {@link #runOneCycle()} and {@link #postRunCycle()}.
    */
   @Override
   public final void run() {
-    preStart();
-    // REVIEW kirk 2009-10-21 -- Originally we had the following line
-    // uncommented out so that you could continually restart the job after terminating.
-    // However, in cases where you call start() on the owning thread, and then call
-    // job.terminate() BEFORE the thread even starts, this line will prevent the
-    // termination from ever being registered. Therefore, I'm changing this for
-    // the time being and if we need to support restarts, we'll have to find another
-    // mechanism for that.
-    //_terminated.set(false);
-    while (_terminated == false) {
-      runOneCycle();
+    if (_started.getAndSet(true)) {
+      throw new IllegalStateException("Job has already been run or is currently running");
     }
-    postRunCycle();
+    
+    preStart();
+    try {
+      while (!isTerminated()) {
+        runOneCycle();
+      }
+    } finally {
+      // Want to ensure that even if the job terminates with an exception (e.g. InterruptedException), the tidy-up
+      // semantics of postRunCycle are preserved
+      if (isTerminated()) {
+        postRunCycle();
+      }
+    }
   }
 
   /**
@@ -65,8 +74,18 @@ public abstract class TerminatableJob implements Runnable {
   }
 
   /**
-   * Checks if the job has been terminated.
-   * @return true if terminated
+   * Gets whether the job has been started.
+   * 
+   * @return {@code true} if the job has been started, {@code false} otherwise
+   */
+  public boolean isStarted() {
+    return _started.get();
+  }
+  
+  /**
+   * Gets whether the job has been terminated.
+   * 
+   * @return {@code true} if the job has been terminated, {@code false} otherwise
    */
   public boolean isTerminated() {
     return _terminated;

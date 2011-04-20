@@ -17,8 +17,6 @@ LOGGING (com.opengamma.language.util.AbstractTest);
 
 static CFudgeInitialiser g_oInitialiseFudge;
 
-#ifndef __cplusplus_cli
-
 #define MAX_TESTS	50
 
 static int g_nTests = 0;
@@ -92,18 +90,6 @@ void CAbstractTest::Main (int argc, TCHAR **argv) {
 
 void CAbstractTest::After () {
 	g_nSuccessfulTests++;
-}
-
-#endif /* ifndef __cplusplus_cli */
-
-void CAbstractTest::Fail () {
-#ifdef __cplusplus_cli
-	LOGDEBUG (TEXT ("Calling Assert::Fail"));
-	Assert::Fail ();
-#else
-	LOGDEBUG (TEXT ("Exiting with error code 1"));
-	exit (1);
-#endif /* ifdef __cplusplus_cli */
 }
 
 void LoggingInitImpl (const TCHAR *pszLogConfiguration);
