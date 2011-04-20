@@ -36,9 +36,8 @@ public class ViewDeltaResultCalculator {
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     if (previousResult != null) {
       deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-      deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     }
-    deltaModel.ensureCalculationConfigurationNames(result.getCalculationConfigurationNames());
+    deltaModel.setCalculationConfigurationNames(result.getCalculationConfigurationNames());
     for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(viewDefinition, deltaModel, targetSpec, previousResult, result);
     }

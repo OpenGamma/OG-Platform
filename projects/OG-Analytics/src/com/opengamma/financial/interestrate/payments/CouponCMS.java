@@ -22,7 +22,7 @@ public class CouponCMS extends CouponFloating {
    */
   private final FixedCouponSwap<? extends Payment> _underlyingSwap;
   /**
-   * The time (in years) to swap settlement.
+   * The time (in years) to underlying swap settlement.
    */
   private final double _settlementTime;
 
@@ -34,7 +34,7 @@ public class CouponCMS extends CouponFloating {
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
-   * @param settlementTime TODO
+   * @param settlementTime The time (in years) to underlying swap settlement.
    */
   public CouponCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime) {
     super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
@@ -48,7 +48,7 @@ public class CouponCMS extends CouponFloating {
    * Builder from a floating coupon and an underlying swap.
    * @param coupon A floating coupon.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used.
-   * @param settlementTime TODO
+   * @param settlementTime  The time (in years) to swap settlement.
    * @return The CMS coupon.
    */
   public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap, double settlementTime) {
@@ -58,8 +58,8 @@ public class CouponCMS extends CouponFloating {
   }
 
   /**
-   * Gets the _underlyingSwap field.
-   * @return the _underlyingSwap
+   * Gets the underlying swap.
+   * @return The underlying swap.
    */
   public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
     return _underlyingSwap;

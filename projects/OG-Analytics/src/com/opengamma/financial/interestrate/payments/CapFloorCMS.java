@@ -32,7 +32,7 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
-   * @param settlementTime TODO
+   * @param settlementTime The time (in years) to underlying swap settlement.
    * @param strike The strike.
    * @param isCap The cap (true) /floor (false) flag.
    */
