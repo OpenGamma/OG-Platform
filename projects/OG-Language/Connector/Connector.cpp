@@ -201,17 +201,40 @@ dispatched:
 
 void CConnector::OnDispatchThreadDisconnect () {
 	LOGINFO (TEXT ("Dispatcher thread disconnected"));
+	int nCallbacks = 0, i;
+	CCallbackEntry **apoCallback = NULL;
 	m_oMutex.Enter ();
 	if (m_poDispatch) {
 		CCallbackEntry *poCallback = m_poCallbacks;
 		while (poCallback) {
-			poCallback->OnThreadDisconnect ();
+			nCallbacks++;
 			poCallback = poCallback->m_poNext;
+		}
+		apoCallback = new CCallbackEntry*[nCallbacks];
+		if (apoCallback) {
+			i = 0;
+			poCallback = m_poCallbacks;
+			while (poCallback) {
+				assert (i < nCallbacks);
+				poCallback->Retain ();
+				apoCallback[i++] = poCallback;
+				poCallback = poCallback->m_poNext;
+			}
+		} else {
+			LOGFATAL (TEXT ("Out of memory"));
 		}
 	} else {
 		LOGDEBUG (TEXT ("Thread disconnect messages already sent at stop"));
 	}
 	m_oMutex.Leave ();
+	if (nCallbacks && apoCallback) {
+		LOGDEBUG (TEXT ("Calling OnThreadDisconnect on ") << nCallbacks << TEXT (" callbacks"));
+		for (i = 0; i < nCallbacks; i++) {
+			apoCallback[i]->OnThreadDisconnect ();
+			CCallbackEntry::Release (apoCallback[i]);
+		}
+		delete apoCallback;
+	}
 }
 
 CConnector::CCall::CCall (CSynchronousCallSlot *poSlot) {
