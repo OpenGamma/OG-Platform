@@ -28,7 +28,7 @@
           servlet has been initialized -->
     <servlet>
         <servlet-name>ConfigurationServlet</servlet-name>
-        <servlet-class>com.opengamma.integration.web.server.ConfigurationServlet</servlet-class>
+        <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
 

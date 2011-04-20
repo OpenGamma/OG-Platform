@@ -143,6 +143,7 @@ public class ViewClientTest {
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewComputationResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
+    assertNotNull(result1);
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 1);
     expected.put(env.getPrimitive2(), (byte) 2);
@@ -179,6 +180,7 @@ public class ViewClientTest {
     vp.start();
     
     ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    client.setResultMode(ViewResultMode.DELTA_ONLY);
     
     TestViewResultListener resultListener = new TestViewResultListener();
     client.setResultListener(resultListener);
@@ -195,6 +197,7 @@ public class ViewClientTest {
     
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     ViewDeltaResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
+    assertNotNull(result1);
     Map<ValueRequirement, Object> expected = new HashMap<ValueRequirement, Object>();
     expected.put(env.getPrimitive1(), (byte) 1);
     expected.put(env.getPrimitive2(), (byte) 2);

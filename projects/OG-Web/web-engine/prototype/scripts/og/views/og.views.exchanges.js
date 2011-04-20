@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, exchanges,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'exchanges',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {},
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'exchanges',
                 'columns': [
@@ -42,6 +44,15 @@ $.register_module({
                     {name: 'favorites', handler: 'handler'}
                 ],
                 location: '.OG-toolbar .og-js-buttons'
+            },
+            default_page = function () {
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Exchanges',
+                        favorites_list: history.get_html('history.exchanges.favorites') || 'no favorited exchanges',
+                        recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
@@ -54,7 +65,7 @@ $.register_module({
                 layout('default');
                 ui.toolbar(default_toolbar_options);
                 search.load($.extend(search_options, {url: args}));
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                default_page();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
@@ -87,10 +98,16 @@ $.register_module({
                 api.exchanges.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.exchange_functions;
+                        var f = details.exchange_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.name,
+                            item: 'history.exchanges.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
-                            f.render_info('.OG-exchange .og-js-info', json);
+                            $.tmpl(template, details_json).appendTo($('#OG-details .og-main').empty());
+                            f.render_info('.OG-exchange .og-js-info', details_json);
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                         }});

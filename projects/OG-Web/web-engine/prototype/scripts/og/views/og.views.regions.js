@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, regions,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'regions',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {}, // The returned json for the details area
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'regions',
                 'columns': [
@@ -43,7 +45,16 @@ $.register_module({
                 ],
                 location: '.OG-toolbar .og-js-buttons'
             },
-            default_page = function () {$('#OG-details .og-main').html('default ' + page_name + ' page');},
+            default_page = function () {
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Regions',
+                        favorites_list: history.get_html('history.regions.favorites') || 'no favorited regions',
+                        recent_list: history.get_html('history.regions.recent') || 'no recently viewed regions',
+                        new_list: history.get_html('history.regions.new') || 'no new regions'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
+            },
             new_page = function (args) {
                 masthead.menu.set_tab(page_name);
                 layout('default');
@@ -61,12 +72,18 @@ $.register_module({
                 api.regions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.region_functions;
+                        var f = details.region_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.regions.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.render_keys('.OG-region .og-js-keys', json.keys);
-                            f.render_regions('.OG-region .og-js-parent_regions', json.parent);
-                            f.render_regions('.OG-region .og-js-child_regions', json.child);
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            f.render_keys('.OG-region .og-js-keys', details_json.keys);
+                            f.render_regions('.OG-region .og-js-parent_regions', details_json.parent);
+                            f.render_regions('.OG-region .og-js-child_regions', details_json.child);
                             ui.message({location: '#OG-details', destroy: true});
                             details.favorites();
                         }});

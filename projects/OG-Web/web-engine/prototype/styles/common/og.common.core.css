@@ -14,4 +14,5 @@ html, body {
 
 #container {
     border-bottom: 2px solid #313b44;
+    display: none;
 }

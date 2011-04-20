@@ -1,4 +1,4 @@
-<section id="OG-analytics">
+<section id="OG-analytics" style="display: none">
   <div class="OG-toolbar OG-gradient-01">
     <div class="og-title">
       <h1 title="Swap Test View">Swap Test View</h1>

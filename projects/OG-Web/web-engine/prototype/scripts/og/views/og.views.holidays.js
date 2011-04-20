@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, holidays,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'holidays',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {}, // The returned json for the details area
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'holidays',
                 'columns': [
@@ -47,6 +49,15 @@ $.register_module({
                     {name: 'favorites', handler: 'handler'}
                 ],
                 location: '.OG-toolbar .og-js-buttons'
+            },
+            default_page = function () {
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Holidays',
+                        favorites_list: history.get_html('history.holidays.favorites') || 'no favorited holidays',
+                        recent_list: history.get_html('history.holidays.recent') || 'no recently viewed holidays'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
@@ -63,7 +74,7 @@ $.register_module({
                 ui.toolbar(default_toolbar_options);
                 layout('default');
                 search.load($.extend(search_options, {url: args}));
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                default_page();
             },
             load_filter: function (args) {
                 check_state({args: args, conditions: [
@@ -95,9 +106,14 @@ $.register_module({
                 api.holidays.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.holidays.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration
                                 showCurrentAtPos: new Date().getMonth(),    // Makes the first month January
@@ -105,11 +121,11 @@ $.register_module({
                                 stepMonths: 12,                             // Pagination moves 1 year at a time
                                 firstDay: 1,                                // Start the week on Monday
                                 displayOnly: true,                          // This is an OG custom configuration
-                                specialDates: json.dates                    // This is an OG custom configuration
+                                specialDates: details_json.dates                    // This is an OG custom configuration
                             });
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
-                            details.calendar_ui_changes(json.dates);
+                            details.calendar_ui_changes(details_json.dates);
                         }});
                     },
                     id: args.id,
