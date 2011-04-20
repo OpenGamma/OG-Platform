@@ -5,14 +5,16 @@ $.register_module({
     name: 'og.views.positions',
     dependencies: [
         'og.common.routes', 'og.common.masthead.menu', 'og.common.search_results.core',
-        'og.common.util.ui.message', 'og.views.common.layout', 'og.common.util.ui.toolbar'
+        'og.common.util.ui.message', 'og.views.common.layout', 'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, positions,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'positions',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {},
             get_quantities,
             /**
              * Options for SlickGrid.
@@ -115,7 +117,14 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_positions, args));
             },
             default_page = function () {
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Positions',
+                        favorites_list: history.get_html('history.positions.favorites') || 'no favorited positions',
+                        recent_list: history.get_html('history.positions.recent') || 'no recently viewed positions',
+                        new_list: history.get_html('history.positions.new') || 'no new positions'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             };
         module.rules = {
             load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
@@ -214,12 +223,18 @@ $.register_module({
                 api.positions.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.position_functions;
+                        var f = details.position_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.NAME,
+                            item: 'history.positions.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.render_main('.OG-position .og-js-main', json);
-                            f.render_identifiers('.OG-position .og-js-identifiers', json.securities);
-                            f.render_trade_rows('.OG-position .og-js-trades', json.trades);
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            f.render_main('.OG-position .og-js-main', details_json);
+                            f.render_identifiers('.OG-position .og-js-identifiers', details_json.securities);
+                            f.render_trade_rows('.OG-position .og-js-trades', details_json.trades);
                             ui.content_editable({
                                 attribute: 'data-og-editable',
                                 handler: function () {

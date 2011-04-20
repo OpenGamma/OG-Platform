@@ -7,12 +7,13 @@ $.register_module({
         'og.common.routes', 'og.common.masthead.menu', 'og.common.search_results.core',
         'og.common.util.ui.message', 'og.common.util.ui.toolbar',
         'og.api.rest', 'og.api.text',
-        'og.views.common.layout', 'og.views.common.state'
+        'og.views.common.layout', 'og.views.common.state',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, portfolios,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'portfolios',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {}, // The returned json for the details area
@@ -108,7 +109,14 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_portfolios, args));
             },
             default_page = function () {
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Portfolios',
+                        favorites_list: history.get_html('history.portfolios.favorites') || 'no favorited portfolios',
+                        recent_list: history.get_html('history.portfolios.recent') || 'no recently viewed portfolios',
+                        new_list: history.get_html('history.portfolios.new') || 'no new portfolios'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
@@ -171,7 +179,12 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.portfolio_functions;
-                        details_json = result.data; // global within this view
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.portfolios.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
                             var stop_loading = (function () {
                                 var total_parts = 2, parts_loaded = 0;

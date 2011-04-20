@@ -6,14 +6,16 @@ $.register_module({
     dependencies: [
         'og.api.rest', 'og.api.text',
         'og.common.routes', 'og.common.masthead.menu', 'og.common.search_results.core',
-        'og.common.util.ui.message', 'og.views.common.layout', 'og.common.util.ui.toolbar', 'og.views.common.state'
+        'og.common.util.ui.message', 'og.views.common.layout', 'og.common.util.ui.toolbar', 'og.views.common.state',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, batches,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'batches',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {}, // The returned json for the details area
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'batches',
                 'columns': [
@@ -44,7 +46,16 @@ $.register_module({
                 ],
                 location: '.OG-toolbar .og-js-buttons'
             },
-            default_page = function () {$('#OG-details .og-main').html('default ' + page_name + ' page');},
+            default_page = function () {
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Batches',
+                        favorites_list: history.get_html('history.batches.favorites') || 'no favorited batches',
+                        recent_list: history.get_html('history.batches.recent') || 'no recently viewed batches',
+                        new_list: history.get_html('history.batches.new') || 'no new batches'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
+            },
             new_page = function (args) {
                 masthead.menu.set_tab(page_name);
                 layout('default');
@@ -61,11 +72,17 @@ $.register_module({
                 api.batches.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.batch_functions;
+                        var f = details.batch_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.batches.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.results('.OG-batch .og-js-results', json.data.batch_results);
-                            f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            f.results('.OG-batch .og-js-results', details_json.data.batch_results);
+                            f.errors('.OG-batch .og-js-errors', details_json.data.batch_errors);
                             ui.message({location: '#OG-details', destroy: true});
                             details.favorites();
                         }});

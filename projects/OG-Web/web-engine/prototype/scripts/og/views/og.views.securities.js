@@ -9,14 +9,16 @@ $.register_module({
         'og.common.search_results.core',
         'og.common.util.ui.message',
         'og.views.common.layout',
-        'og.common.util.ui.toolbar'
+        'og.common.util.ui.toolbar',
+        'og.common.util.history'
     ],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, securities,
             masthead = og.common.masthead, search = og.common.search_results.core(), details = og.common.details,
-            ui = og.common.util.ui, layout = og.views.common.layout,
+            ui = og.common.util.ui, layout = og.views.common.layout, history = og.common.util.history,
             page_name = 'securities',
             check_state = og.views.common.state.check.partial('/' + page_name),
+            details_json = {},
             /**
              * Options for SlickGrid.
              * Generate the search results columns.
@@ -119,8 +121,15 @@ $.register_module({
                 routes.go(routes.hash(module.rules.load_securities, args));
             },
             default_page = function () {
-                $('#OG-details .og-main').html('default ' + page_name + ' page');
-            },
+                og.api.text({module: 'og.views.default', handler: function (template) {
+                    $.tmpl(template, {
+                        name: 'Securities',
+                        favorites_list: history.get_html('history.securities.favorites') || 'no favorited securities',
+                        recent_list: history.get_html('history.securities.recent') || 'no recently viewed securities',
+                        new_list: history.get_html('history.securities.new') || 'no new securities'
+                    }).appendTo($('#OG-details .og-main').empty());
+                }});
+            };
             state = {};
         module.rules = {
             load: {route: '/' + page_name + '/name:?/filter_type:?', method: module.name + '.load'},
@@ -180,10 +189,16 @@ $.register_module({
                 api.securities.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
-                        var json = result.data, f = details.security_functions;
+                        var f = details.security_functions;
+                        details_json = result.data;
+                        history.put({
+                            name: details_json.templateData.name,
+                            item: 'history.securities.recent',
+                            value: routes.current().hash
+                        });
                         og.api.text({module: module.name + '.' + args.type, handler: function (template) {
-                            $.tmpl(template, json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.render_security_identifiers('.OG-security .og-js-identifiers', json.identifiers);
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            f.render_security_identifiers('.OG-security .og-js-identifiers', details_json.identifiers);
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                         }});
