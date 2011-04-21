@@ -28,9 +28,9 @@
                 dependency.split('.').reduce(function (acc, val) {
                     if (typeof acc[val] === 'undefined') throw new Error; else return acc[val];
                 }, top_level);
-            }catch(error){
+            } catch (error) {
                 throw new ReferenceError(module.name + ' requires ' + dependency);
-            };
+            }
         });
     };
     $.extend({
