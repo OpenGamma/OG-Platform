@@ -17,6 +17,7 @@
   "*.svg|cp" : {},
   "*.eot|cp" : {},
   "*.ttf|cp" : {},
-  "*.woff|cp" : {}
+  "*.woff|cp" : {},
+  "*.tex|pyg|l" : {}
 }
 
