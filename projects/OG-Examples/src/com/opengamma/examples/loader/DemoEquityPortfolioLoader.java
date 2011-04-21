@@ -271,7 +271,7 @@ public class DemoEquityPortfolioLoader {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(lc);
       lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/integration/server/logback.xml");
+      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
       PlatformConfigUtils.configureSystemProperties(RunMode.SHAREDDEV);
       System.out.println("Starting connections");
