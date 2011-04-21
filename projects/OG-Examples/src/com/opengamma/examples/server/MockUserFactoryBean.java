@@ -5,18 +5,17 @@
  */
 package com.opengamma.examples.server;
 
-import com.opengamma.examples.livedata.BloombergServerConstants;
+import com.opengamma.examples.livedata.MockServerConstants;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * Creates a demo/test user.
+ * Creates a mock/test user.
  */
-public class TestUserFactoryBean extends SingletonFactoryBean<UserPrincipal> {
+public class MockUserFactoryBean extends SingletonFactoryBean<UserPrincipal> {
 
   @Override
   protected UserPrincipal createObject() {
-    return BloombergServerConstants.TEST_USER;
+    return MockServerConstants.TEST_USER;
   }
-
 }

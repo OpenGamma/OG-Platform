@@ -94,24 +94,20 @@
   <!-- JMS-based LiveDataClient -->
   <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
     <property name="connectionFactory" ref="jmsConnectionFactory" />
-    <property name="subscriptionTopic" value="BloombergSubscriptionRequestTopic" />
-    <property name="entitlementTopic" value="BloombergEntitlementRequestTopic" />
-    <property name="heartbeatTopic" value="BloombergHeartbeatTopic" />
+    <property name="subscriptionTopic" value="MockSubscriptionRequestTopic" />
+    <property name="entitlementTopic" value="MockEntitlementRequestTopic" />
+    <property name="heartbeatTopic" value="MockHeartbeatTopic" />
   </bean>
   
   <!-- LiveData Snapshot/Availability Provider -->
   <import resource="liveData-${opengamma.platform.runmode}.xml" />
-  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.server.DemoLiveDataAvailabilityProviderFactoryBean">
-    <constructor-arg ref="combinedSecuritySource" />
-  </bean>
-  <bean id="liveDataSnapshotProvider" class="com.opengamma.engine.livedata.LiveDataSnapshotProviderImpl">
-    <constructor-arg ref="sharedLiveDataClient" />
-    <constructor-arg ref="combinedSecuritySource" />
-  </bean>
-  
-  <bean id="testUser" class="com.opengamma.examples.server.TestUserFactoryBean" />  
+  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.livedata.MockLiveDataAvailabilityProviderFactoryBean" />
+   
+  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.livedata.MockLiveDataSnapshotProviderFactoryBean" />
+    
+  <bean id="testUser" class="com.opengamma.examples.server.MockUserFactoryBean" />  
   <!-- ViewDefinitionRepository -->
-  <bean id="demoViewDefinitionRepository" class="com.opengamma.examples.server.DbViewDefinitionRepositoryFactoryBean">
+  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
   	<constructor-arg ref="sharedConfigMaster"/>
   </bean>
   
@@ -270,7 +266,8 @@
     <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
-  <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorImpl">
+  <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
+    <property name="id" value="0" />
     <property name="computationCacheSource" ref="demoComputationCacheSource" />
     <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
     <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />
@@ -283,13 +280,13 @@
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
     <property name="functionResolver">
-      <bean class="com.opengamma.examples.server.DemoFunctionResolverFactoryBean">
+      <bean class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
         <property name="functionCompilationService" ref="demoFunctionCompilation" />
       </bean>
     </property>
     <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />
-    <property name="viewPermissionProvider">
-      <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
+    <property name="viewPermissionProviderFactory">
+      <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory" />
     </property>
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
@@ -364,7 +361,6 @@
     <property name="arguments">
       <list>
         <ref bean="demoViewProcessor" />
-        <ref bean="testUser" />
         <ref bean="graphExecutionStatistics" />
         <ref bean="mbeanServer" />
       </list>
@@ -391,11 +387,8 @@
     </property>
   </bean>
 
-  <!-- example data providers -->
-  <bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader"/>
-  
-  <bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader">
-    <constructor-arg ref="dbSecurityMaster" />
-  </bean>
- 
+	<!-- example data providers -->
+	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
+	<bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
+
 </beans>

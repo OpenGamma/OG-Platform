@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.server;
+package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;

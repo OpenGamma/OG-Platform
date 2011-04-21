@@ -4,7 +4,7 @@
 	<import file="${common.dir}/common.xml"/>
 
 	<target name="new-hsqldb" depends="compile-src">
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -42,7 +42,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${basedir}${file.separator}config${path.separator}${toString:run.path.id}" />
 		</java>
@@ -60,7 +60,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${basedir}${file.separator}config${path.separator}${toString:run.path.id}" />
 		</java>

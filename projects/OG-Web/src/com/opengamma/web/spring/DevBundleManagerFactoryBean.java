@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.server;
+package com.opengamma.web.spring;
 
 import com.opengamma.web.bundle.BundleManager;
 import com.opengamma.web.bundle.BundleParser;
 import com.opengamma.web.bundle.DevBundleBuilder;
+
 
 /**
  * Creates a BundleManager for Production from the Bundle XML configuration file

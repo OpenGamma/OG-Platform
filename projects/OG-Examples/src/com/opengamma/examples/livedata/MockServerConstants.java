@@ -15,7 +15,7 @@ import com.opengamma.livedata.UserPrincipal;
  * 
  *
  */
-public class BloombergServerConstants {
+public class MockServerConstants {
 
   /**
    * The user that should be used for entitlement checking
@@ -25,16 +25,16 @@ public class BloombergServerConstants {
   /**
    * The topic subscription requests should be made to.
    */
-  public static final String SUBSCRIPTION_REQUEST_TOPIC = "BloombergSubscriptionRequestTopic";
+  public static final String SUBSCRIPTION_REQUEST_TOPIC = "MockSubscriptionRequestTopic";
   
   /**
    * The topic entitlement requests should be made to.
    */
-  public static final String ENTITLEMENT_REQUEST_TOPIC = "BloombergEntitlementRequestTopic";
+  public static final String ENTITLEMENT_REQUEST_TOPIC = "MockEntitlementRequestTopic";
   
   static {
     try {
-      TEST_USER = new UserPrincipal("bbgintegrationtestuser", InetAddress.getLocalHost().toString());
+      TEST_USER = new UserPrincipal("mockintegrationtestuser", InetAddress.getLocalHost().toString());
     } catch (UnknownHostException e) {
       throw new OpenGammaRuntimeException("Could not initialize test user", e);
     }

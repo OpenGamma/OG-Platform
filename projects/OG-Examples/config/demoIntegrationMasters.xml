@@ -206,13 +206,13 @@
   <bean id="demoFunctionRepositoryConfiguration" class="com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource">
     <constructor-arg>
       <list>
-        <bean class="com.opengamma.examples.server.DemoStandardFunctionConfiguration" />
-        <bean class="com.opengamma.examples.server.DemoCurveFunctionConfiguration">
+        <bean class="com.opengamma.web.spring.DemoStandardFunctionConfiguration" />
+        <bean class="com.opengamma.web.spring.DemoCurveFunctionConfiguration">
           <property name="configMaster" ref="sharedConfigMaster" />
           <property name="conventionBundleSource" ref="conventionBundleSource" />
         </bean>
-        <bean class="com.opengamma.examples.server.DemoSurfaceFunctionConfiguration" />
-      </list>
+        <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration" />
+       </list>
     </constructor-arg>
   </bean>
   

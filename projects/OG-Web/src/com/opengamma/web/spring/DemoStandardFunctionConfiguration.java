@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.server;
+package com.opengamma.web.spring;
 
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -29,14 +29,21 @@ import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionWeightFromNAVFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.analytics.UnitPositionScalingFunction;
+import com.opengamma.financial.analytics.model.bond.BondConvexityFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
+import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondMarketYieldFunction;
+import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPreviousCloseDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadCountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadCurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.CAPMBetaModelPositionFunction;
@@ -204,8 +211,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(BondMarketDirtyPriceFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondYieldFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondMarketYieldFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(BondZSpreadFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondZSpreadCurrencyCurveFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondZSpreadCountryCurveFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondConvexityFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondMacaulayDurationFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BondCouponPaymentDiaryFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondPresentValueCountryCurveFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondPresentValueCurrencyCurveFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondPV01CountryCurveFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(BondPV01CurrencyCurveFunction.class.getName()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class.getName(), Arrays.asList("USD")));
     functionConfigs.add(new StaticFunctionConfiguration(BondFutureImpliedRepoFunction.class.getName()));
 
@@ -256,6 +270,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.CLEAN_PRICE);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.YTM);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.PV01);
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
@@ -314,6 +331,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addDummyFunction(functionConfigs, ValueRequirementNames.MARKET_YTM);
     addDummyFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
     addDummyFunction(functionConfigs, ValueRequirementNames.IMPLIED_REPO);
+    addDummyFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
+    addDummyFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
     addSummingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
     addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
 

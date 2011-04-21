@@ -4,7 +4,7 @@
 
   <!-- Property file configuration -->
   <bean id="engineSpringProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreUnresolvablePlaceholders" value="false" />
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="location">
       <value>classpath:engine-spring.properties</value>
     </property>
@@ -16,8 +16,8 @@
 		<property name="connectors">
 			<list>
 				<bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-					<property name="port" value="${port}" />
-					<property name="confidentialPort" value="${confidentialPort}" />
+					<property name="port" value="${jetty.port}" />
+					<property name="confidentialPort" value="${jetty.confidentialPort}" />
 				</bean>
 			</list>
 		</property>
@@ -28,8 +28,8 @@
 					<list>
 						<bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
 							<property name="contextPath" value="/" />
-							<property name="descriptor" value="${descriptor}" />
-							<property name="resourceBase" value="${resourceBase}" />
+							<property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
+							<property name="resourceBase" value="${jetty.resourceBase}" />
 							<property name="defaultsDescriptor" value="./config/webdefaults.xml" />
 							<property name="initParams">
 								<map>

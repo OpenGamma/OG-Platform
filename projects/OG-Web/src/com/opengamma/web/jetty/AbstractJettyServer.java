@@ -12,6 +12,7 @@ import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -20,10 +21,7 @@ import com.opengamma.util.PlatformConfigUtils;
 public abstract class AbstractJettyServer {
   
   public static void run(final String springConfig) throws IOException {
-    String absolutePath = new File(springConfig).getCanonicalPath();
-    String baseDir = new File(".").getCanonicalPath();
-    String relativePath = absolutePath.substring(baseDir.length());
-    
+    ArgumentChecker.notNull(springConfig, "spring config");
     System.out.println("================================== SETUP LOGGING ============================================");
     
     // Logging
@@ -35,12 +33,18 @@ public abstract class AbstractJettyServer {
     
     // server
     try {
-      process(relativePath);
+      process(getRelativePath(springConfig));
       System.exit(0);
     } catch (Throwable ex) {
       ex.printStackTrace();
       System.exit(1);
     }
+  }
+
+  private static String getRelativePath(final String springConfig) throws IOException {
+    String absolutePath = new File(springConfig).getCanonicalPath();
+    String baseDir = new File(".").getCanonicalPath();
+    return absolutePath.substring(baseDir.length() + 1);
   }
   
   private static void process(String springConfig) throws Exception {

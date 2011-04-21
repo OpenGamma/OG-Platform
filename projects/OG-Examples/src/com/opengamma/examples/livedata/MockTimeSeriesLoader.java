@@ -5,12 +5,12 @@
  */
 package com.opengamma.examples.livedata;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesLoader;
@@ -22,11 +22,14 @@ import com.opengamma.master.timeseries.TimeSeriesLoader;
  */
 public class MockTimeSeriesLoader implements TimeSeriesLoader {
 
+  private static final String MESSAGE = "This is a placeholder timeseries loader." +
+      "\nFor fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters," +
+      "\nPlease contact sales@opengamma.com.";
+  
   @Override
   public Map<Identifier, UniqueIdentifier> loadTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
-    System.out.println("This is a placeholder timeseries loader. For fully supported implementations supporting major data vendors like Bloomberg and Thomson-Reuters, " +
-      " please contact sales@opengamma.com.");
-    return Collections.emptyMap();
+    System.out.println(MESSAGE);
+    throw new OpenGammaRuntimeException(MESSAGE);
   }
 
 }

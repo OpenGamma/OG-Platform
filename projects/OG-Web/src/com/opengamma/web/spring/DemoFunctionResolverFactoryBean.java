@@ -3,13 +3,19 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.server;
+package com.opengamma.web.spring;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
-import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver.FunctionPriority;
+import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadCountryCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.DefaultCurrencyFunction;
 import com.opengamma.util.SingletonFactoryBean;
@@ -38,6 +44,24 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         }
         if (function instanceof DefaultCurrencyFunction) {
           return Integer.MAX_VALUE;
+        }
+        if (function instanceof BondZSpreadCountryCurveFunction) {
+          return 2;
+        }
+        if (function instanceof BondZSpreadCurrencyCurveFunction) {
+          return 1;
+        }
+        if (function instanceof BondPresentValueCountryCurveFunction) {
+          return 4;
+        }
+        if (function instanceof BondPresentValueCurrencyCurveFunction) {
+          return 3;
+        }
+        if (function instanceof BondPV01CountryCurveFunction) {
+          return 6;
+        }
+        if (function instanceof BondPV01CurrencyCurveFunction) {
+          return 5;
         }
         return 0;
       }
