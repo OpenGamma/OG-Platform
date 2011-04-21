@@ -155,13 +155,13 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
                     });
-                    if (is_id){
+                    if (is_id) {
                         method.push(observation_date, observation_time);
-                    }else{
+                    } else {
                         data = {pageSize: page_size, page: page};
                         if (observation_date) data.observationDate = observation_date;
                         if (observation_time) data.observationTime = observation_time;
-                    };
+                    }
                     return request(method, {data: data, meta: meta});
                 },
                 put: not_available.partial('put'),
@@ -169,10 +169,10 @@ $.register_module({
             },
             clean: function () {
                 var id, current = routes.current(), request, mismatch;
-                for (id in outstanding_requests){
+                for (id in outstanding_requests) {
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
-                };
+                }
                 deliver_updates([]);
             },
             configs: { // all requests that begin with /configs
@@ -340,12 +340,12 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: search, label: 'search request', fields: ['id']}]
                     });
-                    if (search){
+                    if (search) {
                         data = {pageSize: page_size, page: page};
                         fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
-                    }else{
+                    } else {
                         method.push(id);
-                    };
+                    }
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
