@@ -1,11 +1,9 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/connector/ConnectorMessage.proto:12(10)
 package com.opengamma.language.connector;
 public class ConnectorMessage implements java.io.Serializable {
   private static final long serialVersionUID = 50678589418965l;
-  // Created from com/opengamma/language/connector/ConnectorMessage.proto:14(9)
   public enum Operation {
     HEARTBEAT (1),
     POISON (2),

@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -22,7 +22,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Ibor-like floating coupon with a spread.
+ * Class describing a Ibor-like floating coupon with a spread. The coupon payment is: notional * accrual factor * (Ibor + spread).
  */
 public class CouponIborSpreadDefinition extends CouponIborDefinition {
 
@@ -36,7 +36,7 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   private final double _spreadAmount;
 
   /**
-   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index. The payment currency is the index currency.
+   * Constructor of a Ibor-like floating coupon from the coupon details and the Ibor index.
    * 
    * @param currency The payment currency.
    * @param paymentDate Coupon payment date.
@@ -68,16 +68,16 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   }
 
   /**
-   * Gets the _spread field.
-   * @return The spread
+   * Gets the spread.
+   * @return The spread.
    */
   public double getSpread() {
     return _spread;
   }
 
   /**
-   * Gets the _spreadAmount field.
-   * @return The spread amount
+   * Gets the fixed amount related to the spread.
+   * @return The spread amount.
    */
   public double getSpreadAmount() {
     return _spreadAmount;

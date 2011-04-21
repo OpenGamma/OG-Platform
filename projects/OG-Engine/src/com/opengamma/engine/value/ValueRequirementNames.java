@@ -216,7 +216,7 @@ public final class ValueRequirementNames {
   public static final String MARKET_YTM = "Market Yield To Maturity";//straight from BBG
   public static final String MARKET_DIRTY_PRICE = "Market Dirty Price";//straight from BBG
   public static final String CURRENT_YIELD = "Current Yield";
-  public static final String DURATION = "Duration";
+  public static final String MACAULAY_DURATION = "Macaulay Duration";
   public static final String CONVEXITY = "Convexity";
   public static final String Z_SPREAD = "Z Spread";
   

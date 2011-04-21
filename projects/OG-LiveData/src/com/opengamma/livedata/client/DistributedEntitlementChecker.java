@@ -38,7 +38,7 @@ public class DistributedEntitlementChecker {
   /**
    * If no response from server is received within this period of time, throw exception
    */
-  public static final long TIMEOUT_MS = 30000;
+  public static final long TIMEOUT_MS = 5000;
   
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
   private final FudgeRequestSender _requestSender;

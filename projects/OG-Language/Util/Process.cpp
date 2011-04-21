@@ -198,14 +198,12 @@ bool CProcess::Wait (unsigned long lTimeout) {
 CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameters) {
 	LOGINFO (TEXT ("Running ") << pszExecutable);
 #ifdef _WIN32
-	CDllVersion oVersion;
 	STARTUPINFO si;
 	ZeroMemory (&si, sizeof (si));
 	si.cb = sizeof (si);
 	PROCESS_INFORMATION pi;
 	DWORD dwFlags = 0;
 #ifdef _DEBUG
-	si.lpTitle = (TCHAR*)oVersion.GetProductName ();
 	dwFlags |= CREATE_NEW_CONSOLE;
 #else /* ifdef _DEBUG */
 	dwFlags |= CREATE_NO_WINDOW;

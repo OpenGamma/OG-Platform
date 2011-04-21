@@ -1,0 +1,12 @@
+/*
+ * Resize bar
+ *
+ * @colordef #487287; default OG turkwise blue
+ */
+
+.OG-resizeBar {
+  background-color: #487287;
+  cursor: e-resize;
+  float: left;
+  width: 2px;
+}

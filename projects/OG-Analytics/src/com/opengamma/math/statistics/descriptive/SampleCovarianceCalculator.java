@@ -11,11 +11,23 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
+ * Calculates the sample covariance of two series of data, {@latex.inline $x_1, x_2, \\dots, x_n$} and {@latex.inline $y_1, y_2, \\dots, y_n$}.
+ * <p>
+ * The sample covariance is given by:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{align*}
+ * \\text{cov} = \\frac{1}{n-1}\\sum_{i=1}^n (x_i - \\overline{x})(y_i - \\overline{y})
+ * \\end{align*}
+ * } 
+ * where {@latex.inline $\\overline{x}$ and $\\overline{y}$} are the means of the two series.
  */
 public class SampleCovarianceCalculator implements Function<double[], Double> {
-  private final Function1D<double[], Double> _meanCalculator = new MeanCalculator();
+  private static final Function1D<double[], Double> MEAN_CALCULATOR = new MeanCalculator();
 
+  /**
+   * @param x The array of data, not null. The first and second elements must be arrays of data, neither of which is null or has less than two elements.
+   * @return The sample covariance
+   */
   @Override
   public Double evaluate(final double[]... x) {
     Validate.notNull(x, "x");
@@ -25,8 +37,8 @@ public class SampleCovarianceCalculator implements Function<double[], Double> {
     Validate.isTrue(x1.length > 1);
     final int n = x1.length;
     Validate.isTrue(x2.length == n);
-    final double mean1 = _meanCalculator.evaluate(x1);
-    final double mean2 = _meanCalculator.evaluate(x2);
+    final double mean1 = MEAN_CALCULATOR.evaluate(x1);
+    final double mean2 = MEAN_CALCULATOR.evaluate(x2);
     double sum = 0;
     for (int i = 0; i < n; i++) {
       sum += (x1[i] - mean1) * (x2[i] - mean2);

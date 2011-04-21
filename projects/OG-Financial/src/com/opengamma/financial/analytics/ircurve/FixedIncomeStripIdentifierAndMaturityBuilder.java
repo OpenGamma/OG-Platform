@@ -18,7 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -206,7 +205,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   
   private SwapSecurity getTenorSwap(InterpolatedYieldCurveSpecification spec, FixedIncomeStripWithIdentifier strip, Map<Identifier, Double> marketValues) {
     Identifier swapIdentifier = strip.getSecurity();
-    Double rate = marketValues.get(swapIdentifier);
+    //Double rate = marketValues.get(swapIdentifier);
     LocalDate curveDate = spec.getCurveDate();
     InMemoryConventionBundleMaster refRateRepo = new InMemoryConventionBundleMaster();
     ConventionBundleSource source = new DefaultConventionBundleSource(refRateRepo);
@@ -227,7 +226,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("Could not get initial rate");
     }
     double spread = 0;
-    double fixedRate = rate;
+    //double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     SwapSecurity swap =  new SwapSecurity(tradeDate, 
                                           effectiveDate, 

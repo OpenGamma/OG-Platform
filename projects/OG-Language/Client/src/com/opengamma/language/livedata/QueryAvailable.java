@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/livedata/QueryAvailable.proto:12(10)
 package com.opengamma.language.livedata;
 public class QueryAvailable extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
   public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) { return visitor.visitQueryAvailable (this, data); }

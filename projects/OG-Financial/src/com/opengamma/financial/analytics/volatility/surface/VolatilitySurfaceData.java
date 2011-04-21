@@ -16,6 +16,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Data structure to hold a particular volatility surface's data points.  Note no interpolation or fitting is done in this code.
+ * @param <X> Type of the x-data
+ * @param <Y> Type of the y-data
  */
 public class VolatilitySurfaceData<X, Y> {
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.region;
 
+import static com.opengamma.util.EnumUtils.getEnumFromString;
+
 import java.net.URI;
 
 import javax.time.calendar.TimeZone;
@@ -37,7 +39,7 @@ import com.opengamma.util.money.Currency;
  */
 @Path("/regions/{regionId}")
 public class WebRegionResource extends AbstractWebRegionResource {
-
+  
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -89,7 +91,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   public Response post(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
-      @FormParam("classification") RegionClassification classification,
+      @FormParam("classification") String classification,
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
@@ -102,12 +104,13 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    if (name == null || classification == null) {
+    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    if (name == null || regionClassification == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
-      if (classification == null) {
+      if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
       String html = getFreemarker().build("regions/region-add.ftl", out);
@@ -116,11 +119,10 @@ public class WebRegionResource extends AbstractWebRegionResource {
     if (fullName == null) {
       fullName = name;
     }
-    URI uri = addRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    URI uri = addRegion(name, fullName, regionClassification, countryISO, currencyISO, timeZoneId);
     return Response.seeOther(uri).build();
   }
   
-
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -172,7 +174,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   public Response put(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
-      @FormParam("classification") RegionClassification classification,
+      @FormParam("classification") String classification,
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
@@ -185,12 +187,13 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    if (name == null || classification == null) {
+    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    if (name == null || regionClassification == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
-      if (classification == null) {
+      if (regionClassification == null) {
         out.put("err_classificationMissing", true);
       }
       String html = getFreemarker().build("regions/region-update.ftl", out);
@@ -199,7 +202,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     if (fullName == null) {
       fullName = name;
     }
-    URI uri = updateRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    URI uri = updateRegion(name, fullName, regionClassification, countryISO, currencyISO, timeZoneId);
     return Response.seeOther(uri).build();
   }
   
@@ -209,7 +212,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   public Response putJSON(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
-      @FormParam("classification") RegionClassification classification,
+      @FormParam("classification") String classification,
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
@@ -222,13 +225,14 @@ public class WebRegionResource extends AbstractWebRegionResource {
     countryISO = StringUtils.trimToNull(countryISO);
     currencyISO = StringUtils.trimToNull(currencyISO);
     timeZoneId = StringUtils.trimToNull(timeZoneId);
-    if (name == null || classification == null) {
+    RegionClassification regionClassification = getEnumFromString(RegionClassification.class, classification);
+    if (name == null || regionClassification == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
     if (fullName == null) {
       fullName = name;
     }
-    updateRegion(name, fullName, classification, countryISO, currencyISO, timeZoneId);
+    updateRegion(name, fullName, regionClassification, countryISO, currencyISO, timeZoneId);
     return Response.ok().build();
   }
 

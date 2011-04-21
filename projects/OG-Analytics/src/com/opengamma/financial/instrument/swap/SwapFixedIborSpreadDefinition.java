@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.swap;
@@ -21,9 +21,10 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a fixed for Ibor+spread payments swap. Both legs are in the same currency.
  */
 public class SwapFixedIborSpreadDefinition extends SwapDefinition<CouponFixedDefinition, CouponIborSpreadDefinition> {
+
   /**
    * Constructor of the fixed-ibor swap from its two legs.
    * @param fixedLeg The fixed leg.
@@ -60,7 +61,6 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition<CouponFixedDef
 
   @SuppressWarnings("unchecked")
   @Override
-  // TODO: review this!
   public FixedCouponSwap<Payment> toDerivative(LocalDate date, String... yieldCurveNames) {
     final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
     final GenericAnnuity<? extends Payment> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);

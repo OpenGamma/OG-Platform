@@ -1,7 +1,6 @@
 // Automatically created - do not modify
 ///CLOVER:OFF
 // CSOFF: Generated File
-// Created from com/opengamma/language/connector/UserMessagePayload.proto:13(10)
 package com.opengamma.language.connector;
 public class UserMessagePayload implements java.io.Serializable {
           public static final UserMessagePayload EMPTY_PAYLOAD = new UserMessagePayload ();

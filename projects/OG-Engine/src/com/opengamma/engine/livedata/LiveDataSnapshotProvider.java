@@ -79,4 +79,11 @@ public interface LiveDataSnapshotProvider {
    * @param snapshot  the time of the snapshot.
    */
   void releaseSnapshot(long snapshot);
+  
+  /**
+   * Removes a listener.
+   * 
+   * @param listener  the listener to remove
+   */
+  void removeListener(LiveDataSnapshotListener listener);
 }

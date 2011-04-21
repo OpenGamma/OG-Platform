@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,10 @@ import javax.management.ObjectName;
 
 import net.sf.ehcache.CacheException;
 
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider.Statistics;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +25,9 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   
   private final TotallingGraphStatisticsGathererProvider _statisticsProvider;
   
-  private final com.opengamma.engine.view.View _view;
+  private final UniqueIdentifier _viewProcessId;
+  
+  private final String _viewDefinitionName;
   
   private final String _calcConfigName;
 
@@ -32,18 +36,19 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   /**
    * Create a management GraphExecutionStatistics
    * 
-   * @param view the view
-   * @param statisticsProvider the statistics provider
-   * @param viewProcessorName the view processor name
-   * @param calcConfigName the calculation configuration name
+   * @param viewProcess  the view process
+   * @param statisticsProvider  the statistics provider
+   * @param viewProcessorId  the view processor identifier
+   * @param calcConfigName  the calculation configuration name
    */
-  public GraphExecutionStatistics(com.opengamma.engine.view.View view, TotallingGraphStatisticsGathererProvider statisticsProvider, String viewProcessorName, String calcConfigName) {
+  public GraphExecutionStatistics(ViewProcess viewProcess, TotallingGraphStatisticsGathererProvider statisticsProvider, UniqueIdentifier viewProcessorId, String calcConfigName) {
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
-    ArgumentChecker.notNull(viewProcessorName, "ViewProcessor Name");
-    ArgumentChecker.notNull(view, "View");
+    ArgumentChecker.notNull(viewProcessorId, "viewProcessorId");
+    ArgumentChecker.notNull(viewProcess, "View Process");
     ArgumentChecker.notNull(calcConfigName, "calcConfig Name");
-    _objectName = createObjectName(viewProcessorName, view.getName(), calcConfigName);
-    _view = view;
+    _viewProcessId = viewProcess.getUniqueId();
+    _viewDefinitionName = viewProcess.getDefinitionName();
+    _objectName = createObjectName(viewProcessorId, _viewProcessId, calcConfigName);
     _calcConfigName = calcConfigName;
     _statisticsProvider = statisticsProvider;
   }
@@ -51,10 +56,11 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   /**
    * Creates an object name using the scheme "com.opengamma:type=GraphExecutionStatistics,ViewProcessor=<viewProcessorName>,View=<viewName>,name=<calcConfigName>"
    */
-  static ObjectName createObjectName(String viewProcessorName, String viewName, String calcConfigName) {
+  static ObjectName createObjectName(UniqueIdentifier viewProcessorId, UniqueIdentifier viewProcessId, String calcConfigName) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=GraphExecutionStatistics,ViewProcessor=" + viewProcessorName + ",View=" + viewName + ",name=" + calcConfigName);
+      objectName = new ObjectName("com.opengamma:type=GraphExecutionStatistics,ViewProcessor=ViewProcessor " + viewProcessorId.getValue()
+          + ",ViewProcess=ViewProcess " + viewProcessId.getValue() + ",name=" + calcConfigName);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
@@ -62,8 +68,13 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
 
   @Override
-  public String getViewName() {
-    return _view.getName();
+  public UniqueIdentifier getViewProcessId() {
+    return _viewProcessId;
+  }
+  
+  @Override
+  public String getViewDefinitionName() {
+    return _viewDefinitionName;
   }
 
   @Override
@@ -78,10 +89,10 @@ public class GraphExecutionStatistics implements GraphExecutionStatisticsMBean {
   }
   
   private com.opengamma.engine.view.calc.stats.GraphExecutionStatistics getGraphExecutionStatistics() {
-    Statistics statisticsGatherer = _statisticsProvider.getStatisticsGatherer(_view);
+    Statistics statisticsGatherer = _statisticsProvider.getStatisticsGatherer(_viewProcessId);
     List<com.opengamma.engine.view.calc.stats.GraphExecutionStatistics> executionStatistics = statisticsGatherer.getExecutionStatistics();
     for (com.opengamma.engine.view.calc.stats.GraphExecutionStatistics graphExecutionStatistics : executionStatistics) {
-      if (graphExecutionStatistics.getCalcConfigName().equals(_calcConfigName) && graphExecutionStatistics.getViewName().equals(_view.getName())) {
+      if (graphExecutionStatistics.getCalcConfigName().equals(_calcConfigName) && graphExecutionStatistics.getViewProcessId().equals(_viewProcessId)) {
         return graphExecutionStatistics;
       }
     }

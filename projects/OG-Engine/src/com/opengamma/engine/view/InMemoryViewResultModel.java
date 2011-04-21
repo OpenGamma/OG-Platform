@@ -22,12 +22,14 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A simple in-memory implementation of {@link ViewResultModel}.
  */
 public abstract class InMemoryViewResultModel implements ViewResultModel, Serializable {
-  private String _viewName;
+  private UniqueIdentifier _viewProcessId;
+  private UniqueIdentifier _viewCycleId;
   private Instant _valuationTime;
   private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
@@ -35,12 +37,21 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
   
   @Override
-  public String getViewName() {
-    return _viewName;
+  public UniqueIdentifier getViewProcessId() {
+    return _viewProcessId;
   }
 
-  public void setViewName(String viewName) {
-    _viewName = viewName;
+  public void setViewProcessId(UniqueIdentifier viewProcessId) {
+    _viewProcessId = viewProcessId;
+  }
+  
+  @Override
+  public UniqueIdentifier getViewCycleId() {
+    return _viewCycleId;
+  }
+  
+  public void setViewCycleId(UniqueIdentifier viewCycleId) {
+    _viewCycleId = viewCycleId;
   }
 
   @Override
@@ -48,8 +59,8 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
     return _valuationTime;
   }
 
-  public void setValuationTime(Instant inputDataTimestamp) {
-    _valuationTime = inputDataTimestamp;
+  public void setValuationTime(Instant valuationTime) {
+    _valuationTime = valuationTime;
   }
 
   @Override

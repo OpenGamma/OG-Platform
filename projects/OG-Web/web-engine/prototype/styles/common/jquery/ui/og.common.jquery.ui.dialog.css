@@ -1,0 +1,34 @@
+.ui-dialog {}
+
+.ui-dialog-titlebar {
+    background: -moz-linear-gradient(top,  #ccc,  #d7d7d7);
+    background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#d7d7d7));
+    color: #626262;
+    cursor: default;
+    text-shadow: 0 1px 0 #e4e4e4;
+}
+.ui-dialog-title-dialog {}
+
+.ui-dialog-titlebar-close {
+  border: none!important;
+  float: right;
+  width: 12px;
+  padding: 1px!important;
+}
+
+.ui-dialog-content {}
+
+.ui-dialog-content label {
+  display: block;
+  margin: 10px 0 3px 0;
+}
+
+.ui-dialog-content label,
+.ui-dialog-content input,
+.ui-dialog-content select,
+.ui-dialog-content textarea {
+  width: 90%;
+}
+
+.ui-dialog-buttonset button {}
+

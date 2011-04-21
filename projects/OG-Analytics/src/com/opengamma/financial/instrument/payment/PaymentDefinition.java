@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc.
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -41,16 +41,16 @@ public abstract class PaymentDefinition implements FixedIncomeInstrumentDefiniti
   }
 
   /**
-   * Gets the _currency field.
-   * @return The currency
+   * Gets the payment currency.
+   * @return The currency.
    */
   public Currency getCurrency() {
     return _currency;
   }
 
   /**
-   * Gets the paymentDate field.
-   * @return the paymentDate
+   * Gets the payment date.
+   * @return The payment date.
    */
   public ZonedDateTime getPaymentDate() {
     return _paymentDate;

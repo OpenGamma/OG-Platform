@@ -35,13 +35,13 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   /**
    * The start date of the fixing period.
    */
-  private final ZonedDateTime _fixindPeriodStartDate;
+  private final ZonedDateTime _fixingPeriodStartDate;
   /**
    * The end date of the fixing period.
    */
-  private final ZonedDateTime _fixindPeriodEndDate;
+  private final ZonedDateTime _fixingPeriodEndDate;
   /**
-   * The year fraction associated to the fixing period in the Index day count convention.
+   * The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    */
   private final double _fixingPeriodAccrualFactor;
 
@@ -63,9 +63,9 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     Validate.notNull(index, "index");
     _index = index;
-    _fixindPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getBusinessDayConvention(), _index.getCalendar(), _index.getSettlementDays());
-    _fixindPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixindPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
-    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixindPeriodStartDate, _fixindPeriodEndDate);
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getBusinessDayConvention(), _index.getCalendar(), _index.getSettlementDays());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth(), index.getTenor());
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
   }
 
   /**
@@ -131,18 +131,18 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
    * Gets the index field.
-   * @return the index
+   * @return The index.
    */
   public IborIndex getIndex() {
     return _index;
   }
 
   /**
-   * Gets the fixindPeriodStartDate field.
-   * @return the fixindPeriodStartDate
+   * Gets the fixing period start date.
+   * @return The fixing period start date.
    */
   public ZonedDateTime getFixindPeriodStartDate() {
-    return _fixindPeriodStartDate;
+    return _fixingPeriodStartDate;
   }
 
   /**
@@ -150,7 +150,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
    * @return the fixindPeriodEndDate
    */
   public ZonedDateTime getFixindPeriodEndDate() {
-    return _fixindPeriodEndDate;
+    return _fixingPeriodEndDate;
   }
 
   /**
@@ -163,15 +163,15 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   @Override
   public String toString() {
-    return super.toString() + " *Ibor coupon* Index = " + _index + ", Fixing period = [" + _fixindPeriodStartDate + " - " + _fixindPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
+    return super.toString() + " *Ibor coupon* Index = " + _index + ", Fixing period = [" + _fixingPeriodStartDate + " - " + _fixingPeriodEndDate + " - " + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _fixindPeriodEndDate.hashCode();
-    result = prime * result + _fixindPeriodStartDate.hashCode();
+    result = prime * result + _fixingPeriodEndDate.hashCode();
+    result = prime * result + _fixingPeriodStartDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_fixingPeriodAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -191,10 +191,10 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       return false;
     }
     final CouponIborDefinition other = (CouponIborDefinition) obj;
-    if (!ObjectUtils.equals(_fixindPeriodEndDate, other._fixindPeriodEndDate)) {
+    if (!ObjectUtils.equals(_fixingPeriodEndDate, other._fixingPeriodEndDate)) {
       return false;
     }
-    if (!ObjectUtils.equals(_fixindPeriodStartDate, other._fixindPeriodStartDate)) {
+    if (!ObjectUtils.equals(_fixingPeriodStartDate, other._fixingPeriodStartDate)) {
       return false;
     }
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {

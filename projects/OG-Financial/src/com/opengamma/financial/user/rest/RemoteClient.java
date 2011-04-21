@@ -13,7 +13,7 @@ import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
 import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
-import com.opengamma.financial.view.rest.RemoteManagableViewDefinitionRepository;
+import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -68,7 +68,7 @@ public class RemoteClient {
 
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     if (_viewDefinitionRepository == null) {
-      _viewDefinitionRepository = new RemoteManagableViewDefinitionRepository(_baseTarget.getURI());
+      _viewDefinitionRepository = new RemoteManageableViewDefinitionRepository(_baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH).getURI());
     }
     return _viewDefinitionRepository;
   }

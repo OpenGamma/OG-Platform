@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,6 +19,7 @@ import com.opengamma.engine.test.TestDependencyGraphExecutor;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -28,7 +29,7 @@ public class BatchResultWriterExecutorTest {
   @Test
   public void basicOperation() throws Exception {
     
-    CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     CalculationJobResult result = new CalculationJobResult(spec, 
         500, 
         Collections.<CalculationJobResultItem>emptyList(),

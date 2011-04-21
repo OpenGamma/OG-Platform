@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.view;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import java.util.Set;
+
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -19,26 +19,23 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.security.SecuritySource;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.view.ViewInternal;
+import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessorInternal;
-import com.opengamma.engine.view.cache.ViewComputationCacheSource;
-import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
-import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.engine.view.calc.EngineResourceManager;
+import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.master.listener.MasterChangeListener;
@@ -74,66 +71,6 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public ViewComputationCacheSource getComputationCacheSource() {
-      return null;
-    }
-
-    @Override
-    public JobDispatcher getComputationJobDispatcher() {
-      return null;
-    }
-
-    @Override
-    public DependencyGraphExecutorFactory<?> getDependencyGraphExecutorFactory() {
-      return null;
-    }
-
-    @Override
-    public CompiledFunctionService getFunctionCompilationService() {
-      return _compiledFunctionService;
-    }
-
-    @Override
-    public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-      return null;
-    }
-
-    @Override
-    public LiveDataClient getLiveDataClient() {
-      return null;
-    }
-
-    @Override
-    public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
-      return null;
-    }
-
-    @Override
-    public PositionSource getPositionSource() {
-      return null;
-    }
-
-    @Override
-    public SecuritySource getSecuritySource() {
-      return null;
-    }
-
-    @Override
-    public ViewInternal getView(String name, UserPrincipal credentials) {
-      return null;
-    }
-
-    @Override
-    public ViewPermissionProvider getViewPermissionProvider() {
-      return null;
-    }
-
-    @Override
-    public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
-      return null;
-    }
-
-    @Override
     public Future<Runnable> suspend(final ExecutorService executorService) {
       return executorService.submit(new Runnable() {
         @Override
@@ -159,11 +96,6 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public Set<String> getViewNames() {
-      return null;
-    }
-
-    @Override
     public synchronized boolean isRunning() {
       return _running;
     }
@@ -183,6 +115,57 @@ public class ViewProcessorManagerTest {
     public Boolean isSuspended(final long timeout) throws InterruptedException {
       return _suspendState.poll(timeout, TimeUnit.MILLISECONDS);
     }
+
+    @Override
+    public UniqueIdentifier getUniqueId() {
+      return null;
+    }
+
+    @Override
+    public ViewDefinitionRepository getViewDefinitionRepository() {
+      return null;
+    }
+
+    @Override
+    public Collection<? extends ViewProcess> getViewProcesses() {
+      return null;
+    }
+
+    @Override
+    public ViewProcess getViewProcess(UniqueIdentifier viewProcessId) {
+      return null;
+    }
+    
+    @Override
+    public Collection<ViewClient> getViewClients() {
+      return null;
+    }
+
+    @Override
+    public ViewClient createViewClient(UserPrincipal clientUser) {
+      return null;
+    }
+
+    @Override
+    public ViewClient getViewClient(UniqueIdentifier clientId) {
+      return null;
+    }
+
+    @Override
+    public CompiledFunctionService getFunctionCompilationService() {
+      return _compiledFunctionService;
+    }
+
+    @Override
+    public ViewProcessorEventListenerRegistry getViewProcessorEventListenerRegistry() {
+      return null;
+    }
+
+    @Override
+    public EngineResourceManager<ViewCycle> getViewCycleManager() {
+      return null;
+    }
+
   }
 
   //-------------------------------------------------------------------------

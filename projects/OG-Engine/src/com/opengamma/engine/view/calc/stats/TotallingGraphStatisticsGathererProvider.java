@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Maintains ever increasing tallies.
@@ -28,17 +28,17 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
    */
   public static final class Statistics implements GraphExecutorStatisticsGatherer {
 
-    private final String _viewName;
+    private final UniqueIdentifier _viewProcessId;
     private final ConcurrentMap<String, GraphExecutionStatistics> _statistics = new ConcurrentHashMap<String, GraphExecutionStatistics>();
 
-    private Statistics(final String viewName) {
-      _viewName = viewName;
+    private Statistics(final UniqueIdentifier viewProcessId) {
+      _viewProcessId = viewProcessId;
     }
 
     protected GraphExecutionStatistics getOrCreateConfiguration(final String calcConfig) {
       GraphExecutionStatistics stats = _statistics.get(calcConfig);
       if (stats == null) {
-        stats = new GraphExecutionStatistics(_viewName, calcConfig);
+        stats = new GraphExecutionStatistics(_viewProcessId, calcConfig);
         final GraphExecutionStatistics newStats = _statistics.putIfAbsent(calcConfig, stats);
         if (newStats != null) {
           stats = newStats;
@@ -73,15 +73,15 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
       return _statistics.isEmpty();
     }
     
-    public String getViewName() {
-      return _viewName;
+    public UniqueIdentifier getViewProcessId() {
+      return _viewProcessId;
     }
 
   }
 
   @Override
-  protected Statistics createStatisticsGatherer(final View view) {
-    return new Statistics(view.getName());
+  protected Statistics createStatisticsGatherer(final UniqueIdentifier viewProcessId) {
+    return new Statistics(viewProcessId);
   }
 
   @Override

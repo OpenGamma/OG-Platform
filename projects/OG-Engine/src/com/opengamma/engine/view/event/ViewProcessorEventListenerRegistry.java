@@ -1,15 +1,18 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.event;
 
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
- * Registered listeners for registering and unregistering ViewProcessorEventListener and sending notifications to registrants.
- *  <p/>
+ * Registered listeners for registering and unregistering ViewProcessorEventListener and sending notifications to
+ * registrants.
+ *  <p>
  * There is one of these per ViewProcessor. It is a composite listener.
  */
 public class ViewProcessorEventListenerRegistry implements ViewProcessorEventListener {
@@ -20,19 +23,33 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
   private final CopyOnWriteArraySet<ViewProcessorEventListener> _listeners = new CopyOnWriteArraySet<ViewProcessorEventListener>();
 
   @Override
-  public void notifyViewAdded(String viewName) {
+  public void notifyViewProcessAdded(UniqueIdentifier viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
-      listener.notifyViewAdded(viewName);
+      listener.notifyViewProcessAdded(viewProcessId);
     }
   }
 
   @Override
-  public void notifyViewRemoved(String viewName) {
+  public void notifyViewProcessRemoved(UniqueIdentifier viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
-      listener.notifyViewRemoved(viewName);
+      listener.notifyViewProcessRemoved(viewProcessId);
+    }
+  }
+  
+  @Override
+  public void notifyViewClientAdded(UniqueIdentifier viewClientId) {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewClientAdded(viewClientId);
     }
   }
 
+  @Override
+  public void notifyViewClientRemoved(UniqueIdentifier viewClientId) {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewClientRemoved(viewClientId);
+    }
+  }
+  
   /**
    * Adds a listener to the notification service. No guarantee is made that listeners will be
    * notified in the order they were added.

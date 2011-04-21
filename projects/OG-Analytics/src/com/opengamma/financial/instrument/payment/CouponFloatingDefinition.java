@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -16,13 +16,21 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a generic floating payment coupon.
  */
 public class CouponFloatingDefinition extends CouponDefinition {
 
-  // TODO: abstract class?
+  /**
+   * The coupon fixing date.
+   */
   private final ZonedDateTime _fixingDate;
+  /**
+   * The flag indicating if the coupon has already fixed (true) or not (false).
+   */
   private boolean _isFixed;
+  /**
+   * If isFixed, contains the fixing (reset) rate.
+   */
   private double _fixedRate;
 
   /**
@@ -66,15 +74,15 @@ public class CouponFloatingDefinition extends CouponDefinition {
   }
 
   /**
-   * Gets the fixingDate field.
-   * @return the fixingDate
+   * Gets the fixing date.
+   * @return The fixing date.
    */
   public ZonedDateTime getFixingDate() {
     return _fixingDate;
   }
 
   /**
-   * Gets the isFixed field.
+   * Gets the isFixed status.
    * @return the isFixed
    */
   public boolean isFixed() {
@@ -82,8 +90,8 @@ public class CouponFloatingDefinition extends CouponDefinition {
   }
 
   /**
-   * Gets the fixedRate field. If isFixed is false, the result is undefined.
-   * @return the fixedRate
+   * Gets the fixed rate. If isFixed is false, the result is undefined.
+   * @return The fixed rate.
    */
   public double getFixedRate() {
     return _fixedRate;

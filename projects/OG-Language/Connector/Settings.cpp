@@ -47,16 +47,6 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_START_TIMEOUT		30000	/* 30s default */
 #define DEFAULT_STOP_TIMEOUT		2000	/* 2s default */
 
-CSettings::CSettings () : CAbstractSettings () {
-	m_pszDefaultServiceExecutable = NULL;
-}
-
-CSettings::~CSettings () {
-	if (m_pszDefaultServiceExecutable) {
-		free (m_pszDefaultServiceExecutable);
-	}
-}
-
 const TCHAR *CSettings::GetConnectionPipe () {
 	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
@@ -93,8 +83,10 @@ int CSettings::GetSendTimeout () {
 	return GetSendTimeout (DEFAULT_SEND_TIMEOUT);
 }
 
-const TCHAR *CSettings::GetServiceExecutable () {
-	if (!m_pszDefaultServiceExecutable) {
+class CServiceExecutableDefault : public CAbstractSettingProvider {
+protected:
+	TCHAR *CalculateString () {
+		TCHAR *pszExecutable;
 #ifdef _WIN32
 		// TODO: if the service is installed, get the executable from the service settings
 #endif /* ifdef _WIN32 */
@@ -139,15 +131,21 @@ const TCHAR *CSettings::GetServiceExecutable () {
 			}
 			close (file);
 #endif /* ifdef _WIN32 */
-			m_pszDefaultServiceExecutable = _tcsdup (szPath);
+			pszExecutable = _tcsdup (szPath);
 		} while (false);
-		if (m_pszDefaultServiceExecutable) {
-			LOGDEBUG (TEXT ("Default service executable ") << m_pszDefaultServiceExecutable);
+		if (pszExecutable) {
+			LOGDEBUG (TEXT ("Default service executable ") << pszExecutable);
 		} else {
-			m_pszDefaultServiceExecutable = _tcsdup (DEFAULT_SERVICE_EXECUTABLE);
+			pszExecutable = _tcsdup (DEFAULT_SERVICE_EXECUTABLE);
 		}
+		return pszExecutable;
 	}
-	return GetServiceExecutable (m_pszDefaultServiceExecutable);
+};
+
+static CServiceExecutableDefault g_oServiceExecutableDefault;
+
+const TCHAR *CSettings::GetServiceExecutable () {
+	return GetServiceExecutable (&g_oServiceExecutableDefault);
 }
 
 const TCHAR *CSettings::GetServiceName () {

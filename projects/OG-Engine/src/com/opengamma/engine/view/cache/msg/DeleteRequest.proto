@@ -10,7 +10,7 @@ namespace com.opengamma.engine.view.cache.msg {
 
   message DeleteRequest extends CacheMessage {
   
-    required string viewName;
+    required id.UniqueIdentifier viewProcessId;
     required string calculationConfigurationName;
     required long snapshotTimestamp;
     

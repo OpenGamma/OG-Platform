@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.instrument.payment;
@@ -30,7 +30,6 @@ import com.opengamma.util.money.Currency;
  */
 public class CouponCMSDefinition extends CouponFloatingDefinition {
 
-  //TODO: change to a swap skeleton?
   /**
    * The swap underlying the CMS coupon.
    */
@@ -111,8 +110,8 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
   }
 
   /**
-   * Gets the underlyingSwap field.
-   * @return the underlyingSwap
+   * Gets the underlying swap.
+   * @return The underlying swap
    */
   public SwapFixedIborDefinition getUnderlyingSwap() {
     return _underlyingSwap;
@@ -174,7 +173,6 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
       final double settlementTime = actAct.getDayCountFraction(zonedDate, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
       FixedCouponSwap<Payment> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
       //Implementation remark: SwapFixedIbor can not be used as the first coupon may have fixed already and one CouponIbor is now fixed.
-      //TODO: Definition has no spread and time version has one: to be standardized.
       return new CouponCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime);
     }
   }

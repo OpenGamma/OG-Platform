@@ -21,7 +21,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a physical swaption with SABR model.
+ *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
  */
 public class SwaptionPhysicalFixedIborSABRMethod {
 
@@ -41,23 +41,25 @@ public class SwaptionPhysicalFixedIborSABRMethod {
     Validate.notNull(sabrData);
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
     double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData);
-    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
-    // TODO: A better notion of maturity may be required (using period?)
+    double pvbpModified = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getSABRParameter().getDayCount(), sabrData);
+    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    double forwardModified = forward * pvbp / pvbpModified;
+    double strikeModified = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, sabrData);
     double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
-    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation: option required to pass the strike (in case the swap has non-constant coupon).
+    // TODO: A better notion of maturity may be required (using period?)
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
+    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     BlackPriceFunction blackFunction = new BlackPriceFunction();
-    double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strike, forward);
-    BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
+    double volatility = sabrData.getSABRParameter().getVolatility(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
+    BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
     Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     double price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return price;
   }
 
   /**
-   * Computes the present value rate sensitivity of a physical delivery European swaption in the SABR model.
+   * Computes the present value rate sensitivity to rates of a physical delivery European swaption in the SABR model.
    * @param swaption The swaption.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.

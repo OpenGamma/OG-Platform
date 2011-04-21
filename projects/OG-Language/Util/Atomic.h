@@ -72,6 +72,14 @@ public:
 		return (PTYPE)apr_atomic_xchgptr ((volatile void**)&m_pValue, (void*)pNewValue);
 #endif
 	}
+	PTYPE CompareAndSet (PTYPE pNewValue, PTYPE pCompareWith) {
+#ifdef _WIN32
+		return (PTYPE)InterlockedCompareExchangePointer ((void * volatile *)&m_pValue, (void*)pNewValue, (void*)pCompareWith);
+#else /* ifdef _WIN32 */
+		// Is the signature for the method wrong; shouldn't it be void * volatile * or volatile PVOID *?
+		return (PTYPE)apr_atomic_casptr ((volatile void**)&m_pValue, (void*)pNewValue, (void*)pCompareWith);
+#endif /* ifdef _WIN32 */
+	}
 	PTYPE Get () {
 		return m_pValue;
 	}

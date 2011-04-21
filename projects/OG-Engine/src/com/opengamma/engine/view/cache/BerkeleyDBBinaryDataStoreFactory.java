@@ -22,7 +22,7 @@ public class BerkeleyDBBinaryDataStoreFactory implements BinaryDataStoreFactory 
 
   @Override
   public BinaryDataStore createDataStore(ViewComputationCacheKey cacheKey) {
-    String dbName = cacheKey.getViewName() + "-" + cacheKey.getCalculationConfigurationName() + "-" + cacheKey.getSnapshotTimestamp();
+    String dbName = cacheKey.getViewProcessId() + "-" + cacheKey.getCalculationConfigurationName() + "-" + cacheKey.getSnapshotTimestamp();
     BerkeleyDBBinaryDataStore dataStore = new BerkeleyDBBinaryDataStore(_dbEnvironment, dbName);
     dataStore.start();
     return dataStore;

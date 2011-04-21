@@ -26,7 +26,9 @@ import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price of a CMS cap/floor by swaption replication with SABR Hagan formula.
+ *  Class used to compute the price of a CMS cap/floor by swaption replication on a SABR formula.
+ *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
+ *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  */
 public class CapFloorCMSReplicationSABRMethod {
 
@@ -40,9 +42,12 @@ public class CapFloorCMSReplicationSABRMethod {
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
   /**
    * Range of the integral. Used only for caps. Represent the approximation of infinity in the strike dimension.
+   * The range is [strike, strike+integrationInterval].
    */
   private double _integrationInterval;
-
+  /**
+   * Minimal number of integration steps in the replication.
+   */
   private final int _nbIteration = 6;
 
   /** 
@@ -61,7 +66,7 @@ public class CapFloorCMSReplicationSABRMethod {
   }
 
   /**
-   * Gets the _integrationInterval field.
+   * Gets the integration interval.
    * @return The integration interval.
    */
   public double getIntegrationInterval() {
@@ -69,18 +74,18 @@ public class CapFloorCMSReplicationSABRMethod {
   }
 
   /**
-   * Sets the _integrationInterval field.
-   * @param integrationInterval  the _integrationInterval
+   * Sets the integration interval.
+   * @param integrationInterval The integration interval
    */
   public void setIntegrationInterval(double integrationInterval) {
     this._integrationInterval = integrationInterval;
   }
 
   /**
-   * Compute the price of a CMS cap/floor by replication in SABR framework. 
+   * Compute the present value of a CMS cap/floor by replication in SABR framework. 
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle.
-   * @return The price.
+   * @return The present value.
    */
   public double presentValue(CapFloorCMS cmsCapFloor, SABRInterestRateDataBundle sabrData) {
     SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
@@ -88,7 +93,6 @@ public class CapFloorCMSReplicationSABRMethod {
     double forward = PRC.visit(underlyingSwap, sabrData);
     double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
-    //    double factor = discountFactor / integrant.h(forward) * integrant.g(forward);
     double strike = cmsCapFloor.geStrike();
     double strikePart = discountFactor * integrant.k(strike) * integrant.g(forward) / integrant.h(forward) * integrant.bs(strike);
     double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
@@ -108,6 +112,12 @@ public class CapFloorCMSReplicationSABRMethod {
     return priceCMS;
   }
 
+  /**
+   * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in SABR framework. 
+   * @param cmsCapFloor The CMS cap/floor.
+   * @param sabrData The SABR data bundle.
+   * @return The present value sensitivity to curves.
+   */
   public PresentValueSensitivity presentValueSensitivity(CapFloorCMS cmsCapFloor, SABRInterestRateDataBundle sabrData) {
     SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
     FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -162,6 +172,12 @@ public class CapFloorCMSReplicationSABRMethod {
     return result;
   }
 
+  /**
+   * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework. 
+   * @param cmsCapFloor The CMS cap/floor.
+   * @param sabrData The SABR data bundle.
+   * @return The present value sensitivity to SABR parameters.
+   */
   public PresentValueSABRSensitivity presentValueSABRSensitivity(CapFloorCMS cmsCapFloor, SABRInterestRateDataBundle sabrData) {
     SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
     FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -342,6 +358,7 @@ public class CapFloorCMSReplicationSABRMethod {
   /**
    * Inner class to implement the integration used in price replication.
    */
+  //TODO Refactor CMSDeltaIntegrant and CMSVegaIntegrant as extension of CMSIntegrant
   private class CMSDeltaIntegrant extends Function1D<Double, Double> {
     private static final double EPS = 1E-10;
     private final int _nbFixedPeriod;

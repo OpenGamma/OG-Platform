@@ -90,16 +90,25 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
         coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCmsIndex(), strike, isCap);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double geStrike() {
     return _strike;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isCap() {
     return _isCap;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public double payOff(double fixing) {
     double omega = (_isCap) ? 1.0 : -1.0;

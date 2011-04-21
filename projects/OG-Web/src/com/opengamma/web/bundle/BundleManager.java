@@ -1,20 +1,15 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.web.bundle;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -23,7 +18,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BundleManager {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(BundleManager.class);
   /**
    * Map containing bundles referenced by id
    */

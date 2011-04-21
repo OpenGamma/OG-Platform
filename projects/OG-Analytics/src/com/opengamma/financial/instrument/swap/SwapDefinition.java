@@ -37,16 +37,16 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
   }
 
   /**
-   * Gets the firstLeg field.
-   * @return the first Leg
+   * Gets the first leg.
+   * @return The first leg.
    */
   public AnnuityDefinition<P1> getFirstLeg() {
     return _firstLeg;
   }
 
   /**
-   * Gets the secondLeg field.
-   * @return the second Leg
+   * Gets the second leg.
+   * @return The second leg.
    */
   public AnnuityDefinition<P2> getSecondLeg() {
     return _secondLeg;

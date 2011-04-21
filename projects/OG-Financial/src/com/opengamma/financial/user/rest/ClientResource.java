@@ -22,7 +22,7 @@ import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
 import com.opengamma.financial.user.UserPortfolioMaster;
 import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
-import com.opengamma.financial.view.rest.ViewDefinitionsResource;
+import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
 
 /**
  * RESTful resource representing a user's client session.
@@ -63,7 +63,7 @@ public class ClientResource {
   private DataPortfoliosResource _portfolioMaster;
   private DataPositionsResource _positionMaster;
   private SecurityMasterResource _securitiesResource;
-  private ViewDefinitionsResource _viewDefinitionsResource;
+  private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
   private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
 
   /**
@@ -144,13 +144,13 @@ public class ClientResource {
   }
 
   @Path(VIEW_DEFINITIONS_PATH)
-  public ViewDefinitionsResource getViewDefinitions() {
+  public DataManageableViewDefinitionRepositoryResource getViewDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_viewDefinitionsResource == null) {
       s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
-      _viewDefinitionsResource = new ViewDefinitionsResource(getUriInfo(), new UserManageableViewDefinitionRepository(getUserName(), getClientName(), _usersResourceContext.getDataTracker(),
-          _usersResourceContext.getViewDefinitionRepository()),
-          getFudgeContext());
+      _viewDefinitionsResource = new DataManageableViewDefinitionRepositoryResource(
+          new UserManageableViewDefinitionRepository(getUserName(), getClientName(),
+              _usersResourceContext.getDataTracker(), _usersResourceContext.getViewDefinitionRepository()));
     }
     return _viewDefinitionsResource;
   }

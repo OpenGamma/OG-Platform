@@ -154,7 +154,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
 
   @Override
   public ViewComputationCache getCache(CalculationJobSpecification spec) {
-    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
+    ViewComputationCache cache = getCacheSource().getCache(spec.getViewProcessId(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     return cache;
   }
 

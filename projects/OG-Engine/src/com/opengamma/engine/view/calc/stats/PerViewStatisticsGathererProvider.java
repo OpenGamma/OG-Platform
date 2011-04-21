@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Partial implementation of a {@link GraphExecutorStatisticsGathererProvider} that delivers a per-view
@@ -26,14 +26,14 @@ import com.opengamma.engine.view.View;
  */
 public abstract class PerViewStatisticsGathererProvider<T extends GraphExecutorStatisticsGatherer> implements GraphExecutorStatisticsGathererProvider {
 
-  private final ConcurrentMap<String, T> _statisticsGatherers = new ConcurrentHashMap<String, T>();
+  private final ConcurrentMap<UniqueIdentifier, T> _statisticsGatherers = new ConcurrentHashMap<UniqueIdentifier, T>();
 
   @Override
-  public T getStatisticsGatherer(final View view) {
-    T stats = _statisticsGatherers.get(view.getName());
+  public T getStatisticsGatherer(final UniqueIdentifier viewId) {
+    T stats = _statisticsGatherers.get(viewId);
     if (stats == null) {
-      stats = createStatisticsGatherer(view);
-      final T newStats = _statisticsGatherers.putIfAbsent(view.getName(), stats);
+      stats = createStatisticsGatherer(viewId);
+      final T newStats = _statisticsGatherers.putIfAbsent(viewId, stats);
       if (newStats != null) {
         stats = newStats;
       }
@@ -41,7 +41,7 @@ public abstract class PerViewStatisticsGathererProvider<T extends GraphExecutorS
     return stats;
   }
 
-  protected abstract T createStatisticsGatherer(View view);
+  protected abstract T createStatisticsGatherer(UniqueIdentifier viewId);
 
   public List<T> getViewStatistics() {
     return new ArrayList<T>(_statisticsGatherers.values());
@@ -49,9 +49,9 @@ public abstract class PerViewStatisticsGathererProvider<T extends GraphExecutorS
 
   public void dropStatisticsBefore(final InstantProvider instantProvider) {
     final Instant dropBefore = Instant.of(instantProvider);
-    final Iterator<Map.Entry<String, T>> iterator = _statisticsGatherers.entrySet().iterator();
+    final Iterator<Map.Entry<UniqueIdentifier, T>> iterator = _statisticsGatherers.entrySet().iterator();
     while (iterator.hasNext()) {
-      final Map.Entry<String, T> entry = iterator.next();
+      final Map.Entry<UniqueIdentifier, T> entry = iterator.next();
       if (dropStatisticsBefore(entry.getValue(), dropBefore)) {
         iterator.remove();
       }
