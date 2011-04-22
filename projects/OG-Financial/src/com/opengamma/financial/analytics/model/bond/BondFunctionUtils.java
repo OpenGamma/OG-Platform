@@ -25,4 +25,14 @@ public class BondFunctionUtils {
     final BondSecurity bond = (BondSecurity) target.getSecurity();
     return bond.getCurrency().getUniqueId();
   }
+  
+  public static String getCountryName(ComputationTarget target) {
+    final BondSecurity bond = (BondSecurity) target.getSecurity();
+    return bond.getIssuerDomicile();
+  }
+  
+  public static String getCurrencyName(final ComputationTarget target) {
+    final BondSecurity bond = (BondSecurity) target.getSecurity();
+    return bond.getCurrency().getCode();
+  }
 }

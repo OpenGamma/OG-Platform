@@ -1,4 +1,17 @@
+<% set j = d['javadoc-data.json|javadocs'] %>
+
 \section{Curves}
+
+Paragraph describing what are curves
+
+The following classes implement curves.
+
+\begin{fullwidth}
+<% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, 'com.opengamma.math.curve.Curve') %>
+<% set package_name, x, cn = class_name.rpartition(".") %>
+<< indent * "$\hookrightarrow$ " >><< class_name >> \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/api/<< package_name >>.html#class-<<class_name>>}{(api)} \href{http://docs-static.hq.opengamma.com/0.7.0/analytics/javadoc/<< class_name.replace(".","/") >>.html}{(javadoc)}
+<% endfor -%>
+\end{fullwidth}
 
 \section{Surfaces}
 
@@ -9,4 +22,6 @@
 \section{Time Series}
 
 
+\section{Source}
 
+<< d['og_docs_true_primitives.tex|pyg|l'] >>

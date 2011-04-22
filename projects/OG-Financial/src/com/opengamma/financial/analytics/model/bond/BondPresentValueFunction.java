@@ -5,14 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -72,8 +68,7 @@ public abstract class BondPresentValueFunction extends AbstractFunction.NonCompi
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve });
-    double pv = PV_CALCULATOR.visit(bond, bundle);
-    System.err.println(pv);
+    double pv = PV_CALCULATOR.visit(bond, bundle);   
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), 
         createValueProperties().with(ValuePropertyNames.CURVE, curveName).get());
     return Sets.newHashSet(new ComputedValue(specification, pv)); 
@@ -86,24 +81,6 @@ public abstract class BondPresentValueFunction extends AbstractFunction.NonCompi
       return security instanceof BondSecurity;
     }
     return false;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE).get()));
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String curveName = null;
-    for (ValueSpecification input : inputs.keySet()) {
-      if (ValueRequirementNames.YIELD_CURVE.equals(input.getValueName())) {
-        curveName = input.getProperty(ValuePropertyNames.CURVE);
-        break;
-      }
-    }
-    Validate.notNull(curveName, "curveName");
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, curveName).get()));
   }
 
   @Override

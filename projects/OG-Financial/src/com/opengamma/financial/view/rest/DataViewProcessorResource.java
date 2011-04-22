@@ -94,7 +94,7 @@ public class DataViewProcessorResource {
       }
       if (clientResource.getLastAccessed().isBefore(timeoutBefore)) {
         clientIterator.remove();
-        clientResource.getViewClient().shutdown();
+        clientResource.shutdown(); // PLAT-1213: must shutdown the rest interface in order to stop the publishing
       }
     }
   }

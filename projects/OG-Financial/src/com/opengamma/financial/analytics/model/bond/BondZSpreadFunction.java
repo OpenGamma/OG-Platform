@@ -5,14 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.holiday.HolidaySource;
@@ -39,7 +35,6 @@ import com.opengamma.financial.interestrate.bond.BondZSpreadCalculator;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -61,7 +56,6 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
     if (curveName == null) {
       throw new NullPointerException("Curve name not specified as value constraint in " + desiredValues);
     }
-    System.err.println(curveName);
     final Clock snapshotClock = executionContext.getSnapshotClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
@@ -74,9 +68,9 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {curveName }, new YieldAndDiscountCurve[] {curve });
 
-    final Object priceObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
+    final Object priceObject = inputs.getValue(ValueRequirementNames.DIRTY_PRICE);
     if (priceObject == null) {
-      throw new NullPointerException("Could not get " + MarketDataRequirementNames.MARKET_VALUE);
+      throw new NullPointerException("Could not get " + ValueRequirementNames.DIRTY_PRICE);
     }
     final double dirtyPrice = (Double) priceObject / 100.;
     final Double zSpread = BOND_Z_SPREAD_CALCULATOR.calculate(bond, bundle, dirtyPrice);
@@ -91,24 +85,6 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
       return security instanceof BondSecurity;
     }
     return false;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURVE).get()));
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String curveName = null;
-    for (ValueSpecification input : inputs.keySet()) {
-      if (ValueRequirementNames.YIELD_CURVE.equals(input.getValueName())) {
-        curveName = input.getProperty(ValuePropertyNames.CURVE);
-        break;
-      }
-    }
-    Validate.notNull(curveName, "curveName");
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, curveName).get()));
   }
 
   @Override

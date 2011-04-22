@@ -10,7 +10,7 @@ $.register_module({
                 $(window).bind('hashchange', this.handler);
                 $(this.handler); // in addition to binding hash change events to window, also fire it onload
                 // IE does not allow deleting from window so set to void 0 if it fails
-                try{delete window.RouteMap;}catch(error){window.RouteMap = void 0;};
+                try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}
             },
             post_add: function (compiled) { // add optional debug param to all rules that don't ask for it
                 if (!~compiled.rules.keyvals.map(function (val) {return val.name;}).indexOf('debug'))

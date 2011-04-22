@@ -1,1 +1,1 @@
-Nothing to see here, folks.
+If you would like to see just the Javadocs and not this OpenGamma page header, then you can either hide this area by pulling up the frame bar, or <a href="../javadoc/index.html" target="_top">click here</a> to remove this header entirely.

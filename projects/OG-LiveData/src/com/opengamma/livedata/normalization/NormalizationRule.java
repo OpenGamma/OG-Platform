@@ -8,6 +8,7 @@ package com.opengamma.livedata.normalization;
 import org.fudgemsg.MutableFudgeMsg;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 
 /**
  * A normalization rule.  

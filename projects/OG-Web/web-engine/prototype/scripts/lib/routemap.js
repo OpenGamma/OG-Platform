@@ -40,7 +40,7 @@
         last = 0, current = 0, encode = encodeURIComponent, decode = decodeURIComponent, has = 'hasOwnProperty',
         EQ = '=' /* equal string */, SL = '/' /* slash string */, PR = '#' /* default prefix string */,
         token_exp = /\*|:|\?/, star_exp = /(^([^\*:\?]+):\*)|(^\*$)/, scalar_exp = /^:([^\*:\?]+)(\??)$/,
-        keyval_exp = /^([^\*:\?]+):(\??)$/, trailing_slash_exp = new RegExp('([^' + SL + '])$'),
+        keyval_exp = /^([^\*:\?]+):(\??)$/, slash_exp = new RegExp('([^' + SL + '])$'),
         context = typeof window !== 'undefined' ? window : {}, // where listeners reside, routes.context() overwrites it
         /** @ignore */
         invalid_str = function (str) {return typeof str !== 'string' || !str.length;},
@@ -58,9 +58,10 @@
         parse = function (path) {
             // go with the first matching page (longest) or any pages with * rules
             var self = 'parse', pages = flat_pages.filter(function (val) { // add slash to paths so all vals match
-                    trailing_slash_exp.exec(path); // this populates RegExp.$1 because replace won't
-                    return ~path.replace(trailing_slash_exp, RegExp.$1 + SL).indexOf(val);
-                }).filter(function (page, index) {
+                    // .exec populates RegExp.$1 because .replace won't
+                    return slash_exp.exec(path), ~path.replace(slash_exp, RegExp.$1 + SL).indexOf(val);
+                })
+                .filter(function (page, index) {
                     return !index || active_routes[page].some(function (val) {return !!val.rules.star;});
                 });
             return !pages.length ? [] : pages.reduce(function (acc, page) { // flatten parsed rules for all pages
@@ -95,11 +96,11 @@
                             star.push([keyval, request.keyvals[keyval]].join(EQ));
                         args[rule_set.rules.star] = star.join(SL);
                     }
-                    try{ // make sure the rule's method actually exists and can be accessed
+                    try { // make sure the rule's method actually exists and can be accessed
                         method = rule_set.method.split('.').reduce(function (acc, val) {return acc[val];}, context);
                         if (typeof method !== 'function') throw new Error;
                     } catch (error) {
-                        throw new TypeError(self + ': ' + rule_set.method + ' is not a function');
+                        throw new TypeError(self + ': ' + rule_set.method + ' is not a function in current context');
                     }
                     return {page: page, hash: routes.hash({route: rule_set.raw}, args), method: method, args: args};
                 });
@@ -200,14 +201,15 @@
         },
         /**
          * overrides the context where listener methods are sought, the default scope is <code>window</code>
-         * (in a browser setting)
+         * (in a browser setting), returns the current context, if no <code>scope</code> object is passed in, just
+         * returns current context without setting context
          * @name RouteMap.context
          * @function
-         * @type undefined
+         * @type {Object}
+         * @returns {Object} the current context within which RouteMap searches for handlers
          * @param {Object} scope the scope within which methods for mapped routes will be looked for
-         * @throws {TypeError} if <code>scope</code> is falsey
          */
-        context: function (scope) {if (scope) context = scope; else throw new TypeError('context: scope is falsey');},
+        context: function (scope) {return context = typeof scope === 'object' ? scope : context;},
         /**
          * returns the parsed (see {@link #parse}) currently accessed route; after listeners have finished
          * firing, <code>current</code> and <code>last</code> are the same
