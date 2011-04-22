@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import com.opengamma.math.function.Function1D;
+
 /**
  * 
  */
-public enum UpperOrLowerBoundary {
-  Upper, Lower
+public abstract class MeshingFunction extends Function1D<Integer, Double> {
+
 }

@@ -5,9 +5,16 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  * 
  */
-public enum UpperOrLowerBoundary {
-  Upper, Lower
+public class CompoundMeshing extends MeshingFunction {
+
+  @Override
+  public Double evaluate(Integer x) {
+    throw new NotImplementedException();
+  }
+
 }

@@ -1,15 +1,23 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-public class CrankNicolsonFiniteDifferenceSORTest {
+/**
+ * 
+ */
+public class ExponentiallyFittedFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ConvectionDiffusionPDESolver SOLVER = new CrankNicolsonFiniteDifferenceSOR(0.5);
+  private static final ConvectionDiffusionPDESolver SOLVER = new ExponentiallyFittedFiniteDifference();
 
-  @Test
+  @Test(enabled = false)
   public void testBlackScholesEquation() {
-    int timeSteps = 10;
+    int timeSteps = 100;
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
@@ -19,7 +27,7 @@ public class CrankNicolsonFiniteDifferenceSORTest {
   /**
    * This needs more price steps for the same accuracy, but can push to greater moneyness range
    */
-  @Test
+  @Test(enabled = false)
   public void testLogTransformedBlackScholesEquation() {
     int timeSteps = 10;
     int priceSteps = 200;
@@ -28,31 +36,13 @@ public class CrankNicolsonFiniteDifferenceSORTest {
     TESTER.testLogTransformedBlackScholesEquation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testCEV() {
     int timeSteps = 25;
     int priceSteps = 100;
     double lowerMoneyness = 1.0; // Not working well for ITM calls
     double upperMoneyness = 3.0;
     TESTER.testCEV(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
-  }
-
-  @Test
-  public void testAmericanPrice() {
-    int timeSteps = 10;
-    int priceSteps = 100;
-    double lowerMoneyness = 0.4;
-    double upperMoneyness = 3.0;
-    TESTER.testAmericanPrice(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
-  }
-
-  @Test(enabled = false)
-  public void testBlackScholesEquationNonuniformGrid() {
-    int timeSteps = 100; // one less step with exp meshing
-    int priceSteps = 100;
-    double lowerMoneyness = 0.4;
-    double upperMoneyness = 3.0;
-    TESTER.testBlackScholesEquationNonuniformGrid((CrankNicolsonFiniteDifferenceSOR) SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
 }
