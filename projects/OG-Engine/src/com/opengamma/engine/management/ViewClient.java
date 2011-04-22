@@ -17,7 +17,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An MBean implementation for those attributes and operations we wish to expose on a {@link ViewClient}.
+ * An MBean implementation for those attributes and operations we wish to expose on a {@link com.opengamma.engine.view.client.ViewClient}.
  */
 public class ViewClient implements ViewClientMBean {
 

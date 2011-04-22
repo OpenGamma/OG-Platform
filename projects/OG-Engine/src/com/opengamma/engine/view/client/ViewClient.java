@@ -230,7 +230,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * Gets the full result from the latest view cycle. This is consistent with any data flow restrictions being applied
    * through this view client, so does not necessarily represent the most recent state of the view process.
    * <p>
-   * This value is consistent with the result provided to any {@link ComputationResultListener} during a callback.
+   * This value is consistent with the result provided to any {@link ViewResultListener} during a callback.
    *  
    * @return the latest result, or {@code null} if no result yet exists
    * @throws IllegalStateException if the view client is not attached to a view process

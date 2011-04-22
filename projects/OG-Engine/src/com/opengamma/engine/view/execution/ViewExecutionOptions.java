@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view.execution;
 
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.view.ViewDefinition;
+
 /**
  * Encapsulates settings affecting the overall execution of a view process.
  */
