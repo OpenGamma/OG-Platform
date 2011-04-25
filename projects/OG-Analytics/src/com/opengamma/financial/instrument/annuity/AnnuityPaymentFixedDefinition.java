@@ -15,7 +15,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 
 /**
- * 
+ * A wrapper class for a AnnuityDefinition containing PaymentFixedDefinition.
  */
 public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixedDefinition> {
 
@@ -28,7 +28,7 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
   }
 
   @Override
-  public AnnuityPaymentFixed toDerivative(LocalDate date, String... yieldCurveNames) { // GenericAnnuity<CouponFixed>
+  public AnnuityPaymentFixed toDerivative(LocalDate date, String... yieldCurveNames) {
     List<PaymentFixed> resultList = new ArrayList<PaymentFixed>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
       if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate().toLocalDate())) {

@@ -12,7 +12,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * Class with the Hagan et al SABR volatility function.
+ * Reference: Hagan, P.; Kumar, D.; Lesniewski, A. & Woodward, D. "Managing smile risk", Wilmott Magazine, 2002, September, 84-108
  */
 public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<SABRFormulaData> {
   private static final double EPS = 1e-15;
@@ -20,7 +21,8 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   @Override
   public Function1D<SABRFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option) {
     Validate.notNull(option, "option");
-    final double k = option.getStrike();
+    final double k = Math.max(option.getStrike(), 0.000001); // Floored at 0.01bp
+    // TODO: Improve treatment around strike/k=0?
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
@@ -82,7 +84,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
      */
     double[] volatilityAdjoint = new double[6];
 
-    final double strike = option.getStrike();
+    final double strike = Math.max(option.getStrike(), 0.000001);
     final double timeToExpiry = option.getTimeToExpiry();
     final double alpha = data.getAlpha();
     final double beta = data.getBeta();

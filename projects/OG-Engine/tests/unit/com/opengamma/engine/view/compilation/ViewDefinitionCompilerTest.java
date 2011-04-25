@@ -48,7 +48,7 @@ public class ViewDefinitionCompilerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new ViewEvaluationModel(null, null, 0);
+    new CompiledViewDefinitionWithGraphsImpl(null, null, null, 0);
   }
 
   public void testEmptyView() {
@@ -84,11 +84,11 @@ public class ViewDefinitionCompilerTest {
 
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
-    assertTrue(vem.getDependencyGraphsByConfiguration().isEmpty());
-    assertEquals(0, vem.getAllComputationTargets().size());
+    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertTrue(compiledViewDefinition.getDependencyGraphsByConfiguration().isEmpty());
+    assertEquals(0, compiledViewDefinition.getComputationTargets().size());
   }
 
   public void testSingleValueNoLiveData() {
@@ -138,12 +138,12 @@ public class ViewDefinitionCompilerTest {
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, vem.getAllDependencyGraphs().size());
-    assertNotNull(vem.getDependencyGraph("Fibble"));
-    assertTargets(vem, pn.getUniqueId());
+    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraph("Fibble"));
+    assertTargets(compiledViewDefinition, pn.getUniqueId());
   }
 
   public void testSingleValueExternalDependency() {
@@ -192,18 +192,18 @@ public class ViewDefinitionCompilerTest {
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
     calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
     viewDefinition.addViewCalculationConfiguration(calcConfig);
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, vem.getAllDependencyGraphs().size());
-    DependencyGraph dg = vem.getDependencyGraph("Fibble");
+    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
+    DependencyGraph dg = compiledViewDefinition.getDependencyGraph("Fibble");
     assertNotNull(dg);
     assertTrue(dg.getAllRequiredLiveData().isEmpty());
     assertEquals(2, dg.getDependencyNodes().size());
 
     // Expect the node and the security, since we've turned off position-level outputs and not actually provided a
     // function that can produce them
-    assertTargets(vem, sec2.getUniqueId(), pn.getUniqueId());
+    assertTargets(compiledViewDefinition, sec2.getUniqueId(), pn.getUniqueId());
   }
 
   public void testPrimitivesOnlyNoPortfolioReference() {
@@ -229,12 +229,12 @@ public class ViewDefinitionCompilerTest {
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
 
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, vem.getAllDependencyGraphs().size());
-    assertNotNull(vem.getDependencyGraph("Config1"));
-    assertTargets(vem, t1);
+    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
+    assertTargets(compiledViewDefinition, t1);
   }
 
   public void testPrimitivesAndSecuritiesNoPortfolioReference() {
@@ -271,28 +271,28 @@ public class ViewDefinitionCompilerTest {
     // source.
     calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
 
-    ViewEvaluationModel vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTrue(vem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, vem.getAllDependencyGraphs().size());
-    assertNotNull(vem.getDependencyGraph("Config1"));
-    assertTargets(vem, sec1.getUniqueId(), t1);
+    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    assertTrue(compiledViewDefinition.getLiveDataRequirements().isEmpty());
+    assertEquals(1, compiledViewDefinition.getAllDependencyGraphs().size());
+    assertNotNull(compiledViewDefinition.getDependencyGraph("Config1"));
+    assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
 
     // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
-    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTargets(vem, sec1.getUniqueId(), t1);
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
 
     // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
     // pruned completely, since the only *terminal* output is the security output.
     viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.ALL);
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
-    vem = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
-    assertTargets(vem);
+    compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now());
+    assertTargets(compiledViewDefinition);
   }
 
-  private void assertTargets(ViewEvaluationModel vem, UniqueIdentifier... targets) {
+  private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueIdentifier... targets) {
     Set<UniqueIdentifier> expectedTargets = new HashSet<UniqueIdentifier>(Arrays.asList(targets));
-    Set<ComputationTarget> actualTargets = vem.getAllComputationTargets();
+    Set<ComputationTarget> actualTargets = compiledViewDefinition.getComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
     for (ComputationTarget actualTarget : actualTargets) {
       assertTrue(expectedTargets.contains(actualTarget.getUniqueId()));

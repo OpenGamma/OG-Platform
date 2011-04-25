@@ -114,7 +114,7 @@ public class ServerSocketRemoteViewComputationCacheTest {
       Thread t = new Thread(new Runnable() {
         @Override
         public void run() {
-          final ViewComputationCache cache = _cacheSource.getCache("multiThreadedTest", "default", cacheTimestamp);
+          final ViewComputationCache cache = _cacheSource.getCache(UniqueIdentifier.of("Test", "MultiThreadedTestViewProcess"), "default", cacheTimestamp);
           try {
             long tGet = 0;
             long tPut = 0;

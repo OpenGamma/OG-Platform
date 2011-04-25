@@ -5,51 +5,57 @@
  */
 package com.opengamma.engine.view.client;
 
-import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
 /**
- * Represents a managed client of a specific view in the context of a particular user. Provides access to properties of
- * the view, and adds client-oriented functionality. This is the unit of external interaction for accessing computation
- * results.
+ * Represents a managed client of a specific view process in the context of a particular user. This is the unit of
+ * external interaction for accessing computation results.
  * <p>
- * Typically, a {@link ViewClient} will be created for each view in each instance of a client application. If the
- * application requires asynchronous updates, it must set a full or delta result listener (or both) as required: any
- * new computation results will be delivered through these listeners. The application may poll for the latest full
- * result by calling {@link #getLatestResult()}.
+ * The client begins detached from any particular view process. In order to receive results, it must be attached to a
+ * view process. This creates demand for the process to execute, ensuring that it remains executing while the client is
+ * attached.
  * <p>
- * The per-client flow of results is controlled through {@link #pauseLive()}, {@link #startLive()} and
- * {@link #stopLive()}. Initially, results are stopped. A stopped client does not cause the underlying view to be
- * computed, but other, active clients may keep the computation running. When results are paused, computation takes
- * place but the results are incrementally batched to be delivered as a single, collapsed result when they are resumed.
- * Use {@link #setLiveUpdatePeriod(long)} to throttle the frequency of updates exposed through this client.
+ * If the application requires asynchronous updates, it must set a result listener. This receives notifications of
+ * events from the view process. The result mode for this client may be controlled using
+ * {@link #setResultMode(ViewResultMode)}; this allows unwanted types of result to be filtered out, potentially
+ * avoiding the overhead of unnecessary serialisation.
+ * <p>
+ * The application may poll for the latest full result by calling {@link #getLatestResult()}. Listeners can be set or
+ * changed even when the client is detached from a view process; this allows the necessary listeners to be in place
+ * before results commence.
+ * <p>
+ * The per-client flow of results is controlled through {@link #pause()} and {@link #resume()}. By default, results
+ * will flow immediately, but the client may be paused before attaching it to a view process.
+ * <p>
+ * When results are paused, they are incrementally batched to be delivered as a single, collapsed result when they are
+ * resumed. This result is specific to the individual client that has been paused.
+ * <p>
+ * Use {@link #setUpdatePeriod(long)} to throttle the frequency of updates exposed through this client.
  * <p>
  * Always call {@link #shutdown()} from any state to allow resources associated with the managed view to be released
- * when the client is no longer required.
+ * when the client is no longer required. Without this, the view process may continue executing indefinitely.
  */
 @PublicAPI
 public interface ViewClient extends UniqueIdentifiable {
 
   /**
-   * Gets the unique identifier for the view client, to make it easier to refer to the view client externally.
+   * Gets the unique identifier of the view client
    * 
-   * @return the unique identifier, not null
+   * @return the identifier, not null
    */
   UniqueIdentifier getUniqueId();
-
-  /**
-   * Gets the view which backs this view client.
-   * 
-   * @return the view which backs this view client, not null
-   */
-  View getView();
-
+  
   /**
    * Gets the user for whom the view client was created. This user necessarily has sufficient permissions on the
    * underlying view.
@@ -57,88 +63,220 @@ public interface ViewClient extends UniqueIdentifiable {
    * @return the user, not null
    */
   UserPrincipal getUser();
-
+  
   /**
-   * Indicates whether the result of a completed computation cycle is available yet. This is consistent with any data
-   * flow restrictions being applied through this view client, so does not necessarily reflect the live state of the
-   * view.
+   * Gets the view processor to which the view client belongs.
    * 
-   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
+   * @return the view processor to which the view client belongs, not null
    */
-  boolean isResultAvailable();
-
-  /**
-   * Gets the full result from the last computation cycle. This is consistent with any data flow restrictions being
-   * applied through this view client, so does not necessarily represent the live state of the view.
-   *  
-   * @return the latest result, or <code>null</code> if no result yet exists
-   * @see #isResultAvailable()
-   */
-  ViewComputationResultModel getLatestResult();
-
-  /**
-   * Sets (or replaces) the result listener.
-   * 
-   * @param resultListener  the result listener, or <code>null</code> to remove any existing listener.
-   */
-  void setResultListener(ComputationResultListener resultListener);
-
-  /**
-   * Sets (or replaces) the delta result listener.
-   * 
-   * @param deltaResultListener  the new listener, or <code>null</code> to remove any existing listener.
-   */
-  void setDeltaResultListener(DeltaComputationResultListener deltaResultListener);
-
+  ViewProcessor getViewProcessor();
+  
   /**
    * Gets the state of this view client.
    * 
    * @return the state of this view client, not null
    */
   ViewClientState getState();
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets whether this client is attached to a view process.
+   * 
+   * @return {@code true} if this client is attached to a view process, {@code false} otherwise
+   */
+  boolean isAttached();
+  
+  /**
+   * Attaches the client to a shared view process, which might involve creating a new process.
+   * <p>
+   * As part of this call, the client is updated with the latest state of the view process which may result in
+   * listeners being invoked, depending on the state of the client.
+   * 
+   * @param viewDefinitionName  the name of the view definition, not null
+   * @param executionOptions  the view execution options, not null
+   * @throws IllegalStateException if the client is already attached to a process 
+   */
+  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions);
+  
+  /**
+   * Attaches the client to a view process, which might involve creating a new process.
+   * <p>
+   * As part of this call, the client is updated with the latest state of the view process which may result in
+   * listeners being invoked, depending on the state of the client.
+   * 
+   * @param viewDefinitionName  the name of the view definition, not null
+   * @param executionOptions  the view execution options, not null
+   * @param newPrivateProcess  {@code true} to attach to a new process,
+   *                           {@code false} to attach to a shared process
+   * @throws IllegalStateException if the client is already attached to a process 
+   */
+  void attachToViewProcess(String viewDefinitionName, ViewExecutionOptions executionOptions, boolean newPrivateProcess);
+  
+  /**
+   * Attaches the client to a specific, existing view process.
+   * <p>
+   * As part of this call, the client is updated with the latest state of the view process which may result in
+   * listeners being invoked, depending on the state of the client.
+   * 
+   * @param processId  the unique identifier of the view process, not null
+   */
+  void attachToViewProcess(UniqueIdentifier processId);
+  
+  /**
+   * Detaches the client from the view process, if any, to which it is currently attached.
+   */
+  void detachFromViewProcess();
+
+  // [PLAT-1174]
+  // REVIEW jonathan 2011-04-07 -- providing access to the underlying live data overrides like this is bad for a few
+  // reasons, and only really applies to real-time processes. They should instead be part of the execution options for
+  // each cycle.
+  /**
+   * Gets the live data override injector for the view process to which the client is attached. This allows arbitrary
+   * live data to be overridden; the effects of doing so will be seen in future view cycles.
+   * 
+   * @return  the live data override injector, not null
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  LiveDataInjector getLiveDataOverrideInjector();
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Sets (or replaces) the result listener.
+   * 
+   * @param resultListener  the result listener, or {@code null} to remove an existing listener.
+   */
+  void setResultListener(ViewResultListener resultListener);
 
   /**
-   * Sets the minimum time between successive live update notifications to listeners, thus providing the ability to
-   * throttle the rate of updates. This is achieved by merging any updates which arrive in between the minimum period,
-   * and releasing only a single, merged update at the correct time. Set this to 0 to specify no minimum period between
-   * updates; this is the only setting for which updates may be passed straight through synchronously.
+   * Sets the minimum time between successive results delivered to the listener, thus providing the ability to throttle
+   * the rate of updates. Even when this is in use, an update may still require multiple calls to the listener, for
+   * example the notification of errors and/or compilation results. This is achieved by merging any updates which
+   * arrive in between the minimum period, and releasing only a single, merged update at the correct time. Set this to
+   * 0 to specify an unrestricted rate of updates.
    * 
    * @param periodMillis  the minimum time between updates, or 0 to specify unlimited updates.
    */
-  void setLiveUpdatePeriod(long periodMillis);
-
+  void setUpdatePeriod(long periodMillis);
+  
   /**
-   * Starts or resumes the flow of live computation updates exposed through this client.
-   */
-  void startLive();
-
-  /**
-   * Pauses the flow of live computation updates exposed through this client. Updates continue to be received
-   * internally, and these are delivered as a merged result when updates are resumed.
-   */
-  void pauseLive();
-
-  /**
-   * Stops the flow of live computation updates exposed through this client. In this state, single results can be
-   * obtained on demand by calling {@link #runOneCycle()}.
-   */
-  void stopLive();
-
-  /**
-   * Causes a single, on-demand calculation to be performed synchronously.
-   * The result is NOT sent to the live result listeners
-   * ({@link #setResultListener} or {@link #setDeltaResultListener}).
-   * <p>
-   * The view can be running in live mode at the same time or it can be stopped.
+   * Gets the result mode in which this view client is operating. Defaults to {@link ViewResultMode#FULL_ONLY}.
    * 
-   * @param valuationTime valuation time, millis from epoch
-   * @return result of the on-demand calculation 
+   * @return the result mode, not null
    */
-  ViewComputationResultModel runOneCycle(long valuationTime);
-
+  ViewResultMode getResultMode();
+  
   /**
-   * Terminates this client, disconnecting it from any listeners and releasing any resources. This method <b>must</b>
-   * be called to avoid resource leaks. A terminated client is no longer useful and must be discarded.
+   * Sets the result mode in which this view client should operate.
+   * 
+   * @param viewResultMode  the result mode, not null
+   */
+  void setResultMode(ViewResultMode viewResultMode);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Pauses the flow of results exposed through this client. They continue to be received internally, and these are
+   * delivered as a merged result when updates are resumed.
+   */
+  void pause();
+  
+  /**
+   * Resumes the flow of results exposed through this client.
+   */
+  void resume();
+  
+  /**
+   * Gets whether the attached view process has completed from the perspective of the client. This is consistent with
+   * any data flow restrictions being applied through this view client, so may occur after the process actually
+   * completes. This is intended for batch processing; if the view process is running with an infinite number of
+   * evaluation times then this method will block forever. 
+   * 
+   * @return {@code true} if the attached view process has completed, {@code false} otherwise
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  boolean isCompleted();
+  
+  /**
+   * Blocks until the view process completes from the perspective of the client. This is consistent with any data flow
+   * restrictions being applied through this view client, so may occur after the process actually completes. This is
+   * intended for batch processing; if the view process is running with an infinite number of evaluation times then
+   * this method will block forever. 
+   * 
+   * @throws IllegalStateException if the view client is not attached to a view process
+   * @throws InterruptedException if the thread is interrupted while waiting for the view process to complete
+   */
+  void waitForCompletion() throws InterruptedException;
+  
+  /**
+   * Indicates whether the result of a completed view cycle is available to this client. This is consistent with any
+   * data flow restrictions being applied through this view client, so does not necessarily reflect the most recent
+   * state of the view process.
+   * 
+   * @return <code>true</code> if a computation result is available, <code>false</code> otherwise
+   * 
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  boolean isResultAvailable();
+  
+  /**
+   * Gets the latest compiled view definition. This is consistent with any data flow restrictions being applied through
+   * this view client, so does not necessarily represent the most recent state of the view process.
+   * 
+   * @return the latest compiled view definition, or {@code null} if no compilation has yet been produced
+   */
+  CompiledViewDefinition getLatestCompiledViewDefinition();
+  
+  /**
+   * Gets the full result from the latest view cycle. This is consistent with any data flow restrictions being applied
+   * through this view client, so does not necessarily represent the most recent state of the view process.
+   * <p>
+   * This value is consistent with the result provided to any {@link ViewResultListener} during a callback.
+   *  
+   * @return the latest result, or {@code null} if no result yet exists
+   * @throws IllegalStateException if the view client is not attached to a view process
+   * @see #isResultAvailable()
+   */
+  ViewComputationResultModel getLatestResult();
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets whether this client supports access to view cycles.
+   *  
+   * @return {@code true} if the client can provide access to view cycles, {@code false} otherwise
+   */
+  boolean isViewCycleAccessSupported();
+  
+  /**
+   * Sets whether this client should support access to view cycles. This feature involves overheads which are best
+   * avoided if it is not needed.
+   * 
+   * @param isViewCycleAccessSupported  {@code true} to enable access to  view cycles, {@code false} otherwise
+   */
+  void setViewCycleAccessSupported(boolean isViewCycleAccessSupported);
+  
+  /**
+   * Creates a reference to the latest view cycle. This is consistent with any data flow restrictions being applied
+   * through this view client, so does not necessarily represent the most recent state of the view process.
+   * 
+   * @return a reference to the latest view cycle, or {@code null} if the latest cycle is not available
+   * @throws UnsupportedOperationException if this client does not support referencing computation cycles.
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  EngineResourceReference<? extends ViewCycle> createLatestCycleReference();
+  
+  /**
+   * Creates a reference to a specific view cycle.
+   * 
+   * @param cycleId  the unique identifier of the view cycle, not null
+   * @return a reference to the view cycle, or {@code null} if not found
+   */
+  EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueIdentifier cycleId);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Terminates this client, detaching it from any process, disconnecting it from any listener, and releasing any
+   * resources. This method <b>must</b> be called to avoid resource leaks. A terminated client is no longer useful and
+   * must be discarded.
    */
   void shutdown();
 

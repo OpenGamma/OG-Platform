@@ -14,6 +14,9 @@
 #include <Util/Fudge.h>
 #include "Client.h"
 #include "SynchronousCalls.h"
+#ifdef _WIN32
+#include <Util/Library.h>
+#endif /* ifdef _WIN32 */
 
 class CConnector : public CClientService::CStateChange, public CClientService::CMessageReceived {
 public:
@@ -21,19 +24,37 @@ public:
 	private:
 		friend class CConnector;
 		CAtomicInt m_oRefCount;
+#ifdef _WIN32
+		CLibraryLock *m_poModuleLock;
+#endif /* ifdef _WIN32 */
 	protected:
+#ifdef _WIN32
+		void LockModule (PVOID pAddressInModule) {
+			assert (!m_poModuleLock);
+			m_poModuleLock = CLibraryLock::CreateFromAddress (pAddressInModule);
+		}
+#endif /* ifdef _WIN32 */
 		virtual void OnMessage (FudgeMsg msgPayload) = 0;
 		virtual void OnThreadDisconnect () { }
+		virtual ~CCallback () {
+			assert (!m_oRefCount.Get ());
+#ifdef _WIN32
+			CLibraryLock::UnlockAndDelete (m_poModuleLock);
+#endif /* ifdef _WIN32 */
+		}
 	public:
-		CCallback () : m_oRefCount (1) { }
-		virtual ~CCallback () { assert (!m_oRefCount.Get ()); }
+		CCallback () : m_oRefCount (1) {
+#ifdef _WIN32
+			m_poModuleLock = NULL;
+#endif /* ifdef _WIN32 */
+		}
 		void Retain () { m_oRefCount.IncrementAndGet (); }
 		static void Release (CCallback *poCallback) { if (!poCallback->m_oRefCount.DecrementAndGet ()) delete poCallback; }
 	};
 private:
 	CAtomicInt m_oRefCount;
 	CClientService *m_poClient;
-	CMutex m_oControlMutex;
+	CMutex m_oMutex;
 	CAtomicPointer<CSemaphore*> m_oStartupSemaphorePtr;
 	class CCallbackEntry {
 	private:
@@ -65,7 +86,13 @@ private:
 	class CCallbackEntry *m_poCallbacks;
 	CSynchronousCalls m_oSynchronousCalls;
 	CAsynchronous *m_poDispatch;
+	CAtomicPointer<IRunnable*> m_oOnEnterRunningState;
+	CAtomicPointer<IRunnable*> m_oOnExitRunningState;
+	CAtomicPointer<IRunnable*> m_oOnEnterStableNonRunningState;
 	CConnector (CClientService *poClient);
+	void OnEnterRunningState ();
+	void OnExitRunningState ();
+	void OnEnterStableNonRunningState ();
 	friend class CConnectorMessageDispatch;
 	friend class CConnectorThreadDisconnectDispatch;
 	friend class CConnectorDispatcher;
@@ -96,6 +123,10 @@ public:
 	bool AddCallback (const TCHAR *pszClass, CCallback *poCallback);
 	bool RemoveCallback (CCallback *poCallback);
 	bool RecycleDispatchThread ();
+	// The CConnector will take ownership of these references and delete them when done (or another callback set)
+	void OnEnterRunningState (IRunnable *poRunnable);
+	void OnExitRunningState (IRunnable *poRunnable);
+	void OnEnterStableNonRunningState (IRunnable *poRunnable);
 };
 
 #endif /* ifndef __inc_og_language_connector_connector_h */

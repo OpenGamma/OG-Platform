@@ -1,0 +1,86 @@
+/*
+ * Page Masthead styles
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+#OG-masthead {
+  border-bottom: 4px solid #4d7d94;
+  margin-top: -1px;
+  position: relative;
+}
+
+#OG-masthead nav {
+  background-color: #fff;
+  border-bottom: 1px solid #487287;
+}
+
+#OG-masthead ul {
+  bottom: -1px;
+  display: inline-block;
+  position: relative;
+}
+
+#OG-masthead li {
+  display: inline-block;
+  position: relative;
+}
+
+#OG-masthead a {
+  display: inline-block;
+  height: 20px;
+  line-height: 20px;
+  padding: 3px 8px;
+  text-decoration: none;
+}
+
+#OG-masthead a:focus {
+  outline: none;
+}
+
+/**
+ * Active Tab
+ */
+#OG-masthead .og-active {
+  background-color: #4d7d94;
+  border: 1px solid #487287;
+  border-bottom: none;
+}
+
+#OG-masthead .og-active > a {
+  color: #fff;
+  position: relative;
+  text-shadow: 0 1px 0 #4a768c;
+  z-index: 2;
+}
+
+#OG-masthead .og-active:before {
+  -moz-box-shadow: 0 28px 0.7em #fff;
+  -webkit-box-shadow: 0 28px 0.7em #fff;
+  background-color: transparent;
+  content: "";
+  display: inline-block;
+  height: 100%;
+  opacity: 0.2;
+  position: absolute;
+  top: -26px;
+  width: 100%;
+}
+
+/**
+ * Search
+ */
+#OG-masthead .og-search {
+  float: right;
+}
+
+#OG-masthead .og-search input {
+  border-width: 1px;
+  border-left: 2px solid #cfcfcf;
+  color: #a0a0a0;
+  height: 23px;
+  line-height: 21px;
+  padding-left: 5px;
+  width: 200px;
+}

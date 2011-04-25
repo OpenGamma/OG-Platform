@@ -1,0 +1,190 @@
+/**
+ * Generic icon styles
+ */
+.OG-icon:before,
+.OG-icon:after {
+   background: url(../../../images/common/sprites/icons.png);
+   content: "";
+   cursor: pointer;
+}
+
+.OG-icon:before {
+   float: left;
+}
+
+.OG-icon:after {
+  float: right;
+}
+
+/**
+ * Header Dropdown
+ */
+.OG-icon.og-icon-header-dropdown:after {
+  background-position: 0 0;
+  background-color: transparent;
+  height: 3px;
+  margin: 0 0 0 -3px; /* Offset half the width */
+  width: 5px;
+  left: 50%;
+  bottom: -3px;
+  z-index: 2;
+  position: absolute;
+}
+
+/**
+ * Clock
+ */
+.OG-icon.og-clock-active:before,
+.OG-icon.og-clock-stopped:before {
+  background-position: -8px 2px;
+  height: 13px;
+  width: 9px;
+}
+
+.OG-icon.og-clock-active:before {
+  background-position: -8px -13px;
+}
+
+/**
+ * Maximize
+ */
+.OG-icon.og-icon-maximize:before {
+  background-position: -21px 0;
+  height: 14px;
+  width: 12px;
+  margin: 1px 3px;
+}
+
+.OG-icon.og-icon-maximize:hover:before {
+  background-position: -35px 0;
+  height: 14px;
+  width: 12px;
+  margin: 1px 3px;
+}
+
+/**
+ * Minimize
+ */
+.OG-icon.og-icon-minimize:before {
+  background-position: -21px -15px;
+  height: 14px;
+  width: 12px;
+  margin: 1px 3px;
+}
+
+.OG-icon.og-icon-minimize:hover:before {
+  background-position: -35px -15px;
+  height: 14px;
+  width: 12px;
+  margin: 1px 3px;
+}
+
+/**
+ * New
+ */
+.OG-icon.og-icon-new:before {
+  background-position: -21px -30px;
+  height: 13px;
+  width: 12px;
+  margin: 0 5px 0 4px;
+}
+
+.OG-icon.og-icon-new:hover:before {
+  background-position: -35px -30px;
+  height: 13px;
+  width: 12px;
+  margin: 0 5px 0 4px;
+}
+
+.OG-icon.OG-disabled.og-icon-new:before {
+  background-position: -49px -30px;
+  cursor: default;
+}
+
+/**
+ * Up
+ */
+.OG-icon.og-icon-up:before {
+  background-position: -21px -47px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.og-icon-up:hover:before {
+  background-position: -35px -47px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.OG-disabled.og-icon-up:before {
+  background-position: -49px -47px;
+  cursor: default;
+}
+
+/**
+ * Edit
+ */
+.OG-icon.og-icon-edit:before {        /* Icon */
+  background-position: -21px -64px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.og-icon-edit:hover:before {  /* Hover Icon */
+  background-position: -35px -64px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.OG-disabled.og-icon-edit:before {
+  background-position: -49px -64px;
+  cursor: default;
+}
+
+/**
+ * Delete
+ */
+.OG-icon.og-icon-delete:before {
+  background-position: -21px -81px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.og-icon-delete:hover:before {
+  background-position: -35px -81px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.OG-disabled.og-icon-delete:before {
+  background-position: -49px -81px;
+  cursor: default;
+}
+
+/**
+ * Favorites
+ */
+.OG-icon.og-icon-favorites:before {
+  background-position: -21px -98px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.og-icon-favorites:hover:before {
+  background-position: -35px -98px;
+  height: 13px;
+  width: 12px;
+  margin: 0 4px;
+}
+
+.OG-icon.OG-disabled.og-icon-favorites:before {
+  background-position: -49px -98px;
+  cursor: default;
+}

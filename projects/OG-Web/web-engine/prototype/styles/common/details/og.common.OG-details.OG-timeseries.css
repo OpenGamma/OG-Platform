@@ -1,0 +1,77 @@
+/**
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/**
+ * Identifiers
+ */
+
+.OG-timeseries .og-identifiers {
+  margin: 10px 0 20px 0;
+}
+
+.OG-timeseries .og-identifiers {
+  display: table;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.OG-timeseries .og-identifiers > div {
+  display: table-row;
+}
+
+.OG-timeseries .og-identifiers div div {
+  display: table-cell;
+  padding-right: 20px;
+}
+
+.OG-timeseries .og-identifiers div span {
+  font-size: 12px;
+  padding-left: 5px;
+}
+
+
+/**
+ * Plot
+ */
+
+.OG-timeseries .og-plotHeader div {
+  display: inline-block;
+}
+
+.OG-timeseries .og-plotMeta {
+  color: #ccc;
+  margin-top: 10px;
+}
+
+.OG-timeseries .og-timeseriesPlot {
+  height: 200px;
+  margin-left: -6px;
+  width: 550px;
+}
+
+
+/**
+ * DataPoints
+ */
+
+.OG-timeseries .og-dataPoints {
+  display: inline-block;
+  margin-top: 20px;
+  min-width: 400px;
+  position: relative;
+}
+
+.OG-timeseries .og-dataPoints tbody {
+  overflow: scroll;
+}
+
+.OG-timeseries .og-dataPoints h2 {
+  float: left;
+  line-height: 28px;
+}
+
+.OG-timeseries .og-dataPoints button {
+  float: right;
+}

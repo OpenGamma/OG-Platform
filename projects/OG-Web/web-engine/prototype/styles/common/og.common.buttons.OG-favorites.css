@@ -1,0 +1,7 @@
+.OG-favorites {
+  background: url("../../images/common/sprites/icons.png") no-repeat 100% -170px;
+  cursor: pointer;
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}

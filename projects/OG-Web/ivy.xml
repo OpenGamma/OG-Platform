@@ -3,12 +3,18 @@
     
     <publications>
       <artifact name="og-web" type="jar"/>
+      <artifact name="web-engine" type="zip"/>
     </publications>
+    
     <dependencies>
         <dependency name="og-financial" rev="latest.integration" />
         <dependency name="og-analytics" rev="latest.integration" />
         <dependency name="og-engine" rev="latest.integration" />
         <dependency name="og-util" rev="latest.integration" />
+        
+        <dependency org="org.eclipse" name="jetty" rev="7.0.1+" conf="*->jsp,servlets,start"/>
+        <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm,web,context"/>
+        <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server,client"/>
         
         <exclude org="org.junit" />
     </dependencies>

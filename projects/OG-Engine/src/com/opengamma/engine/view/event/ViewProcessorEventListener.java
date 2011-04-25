@@ -5,30 +5,45 @@
  */
 package com.opengamma.engine.view.event;
 
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.id.UniqueIdentifier;
+
 /**
- * Allows implementers to register callback methods that will be executed when a
- * {@link com.opengamma.engine.view.View} is created and removed
- *
+ * Allows implementers to provide callback methods that will be executed in response to events on a
+ * {@link ViewProcessor}.
  */
 public interface ViewProcessorEventListener {
   
   /**
-   * Called immediately after a view has been created.
+   * Called immediately after a view process has been created.
    * 
-   * @param viewName the name of the View the operation relates to
+   * @param viewProcessId  the unique identifier of the view process that has been created
    */
-  void notifyViewAdded(String viewName);
+  void notifyViewProcessAdded(UniqueIdentifier viewProcessId);
   
   /**
-   * Called immediately after a view has been removed
+   * Called immediately after a view process has been removed
    * 
-   * @param viewName the name of the View the operation relates to
+   * @param viewProcessId  the unique identifier of the view process that has been removed
    */
-  void notifyViewRemoved(String viewName);
+  void notifyViewProcessRemoved(UniqueIdentifier viewProcessId);
+  
+  /**
+   * Called immediately after a view client has been created.
+   * 
+   * @param viewClientId  the unique identifier of the view client that has been created
+   */
+  void notifyViewClientAdded(UniqueIdentifier viewClientId);
+  
+  /**
+   * Called immediately after a view client has been removed.
+   * 
+   * @param viewClientId  the unique identifier of the view client that has been removed
+   */
+  void notifyViewClientRemoved(UniqueIdentifier viewClientId);
   
   /**
    * Called immediately after a view processor starts up
-   * 
    */
   void notifyViewProcessorStarted();
   

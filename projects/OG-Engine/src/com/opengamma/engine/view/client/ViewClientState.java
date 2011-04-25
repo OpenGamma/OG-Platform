@@ -8,27 +8,25 @@ package com.opengamma.engine.view.client;
 import com.opengamma.util.PublicAPI;
 
 /**
- * An Enum representing the current state of a view client.
+ * Enumerates the states of a view client. The state is independent from whether the client is attached to a view
+ * process.
  */
 @PublicAPI
 public enum ViewClientState {
 
   /**
-   * The client is started. Computation results from the reference view will be published to subscribers.
+   * The client is started. If the client is attached to a view process, then computation results will be published to
+   * subscribers.
    */
   STARTED,
   /**
-   * The client is stopped. A stopped client does not listen to computation results from the reference view.
-   */
-  STOPPED,
-  /**
-   * The client is paused. The client will consume computation results from the reference view but hold onto them until 
-   * the client is started, or discard them if the client is stopped.
+   * The client is paused. If the client is attached to a view process, then computation results will be consumed but
+   * held until the client is started, and discarded if the client is detached from the process.
    */
   PAUSED,
   /**
-   * The client is terminated. Any resources associated with the client have been released and the client is no longer
-   * usable.
+   * The client is terminated. Any resources associated with the client have been released and the client cannot be
+   * attached to a view process.
    */
   TERMINATED
   

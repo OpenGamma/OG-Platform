@@ -1,5 +1,7 @@
 /db/
 *.log
+common/build-projects.xml
+common/credentials.properties
 projects/Fudge-Java/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
@@ -13,6 +15,7 @@ ivy/
 bootstrap/
 tests/output/
 javadoc
+docs/
 lib/
 .idea/
 .DS_Store

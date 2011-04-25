@@ -12,16 +12,33 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing an Ibor-like coupon.
  */
 public class CouponIbor extends CouponFloating {
+
+  /**
+   * The fixing period start time (in years).
+   */
   private final double _fixingPeriodStartTime;
+  /**
+   * The fixing period end time (in years).
+   */
   private final double _fixingPeriodEndTime;
+  /**
+   * The fixing period year fraction (or accrual factor) in the fixing convention.
+   */
   private final double _fixingYearFraction;
+  /**
+   * The spread paid above Ibor.
+   */
   private final double _spread;
+  /**
+   * The forward curve name used in to estimate the fixing index..
+   */
   private final String _forwardCurveName;
 
   //TODO: Should the spread be in CouponIbor or in a more generic coupon?
+  //TODO: Add Ibor index.
 
   /**
    * Constructor from all details.

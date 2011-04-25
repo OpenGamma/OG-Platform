@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+      
+  <!-- Property file configuration -->
+  <bean id="demoViewProcessorProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="locations">
+      <list>
+        <value>classpath:demoViewProcessor-common.properties</value>
+        <value>classpath:demoViewProcessor-${opengamma.platform.runmode}.properties</value>
+      </list>
+    </property>
+  </bean>
+  
+  <import resource="common.xml" />
+  <import resource="demoIntegrationMasters.xml" />
+  
+  <!-- Active MQ -->
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <constructor-arg value="${activeMQ.brokerURL}" />
+  </bean>
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <constructor-arg ref="activeMQConnectionFactory"/>
+  </bean>
+  
+  <!-- User supplied data storage -->
+  <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />
+    <property name="url" value="${opengamma.financial-user.jdbc.url}" />
+    <property name="username" value="${opengamma.financial-user.jdbc.username}" />
+    <property name="password" value="${opengamma.financial-user.jdbc.password}" />
+  </bean>
+  <bean id="userFinancialDbSource" parent="abstractDbSource">
+    <property name="name" value="UserFinancial"/>
+    <property name="dataSource" ref="userFinancialDataSource"/>
+    <property name="dialect" value="${opengamma.financial-user.db.dbhelper}"/>
+  </bean>
+
+  <!-- User supplied Positions --> 
+  <bean id="userFinancialPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
+    <constructor-arg ref="userFinancialDbSource" />
+    <property name="identifierScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
+  </bean>
+  <bean id="userFinancialPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
+    <constructor-arg ref="userFinancialDbSource" />
+    <property name="identifierScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
+  </bean>
+  <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
+    <constructor-arg ref="userFinancialPortfolioMaster" />
+    <constructor-arg ref="userFinancialPositionMaster" />
+  </bean>
+  <bean id="combinedPositionSource" class="com.opengamma.core.position.impl.DelegatingPositionSource">
+    <constructor-arg ref="sharedPositionSource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.portfoliomaster.scheme}" value-ref="userFinancialPositionSource" />
+      </map>
+    </constructor-arg>
+  </bean>
+  
+  <!-- User supplied Securities -->
+  <bean id="securityMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
+    <constructor-arg ref="userFinancialDbSource" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
+    <property name="identifierScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
+  </bean>
+  <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
+    <constructor-arg ref="userFinancialSecurityMaster" />
+  </bean>
+  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
+    <constructor-arg ref="sharedSecuritySource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.securitymaster.scheme}" value-ref="userFinancialSecuritySource" />
+      </map>
+    </constructor-arg>
+  </bean>
+  
+  <!-- User Yield curves -->
+  <bean id="userInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
+    <property name="identifierScheme" value="UserCurves" />
+  </bean>
+  <bean id="combinedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.AggregatingInterpolatedYieldCurveDefinitionSource">
+    <constructor-arg>
+      <list>
+        <ref bean="userInterpolatedYieldCurveDefinitions" />
+        <ref bean="sharedInterpolatedYieldCurveDefinitionSource" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- JMS-based LiveDataClient -->
+  <bean id="sharedLiveDataClient" class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="subscriptionTopic" value="MockSubscriptionRequestTopic" />
+    <property name="entitlementTopic" value="MockEntitlementRequestTopic" />
+    <property name="heartbeatTopic" value="MockHeartbeatTopic" />
+  </bean>
+  
+  <!-- LiveData Snapshot/Availability Provider -->
+  <import resource="liveData-${opengamma.platform.runmode}.xml" />
+  <bean id="liveDataAvailabilityProvider" class="com.opengamma.examples.livedata.MockLiveDataAvailabilityProviderFactoryBean" />
+   
+  <bean id="liveDataSnapshotProvider" class="com.opengamma.examples.livedata.MockLiveDataSnapshotProviderFactoryBean" />
+    
+  <bean id="testUser" class="com.opengamma.examples.server.MockUserFactoryBean" />  
+  <!-- ViewDefinitionRepository -->
+  <bean id="demoViewDefinitionRepository" class="com.opengamma.web.spring.DbViewDefinitionRepositoryFactoryBean">
+  	<constructor-arg ref="sharedConfigMaster"/>
+  </bean>
+  
+  <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
+  <bean id="combinedViewDefinitionRepository" class="com.opengamma.engine.view.AggregatingViewDefinitionRepository">
+    <constructor-arg>
+      <list>
+        <ref bean="demoViewDefinitionRepository" />
+        <ref bean="userViewDefinitionRepository" />
+      </list>
+    </constructor-arg>
+  </bean>
+  
+  <!-- Functions -->
+  <bean id="demoFunctionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="regionSource" ref="regionSource"/>
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="conventionBundleSource" ref="conventionBundleSource"/>
+    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
+    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
+    <property name="currencyMatrixSource" ref="sharedCurrencyMatrixSource" />
+  </bean>
+  <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
+    <property name="historicalDataSource" ref="sharedHistoricalDataProvider" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="regionSource" ref="regionSource"/>
+    <property name="exchangeSource" ref="sharedExchangeSource"/>
+    <property name="holidaySource" ref="sharedHolidaySource"/>
+    <property name="conventionBundleSource" ref="conventionBundleSource"/>
+    <property name="configSource" ref="sharedConfigSource" />
+  </bean>
+  <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
+        <property name="repositoryConfigurationSource" ref="demoFunctionRepositoryConfiguration" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg>
+      <bean class="com.opengamma.engine.function.CachingFunctionRepositoryCompiler" />
+    </constructor-arg>
+    <constructor-arg ref="demoFunctionCompilationContext" />
+  </bean>
+  
+  <!-- Calculation nodes -->
+  <!--
+  <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSourceFactoryBean">
+    <property name="fudgeContext" ref="fudgeContext" />
+  </bean>
+  -->
+  <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+  <bean id="demoViewProcessorQueryReceiver" class="com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver" />
+  <bean id="demoViewProcessorQuerySender" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
+    <constructor-arg>
+      <bean class="com.opengamma.transport.ByteArrayFudgeRequestSender">
+        <constructor-arg>
+          <bean class="com.opengamma.transport.InMemoryByteArrayRequestConduit">
+            <constructor-arg>
+              <bean class="com.opengamma.transport.FudgeRequestDispatcher">
+                <constructor-arg ref="demoViewProcessorQueryReceiver" />
+              </bean>
+            </constructor-arg>
+          </bean>
+        </constructor-arg> 
+      </bean>
+    </constructor-arg>
+  </bean>
+  <bean id="demoTargetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
+        <constructor-arg ref="combinedSecuritySource" />
+        <constructor-arg ref="combinedPositionSource" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="cacheManager" />
+  </bean>
+  <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
+  <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
+    <constructor-arg ref="dbFunctionCostsMaster" />
+  </bean>
+  <bean id="demoComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
+        <constructor-arg>
+				  <bean class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
+				    <property name="viewComputationCache" ref="demoComputationCacheSource" />
+				    <property name="functionCompilationService" ref="demoFunctionCompilation" />
+				    <property name="functionExecutionContext" ref="demoFunctionExecutionContext" />
+				    <property name="computationTargetResolver" ref="demoTargetResolver" />
+				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
+				    <property name="writeBehindExecutorService">
+				      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
+				        <property name="styleName" value="CACHED" />
+				      </bean>
+				    </property>
+				    <property name="nodesPerCore" value="1" />
+				    <property name="nodeIdentifier" value="local" />
+				    <property name="statisticsGatherer" ref="functionCosts" />
+				  </bean>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
+    <!-- Maximum execution time (5 minutes) useful to keep the demo going, but not if you're testing large/long running jobs --> 
+    <property name="maxJobExecutionTime" value="300000" />
+    <property name="statisticsGatherer" ref="jobDispatchStatistics" />
+  </bean>
+  
+  <!-- External interfaces to connect the view processor to the calc nodes -->
+  <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.view.cache.ViewComputationCacheServer">
+        <constructor-arg ref="demoComputationCacheSource" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+  <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher">
+    <constructor-arg ref="demoViewProcessorQueryReceiver" />
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+  <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg>
+      <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">
+        <constructor-arg ref="demoComputationJobDispatcher" />
+        <constructor-arg>
+          <bean factory-bean="demoComputationCacheSource" factory-method="getIdentifierMap" />
+        </constructor-arg>
+        <constructor-arg ref="functionCosts" />
+        <constructor-arg ref="demoFunctionCompilationContext" />
+      </bean>
+    </constructor-arg>
+  </bean>
+  <bean id="calcNodeSocketConfig" class="com.opengamma.engine.view.calcnode.ConfigurationResource">
+    <property name="cacheServer" ref="calcNodeCacheServer" />
+    <property name="queryServer" ref="calcNodeQueryServer" />
+    <property name="jobServer" ref="calcNodeJobServer" />
+  </bean>
+  
+  <!-- Demo View Processor -->
+  <bean id="graphExecutionStatistics" class="com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider" />
+  <bean id="graphExecutor" class="com.opengamma.engine.view.calc.MultipleNodeExecutorFactory">
+    <property name="minimumJobItems" value="5" />
+    <property name="maximumJobItems" value="1000" />
+    <property name="minimumJobCost" value="10000000" />
+    <property name="maximumJobCost" value="10000000000" />
+    <property name="functionCosts" ref="functionCosts" />
+  </bean>
+  <bean id="graphExecutorTuner" class="com.opengamma.engine.view.calc.MultipleNodeExecutorTuner">
+    <constructor-arg ref="graphExecutor" />
+    <property name="jobDispatcher" ref="demoComputationJobDispatcher" />
+    <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
+    <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
+  </bean>
+  <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
+    <property name="id" value="0" />
+    <property name="computationCacheSource" ref="demoComputationCacheSource" />
+    <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
+    <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />
+    <property name="liveDataClient" ref="sharedLiveDataClient" />
+    <property name="liveDataAvailabilityProvider" ref="liveDataAvailabilityProvider" />
+    <property name="liveDataSnapshotProvider" ref="liveDataSnapshotProvider" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="computationTargetResolver" ref="demoTargetResolver" />
+    <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
+    <property name="functionCompilationService" ref="demoFunctionCompilation" />
+    <property name="functionResolver">
+      <bean class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
+        <property name="functionCompilationService" ref="demoFunctionCompilation" />
+      </bean>
+    </property>
+    <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />
+    <property name="viewPermissionProviderFactory">
+      <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProviderFactory" />
+    </property>
+    <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
+  </bean>
+  
+  <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
+    <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="mastersAndSources">
+      <map>
+        <entry key-ref="sharedConfigMaster" value-ref="sharedConfigSource" />
+        <entry key-ref="userInterpolatedYieldCurveDefinitions" value-ref="userInterpolatedYieldCurveDefinitions" />
+      </map>
+    </property>
+    <property name="watchSetProviders">
+      <set>
+        <bean class="com.opengamma.financial.view.ConfigDbOverrideWatchSetProvider">
+          <constructor-arg value="${opengamma.config.db.configmaster.scheme}" />
+          <constructor-arg ref="sharedConfigMaster" />
+          <constructor-arg>
+            <set>
+              <value>UserCurves</value>
+            </set>
+          </constructor-arg>
+        </bean>
+      </set>
+    </property>
+  </bean>
+  
+  <!-- Code fragment needed for work on ENG-199 & ENG-200 only -->
+  <!--
+  <bean id="tuner" class="com.opengamma.integration.server.MultipleNodeExecutorTuner">
+    <property name="executorFactory" ref="graphExecutor" />
+    <property name="graphStatistics" ref="graphExecutionStatistics" />
+    <property name="nodeStatistics" ref="jobDispatchStatistics" />
+    <property name="minimumJobCostLowerLimit" value="1" />
+    <property name="minimumJobCostUpperLimit" value="100000000" />
+  </bean>
+  -->
+  
+  <!-- JMX instrumentation -->
+  <bean class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+    <property name="autodetect" value="true"/>
+  </bean>
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
+    <property name="arguments">
+      <list>
+        <ref bean="cacheManager" />
+        <ref bean="mbeanServer" />
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+      </list>
+    </property>
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.view.calc.jmx.MultipleNodeExecutor.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="graphExecutor" />
+        <ref bean="mbeanServer" />
+      </list>
+    </property>
+  </bean>
+  
+  <!-- Expose ViewProcessor as MBean -->
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.management.ManagementService.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="demoViewProcessor" />
+        <ref bean="graphExecutionStatistics" />
+        <ref bean="mbeanServer" />
+      </list>
+    </property>
+  </bean>
+
+  <!-- Anything that needs regular scheduling -->
+  <bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+    <property name="scheduledExecutorTasks">
+      <list>
+        <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
+          <property name="runnable" ref="graphExecutorTuner" />
+          <property name="period" value="5000" />
+          <property name="fixedRate" value="false" />
+        </bean>
+        <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
+          <property name="runnable">
+            <bean factory-bean="functionCosts" factory-method="createPersistenceWriter" />
+          </property>
+          <property name="period" value="60000" />
+          <property name="fixedRate" value="false" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+	<!-- example data providers -->
+	<bean id="mockTimeseriesLoader" class="com.opengamma.examples.livedata.MockTimeSeriesLoader" />
+	<bean id="mockSecurityLoader" class="com.opengamma.examples.livedata.MockSecurityLoader" />
+
+</beans>

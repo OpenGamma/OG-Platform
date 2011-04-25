@@ -1,0 +1,63 @@
+body {
+  background-color: white;
+}
+
+.header,
+.viewcontrols,
+.ui-tabs-nav {
+  display: none;
+}
+
+#ui-tabs-nav {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+#resultsViewer #tabs #portfolio,
+#resultsViewer #tabs #primitives {
+  left: 0;
+  position: absolute;
+  top: 30px;
+}
+
+@page {
+  size: A4 landscape;
+}
+
+#resultsViewer #tabs #portfolio,
+#resultsViewer #tabs #portfolio #portfolioGrid,
+#resultsViewer #tabs #primitives,
+#resultsViewer #tabs #primitives #primitivesGrid {
+  min-height: 800px;
+  width: -moz-max-content;
+}
+
+.slick-viewport,
+#portfolioGrid {
+  overflow: visible!important;
+}
+
+#portfolio,
+#resultsViewer #tabs #portfolio,
+#resultsViewer #tabs #portfolio #portfolioGrid,
+#resultsViewer #tabs #primitives,
+#resultsViewer #tabs #primitives #primitivesGrid,
+#resultsViewer #tabs,
+#resultsViewer #tabs #portfolio,
+#resultsViewer #tabs #primitives {
+  position: static!important;
+}
+
+#resultsViewer #tabs #portfolio,
+#resultsViewer #tabs #portfolio #portfolioGrid,
+#resultsViewer #tabs #primitives,
+#resultsViewer #tabs #primitives #primitivesGrid {
+  min-height: 798px;
+  width: inherit;
+}
+
+.ui-widget-content {
+  border: none;
+}

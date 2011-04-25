@@ -1,0 +1,34 @@
+/*
+ * Common link styles
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * @colordef #487287; Turkwise blue from OG branding (main link colour)
+ * @colordef #62be88; Green from OG branding (hover, focus)
+ * @colordef #faa700; Orange (active)
+ */
+
+/**
+ * Default
+ */
+
+a:link,
+a:visited,
+a:focus,
+a:hover,
+a:active {
+  color: #487287;
+  text-decoration: underline;
+}
+
+a:focus,
+a:hover,
+a:active {
+  color: #62be88;
+  text-decoration: none;
+}
+
+a:active {
+  color: #faa700;
+}

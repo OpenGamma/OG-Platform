@@ -11,6 +11,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
  * A description of a job that will be executed by a Calculation Node.
  * Providers of jobs pass over a full {@link CalculationJob}, and the
@@ -18,28 +20,28 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class CalculationJobSpecification implements Serializable {
   
-  private final String _viewName;
+  private final UniqueIdentifier _viewProcessId;
   private final String _calcConfigName;
   private final long _iterationTimestamp;
   private final long _jobId;
   
-  public CalculationJobSpecification(String viewName, String calcConfigName, long iterationTimestamp, long jobId) {
+  public CalculationJobSpecification(UniqueIdentifier viewProcessId, String calcConfigName, long iterationTimestamp, long jobId) {
     // TODO kirk 2009-09-25 -- Check Inputs
-    _viewName = viewName;
+    _viewProcessId = viewProcessId;
     _calcConfigName = calcConfigName;
     _iterationTimestamp = iterationTimestamp;
     _jobId = jobId;
   }
   
   public CalculationJobSpecification(CalculationJobSpecification other) {
-    this(other._viewName, other._calcConfigName, other._iterationTimestamp, other._jobId);
+    this(other._viewProcessId, other._calcConfigName, other._iterationTimestamp, other._jobId);
   }
 
   /**
-   * @return the viewName
+   * @return the unique identifier of the view process
    */
-  public String getViewName() {
-    return _viewName;
+  public UniqueIdentifier getViewProcessId() {
+    return _viewProcessId;
   }
 
   /**
@@ -70,7 +72,7 @@ public class CalculationJobSpecification implements Serializable {
     result = prime * result
         + (int) (_iterationTimestamp ^ (_iterationTimestamp >>> 32));
     result = prime * result + (int) (_jobId ^ (_jobId >>> 32));
-    result = prime * result + ((_viewName == null) ? 0 : _viewName.hashCode());
+    result = prime * result + ((_viewProcessId == null) ? 0 : _viewProcessId.hashCode());
     result = prime * result + ((_calcConfigName == null) ? 0 : _calcConfigName.hashCode());
     return result;
   }
@@ -86,7 +88,7 @@ public class CalculationJobSpecification implements Serializable {
     CalculationJobSpecification other = (CalculationJobSpecification) obj;
     return (_iterationTimestamp == other._iterationTimestamp)
            && (_jobId == other._jobId)
-           && ObjectUtils.equals(_viewName, other._viewName)
+           && ObjectUtils.equals(_viewProcessId, other._viewProcessId)
            && ObjectUtils.equals(_calcConfigName, other._calcConfigName);
   }
 

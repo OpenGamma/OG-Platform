@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+    <!-- Cometd -->
+    <servlet>
+        <servlet-name>cometd</servlet-name>
+        <servlet-class>org.cometd.server.continuation.ContinuationCometdServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>cometd</servlet-name>
+        <url-pattern>/cometd/*</url-pattern>
+    </servlet-mapping>
+    <filter>
+        <filter-name>cross-origin</filter-name>
+        <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>cross-origin</filter-name>
+        <url-pattern>/cometd/*</url-pattern>
+    </filter-mapping>
+
+    <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet
+          here to trigger LiveResultsServiceBean initialization after the cometd
+          servlet has been initialized -->
+    <servlet>
+        <servlet-name>ConfigurationServlet</servlet-name>
+        <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <filter>
+        <filter-name>spring-request</filter-name>
+        <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>spring-request</filter-name>
+        <url-pattern>/jax/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Jersey - JAXRS support -->
+    <servlet>
+        <servlet-name>jersey-spring</servlet-name>
+        <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
+            <param-value>com.opengamma.transport.jaxrs.HttpMethodFilter,com.opengamma.transport.jaxrs.CsvFilter</param-value>
+        </init-param>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jersey-spring</servlet-name>
+        <url-pattern>/jax/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Ehcache shutdown hook -->
+    <listener>
+        <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+    </listener>
+
+    <!-- Disable Jetty's locking of static files -->
+    <servlet>
+        <servlet-name>default</servlet-name>
+        <init-param>
+            <param-name>useFileMappedBuffer</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+
+</web-app>

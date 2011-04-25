@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -32,7 +35,7 @@ public class SwapFixedIborMethod {
   /**
    * Computes the conventional cash annuity of a swap. The computation is relevant only for standard swaps with constant notional and regular payments.
    * @param fixedCouponSwap The underlying swap.
-   * @param forward The swap forward.
+   * @param forward The swap forward rate.
    * @return The cash annuity.
    */
   public static double getAnnuityCash(FixedCouponSwap<? extends Payment> fixedCouponSwap, double forward) {
@@ -88,6 +91,39 @@ public class SwapFixedIborMethod {
   }
 
   /**
+   * Computes the physical annuity (also called PVBP or level) of the fixed leg of a swap modified by a day count.
+   * @param fixedCouponSwap The underlying swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param discountingCurve The discount curve.
+   * @return The physical annuity.
+   */
+  public static double presentValueBasisPoint(FixedCouponSwap<? extends Payment> fixedCouponSwap, DayCount dayCount, YieldAndDiscountCurve discountingCurve) {
+    Validate.notNull(fixedCouponSwap, "swap");
+    Validate.notNull(dayCount, "day count");
+    Validate.notNull(discountingCurve, "discounting curve");
+    AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    double pvbp = 0;
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      pvbp += dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate())
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()) * discountingCurve.getDiscountFactor(annuityFixed.getNthPayment(loopcpn).getPaymentTime());
+    }
+    return pvbp;
+  }
+
+  /**
+   * Computes the physical annuity (also called PVBP or level) of the fixed leg of a swap modified by a day count.
+   * @param fixedCouponSwap The underlying swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param curves The yield curve bundle (containing the appropriate discounting curve).
+   * @return The physical annuity.
+   */
+  public static double presentValueBasisPoint(FixedCouponSwap<? extends Payment> fixedCouponSwap, DayCount dayCount, YieldCurveBundle curves) {
+    AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
+    return presentValueBasisPoint(fixedCouponSwap, dayCount, discountingCurve);
+  }
+
+  /**
    * Compute the sensitivity of the PVBP to the discounting curve.
    * @param fixedCouponSwap The swap.
    * @param discountingCurve The discounting curve.
@@ -139,6 +175,18 @@ public class SwapFixedIborMethod {
    */
   public static double couponEquivalent(FixedCouponSwap<? extends Payment> fixedCouponSwap, YieldCurveBundle curves) {
     double pvbp = presentValueBasisPoint(fixedCouponSwap, curves);
+    return couponEquivalent(fixedCouponSwap, pvbp, curves);
+  }
+
+  /**
+   * Computes the coupon equivalent of a swap (without margins).
+   * @param fixedCouponSwap The underlying swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param curves The curves.
+   * @return The coupon equivalent.
+   */
+  public static double couponEquivalent(FixedCouponSwap<? extends Payment> fixedCouponSwap, DayCount dayCount, YieldCurveBundle curves) {
+    double pvbp = presentValueBasisPoint(fixedCouponSwap, dayCount, curves);
     return couponEquivalent(fixedCouponSwap, pvbp, curves);
   }
 }

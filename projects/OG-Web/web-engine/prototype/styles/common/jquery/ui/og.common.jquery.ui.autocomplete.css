@@ -1,0 +1,24 @@
+.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+}
+
+.ui-autocomplete li {
+  list-style: none;
+}
+
+.ui-autocomplete .ui-menu-item a {
+  display: block;
+  padding: 2px 5px;
+}
+
+.ui-autocomplete #ui-active-menuitem {
+  background-color: #487287;
+  color: #fff;
+  display: block;
+}
+
+.ui-autocomplete-loading {
+  background: white url('/prototype/images/common/animation/ui-anim_basic_16x16.gif') right center no-repeat;
+  border: 1px solid;
+}

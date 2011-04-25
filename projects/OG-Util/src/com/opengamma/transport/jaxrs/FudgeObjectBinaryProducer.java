@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
@@ -57,7 +58,15 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
       MultivaluedMap<String, Object> httpHeaders,
       OutputStream entityStream) throws IOException, WebApplicationException {
     
-    FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(obj);
+    FudgeMsgEnvelope msg;
+    if (obj instanceof FudgeMsgEnvelope) {
+      msg = (FudgeMsgEnvelope) obj;
+    } else if (obj instanceof FudgeMsg) {
+      msg = new FudgeMsgEnvelope((FudgeMsg) obj);
+    } else {
+      msg = getFudgeContext().toFudgeMsg(obj);
+    }
+ 
     getFudgeContext().createMessageWriter(entityStream).writeMessageEnvelope(msg, 0);
   }
 

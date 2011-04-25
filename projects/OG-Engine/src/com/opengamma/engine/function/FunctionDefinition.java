@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.PublicSPI;
 
@@ -32,7 +32,7 @@ public interface FunctionDefinition {
    * 
    * <p>Because this is done on a per-processor basis rather than a per-view basis, the
    * {@link FunctionCompilationContext} provided will only contain details that are generic
-   * to the processor being initialized, rather than the {@link View} being compiled.</p>
+   * to the processor being initialized, rather than the {@link ViewProcess} being compiled.</p>
    * 
    * <p>This should perform any one-off initializations required. Any operations that will change
    * over time should be performed as part of compilation, see {@link #compile}.</p>

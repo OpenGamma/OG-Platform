@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * and reconnects if the connection has been lost.
  * <p>
  * This beans depends-on the Live Data Server, and any Spring configuration must reflect 
- * this. See {@link http://jira.springframework.org/browse/SPR-2325}.  
+ * this. See <a href="http://jira.springframework.org/browse/SPR-2325">http://jira.springframework.org/browse/SPR-2325</a>.  
  *
  */
 public class ReconnectManager implements Lifecycle {

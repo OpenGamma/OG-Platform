@@ -11,17 +11,32 @@ import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a fixed payment.
  */
 public class PaymentFixed extends Payment {
+
+  /**
+   * The paid amount.
+   */
   private final double _amount;
 
+  /**
+   * Fixed payment constructor.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentAmount The amount paid.
+   * @param fundingCurve Name of the funding curve.
+   */
   public PaymentFixed(final Currency currency, final double paymentTime, final double paymentAmount, final String fundingCurve) {
     super(currency, paymentTime, fundingCurve);
     Validate.notNull(fundingCurve);
     _amount = paymentAmount;
   }
 
+  /**
+   * Gets the amount paid.
+   * @return The amount.
+   */
   public double getAmount() {
     return _amount;
   }

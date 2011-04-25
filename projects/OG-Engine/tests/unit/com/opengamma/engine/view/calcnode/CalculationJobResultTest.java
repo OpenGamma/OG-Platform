@@ -37,7 +37,7 @@ public class CalculationJobResultTest {
   
   public void fudge() {
     IdentifierMap identifierMap = new InMemoryIdentifierMap ();
-    CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
+    CalculationJobSpecification spec = new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), "config", 1L, 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
     
     CalculationJobItem item = new CalculationJobItem(

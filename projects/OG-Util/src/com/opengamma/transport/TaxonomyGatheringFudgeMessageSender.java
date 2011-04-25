@@ -169,30 +169,45 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
         continue;
       }
       _taxonomyValues.putIfAbsent(field.getName(), _nextOrdinal.getAndIncrement());
-      
       if (field.getValue() instanceof FudgeMsg) {
         gatherFieldNames((FudgeMsg) field.getValue());
       }
     }
   }
 
+  /**
+   * Wait for the next write to occur that will have flushed the last of the field names collected by
+   * the previous call to send.
+   */
   protected void waitForNextWrite() throws InterruptedException {
-    CountDownLatch latch = new CountDownLatch(1);
-    if (!_waitForNextWrite.compareAndSet(null, latch)) {
-      latch = _waitForNextWrite.get();
-      // If latch is now null then a write must have happened, so don't need to block
-      if (latch == null) {
-        return;
+    final int nextOrdinal = _nextOrdinal.get();
+    while (_lastMaxOrdinalWritten.get() < nextOrdinal) {
+      CountDownLatch latch = new CountDownLatch(1);
+      if (_waitForNextWrite.compareAndSet(null, latch)) {
+        // Latch available for the writing thread
+        if (_lastMaxOrdinalWritten.get() >= nextOrdinal) {
+          // Writing thread updated the last max; it may or may not have taken
+          // the latch at this point but that doesn't matter. At worse it will
+          // waste a "countDown" operation on it.
+          return;
+        }
+      } else {
+        latch = _waitForNextWrite.get();
+        // If latch is now null then a write must have happened, so don't need to block
+        if (latch == null) {
+          return;
+        }
       }
+      latch.await();
     }
-    latch.await();
   }
 
   private class PropertyWritingTimerTask extends TimerTask {
 
     @Override
     public void run() {
-      if (_lastMaxOrdinalWritten.get() >= _nextOrdinal.get()) {
+      final int nextOrdinal = _nextOrdinal.get();
+      if (_lastMaxOrdinalWritten.get() >= nextOrdinal) {
         s_logger.debug("No reason to write taxonomy as no changes since last persist.");
       } else {
         s_logger.info("Writing current taxonomy of {} values to {}", _taxonomyValues.size(), _outputFile);
@@ -200,7 +215,6 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
         for (Map.Entry<String, Integer> taxonomyEntry : _taxonomyValues.entrySet()) {
           props.setProperty(taxonomyEntry.getValue().toString(), taxonomyEntry.getKey());
         }
-        _lastMaxOrdinalWritten.set(_nextOrdinal.get());
         FileOutputStream fos = null;
         try {
           fos = new FileOutputStream(_temporaryFile);
@@ -226,6 +240,7 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
             }
           }
         }
+        _lastMaxOrdinalWritten.set(nextOrdinal);
         final CountDownLatch latch = _waitForNextWrite.getAndSet(null);
         if (latch != null) {
           latch.countDown();
