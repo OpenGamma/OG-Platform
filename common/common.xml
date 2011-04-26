@@ -13,6 +13,16 @@
 	<!-- project defaults -->
 	<property file="${common.dir}/build.properties" />
 
+    <!-- location of test properties can be overridden with TEST_PROPERTIES_DIR, defaults to OG-Platform/config
+         this should probably be replaced using the "ant init" mechanism to keep the file location the same and
+         overwrite with different versions -->
+    <condition property="test.properties.dir" value="${env.TEST_PROPERTIES_DIR}" else="${basedir}/../../config">
+        <isset property="env.TEST_PROPERTIES_DIR"/>
+    </condition>
+    <condition property="test.properties" value="${env.TEST_PROPERTIES}" else="tests.properties">
+        <isset property="env.TEST_PROPERTIES"/>
+    </condition>
+
 	<!-- REVIEW kirk 2010-04-29 - I believe this can be changed to reference ogdev.dir, but I don't want to
 	     break everybody's settings. -->
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
@@ -191,7 +201,8 @@
 				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 			<sysproperty key="user.name" value="${user.name}" />
-			<sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
+
+            <sysproperty key="test.properties" value="${test.properties.dir}/${test.properties}"/> <!-- Read in TestProperties.java -->
 			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
 			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
 			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
@@ -230,7 +241,7 @@
             <jvmarg value="${junit.logback.jvmarg}" />
             <jvmarg value="-Xmx${junit.maxheap}" />
             <sysproperty key="user.name" value="${user.name}" />
-            <sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
+            <sysproperty key="test.properties" value="${test.properties.dir}/${test.properties}"/> <!-- Read in TestProperties.java -->
             <sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
             <sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
             <sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />

@@ -57,7 +57,7 @@
 		    	<arg value="--username"/>
 				<arg value="postgres"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/><!-- todo move server references to a separate properties file -->
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-db-users.sql"/>
 				<arg value="--dbname"/>
@@ -68,7 +68,7 @@
 		    	<arg value="--username"/>
 				<arg value="postgres"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/><!-- todo move server references to a separate properties file -->
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-schema.sql"/>
 				<arg value="--dbname"/>
@@ -78,7 +78,7 @@
 				<arg value="--username"/>
 				<arg value="finowner"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="postgresql-lx-1.hq.opengamma.com"/><!-- todo move server references to a separate properties file -->
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-tables.sql"/>
 				<arg value="--dbname"/>
