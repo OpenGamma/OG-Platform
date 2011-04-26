@@ -3,23 +3,17 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-	<target name="publish" depends="clean-build, jar, zip-web-app"
-	    description="--> publish this project in the ivy repository">
-		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
-	      resolver="shared" pubrevision="${version}" status="release" />
-		<echo message="project ${ant.project.name} released with version ${version}" />
+	<target name="publish" depends="zip-webapp,common.publish" />
+
+	<target name="publish-local" depends="zip-webapp,common.publish-local" />
+
+	<target name="zip-webapp" description="--> tar up the webapp directories for publishing">
+		<zip destfile="${dist.dir}/web-engine-webapp.zip" basedir="${basedir}">
+			<include name="web-engine/**/*" />
+		</zip>
+		<zip destfile="${dist.dir}/web-marketdata-webapp.zip" basedir="${basedir}">
+			<include name="web-marketdata/**/*" />
+		</zip>
 	</target>
 
-	<target name="publish-local" depends="local-version, jar, zip-web-app"
-	    description="--> publish this project in the local ivy repository">
-		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
-	      resolver="local" pubrevision="${version}" pubdate="${now}" status="integration"
-	      forcedeliver="true" />
-		<echo message="project ${ant.project.name} published locally with version ${version}" />
-	</target>
-
-	<property name="webapp.dir" value="web-engine" />
-	<target name="zip-web-app" description="--> tar up the web-app directory for publishing">
-		<zip destfile="${build.dir}/${webapp.dir}.zip" basedir="${webapp.dir}" />
-	</target>
 </project>

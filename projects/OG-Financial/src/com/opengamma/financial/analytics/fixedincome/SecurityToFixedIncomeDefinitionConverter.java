@@ -42,13 +42,10 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.schedule.ScheduleFactory;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -60,7 +57,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class SecurityToFixedIncomeDefinitionConverter extends FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityToFixedIncomeDefinitionConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
@@ -123,11 +120,6 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitEquitySecurity(final EquitySecurity security) {
-    throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from an EquitySecurity");
-  }
-
-  @Override
   public FixedIncomeInstrumentDefinition<?> visitFRASecurity(final FRASecurity security) {
     final String currency = security.getCurrency().getCode();
     final ConventionBundle conventions = _conventionSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency + "_FRA"));
@@ -139,16 +131,6 @@ public class SecurityToFixedIncomeDefinitionConverter implements FinancialSecuri
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(), conventions.getBusinessDayConvention(), calendar, currency + "_FRA_CONVENTION");
     //return new FRADefinition(startDate, maturityDate, fraSecurity.getRate(), convention);
     return new FRADefinition(startDate, maturityDate, 0, convention);
-  }
-
-  @Override
-  public FixedIncomeInstrumentDefinition<?> visitFutureSecurity(final FutureSecurity security) {
-    throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from a FutureSecurity");
-  }
-
-  @Override
-  public FixedIncomeInstrumentDefinition<?> visitOptionSecurity(final OptionSecurity security) {
-    throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from an OptionSecurity");
   }
 
   @Override

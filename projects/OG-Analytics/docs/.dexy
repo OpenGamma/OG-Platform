@@ -12,7 +12,7 @@
   "debug.txt|jinja" : {
     "allinputs" : true
   },
-  "javadoc-data.json|javadocs" : { },
+  "javadoc-data.json|javadocs" : {},
   "_*.html|dexy" : {},
   "_*.tex|dexy" : {},
   "*.png|cp" : {},

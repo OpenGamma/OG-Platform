@@ -334,57 +334,119 @@
 			compress="${jar.compress}" />
 	</target>
 
-	<target name="publish" depends="clean-build, jar"
+	<target name="dist-publish" depends="src-jar, jar">
+		<copy file="${src.jar.file}" tofile="${dist.dir}/${ant.project.name}-source.jar" />
+		<copy file="${jar.file}" tofile="${dist.dir}/${ant.project.name}-jar.jar" />
+	</target>
+
+	<target name="publish" depends="clean-build, dist-publish"
 		description="--> publish this project in the ivy repository">
-		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+		<antcall target="dist-publish" />
+		<ivy:publish artifactspattern="${dist.dir}/[artifact]-[type].[ext]"
 			resolver="shared" pubrevision="${version}" status="release" />
 		<echo message="project ${ant.project.name} released with version ${version}" />
 	</target>
 
-	<target name="publish-local" depends="local-version, jar"
+	<target name="publish-local" depends="local-version, dist-publish"
 		description="--> publish this project in the local ivy repository">
-		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+		<ivy:publish artifactspattern="${dist.dir}/[artifact]-[type].[ext]"
 			resolver="local" pubrevision="${version}" pubdate="${now}" status="integration"
 			forcedeliver="true" />
 		<echo
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
 
-	<target name="dist" depends="clean,publish-local">
+	<target name="dist-common">
 		<mkdir dir="${dist.dir}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
-		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
+		<delete dir="${dist.dir}/${dist.name}" failonerror="false" />
+		<mkdir dir="${dist.dir}/${dist.name}" />
+		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false" />
+		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false" />
 		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
-			<fileset dir="${basedir}/config"/>
+			<fileset dir="${basedir}/config" />
 		</copy>
 		<copy todir="${dist.dir}/${dist.name}/scripts" failonerror="false">
-			<fileset dir="${basedir}/scripts"/>
+			<fileset dir="${basedir}/scripts" />
 		</copy>
-		<copy todir="${dist.dir}/${dist.name}/web-engine" failonerror="false">
-			<fileset dir="${projects.dir}/OG-Web/web-engine"/>
-		</copy>
-		<copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
-			<fileset dir="${projects.dir}/OG-Web/web-marketdata"/>
-		</copy>
-		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
-		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />
-		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.sh" eol="lf" eof="remove" />
-		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="LICENSE.txt" eol="lf" eof="remove" />
-		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="README.txt" eol="lf" eof="remove" />
+	</target>
+
+	<target name="dist-fixcrlf">
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" eol="lf" eof="remove">
+			<include name="**/*.properties" />
+			<include name="**/*.xml" />
+			<include name="**/*.sh" />
+			<include name="**/*.txt" />
+			<include name="**/*.java" />
+			<include name="**/*.proto" />
+		</fixcrlf>
+	</target>
+
+	<target name="dist-nodep" depends="dist-common,clean-src,clean-build,jar">
+		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
+		<antcall target="dist-fixcrlf" />
+	</target>
+
+	<target name="dist" depends="dist-nodep">
+		<tar destfile="${dist.dir}/${dist.name}-nodep-${version}.tar" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</tar>
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
+		<ivy:retrieve type="jar,webapp" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
+		<antcall target="dist-fixcrlf" />
+	</target>
+
+	<target name="dist-src-nodep" depends="dist-common,clean-src,version">
+		<copy todir="${dist.dir}/${dist.name}/src">
+			<fileset dir="${src.dir}" excludes="**/*.class" />
+		</copy>
+		<copy todir="${dist.dir}/${dist.name}/tests/unit">
+			<fileset dir="${tests.src.dir}" excludes="**/*.class" />
+		</copy>
+		<antcall target="dist-fixcrlf" />
+	</target>
+
+	<target name="dist-src" depends="dist-src-nodep">
+		<tar destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</tar>
+		<mkdir dir="${dist.dir}/${dist.name}/lib" />
+		<!-- Fetch the binary dependencies first, in case there aren't source dependencies -->
 		<ivy:retrieve type="jar" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
+		<!-- The source dependencies will overwrite the binary ones -->
+		<ivy:retrieve type="source,webapp" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
+		<antcall target="dist-fixcrlf" />
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
+		<bzip2 src="${dist.dir}/${dist.name}-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-nodep-${version}.tar.bz2" />
 		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</tar>
 		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
 	</target>
+	<target name="src-tarball" depends="dist-src" description="--> generate a source tarball for distribution">
+		<bzip2 src="${dist.dir}/${dist.name}-src-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar.bz2" />
+		<tar destfile="${dist.dir}/${dist.name}-src-${version}.tar" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</tar>
+		<bzip2 src="${dist.dir}/${dist.name}-src-${version}.tar" destfile="${dist.dir}/${dist.name}-src-${version}.tar.bz2" />
+	</target>
 
 	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
+		<mkdir dir="${dist.dir}/tmp" />
+		<untar src="${dist.dir}/${dist.name}-nodep-${version}.tar" dest="${dist.dir}/tmp" />
+		<zip destfile="${dist.dir}/${dist.name}-nodep-${version}.zip" basedir="${dist.dir}/tmp" />
+		<delete dir="${dist.dir}/tmp" />
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</zip>
+	</target>
+	<target name="src-zipfile" depends="dist-src" description="--> generate a source zip file for distribution">
+		<mkdir dir="${dist.dir}/tmp" />
+		<untar src="${dist.dir}/${dist.name}-src-nodep-${version}.tar" dest="${dist.dir}/tmp" />
+		<zip destfile="${dist.dir}/${dist.name}-src-nodep-${version}.zip" basedir="${dist.dir}/tmp" />
+		<delete dir="${dist.dir}/tmp" />
+		<zip destfile="${dist.dir}/${dist.name}-src-${version}.zip" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</zip>
 	</target>
@@ -410,7 +472,7 @@
 		<delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
 
-	<target name="clean-dist" description="--> clean the project distribution files">
+	<target name="clean-dist" description="--> clean the project distribution files" unless="no.clean.dist">
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
 
@@ -491,7 +553,7 @@
 		     the dev server ~/.ssh/authorized_keys2 file, where ~ is the home directory of ${dev.server.user}. -->
 
 		<scp file="${dist.dir}/${dist.name}-${version}.zip"
-	        	todir="${dev.server.user}@${dev.server.host}:${dev.server.dir}"
+			todir="${dev.server.user}@${dev.server.host}:${dev.server.dir}"
 			keyfile="${ssh.private.key}"
 			passphrase=""
 			verbose="true"
@@ -522,11 +584,11 @@
 		</if>
 
 		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-	        command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
+		command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
 		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-	        command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
+		command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
 		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
-	        command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
+		command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
 
 		<sshexec host="${dev.server.host}" 
 				username="${dev.server.user}" 
@@ -542,14 +604,14 @@
 		<sequential>
 			<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
 			<dbtool 
-	        jdbcUrl="jdbc:hsqldb:file:@{path}" 
-	        catalog="@{catalog}" 
-	        user="" 
-	        password="" 
-	        drop="true" 
-	        create="true" 
-	        createTables="true" 
-	        dbScriptDir="@{scriptDir}" />
+		jdbcUrl="jdbc:hsqldb:file:@{path}" 
+		catalog="@{catalog}" 
+		user="" 
+		password="" 
+		drop="true" 
+		create="true" 
+		createTables="true" 
+		dbScriptDir="@{scriptDir}" />
 		</sequential>
 	</macrodef>
 
