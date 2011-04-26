@@ -13,8 +13,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.identifierBea
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -199,69 +197,6 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
       }
     });
     return sec;
-  }
-
-  @Override
-  public boolean beanEquals(final OperationContext context, final OptionSecurityBean bean, final OptionSecurity security) {
-    return security.accept(new OptionSecurityVisitor<Boolean>() {
-
-      private Boolean beanEquals(final OptionSecurity security) {
-        return ObjectUtils.equals(bean.getOptionExerciseType(), security.getExerciseType()) && ObjectUtils.equals(bean.getOptionPayoffStyle(), security.getPayoffStyle())
-          && ObjectUtils.equals(bean.getOptionSecurityType(), OptionSecurityType.identify(security)) && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
-            && ObjectUtils.equals(bean.getStrike(), security.getStrike()) && ObjectUtils.equals(expiryBeanToExpiry(bean.getExpiry()), security.getExpiry())
-          && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
-      }
-
-      @Override
-      public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return ObjectUtils.equals(bean.getCounterparty(), security.getCounterparty()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getPutCurrency()), security.getPutCurrency())
-          && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
-      }
-
-      @Override
-      public Boolean visitBondOptionSecurity(BondOptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return true;
-      }
-
-      @Override
-      public Boolean visitEquityOptionSecurity(EquityOptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return ObjectUtils.equals(bean.getPointValue(), security.getPointValue()) && ObjectUtils.equals(bean.getExchange(), security.getExchange());
-      }
-
-      @Override
-      public Boolean visitFutureOptionSecurity(FutureOptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return ObjectUtils.equals(bean.getPointValue(), security.getPointValue()) && ObjectUtils.equals(bean.getExchange(), security.getExchange())
-          && ObjectUtils.equals(bean.isMargined(), security.getIsMargined());
-      }
-
-      @Override
-      public Boolean visitOptionOptionSecurity(OptionOptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return true;
-      }
-
-      @Override
-      public Boolean visitSwaptionSecurity(SwaptionSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        return true;
-      }
-    });
   }
 
   @Override
