@@ -16,7 +16,7 @@ import com.sleepycat.je.EnvironmentConfig;
 
 /**
  * An implementation of {@link ViewComputationCacheSource} which will use an injected
- * {@link IdentifierMap} and construct {@link BerkeleyDBValueSpecificationBinaryDataStore}
+ * {@link IdentifierMap} and construct {@link DefaultViewComputationCache}
  * instances on demand to satisfy cache requests.
  */
 public class BerkeleyDBViewComputationCacheSource extends DefaultViewComputationCacheSource {
