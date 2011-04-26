@@ -175,7 +175,15 @@
 	<property name="test.database.previousVersions" value="1"/>
 	<!-- number of previous versions to test upgrade scripts from -->
 
-	<target name="tests" depends="junit-batch,junit-report,testng-batch" description="--> run unit tests and generate report"/>
+	<target name="tests" depends="test-batch-clean,test-batch,junit-report" description="--> run unit tests and generate report"/>
+
+        <target name="test-batch" depends="junit-batch,testng-batch"/>
+
+        <target name="test-batch-clean">
+		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
+	</target>
 
 	<target name="junit-batch" depends="compile-tests" unless="testng">
 		<mkdir dir="${tests.junit.dir}/xml" />
@@ -213,7 +221,7 @@
 		</junit>
 	</target>
 
-	<target name="junit-report" depends="junit-batch" unless="testng">
+	<target name="junit-report" depends="junit-batch" >
 		<mkdir dir="${tests.junit.dir}/html" />
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<junitreport todir="${tests.junit.dir}/xml">
@@ -224,16 +232,13 @@
 
 	<target name="testng-batch" depends="compile-tests" if="testng">
 		<taskdef resource="testngtasks" classpathref="lib.path.id"/>
-		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
-		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
-		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
 
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
 		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}">
 			<isset property="junit.logback" />
 		</condition>
 		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
-		<testng suitename="Ant tests for ${ant.project.name}" outputdir="tests/output" workingDir="${basedir}">
+		<testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}">
 			<classpath>
 				<path refid="lib.path.id" />
 				<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
@@ -256,11 +261,11 @@
 			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
 		</testng>
 		<move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" />
-		<mkdir dir="${tests.junit.dir}/html" />
+		<!--mkdir dir="${tests.junit.dir}/html" />
 		<junitreport todir="${tests.junit.dir}/xml">
 			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
 			<report todir="${tests.junit.dir}/html" />
-		</junitreport>
+		</junitreport-->
 	</target>
 
 	<!-- ================================================================ -->
