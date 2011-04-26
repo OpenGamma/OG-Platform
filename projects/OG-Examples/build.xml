@@ -118,5 +118,8 @@
 	</target>
 
 
+    <target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
+            <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
+    </target>
 
 </project>
