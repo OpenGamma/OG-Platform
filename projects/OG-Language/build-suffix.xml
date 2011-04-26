@@ -163,6 +163,7 @@
 			<format property="now" pattern="yyyyMMddHHmmss" />
 		</tstamp>
 		<property name="version" value="${module.version}-local-${now}" />
+		<!-- TODO: should propogate the 'now' part into the build-number -->
 	</target>
 	<target name="version">
 		<tstamp>
