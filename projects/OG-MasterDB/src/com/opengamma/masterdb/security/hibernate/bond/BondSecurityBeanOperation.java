@@ -14,8 +14,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -108,27 +106,6 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       }
 
     });
-  }
-
-  @Override
-  public boolean beanEquals(final OperationContext context, BondSecurityBean bean, BondSecurity security) {
-    return ObjectUtils.equals(bean.getBondType(), BondType.identify(security)) && ObjectUtils.equals(bean.getIssuerName(), security.getIssuerName())
-        && ObjectUtils.equals(bean.getIssuerType().getName(), security.getIssuerType()) && ObjectUtils.equals(bean.getIssuerDomicile(), security.getIssuerDomicile())
-        && ObjectUtils.equals(bean.getMarket().getName(), security.getMarket()) && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
-        && ObjectUtils.equals(yieldConventionBeanToYieldConvention(bean.getYieldConvention()), security.getYieldConvention())
-        && ObjectUtils.equals(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null, security.getGuaranteeType())
-        && ObjectUtils.equals(expiryBeanToExpiry(bean.getLastTradeDate()), security.getLastTradeDate())
-        && ObjectUtils.equals(bean.getCouponType().getName(), security.getCouponType()) && ObjectUtils.equals(bean.getCouponRate(), security.getCouponRate())
-        && ObjectUtils.equals(frequencyBeanToFrequency(bean.getCouponFrequency()), security.getCouponFrequency())
-        && ObjectUtils.equals(dayCountBeanToDayCount(bean.getDayCountConvention()), security.getDayCountConvention())
-        && ObjectUtils.equals(businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()), security.getBusinessDayConvention())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()), security.getAnnouncementDate())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()), security.getInterestAccrualDate())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()), security.getSettlementDate())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()), security.getFirstCouponDate())
-        && ObjectUtils.equals(bean.getIssuancePrice(), security.getIssuancePrice()) && ObjectUtils.equals(bean.getTotalAmountIssued(), security.getTotalAmountIssued())
-        && ObjectUtils.equals(bean.getMinimumAmount(), security.getMinimumAmount()) && ObjectUtils.equals(bean.getMinimumIncrement(), security.getMinimumIncrement())
-        && ObjectUtils.equals(bean.getParAmount(), security.getParAmount()) && ObjectUtils.equals(bean.getRedemptionValue(), security.getRedemptionValue());
   }
 
   @Override

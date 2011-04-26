@@ -12,8 +12,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.identifierBea
 import static com.opengamma.masterdb.security.hibernate.Converters.identifierToIdentifierBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
@@ -34,15 +32,6 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   private CashSecurityBeanOperation() {
     super("CASH", CashSecurity.class, CashSecurityBean.class);
-  }
-
-  @Override
-  public boolean beanEquals(final OperationContext context, CashSecurityBean bean, CashSecurity security) {
-    return ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
-        && ObjectUtils.equals(identifierBeanToIdentifier(bean.getRegion()), security.getRegion())
-        && ObjectUtils.equals(zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), security.getMaturity())
-        && bean.getRate() == security.getRate() // should maybe use closeEquals()?
-        && bean.getAmount() == security.getAmount();
   }
 
   @Override

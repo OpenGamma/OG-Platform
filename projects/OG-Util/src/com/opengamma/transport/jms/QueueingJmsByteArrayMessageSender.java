@@ -47,7 +47,7 @@ public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender
           }
         }
       }
-    });
+    }, String.format("QueueingJmsByteArrayMessageSender %s", destinationName));
     _senderThread.setDaemon(true);
     _senderThread.start();
   }

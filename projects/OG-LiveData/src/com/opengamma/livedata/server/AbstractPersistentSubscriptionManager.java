@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * time it starts.
  * <p>
  * This beans depends-on the Live Data Server, and any Spring configuration must reflect 
- * this. See {@link http://jira.springframework.org/browse/SPR-2325}.
+ * this. See <a href="http://jira.springframework.org/browse/SPR-2325">http://jira.springframework.org/browse/SPR-2325</a>.
  * 
  */
 public abstract class AbstractPersistentSubscriptionManager implements Lifecycle {
@@ -217,7 +217,7 @@ public abstract class AbstractPersistentSubscriptionManager implements Lifecycle
 
   /**
    * Reads entries from persistent storage (DB, flat file, ...) and calls
-   * {@link addPersistentSubscription(PersistentSubscription sub)} for each one.
+   * {@link #addPersistentSubscription(PersistentSubscription)} for each one.
    */
   protected abstract void readFromStorage();
 
