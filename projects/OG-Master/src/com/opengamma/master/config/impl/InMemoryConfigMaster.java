@@ -45,7 +45,7 @@ import com.opengamma.util.db.Paging;
 public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
-   * The default scheme used for each {@link ObejctIdentifier}.
+   * The default scheme used for each {@link ObjectIdentifier}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
  

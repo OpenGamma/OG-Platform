@@ -8,37 +8,35 @@
 	<!-- Set where the OGDEV dir is. We do this outside build.properties so that
 	     we can reference it in build.properties. -->
 	<property file="${common.dir}/ogdev.properties"/>
-	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}"><os family="windows" /></condition>
-		
+	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}">
+		<os family="windows" />
+	</condition>
+
 	<!-- project defaults -->
 	<property file="${common.dir}/build.properties" />
 
-    <!-- location of test properties can be overridden with TEST_PROPERTIES_DIR, defaults to OG-Platform/config
-         this should probably be replaced using the "ant init" mechanism to keep the file location the same and
-         overwrite with different versions -->
-    <condition property="test.properties.dir" value="${env.TEST_PROPERTIES_DIR}" else="${basedir}/../../config">
-        <isset property="env.TEST_PROPERTIES_DIR"/>
-    </condition>
-    <condition property="test.properties" value="${env.TEST_PROPERTIES}" else="tests.properties">
-        <isset property="env.TEST_PROPERTIES"/>
-    </condition>
-
 	<!-- REVIEW kirk 2010-04-29 - I believe this can be changed to reference ogdev.dir, but I don't want to
 	     break everybody's settings. -->
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}">
+		<os family="windows" />
+	</condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}">
+		<not>
+			<isset property="env.IVY_SHARED_DEFAULT_ROOT" />
+		</not>
+	</condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 	<available file="${ivy.jar.file}" property="skip.download"/>
-	
+
 	<!-- Use the DSA SSH private key if found, otherwise use the RSA key.
 		 If your private key is not in ~/.ssh, or is named in a non-standard way, you
 		 will need to set the ssh.private.key property manually in build.properties. -->
 	<available file="${user.home}/.ssh/id_rsa" property="ssh.private.key" value="${user.home}/.ssh/id_rsa"/>
 	<available file="${user.home}/.ssh/id_dsa" property="ssh.private.key" value="${user.home}/.ssh/id_dsa"/>
- 
-    <import file="common-ivy.xml"/>
+
+	<import file="common-ivy.xml"/>
 
 	<target name="report" depends="resolve"
 		description="--> generates a report of dependencies">
@@ -53,8 +51,8 @@
 	</target>
 
 	<target name="fudge-proto-compile" if="fudge.proto.present" depends="fudge-proto-present">
-		 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-		 <fudgeproto
+		<taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+		<fudgeproto
 			srcdir="${src.dir}"
 			destdir="${src.dir}"
 			searchdir="${toString:lib.path.id}"
@@ -74,19 +72,19 @@
 	<target name="fudge-proto" depends="fudge-proto-compile" 
 		description="--> compile any Fudge .proto files">
 	</target>
-	
-    <target name="joda-bean-present">
-        <available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
-    </target>
 
-    <target name="joda-bean" depends="joda-bean-present" if="joda.bean.present">
-    	<java classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" fork="true" failonerror="true">
-    		<arg value="-R" />
-            <arg value="-indent=2" />
-            <arg value="-prefix=_" />
-    		<arg value="${src.dir}" />
-    	</java>
-    </target>
+	<target name="joda-bean-present">
+		<available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
+	</target>
+
+	<target name="joda-bean" depends="joda-bean-present" if="joda.bean.present">
+		<java classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" fork="true" failonerror="true">
+			<arg value="-R" />
+			<arg value="-indent=2" />
+			<arg value="-prefix=_" />
+			<arg value="${src.dir}" />
+		</java>
+	</target>
 
 	<target name="compile-src" depends="fudge-proto"
 		description="--> compile the main project files">
@@ -109,32 +107,32 @@
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-          <link href="http://download.oracle.com/javase/6/docs/api/" />
-          <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
-          <link href="http://threeten.sourceforge.net/apidocs/" />
-          <link href="http://joda-beans.sourceforge.net/apidocs/" />
-	    </javadoc>
+			<link href="http://download.oracle.com/javase/6/docs/api/" />
+			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+			<link href="http://threeten.sourceforge.net/apidocs/" />
+			<link href="http://joda-beans.sourceforge.net/apidocs/" />
+		</javadoc>
 	</target>
-	
+
 	<target name="javadoc-copyup" depends="load-ivy" description="copies appropriate files up to top level"/>
-	
-	
+
+
 	<target name="javadoc-public" depends="load-ivy" description="--> build Javadocs for public APIs and SPIs of the project">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
 		<copy toDir="${docs.dir}/temp-src">
 			<fileset dir="${src.dir}" includes="**/*.java">
-		    	<contains text="@PublicAPI" casesensitive="yes"/>
-		   	</fileset>
-		   	<fileset dir="${src.dir}" includes="**/*.java">
-	 	   		<contains text="@PublicSPI" casesensitive="yes"/>
-		   </fileset>
+				<contains text="@PublicAPI" casesensitive="yes"/>
+			</fileset>
+			<fileset dir="${src.dir}" includes="**/*.java">
+				<contains text="@PublicSPI" casesensitive="yes"/>
+			</fileset>
 		</copy>
 		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
 			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-	    </javadoc>
+		</javadoc>
 	</target>
 
 	<target name="compile-tests-mkdir">
@@ -172,15 +170,19 @@
 	</target>
 
 	<!-- ================================================================ -->
-	<property name="test.database.type" value="all"/>  <!-- hsqldb, postgres, all. -->
-	<property name="test.database.previousVersions" value="1"/>  <!-- number of previous versions to test upgrade scripts from -->
-	
+	<property name="test.database.type" value="all"/>
+	<!-- hsqldb, postgres, all. -->
+	<property name="test.database.previousVersions" value="1"/>
+	<!-- number of previous versions to test upgrade scripts from -->
+
 	<target name="tests" depends="junit-batch,junit-report,testng-batch" description="--> run unit tests and generate report"/>
-	
+
 	<target name="junit-batch" depends="compile-tests" unless="testng">
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
-		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}"><isset property="junit.logback" /></condition>
+		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}">
+			<isset property="junit.logback" />
+		</condition>
 		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
 		<junit printSummary="true" fork="true" forkmode="once" maxmemory="${junit.maxheap}" dir="${basedir}">
 			<classpath>
@@ -201,10 +203,12 @@
 				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 			<sysproperty key="user.name" value="${user.name}" />
-
-            <sysproperty key="test.properties" value="${test.properties.dir}/${test.properties}"/> <!-- Read in TestProperties.java -->
-			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
-			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
+			<sysproperty key="test.properties" value="${basedir}/tests.properties"/>
+			<!-- Read in TestProperties.java -->
+			<sysproperty key="test.database.type" value="${test.database.type}"/>
+			<!-- Read in DBTest.java -->
+			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/>
+			<!-- Read in DBTest.java -->
 			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
 		</junit>
 	</target>
@@ -218,43 +222,48 @@
 		</junitreport>
 	</target>
 
-    <target name="testng-batch" depends="compile-tests" if="testng">
-        <taskdef resource="testngtasks" classpathref="lib.path.id"/>
-        <delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
-        <delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
-        <delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
-        
-        <!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
-        <condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}"><isset property="junit.logback" /></condition>
-        <property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
-        <testng suitename="Ant tests for ${ant.project.name}" outputdir="tests/output" workingDir="${basedir}">
-            <classpath>
-                <path refid="lib.path.id" />
-                <fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
-                <!-- pathelement path="${lib.path.jar.file}" /-->
-                <pathelement path="${classes.dir}" />
-                <pathelement path="${tests.classes.dir}" />
-                <pathelement path="${config.dir}" />
-                <pathelement path="${clover.jar.file}" />
-            </classpath>
-            <classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
-            <jvmarg value="${junit.logback.jvmarg}" />
-            <jvmarg value="-Xmx${junit.maxheap}" />
-            <sysproperty key="user.name" value="${user.name}" />
-            <sysproperty key="test.properties" value="${test.properties.dir}/${test.properties}"/> <!-- Read in TestProperties.java -->
-            <sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
-            <sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
-            <sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
-        </testng>
-        <move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" />
-    	<mkdir dir="${tests.junit.dir}/html" />
-        <junitreport todir="${tests.junit.dir}/xml">
-            <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
-            <report todir="${tests.junit.dir}/html" />
-        </junitreport>
-    </target>
+	<target name="testng-batch" depends="compile-tests" if="testng">
+		<taskdef resource="testngtasks" classpathref="lib.path.id"/>
+		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
 
-    <!-- ================================================================ -->
+		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
+		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}">
+			<isset property="junit.logback" />
+		</condition>
+		<property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
+		<testng suitename="Ant tests for ${ant.project.name}" outputdir="tests/output" workingDir="${basedir}">
+			<classpath>
+				<path refid="lib.path.id" />
+				<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
+				<!-- pathelement path="${lib.path.jar.file}" /-->
+				<pathelement path="${classes.dir}" />
+				<pathelement path="${tests.classes.dir}" />
+				<pathelement path="${config.dir}" />
+				<pathelement path="${clover.jar.file}" />
+			</classpath>
+			<classfileset dir="${tests.classes.dir}" includes="**/*Test.class" excludes="**/Abstract*" />
+			<jvmarg value="${junit.logback.jvmarg}" />
+			<jvmarg value="-Xmx${junit.maxheap}" />
+			<sysproperty key="user.name" value="${user.name}" />
+			<sysproperty key="test.properties" value="${basedir}/tests.properties"/>
+			<!-- Read in TestProperties.java -->
+			<sysproperty key="test.database.type" value="${test.database.type}"/>
+			<!-- Read in DBTest.java -->
+			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/>
+			<!-- Read in DBTest.java -->
+			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
+		</testng>
+		<move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" />
+		<mkdir dir="${tests.junit.dir}/html" />
+		<junitreport todir="${tests.junit.dir}/xml">
+			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+			<report todir="${tests.junit.dir}/html" />
+		</junitreport>
+	</target>
+
+	<!-- ================================================================ -->
 	<target name="run" depends="version, compile" description="--> compile and run the project">
 		<java classpathref="run.path.id" classname="${main.class.name}" />
 	</target>
@@ -318,7 +327,7 @@
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
 			compress="${jar.compress}" />
 	</target>
-	
+
 	<target name="javadoc-public-jar" depends="version, javadoc-public"
 		description="--> make a javadoc jar file for this project">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
@@ -340,7 +349,7 @@
 		<echo
 			message="project ${ant.project.name} published locally with version ${version}" />
 	</target>
- 	
+
 	<target name="dist" depends="clean,publish-local">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false"/>
@@ -355,14 +364,14 @@
 		<copy todir="${dist.dir}/${dist.name}/web-engine" failonerror="false">
 			<fileset dir="${projects.dir}/OG-Web/web-engine"/>
 		</copy>
-	    <copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
-	        <fileset dir="${projects.dir}/OG-Web/web-marketdata"/>
-        </copy>
-        <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
-        <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />
-        <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.sh" eol="lf" eof="remove" />
-	    <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="LICENSE.txt" eol="lf" eof="remove" />
-        <fixcrlf srcdir="${dist.dir}/${dist.name}" includes="README.txt" eol="lf" eof="remove" />
+		<copy todir="${dist.dir}/${dist.name}/web-marketdata" failonerror="false">
+			<fileset dir="${projects.dir}/OG-Web/web-marketdata"/>
+		</copy>
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.properties" eol="lf" eof="remove" />
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.xml" eol="lf" eof="remove" />
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="**/*.sh" eol="lf" eof="remove" />
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="LICENSE.txt" eol="lf" eof="remove" />
+		<fixcrlf srcdir="${dist.dir}/${dist.name}" includes="README.txt" eol="lf" eof="remove" />
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
 		<ivy:retrieve type="jar" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
 	</target>
@@ -398,9 +407,9 @@
 			<fileset dir="${build.dir}" includes="**/*" excludes="bootstrap/*" />
 		</delete>
 		<delete includeemptydirs="true" dir="${tests.classes.dir}" />
-        <delete includeemptydirs="true" dir="${temp.dir}" />
+		<delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
-	
+
 	<target name="clean-dist" description="--> clean the project distribution files">
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
@@ -411,14 +420,14 @@
 		</subant>
 		<delete file="${fudge.proto.gitIgnoreFlag}" />
 	</target>
-	
+
 	<target name="clean-tests" description="--> clean all test generated files">
 		<delete includeemptydirs="true" failonerror="false" dir="${tests.junit.dir}"/>
 	</target>
-	
+
 	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-src, clean-tests"
 		description="--> clean the project" />
-	
+
 	<target name="run-hbm2ddl" depends="load-ivy,compile"
 		description="--> Generate Hibernate schema from mapping files">
 		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
@@ -443,7 +452,7 @@
 
 	<!-- CLOVER -->
 	<import file="${common.dir}/clover-common.xml"/>
-	
+
 	<target name="clover-setup" depends="taskdef-clover, guard-noclover">
 		<clover-setup
 			initstring="${clover.db.dir}"
@@ -451,7 +460,7 @@
 			<!--<fileset dir="${src.dir}"/>-->
 		</clover-setup>
 	</target>
-	
+
 	<target name="clover-html-report" depends="taskdef-clover, guard-noclover">
 		<clover-html-report
 			initstring="${clover.db.dir}"
@@ -467,7 +476,7 @@
 			</current>
 		</clover-report>
 	</target>
-	
+
 	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated"
 		depends="clean, clover-setup, compile, tests, clover-html-report">
 	</target>
@@ -477,7 +486,7 @@
 
 		<!-- If you get a FileNotFoundException complaining about ssh.private.key, make sure your
 			 SSH private key is in the standard location (see the ssh.private.key 'available' commands above). -->
-		
+
 		<!-- If you get an authentication failure, check that your SSH public key has been added to 
 		     the dev server ~/.ssh/authorized_keys2 file, where ~ is the home directory of ${dev.server.user}. -->
 
@@ -503,27 +512,45 @@
 			</then>
 			<else>
 				<echo>Killing process ${process.id.of.script}</echo>
-		  		<!-- Kill the java subprocess. This will automatically kill the bin/sh process as well. -->
+				<!-- Kill the java subprocess. This will automatically kill the bin/sh process as well. -->
 				<sshexec host="${dev.server.host}" 
 						username="${dev.server.user}"
 						keyfile="${ssh.private.key}"
 						command="ps -ef | awk '$3 == '${process.id.of.script}' { print $2 }' | xargs kill"
 						trust="true"/>
 			</else>
-	  	</if>
+		</if>
 
 		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
-	    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
+		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
-	    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
+		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
-		
+
 		<sshexec host="${dev.server.host}" 
 				username="${dev.server.user}" 
 				keyfile="${ssh.private.key}"
 				command="nohup ${dev.server.dir}/${dist.name}/scripts/${dev.server.startup.script} &gt;${dev.server.dir}/${dist.name}/nohup.log 2&gt;&amp;1 &amp;"
 				trust="true" />
 	</target>
-	
+
+	<macrodef name="new-hsqldb-db">
+		<attribute name="path" />
+		<attribute name="scriptDir" />
+		<attribute name="catalog" />
+		<sequential>
+			<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
+			<dbtool 
+	        jdbcUrl="jdbc:hsqldb:file:@{path}" 
+	        catalog="@{catalog}" 
+	        user="" 
+	        password="" 
+	        drop="true" 
+	        create="true" 
+	        createTables="true" 
+	        dbScriptDir="@{scriptDir}" />
+		</sequential>
+	</macrodef>
+
 </project>

@@ -9,7 +9,7 @@ import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 
 /**
- * RESTful resource for {@link EngineResourceManager<ViewCycle>}
+ * RESTful resource for {@link EngineResourceManager} on {@link ViewCycle}.
  */
 public class DataViewCycleReferenceResource extends DataEngineResourceReferenceResource<ViewCycle> {
 

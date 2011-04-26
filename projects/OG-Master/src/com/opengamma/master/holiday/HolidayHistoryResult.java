@@ -24,7 +24,7 @@ import com.opengamma.util.PublicSPI;
  * <p>
  * The returned documents may be a mixture of versions and corrections.
  * The document instant fields are used to identify which are which.
- * See {@link HolidayHolidayRequest} for more details.
+ * See {@link HolidayHistoryRequest} for more details.
  */
 @PublicSPI
 @BeanDefinition
