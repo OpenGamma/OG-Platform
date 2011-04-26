@@ -142,7 +142,7 @@
 		<subant target="compile-tests" buildpathref="javatest.build.path" antfile="build.parent-invoked.xml" />
 	</target>
 
-	<target name="tests" depends="unpack-resolve,deploy-jars,clean-tests" description="--> compile and run unit tests">
+	<target name="tests" depends="unpack-resolve,deploy-jars,clean-tests,set-version" description="--> compile and run unit tests">
 		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
 		<subant target="compile" buildpathref="cc.build.path" />
 		<subant target="tests" buildpathref="cctest.build.path" />
