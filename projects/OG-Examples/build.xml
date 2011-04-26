@@ -3,8 +3,8 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-	<target name="new-hsqldb" depends="compile-src">
-		<new-hsqldb-db path="${basedir}/temp/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
+	<target name="new-hsqldb" depends="compile-src" description="--> creates the hsqldb tables">
+		<new-hsqldb-db path="${basedir}/install/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -107,8 +107,8 @@
 				<include name="*.zip" />
 			</fileset>
 		</unzip>
-		<copy todir="${dist.dir}/${dist.name}/temp/hsqldb" failonerror="true">
-			<fileset dir="${basedir}/temp/hsqldb">
+		<copy todir="${dist.dir}/${dist.name}/install/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/install/hsqldb">
 				<include name="**/*" />
 			</fileset>
 		</copy>
