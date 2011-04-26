@@ -198,10 +198,12 @@
 	<target name="tarball" depends="dist">
 		<!-- TODO -->
 	</target>
+	<target name="src-tarball" />
 
 	<target name="zipfile" depends="dist">
 		<!-- TODO -->
 	</target>
+	<target name="src-zipfile" />
 
 	<target name="clean" depends="clean-lib,clean-dist,clean-tests" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
