@@ -17,3 +17,4 @@ MANIFEST.MF
 build.number
 .settings/
 /tests/
+/version.h

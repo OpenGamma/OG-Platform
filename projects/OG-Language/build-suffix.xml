@@ -103,7 +103,36 @@
 		<ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />
 	</target>
 
-	<target name="compile" depends="unpack-resolve,deploy-jars" description="--> compile all components">
+	<target name="set-version">
+		<property name="module.version" value="${module.version.target}" />
+		<echo file="${basedir}/version.h">// Automatically generated file -- do not modify
+
+#ifndef __inc_og_language_version_h
+#define __inc_og_language_version_h
+
+#define VERSION_MAJOR	vermajor${module.version}
+#define VERSION_MINOR	verminor${module.version}
+#define REVISION	revision${module.version}
+#ifndef BUILD_NUMBER
+#define BUILD_NUMBER	1
+#endif /* ifndef BUILD_NUMBER */
+#ifndef VERSION_SUFFIX
+#ifdef _DEBUG
+#define VERSION_SUFFIX	"-Debug"
+#else /* ifdef _DEBUG */
+#define VERSION_SUFFIX	""
+#endif /* ifdef _DEBUG */
+#endif /* ifndef VERSION_SUFFIX */
+#include &lt;Util/Quote.h&gt;
+#define VERSION		TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
+
+#endif /* ifndef __inc_og_language_version_h */</echo>
+		<replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
+		<replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
+		<replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
+	</target>
+
+	<target name="compile" depends="unpack-resolve,deploy-jars,set-version" description="--> compile all components">
 		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
 		<subant target="compile" buildpathref="cc.build.path" />
 	</target>
@@ -134,6 +163,7 @@
 			<format property="now" pattern="yyyyMMddHHmmss" />
 		</tstamp>
 		<property name="version" value="${module.version}-local-${now}" />
+		<!-- TODO: should propogate the 'now' part into the build-number -->
 	</target>
 	<target name="version">
 		<tstamp>

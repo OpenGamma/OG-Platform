@@ -113,9 +113,36 @@
 		<og-subant target="zipfile" buildpathref="build-path" />
 	</target>
 	
-	<target name="tests" depends="buildlist"
+	<target name="tests-individual-reports" depends="buildlist"
 		description="run unit tests for all projects">
 		<og-subant target="tests" buildpathref="build-path" />
+	</target>
+
+	<target name="tests" depends="test-batch,junit-report"
+		    description="run unit tests for all projects"/>
+
+	<target name="test-batch" depends="buildlist,test-batch-clean">
+		<subant target="test-batch" buildpathref="build-path">
+			<property name="tests.junit.dir" value="${basedir}/tests/output"/>
+			<!--property name="tests.dir" value="${basedir}/tests"/-->
+		</subant>
+        </target>
+
+        <target name="test-batch-clean">
+       		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
+	</target>
+
+	<target name="junit-report" depends="test-batch">
+		<mkdir dir="${tests.junit.dir}/html" />
+		<junitreport todir="${tests.junit.dir}/xml">
+			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+                        <!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
+                        <!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
+                        <!-- you might also need to up the stack frame size with -Xms --> 
+			<report todir="${tests.junit.dir}/html" format="noframes" />
+		</junitreport>
 	</target>
 	
 	<target name="clean-all" depends="buildlist" description="clean all projects">
@@ -237,8 +264,8 @@
 		</sync>
 	</target>
 
-    <target name="ivy-report" depends="publish-all-local" description="generate ivy dependency report">
-            <ivy:report conf="opengamma" organisation="com.opengamma" module="og-integration" />
+    <target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
+            <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
     </target>
 	
 	<import file="${common.dir}/clover-common.xml"/>
