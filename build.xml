@@ -156,6 +156,15 @@
 			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
+	<!-- og-examples-dist is probably more useful than binary-dist -->
+	<target name="og-examples-dist" depends="clean-all,publish-all-local" description="builds a distribution zipfile for OG-Examples">
+		<og-subant target="zipfile" buildpath="${projects.dir}/OG-Examples" />
+		<copy todir="dist">
+			<fileset dir="${projects.dir}/OG-Examples">
+				<include name="og-examples-*.zip" />
+			</fileset>
+		</copy>
+	</target>
 	
 	<target name="tests-individual-reports" depends="buildlist"
 		description="run unit tests for all projects">
@@ -170,9 +179,9 @@
 			<property name="tests.junit.dir" value="${basedir}/tests/output"/>
 			<!--property name="tests.dir" value="${basedir}/tests"/-->
 		</subant>
-        </target>
+	</target>
 
-        <target name="test-batch-clean">
+	<target name="test-batch-clean">
        		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
 		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
 		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
@@ -182,9 +191,9 @@
 		<mkdir dir="${tests.junit.dir}/html" />
 		<junitreport todir="${tests.junit.dir}/xml">
 			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
-                        <!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
-                        <!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
-                        <!-- you might also need to up the stack frame size with -Xms --> 
+			<!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
+			<!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
+			<!-- you might also need to up the stack frame size with -Xms --> 
 			<report todir="${tests.junit.dir}/html" format="noframes" />
 		</junitreport>
 	</target>
@@ -208,7 +217,7 @@
 
     <target name="joda-bean" depends="buildlist"
     	description="builds the Joda-Bean files">
-        <og-subant target="joda-bean" buildpathref="build-path" />
+	<og-subant target="joda-bean" buildpathref="build-path" />
     </target>
 
 	<target name="clean" depends="clean-all, load-ivy"
@@ -309,7 +318,7 @@
 	</target>
 
     <target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
-            <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
+	    <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
     </target>
 	
 	<import file="${common.dir}/clover-common.xml"/>

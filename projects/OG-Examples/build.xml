@@ -82,22 +82,6 @@
 		<echo>${jetty.stop.status}</echo>
 	</target>
 
-	<!-- Overrides common.xml zipfile -->
-	<target name="zipfile" depends="dist">
-		<move file="${dist.dir}/${dist.name}/config/engine-spring.properties" toFile="${dist.dir}/temp.properties" overwrite="true">
-			<filterset begintoken="$${" endtoken="}">
-				<filter token="user.name" value="devsvr"/>
-			</filterset>
-			<filterset begintoken="../" endtoken="/">
-				<filter token="OG-Web" value="" />
-			</filterset>
-		</move>
-		<move file="${dist.dir}/temp.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true" />
-		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
-		</zip>
-	</target>
-
 	<property name="org" value="com.opengamma" />
 	<property name="name" value="og-web" />
 	
@@ -112,11 +96,20 @@
 				<include name="**/*" />
 			</fileset>
 		</copy>
+		<move file="${dist.dir}/${dist.name}/config/engine-spring.properties" toFile="${dist.dir}/temp.properties" overwrite="true">
+			<filterset begintoken="$${" endtoken="}">
+				<filter token="user.name" value="devsvr"/>
+			</filterset>
+			<filterset begintoken="../" endtoken="/">
+				<filter token="OG-Web" value="" />
+			</filterset>
+		</move>
+		<move file="${dist.dir}/temp.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true" />
 	</target>
 
 
     <target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
-            <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
+	    <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
     </target>
 	
 	<target name="tests" depends="new-hsqldb, common.tests" description="--> run unit tests and generate report"/>
