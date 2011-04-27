@@ -101,11 +101,11 @@
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
-	      <entry key="0" value-ref="combinedInterpolatedYieldCurveDefinitionSource" />
-	      <entry key="shared" value-ref="sharedInterpolatedYieldCurveDefinitionSource" />
-	      <entry key="user" value-ref="userInterpolatedYieldCurveDefinitions" />
-	      <entry key="test" value-ref="testInterpolatedYieldCurveDefinitions" />
-	    </map>
+        <entry key="0" value-ref="combinedInterpolatedYieldCurveDefinitionSource" />
+        <entry key="shared" value-ref="sharedInterpolatedYieldCurveDefinitionSource" />
+        <entry key="user" value-ref="userInterpolatedYieldCurveDefinitions" />
+        <entry key="test" value-ref="testInterpolatedYieldCurveDefinitions" />
+      </map>
     </property>
   </bean>
   <bean id="interpolatedYieldCurveDefinitionMasterRestBean" class="com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterService">
@@ -209,12 +209,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-	          <entry key="historicalData">
-	            <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-	              <property name="local" value="/jax/historicalDataSource/0/" />
+            <entry key="historicalData">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/historicalDataSource/0/" />
                   <property name="port" value="${jetty.port}" />
-	            </bean>
-	          </entry>
+              </bean>
+            </entry>
             <entry key="interpolatedYieldCurveDefinitionSource"> 
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/interpolatedYieldCurveDefinitionSource/0/" />
@@ -227,12 +227,12 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-	          <entry key="positionSource">
-	            <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-	              <property name="local" value="/jax/positionSource/" />
+            <entry key="positionSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/positionSource/" />
                   <property name="port" value="${jetty.port}" />
-	            </bean>
-	          </entry>
+              </bean>
+            </entry>
             <entry key="remoteCalcNode" value-ref="calcNodeSocketConfig" />
             <entry key="securitySource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
@@ -246,23 +246,31 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-	        <entry key="viewProcessor">
-	          <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-	            <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
-                <property name="port" value="${jetty.port}" />
-	          </bean>
-	        </entry>
-	        <entry key="activeMQ">
-	          <value>${activeMQ.brokerURL}</value>
-	        </entry>
+          <entry key="viewProcessor">
+            <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+              <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
+              <property name="port" value="${jetty.port}" />
+            </bean>
+          </entry>
+          <entry key="activeMQ">
+            <value>${activeMQ.brokerURL}</value>
+          </entry>
           </map>
         </entry>
         <!-- THESE ARE FOR CONVENIENT DEBUGGING ONLY; REMOVE WHEN JMX WORK IS DONE -->
-         <!-- ENG-154 -->
+        <!-- ENG-154 -->
         <entry key="jobDispatchStatistics" value-ref="jobDispatchStatistics" />
         <entry key="graphExecutionStatistics" value-ref="graphExecutionStatistics" />
         <!-- ENG-240 & ENG-248 -->
         <entry key="executorTuner" value-ref="graphExecutorTuner" />
+        <!-- DVI-135; remove when there are remote implementations of all sources -->
+        <entry key="DVI-135">
+          <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="location">
+              <value>classpath:demoIntegrationMasters-shareddev.properties</value>
+            </property>
+          </bean>
+        </entry>
       </map>
     </constructor-arg>
   </bean>
@@ -313,7 +321,7 @@
   
   <!-- Bundle RESTful service -->
   <bean id="webBundlesRestBean" class="com.opengamma.web.bundle.WebBundlesResource" scope="request">
-  	<constructor-arg ref="devBundleManager" />
+    <constructor-arg ref="devBundleManager" />
     <constructor-arg ref="sharedCompressedBundleSource" />
     <constructor-arg value="${bundle.mode}"/>
   </bean>
@@ -332,10 +340,10 @@
   
   <!-- MarketDataSnapshot master service -->
   <!-- TODO 
-  	<bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
-  	-->
-  	
-   <bean id="marketDataSnapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
+    <bean id="testSecurityMaster" class="com.opengamma.master.security.impl.InMemorySecurityMaster" />
+    -->
+    
+  <bean id="marketDataSnapshotMasterRestBean" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlyingMap">
       <map>
