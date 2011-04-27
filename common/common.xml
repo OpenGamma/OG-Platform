@@ -498,7 +498,7 @@
 		<delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
 
-	<target name="clean-dist" description="--> clean the project distribution files" unless="no.clean.dist">
+	<target name="clean-dist" description="--> clean the project distribution files">
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
 

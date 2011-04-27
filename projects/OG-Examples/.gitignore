@@ -15,3 +15,4 @@ tests/output/
 .clover/
 build.number
 .settings/
+install/hsqldb/example-db*

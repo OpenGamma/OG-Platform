@@ -205,6 +205,8 @@
 		<!-- TODO -->
 	</target>
 	<target name="src-zipfile" />
+	<target name="dist-src-nodep" />
+	<target name="dist-nodep" />
 
 	<target name="clean" depends="clean-lib,clean-dist,clean-tests" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />
@@ -234,6 +236,10 @@
 	</target>
 
 	<target name="joda-bean">
+		<!-- TODO -->
+	</target>
+
+	<target name="test-batch">
 		<!-- TODO -->
 	</target>
 
