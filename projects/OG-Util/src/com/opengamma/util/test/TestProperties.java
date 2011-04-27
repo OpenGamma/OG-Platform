@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 public class TestProperties {
 
   private static final String DEFAULT_PROPS_FILE_NAME = "tests.properties";
-  private static final String DEFAULT_PROPS_DIR = "../../config/"; // OG-Platform/config
+  private static final String DEFAULT_PROPS_DIR = "../../common/"; // OG-Platform/common/
 
   private static String _baseDir = null;
   private static Properties _props = null;
@@ -42,11 +42,17 @@ public class TestProperties {
       String overridePropsFileName = System.getProperty("test.properties"); // passed in by Ant
       if (overridePropsFileName != null) {
         propsFileName = overridePropsFileName;
+        System.err.println("Using test.properties from system property: " + propsFileName);
+      } else {
+        System.err.println("Using default test.properties file name: " + propsFileName);
       }
       String testPropsDir = DEFAULT_PROPS_DIR;
       String overridePropsDir = System.getProperty("test.properties.dir"); // passed in by Ant
       if (overridePropsDir != null) {
         testPropsDir = overridePropsDir;
+        System.err.println("Using test.properties.dir from system property: " + testPropsDir);
+      } else {
+        System.err.println("Using default test.properties.dir: " + testPropsDir);
       }
       
       File file = new File(testPropsDir, propsFileName);
