@@ -246,6 +246,7 @@
 	<target name="testng-batch" depends="compile-tests" if="testng">
 		<taskdef resource="testngtasks" classpathref="lib.path.id"/>
 
+	        <property file="${common.dir}/tests.properties" />
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
 		<condition property="junit.logback.jvmarg" value="-Dlogback.configurationFile=${junit.logback}">
 			<isset property="junit.logback" />
