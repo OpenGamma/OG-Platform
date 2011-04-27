@@ -24,3 +24,4 @@ logs/
 artifacts/
 output/
 output-long/
+/dist/

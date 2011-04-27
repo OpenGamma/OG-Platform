@@ -113,6 +113,35 @@
 		<og-subant target="src-zipfile" buildpathref="build-path" />
 		<og-subant target="zipfile" buildpathref="build-path" />
 	</target>
+
+	<target name="dist-zip">
+		<mkdir dir="dist" />
+		<zip destfile="dist/${dist.target}">
+			<fileset dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-LiveData/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Master/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-MasterDB/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="*" />
+		</zip>
+	</target>
+	<target name="source-dist" depends="clean-all,publish-all-local" description="builds a single source distribution zipfile">
+		<og-subant target="dist-src-nodep" buildpathref="build-path" />
+		<antcall target="dist-zip">
+			<property name="dist.target" value="og-platform-src.zip" />
+		</antcall>
+	</target>
+	<target name="binary-dist" depends="clean-all,publish-all-local" description="builds a single binary distribution zipfile">
+		<og-subant target="dist-nodep" buildpathref="build-path" />
+		<antcall target="dist-zip">
+			<property name="dist.target" value="og-platform.binary.zip" />
+		</antcall>
+	</target>
 	
 	<target name="tests-individual-reports" depends="buildlist"
 		description="run unit tests for all projects">
