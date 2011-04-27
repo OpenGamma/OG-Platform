@@ -34,7 +34,6 @@
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/tests.properties" dest="${common.dir}/tests.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/db.properties" dest="${common.dir}/db.properties" username="${opengamma.username}" password="${opengamma.password}"/>
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${projects.dir}/OG-Language/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 	</target>
 	
 	<!-- dump the credentials established in dependant targets to a properties file for use by ivy --> 

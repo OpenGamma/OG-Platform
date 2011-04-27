@@ -22,7 +22,14 @@
 
 	<import file="${basedir}/build-suffix.xml" />
 
-	<target name="deploy-jars" depends="build-suffix.deploy-jars">
+	<available property="config.ok" file="${basedir}/config/OpenGamma.properties" />
+	<target name="fetch-config" unless="config.ok">
+		<property file="${common.dir}/credentials.properties" />
+		<property file="${common.dir}/../build.properties" />
+		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/OpenGamma.properties" dest="${basedir}/config/OpenGamma.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+	</target>
+
+	<target name="deploy-jars" depends="build-suffix.deploy-jars,fetch-config">
 		<copy file="${basedir}/config/OpenGamma.properties" todir="${build.dir}" failonerror="true" />
 		<copy file="${basedir}/config/OpenGamma.xml" todir="${build.dir}" failonerror="true" />
 		<copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
