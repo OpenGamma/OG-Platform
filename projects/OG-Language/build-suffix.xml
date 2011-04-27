@@ -126,7 +126,8 @@
 #include &lt;Util/Quote.h&gt;
 #define VERSION		TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
 
-#endif /* ifndef __inc_og_language_version_h */</echo>
+#endif /* ifndef __inc_og_language_version_h */
+		</echo>
 		<replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
 		<replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
 		<replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
@@ -142,7 +143,7 @@
 		<subant target="compile-tests" buildpathref="javatest.build.path" antfile="build.parent-invoked.xml" />
 	</target>
 
-	<target name="tests" depends="unpack-resolve,deploy-jars,clean-tests" description="--> compile and run unit tests">
+	<target name="tests" depends="unpack-resolve,deploy-jars,clean-tests,set-version" description="--> compile and run unit tests">
 		<subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml" />
 		<subant target="compile" buildpathref="cc.build.path" />
 		<subant target="tests" buildpathref="cctest.build.path" />
@@ -198,10 +199,12 @@
 	<target name="tarball" depends="dist">
 		<!-- TODO -->
 	</target>
+	<target name="src-tarball" />
 
 	<target name="zipfile" depends="dist">
 		<!-- TODO -->
 	</target>
+	<target name="src-zipfile" />
 
 	<target name="clean" depends="clean-lib,clean-dist,clean-tests" description="--> clean the project">
 		<subant target="clean" buildpathref="build.path" />

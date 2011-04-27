@@ -31,7 +31,7 @@
 	
 	<!-- get user-specific build-projects.xml file -->
 	<target name="get-build-projects-file-for-user" depends="init-credentials">
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
+		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
 	</target>
 	
 	<!-- dump the credentials established in dependant targets to a properties file for use by ivy --> 
@@ -110,6 +110,7 @@
 
 	<target name="zipfile" depends="buildlist"
 		description="build zip files for all projects">
+		<og-subant target="src-zipfile" buildpathref="build-path" />
 		<og-subant target="zipfile" buildpathref="build-path" />
 	</target>
 	

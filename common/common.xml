@@ -367,8 +367,13 @@
 		<mkdir dir="${dist.dir}/${dist.name}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false" />
 		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false" />
+		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/ivy.xml" failonerror="false" />
+		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/.classpath" failonerror="false" />
 		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
 			<fileset dir="${basedir}/config" />
+		</copy>
+		<copy todir="${dist.dir}/${dist.name}/install" failonerror="false">
+			<fileset dir="${basedir}/install" />
 		</copy>
 		<copy todir="${dist.dir}/${dist.name}/scripts" failonerror="false">
 			<fileset dir="${basedir}/scripts" />
