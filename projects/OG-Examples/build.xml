@@ -104,10 +104,6 @@
 				<include name="*.zip" />
 			</fileset>
 		</unzip>
-		
-		<!-- rename web-app directory -->
-		<move file="${dist.dir}/${dist.name}/config/engine-defaults.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true"/>
-		    
 		<copy todir="${dist.dir}/${dist.name}/install/db/hsqldb" failonerror="true">
 			<fileset dir="${basedir}/install/db/hsqldb">
 				<include name="**/*" />
