@@ -137,22 +137,22 @@
 	<target name="source-dist" depends="clean-all,publish-all-local" description="builds a single source distribution zipfile">
 		<og-subant target="dist-src-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
-			<param name="dist.target" value="og-platform-src.zip" />
+			<param name="dist.target" value="og-platform-src-nodep-${module.version.target}.zip" />
 			<param name="dist.full.exclude" value="**/* "/>
 		</antcall>
 		<antcall target="dist-zip">
-			<param name="dist.target" value="og-platform-src-full.zip" />
+			<param name="dist.target" value="og-platform-src-${module.version.target}.zip" />
 			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
 	<target name="binary-dist" depends="clean-all,publish-all-local" description="builds a single binary distribution zipfile">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
-			<param name="dist.target" value="og-platform-binary.zip" />
+			<param name="dist.target" value="og-platform-binary-nodep-${module.version.target}.zip" />
 			<param name="dist.full.exclude" value="**/* " />
 		</antcall>
 		<antcall target="dist-zip">
-			<param name="dist.target" value="og-platform-binary-full.zip" />
+			<param name="dist.target" value="og-platform-binary-${module.version.target}.zip" />
 			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
@@ -162,7 +162,7 @@
 			<property name="og.build.invoked" value="true" />
 		</subant>
 		<copy todir="dist">
-			<fileset dir="${projects.dir}/OG-Examples">
+			<fileset dir="${projects.dir}/OG-Examples/dist">
 				<include name="og-examples-*.zip" />
 			</fileset>
 		</copy>
