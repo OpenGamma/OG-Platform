@@ -335,7 +335,7 @@
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.clover" buildpath="${basedir}" genericantfile="build.xml" />
 	</target>
-	<target name="clover" depends="clover-noload,clover.load" />
+	<target name="clover" depends="clover-noload,clover-load" />
 
 	<target name="clone-or-pull-noload" if="build.projects.ok">
 		<antcall target="projects.clone-or-pull" />
