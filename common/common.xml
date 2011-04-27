@@ -180,7 +180,7 @@
 	</target>
 
 	<!-- ================================================================ -->
-	<property name="test.database.type" value="all"/>
+	<!--property name="test.database.type" value="all"/-->
 	<!-- hsqldb, postgres, all. -->
 	<property name="test.database.previousVersions" value="1"/>
 	<!-- number of previous versions to test upgrade scripts from -->
