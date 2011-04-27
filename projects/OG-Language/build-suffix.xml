@@ -126,7 +126,8 @@
 #include &lt;Util/Quote.h&gt;
 #define VERSION		TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
 
-#endif /* ifndef __inc_og_language_version_h */</echo>
+#endif /* ifndef __inc_og_language_version_h */
+		</echo>
 		<replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
 		<replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
 		<replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
