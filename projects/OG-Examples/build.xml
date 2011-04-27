@@ -3,9 +3,10 @@
 
 	<import file="${common.dir}/common.xml"/>
 
-	<target name="new-hsqldb" depends="resolve" description="--> creates the hsqldb tables">
+	<target name="new-hsqldb-impl">
 		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
+	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl" description="--> creates the hsqldb tables" />
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
 
@@ -112,6 +113,6 @@
 	    <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
     </target>
 	
-    <target name="test-batch" depends="new-hsqldb, common.test-batch"/>
+    <target name="test-batch" depends="new-hsqldb-impl, common.test-batch"/>
 
 </project>
