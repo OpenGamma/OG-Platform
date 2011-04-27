@@ -158,7 +158,9 @@
 	</target>
 	<!-- og-examples-dist is probably more useful than binary-dist -->
 	<target name="og-examples-dist" depends="clean-all,publish-all-local" description="builds a distribution zipfile for OG-Examples">
-		<og-subant target="zipfile" buildpath="${projects.dir}/OG-Examples" />
+		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
+			<property name="og.build.invoked" value="true" />
+		</subant>
 		<copy todir="dist">
 			<fileset dir="${projects.dir}/OG-Examples">
 				<include name="og-examples-*.zip" />
