@@ -325,5 +325,44 @@
 	
 	<import file="${common.dir}/clover-common.xml"/>
 	<import file="${common.dir}/build-projects.xml" optional="true"/>
+
+	<available property="build.projects.ok" file="${common.dir}/build-projects.xml" />
+
+	<target name="clover-noload" if="build.projects.ok">
+		<antcall target="projects.clover" />
+	</target>
+	<target name="clover-load" unless="build.projects.ok">
+		<echo>Reloading build system ...</echo>
+		<subant target="projects.clover" buildpath="${basedir}" genericantfile="build.xml" />
+	</target>
+	<target name="clover" depends="clover-noload,clover.load" />
+
+	<target name="clone-or-pull-noload" if="build.projects.ok">
+		<antcall target="projects.clone-or-pull" />
+	</target>
+	<target name="clone-or-pull-load" unless="build.projects.ok">
+		<echo>Reloading build system ...</echo>
+		<subant target="projects.clone-or-pull" buildpath="${basedir}" genericantfile="build.xml" />
+	</target>
+	<target name="clone-or-pull" depends="clone-or-pull-noload,clone-or-pull-load" />
+
+	<target name="pull-noload" if="build.projects.ok">
+		<antcall target="projects.pull" />
+	</target>
+	<target name="pull-load" unless="build.projects.ok">
+		<echo>Reloading build system ...</echo>
+		<subant target="projects.pull" buildpath="${basedir}" genericantfile="build.xml" />
+	</target>
+	<target name="pull" depends="pull-noload,pull-load" />
+
+	<target name="status-noload" if="build.projects.ok">
+		<antcall target="projects.status" />
+	</target>
+	<target name="status-load" unless="build.projects.ok">
+		<echo>Reloading build system ...</echo>
+		<subant target="projects.status" buildpath="${basedir}" genericantfile="build.xml" />
+	</target>
+	<target name="status" depends="status-noload,status-load" />
+
 </project>
 
