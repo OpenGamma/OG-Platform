@@ -149,7 +149,7 @@
 			<param name="dist.full.exclude" value="**/* " />
 		</antcall>
 		<antcall target="dist-zip">
-			<param name="dist.target" value="og-platform.binary-full.zip" />
+			<param name="dist.target" value="og-platform-binary-full.zip" />
 			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
