@@ -112,6 +112,6 @@
 	    <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
     </target>
 	
-	<target name="tests" depends="new-hsqldb, common.tests" description="--> run unit tests and generate report"/>
+    <target name="test-batch" depends="new-hsqldb, common.test-batch"/>
 
 </project>
