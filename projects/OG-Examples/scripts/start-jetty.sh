@@ -10,7 +10,7 @@ else
   RUN_MODE=shareddev
 fi
 
-CLASSPATH=config:og-integration.jar
+CLASSPATH=config:og-examples.jar
 for FILE in `ls -1 lib/*` ; do
   CLASSPATH=$CLASSPATH:$FILE
 done

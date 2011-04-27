@@ -4,7 +4,7 @@
 	<import file="${common.dir}/common.xml"/>
 
 	<target name="new-hsqldb" depends="compile-src" description="--> creates the hsqldb tables">
-		<new-hsqldb-db path="${basedir}/install/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -83,32 +83,33 @@
 	</target>
 
 	<!-- Overrides common.xml zipfile -->
-	<property name="type" value="zip" />
-	<property name="org" value="com.opengamma" />
-	<property name="name" value="og-web" />
-	<property name="webapp.dir" value="web-engine" />
-	<property name="engine-spring.name" value="engine-spring.xml" />
-
 	<target name="zipfile" depends="dist">
-		<move file="${dist.dir}/${dist.name}/${webapp.dir}/WEB-INF/classes/engine.properties" toFile="${dist.dir}/temp.properties" overwrite="true">
+		<move file="${dist.dir}/${dist.name}/config/engine-spring.properties" toFile="${dist.dir}/temp.properties" overwrite="true">
 			<filterset begintoken="$${" endtoken="}">
 				<filter token="user.name" value="devsvr"/>
 			</filterset>
 		</move>
-		<move file="${dist.dir}/temp.properties" toFile="${dist.dir}/${dist.name}/web-engine/WEB-INF/classes/engine.properties" overwrite="true" />
+		<move file="${dist.dir}/temp.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true" />
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</zip>
 	</target>
 
+	<property name="org" value="com.opengamma" />
+	<property name="name" value="og-web" />
+	
 	<target name="dist-common" depends="common.dist-common,new-hsqldb">
 		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
 			<fileset dir="${lib.dir}/webapp/${org}/${name}">
 				<include name="*.zip" />
 			</fileset>
 		</unzip>
-		<copy todir="${dist.dir}/${dist.name}/install/hsqldb" failonerror="true">
-			<fileset dir="${basedir}/install/hsqldb">
+		
+		<!-- rename web-app directory -->
+		<move file="${dist.dir}/${dist.name}/config/engine-defaults.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true"/>
+		    
+		<copy todir="${dist.dir}/${dist.name}/install/db/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/install/db/hsqldb">
 				<include name="**/*" />
 			</fileset>
 		</copy>
@@ -118,5 +119,7 @@
     <target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
             <ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
     </target>
+	
+	<target name="tests" depends="new-hsqldb, common.tests" description="--> run unit tests and generate report"/>
 
 </project>

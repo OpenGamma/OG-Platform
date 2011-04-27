@@ -12,7 +12,6 @@
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
-        <value>classpath:engine.properties</value>
         <value>classpath:engine-spring.properties</value>
       </list>
     </property>

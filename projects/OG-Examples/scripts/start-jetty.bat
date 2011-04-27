@@ -16,4 +16,4 @@ if "%RUN_MODE%" == "" set RUN_MODE=shareddev
   -Dopengamma.platform.os=win ^
   start.class=com.opengamma.examples.startup.ExampleServer ^
   config\engine-spring.xml ^
-  "path=config;og-integration.jar" "lib=lib"
+  "path=config;og-examples.jar" "lib=lib"
