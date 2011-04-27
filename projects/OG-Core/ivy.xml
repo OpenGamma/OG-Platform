@@ -3,6 +3,7 @@
     
     <publications>
       <artifact name="og-core" type="jar"/>
+      <artifact name="og-core" type="source" ext="jar" />
     </publications>
     <dependencies>
         <dependency name="og-util" rev="latest.integration" />

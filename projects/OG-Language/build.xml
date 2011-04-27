@@ -44,4 +44,7 @@
 		<zip destfile="${dist.dir}/${ant.project.name}-build.zip" basedir="${dist.dir}/build" whenempty="create" />
 	</target>
 
+	<target name="test-batch"/>
+
+
 </project>

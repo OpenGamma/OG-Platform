@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -269,98 +267,6 @@ public final class FutureSecurityBeanOperation extends AbstractSecurityBeanOpera
     });
   }
   
-  @Override
-  public boolean beanEquals(final OperationContext context, final FutureSecurityBean bean, final FutureSecurity security) {
-    return security.accept(new FutureSecurityVisitor<Boolean>() {
-      
-      private boolean beanEquals(final FutureSecurity security) {
-        return ObjectUtils.equals(bean.getFutureType(), FutureType.identify(security)) && ObjectUtils.equals(expiryBeanToExpiry(bean.getExpiry()), security.getExpiry())
-            && ObjectUtils.equals(bean.getTradingExchange().getName(), security.getTradingExchange())
-            && ObjectUtils.equals(bean.getSettlementExchange().getName(), security.getSettlementExchange());
-      }
-      
-      private boolean beanEquals(final CommodityFutureSecurity security) {
-        return beanEquals((FutureSecurity) security)
-            && ObjectUtils.equals(bean.getCommodityType().getName(), security.getCommodityType())
-            && ObjectUtils.equals((bean.getUnitName() != null) ? bean.getUnitName().getName() : null, security.getUnitName())
-            && ObjectUtils.equals(bean.getUnitNumber(), security.getUnitNumber());
-      }
-
-      @Override
-      public Boolean visitAgricultureFutureSecurity(
-          AgricultureFutureSecurity security) {
-        return beanEquals(security);
-      }
-
-      @Override
-      public Boolean visitBondFutureSecurity(BondFutureSecurity security) {
-        if (!beanEquals(security)) {
-          return false;
-        }
-        if (!ObjectUtils.equals(bean.getBondType().getName(), security.getBondType())) {
-          return false;
-        }
-        final Collection<BondFutureDeliverable> basket = security.getBasket();
-        final Set<FutureBundleBean> beanBasket = bean.getBasket();
-        if (basket == null) {
-          if (beanBasket != null) {
-            return false;
-          }
-        } else if (beanBasket == null) {
-          return false;
-        } else {
-          if (basket.size() != beanBasket.size()) {
-            return false;
-          }
-          for (FutureBundleBean basketBean : beanBasket) {
-            if (!basket.contains(futureBundleBeanToBondFutureDeliverable(basketBean))) {
-              return false;
-            }
-          }
-        }
-        return true;
-      }
-
-      @Override
-      public Boolean visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
-      }
-
-      @Override
-      public Boolean visitFXFutureSecurity(FXFutureSecurity security) {
-        return beanEquals(security)
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency1()), security.getCurrency())
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency2()), security.getNumerator())
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency3()), security.getDenominator())
-            && ObjectUtils.equals(bean.getUnitNumber(), security.getMultiplicationFactor());
-      }
-
-      @Override
-      public Boolean visitInterestRateFutureSecurity(
-          InterestRateFutureSecurity security) {
-        return beanEquals(security)
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency1()), security.getCurrency())
-            && ObjectUtils.equals(bean.getCashRateType().getName(), security.getCashRateType());
-      }
-
-      @Override
-      public Boolean visitMetalFutureSecurity(MetalFutureSecurity security) {
-        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
-      }
-
-      @Override
-      public Boolean visitIndexFutureSecurity(IndexFutureSecurity security) {
-        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
-      }
-
-      @Override
-      public Boolean visitStockFutureSecurity(StockFutureSecurity security) {
-        return beanEquals(security) && ObjectUtils.equals(identifierBeanToIdentifier(bean.getUnderlying()), security.getUnderlyingIdentifier());
-      }
-      
-    });
-  }
-
   @Override
   public FutureSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final FutureSecurity security) {
     return security.accept(new FutureSecurityVisitor<FutureSecurityBean>() {
