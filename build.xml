@@ -128,18 +128,29 @@
 			<fileset dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="*" />
 			<fileset dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="*" />
 			<fileset dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="*" />
+			<fileset dir="${projects.dir}/OG-Examples" includes="lib/jar/**/*" excludes="${dist.full.exclude}lib/jar/com.opengamma/og-**/*" />
 		</zip>
 	</target>
 	<target name="source-dist" depends="clean-all,publish-all-local" description="builds a single source distribution zipfile">
 		<og-subant target="dist-src-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
 			<param name="dist.target" value="og-platform-src.zip" />
+			<param name="dist.full.exclude" value="**/* "/>
+		</antcall>
+		<antcall target="dist-zip">
+			<param name="dist.target" value="og-platform-src-full.zip" />
+			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
 	<target name="binary-dist" depends="clean-all,publish-all-local" description="builds a single binary distribution zipfile">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
 			<param name="dist.target" value="og-platform-binary.zip" />
+			<param name="dist.full.exclude" value="**/* " />
+		</antcall>
+		<antcall target="dist-zip">
+			<param name="dist.target" value="og-platform.binary-full.zip" />
+			<param name="dist.full.exclude" value="" />
 		</antcall>
 	</target>
 	
