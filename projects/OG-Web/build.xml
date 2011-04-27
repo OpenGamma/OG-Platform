@@ -17,4 +17,13 @@
 		</zip>
 	</target>
 
+	<target name="dist-common" depends="common.dist-common">
+		<copy todir="${dist.dir}/${dist.name}/web-engine">
+			<fileset dir="${basedir}/web-engine" />
+		</copy>
+		<copy todir="${dist.dir}/${dist.name}/web-marketdata">
+			<fileset dir="${basedir}/web-marketdata" />
+		</copy>
+	</target>
+
 </project>

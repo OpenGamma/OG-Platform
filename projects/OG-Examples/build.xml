@@ -101,7 +101,7 @@
 		</zip>
 	</target>
 
-	<target name="dist" depends="common.dist,new-hsqldb">
+	<target name="dist-common" depends="common.dist-common,new-hsqldb">
 		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
 			<fileset dir="${lib.dir}/webapp/${org}/${name}">
 				<include name="*.zip" />

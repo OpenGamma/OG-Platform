@@ -133,13 +133,13 @@
 	<target name="source-dist" depends="clean-all,publish-all-local" description="builds a single source distribution zipfile">
 		<og-subant target="dist-src-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
-			<property name="dist.target" value="og-platform-src.zip" />
+			<param name="dist.target" value="og-platform-src.zip" />
 		</antcall>
 	</target>
 	<target name="binary-dist" depends="clean-all,publish-all-local" description="builds a single binary distribution zipfile">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
 		<antcall target="dist-zip">
-			<property name="dist.target" value="og-platform.binary.zip" />
+			<param name="dist.target" value="og-platform-binary.zip" />
 		</antcall>
 	</target>
 	
