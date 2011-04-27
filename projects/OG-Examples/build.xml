@@ -88,6 +88,9 @@
 			<filterset begintoken="$${" endtoken="}">
 				<filter token="user.name" value="devsvr"/>
 			</filterset>
+			<filterset begintoken="../" endtoken="/">
+				<filter token="OG-Web" value="" />
+			</filterset>
 		</move>
 		<move file="${dist.dir}/temp.properties" toFile="${dist.dir}/${dist.name}/config/engine-spring.properties" overwrite="true" />
 		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
