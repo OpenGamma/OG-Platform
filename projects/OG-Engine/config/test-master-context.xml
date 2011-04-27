@@ -3,7 +3,7 @@
 <beans>
 
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location"><value>file:tests.properties</value></property>
+    <property name="location"><value>classpath:tests.properties</value></property>
   </bean>
 
   <bean id="abstractDbSource" class="com.opengamma.util.db.DbSourceFactoryBean" abstract="true">
