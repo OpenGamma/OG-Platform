@@ -382,10 +382,15 @@
 		<mkdir dir="${dist.dir}" />
 		<delete dir="${dist.dir}/${dist.name}" failonerror="false" />
 		<mkdir dir="${dist.dir}/${dist.name}" />
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/LICENSE.txt" failonerror="false" />
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false" />
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/ivy.xml" failonerror="false" />
-		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/.classpath" failonerror="false" />
+		<copy todir="${dist.dir}/${dist.name}" failonerror="false">
+			<fileset dir="${basedir}">
+				<include name="LICENSE.txt" />
+				<include name="README.txt" />
+				<include name="ivy.xml" />
+				<include name=".classpath" />
+				<include name=".project" />
+			</fileset>
+		</copy>
 		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
 			<fileset dir="${basedir}/config" />
 		</copy>
@@ -406,6 +411,11 @@
 			<include name="**/*.java" />
 			<include name="**/*.proto" />
 		</fixcrlf>
+		<chmod perm="+x">
+			<fileset dir="${dist.dir}/${dist.name}">
+				<include name="**/*.sh" />
+			</fileset>
+		</chmod>
 	</target>
 
 	<target name="dist-nodep" depends="dist-common,clean-src,clean-build,jar">
@@ -445,18 +455,18 @@
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
-		<bzip2 src="${dist.dir}/${dist.name}-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-nodep-${version}.tar.bz2" />
+		<gzip src="${dist.dir}/${dist.name}-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-nodep-${version}.tar.gz" />
 		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</tar>
-		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
+		<gzip src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.gz" />
 	</target>
 	<target name="src-tarball" depends="dist-src" description="--> generate a source tarball for distribution">
-		<bzip2 src="${dist.dir}/${dist.name}-src-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar.bz2" />
+		<gzip src="${dist.dir}/${dist.name}-src-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar.gz" />
 		<tar destfile="${dist.dir}/${dist.name}-src-${version}.tar" basedir="${dist.dir}">
 			<include name="${dist.name}/**/*" />
 		</tar>
-		<bzip2 src="${dist.dir}/${dist.name}-src-${version}.tar" destfile="${dist.dir}/${dist.name}-src-${version}.tar.bz2" />
+		<gzip src="${dist.dir}/${dist.name}-src-${version}.tar" destfile="${dist.dir}/${dist.name}-src-${version}.tar.gz" />
 	</target>
 
 	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
