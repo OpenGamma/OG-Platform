@@ -1,11 +1,11 @@
-View the "API documentation":api
+View OpenGamma's "API documentation":api or the "javadocs":../java/javadocs.
 
-"javadocs":../java/javadocs
+h2. Guides
 
-"examples":examples
+"Primitives":og_docs_true_primitives.pdf
 
-Here are some PDFs...
+An introduction to some of the primitive types such as Curves and Surfaces.
 
-{% for k in d.keys() -%}{% if k.startswith("og_") and k.endswith(".pdf") -%}
-* "{{ k }}":{{ k }}
-{% endif -%}{% endfor -%}
+"Yield Curve Mathematics":og_docs_yield_curve_maths.pdf
+
+The mathematics behind OpenGamma's treatment of yield curves.
