@@ -2,7 +2,9 @@
 
 \section{Curves}
 
-The abstract Curve class and its subclasses represent two-dimensional curves.
+The abstract Curve and its subclasses represent one-dimensional functions, y = f(x).
+
+The following classes implement curves.
 
 \begin{fullwidth}
 <% for indent, class_name in a['javadoc-data.json|javadocs'].handler.nested_subclasses(j, 'com.opengamma.math.curve.Curve') %>
@@ -16,7 +18,7 @@ Here is an example of creating a simple curve:
 
 \section{Surfaces}
 
-Paragraph describing what are surfaces
+Classes of surfaces represent two-dimensional functions, z = f(x,y).
 
 The following classes implement surfaces.
 
@@ -29,7 +31,7 @@ The following classes implement surfaces.
 
 \section{Cubes}
 
-Paragraph describing what are cubes
+Cubes represent generic functions in 3D, v = f(x,y,z).
 
 The following classes implement cubes.
 
@@ -42,7 +44,7 @@ The following classes implement cubes.
 
 \section{Matrices}
 
-Paragraph describing what are matrices
+The Matrix interface provides a basis for generic multi-dimensional arrays.
 
 The following classes implement matrices.
 
