@@ -231,9 +231,14 @@
 			<property name="og.build.invoked" value="true" />
 			<property name="ivy.new.revision" value="${module.version.target}" />
 		</subant>
+		<subant target="tarball" buildpath="${projects.dir}/OG-Examples">
+			<property name="og.build.invoked" value="true" />
+			<property name="ivy.new.revision" value="${module.version.target}" />
+		</subant>
 		<copy todir="${dist.dir}">
 			<fileset dir="${projects.dir}/OG-Examples/dist">
 				<include name="og-examples-*.zip" />
+				<include name="og-examples-*.tar.gz" />
 			</fileset>
 			<globmapper from="og-*" to="${dist.file.prefix}*" />
 		</copy>

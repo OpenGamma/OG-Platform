@@ -444,7 +444,8 @@
 
 	<target name="dist-src" depends="dist-src-nodep">
 		<tar destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+			<tarfileset dir="${dist.dir}" includes="${dist.name}/**/*" excludes="**/*.sh" />
+			<tarfileset dir="${dist.dir}" includes="**/*.sh" filemode="755" />
 		</tar>
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
 		<!-- Fetch the binary dependencies first, in case there aren't source dependencies -->
@@ -456,14 +457,17 @@
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
 		<gzip src="${dist.dir}/${dist.name}-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-nodep-${version}.tar.gz" />
-		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
-			<include name="${dist.name}/**/*" />
+		<tar destfile="${dist.dir}/${dist.name}-${version}.tar">
+			<tarfileset dir="${dist.dir}" includes="${dist.name}/**/*" excludes="**/*.sh" />
+			<tarfileset dir="${dist.dir}" includes="**/*.sh" filemode="755" />
 		</tar>
 		<gzip src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.gz" />
 	</target>
 	<target name="src-tarball" depends="dist-src" description="--> generate a source tarball for distribution">
 		<gzip src="${dist.dir}/${dist.name}-src-nodep-${version}.tar" destfile="${dist.dir}/${dist.name}-src-nodep-${version}.tar.gz" />
-		<tar destfile="${dist.dir}/${dist.name}-src-${version}.tar" basedir="${dist.dir}">
+		<tar destfile="${dist.dir}/${dist.name}-src-${version}.tar">
+			<tarfileset dir="${dist.dir}" includes="${dist.name}/**/*" excludes="**/*.sh" />
+			<tarfileset dir="${dist.dir}" includes="**/*.sh" filemode="755" />
 			<include name="${dist.name}/**/*" />
 		</tar>
 		<gzip src="${dist.dir}/${dist.name}-src-${version}.tar" destfile="${dist.dir}/${dist.name}-src-${version}.tar.gz" />
