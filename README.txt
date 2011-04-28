@@ -1,3 +1,18 @@
+Welcome to the OpenGamma Platform!
+----------------------------------
+OpenGamma's flagship technology, the OpenGamma Platform, is a comprehensive solution for analytics capable of 
+satisfying the full range of front-office and risk requirements. It supports pre-trade ad-hoc calculations, 
+near-real-time streaming analytics, batch/overnight risk calculations, and complex historical scenarios and stress 
+tests in the same system.
+
+Built as a completely open architecture, the OpenGamma Platform is designed so that every component can be 
+individually used, or individually replaced, based on customer requirements. We don't believe in forklift 
+upgrades, and we built the OpenGamma Platform so that they're never necessary: individual projects can use 
+OpenGamma components when they provide a clear advantage, and later migrate additional portions of their 
+infrastructure if and when time and resources permit.
+
+Visit the developer website at http://developer.opengamma.com for more information, downloads, docs and more
+
 How to use the build system
 ---------------------------
 
