@@ -1,6 +1,6 @@
 View the "API documentation":api
 
-"javadocs":jd
+"javadocs":../java/javadocs
 
 "examples":examples
 
