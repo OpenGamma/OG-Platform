@@ -9,7 +9,7 @@
   "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
     "allinputs" : true
   },
-  "*.textile|jinja|textile|hd|ft" : {
+  "*.md|jinja|markdown|hd|ft" : {
     "allinputs" : true,
     "inputs" : [
       "og_docs_true_primitives.tex|hd|ft|jinja|latex",
