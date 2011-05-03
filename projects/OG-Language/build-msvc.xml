@@ -1,6 +1,19 @@
 <project name="build-cpp-impl">
 
-	<target name="run-msbuild">
+	<target name="check-env">
+		<exec executable="cl" failonerror="false" resultproperty="check-env.result">
+			<arg value="/c" />
+			<arg value="/Fo${basedir}\stdafx.obj" />
+			<arg value="/I${basedir}\..\lib\include" />
+			<arg value="/I${basedir}\.." />
+			<arg value="${basedir}\stdafx.cpp" />
+		</exec>
+		<delete file="${basedir}\stdafx.obj" failonerror="false" />
+		<condition property="cpptask.ok">
+			<equals arg1="${check-env.result}" arg2="0" />
+		</condition>
+	</target>
+	<target name="run-msbuild" if="cpptask.ok">
 		<mkdir dir="${build.dir}/${msbuild.config}${msbuild.platform}" />
 		<exec executable="msbuild" failonerror="true">
 			<arg value="${basedir}\${ant.project.name}.vcxproj" />
@@ -48,7 +61,10 @@
 			<param name="msbuild.platform" value="x64" />
 		</antcall>
 	</target>
-	<target name="compile" description="--> compile project">
+	<target name="compile-none" unless="cpptask.ok">
+		<echo>Can't build ${ant.project.name} - required header files and libraries missing</echo>
+	</target>
+	<target name="compile" depends="check-env,compile-none" description="--> compile project">
 		<antcall target="compile-win32" />
 		<antcall target="compile-x64" />
 	</target>
@@ -57,7 +73,7 @@
 	<property name="log4cxx.logfile" value="${log4cxx.configuration}.log" />
 	<property name="tests.results.dir" value="${solution.dir}/TestResults" />
 	<property name="mstest.path" value="${env.Path};${mstest.additional.path}" />
-	<target name="run-mstest" depends="run-msbuild">
+	<target name="run-mstest" depends="run-msbuild" if="cpptask.ok">
 		<mkdir dir="${tests.results.dir}" />
 		<delete file="${tests.results.dir}\${ant.project.name}-${msbuild.config}${msbuild.platform}.trx" failonerror="false" />
 		<exec executable="mstest" failonerror="false">
@@ -113,7 +129,10 @@
 			<param name="msbuild.platform" value="x64" />
 		</antcall>
 	</target>
-	<target name="tests" description="--> run the tests">
+	<target name="tests-none" unless="cpptask.ok">
+		<echo>Can't run tests for ${ant.project.name} - required header files and libraries missing</echo>
+	</target>
+	<target name="tests" depends="check-env,tests-none" description="--> run the tests">
 		<antcall target="tests-win32" />
 		<antcall target="tests-x64" />
 	</target>
