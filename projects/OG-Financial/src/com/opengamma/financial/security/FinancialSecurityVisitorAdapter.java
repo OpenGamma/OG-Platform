@@ -35,6 +35,64 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   private final OptionSecurityVisitor<T> _optionSecurityVisitor;
   private final SwapSecurityVisitor<T> _swapSecurityVisitor;
 
+  /**
+   * Builder for the visitor adapter.
+   * 
+   * @param <T> Return type for the visitor
+   */
+  public static final class Builder<T> {
+    private BondSecurityVisitor<T> _bondSecurityVisitor;
+    private CashSecurityVisitor<T> _cashSecurityVisitor;
+    private EquitySecurityVisitor<T> _equitySecurityVisitor;
+    private FRASecurityVisitor<T> _fraSecurityVisitor;
+    private FutureSecurityVisitor<T> _futureSecurityVisitor;
+    private OptionSecurityVisitor<T> _optionSecurityVisitor;
+    private SwapSecurityVisitor<T> _swapSecurityVisitor;
+
+    private Builder() {
+    }
+
+    public Builder<T> bondSecurityVisitor(final BondSecurityVisitor<T> bondSecurityVisitor) {
+      _bondSecurityVisitor = bondSecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> cashSecurityVisitor(final CashSecurityVisitor<T> cashSecurityVisitor) {
+      _cashSecurityVisitor = cashSecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> equitySecurityVisitor(final EquitySecurityVisitor<T> equitySecurityVisitor) {
+      _equitySecurityVisitor = equitySecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> fraSecurityVisitor(final FRASecurityVisitor<T> fraSecurityVisitor) {
+      _fraSecurityVisitor = fraSecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> futureSecurityVisitor(final FutureSecurityVisitor<T> futureSecurityVisitor) {
+      _futureSecurityVisitor = futureSecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> optionSecurityVisitor(final OptionSecurityVisitor<T> optionSecurityVisitor) {
+      _optionSecurityVisitor = optionSecurityVisitor;
+      return this;
+    }
+
+    public Builder<T> swapSecurityVisitor(final SwapSecurityVisitor<T> swapSecurityVisitor) {
+      _swapSecurityVisitor = swapSecurityVisitor;
+      return this;
+    }
+
+    public FinancialSecurityVisitorAdapter<T> create() {
+      return new FinancialSecurityVisitorAdapter<T>(this);
+    }
+
+  }
+
   public FinancialSecurityVisitorAdapter(BondSecurityVisitor<T> bondSecurityVisitor,
       CashSecurityVisitor<T> cashSecurityVisitor, EquitySecurityVisitor<T> equitySecurityVisitor,
       FRASecurityVisitor<T> fraSecurityVisitor, FutureSecurityVisitor<T> futureSecurityVisitor,
@@ -46,6 +104,19 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     _futureSecurityVisitor = futureSecurityVisitor;
     _optionSecurityVisitor = optionSecurityVisitor;
     _swapSecurityVisitor = swapSecurityVisitor;
+  }
+
+  public FinancialSecurityVisitorAdapter() {
+    this(null, null, null, null, null, null, null);
+  }
+
+  public static <T> Builder<T> builder() {
+    return new Builder<T>();
+  }
+
+  protected FinancialSecurityVisitorAdapter(final Builder<T> builder) {
+    this(builder._bondSecurityVisitor, builder._cashSecurityVisitor, builder._equitySecurityVisitor, builder._fraSecurityVisitor, builder._futureSecurityVisitor, builder._optionSecurityVisitor,
+        builder._swapSecurityVisitor);
   }
 
   // FinancialSecurityVisitor

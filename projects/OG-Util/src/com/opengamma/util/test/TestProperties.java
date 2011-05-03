@@ -22,6 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 public class TestProperties {
 
   private static final String DEFAULT_PROPS_FILE_NAME = "tests.properties";
+  private static final String DEFAULT_PROPS_DIR = "../../common/"; // OG-Platform/common/
 
   private static String _baseDir = null;
   private static Properties _props = null;
@@ -41,10 +42,25 @@ public class TestProperties {
       String overridePropsFileName = System.getProperty("test.properties"); // passed in by Ant
       if (overridePropsFileName != null) {
         propsFileName = overridePropsFileName;
+        System.err.println("Using test.properties from system property: " + propsFileName);
+      } else {
+        System.err.println("Using default test.properties file name: " + propsFileName);
+      }
+      String testPropsDir = DEFAULT_PROPS_DIR;
+      String overridePropsDir = System.getProperty("test.properties.dir"); // passed in by Ant
+      if (overridePropsDir != null) {
+        testPropsDir = overridePropsDir;
+        System.err.println("Using test.properties.dir from system property: " + testPropsDir);
+      } else {
+        System.err.println("Using default test.properties.dir: " + testPropsDir);
       }
       
-      File file = new File(_baseDir, propsFileName);
-      System.err.println(file.getAbsoluteFile());
+      File file = new File(testPropsDir, propsFileName);
+      try {
+        System.err.println("Reading test properties from " + file.getCanonicalPath());
+      } catch (IOException e) {
+        throw new OpenGammaRuntimeException("Couldn't get canonical path of file " + file, e);
+      }
       try {
         FileInputStream fis = new FileInputStream(file);
         _props.load(fis);
@@ -113,15 +129,15 @@ public class TestProperties {
       dirs.add(dir); // may be null -> 
       i++;
       dir = getTestProperties().getProperty("db.script.dir." + i);
-    } 
-    
+    }
+
     if (dirs.isEmpty()) {
       dirs.add(_baseDir); // if _baseDir == null -> working directory
     }
     
     return dirs;    
   }
-  
+
   public static DBTool getDbTool(String databaseType) {
     String dbHost = getDbHost(databaseType);
     String user = getDbUsername(databaseType);
@@ -136,5 +152,4 @@ public class TestProperties {
     dbtool.initialize();
     return dbtool;
   }
-
 }

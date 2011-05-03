@@ -2,6 +2,7 @@
 	<info organisation="com.opengamma" module="og-util" status="integration"/>
 	<publications>
 		<artifact name="og-util" type="jar"/>
+		<artifact name="og-util" type="source" ext="jar"/>
 	</publications>
 	<dependencies>
 		<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" />
@@ -12,18 +13,18 @@
 		<dependency org="org.apache.commons" name="commons-cli" rev="1.2"/>
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" />
 		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" />
-        <dependency org="org.joda" name="joda-beans" rev="0.3.2" />
+		<dependency org="org.joda" name="joda-beans" rev="0.3.2" />
 		<dependency org="org.testng" name="testng" rev="6.0.1"/>
 		<dependency org="org.slf4j" name="slf4j" rev="[1.5.11,2.0[" conf="*->core,jcl-migration,log4j-migration"/>
 		<dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
-        <dependency org="com.sun.jersey" name="jersey-spring" rev="1.3" />
+		<dependency org="com.sun.jersey" name="jersey-spring" rev="1.3" />
 		<dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->context-support,jms,web,orm"/>
 		<dependency org="org.springframework" name="spring-amqp" rev="1.0.0.M1"/>
 		<dependency org="com.rabbitmq" name="java-client" rev="2.1.0"/>
-        <dependency org="org.freemarker" name="freemarker" rev="2.3.16"/>
-        <dependency org="javax.servlet" name="servletapi" rev="2.5"/>
-        <dependency org="javax.servlet" name="jstl" rev="1.2"/>
-        <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
+		<dependency org="org.freemarker" name="freemarker" rev="2.3.16"/>
+		<dependency org="javax.servlet" name="servletapi" rev="2.5"/>
+		<dependency org="javax.servlet" name="jstl" rev="1.2"/>
+		<dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
 		<dependency org="javax.time" name="jsr-310-ri" rev="0.6.3"/>
 		<dependency org="javax.jms" name="jms" rev="1.1"/>
 		<dependency org="org.apache.activemq" name="activemq" rev="5.3.0" conf="*->core"/>
@@ -35,7 +36,7 @@
 		<dependency org="org.mockito" name="mockito" rev="1.6"/>
 		<dependency org="it.unimi.dsi" name="fastutil" rev="5.1.5"/>
 		<dependency org="org.mongodb" name="java-driver" rev="2.1" />
-        <dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1[" />
-        <exclude org="org.junit" />
+		<dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1[" />
+		<exclude org="org.junit" />
 	</dependencies>
 </ivy-module>

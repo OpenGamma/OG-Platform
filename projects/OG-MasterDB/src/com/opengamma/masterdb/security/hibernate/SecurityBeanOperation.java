@@ -53,15 +53,6 @@ public interface SecurityBeanOperation<S extends Security, H extends SecurityBea
   S createSecurity(OperationContext context, H bean);
 
   /**
-   * Test a bean and security representation for equality.
-   * @param context  the context
-   * @param bean  the Hibernate bean
-   * @param security  the security
-   * @return true if equal
-   */
-  boolean beanEquals(OperationContext context, H bean, S security);
-
-  /**
    * Loads additional (deep) data for a security bean. For example to implement date constrained relationships
    * that Hibernate alone can't deal with. May update the supplied bean, and return it, or return a new bean.
    * @param context  the context

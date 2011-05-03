@@ -3,6 +3,7 @@
     
     <publications>
       <artifact name="og-masterdb" type="jar"/>
+      <artifact name="og-masterdb" type="source" ext="jar" />
     </publications>
     <dependencies>
         <dependency name="og-financial" rev="latest.integration" />

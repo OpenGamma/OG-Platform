@@ -31,12 +31,6 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
   }
 
   @Override
-  public boolean beanEquals(final OperationContext context, SwapSecurityBean bean, SwapSecurity security) {
-    // TODO
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public SwapSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final SwapSecurity security) {
     return security.accept(new SwapSecurityVisitor<SwapSecurityBean>() {
 

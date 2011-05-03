@@ -2,13 +2,13 @@
 	<info organisation="com.opengamma" module="og-examples" status="integration"/>
 	<publications>
 		<artifact name="og-examples" type="jar"/>
+		<artifact name="og-examples" type="source" ext="jar" />
 	</publications>
 	<dependencies>
-        <dependency name="og-web" rev="latest.integration" />
-        <dependency name="og-master" rev="latest.integration" />
-        <dependency name="og-masterdb" rev="latest.integration" />
-        		    
-		    <exclude org="org.apache.log4j" module="log4j" />
-        <exclude org="org.junit" />
+		<dependency name="og-web" rev="latest.integration" />
+		<dependency name="og-master" rev="latest.integration" />
+		<dependency name="og-masterdb" rev="latest.integration" />
+		<exclude org="org.apache.log4j" module="log4j" />
+		<exclude org="org.junit" />
 	</dependencies>
 </ivy-module>

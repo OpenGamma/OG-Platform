@@ -17,7 +17,7 @@
 			<list>
 				<bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
 					<property name="port" value="${jetty.port}" />
-					<property name="confidentialPort" value="${jetty.confidentialPort}" />
+					<property name="confidentialPort" value="${jetty.securePort}" />
 				</bean>
 			</list>
 		</property>
