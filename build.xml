@@ -182,7 +182,15 @@
 		<!-- Fix the unescaped ampersand in e.g. the mockito ivy.xml file -->
 		<replaceregexp file="${repository.filename}" match="&amp; " replace="&amp;amp; " />
 	</target>
-	<target name="source-dist" depends="init,clone-or-pull,clean-all,dist-name,load-ivy" description="builds a single source distribution zipfile">
+	<target name="eclipse-readme">
+		<property name="eclipse.readme.urlbase" value="http://docs.opengamma.com" />
+		<property name="eclipse.readme" value="Setting-up-an-Eclipse-workspace.html" />
+		<get src="${eclipse.readme.urlbase}/display/DOC/Setting+Up+An+Eclipse+Workspace" dest="${eclipse.readme}" />
+		<replaceregexp file="${eclipse.readme}" match="^.*&lt;!-- wiki content --&gt;" replace="&lt;html&gt;&lt;body&gt;" flags="s" />
+		<replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
+		<replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
+	</target>
+	<target name="source-dist" depends="init,clone-or-pull,clean-all,dist-name,load-ivy,eclipse-readme" description="builds a single source distribution zipfile">
 		<mkdir dir="${dist.dir}" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
 			<tarfileset uid="0" gid="0" dir="..">
