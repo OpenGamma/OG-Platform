@@ -59,13 +59,20 @@ $.register_module({
                 ],
                 buttons: {
                     'Ok': function () {
+                        $(this).dialog('close');
                         api.securities.put({
                             handler: function (r) {
-                                if (r.error) return ui.dialog({type: 'input', html: r.message});
-                                ui.dialog({type: 'input', action: 'close'});
-                                routes.go(routes.hash(module.rules.load_new_securities,
-                                        $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                                ));
+                                if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                // TODO: Test if one or multiple ids were supplied
+                                if (r.data.data.length === 1) {
+                                    routes.go(routes.hash(module.rules.load_new_securities,
+                                            $.extend({}, routes.last().args, {
+                                                id: r.data.data[0].split('|')[1], 'new': true
+                                            })
+                                    ));
+                                } else {
+                                    routes.go(routes.hash(module.rules.load));
+                                }
                             },
                             scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
                             identifier: ui.dialog({return_field_value: 'identifiers'})
@@ -79,11 +86,18 @@ $.register_module({
                 message: 'Are you sure you want to permanently delete this portfolio?',
                 buttons: {
                     'Delete': function () {
+                        var obj = {
+                            id: routes.last().args.id,
+                            handler: function (r) {
+                                var last = routes.last();
+                                if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                routes.go(routes.hash(module.rules.load_delete,
+                                        $.extend(true, {deleted: true}, last.args)
+                                ));
+                            }
+                        };
                         $(this).dialog('close');
-                        api.securities.del({
-                            handler: function () {routes.go(routes.hash(module.rules.load, {}));},
-                            id: args.id
-                        });
+                        api.securities.del(obj);
                     }
                 }
             },
@@ -133,15 +147,16 @@ $.register_module({
             state = {};
         module.rules = {
             load: {route: '/' + page_name + '/name:?/filter_type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/type:?/name:?/filter_type:?',
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/filter_type:?',
                     method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/name:?/filter_type:?',
-                    method: module.name + '.load_delete'},
+            load_delete: {
+                route: '/' + page_name + '/:id/deleted:/name:?/filter_type:?', method: module.name + '.load_delete'
+            },
             load_securities: {
-                route: '/' + page_name + '/:id/type:/name:?/filter_type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/filter_type:?', method: module.name + '.load_' + page_name
             },
             load_new_securities: {
-                route: '/' + page_name + '/new:/name:?/filter_type:?', method: module.name + '.load_new_' + page_name
+                route: '/' + page_name + '/:id/new:/name:?/filter_type:?', method: module.name + '.load_new_' + page_name
             }
         };
         return securities = {
@@ -170,13 +185,11 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(args, {filter: true}));
             },
-            load_delete: function () {
-                securities.search();
+            load_delete: function (args) {
+                securities.search(args);
                 routes.go(routes.hash(module.rules.load, {}));
             },
-            load_new_securities: function (args) {
-                securities.load(args);
-            },
+            load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
@@ -196,7 +209,7 @@ $.register_module({
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        og.api.text({module: module.name + '.' + args.type, handler: function (template) {
+                        og.api.text({module: module.name + '.' + details_json.templateData.securityType, handler: function (template) {
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
                             f.render_security_identifiers('.OG-security .og-js-identifiers', details_json.identifiers);
                             details.favorites();

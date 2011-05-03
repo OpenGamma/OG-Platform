@@ -123,7 +123,7 @@ $.register_module({
                 }});
             },
             details_page = function (args) {
-                 var hook_up_add_portfolio_form = function () {
+                var hook_up_add_portfolio_form = function () {
                         var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button');
                         $button.unbind('click').bind('click', function (e) {
                             e.stopPropagation();
@@ -143,40 +143,41 @@ $.register_module({
                         });
                         ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-create-portfolio-node');
                     },
-                     hook_up_add_position_form = function () {
-                    $('.OG-portfolio .og-js-add-position input').autocomplete({
-                        source: function (obj, callback) {
-                            api.rest.positions.get({
-                                handler: function (r) {
-                                    callback(
-                                        r.data.data.map(function (val) {
-                                            var arr = val.split('|');
-                                            return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                        })
-                                    );
-                                },
-                                loading: '',
-                                page_size: 10,
-                                page: 1,
-                                identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                            });
-                            ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position input');
-                        },
-                        minLength: 1,
-                        select: function (e, ui) {
-                        // TODO: API not implemented yet
-                        // api.portfolios.put({
-                        //     handler: function (r) {
-                        //         if (r.error) return og.common.util.ui.dialog({type: 'error', message: r.message});
-                        //         routes.go(routes.hash(module.rules.load_new_portfolios,
-                        //              $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                        //         ));
-                        //     },
-                        //     position_id: ui.item.value, id: 'DbPos~97338', node: 'DbPrt~97339'
-                        // });
-                        }
-                    })},
-                     render_portfolio_rows = function (selector, json, handler) {
+                    hook_up_add_position_form = function () {
+                        $('.OG-portfolio .og-js-add-position input').autocomplete({
+                            source: function (obj, callback) {
+                                api.rest.positions.get({
+                                    handler: function (r) {
+                                        callback(
+                                            r.data.data.map(function (val) {
+                                                var arr = val.split('|');
+                                                return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                            })
+                                        );
+                                    },
+                                    loading: '',
+                                    page_size: 10,
+                                    page: 1,
+                                    identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
+                                });
+                                ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position input');
+                            },
+                            minLength: 1,
+                            select: function (e, ui) {
+                            // TODO: API not implemented yet
+                            // api.portfolios.put({
+                            //     handler: function (r) {
+                            //         if (r.error) return og.common.util.ui.dialog({type: 'error', message: r.message});
+                            //         routes.go(routes.hash(module.rules.load_new_portfolios,
+                            //              $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
+                            //         ));
+                            //     },
+                            //     position_id: ui.item.value, id: 'DbPos~97338', node: 'DbPrt~97339'
+                            // });
+                            }
+                        })
+                    },
+                    render_portfolio_rows = function (selector, json, handler) {
                         var $parent = $(selector), id = json.template_data.id, portfolios = json.portfolios,
                             rule = og.views.portfolios.rules['load_portfolios'], length = portfolios.length,
                             render, iterator, CHUNK = 500;
