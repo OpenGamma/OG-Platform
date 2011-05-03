@@ -118,7 +118,7 @@ public class CapFloorCMSReplicationSABRMethodTest {
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
     long startTime, endTime;
-    int nbTest = 50;
+    int nbTest = 100;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_CAP, sabrBundle);
@@ -129,15 +129,44 @@ public class CapFloorCMSReplicationSABRMethodTest {
     System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 50 cap 5Y.
     // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
+    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 55 ms for 100 cap 5Y.
+    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 95 ms for 100 cap 5Y.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_FLOOR, sabrBundle);
       replication.presentValueSensitivity(CMS_FLOOR, sabrBundle);
-      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
+      replication.presentValueSABRSensitivity(CMS_FLOOR, sabrBundle);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 50 floor 5Y.
-    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 500 ms for 50 floor 5Y.
+    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
+    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 44 ms for 100 floor 5Y.
+    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 84 ms for 50 cap 5Y.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      replication.presentValue(CMS_CAP, sabrBundle);
+      replication.presentValueSensitivity(CMS_CAP, sabrBundle);
+      //      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
+    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 50 cap 5Y.
+    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
+    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 37 ms for 100 cap 5Y.
+    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 84 ms for 100 cap 5Y.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      replication.presentValue(CMS_FLOOR, sabrBundle);
+      replication.presentValueSensitivity(CMS_FLOOR, sabrBundle);
+      //      replication.presentValueSABRSensitivity(CMS_FLOOR, sabrBundle);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
+    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 50 floor 5Y.
+    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
+    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 32 ms for 100 floor 5Y.
+    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 74 ms for 50 cap 5Y.
   }
 }

@@ -21,6 +21,9 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateParameter
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.tuple.DoublesPair;
@@ -145,7 +148,7 @@ public class CapFloorCMSReplicationSABRMethod {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    double price = discountFactor * (strikePartPrice + integralPartPrice) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
+    double price = (strikePartPrice + integralPartPrice) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     // Delta
     double strikePart = discountFactor * integrantDelta.k(strike) * (n[1] * bs[0] + n[0] * bs[1]);
     double integralPart;
@@ -161,9 +164,9 @@ public class CapFloorCMSReplicationSABRMethod {
     double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     double deltaPD = price / discountFactor;
 
-    double sensiDF = -cmsCapFloor.getSettlementTime() * discountFactor * deltaPD;
+    double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
-    list.add(new DoublesPair(cmsCapFloor.getSettlementTime(), sensiDF));
+    list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
@@ -236,7 +239,11 @@ public class CapFloorCMSReplicationSABRMethod {
     private final double _strike;
     private final double _forward;
     private final double _factor;
-    private final SABRInterestRateParameter _sabrParameter;
+    private final SABRFormulaData _sabrData;
+    /**
+     * The function containing the SABR volatility formula.
+     */
+    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
     private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
     private final boolean _isCall;
 
@@ -249,12 +256,19 @@ public class CapFloorCMSReplicationSABRMethod {
       _tau = 1.0 / _nbFixedPaymentYear;
       _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
       _eta = -_delta;
-      _sabrParameter = sabrParameter;
+      //      _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCap.getFixingTime();
       // TODO: A better notion of maturity may be required (using period?)
       AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
       _forward = forward;
+      DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      double alpha = sabrParameter.getAlpha(expiryMaturity);
+      double beta = sabrParameter.getBeta(expiryMaturity);
+      double rho = sabrParameter.getRho(expiryMaturity);
+      double nu = sabrParameter.getNu(expiryMaturity);
+      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       _strike = cmsCap.geStrike();
       _factor = g(_forward) / h(_forward);
@@ -348,7 +362,8 @@ public class CapFloorCMSReplicationSABRMethod {
      */
     double bs(double strike) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
+      Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
+      double volatility = funcSabr.evaluate(_sabrData);
       BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
@@ -370,7 +385,11 @@ public class CapFloorCMSReplicationSABRMethod {
     private final double _maturity;
     private final double _strike;
     private final double _forward;
-    private final SABRInterestRateParameter _sabrParameter;
+    private final SABRFormulaData _sabrData;
+    /**
+     * The function containing the SABR volatility formula.
+     */
+    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
     private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
     private final boolean _isCall;
 
@@ -383,12 +402,17 @@ public class CapFloorCMSReplicationSABRMethod {
       _tau = 1.0 / _nbFixedPaymentYear;
       _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
       _eta = -_delta;
-      _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCap.getFixingTime();
-      // TODO: A better notion of maturity may be required (using period?)
+      _forward = forward;
       AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
-      _forward = forward;
+      DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      double alpha = sabrParameter.getAlpha(expiryMaturity);
+      double beta = sabrParameter.getBeta(expiryMaturity);
+      double rho = sabrParameter.getRho(expiryMaturity);
+      double nu = sabrParameter.getNu(expiryMaturity);
+      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       _strike = cmsCap.geStrike();
     }
@@ -399,6 +423,7 @@ public class CapFloorCMSReplicationSABRMethod {
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       double[] bs = bsbsp(x);
       double[] n = nnp(_forward);
+      // TODO: Store the value of n?
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * (n[1] * bs[0] + n[0] * bs[1]);
     }
 
@@ -438,10 +463,11 @@ public class CapFloorCMSReplicationSABRMethod {
         double periodFactor = 1 + x / _nbFixedPaymentYear;
         double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
         result[0] = 1.0 / x * (1.0 - nPeriodDiscount);
-        result[1] = -result[0] / x + _tau * nPeriodDiscount / x * nPeriodDiscount / periodFactor;
+        result[1] = -result[0] / x + _tau * _nbFixedPeriod / x * nPeriodDiscount / periodFactor;
+      } else {
+        result[0] = _nbFixedPeriod * _tau;
+        result[1] = -_nbFixedPeriod * (_nbFixedPeriod + 1.0) * _tau * _tau / 2.0;
       }
-      result[0] = _nbFixedPeriod * _tau;
-      result[1] = -_nbFixedPeriod * (_nbFixedPeriod + 1.0) * _tau * _tau / 2.0;
       return result;
     }
 
@@ -513,11 +539,12 @@ public class CapFloorCMSReplicationSABRMethod {
     double[] bsbsp(double strike) {
       double[] result = new double[2];
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
-      BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
+      SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
+      double[] volatility = sabrHaganFunction.getVolatilityAdjoint(option, _sabrData);
+      BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility[0]);
       double[] bsAdjoint = _blackFunction.getPriceAdjoint(option, dataBlack);
       result[0] = bsAdjoint[0];
-      result[1] = bsAdjoint[1];
+      result[1] = bsAdjoint[1] + bsAdjoint[2] * volatility[1];
       return result;
     }
   }
@@ -537,7 +564,12 @@ public class CapFloorCMSReplicationSABRMethod {
     private final double _strike;
     private final double _forward;
     private final double _factor;
-    private final SABRInterestRateParameter _sabrParameter;
+    private final SABRFormulaData _sabrData;
+    /**
+     * The function containing the SABR volatility formula.
+     */
+    private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
+    //    private final SABRInterestRateParameter _sabrParameter;
     private final BlackPriceFunction _blackFunction = new BlackPriceFunction();
     private final boolean _isCall;
     private int _parameterIndex;
@@ -551,12 +583,18 @@ public class CapFloorCMSReplicationSABRMethod {
       _tau = 1.0 / _nbFixedPaymentYear;
       _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
       _eta = -_delta;
-      _sabrParameter = sabrParameter;
+      //      _sabrParameter = sabrParameter;
       _timeToExpiry = cmsCap.getFixingTime();
-      // TODO: A better notion of maturity may be required (using period?)
+      _forward = forward;
       AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
-      _forward = forward;
+      DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      double alpha = sabrParameter.getAlpha(expiryMaturity);
+      double beta = sabrParameter.getBeta(expiryMaturity);
+      double rho = sabrParameter.getRho(expiryMaturity);
+      double nu = sabrParameter.getNu(expiryMaturity);
+      _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       // Implementation note: to avoid singularity at 0.
       _strike = (cmsCap.geStrike() < 1E-4 ? 1E-4 : cmsCap.geStrike());
@@ -567,7 +605,9 @@ public class CapFloorCMSReplicationSABRMethod {
     public Double evaluate(Double x) {
       double[] kD = kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
-      double[] volatilityAdjoint = _sabrParameter.getVolatilityAdjoint(_timeToExpiry, _maturity, x, _forward);
+      EuropeanVanillaOption option = new EuropeanVanillaOption(x, _timeToExpiry, _isCall);
+      SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
+      double[] volatilityAdjoint = sabrHaganFunction.getVolatilityAdjoint(option, _sabrData);
       return _factor * (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x) * volatilityAdjoint[3 + _parameterIndex];
     }
 
@@ -660,7 +700,9 @@ public class CapFloorCMSReplicationSABRMethod {
      */
     double bs(double strike) {
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
-      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
+      Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option);
+      double volatility = funcSabr.evaluate(_sabrData);
+      //      double volatility = _sabrParameter.getVolatility(_timeToExpiry, _maturity, strike, _forward);
       BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
       double[] bsAdjoint = _blackFunction.getPriceAdjoint(option, dataBlack);
       return bsAdjoint[2];

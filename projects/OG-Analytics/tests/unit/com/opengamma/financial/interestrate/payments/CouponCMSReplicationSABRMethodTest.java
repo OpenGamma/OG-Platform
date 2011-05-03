@@ -2,6 +2,11 @@ package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -22,11 +27,16 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
@@ -88,6 +98,90 @@ public class CouponCMSReplicationSABRMethodTest {
   }
 
   @Test
+  /**
+   * Test the present value sensitivity to the rates.
+   */
+  public void testPresentValueRateSensitivitySABRParameters() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    CouponCMSReplicationSABRMethod method = new CouponCMSReplicationSABRMethod();
+    // Swaption sensitivity
+    PresentValueSensitivity pvsReceiver = method.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
+    // Present value sensitivity comparison with finite difference.
+    double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
+    final double deltaShift = 1e-9;
+    pvsReceiver = pvsReceiver.clean();
+    double pv = method.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
+    // 1. Forward curve sensitivity
+    String bumpedCurveName = "Bumped Curve";
+    String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    CouponCMS cmsBumpedForward = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
+    final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
+    Set<Double> timeForwardSet = new TreeSet<Double>();
+    for (Payment pay : CMS_COUPON_RECEIVER.getUnderlyingSwap().getSecondLeg().getPayments()) {
+      CouponIbor coupon = (CouponIbor) pay;
+      timeForwardSet.add(coupon.getFixingPeriodStartTime());
+      timeForwardSet.add(coupon.getFixingPeriodEndTime());
+    }
+    int nbForwardDate = timeForwardSet.size();
+    List<Double> timeForwardList = new ArrayList<Double>(timeForwardSet);
+    Double[] timeForwardArray = new Double[nbForwardDate];
+    timeForwardArray = timeForwardList.toArray(timeForwardArray);
+    final double[] yieldsForward = new double[nbForwardDate + 1];
+    double[] nodeTimesForward = new double[nbForwardDate + 1];
+    yieldsForward[0] = curveForward.getInterestRate(0.0);
+    for (int i = 0; i < nbForwardDate; i++) {
+      nodeTimesForward[i + 1] = timeForwardArray[i];
+      yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
+    }
+    final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
+    List<DoublesPair> tempForward = pvsReceiver.getSensitivity().get(FORWARD_CURVE_NAME);
+    for (int i = 0; i < nbForwardDate; i++) {
+      final YieldAndDiscountCurve bumpedCurveForward = tempCurveForward.withSingleShift(nodeTimesForward[i + 1], deltaShift);
+      final YieldCurveBundle curvesBumpedForward = new YieldCurveBundle();
+      curvesBumpedForward.addAll(curves);
+      curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
+      SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumpedForward);
+      final double bumpedpv = PVC.visit(cmsBumpedForward, sabrBundleBumped);
+      double res = (bumpedpv - pv) / deltaShift;
+      final DoublesPair pair = tempForward.get(i);
+      assertEquals("Node " + i, nodeTimesForward[i + 1], pair.getFirst(), 1E-8);
+      assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
+    }
+    // 2. Funding curve sensitivity
+    String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    CouponCMS cmsBumpedFunding = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
+    int nbPayDate = CMS_COUPON_RECEIVER_DEFINITION.getUnderlyingSwap().getIborLeg().getPayments().length;
+    final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
+    final double[] yieldsFunding = new double[nbPayDate + 1];
+    double[] nodeTimesFunding = new double[nbPayDate + 1];
+    yieldsFunding[0] = curveFunding.getInterestRate(0.0);
+    for (int i = 0; i < nbPayDate; i++) {
+      nodeTimesFunding[i + 1] = CMS_COUPON_RECEIVER.getUnderlyingSwap().getSecondLeg().getNthPayment(i).getPaymentTime();
+      yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimesFunding[i + 1]);
+    }
+    final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
+    List<DoublesPair> tempFunding = pvsReceiver.getSensitivity().get(FUNDING_CURVE_NAME);
+    double[] res = new double[nbPayDate];
+    for (int i = 0; i < nbPayDate; i++) {
+      final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[i + 1], deltaShift);
+      final YieldCurveBundle curvesBumped = new YieldCurveBundle();
+      curvesBumped.addAll(curves);
+      curvesBumped.setCurve("Bumped Curve", bumpedCurve);
+      SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumped);
+      final double bumpedpv = method.presentValue(cmsBumpedFunding, sabrBundleBumped);
+      res[i] = (bumpedpv - pv) / deltaShift;
+      final DoublesPair pair = tempFunding.get(i);
+      assertEquals("Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
+      assertEquals("Node " + i, res[i], pair.getSecond(), deltaTolerance);
+    }
+  }
+
+  @Test
+  /**
+   * Test the present value sensitivity to the SABR parameters.
+   */
   public void testPresentValueSABRSensitivitySABRParameters() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
@@ -138,7 +232,7 @@ public class CouponCMSReplicationSABRMethodTest {
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
     long startTime, endTime;
-    int nbTest = 50;
+    int nbTest = 100;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
@@ -149,5 +243,7 @@ public class CouponCMSReplicationSABRMethodTest {
     System.out.println(nbTest + " CMS swap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 50 coupon 5Y.
     // Performance note: price+delta+vega: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 50 coupon 5Y.
+    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 87 ms for 100 coupon 5Y.
+    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 131 ms for 100 coupon 5Y.
   }
 }
