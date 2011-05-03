@@ -448,7 +448,7 @@
 	</target>
 	<target name="clover-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
-		<subant target="projects.clover" buildpath="${basedir}" genericantfile="build.xml" />
+		<subant target="projects.clover" buildpath="${basedir}" antfile="build.xml" />
 	</target>
 	<target name="clover" depends="clover-noload,clover-load" />
 
@@ -457,7 +457,7 @@
 	</target>
 	<target name="clone-or-pull-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
-		<subant target="projects.clone-or-pull" buildpath="${basedir}" genericantfile="build.xml" />
+		<subant target="projects.clone-or-pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
 	<target name="clone-or-pull" depends="clone-or-pull-noload,clone-or-pull-load" />
 
@@ -466,7 +466,7 @@
 	</target>
 	<target name="pull-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
-		<subant target="projects.pull" buildpath="${basedir}" genericantfile="build.xml" />
+		<subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
 	<target name="pull" depends="pull-noload,pull-load" />
 
@@ -475,7 +475,7 @@
 	</target>
 	<target name="status-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
-		<subant target="projects.status" buildpath="${basedir}" genericantfile="build.xml" />
+		<subant target="projects.status" buildpath="${basedir}" antfile="build.xml" />
 	</target>
 	<target name="status" depends="status-noload,status-load" />
 
