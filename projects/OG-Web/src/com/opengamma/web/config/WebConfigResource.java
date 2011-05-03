@@ -24,6 +24,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * RESTful resource for a configuration document.
@@ -107,12 +108,12 @@ public class WebConfigResource extends AbstractWebConfigResource {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private URI updateConfig(String name, Object newConfig) {
+  private URI updateConfig(String name, Pair<Object, Class<?>> newConfigValue) {
     ConfigDocument<?> oldDoc = data().getConfig();
     ConfigDocument doc = new ConfigDocument(oldDoc.getDocumentClass());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
-    doc.setValue(newConfig);
+    doc.setValue(newConfigValue.getFirst());
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
     URI uri = WebConfigResource.uri(data());
