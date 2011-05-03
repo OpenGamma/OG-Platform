@@ -29,7 +29,7 @@
           destdir="docs"
           classpathref="lib.path.id"
           doclet="it.dexy.jsondoclet.Doclet"
-          docletpath="/java/json-doclet.jar:/java/json_simple-1.1.jar"
+          docletpath="json-doclet.jar:json_simple-1.1.jar"
     >
   	</javadoc>
   </target>

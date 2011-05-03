@@ -30,7 +30,6 @@
 
 class CSettings : public CAbstractSettings {
 private:
-	TCHAR *m_pszDefaultServiceExecutable;
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
 	int GetConnectTimeout (int nDefault) { return Get (SETTINGS_CONNECT_TIMEOUT, nDefault); }
 	bool IsDisplayAlerts (bool bDefault)  { return Get (SETTINGS_DISPLAY_ALERTS, bDefault ? 1 : 0) ? true : false; }
@@ -40,14 +39,12 @@ private:
 	int GetMaxPipeAttempts (int nDefault) { return Get (SETTINGS_MAX_PIPE_ATTEMPTS, nDefault); }
 	const TCHAR *GetOutputPipePrefix (const TCHAR *pszDefault) { return Get (SETTINGS_OUTPUT_PIPE_PREFIX, pszDefault); }
 	int GetSendTimeout (int nDefault) { return Get (SETTINGS_SEND_TIMEOUT, nDefault); }
-	const TCHAR *GetServiceExecutable (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_EXECUTABLE, pszDefault); }
+	const TCHAR *GetServiceExecutable (CAbstractSettingProvider *poDefault) { return Get (SETTINGS_SERVICE_EXECUTABLE, poDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 	int GetServicePoll (int nDefault) { return Get (SETTINGS_SERVICE_POLL, nDefault); }
 	int GetStartTimeout (int nDefault) { return Get (SETTINGS_START_TIMEOUT, nDefault); }
 	int GetStopTimeout (int nDefault) { return Get (SETTINGS_STOP_TIMEOUT, nDefault); }
 public:
-	CSettings ();
-	~CSettings ();
 	const TCHAR *GetConnectionPipe ();
 	int GetConnectTimeout ();
 	bool IsDisplayAlerts ();

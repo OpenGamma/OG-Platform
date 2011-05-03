@@ -14,14 +14,14 @@ $.register_module({
                 start_date = /:S:[0-9]{4}-[0-9]{2}-[0-9]{2}/.exec(value),
                 non_date_info = value.replace(date_info, ''),
                 stopped = 'OG-icon og-clock-stopped', active = 'OG-icon og-clock-active', css_class, return_data;
-            if (start_date){
+            if (start_date) {
                 if (end_date)
                     (css_class = stopped), date_info = date_info.replace(':S:', 'Start: ').replace(':E:', ' - End: ');
                 else
                     (css_class = active), date_info = date_info.replace(':S:', 'Start: ');
-            }else{
+            } else {
                 if (end_date) (css_class = stopped), date_info = date_info.replace(':E:', 'Start: ? - End: ');
-            };
+            }
             if (css_class) return_data = '<span class="' + css_class + '" title="' + date_info + '">' +
                 '<span>' + non_date_info + '</span></span>';
             return return_data || '<span class="og-no-clock"><span>' + value + '</span></span>';

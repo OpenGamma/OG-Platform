@@ -2,11 +2,21 @@
   "index.html|jinja|hd|ft|split" : {
     "allinputs" : true
   },
-  "*.textile|jinja|textile|hd|ft" : {
+  "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
     "allinputs" : true,
-    "inputs" : ["og*.tex|jinja|hd|ft|latex"]
+    "title" : "Yield Curve Maths"
   },
-  "og*.tex|jinja|hd|ft|latex" : {
+  "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
+    "allinputs" : true
+  },
+  "*.md|jinja|markdown|hd|ft" : {
+    "allinputs" : true,
+    "inputs" : [
+      "og_docs_true_primitives.tex|hd|ft|jinja|latex",
+      "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex"
+    ]
+  },
+  "debug.txt|jinja" : {
     "allinputs" : true
   },
   "javadoc-data.json|javadocs" : {},
@@ -17,6 +27,7 @@
   "*.svg|cp" : {},
   "*.eot|cp" : {},
   "*.ttf|cp" : {},
-  "*.woff|cp" : {}
+  "*.woff|cp" : {},
+  "*.tex|pyg|l" : {}
 }
 

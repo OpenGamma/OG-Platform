@@ -3,12 +3,17 @@
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
 \usepackage{amsmath}
+\usepackage{amssymb}
 
 % Set up the images/graphics package
 \usepackage{graphicx}
 \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
 
-\title{Analytics Documentation}
+<% if s.doc.args.has_key('title') -%>
+\title{<< s.doc.args['title'] >>}
+<% else -%>
+\title{OpenGamma Documentation}
+<% endif -%>
 \author{OpenGamma Limited}
 
 % The following package makes prettier tables.  We're all about the bling!

@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.test;
 
+import java.util.Properties;
+
 import com.opengamma.util.MongoDBConnectionSettings;
 
 /**
@@ -12,16 +14,14 @@ import com.opengamma.util.MongoDBConnectionSettings;
  */
 public final class MongoDBTestUtils {
 
-  public static final String TEST_DB_HOST = "mongodb.hq.opengamma.com";
-  //public static final String TEST_DB_HOST = "localhost";
-
   private MongoDBTestUtils() {
   }
 
   public static MongoDBConnectionSettings makeTestSettings(String testName, boolean makeUnique) {
     MongoDBConnectionSettings settings = new MongoDBConnectionSettings();
-    settings.setHost(TEST_DB_HOST);
-    settings.setPort(27017);
+    Properties properties = TestProperties.getTestProperties();
+    settings.setHost(properties.getProperty("mongoServer.host"));
+    settings.setPort(Integer.parseInt(properties.getProperty("mongoServer.port")));
     String dbName = System.getProperty("user.name").replace('.','_') + "-unit";
     String collectionName = testName;
     if (makeUnique) {

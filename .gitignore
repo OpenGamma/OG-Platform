@@ -1,5 +1,9 @@
 /db/
 *.log
+common/build-projects.xml
+common/credentials.properties
+common/tests.properties
+common/db.properties
 projects/Fudge-Java/
 projects/Fudge-Proto/
 projects/OG-Bloomberg/
@@ -8,11 +12,13 @@ projects/OG-Integration/
 projects/OG-RStats/
 projects/OG-Reuters/
 projects/OG-Activ/
+projects/OG-Language/config/OpenGamma.properties
 repository/
 ivy/
 bootstrap/
 tests/output/
 javadoc
+docs/
 lib/
 .idea/
 .DS_Store
@@ -21,3 +27,4 @@ logs/
 artifacts/
 output/
 output-long/
+/dist/

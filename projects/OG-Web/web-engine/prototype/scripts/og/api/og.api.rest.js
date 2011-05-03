@@ -85,65 +85,16 @@ $.register_module({
                 });
             },
             /** @ignore */
-            check = (function () {
-                var meta = ['handler', 'loading', 'update', 'dependencies'],
-                    /** @ignore */
-                    check_dependencies = function (bundle, dependencies) {
-                        var config = bundle.config, method = bundle.method, self = 'check_dependencies';
-                        (($.isArray(dependencies) ? dependencies : [dependencies])).forEach(function (dependency) {
-                            if (!dependency.require || !dependency.fields)
-                                throw new TypeError(self + ': each dependency must have "fields" and "require"');
-                            if (config[dependency.require] !== void 0) return;
-                            dependency.fields.forEach(function (field) {
-                                if (config[field] === void 0) return;
-                                throw new ReferenceError(method + ': ' + field + ' require ' + dependency.require);
-                            });
-                        });
-                    },
-                    /** @ignore */
-                    check_empties = function (bundle, params) { // if condition then fields can't exist, optional label
-                        var config = bundle.config, method = bundle.method, self = 'check_empties';
-                        ($.isArray(params) ? params : [params]).forEach(function (obj) {
-                            var condition = obj.condition, fields = obj.fields, label = obj.label || 'unknown reason';
-                            if (!condition) return; // if condition isn't true, don't bother with anything else
-                            if (!$.isArray(fields)) throw new TypeError(self + ': obj.fields must be an array');
-                            fields.forEach(function (field) {
-                                if (config[field] === void 0) return;
-                                throw new TypeError(method + ': ' + field + ' cannot be defined because: ' + label);
-                            });
-                        });
-                    },
-                    /** @ignore */
-                    check_required = function (bundle, params) {
-                        var method = bundle.method,
-                        /** @ignore */
-                        exists = function (val) {return !!str(bundle.config[val]);}; // makes sure values are not empty
-                        ($.isArray(params) ? params : [params]).forEach(function (obj) {
-                            var one_of = obj.one_of, all_of = obj.all_of,
-                                condition = 'condition' in obj ? obj.condition : true;
-                            if (condition && one_of && !one_of.some(exists))
-                                throw new TypeError(method + ': one of {' + one_of.join(' | ') + '} must be defined');
-                            if (condition && all_of && !all_of.every(exists))
-                                throw new TypeError(method + ': {' + all_of.join(' & ') + '} must be defined');
-                        });
-                    };
-                return function (params) {
-                    [params.bundle, params.bundle.method, params.bundle.config].forEach(function (param) {
-                        if (!param) throw new TypeError('check: params.bundle must contain method and config');
-                    });
-                    if (typeof params.bundle.config.handler !== 'function')
-                        throw new TypeError(params.bundle.method + ': config.handler must be a function');
-                    if (params.required) check_required(params.bundle, params.required);
-                    if (params.empties) check_empties(params.bundle, params.empties);
-                    if (params.dependencies) check_dependencies(params.bundle, params.dependencies);
-                    return meta.reduce(function (acc, val) {
-                        return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
-                    }, {type: 'GET'});
-                };
-            })(),
+            check = function (params) {
+                common.check(params);
+                if (typeof params.bundle.config.handler !== 'function')
+                    throw new TypeError(params.bundle.method + ': config.handler must be a function');
+                return ['handler', 'loading', 'update', 'dependencies'].reduce(function (acc, val) {
+                    return (val in params.bundle.config) && (acc[val] = params.bundle.config[val]), acc;
+                }, {type: 'GET'});
+            },
             // convert all incoming params into strings (so for example, the value 0 ought to be truthy, not falsey)
-            /** @ignore */
-            str = function (val) {return val === void 0 ? '' : $.isArray(val) ? val.join('\n') : '' + val;},
+            str = common.str,
             /** @ignore */
             default_get = function (fields, api_fields, config) {
                 var root = this.root, method = [root], data = {}, meta,
@@ -204,13 +155,13 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
                     });
-                    if (is_id){
+                    if (is_id) {
                         method.push(observation_date, observation_time);
-                    }else{
+                    } else {
                         data = {pageSize: page_size, page: page};
                         if (observation_date) data.observationDate = observation_date;
                         if (observation_time) data.observationTime = observation_time;
-                    };
+                    }
                     return request(method, {data: data, meta: meta});
                 },
                 put: not_available.partial('put'),
@@ -218,10 +169,10 @@ $.register_module({
             },
             clean: function () {
                 var id, current = routes.current(), request, mismatch;
-                for (id in outstanding_requests){
+                for (id in outstanding_requests) {
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
-                };
+                }
                 deliver_updates([]);
             },
             configs: { // all requests that begin with /configs
@@ -389,12 +340,12 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: search, label: 'search request', fields: ['id']}]
                     });
-                    if (search){
+                    if (search) {
                         data = {pageSize: page_size, page: page};
                         fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
-                    }else{
+                    } else {
                         method.push(id);
-                    };
+                    }
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {

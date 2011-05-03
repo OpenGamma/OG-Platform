@@ -3,6 +3,8 @@
 
 	<import file="${common.dir}/common.xml" />
 
+    <property file="${test.properties.dir}/db.properties"/>
+
 	<available property="dbscript.create" value="${basedir}/create" file="${basedir}/create-db-common.sql" />
 	<target name="dbscript-create-db-sql" if="dbscript.create">
 	    <antcall target="create-db-sql-impl-2">
@@ -55,9 +57,9 @@
 			<exec executable="${psql.path}"
 		        failonerror="true">
 		    	<arg value="--username"/>
-				<arg value="postgres"/>
+				<arg value="${postgres.username}"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="${postgres.host}"/>
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-db-users.sql"/>
 				<arg value="--dbname"/>
@@ -66,9 +68,9 @@
 			<exec executable="${psql.path}"
 		        failonerror="true">
 		    	<arg value="--username"/>
-				<arg value="postgres"/>
+				<arg value="${postgres.username}"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="${postgres.host}"/>
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-schema.sql"/>
 				<arg value="--dbname"/>
@@ -76,9 +78,9 @@
 		  	</exec>
 			<exec executable="${psql.path}" failonerror="true">
 				<arg value="--username"/>
-				<arg value="finowner"/>
+				<arg value="${postgres.username.financial}"/>
 		    	<arg value="--host"/>
-		    	<arg value="postgresql-lx-1.hq.opengamma.com"/>
+		    	<arg value="${postgres.host}"/>
 		    	<arg value="--file"/>
 		    	<arg value="db/postgres/create-og-fin-tables.sql"/>
 				<arg value="--dbname"/>

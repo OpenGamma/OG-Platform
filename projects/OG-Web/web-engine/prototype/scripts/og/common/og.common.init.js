@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         return {
             init: function () {
+                $('#container').show();
                 og.common.search_results.minimize('.OG-JS-minimize-search-results', '.OG-JS-maximize-search-results');
                 // TODO: move to masthead
                 og.common.util.ui.toggle_text_on_focus.set_selector('#OG-masthead .og-search input');

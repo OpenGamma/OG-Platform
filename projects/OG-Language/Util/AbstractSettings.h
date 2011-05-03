@@ -9,12 +9,26 @@
 
 // Runtime configuration options
 
+#include "Mutex.h"
 #include "Unicode.h"
 
 struct _setting {
 	TCHAR * pszKey;
 	TCHAR * pszValue;
 	struct _setting *pNext;
+};
+
+class CAbstractSettingProvider {
+private:
+	static CMutex s_oMutex;
+	bool m_bCalculated;
+	TCHAR *m_pszValue;
+protected:
+	virtual TCHAR *CalculateString () = 0;
+public:
+	CAbstractSettingProvider ();
+	~CAbstractSettingProvider ();
+	const TCHAR *GetString ();
 };
 
 class CAbstractSettings {
@@ -32,6 +46,7 @@ protected:
 #endif
 	const TCHAR *Get (const TCHAR *pszKey);
 	const TCHAR *Get (const TCHAR *pszKey, const TCHAR *pszDefault);
+	const TCHAR *Get (const TCHAR *pszKey, CAbstractSettingProvider *poDefault);
 	int Get (const TCHAR *pszKey, int nDefault);
 public:
 	CAbstractSettings ();

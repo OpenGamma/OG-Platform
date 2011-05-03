@@ -9,8 +9,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanT
 
 import java.util.Date;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
@@ -76,13 +74,6 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     security.setShortName(bean.getShortName());
     security.setGicsCode(gicsCodeBeanToGICSCode(bean.getGICSCode()));
     return security;
-  }
-
-  @Override
-  public boolean beanEquals(final OperationContext context, EquitySecurityBean bean, EquitySecurity security) {
-    return ObjectUtils.equals(bean.getShortName(), security.getShortName()) && ObjectUtils.equals(bean.getCompanyName(), security.getCompanyName())
-        && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency())
-        && ObjectUtils.equals(bean.getExchange().getName(), security.getExchange()) && ObjectUtils.equals(gicsCodeBeanToGICSCode(bean.getGICSCode()), security.getGicsCode());
   }
 
 }

@@ -280,10 +280,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           exchangeSource);
       //final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
       //    regionSource);
-      final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> instrumentAdapter = new FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>>(
-          null, cashConverter, null, fraConverter, null, null, null);
-      final FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> futureAdapter = new FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>>(
-          null, null, null, null, futureConverter, null, null);
+      final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> instrumentAdapter = FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentDefinition<?>>builder().cashSecurityVisitor(
+          cashConverter).fraSecurityVisitor(fraConverter).create();
+      final FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> futureAdapter = FinancialSecurityVisitorAdapter.<FixedIncomeFutureInstrumentDefinition<?>>builder()
+          .futureSecurityVisitor(futureConverter).create();
       final TenorSwapSecurityToTenorSwapConverter tenorSwapConverter = new TenorSwapSecurityToTenorSwapConverter(
           holidaySource, regionSource, conventionSource);
       final LocalDate localNow = now.toLocalDate();
@@ -320,7 +320,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
           //    _forwardCurveDefinitionName);
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-            _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
+              _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
@@ -365,7 +365,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _fundingCurveDefinitionName,
           //    _forwardCurveDefinitionName);
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-            _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
+              _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, _forwardCurveDefinitionName);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
@@ -401,8 +401,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_forwardCurveDefinitionName, forwardNodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators =
+          new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
       final Interpolator1D<? extends Interpolator1DDataBundle> fundingInterpolator = CombinedInterpolatorExtrapolatorFactory
           .getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
               Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -485,7 +485,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return ComputationTargetType.PRIMITIVE;
     }
 
-    private Set<ComputedValue> getSingleCurveResult(FunctionInputs inputs, FixedIncomeStripIdentifierAndMaturityBuilder builder, 
+    private Set<ComputedValue> getSingleCurveResult(FunctionInputs inputs, FixedIncomeStripIdentifierAndMaturityBuilder builder,
         FixedFloatSwapSecurityToSwapConverter swapConverter, TenorSwapSecurityToTenorSwapConverter tenorSwapConverter,
         FinancialSecurityVisitorAdapter<FixedIncomeInstrumentDefinition<?>> instrumentAdapter,
         FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> futureAdapter,
@@ -515,7 +515,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow,
           //    _fundingCurveDefinitionName, _fundingCurveDefinitionName);
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
-            _fundingCurveDefinitionName, marketValue / 100., 0.0, now);
+              _fundingCurveDefinitionName, marketValue / 100., 0.0, now);
         } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
           derivative = financialSecurity.accept(instrumentAdapter)
               .toDerivative(localNow, _fundingCurveDefinitionName);
@@ -556,8 +556,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       curveKnots.put(_fundingCurveDefinitionName, nodeTimes);
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
       final LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>> interpolators = new LinkedHashMap<String, Interpolator1D<? extends Interpolator1DDataBundle>>();
-      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators = 
-        new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
+      final LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>> sensitivityCalculators =
+          new LinkedHashMap<String, Interpolator1DNodeSensitivityCalculator<? extends Interpolator1DDataBundle>>();
       final Interpolator1D<? extends Interpolator1DDataBundle> interpolator = CombinedInterpolatorExtrapolatorFactory
           .getInterpolator(_fundingCurveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
               Interpolator1DFactory.FLAT_EXTRAPOLATOR);

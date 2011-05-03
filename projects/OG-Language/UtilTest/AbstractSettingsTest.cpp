@@ -41,7 +41,51 @@ static void Caching () {
 	settings.Run ();
 }
 
+class CTestSettingProvider : public CAbstractSettingProvider {
+protected:
+	TCHAR *CalculateString () {
+		return _tcsdup (TEXT ("Foo"));
+	}
+};
+
+static CTestSettingProvider g_oTest;
+
+static void Provider () {
+	const TCHAR *pszTestValue = g_oTest.GetString ();
+	ASSERT (pszTestValue);
+	ASSERT (!_tcscmp (pszTestValue, TEXT ("Foo")));
+}
+
+class CTestSettings : public CAbstractSettings {
+private:
+	const TCHAR *GetTest (const TCHAR *pszDefault) { return Get (TEXT ("test"), pszDefault); }
+	const TCHAR *GetTest (CTestSettingProvider *poDefault) { return Get (TEXT ("test"), poDefault); }
+	int GetTest (int nDefault) { return Get (TEXT ("test"), nDefault); }
+public:
+	const TCHAR *GetTest1 () {
+		return GetTest (TEXT ("Bar"));
+	}
+	const TCHAR *GetTest2 () {
+		return GetTest (&g_oTest);
+	}
+	int GetTest3 () {
+		return GetTest (42);
+	}
+	const TCHAR *GetLogConfiguration () {
+		return TEXT ("");
+	}
+};
+
+static void DefaultSetting () {
+	CTestSettings oSettings;
+	ASSERT (!_tcscmp (oSettings.GetTest1 (), TEXT ("Bar")));
+	ASSERT (!_tcscmp (oSettings.GetTest2 (), TEXT ("Foo")));
+	ASSERT (oSettings.GetTest3 () == 42);
+}
+
 BEGIN_TESTS (AbstractSettingsTest)
 	TEST (Location)
 	TEST (Caching)
+	TEST (Provider)
+	TEST (DefaultSetting)
 END_TESTS

@@ -53,4 +53,11 @@ public final class ValuePropertyNames {
    */
   public static final String FUNCTION = "Function";
 
+  /**
+   * The country of a value, specified as an ISO 2 digit code.
+   * <p>
+   * This should only be used where it is meaningful to describe a value with a single country
+   * instead of a currency (e.g. a bond issued by a euro-zone country).
+   */
+  public static final String COUNTRY = "Country";
 }

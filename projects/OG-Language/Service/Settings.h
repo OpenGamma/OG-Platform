@@ -30,23 +30,19 @@
 
 class CSettings : public CAbstractSettings {
 private:
-	TCHAR *m_pszDefaultJvmLibrary;
-	TCHAR *m_pszDefaultJarPath;
 	const TCHAR *GetAnnotationCache (const TCHAR *pszDefault) { return Get (SETTINGS_ANNOTATION_CACHE, pszDefault); }
 	unsigned long GetBusyTimeout (unsigned long dwDefault) { return Get (SETTINGS_BUSY_TIMEOUT, dwDefault); }
 	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
 	unsigned long GetConnectionTimeout (unsigned long dwDefault) { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
 	unsigned long GetIdleTimeout (unsigned long dwDefault) { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
-	const TCHAR *GetJarPath (const TCHAR *pszDefault) { return Get (SETTINGS_JAR_PATH, pszDefault); }
-	const TCHAR *GetJvmLibrary (const TCHAR *pszDefault) { return Get (SETTINGS_JVM_LIBRARY, pszDefault); }
+	const TCHAR *GetJarPath (CAbstractSettingProvider *poDefault) { return Get (SETTINGS_JAR_PATH, poDefault); }
+	const TCHAR *GetJvmLibrary (CAbstractSettingProvider *poDefault) { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32
 	const TCHAR *GetServiceSDDL (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_SDDL, pszDefault); }
 #endif
 public:
-	CSettings ();
-	~CSettings ();
 	const TCHAR *GetAnnotationCache ();
 	unsigned  long GetBusyTimeout ();
 	const TCHAR *GetConnectionPipe ();
