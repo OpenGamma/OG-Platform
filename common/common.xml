@@ -518,7 +518,7 @@
 	</target>
 
 	<target name="clean-src" description="--> clean the project auto-generated source files (.gitignore'd ones)">
-		<subant genericantfile="${common.dir}/gitignore.xml">
+		<subant genericantfile="${common.dir}/gitignore.xml" failonerror="false">
 			<dirset dir="${src.dir}" />
 		</subant>
 		<delete file="${fudge.proto.gitIgnoreFlag}" />
