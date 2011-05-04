@@ -38,7 +38,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  *  Test class for the replication method for CMS caplet/floorlet with a SABR smile.
  */
-public class CapFloorCMSReplicationSABRMethodTest {
+public class CapFloorCMSSABRReplicationMethodTest {
   //Swap 5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -116,7 +116,7 @@ public class CapFloorCMSReplicationSABRMethodTest {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+    CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
     int nbTest = 100;
     startTime = System.currentTimeMillis();

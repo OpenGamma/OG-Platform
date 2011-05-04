@@ -14,6 +14,9 @@ import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
 
+/**
+ * Tests of the SABR valuation of options with extrapolation on the right (for high strikes). The SABR pricing is through Black formula with implied volatility.
+ */
 public class SABRExtrapolationRightFunctionTest {
   // Data
   private static final double NU = 0.50;
@@ -26,12 +29,14 @@ public class SABRExtrapolationRightFunctionTest {
   private static final double MU = 4.0;
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final SABRExtrapolationRightFunction SABR_EXTRAPOLATION = new SABRExtrapolationRightFunction(SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
-
   // Function
   BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
 
   @Test
+  /**
+   * Tests the price for options in SABR model with extrapolation.
+   */
   public void price() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -70,11 +75,9 @@ public class SABRExtrapolationRightFunctionTest {
     EuropeanVanillaOption optionIn = new EuropeanVanillaOption(strikeIn, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
     EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
-
     double shiftF = 0.000001;
     SABRFormulaData sabrDataFP = new SABRFormulaData(FORWARD + shiftF, ALPHA, BETA, NU, RHO);
     SABRExtrapolationRightFunction sabrExtrapolationFP = new SABRExtrapolationRightFunction(sabrDataFP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
-
     // Below cut-off strike
     double priceIn = SABR_EXTRAPOLATION.price(optionIn);
     double priceInFP = sabrExtrapolationFP.price(optionIn);
@@ -104,6 +107,9 @@ public class SABRExtrapolationRightFunctionTest {
   }
 
   @Test
+  /**
+   * Tests the price put/call parity for options in SABR model with extrapolation.
+   */
   public void pricePutCallParity() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -126,6 +132,9 @@ public class SABRExtrapolationRightFunctionTest {
   }
 
   @Test
+  /**
+   * Tests that the smile and its derivatives are smooth enough in SABR model with extrapolation.
+   */
   public void smileSmooth() {
     int nbPts = 100;
     double rangeStrike = 0.02;

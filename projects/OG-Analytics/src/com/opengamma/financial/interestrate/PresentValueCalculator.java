@@ -17,10 +17,10 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
-import com.opengamma.financial.interestrate.payments.CapFloorCMSReplicationSABRMethod;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
-import com.opengamma.financial.interestrate.payments.CouponCMSReplicationSABRMethod;
+import com.opengamma.financial.interestrate.payments.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -223,7 +223,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+      CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     // Implementation comment: if not SABR data, price without convexity adjustment is used.
@@ -240,7 +240,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CapFloorCMSReplicationSABRMethod replication = new CapFloorCMSReplicationSABRMethod();
+      CapFloorCMSSABRReplicationMethod replication = new CapFloorCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");

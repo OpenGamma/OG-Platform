@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -41,7 +46,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 
-public class CouponCMSReplicationSABRMethodTest {
+/**
+ * Tests for the pricing of CMS coupon in the SABR model and pricing by replication.
+ */
+public class CouponCMSSABRReplicationMethodTest {
   //Swap 5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -105,7 +113,7 @@ public class CouponCMSReplicationSABRMethodTest {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    CouponCMSReplicationSABRMethod method = new CouponCMSReplicationSABRMethod();
+    CouponCMSSABRReplicationMethod method = new CouponCMSSABRReplicationMethod();
     // Swaption sensitivity
     PresentValueSensitivity pvsReceiver = method.presentValueSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
     // Present value sensitivity comparison with finite difference.
@@ -186,7 +194,7 @@ public class CouponCMSReplicationSABRMethodTest {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    CouponCMSReplicationSABRMethod method = new CouponCMSReplicationSABRMethod();
+    CouponCMSSABRReplicationMethod method = new CouponCMSSABRReplicationMethod();
     // Swaption sensitivity
     PresentValueSABRSensitivity pvsReceiver = method.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
     PresentValueSABRSensitivity pvsPayer = method.presentValueSABRSensitivity(CMS_COUPON_PAYER, sabrBundle);
@@ -230,7 +238,7 @@ public class CouponCMSReplicationSABRMethodTest {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod();
+    CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
     int nbTest = 100;
     startTime = System.currentTimeMillis();

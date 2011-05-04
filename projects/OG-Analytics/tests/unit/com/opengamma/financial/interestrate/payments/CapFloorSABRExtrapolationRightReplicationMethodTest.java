@@ -91,8 +91,8 @@ public class CapFloorSABRExtrapolationRightReplicationMethodTest {
   //  private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators & methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final CapFloorCMSReplicationSABRMethod METHOD_STANDARD_CAP = new CapFloorCMSReplicationSABRMethod();
-  private static final CouponCMSReplicationSABRMethod METHOD_STANDARD_CPN = new CouponCMSReplicationSABRMethod();
+  private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = new CapFloorCMSSABRReplicationMethod();
+  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = new CouponCMSSABRReplicationMethod();
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CAP = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
