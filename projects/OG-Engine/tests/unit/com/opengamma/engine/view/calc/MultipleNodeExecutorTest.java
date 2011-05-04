@@ -43,7 +43,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 @Test
 public class MultipleNodeExecutorTest {
 
-  private static final boolean PRINT_GRAPHS = true;
+  private static final boolean PRINT_GRAPHS = false;
 
   /**
    * Test graph:
@@ -317,8 +317,15 @@ public class MultipleNodeExecutorTest {
     assertEquals(1, node.getInputFragments().size());
     final GraphFragment node2 = node.getInputFragments().iterator().next();
     assertTrue(singletonFragment(node2, _testNode[2]));
-    node2.createCalculationJob();
-    final CacheSelectHint hint = node.createCalculationJob().getCacheSelectHint();
+    CacheSelectHint hint = node2.createCalculationJob().getCacheSelectHint();
+    if (PRINT_GRAPHS) {
+      System.out.println(hint);
+    }
+    assertFalse(hint.isPrivateValue(_testValuex2));
+    assertFalse(hint.isPrivateValue(_testValue20));
+    assertFalse(hint.isPrivateValue(_testValue21));
+    assertFalse(hint.isPrivateValue(_testValue24));
+    hint = node.createCalculationJob().getCacheSelectHint();
     if (PRINT_GRAPHS) {
       System.out.println(hint);
     }

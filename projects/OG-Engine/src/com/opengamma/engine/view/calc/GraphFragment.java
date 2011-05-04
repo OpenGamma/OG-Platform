@@ -194,6 +194,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
         _dataInputCost += input.getValue();
       }
     }
+    _localPrivateValues.addAll(fragment.getPrivateValues());
     _invocationCost += fragment.getJobInvocationCost();
   }
 
