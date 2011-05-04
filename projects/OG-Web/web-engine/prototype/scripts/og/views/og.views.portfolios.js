@@ -184,8 +184,8 @@ $.register_module({
                         if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();
                         $parent.empty();
                         iterator = function (acc, val) {
-                            acc.push(
-                                '<tr><td><a href="#', routes.hash(rule, {id: id, node: val.id}), '">', val.name, '</a></td></tr>'
+                            acc.push('<tr><td><a href="#',
+                                    routes.hash(rule, {id: id, node: val.id}), '">', val.name, '</a></td></tr>'
                             );
                             return acc;
                         };

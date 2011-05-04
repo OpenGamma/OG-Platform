@@ -49,7 +49,7 @@ $.register_module({
                                     .data('columnId', id).width($(header).width() - 10).appendTo(header);
                             // update the select to match the filter, bookmark support
                             if (filter_type === 'select') $('.' + filter_class).val(routes.current().args.filter_type);
-                        };
+                        }
                     })();
                     // Handle click
                     $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {

@@ -28,7 +28,7 @@ $.register_module({
                     ui = og.common.util.ui,
                     filters = args.filters,
                     is_new_filter = args.filter_being_applied || false;
-                
+
                 if (!is_new_filter) {
                     while (data[from_page * DEAFULT_PAGESIZE] !== undefined && from_page < to_page) from_page++;
                     while (data[to_page * DEAFULT_PAGESIZE] !== undefined && from_page < to_page) to_page--;
@@ -80,8 +80,8 @@ $.register_module({
                                     q = id.length;
                                 if (id) {
                                     while (q--) {
-                                        id_type = id[q].split('::')[0];
-                                        id_name = id[q].split('::')[1];
+                                        id_type = id[q].split('~')[0];
+                                        id_name = id[q].split('~')[1];
                                         data[from + i][id_type] = id_name;
                                     }
                                 }

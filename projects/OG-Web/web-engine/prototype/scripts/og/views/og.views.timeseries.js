@@ -93,12 +93,18 @@ $.register_module({
                                 $(this).dialog('close');
                                 api.timeseries.put({
                                     handler: function (r) {
-                                        window.location.hash = routes.hash(
-                                                og.views[page_name].rules['load_' + page_name],
-                                                        {id: r.meta.id, 'new': true}
-                                        )
+                                        routes.go(routes.hash(module.rules.load_new_timeseries,
+                                                $.extend({}, routes.last().args, {
+                                                    id: r.data.data[0].split('|')[1], 'new': true
+                                                })
+                                        ));
                                     },
-                                    name: ui.dialog({return_field_value: 'name'}) // TODO
+                                    scheme_type: ui.dialog({return_field_value: 'scheme'}),
+                                    data_provider: ui.dialog({return_field_value: 'provider'}),
+                                    data_field: ui.dialog({return_field_value: 'field'}),
+                                    start: ui.dialog({return_field_value: 'start'}) || '',
+                                    end: ui.dialog({return_field_value: 'end'}) || '',
+                                    identifier: ui.dialog({return_field_value: 'identifiers'})
                                 });
                             }
                         }
@@ -142,6 +148,12 @@ $.register_module({
                 ],
                 location: '.OG-toolbar .og-js-buttons'
             },
+            load_timeseries_without = function (field, args) {
+                check_state({args: args, conditions: [{new_page: timeseries.load, stop: true}]});
+                delete args[field];
+                timeseries.search(args);
+                routes.go(routes.hash(module.rules.load_timeseries, args));
+            },
             default_page = function () {
                 og.api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
@@ -159,7 +171,13 @@ $.register_module({
                            + '/filter:/:id?/identifier:?/dataSource:?/dataProvider:?/dataField:?/observationTime:?',
                 method: module.name + '.load_filter'
             },
-            load_timeseries: {route: '/' + page_name + '/:id', method: module.name + '.load_' + page_name}
+            load_delete: {
+                route: '/' + page_name + '/:id/deleted:', method: module.name + '.load_delete'
+            },
+            load_timeseries: {route: '/' + page_name + '/:id', method: module.name + '.load_' + page_name},
+            load_new_timeseries: {
+                route: '/' + page_name + '/:id/new:', method: module.name + '.load_new_' + page_name
+            }
         };
         return timeseries = {
             load: function (args) {
@@ -182,6 +200,11 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(args, {filter: true}));
             },
+            load_delete: function (args) {
+                securities.search(args);
+                routes.go(routes.hash(module.rules.load, {}));
+            },
+            load_new_timeseries: load_timeseries_without.partial('new'),
             load_timeseries: function (args) {
                 // Load search if changed
                 if (routes.last()) {
