@@ -17,6 +17,11 @@ import com.opengamma.util.money.Currency;
 public class CouponIbor extends CouponFloating {
 
   /**
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
+   */
+  //  private final IborIndex _index;
+  // TODO: add Ibor index
+  /**
    * The fixing period start time (in years).
    */
   private final double _fixingPeriodStartTime;
@@ -38,7 +43,6 @@ public class CouponIbor extends CouponFloating {
   private final String _forwardCurveName;
 
   //TODO: Should the spread be in CouponIbor or in a more generic coupon?
-  //TODO: Add Ibor index.
 
   /**
    * Constructor from all details.
