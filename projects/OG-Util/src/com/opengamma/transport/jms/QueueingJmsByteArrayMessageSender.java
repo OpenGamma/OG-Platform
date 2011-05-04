@@ -13,12 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A message sender that uses JMS. Messages are sent in the background, preserving their order.
  */
 public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSender.class);
+  
+  private static final byte[] s_shutdownSentinel = new byte[0];
 
   private final AtomicBoolean _isShutdown = new AtomicBoolean(false);
   private final BlockingQueue<byte[]> _messageQueue = new LinkedBlockingQueue<byte[]>();
@@ -36,20 +40,18 @@ public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender
     _senderThread = new Thread(new Runnable() {
       @Override
       public void run() {
-        while (!_isShutdown.get()) {
-          
+        while (true) {
           byte[] nextMessage;
           try {
             nextMessage = _messageQueue.take();
+            if (_isShutdown.get()) {
+              break;
+            }
             sendSync(nextMessage);
-          } catch (InterruptedException e) {
-            s_logger.warn("Interrupted while waiting for next message to send", e);
           } catch (Exception e) {
-            //PLAT-1213: note that interrupting the thread can end up here as a JMSException, hence _isShutdown
             s_logger.error("Failed to send message asynchronously", e);
           }
         }
-        s_logger.info("Shutdown %s", destinationName);
       }
     }, String.format("QueueingJmsByteArrayMessageSender %s", destinationName));
     _senderThread.setDaemon(true);
@@ -63,12 +65,14 @@ public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender
   }
   
   public void shutdown() {
+    //NOTE: PLAT-1236 ActiveMQ doesn't like us interrupting the thread.
     _isShutdown.set(true);
-    _senderThread.interrupt();
+    _messageQueue.add(s_shutdownSentinel); // Make sure that the take doesn't block 
   }
   
   //-------------------------------------------------------------------------
   private void sendSync(byte[] message) {
+    ArgumentChecker.notNull(message, "message");
     super.send(message);
   }
   
