@@ -147,7 +147,7 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   @Override
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
-    return (curve.getDiscountFactor(payment.getFixingTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
+    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
   }
 
   @Override

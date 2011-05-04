@@ -118,7 +118,7 @@ public class CapFloorCMSSABRReplicationMethod {
   /**
    * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in SABR framework. 
    * @param cmsCapFloor The CMS cap/floor.
-   * @param sabrData The SABR data bundle.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
   public PresentValueSensitivity presentValueSensitivity(CapFloorCMS cmsCapFloor, SABRInterestRateDataBundle sabrData) {
@@ -178,7 +178,7 @@ public class CapFloorCMSSABRReplicationMethod {
   /**
    * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework. 
    * @param cmsCapFloor The CMS cap/floor.
-   * @param sabrData The SABR data bundle.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to SABR parameters.
    */
   public PresentValueSABRSensitivity presentValueSABRSensitivity(CapFloorCMS cmsCapFloor, SABRInterestRateDataBundle sabrData) {

@@ -48,6 +48,12 @@ public class CouponCMSSABRReplicationMethod {
     return priceCMSCoupon;
   }
 
+  /**
+   * Computes the present value sensitivity to the yield curves of a CMS coupon by replication in SABR framework. 
+   * @param cmsCoupon The CMS coupon.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
+   * @return The present value sensitivity to curves.
+   */
   public PresentValueSensitivity presentValueSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
@@ -55,6 +61,12 @@ public class CouponCMSSABRReplicationMethod {
     return method.presentValueSensitivity(cap0, sabrData);
   }
 
+  /**
+   * Computes the present value sensitivity to the SABR parameters of a CMS coupon by replication in SABR framework.
+   * @param cmsCoupon The CMS coupon.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
+   * @return The present value sensitivity to SABR parameters.
+   */
   public PresentValueSABRSensitivity presentValueSABRSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
