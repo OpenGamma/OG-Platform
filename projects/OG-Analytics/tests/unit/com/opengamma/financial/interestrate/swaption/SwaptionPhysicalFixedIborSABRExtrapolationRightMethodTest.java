@@ -200,11 +200,9 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     SwaptionPhysicalFixedIbor swaptionLongPayerHighStrike = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     SwaptionPhysicalFixedIbor swaptionShortPayerHighStrike = swaptionDefinitionShortPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     SwaptionPhysicalFixedIborSABRExtrapolationRightMethod methodExtra = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(cutOffStrike, mu);
-    //    SwaptionPhysicalFixedIborSABRMethod methodSabr = new SwaptionPhysicalFixedIborSABRMethod();
     // Swaption sensitivity
     PresentValueSensitivity pvsLongPayerExtra = methodExtra.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     PresentValueSensitivity pvsShortPayerExtra = methodExtra.presentValueSensitivity(swaptionShortPayerHighStrike, sabrBundle);
-    //    PresentValueSensitivity pvsLongPayerSabr = methodSabr.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     // Long/short parity
     PresentValueSensitivity pvsShortPayer_1 = pvsShortPayerExtra.multiply(-1);
     assertEquals(pvsLongPayerExtra.getSensitivity(), pvsShortPayer_1.getSensitivity());
@@ -213,7 +211,6 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-5;
     pvsLongPayerExtra = pvsLongPayerExtra.clean();
-    //    pvsLongPayerSabr = pvsLongPayerSabr.clean();
     double pv = methodExtra.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     // 1. Forward curve sensitivity
     String bumpedCurveName = "Bumped Curve";
