@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.interestrate.swaption;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -51,6 +56,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model. 
+ */
 public class SwaptionCashFixedIborSABRMethodTest {
   // Swaption description
   private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2014, 3, 18);

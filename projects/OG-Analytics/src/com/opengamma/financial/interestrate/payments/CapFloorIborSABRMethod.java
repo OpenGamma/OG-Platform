@@ -44,7 +44,7 @@ public class CapFloorIborSABRMethod {
   /**
    * Computes the present value of a cap/floor in the SABR model.
    * @param cap The cap/floor.
-   * @param sabrData The SABR data.
+   * @param sabrData The SABR data bundle. 
    * @return The present value.
    */
   public double presentValue(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
@@ -65,7 +65,7 @@ public class CapFloorIborSABRMethod {
   /**
    * Computes the present value rate sensitivity to rates of a cap/floor in the SABR model.
    * @param cap The cap/floor.
-   * @param sabrData The SABR data.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value curve sensitivity.
    */
   public PresentValueSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
