@@ -80,7 +80,20 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     _nodes.addAll(nodes);
     _invocationCost = 0;
     for (DependencyNode node : nodes) {
-      _invocationCost += (long) getContext().getFunctionStatistics(node.getFunction().getFunction()).getInvocationCost();
+      final FunctionInvocationStatistics statistics = getContext().getFunctionStatistics(node.getFunction().getFunction());
+      _invocationCost += (long) statistics.getInvocationCost();
+      int cost = (int) (statistics.getDataInputCost() * NANOS_PER_BYTE);
+      _dataInputCost = node.getInputValues().size() * cost;
+      Integer costObject = (Integer) cost;
+      for (ValueSpecification input : node.getInputValues()) {
+        _inputValues.put(input, costObject);
+      }
+      cost = (int) (statistics.getDataOutputCost() * NANOS_PER_BYTE);
+      _dataOutputCost = node.getOutputValues().size() * cost;
+      costObject = (Integer) cost;
+      for (ValueSpecification output : node.getOutputValues()) {
+        _outputValues.put(output, costObject);
+      }
     }
   }
 

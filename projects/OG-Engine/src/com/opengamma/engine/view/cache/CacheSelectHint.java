@@ -112,4 +112,28 @@ public final class CacheSelectHint {
   public static CacheSelectHint create(long[] valueIdentifiers, boolean isPrivate) {
     return new CacheSelectHint(null, valueIdentifiers, isPrivate);
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    if (isPrivate()) {
+      sb.append("All SHARED");
+    } else {
+      sb.append("All PRIVATE");
+    }
+    if (!_valueSpecifications.isEmpty()) {
+      sb.append(" except for [");
+      boolean comma = false;
+      for (ValueSpecification v : _valueSpecifications) {
+        if (comma) {
+          sb.append(", ");
+        } else {
+          comma = true;
+        }
+        sb.append(v);
+      }
+      sb.append("]");
+    }
+    return sb.toString();
+  }
 }
