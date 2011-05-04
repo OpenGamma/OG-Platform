@@ -38,7 +38,6 @@ public class SABRExtrapolationRightFunction {
    * An array containing the three fitting parameters.
    */
   private final double[] _parameter;
-  //  double[] _parameterTest = new double[3];
   /**
    * An array containing the derivative of the three fitting parameters with respect to the forward.
    * Those parameters are computed only when and if required.
@@ -77,10 +76,6 @@ public class SABRExtrapolationRightFunction {
     _mu = mu;
     _sabrFunction = new SABRHaganVolatilityFunction();
     _parameter = computesFittingParameters();
-    //    double shift = 0.000001;
-    //    for (int i = 0; i < 3; i++) {
-    //      _parameterTest[i] = _parameter[i] + shift;
-    //    }
   }
 
   /**
@@ -129,11 +124,9 @@ public class SABRExtrapolationRightFunction {
       double fDa = f;
       double fDb = f / k;
       double fDc = fDb / k;
-      //      double fDk = f * -(_mu + (_parameter[1] + 2 * _parameter[2] / k) / k) / k;
       priceDerivative = fDa * _parameterDF[0] + fDb * _parameterDF[1] + fDc * _parameterDF[2];
     }
     return priceDerivative;
-
   }
 
   /**
@@ -225,7 +218,7 @@ public class SABRExtrapolationRightFunction {
    */
   private double[] computesDerivativeParameters() {
     // Derivative of price with respect to forward.
-    double[] pDF = new double[3]; //OK
+    double[] pDF = new double[3];
     double shift = 0.00001;
     EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     double[] vD = new double[2];
@@ -259,7 +252,7 @@ public class SABRExtrapolationRightFunction {
         * vD[0] + 2 * (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD2[1][0] + bsD[1] * vD3KKF;
     DoubleMatrix1D pDFvector = new DoubleMatrix1D(pDF);
     // Derivative of f with respect to abc.
-    double[][] fD = new double[3][3]; // fD[i][j]: derivative with respect to jth variable of f_i // OK
+    double[][] fD = new double[3][3]; // fD[i][j]: derivative with respect to jth variable of f_i
     double f = _priceK[0];
     double fp = _priceK[1];
     double fpp = _priceK[2];
@@ -272,36 +265,6 @@ public class SABRExtrapolationRightFunction {
     fD[2][0] = fpp;
     fD[2][1] = (fpp + fD[0][2] * (2 * (_mu + 1) + 2 * _parameter[1] / _cutOffStrike + 4 * _parameter[2] / (_cutOffStrike * _cutOffStrike))) / _cutOffStrike;
     fD[2][2] = (fpp + fD[0][2] * (2 * (2 * _mu + 3) + 4 * _parameter[1] / _cutOffStrike + 8 * _parameter[2] / (_cutOffStrike * _cutOffStrike))) / (_cutOffStrike * _cutOffStrike);
-
-    //    double[][] fDTest = new double[3][3]; // fD[i][j]: derivative with respect to jth variable of f_i
-    //    double shiftTest = 0.000001;
-    //    double f0Pa = Math.pow(_cutOffStrike, -_mu) * Math.exp(_parameterTest[0] + _parameter[1] / _cutOffStrike + _parameter[2] / (_cutOffStrike * _cutOffStrike));
-    //    double f0Pb = Math.pow(_cutOffStrike, -_mu) * Math.exp(_parameter[0] + _parameterTest[1] / _cutOffStrike + _parameter[2] / (_cutOffStrike * _cutOffStrike));
-    //    double f0Pc = Math.pow(_cutOffStrike, -_mu) * Math.exp(_parameter[0] + _parameter[1] / _cutOffStrike + _parameterTest[2] / (_cutOffStrike * _cutOffStrike));
-    //    fDTest[0][0] = (f0Pa - f) / shiftTest;
-    //    fDTest[0][1] = (f0Pb - f) / shiftTest;
-    //    fDTest[0][2] = (f0Pc - f) / shiftTest;
-    //    double f1Pa = f0Pa * -(_mu + (_parameter[1] + 2 * _parameter[2] / _cutOffStrike) / _cutOffStrike) / _cutOffStrike;
-    //    double f1Pb = f0Pb * -(_mu + (_parameterTest[1] + 2 * _parameter[2] / _cutOffStrike) / _cutOffStrike) / _cutOffStrike;
-    //    double f1Pc = f0Pc * -(_mu + (_parameter[1] + 2 * _parameterTest[2] / _cutOffStrike) / _cutOffStrike) / _cutOffStrike;
-    //    fDTest[1][0] = (f1Pa - fp) / shiftTest;
-    //    fDTest[1][1] = (f1Pb - fp) / shiftTest;
-    //    fDTest[1][2] = (f1Pc - fp) / shiftTest;
-    //    double f2Pa = f0Pa
-    //        * (_mu * (_mu + 1) + 2 * _parameter[1] * (_mu + 1) / _cutOffStrike + (2 * _parameter[2] * (2 * _mu + 3) + _parameter[1] * _parameter[1]) / (_cutOffStrike * _cutOffStrike) + 4 * _parameter[1]
-    //            * _parameter[2] / (_cutOffStrike * _cutOffStrike * _cutOffStrike) + 4 * _parameter[2] * _parameter[2] / (_cutOffStrike * _cutOffStrike * _cutOffStrike * _cutOffStrike))
-    //        / (_cutOffStrike * _cutOffStrike);
-    //    double f2Pb = f0Pb
-    //        * (_mu * (_mu + 1) + 2 * _parameterTest[1] * (_mu + 1) / _cutOffStrike + (2 * _parameter[2] * (2 * _mu + 3) + _parameterTest[1] * _parameterTest[1]) / (_cutOffStrike * _cutOffStrike) + 4
-    //            * _parameterTest[1] * _parameter[2] / (_cutOffStrike * _cutOffStrike * _cutOffStrike) + 4 * _parameter[2] * _parameter[2] / (_cutOffStrike * _cutOffStrike * _cutOffStrike * _cutOffStrike))
-    //        / (_cutOffStrike * _cutOffStrike);
-    //    double f2Pc = f0Pc
-    //        * (_mu * (_mu + 1) + 2 * _parameter[1] * (_mu + 1) / _cutOffStrike + (2 * _parameterTest[2] * (2 * _mu + 3) + _parameter[1] * _parameter[1]) / (_cutOffStrike * _cutOffStrike) + 4
-    //            * _parameter[1] * _parameterTest[2] / (_cutOffStrike * _cutOffStrike * _cutOffStrike) + 4 * _parameterTest[2] * _parameterTest[2]
-    //            / (_cutOffStrike * _cutOffStrike * _cutOffStrike * _cutOffStrike)) / (_cutOffStrike * _cutOffStrike);
-    //    fDTest[2][0] = (f2Pa - fpp) / shiftTest;
-    //    fDTest[2][1] = (f2Pb - fpp) / shiftTest;
-    //    fDTest[2][2] = (f2Pc - fpp) / shiftTest;
     DoubleMatrix2D fDmatrix = new DoubleMatrix2D(fD);
     // Derivative of abc with respect to forward
     ColtMatrixAlgebra algebra = new ColtMatrixAlgebra();

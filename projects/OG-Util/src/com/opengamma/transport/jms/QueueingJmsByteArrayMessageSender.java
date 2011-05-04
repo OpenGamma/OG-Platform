@@ -7,6 +7,7 @@ package com.opengamma.transport.jms;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,8 @@ import org.springframework.jms.core.JmsTemplate;
 public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSender.class);
-  
+
+  private final AtomicBoolean _isShutdown = new AtomicBoolean(false);
   private final BlockingQueue<byte[]> _messageQueue = new LinkedBlockingQueue<byte[]>();
   private final Thread _senderThread;
 
@@ -34,18 +36,20 @@ public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender
     _senderThread = new Thread(new Runnable() {
       @Override
       public void run() {
-        while (true) {
+        while (!_isShutdown.get()) {
+          
           byte[] nextMessage;
           try {
             nextMessage = _messageQueue.take();
             sendSync(nextMessage);
           } catch (InterruptedException e) {
             s_logger.warn("Interrupted while waiting for next message to send", e);
-            return;
           } catch (Exception e) {
+            //PLAT-1213: note that interrupting the thread can end up here as a JMSException, hence _isShutdown
             s_logger.error("Failed to send message asynchronously", e);
           }
         }
+        s_logger.info("Shutdown %s", destinationName);
       }
     }, String.format("QueueingJmsByteArrayMessageSender %s", destinationName));
     _senderThread.setDaemon(true);
@@ -59,6 +63,7 @@ public class QueueingJmsByteArrayMessageSender extends JmsByteArrayMessageSender
   }
   
   public void shutdown() {
+    _isShutdown.set(true);
     _senderThread.interrupt();
   }
   

@@ -33,7 +33,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  */
-public class CapFloorCMSReplicationSABRMethod {
+public class CapFloorCMSSABRReplicationMethod {
 
   /**
    * The par rate calculator.
@@ -56,7 +56,7 @@ public class CapFloorCMSReplicationSABRMethod {
   /** 
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    */
-  public CapFloorCMSReplicationSABRMethod() {
+  public CapFloorCMSSABRReplicationMethod() {
     _integrationInterval = 1.00;
   }
 
@@ -64,7 +64,7 @@ public class CapFloorCMSReplicationSABRMethod {
    * Constructor of the CMS cap/floor replication method with the integration range. 
    * @param integrationInterval Integration range.
    */
-  public CapFloorCMSReplicationSABRMethod(double integrationInterval) {
+  public CapFloorCMSSABRReplicationMethod(double integrationInterval) {
     _integrationInterval = integrationInterval;
   }
 

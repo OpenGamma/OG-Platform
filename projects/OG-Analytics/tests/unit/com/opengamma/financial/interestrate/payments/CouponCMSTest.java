@@ -48,6 +48,9 @@ import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
+/**
+ * Tests of the CMS coupons.
+ */
 public class CouponCMSTest {
   //Swap 5Y
   private static final Currency CUR = Currency.USD;
@@ -129,7 +132,7 @@ public class CouponCMSTest {
     double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON_RECEIVER.getNotional() * CMS_COUPON_RECEIVER.getPaymentYearFraction();
     assertEquals(8854.551, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
-    CouponCMSReplicationSABRMethod replication = new CouponCMSReplicationSABRMethod(integrationInterval);
+    CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod(integrationInterval);
     double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
     assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
     double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);

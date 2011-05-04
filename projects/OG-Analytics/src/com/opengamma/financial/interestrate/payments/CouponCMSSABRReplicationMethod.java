@@ -12,7 +12,7 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
 /**
  *  Class used to compute the price of a CMS coupon by swaption replication with SABR Hagan formula.
  */
-public class CouponCMSReplicationSABRMethod {
+public class CouponCMSSABRReplicationMethod {
 
   /**
    * The interval length on which the CMS replication is computed for cap. The range is [strike, strike+integrationInterval].
@@ -22,7 +22,7 @@ public class CouponCMSReplicationSABRMethod {
   /** 
    * Default constructor. The default integration interval is 1.00 (100%).
    */
-  public CouponCMSReplicationSABRMethod() {
+  public CouponCMSSABRReplicationMethod() {
     _integrationInterval = 1.00;
   }
 
@@ -30,7 +30,7 @@ public class CouponCMSReplicationSABRMethod {
    * Constructor of the CMS replication method with the integration range. 
    * @param integrationInterval Integration range.
    */
-  public CouponCMSReplicationSABRMethod(double integrationInterval) {
+  public CouponCMSSABRReplicationMethod(double integrationInterval) {
     _integrationInterval = integrationInterval;
   }
 
@@ -43,7 +43,7 @@ public class CouponCMSReplicationSABRMethod {
   public double presentValue(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
-    CapFloorCMSReplicationSABRMethod method = new CapFloorCMSReplicationSABRMethod(_integrationInterval);
+    CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
     double priceCMSCoupon = method.presentValue(cap0, sabrData);
     return priceCMSCoupon;
   }
@@ -51,14 +51,14 @@ public class CouponCMSReplicationSABRMethod {
   public PresentValueSensitivity presentValueSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
-    CapFloorCMSReplicationSABRMethod method = new CapFloorCMSReplicationSABRMethod(_integrationInterval);
+    CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
     return method.presentValueSensitivity(cap0, sabrData);
   }
 
   public PresentValueSABRSensitivity presentValueSABRSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
     CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
     // A CMS coupon is priced as a cap with strike 0.
-    CapFloorCMSReplicationSABRMethod method = new CapFloorCMSReplicationSABRMethod(_integrationInterval);
+    CapFloorCMSSABRReplicationMethod method = new CapFloorCMSSABRReplicationMethod(_integrationInterval);
     return method.presentValueSABRSensitivity(cap0, sabrData);
   }
 
