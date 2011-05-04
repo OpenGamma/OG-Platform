@@ -34,6 +34,7 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.WebPaging;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -131,10 +132,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       String html = getFreemarker().build("configs/config-add.ftl", out);
       return Response.ok(html).build();
     }
-    Object configValue = parseXML(xml);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(configValue.getClass());
+    final Pair<Object, Class<?>> typedValue = parseXML(xml);
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
     doc.setName(name);
-    doc.setValue(configValue);
+    doc.setValue(typedValue.getFirst());
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
@@ -151,10 +152,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     if (name == null || xml == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    Object configValue = parseXML(xml);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(configValue.getClass());
+    final Pair<Object, Class<?>> typedValue = parseXML(xml);
+    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
     doc.setName(name);
-    doc.setValue(configValue);
+    doc.setValue(typedValue.getFirst());
     ConfigDocument<?> added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.created(uri).build();
