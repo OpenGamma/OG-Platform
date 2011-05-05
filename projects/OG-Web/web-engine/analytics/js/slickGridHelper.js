@@ -131,17 +131,17 @@
           }
           if (column.typeFormatter.supportsHistory) {
             // Push the history in
-            if (!gridRow[column.key]) {
-              gridRow[column.key] = new Array();
+            if (!gridRow[column.colId]) {
+              gridRow[column.colId] = new Array();
             }
-            gridRow[column.key] = gridRow[column.key].concat(latestValue);
-            var historyCount = gridRow[column.key].length;
-            if (gridRow[column.key].length > 20) {
-              gridRow[column.key] = gridRow[column.key].slice(historyCount - 20);
+            gridRow[column.colId] = gridRow[column.colId].concat(latestValue);
+            var historyCount = gridRow[column.colId].length;
+            if (gridRow[column.colId].length > 20) {
+              gridRow[column.colId] = gridRow[column.colId].slice(historyCount - 20);
             }
           } else {
             // No history, so just replace the value
-            gridRow[column.key] = latestValue;
+            gridRow[column.colId] = latestValue;
           }
           
           if (detailComponents && detailComponents[column.colId]) {
@@ -203,8 +203,9 @@
         var formatter = new ColumnFormatter(viewer, column, userConfig);
         gridColumns.push({
           id : column.colId,
-          name : column.key,
-          field : column.key,
+          name : column.header,
+          toolTip: column.description,
+          field : column.colId,
           width : 250, 
           formatter: formatter.formatCell,
           asyncPostRender: formatter.postRender

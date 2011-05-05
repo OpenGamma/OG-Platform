@@ -21,7 +21,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class YieldCurveConverter implements ResultConverter<YieldCurve> {
 
   @Override
-  public Object convert(ResultConverterCache context, YieldCurve value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, String valueName, YieldCurve value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {

@@ -15,12 +15,13 @@ public interface ResultConverter<T> {
   /**
    * Converts from a function result into an object suitable for consumption by the web client as JSON.
    * 
+   * @param context  the converter context
+   * @param valueName  the name of the value, not null
    * @param value  a function result, not null
    * @param mode  the mode in which the value should be converted
-   * @param context  the converter context
    * @return  the converted, JSON-friendly value
    */
-  Object convert(ResultConverterCache context, T value, ConversionMode mode);
+  Object convert(ResultConverterCache context, String valueName, T value, ConversionMode mode);
   
   /**
    * A unique name which indicates to a client both

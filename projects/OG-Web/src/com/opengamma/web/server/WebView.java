@@ -19,10 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -97,19 +95,16 @@ public class WebView {
   // Initialisation
   
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {   
-    ViewDefinition viewDefinition = compiledViewDefinition.getViewDefinition();
-    Portfolio portfolio = compiledViewDefinition.getPortfolio();
-    
-    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(viewDefinition, portfolio, getResultConverterCache(), getLocal(), getRemote());
-    if (portfolioGrid.isEmpty()) {
+    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
       _portfolioGrid = portfolioGrid;
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
     
-    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(viewDefinition, getResultConverterCache(), getLocal(), getRemote());
-    if (primitivesGrid.isEmpty()) {
+    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
       _primitivesGrid = primitivesGrid;
@@ -121,7 +116,7 @@ public class WebView {
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getGridStructures(), null);
+    getRemote().deliver(getLocal(), "/initialize", getJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -278,13 +273,13 @@ public class WebView {
   
   //-------------------------------------------------------------------------
   
-  public Map<String, Object> getGridStructures() {
+  public Map<String, Object> getJsonGridStructures() {
     Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
-      gridStructures.put("primitives", getPrimitivesGrid().getGridStructure());
+      gridStructures.put("primitives", getPrimitivesGrid().getJsonGridStructure());
     }
     if (getPortfolioGrid() != null) {
-      gridStructures.put("portfolio", getPortfolioGrid().getGridStructure());
+      gridStructures.put("portfolio", getPortfolioGrid().getJsonGridStructure());
     }
     return gridStructures;
   }

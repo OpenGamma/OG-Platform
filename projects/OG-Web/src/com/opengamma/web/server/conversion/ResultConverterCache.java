@@ -19,6 +19,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class ResultConverterCache {
 
+  private final DoubleConverter _doubleConverter;
   private final ResultConverter<Object> _fudgeBasedConverter;
   private final Map<Class<?>, ResultConverter<?>> _converterMap;
   
@@ -26,13 +27,14 @@ public class ResultConverterCache {
   
   public ResultConverterCache(FudgeContext fudgeContext) {
     _fudgeBasedConverter = new FudgeBasedJsonGeneratorConverter(fudgeContext);
+    _doubleConverter = new DoubleConverter();
     ResultConverter<Object> primitiveConverter = new PrimitiveConverter();
 
     // Add standard custom converters here
     _converterMap = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
-    registerConverter(Double.class, primitiveConverter);
     registerConverter(Boolean.class, primitiveConverter);
     registerConverter(String.class, primitiveConverter);
+    registerConverter(Double.class, _doubleConverter);
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
@@ -40,7 +42,7 @@ public class ResultConverterCache {
     //registerConverter(Collection.class, new MatrixConverter());
   }
   
-  public <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
+  private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
     _converterMap.put(clazz, converter);
   }
   
@@ -48,20 +50,24 @@ public class ResultConverterCache {
    * Transforms the given value into a JSON-friendly object.
    * 
    * @param <T>  the type of the value to be converted
-   * @param valueRequirementName  the name of the value requirement which produced the given value, not null
+   * @param valueName  the name of the value, not null
    * @param value  the result to be converted, assumed to be representative of all results for the requirement name, not null
    * @param mode  the conversion mode, not null
    * @return  the converter to be used
    */
-  public <T> Object convert(String valueRequirementName, T value, ConversionMode mode) {
-    ResultConverter<? super T> converter = getAndCacheConverter(valueRequirementName, value);
-    return converter.convert(this, value, mode);
+  public <T> Object convert(String valueName, T value, ConversionMode mode) {
+    ResultConverter<? super T> converter = getAndCacheConverter(valueName, value);
+    return converter.convert(this, valueName, value, mode);
   }
   
   @SuppressWarnings("unchecked")
   public <T> Object convert(T value, ConversionMode mode) {
     ResultConverter<? super T> converter = findConverterForType((Class<T>) value.getClass());
-    return converter.convert(this, value, mode);
+    return converter.convert(this, null, value, mode);
+  }
+  
+  public DoubleConverter getDoubleConverter() {
+    return _doubleConverter;
   }
   
   public String getKnownResultTypeName(String valueRequirementName) {
@@ -74,11 +80,11 @@ public class ResultConverterCache {
   }
   
   @SuppressWarnings("unchecked")
-  private <T> ResultConverter<? super T> getAndCacheConverter(String valueRequirementName, T value) {
-    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterCache.get(valueRequirementName);
+  private <T> ResultConverter<? super T> getAndCacheConverter(String valueName, T value) {
+    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterCache.get(valueName);
     if (converter == null) {
       converter = findConverterForType((Class<T>) value.getClass());
-      _converterCache.put(valueRequirementName, converter);
+      _converterCache.put(valueName, converter);
     }
     return converter; 
   }

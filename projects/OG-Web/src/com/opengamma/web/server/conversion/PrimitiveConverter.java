@@ -1,17 +1,17 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.web.server.conversion;
 
 /**
- * A special converter for results which 
+ * Converter for primitives that map directly to JSON and require no transformation.
  */
 public class PrimitiveConverter implements ResultConverter<Object> {
 
   @Override
-  public Object convert(ResultConverterCache context, Object value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, String valueName, Object value, ConversionMode mode) {
     return value;
   }
 

@@ -13,7 +13,7 @@ import java.util.Collection;
 public class MatrixConverter implements ResultConverter<Collection<?>> {
 
   @Override
-  public Object convert(ResultConverterCache context, Collection<?> value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, String valueName, Collection<?> value, ConversionMode mode) {
     // Actually a JSON primitive
     return value;
   }

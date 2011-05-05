@@ -18,7 +18,7 @@ import com.opengamma.util.time.Tenor;
 public class VolatilitySurfaceDataConverter implements ResultConverter<VolatilitySurfaceData> {
 
   @Override
-  public Object convert(ResultConverterCache context, VolatilitySurfaceData rawValue, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, String valueName, VolatilitySurfaceData rawValue, ConversionMode mode) {
     @SuppressWarnings("unchecked")
     VolatilitySurfaceData<Tenor, Tenor> value = rawValue;
     Map<String, Object> result = new HashMap<String, Object>();

@@ -22,7 +22,7 @@ public class FudgeBasedJsonGeneratorConverter implements ResultConverter<Object>
   }
   
   @Override
-  public Object convert(ResultConverterCache context, Object value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, String valueRequirementName, Object value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     result.put("name", value.getClass().getSimpleName());
     
