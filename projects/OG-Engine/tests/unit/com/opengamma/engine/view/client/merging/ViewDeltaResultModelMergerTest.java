@@ -5,9 +5,10 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -17,8 +18,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
+import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -87,6 +88,13 @@ public class ViewDeltaResultModelMergerTest {
     deltaResult.setCalculationConfigurationNames(Arrays.asList(CONFIG_1, CONFIG_2));
     deltaResult.addValue(CONFIG_1, getComputedValue("value1", 1));
     merger.merge(deltaResult);
+  }
+  
+  public void testPassesThroughEmptyDelta() {
+    ViewDeltaResultModelMerger merger = new ViewDeltaResultModelMerger();
+    InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
+    merger.merge(deltaResult);
+    assertNotNull(merger.getLatestResult());
   }
 
   private ComputedValue getComputedValue(String valueName, Object value) {
