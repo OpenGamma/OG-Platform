@@ -33,7 +33,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/batches")
 public class WebBatchesResource extends AbstractWebBatchResource {
-  
+
   /**
    * Creates the resource.
    * @param batchDbManager  the batch DB manager, not null
@@ -45,7 +45,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("observationDate") String observationDate,
@@ -131,5 +131,5 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   public static URI uri(WebBatchData data) {
     return data.getUriInfo().getBaseUriBuilder().path(WebBatchesResource.class).build();
   }
-  
+
 }

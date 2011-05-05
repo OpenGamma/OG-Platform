@@ -31,8 +31,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
@@ -57,9 +55,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  */
 @Path("/securities")
 public class WebSecuritiesResource extends AbstractWebSecurityResource {
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(WebSecuritiesResource.class);
-  
+
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
@@ -72,7 +68,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -82,7 +78,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
@@ -118,12 +114,12 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }
     return out;
   }
-  
+
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
     idScheme = StringUtils.trimToNull(idScheme);
@@ -155,8 +151,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     }
     return Response.seeOther(uri).build();
   }
-  
-  //-------------------------------------------------------------------------
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -196,6 +191,21 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       identifiers.add(Identifier.of(scheme, identifierValue));
     }
     return IdentifierBundle.of(identifiers);
+  }
+
+  private Collection<IdentifierBundle> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
+    if (idValue == null) {
+      return Collections.emptyList();
+    }
+    final String[] identifiers = StringUtils.split(idValue, "\n");
+    final List<IdentifierBundle> result = new ArrayList<IdentifierBundle>(identifiers.length);
+    for (String identifier : identifiers) {
+      identifier = StringUtils.trimToNull(identifier);
+      if (identifier != null) {
+        result.add(IdentifierBundle.of(Identifier.of(identificationScheme, identifier)));
+      }
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
@@ -257,21 +267,6 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       }
     }
     return builder.build();
-  }
-  
-  private Collection<IdentifierBundle> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
-    if (idValue == null) {
-      return Collections.emptyList();
-    }
-    final String[] identifiers = StringUtils.split(idValue, "\n");
-    final List<IdentifierBundle> result = new ArrayList<IdentifierBundle>(identifiers.length);
-    for (String identifier : identifiers) {
-      identifier = StringUtils.trimToNull(identifier);
-      if (identifier != null) {
-        result.add(IdentifierBundle.of(Identifier.of(identificationScheme, identifier)));
-      }
-    }
-    return result;
   }
 
 }

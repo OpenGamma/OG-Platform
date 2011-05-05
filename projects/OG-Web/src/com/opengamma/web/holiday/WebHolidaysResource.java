@@ -44,7 +44,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/holidays")
 public class WebHolidaysResource extends AbstractWebHolidayResource {
-  
+
   /**
    * Creates the resource.
    * @param holidayMaster  the holiday master, not null
@@ -56,7 +56,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -66,7 +66,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
     return getFreemarker().build("holidays/holidays.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(

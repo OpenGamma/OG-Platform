@@ -40,7 +40,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/batches/{observationDate}/{observationTime}")
 public class WebBatchResource extends AbstractWebBatchResource {
-  
+
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -52,7 +52,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @Context UriInfo uriInfo) {
@@ -111,7 +111,6 @@ public class WebBatchResource extends AbstractWebBatchResource {
     out.put("batchErrors", batchErrors.getItems());
     return getFreemarker().build("batches/jsonbatch.ftl", out);
   }
-
 
   @GET
   @Produces("text/csv;charset=UTF-8")
@@ -243,7 +242,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
         data.getBatch().getObservationDate(),
         data.getBatch().getObservationTime());
   }
-  
+
   public static URI uri(final WebBatchData data, final LocalDate date, final String observationTime) {
     return data.getUriInfo().getBaseUriBuilder().path(WebBatchResource.class).build(
         date,

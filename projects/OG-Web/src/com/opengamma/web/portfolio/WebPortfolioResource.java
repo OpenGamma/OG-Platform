@@ -43,11 +43,11 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createPortfolioData();
     return getFreemarker().build("portfolios/portfolio.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
@@ -71,13 +71,14 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     return out;
   }
 
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(@FormParam("name") String name) {
+  public Response putHTML(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -90,14 +91,14 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     URI uri = updatePortfolio(name, doc);
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     name = StringUtils.trimToNull(name);
     updatePortfolio(name, doc);
@@ -112,18 +113,19 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     return uri;
   }
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }  
     data().getPortfolioMaster().remove(doc.getUniqueId());
     URI uri = WebPortfolioResource.uri(data());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
@@ -133,7 +135,7 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
     }  
     return Response.ok().build();
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.

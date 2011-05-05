@@ -35,7 +35,7 @@ import com.opengamma.master.security.SecurityDocument;
  */
 @Path("/securities/{securityId}")
 public class WebSecurityResource extends AbstractWebSecurityResource {
-  
+
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -43,45 +43,45 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   public WebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
   }
-  
-  //Return the security as JSON document
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getJSONSecurity() {
-    FlexiBean out = createRootData();
-    return getFreemarker().build("securities/jsonsecurity.ftl", out);
-  }
-  
+
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("securities/security.ftl", out);
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("securities/jsonsecurity.ftl", out);
+  }
+
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(
+  public Response putHTML(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
     SecurityDocument doc = data().getSecurity();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     URI uri = updateSecurity(doc);
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON() {
     SecurityDocument doc = data().getSecurity();
-    if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    if (doc.isLatest() == false) {  // TODO: idempotent
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     updateSecurity(doc);
     return Response.ok().build();
@@ -90,28 +90,27 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   private URI updateSecurity(SecurityDocument doc) {
     IdentifierBundle identifierBundle = doc.getSecurity().getIdentifiers();
     data().getSecurityLoader().loadSecurity(Collections.singleton(identifierBundle));
-    URI uri = WebSecurityResource.uri(data());
-    return uri;
+    return WebSecurityResource.uri(data());
   }
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     SecurityDocument doc = data().getSecurity();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    
     data().getSecurityMaster().remove(doc.getUniqueId());
     URI uri = WebSecurityResource.uri(data());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
     SecurityDocument doc = data().getSecurity();
-    if (doc.isLatest()) {
+    if (doc.isLatest()) {  // idempotent DELETE
       data().getSecurityMaster().remove(doc.getUniqueId());
     }
     return Response.ok().build();
@@ -132,10 +131,6 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     return out;
   }
 
-  /**
-   * @param security
-   * @param out
-   */
   private void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
     if (security.getSecurityType().equals("SWAP")) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
@@ -145,7 +140,6 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
   }
 
   private class SwapLegClassifierVisitor implements SwapLegVisitor<String> {
-
     @Override
     public String visitFixedInterestRateLeg(FixedInterestRateLeg swapLeg) {
       return "FixedInterestRateLeg";
@@ -156,7 +150,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
       return "FloatingInterestRateLeg";
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebSecurityVersionsResource findVersions() {

@@ -58,7 +58,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -66,6 +66,18 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @Context UriInfo uriInfo) {
     FlexiBean out = search(page, pageSize, name, type, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getJSON(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @Context UriInfo uriInfo) {
+    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
@@ -99,24 +111,12 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     } 
     return out;
   }
-  
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON(
-      @QueryParam("page") int page,
-      @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name,
-      @QueryParam("type") String type,
-      @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, uriInfo);
-    return getFreemarker().build("configs/jsonconfigs.ftl", out);
-  }
 
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("name") String name,
       @FormParam("configxml") String xml) {
     name = StringUtils.trimToNull(name);
@@ -160,8 +160,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.created(uri).build();
   }
-  
-  
+
   //-------------------------------------------------------------------------
   @Path("{configId}")
   public WebConfigResource findConfig(@PathParam("configId") String idStr) {
