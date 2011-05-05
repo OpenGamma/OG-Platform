@@ -77,7 +77,7 @@ public class MultipleNodeExecutorTest {
 
       @Override
       protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalcConfName(), 1L, JobIdSource.getId());
+        return new CalculationJobSpecification(UniqueIdentifier.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), 1L, JobIdSource.getId());
       }
 
       @Override

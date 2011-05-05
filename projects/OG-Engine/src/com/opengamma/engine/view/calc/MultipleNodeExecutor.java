@@ -77,7 +77,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalcConfName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
+    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalculationConfigurationName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
   }
 
   protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
@@ -103,7 +103,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
-      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
+      statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
       fragment.executeImpl();
       timer.finished();
@@ -151,7 +151,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
+    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {

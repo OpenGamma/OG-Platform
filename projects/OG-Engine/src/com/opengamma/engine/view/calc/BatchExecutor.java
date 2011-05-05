@@ -267,7 +267,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
 
     @Override
     public String toString() {
-      return "BatchExecutorFuture[calcConfName=" + _graph.getCalcConfName() + "]";
+      return "BatchExecutorFuture[calcConfName=" + _graph.getCalculationConfigurationName() + "]";
     }
   }
 }

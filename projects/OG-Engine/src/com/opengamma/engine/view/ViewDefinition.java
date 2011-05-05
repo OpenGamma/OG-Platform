@@ -227,10 +227,11 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Returns the named calculation configuration.
    * 
-   * @param configurationName name of the configuration
-   * @return the configuration
+   * @param configurationName  the name of the calculation configuration, not {@code null}
+   * @return the calculation configuration, or {@code null} if no calculation configuration exists with that name.
    */
   public ViewCalculationConfiguration getCalculationConfiguration(String configurationName) {
+    ArgumentChecker.notNull(configurationName, "configurationName");
     return _calculationConfigurationsByName.get(configurationName);
   }
 
