@@ -58,8 +58,8 @@ public class CouponIbor extends CouponFloating {
    * @param spread The spread.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public CouponIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
-      double fixingPeriodEndTime, double fixingYearFraction, double spread, String forwardCurveName) {
+  public CouponIbor(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
@@ -85,8 +85,9 @@ public class CouponIbor extends CouponFloating {
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
-  public CouponIbor(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, double fixingTime, double fixingPeriodStartTime,
-      double fixingPeriodEndTime, double fixingYearFraction, String forwardCurveName) {
+  public CouponIbor(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
+      final double fixingPeriodStartTime,
+      final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
   }
 
@@ -149,19 +150,19 @@ public class CouponIbor extends CouponFloating {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_fixingPeriodEndTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_fixingPeriodStartTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_fixingYearFraction);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_forwardCurveName == null) ? 0 : _forwardCurveName.hashCode());
+    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     temp = Double.doubleToLongBits(_spread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +172,7 @@ public class CouponIbor extends CouponFloating {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIbor other = (CouponIbor) obj;
+    final CouponIbor other = (CouponIbor) obj;
     if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
       return false;
     }
