@@ -93,6 +93,9 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
   @Test
+  /**
+   * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
+   */
   public void testPriceReplication() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
@@ -111,14 +114,16 @@ public class CapFloorCMSSABRReplicationMethodTest {
   }
 
   @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
   public void testPerformance() {
-    // Used only to assess performance
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
-    int nbTest = 100;
+    int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_CAP, sabrBundle);
@@ -127,10 +132,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 50 cap 5Y.
-    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
-    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 55 ms for 100 cap 5Y.
-    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 95 ms for 100 cap 5Y.
+    // Performance note: price+delta: 04-May: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 415 ms for 1000 cap 5Y.
+    // Performance note: price+delta+vega: 04-May: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 820 ms for 1000 cap 5Y.
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_FLOOR, sabrBundle);
@@ -139,34 +142,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 50 floor 5Y.
-    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
-    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 44 ms for 100 floor 5Y.
-    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 84 ms for 50 cap 5Y.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      replication.presentValue(CMS_CAP, sabrBundle);
-      replication.presentValueSensitivity(CMS_CAP, sabrBundle);
-      //      replication.presentValueSABRSensitivity(CMS_CAP, sabrBundle);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS cap by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 50 cap 5Y.
-    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
-    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 37 ms for 100 cap 5Y.
-    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 84 ms for 100 cap 5Y.
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      replication.presentValue(CMS_FLOOR, sabrBundle);
-      replication.presentValueSensitivity(CMS_FLOOR, sabrBundle);
-      //      replication.presentValueSABRSensitivity(CMS_FLOOR, sabrBundle);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS floor by replication (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 50 floor 5Y.
-    // Performance note: price+delta+vega: 05-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 575 ms for 50 cap 5Y.
-    // Performance note: price+delta: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 32 ms for 100 floor 5Y.
-    // Performance note: price+delta+vega: 27-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 74 ms for 50 cap 5Y.
+    // Performance note: price+delta: 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 410 ms for 1000 floor 5Y.
+    // Performance note: price+delta+vega: 04-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 810 ms for 1000 cap 5Y.
   }
 }

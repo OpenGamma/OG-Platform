@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 
 /**
@@ -32,7 +33,7 @@ public class CouponCMSSABRExtrapolationRightReplicationMethod {
   }
 
   /**
-   * Compute the price of a CMS coupon by replication in SABR framework. 
+   * Compute the price of a CMS coupon by replication in the SABR framework with extrapolation on the right.
    * @param cmsCoupon The CMS coupon.
    * @param sabrData The SABR and curve data.
    * @return The coupon price.
@@ -43,6 +44,19 @@ public class CouponCMSSABRExtrapolationRightReplicationMethod {
     CapFloorCMSSABRExtrapolationRightReplicationMethod method = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
     double priceCMSCoupon = method.presentValue(cap0, sabrData);
     return priceCMSCoupon;
+  }
+
+  /**
+   * Computes the present value sensitivity to the yield curves of a CMS coupon by replication in the SABR framework with extrapolation on the right.
+   * @param cmsCoupon The CMS coupon.
+   * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
+   * @return The present value sensitivity to curves.
+   */
+  public PresentValueSensitivity presentValueSensitivity(CouponCMS cmsCoupon, SABRInterestRateDataBundle sabrData) {
+    CapFloorCMS cap0 = CapFloorCMS.from(cmsCoupon, 0.0, true);
+    // A CMS coupon is priced as a cap with strike 0.
+    CapFloorCMSSABRExtrapolationRightReplicationMethod method = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
+    return method.presentValueSensitivity(cap0, sabrData);
   }
 
 }
