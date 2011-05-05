@@ -1,4 +1,4 @@
-package com.opengamma.engine.json;
+package com.opengamma.web.json;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.fudgemsg.ViewDefinitionBuilderTest;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 
 
 public class ViewDefintionJSONBuilderTest {

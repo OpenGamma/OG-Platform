@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.json;
+package com.opengamma.web.json;
 
 
 /**
