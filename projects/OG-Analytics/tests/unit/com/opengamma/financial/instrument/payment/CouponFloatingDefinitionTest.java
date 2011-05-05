@@ -6,8 +6,10 @@
 package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -17,7 +19,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class CouponFloatingTest {
+public class CouponFloatingDefinitionTest {
 
   private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime PAYMENT_DATE = DateUtil.getUTCDate(2011, 4, 6);
@@ -75,8 +77,8 @@ public class CouponFloatingTest {
 
   @Test
   public void testFixingProcess() {
-    CouponFloatingDefinition CouponWithReset = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
-    double RESET_RATE = 0.04;
+    final CouponFloatingDefinition CouponWithReset = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
+    final double RESET_RATE = 0.04;
     assertEquals(CouponWithReset.isFixed(), false);
     CouponWithReset.fixingProcess(RESET_RATE);
     assertEquals(CouponWithReset.isFixed(), true);
