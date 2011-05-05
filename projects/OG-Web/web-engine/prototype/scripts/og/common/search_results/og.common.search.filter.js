@@ -31,7 +31,8 @@ $.register_module({
                       last = routes.last(),
                       name = last.page.substring(1),
                       view = og.views[name],
-                       obj = $.extend(true, {}, routes.last().args, {filter_type: $(this).val(), filter: true}),
+                       obj = $.extend(true, {}, routes.last().args,
+                            {filter_type: $(this).val().toUpperCase(), filter: true}),
                       hash = routes.hash(view.rules.load_filter, obj);
                     routes.go(hash);
             });

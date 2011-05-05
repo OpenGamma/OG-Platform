@@ -61,10 +61,10 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/:type?/name:?/filter_type:?',
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/filter_type:?',
                 method: module.name + '.load_filter'},
             load_holidays: {
-                route: '/' + page_name + '/:id/type:/name:?/filter_type:?',
+                route: '/' + page_name + '/:id/name:?/filter_type:?',
                 method: module.name + '.load_' + page_name
             }
         };
@@ -121,7 +121,7 @@ $.register_module({
                                 stepMonths: 12,                             // Pagination moves 1 year at a time
                                 firstDay: 1,                                // Start the week on Monday
                                 displayOnly: true,                          // This is an OG custom configuration
-                                specialDates: details_json.dates                    // This is an OG custom configuration
+                                specialDates: details_json.dates            // This is an OG custom configuration
                             });
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
