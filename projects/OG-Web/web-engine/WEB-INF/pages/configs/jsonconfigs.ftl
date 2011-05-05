@@ -6,8 +6,6 @@
 	    <#if searchResult??>
 	    "total" : ${"${paging.totalItems}"?replace(',','')},
 	    "count": ${"${paging.pagingSize}"?replace(',','')}
-	    <#else>
-	     "configTypes" : [<#list typeMap?keys as key>"${key}"<#if key_has_next>,</#if></#list>]
 	    </#if>
 	},
 	"data" : [<#if searchResult??> 

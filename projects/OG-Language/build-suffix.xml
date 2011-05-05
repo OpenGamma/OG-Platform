@@ -83,6 +83,10 @@
 		<mkdir dir="${lib.dir}/lib/Release" />
 	</target>
 	<target name="unpack-resolve-impl-windows" if="is.windows">
+		<ivy:artifactproperty name="[organization].[module].[type]" value="[revision]" />
+		<antcall target="unpack-resolve-impl-windows2" />
+	</target>
+	<target name="unpack-resolve-impl-windows2" if="org.fudgemsg.fudge-c.lib">
 		<unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
 		<unpack-zip org="org.fudgemsg" name="fudge-c" type="include" />
 		<unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />

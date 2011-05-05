@@ -40,7 +40,6 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private String _name;
-  
   /**
    * The class of the configuration.
    */

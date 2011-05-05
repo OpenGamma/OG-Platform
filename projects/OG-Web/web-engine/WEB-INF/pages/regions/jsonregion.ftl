@@ -1,9 +1,14 @@
 <#escape x as x?html>
 {
     "templateData": {
-            "name": "${region.name}",
-            "full_name": "${region.fullName}",
-            "classification": "${region.classification}"
+      "name": "${region.name}",
+      "objectId":"${region.uniqueId.objectId}",
+      "versionId":"${region.uniqueId.version}",
+<#if deleted>
+      "deleted":"${regionDoc.versionToInstant}",
+</#if>
+      "full_name": "${region.fullName}",
+      "classification": "${region.classification}"
     },
     "keys": {
         <#list region.identifiers.identifiers as item>

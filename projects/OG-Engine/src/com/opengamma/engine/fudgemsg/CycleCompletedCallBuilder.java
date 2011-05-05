@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
@@ -29,8 +30,13 @@ public class CycleCompletedCallBuilder implements FudgeBuilder<CycleCompletedCal
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, CycleCompletedCall object) {
     MutableFudgeMsg msg = context.newMessage();
-    context.addToMessage(msg, FULL_RESULT_FIELD, null, object.getFullResult());
-    context.addToMessage(msg, DELTA_RESULT_FIELD, null, object.getDeltaResult());
+    ViewComputationResultModel fullResult = object.getFullResult();
+    ViewDeltaResultModel deltaResult = object.getDeltaResult();
+    if (fullResult == null && deltaResult == null) {
+      throw new OpenGammaRuntimeException("Unexpectedly useless CycleCompletedCall");
+    }
+    context.addToMessage(msg, FULL_RESULT_FIELD, null, fullResult);
+    context.addToMessage(msg, DELTA_RESULT_FIELD, null, deltaResult);
     return msg;
   }
 

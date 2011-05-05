@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
  */
 @Path("/holidays/{holidayId}")
 public class WebHolidayResource extends AbstractWebHolidayResource {
-  
+
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -39,11 +39,11 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("holidays/holiday.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
@@ -51,6 +51,7 @@ public class WebHolidayResource extends AbstractWebHolidayResource {
     return getFreemarker().build("holidays/jsonholiday.ftl", out);
   }
 
+  //-------------------------------------------------------------------------
 //  @PUT
 //  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 //  public Response put(
