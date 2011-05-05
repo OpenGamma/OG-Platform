@@ -13,6 +13,8 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
@@ -31,6 +33,11 @@ public class UserSecurityMaster implements SecurityMaster {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
+    return _underlying.metaData(request);
+  }
+
   @Override
   public SecuritySearchResult search(SecuritySearchRequest request) {
     return _underlying.search(request);

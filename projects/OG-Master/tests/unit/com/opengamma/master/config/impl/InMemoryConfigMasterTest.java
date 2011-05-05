@@ -5,14 +5,16 @@
  */
 package com.opengamma.master.config.impl;
 
-import static org.testng.AssertJUnit.assertNull;
-import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
+
 import java.util.List;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -23,6 +25,8 @@ import com.opengamma.id.ObjectIdentifierSupplier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 
@@ -89,6 +93,23 @@ public class InMemoryConfigMasterTest {
     doc.setValue(VAL1);
     ConfigDocument<Identifier> added = master.add(doc);
     assertEquals("Hello", added.getUniqueId().getScheme());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_metaData() {
+    ConfigMetaDataResult test = _testPopulated.metaData(new ConfigMetaDataRequest());
+    assertNotNull(test);
+    assertEquals(2, test.getConfigTypes().size());
+    assertTrue(test.getConfigTypes().contains(Identifier.class));
+    assertTrue(test.getConfigTypes().contains(IdentifierBundle.class));
+  }
+
+  public void test_metaData_noTypes() {
+    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
+    request.setConfigTypes(false);
+    ConfigMetaDataResult test = _testPopulated.metaData(request);
+    assertNotNull(test);
+    assertEquals(0, test.getConfigTypes().size());
   }
 
   //-------------------------------------------------------------------------
@@ -207,14 +228,6 @@ public class InMemoryConfigMasterTest {
     assertEquals(true, docs.contains(_doc2));
     assertEquals(true, docs.contains(_doc3));
     assertEquals(true, docs.contains(_doc4));
-  }
-  
-  public void test_getTypes() {
-    List<String> types = _testPopulated.getTypes();
-    assertNotNull(types);
-    assertEquals(2, types.size());
-    assertTrue(types.contains(Identifier.class.getName()));
-    assertTrue(types.contains(IdentifierBundle.class.getName()));
   }
 
 }

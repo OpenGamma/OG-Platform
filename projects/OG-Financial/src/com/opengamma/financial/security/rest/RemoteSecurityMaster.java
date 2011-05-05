@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.rest;
 
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_HISTORIC;
+import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_METADATA;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SEARCH;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
@@ -30,6 +31,8 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -46,6 +49,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
   private final FudgeContext _fudgeContext;
   private final RestClient _restClient;
   private final RestTarget _targetSecurity;
+  private final RestTarget _targetMetaData;
   private final RestTarget _targetSearch;
   private final RestTarget _targetHistoric;
   private final MasterChangeManager _changeManager;
@@ -71,6 +75,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _fudgeContext = fudgeContext;
     _targetSecurity = baseTarget.resolveBase(SECURITYMASTER_SECURITY);
+    _targetMetaData = baseTarget.resolve(SECURITYMASTER_METADATA);
     _targetSearch = baseTarget.resolve(SECURITYMASTER_SEARCH);
     _targetHistoric = baseTarget.resolve(SECURITYMASTER_HISTORIC);
     _restClient = RestClient.getInstance(fudgeContext, null);
@@ -164,6 +169,20 @@ public class RemoteSecurityMaster implements SecurityMaster {
     final RestTarget target = _targetSecurity.resolve(uid.toString());
     s_logger.debug("remove-post to {}", target);
     getRestClient().delete(target);
+  }
+
+  @Override
+  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
+    // POST is wrong; but is easy to write if we have a "request" document
+    final FudgeMsg payload = getFudgeSerializationContext().objectToFudgeMsg(request);
+    s_logger.debug("metadata-post {} to {}", payload, _targetMetaData);
+    final FudgeMsgEnvelope env = getRestClient().post(_targetMetaData, payload);
+    if (env == null) {
+      s_logger.debug("metadata-recv NULL");
+      return null;
+    }
+    s_logger.debug("metadata-recv {}", env.getMessage());
+    return getFudgeDeserializationContext().fudgeMsgToObject(SecurityMetaDataResult.class, env.getMessage());
   }
 
   @Override
