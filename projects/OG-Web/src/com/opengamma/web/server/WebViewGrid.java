@@ -85,7 +85,7 @@ public abstract class WebViewGrid {
     _updateChannel = UPDATES_ROOT_CHANNEL + "/" + name;
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
     
-    Set<WebViewGridColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
+    List<WebViewGridColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
     _gridStructure = new WebViewGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     
     _resultConverterCache = resultConverterCache;
@@ -119,7 +119,7 @@ public abstract class WebViewGrid {
         ValueSpecification specification = value.getSpecification();
         WebViewGridColumn column = getGridStructure().getColumn(configName, specification);
         if (column == null) {
-          s_logger.warn("Could not find column for value specification: {}", specification);
+          s_logger.warn("Could not find column for calculation configuration {} with value specification {}", configName, specification);
           continue;
         }
         
@@ -130,31 +130,35 @@ public abstract class WebViewGrid {
         WebGridCell cell = WebGridCell.of(rowId, colId);
         
         ConversionMode mode = getConversionMode(cell);
-        Object latestValue;
+        Object originalValue = value.getValue();
+        Object displayValue;
         try {
-          latestValue = convertResult(column, value.getValue(), mode);
+          displayValue = convertResult(column, value.getSpecification(), originalValue, mode);
         } catch (Exception e) {
           s_logger.error("Exception when converting: ", e);
-          latestValue = "Conversion Error";
+          displayValue = "Conversion Error";
         }
         
         boolean isHistoryOutput = isHistoryOutput(colId);
         if (isHistoryOutput) {
-          addCellHistory(cell, resultTimestamp, latestValue);
+          addCellHistory(cell, resultTimestamp, originalValue);
         }
         
+        Object cellValue;
         if (rowInViewport) {
           // Client requires this row
-          Object cellValue = null;
           if (isHistoryOutput) {
+            Map<String, Object> cellData = new HashMap<String, Object>();
+            cellData.put("display", displayValue);
             SortedMap<Long, Object> history = getCellHistory(cell, lastHistoryTime);
             if (history != null) {
-              cellValue = history.values();
+              cellData.put("history", history.values());
             }
+            cellValue = cellData;
           } else {
-            cellValue = latestValue;
+            cellValue = displayValue;
           }
-          
+
           if (cellValue != null) {
             valuesToSend.put(Long.toString(colId), cellValue);
           }
@@ -166,7 +170,7 @@ public abstract class WebViewGrid {
     }
   }
   
-  private <T> Object convertResult(WebViewGridColumn column, T value, ConversionMode mode) {
+  private <T> Object convertResult(WebViewGridColumn column, ValueSpecification valueSpec, T value, ConversionMode mode) {
     if (value == null) {
       return null;
     }
@@ -175,7 +179,7 @@ public abstract class WebViewGrid {
       sendColumnDetails(Collections.singleton(column));
     }
     
-    return _resultConverterCache.convert(column.getValueName(), value, mode);
+    return _resultConverterCache.convert(valueSpec, value, mode);
   }
   
   public ConversionMode getConversionMode(WebGridCell cell) {
@@ -300,8 +304,8 @@ public abstract class WebViewGrid {
 
   //-------------------------------------------------------------------------
 
-  private static Set<WebViewGridColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
-    Set<WebViewGridColumnKey> result = new HashSet<WebViewGridColumnKey>();
+  private static List<WebViewGridColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
+    List<WebViewGridColumnKey> result = new ArrayList<WebViewGridColumnKey>();
     for (ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
       String calcConfigName = calcConfig.getName();
       if (targetTypes.contains(ComputationTargetType.POSITION) || targetTypes.contains(ComputationTargetType.PORTFOLIO_NODE)) {

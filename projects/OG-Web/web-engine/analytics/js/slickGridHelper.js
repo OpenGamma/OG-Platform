@@ -130,14 +130,18 @@
             continue;
           }
           if (column.typeFormatter.supportsHistory) {
-            // Push the history in
             if (!gridRow[column.colId]) {
-              gridRow[column.colId] = new Array();
+              gridRow[column.colId] = {};
             }
-            gridRow[column.colId] = gridRow[column.colId].concat(latestValue);
-            var historyCount = gridRow[column.colId].length;
-            if (gridRow[column.colId].length > 20) {
-              gridRow[column.colId] = gridRow[column.colId].slice(historyCount - 20);
+            gridRow[column.colId].display = latestValue.display;
+            // Push the history in
+            if (!gridRow[column.colId].history) {
+              gridRow[column.colId].history = new Array();
+            }
+            gridRow[column.colId].history = gridRow[column.colId].history.concat(latestValue.history);
+            var historyCount = gridRow[column.colId].history.length;
+            if (gridRow[column.colId].history.length > 20) {
+              gridRow[column.colId].history = gridRow[column.colId].history.slice(historyCount - 20);
             }
           } else {
             // No history, so just replace the value
@@ -206,7 +210,7 @@
           name : column.header,
           toolTip: column.description,
           field : column.colId,
-          width : 250, 
+          width : 150, 
           formatter: formatter.formatCell,
           asyncPostRender: formatter.postRender
         });

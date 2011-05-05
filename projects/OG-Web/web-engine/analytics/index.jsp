@@ -93,7 +93,7 @@
 
       .tickindicator {
         height: 16px;
-        width: 16px;
+        width: 10px;
         display: inline-block;
         vertical-align: middle;
         margin: 0 0 0 4px;
@@ -101,22 +101,35 @@
       }
 
       .tickindicator.up {
-        background: url(/images/tick-up.png) no-repeat center center;
+        background: url(/images/tick-up.png) no-repeat;
       }
 
       .tickindicator.down {
-        background: url(/images/tick-down.png) no-repeat center center;
+        background: url(/images/tick-down.png) no-repeat;
       }
 
       .tickindicator.same {
-        background: url(/images/tick-same.png) no-repeat center center;
+        background: url(/images/tick-same.png) no-repeat;
+      }
+      
+      .cell-contents {
+        width: 100%;
+        height: 100%;
+        vertical-align: middle;
       }
       
       .cell-value {
-        display: inline-block;
-        vertical-align: middle;
+        text-overflow: ellipsis;
         margin: 0;
         padding: 0 4px;
+      }
+      
+      .cell-value.right {
+        float: right;
+      }
+      
+      .negative {
+        color: red;
       }
 
       .primitive-history-sparkline {

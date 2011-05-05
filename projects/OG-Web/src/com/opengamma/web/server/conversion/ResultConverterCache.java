@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -39,7 +40,6 @@ public class ResultConverterCache {
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
     registerConverter(Tenor.class, new TenorConverter());
-    //registerConverter(Collection.class, new MatrixConverter());
   }
   
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
@@ -50,14 +50,14 @@ public class ResultConverterCache {
    * Transforms the given value into a JSON-friendly object.
    * 
    * @param <T>  the type of the value to be converted
-   * @param valueName  the name of the value, not null
+   * @param valueSpec  the value specification, not null
    * @param value  the result to be converted, assumed to be representative of all results for the requirement name, not null
    * @param mode  the conversion mode, not null
    * @return  the converter to be used
    */
-  public <T> Object convert(String valueName, T value, ConversionMode mode) {
-    ResultConverter<? super T> converter = getAndCacheConverter(valueName, value);
-    return converter.convert(this, valueName, value, mode);
+  public <T> Object convert(ValueSpecification valueSpec, T value, ConversionMode mode) {
+    ResultConverter<? super T> converter = getAndCacheConverter(valueSpec, value);
+    return converter.convert(this, valueSpec, value, mode);
   }
   
   @SuppressWarnings("unchecked")
@@ -72,7 +72,7 @@ public class ResultConverterCache {
   
   public String getKnownResultTypeName(String valueRequirementName) {
     ResultConverter<?> converter = _converterCache.get(valueRequirementName);
-    return converter != null ? converter.getResultTypeName() : null;
+    return converter != null ? converter.getFormatterName() : null;
   }
   
   public ResultConverter<Object> getFudgeConverter() {
@@ -80,7 +80,8 @@ public class ResultConverterCache {
   }
   
   @SuppressWarnings("unchecked")
-  private <T> ResultConverter<? super T> getAndCacheConverter(String valueName, T value) {
+  private <T> ResultConverter<? super T> getAndCacheConverter(ValueSpecification valueSpec, T value) {
+    String valueName = valueSpec.getValueName();
     ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterCache.get(valueName);
     if (converter == null) {
       converter = findConverterForType((Class<T>) value.getClass());

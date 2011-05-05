@@ -68,7 +68,8 @@ public class WebView {
       
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
-        // TODO: support for changing compilation results        
+        // TODO: support for changing compilation results     
+        s_logger.warn("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
       

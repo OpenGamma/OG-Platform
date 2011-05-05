@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.conversion;
 
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -13,13 +14,13 @@ import com.opengamma.util.time.Tenor;
 public class TenorConverter implements ResultConverter<Tenor> {
 
   @Override
-  public Object convert(ResultConverterCache context, String valueName, Tenor value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Tenor value, ConversionMode mode) {
     return value.getPeriod().toString();
   }
 
   @Override
-  public String getResultTypeName() {
+  public String getFormatterName() {
     return "TENOR";
   }
- 
+
 }

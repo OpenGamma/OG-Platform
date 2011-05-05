@@ -169,6 +169,7 @@
     function handlePortfolioUpdate(message) {
       if (!_inBatch) {
         _logger.warn('Update received when not in batch');
+        return;
       }
       _batchPortfolioUpdate.push(message.data);
     }
@@ -176,6 +177,7 @@
     function handlePrimitivesUpdate(message) {
       if (!_inBatch) {
         _logger.warn('Update received when not in batch');
+        return;
       }
       _batchPrimitivesUpdate.push(message.data);
     }
