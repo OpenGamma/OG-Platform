@@ -162,6 +162,15 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Path("metaData")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getMetaDataJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("configs/jsonmetadata.ftl", out);
+  }
+
+  //-------------------------------------------------------------------------
   @Path("{configId}")
   public WebConfigResource findConfig(@PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
@@ -192,7 +201,6 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
     out.put("typeMap", data().getTypeMap());
-    
     return out;
   }
 
