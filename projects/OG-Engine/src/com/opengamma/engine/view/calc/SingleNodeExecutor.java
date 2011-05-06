@@ -39,7 +39,7 @@ import com.opengamma.util.Cancellable;
  * This DependencyGraphExecutor executes the given dependency graph
  * on a single calculation node in a single thread. Whether that node 
  * is the local machine or a remote machine on the grid depends on the
- * the {@link com.opengamma.engine.view.calcnode.JobRequestSender} configured in 
+ * the {@code com.opengamma.engine.view.calcnode.JobRequestSender} configured in 
  * {@link com.opengamma.engine.view.ViewProcessContext}.
  * 
  */

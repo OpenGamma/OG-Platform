@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.transport.EndPointDescriptionProvider;
 
 /**
- * An implementation of {@link EndPointDescriptionProvider} that operates over a REST call.
+ * An implementation of {@code EndPointDescriptionProvider} that operates over a REST call.
  */
 public class RemoteEndPointDescriptionProvider implements EndPointDescriptionProvider {
 

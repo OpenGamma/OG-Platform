@@ -233,7 +233,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @param previousCycle  the previous cycle from which a delta cycle should be performed, or {@code null} to perform
    *                       a full cycle
    * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
-   *                               Execution of any outstanding jobs will be cancelled, but {@link #releaseResources()}
+   *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.
    */
   public void execute(SingleComputationCycle previousCycle) throws InterruptedException {    
