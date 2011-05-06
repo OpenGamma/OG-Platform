@@ -45,13 +45,13 @@
       } else {
         displayValueHtml = displayValue;
       }
-      
+
       if (value && userConfig.getSparklinesEnabled()) {
         $("<span class='primitive-history-sparkline'></span>")
             .appendTo($cell)
             .sparkline(value.history, $.extend(true, {}, Common.sparklineDefaults, {width: 50, lineColor: 'rgb(71, 113, 135)'}));
       }
-      $cell.append("<div class='cell-value right'>" + displayValueHtml + "<span class='" + tickIndicatorClass + "' /></div>");
+      $cell.append("<span class='cell-value right'>" + displayValueHtml + "</span><span class='" + tickIndicatorClass + "' />");
     }
     
   }

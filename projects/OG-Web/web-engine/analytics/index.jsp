@@ -96,8 +96,11 @@
         width: 10px;
         display: inline-block;
         vertical-align: middle;
-        margin: 0 0 0 4px;
         padding: 0;
+        position: absolute;
+        right: 2px;
+        top: 50%;
+        margin: -7px 0 0 0;
       }
 
       .tickindicator.up {
@@ -116,6 +119,7 @@
         width: 100%;
         height: 100%;
         vertical-align: middle;
+        position: relative;
       }
       
       .cell-value {
@@ -125,7 +129,9 @@
       }
       
       .cell-value.right {
-        float: right;
+        position: absolute;
+        right: 12px;
+        background: white;
       }
       
       .negative {
@@ -135,7 +141,7 @@
       .primitive-history-sparkline {
         display: inline-block;
         vertical-align: middle;
-        margin: 0 0 0 4px;
+        margin: 0 0 0 2px;
         padding: 0;
         height: 14px;
         width: 50px;
