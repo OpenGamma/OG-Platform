@@ -31,7 +31,6 @@
     <script type="text/javascript" src="/js/flot/jquery.flot.selection.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.navigate.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.crosshair.js"></script>
-    <script type="text/javascript" src="/js/flot/jquery.flot.axislabels.js"></script>
   
     <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/userConfig.js"></script>

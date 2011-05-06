@@ -16,7 +16,6 @@
 	</target>
 
 	<target name="jetty-properties" depends="jetty-resolve">
-		<property name="jetty.port" value="8080" />
 		<property name="jetty.spawn" value="true" />
 		<property name="jetty.stopport" value="8079" />
 		<property name="jetty.stopkey" value="OpenGamma" />
@@ -32,10 +31,8 @@
 	</target>
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">
-		<echo>Server starting on port ${jetty.port}</echo>
 		<java jar="${jetty.start}" fork="true" spawn="false">
-			<jvmarg value="-Djetty.port=${jetty.port}" />
-			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
 			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
@@ -50,10 +47,8 @@
 	</target>
 
 	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
-		<echo>Server starting on port ${jetty.port}</echo>
 		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
-			<jvmarg value="-Djetty.port=${jetty.port}" />
-			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
 			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />

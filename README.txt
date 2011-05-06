@@ -11,7 +11,7 @@ upgrades, and we built the OpenGamma Platform so that they're never necessary: i
 OpenGamma components when they provide a clear advantage, and later migrate additional portions of their 
 infrastructure if and when time and resources permit.
 
-Visit the developer website at http://developer.opengamma.com for more information, downloads, docs and more
+Visit the developer website at http://developers.opengamma.com for more information, downloads, docs and more
 
 How to use the build system
 ---------------------------
@@ -68,4 +68,4 @@ OG-Language/config/OpenGamma.properties).
 
 More information
 ----------------
-For more information go to http://developer.opengamma.com
+For more information go to http://developers.opengamma.com

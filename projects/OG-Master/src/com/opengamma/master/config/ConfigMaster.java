@@ -5,8 +5,6 @@
  */
 package com.opengamma.master.config;
 
-import java.util.List;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
@@ -24,7 +22,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface ConfigMaster extends NotifyingMaster {
-  
+
   /**
    * Gets a document by unique identifier.
    * <p>
@@ -37,7 +35,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   ConfigDocument<?> get(UniqueIdentifier uniqueId);
-  
+
   /**
    * Gets a document by object identifier and version-correction locator.
    * <p>
@@ -66,7 +64,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   <T> ConfigDocument<T> get(UniqueIdentifier uniqueId, Class<T> clazz);
-  
+
   /**
    * Gets a document by object identifier and version-correction locator.
    * <p>
@@ -94,7 +92,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    */
   <T> ConfigDocument<T> add(ConfigDocument<T> document);
-  
+
   /**
    * Updates a document in the data store.
    * <p>
@@ -112,7 +110,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   <T> ConfigDocument<T> update(ConfigDocument<T> document);
-  
+
   /**
    * Corrects a document in the data store.
    * <p>
@@ -134,6 +132,16 @@ public interface ConfigMaster extends NotifyingMaster {
   <T> ConfigDocument<T> correct(ConfigDocument<T> document);
 
   /**
+   * Queries the meta-data about the master.
+   * <p>
+   * This can return information that is useful for drop-down lists.
+   * 
+   * @param request  the search request, not null
+   * @return the requested meta-data, not null
+   */
+  ConfigMetaDataResult metaData(ConfigMetaDataRequest request);
+
+  /**
    * Searches for configuration documents matching the specified search criteria.
    * 
    * @param <T>  the configuration element type
@@ -142,7 +150,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    */
   <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request);
-  
+
   /**
    * Queries the history of a single piece of configuration.
    * <p>
@@ -154,7 +162,7 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws IllegalArgumentException if the request is invalid
    */
   <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request);
-  
+
   /**
    * Removes a document from the data store.
    * <p>
@@ -168,14 +176,5 @@ public interface ConfigMaster extends NotifyingMaster {
    * @throws DataNotFoundException if there is no document with that unique identifier
    */
   void remove(final UniqueIdentifier uniqueId);
-  
-  /**
-   * Get the list of all configuration types in the master.
-   * <p>
-   * This returns the complete list of types currently stored.
-   * 
-   * @return the list of types, independent and modifiable, not null
-   */
-  List<String> getTypes();
 
 }

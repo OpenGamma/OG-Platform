@@ -1,0 +1,54 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.masterdb.config;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
+import com.opengamma.util.test.DBTest;
+
+/**
+ * Test metaData() in DbConfigMaster
+ */
+public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfigMasterWorkerTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(QueryConfigDbConfigMasterWorkerMetaDataTest.class);
+
+  @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
+  public QueryConfigDbConfigMasterWorkerMetaDataTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion);
+    s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @Test
+  public void test_metaData() {
+    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
+    ConfigMetaDataResult result = _cfgMaster.metaData(request);
+    assertNotNull(result);
+    assertEquals(2, result.getConfigTypes().size());
+    assertTrue(result.getConfigTypes().contains(Identifier.class));
+    assertTrue(result.getConfigTypes().contains(IdentifierBundle.class));
+  }
+
+  public void test_metaData_noTypes() {
+    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
+    request.setConfigTypes(false);
+    ConfigMetaDataResult result = _cfgMaster.metaData(request);
+    assertNotNull(result);
+    assertEquals(0, result.getConfigTypes().size());
+  }
+
+}

@@ -541,59 +541,65 @@ bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) {
 		return false;
 	}
 	bool bResult;
-	m_oPipesSemaphore.Wait (m_lSendTimeout);
-	if (m_poPipes && m_poPipes->IsConnected ()) {
-		int nPoll = 0;
-		long lStartTime = GetTickCount ();
+	if (m_oPipesSemaphore.Wait (m_lSendTimeout)) {
+		if (m_poPipes && m_poPipes->IsConnected ()) {
+			int nPoll = 0;
+			long lStartTime = GetTickCount ();
 retrySend:
-		if (m_poPipes->Write (ptrBuffer, cbBuffer, m_lSendTimeout)) {
-			bResult = true;
-		} else {
-			int ec = GetLastError ();
+			if (m_poPipes->Write (ptrBuffer, cbBuffer, m_lSendTimeout)) {
+				bResult = true;
+			} else {
+				int ec = GetLastError ();
 #ifdef _WIN32
-			if (ec == ERROR_PIPE_LISTENING) {
-				// No process at the other end of the pipe
+				if (ec == ERROR_PIPE_LISTENING) {
+					// No process at the other end of the pipe
 #else
-			if (ec == EPIPE) {
-				// Broken pipe -- they start off broken the way we create them
+				if (ec == EPIPE) {
+					// Broken pipe -- they start off broken the way we create them
 #endif
-				if (GetTickCount () - lStartTime >= m_lSendTimeout) {
-					LOGWARN (TEXT ("Timeout exceeded waiting for other end of the pipe"));
-					ec = ETIMEDOUT;
-				} else if (IsFirstConnection ()) {
-					LOGDEBUG (TEXT ("No process at the other end of the pipe"));
-					if (m_poJVM->IsAlive ()) {
-						LOGDEBUG (TEXT ("Waiting for JVM"));
-						if (!nPoll) {
-							CSettings oSettings;
-							nPoll = oSettings.GetServicePoll ();
+					if (GetTickCount () - lStartTime >= m_lSendTimeout) {
+						LOGWARN (TEXT ("Timeout exceeded waiting for other end of the pipe"));
+						ec = ETIMEDOUT;
+					} else if (IsFirstConnection ()) {
+						LOGDEBUG (TEXT ("No process at the other end of the pipe"));
+						if (m_poJVM->IsAlive ()) {
+							LOGDEBUG (TEXT ("Waiting for JVM"));
+							if (!nPoll) {
+								CSettings oSettings;
+								nPoll = oSettings.GetServicePoll ();
+							}
+							CThread::Sleep (nPoll);
+							goto retrySend;
+						} else {
+							LOGERROR (TEXT ("JVM service terminated before connecting to pipes, error ") << ec);
 						}
-						CThread::Sleep (nPoll);
-						goto retrySend;
 					} else {
-						LOGERROR (TEXT ("JVM service terminated before connecting to pipes, error ") << ec);
+#ifdef _WIN32
+						LOGFATAL (TEXT ("Not first connection but ERROR_PIPE_LISTENING returned"));
+						assert (0);
+#endif /* ifdef _WIN32 */
+						LOGWARN (TEXT ("Couldn't write message, error ") << ec << TEXT (", rewritten to ENOTCONN"));
+						ec = ENOTCONN;
 					}
 				} else {
-#ifdef _WIN32
-					LOGFATAL (TEXT ("Not first connection but ERROR_PIPE_LISTENING returned"));
-					assert (0);
-#endif /* ifdef _WIN32 */
-					LOGWARN (TEXT ("Couldn't write message, error ") << ec << TEXT (", rewritten to ENOTCONN"));
-					ec = ENOTCONN;
+					LOGWARN (TEXT ("Couldn't write message, error ") << ec);
 				}
-			} else {
-				LOGWARN (TEXT ("Couldn't write message, error ") << ec);
+				SetLastError (ec);
+				m_poPipes->Disconnected ();
+				bResult = false;
 			}
-			SetLastError (ec);
-			m_poPipes->Disconnected ();
+		} else {
+			LOGWARN (TEXT ("Pipes not available for message"));
 			bResult = false;
+			SetLastError (ENOTCONN);
 		}
+		m_oPipesSemaphore.Signal ();
 	} else {
+		int ec = GetLastError ();
 		LOGWARN (TEXT ("Pipes not available for message"));
+		SetLastError (ec);
 		bResult = false;
-		SetLastError (ENOTCONN);
 	}
-	m_oPipesSemaphore.Signal ();
 	free (ptrBuffer);
 	return bResult;
 }

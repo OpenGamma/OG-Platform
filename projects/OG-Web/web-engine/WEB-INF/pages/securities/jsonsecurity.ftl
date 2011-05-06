@@ -1,24 +1,30 @@
 <#escape x as x?html>
 {
     "templateData": {
-    	"name":"${security.name}",
-    	"uniqueId":{"Value":"${security.uniqueId.value}","Scheme":"${security.uniqueId.scheme}","Version":"${security.uniqueId.version}"},
+      "name":"${security.name}",
+      "objectId":"${security.uniqueId.objectId}",
+      "versionId":"${security.uniqueId.version}",
+<#-- deprecated -->
+      "uniqueId":{"Value":"${security.uniqueId.value}","Scheme":"${security.uniqueId.scheme}","Version":"${security.uniqueId.version}"},
+<#if deleted>
+      "deleted":"${securityDoc.versionToInstant}",
+</#if>
     	"securityType":"${security.securityType}",
     <#switch security.securityType>
       <#case "EQUITY">
     	"shortName":"${security.shortName}",
     	"exchange":"${security.exchange}",
     	"companyName":"${security.companyName}",
-    	"currency":"${security.currency.ISOCode}",
+    	"currency":"${security.currency}",
     	"exchangeCode":"${security.exchangeCode}",
-    	"gicsCode":"${security.gicsCode.sectorCode}${security.gicsCode.industryGroupCode}${security.gicsCode.industryCode}${security.gicsCode.subIndustryCode}"
+    	"gicsCode":"${security.gicsCode}"
       <#break>
       <#case "BOND"> 
         "issuerName":"${security.issuerName}",
         "issuerType":"${security.issuerType}",
         "issuerDomicile":"${security.issuerDomicile}",
         "market":"${security.market}",
-        "currency":"${security.currency.ISOCode}",
+        "currency":"${security.currency}",
         "yieldConvention":"${security.yieldConvention.conventionName}",
         "lastTradeDate":"${security.lastTradeDate.expiry}",
         "lastTradeAccuracy":"${security.lastTradeDate.accuracy?replace("_", " ")}",
@@ -50,13 +56,13 @@
       <#break>
       <#case "FUTURE">
         "expirydate": {
-            "datetime": "${security.expiry.expiry}",
+            "datetime": "${security.expiry.expiry.toOffsetDateTime()}",
             "timezone": "${security.expiry.expiry.zone}"
         },
         "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
-        "redemptionValue":"${security.currency.ISOCode}"
+        "redemptionValue":"${security.currency}"
         <#break>
       <#case "EQUITY_OPTION">
         "exerciseType":"${security.exerciseType}",
