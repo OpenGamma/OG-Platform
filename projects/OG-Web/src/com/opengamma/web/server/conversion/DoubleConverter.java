@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.IdentificationScheme;
 
 /**
  * General converter for doubles that applies rounding rules.
@@ -199,7 +198,7 @@ public class DoubleConverter implements ResultConverter<Object> {
   public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
     double doubleValue = (Double) value;
     String displayValue;
-    DoubleValueConversionSettings conversion = getConversion(valueSpec.getValueName());
+    DoubleValueConversionSettings conversion = getConversion(valueSpec);
     switch (conversion.getPrecisionType()) {
       case DECIMAL_PLACES:
         BigDecimal decimalValue = new BigDecimal(doubleValue);
@@ -238,8 +237,11 @@ public class DoubleConverter implements ResultConverter<Object> {
     return "PRIMITIVE";
   }
   
-  private DoubleValueConversionSettings getConversion(String valueName) {
-    DoubleValueConversionSettings conversion = VALUE_CONVERSION_MAP.get(valueName);
+  private DoubleValueConversionSettings getConversion(ValueSpecification valueSpec) {
+    DoubleValueConversionSettings conversion = null;
+    if (valueSpec != null) {
+      conversion = VALUE_CONVERSION_MAP.get(valueSpec.getValueName());
+    }
     if (conversion == null) {
       conversion = DEFAULT_CONVERSION;
     }
