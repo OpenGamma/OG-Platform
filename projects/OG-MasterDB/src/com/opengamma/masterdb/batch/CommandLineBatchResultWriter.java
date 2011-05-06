@@ -164,11 +164,11 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
   
   private boolean shouldExecute(DependencyGraph graph, DependencyNode node) {
     
-    ViewComputationCache cache = getCache(graph.getCalcConfName());
+    ViewComputationCache cache = getCache(graph.getCalculationConfigurationName());
      
     if (_resultModelDefinition.shouldOutputFromNode(node)) {
       // e.g., POSITIONS and PORTFOLIOS
-      StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
+      StatusEntry.Status status = getStatus(graph.getCalculationConfigurationName(), node.getComputationTarget().toSpecification());
       switch (status) {
         case SUCCESS:
           if (allOutputsInCache(node, cache)) {

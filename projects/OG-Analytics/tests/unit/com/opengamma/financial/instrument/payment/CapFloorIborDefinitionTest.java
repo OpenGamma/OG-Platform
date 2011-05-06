@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -147,6 +152,5 @@ public class CapFloorIborDefinitionTest {
     CouponFixed expectedFixedCoupon = new CouponFixed(CUR, paymentTimeFixed, fundingCurve, IBOR_COUPON_2.getPaymentYearFraction(), NOTIONAL, fixingRate - STRIKE);
     CouponFixed convertedCapIborFixed = (CouponFixed) fixedIborCap.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expectedFixedCoupon, convertedCapIborFixed);
-
   }
 }

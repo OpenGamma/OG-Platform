@@ -8,11 +8,12 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
+import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 
 /**
- * Remote implementation of {@link EngineResourceManager<ViewCycle>}
+ * Remote implementation of {@link EngineResourceManager} on {@link ViewCycle}.
  */
 public class RemoteViewCycleManager extends RemoteEngineResourceManager<ViewCycle> {
 

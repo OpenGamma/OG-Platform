@@ -8,8 +8,6 @@
     <property name="locations">
       <list>
         <value>${opengamma.engine.calcnode.baseurl}configuration.properties</value>
-         <!-- TODO [DVI-135] Remove this when the child tasks are done and aren't embedded in this file -->
-        <value>${opengamma.engine.calcnode.baseurl}demoIntegrationMasters-shareddev.properties</value>
       </list>
     </property>
   </bean>
@@ -108,16 +106,40 @@
             <property name="name" value="CalcNodeConfig"/>
 				    <property name="dataSource">
 						  <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-						    <property name="driverClassName" value="${opengamma.config.jdbc.driver}" />
-						    <property name="url" value="${opengamma.config.jdbc.url}" />
-						    <property name="username" value="${opengamma.config.jdbc.username}" />
-						    <property name="password" value="${opengamma.config.jdbc.password}" />
+						    <property name="driverClassName">
+						      <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+						        <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.driver" />
+						      </bean>
+						    </property>
+						    <property name="url">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.url" />
+                  </bean>
+                </property>
+						    <property name="username">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.username" />
+                  </bean>
+                </property>
+						    <property name="password">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.password" />
+                  </bean>
+                </property>
 						  </bean>
 				    </property>
-				    <property name="dialect" value="${opengamma.config.db.dbhelper}"/>
+				    <property name="dialect">
+	            <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+	              <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.dbhelper"/>
+	            </bean>
+	          </property>
 				  </bean>
         </constructor-arg>  
-		    <property name="identifierScheme" value="${opengamma.config.db.configmaster.scheme}" />
+		    <property name="identifierScheme">
+	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.configmaster.scheme" />
+	        </bean>
+	      </property>
 		  </bean>
     </constructor-arg>
   </bean>
@@ -134,16 +156,40 @@
 				    <property name="name" value="CalcNodeExchange"/>
 				    <property name="dataSource">
 		          <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-		            <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-		            <property name="url" value="${opengamma.financial.jdbc.url}" />
-		            <property name="username" value="${opengamma.financial.jdbc.username}" />
-		            <property name="password" value="${opengamma.financial.jdbc.password}" />
+		            <property name="driverClassName">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.driver" />
+                  </bean>
+                </property>
+		            <property name="url">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.url" />
+                  </bean>
+                </property>
+		            <property name="username">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.username" />
+                  </bean>
+                </property>
+		            <property name="password">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.password" />
+                  </bean>
+                </property>
 		          </bean>
 				    </property>
-				    <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
-				  </bean>
+				    <property name="dialect">
+						  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+						    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.dbhelper"/>
+						  </bean>
+						</property>
+    		  </bean>
         </constructor-arg>
-		    <property name="identifierScheme" value="${opengamma.refdata.db.exchangemaster.scheme}" />
+		    <property name="identifierScheme">
+	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.refdata.db.exchangemaster.scheme" />
+	        </bean>
+	      </property>
 		  </bean>
     </constructor-arg>
   </bean>
@@ -160,16 +206,40 @@
             <property name="name" value="CalcNodeHoliday"/>
             <property name="dataSource">
               <bean class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-                <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-                <property name="url" value="${opengamma.financial.jdbc.url}" />
-                <property name="username" value="${opengamma.financial.jdbc.username}" />
-                <property name="password" value="${opengamma.financial.jdbc.password}" />
+                <property name="driverClassName">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.driver" />
+                  </bean>
+                </property>
+                <property name="url">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.url" />
+                  </bean>
+                </property>
+                <property name="username">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.username" />
+                  </bean>
+                </property>
+                <property name="password">
+                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.jdbc.password" />
+                  </bean>
+                </property>
               </bean>
             </property>
-            <property name="dialect" value="${opengamma.financial.db.dbhelper}"/>
+            <property name="dialect">
+	            <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+	              <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.financial.db.dbhelper"/>
+	            </bean>
+	          </property>
           </bean>
 		    </constructor-arg>
-		    <property name="identifierScheme" value="${opengamma.refdata.db.holidaymaster.scheme}" />
+		    <property name="identifierScheme">
+	        <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
+	          <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.refdata.db.holidaymaster.scheme" />
+	        </bean>
+	      </property>
 		  </bean>
     </constructor-arg>
     <constructor-arg ref="cacheManager"/>

@@ -56,7 +56,7 @@ public final class ConfigMasterUtils {
 
   private static <T> ConfigDocument<T> storeByNameInner(final ConfigMaster master, final ConfigDocument<T> document) {
     ConfigSearchRequest<T> searchRequest = new ConfigSearchRequest<T>();
-    searchRequest.setType((Class<T>) document.getDocumentClass());
+    searchRequest.setType(document.getType());
     searchRequest.setName(document.getName());
     ConfigSearchResult<T> searchResult = master.search(searchRequest);
     for (ConfigDocument<T> existingDoc : searchResult.getDocuments()) {

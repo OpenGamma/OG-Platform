@@ -43,7 +43,7 @@
 	
 	<property name="lib.path.jar.file" value="${lib.dir}/classpath.jar" />
 	<target name="resolve" depends="clean-lib, load-ivy"
-		description="--> resolve and retrieve dependencies with ivy">
+		description="resolve and retrieve dependencies with ivy">
 		<!--
 			the call to resolve is not mandatory, retrieve makes an implicit call
 			if we don't

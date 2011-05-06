@@ -7,9 +7,6 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.CraigSneydFiniteDifference2D;
-
 /**
  * NOT WORKING 
  */
@@ -29,14 +26,15 @@ public class CraigSneydTest {
     SPREAD_OPTION_TESTER.testAgaintBSPrice(SOLVER, timeSteps, xSteps, ySteps);
   }
 
-  @Test(enabled = false)
+  @Test
   public void testHeston() {
 
-    int timeSteps = 20;
-    int xSteps = 100;
-    int ySteps = 100;
+    int timeSteps = 30;
+    int xSteps = 150;
+    int ySteps = 40;
+    boolean print = false; // make sure this is false before commits
 
-    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
+    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
 
 }

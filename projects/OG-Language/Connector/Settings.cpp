@@ -86,7 +86,7 @@ int CSettings::GetSendTimeout () {
 class CServiceExecutableDefault : public CAbstractSettingProvider {
 protected:
 	TCHAR *CalculateString () {
-		TCHAR *pszExecutable;
+		TCHAR *pszExecutable = NULL;
 #ifdef _WIN32
 		// TODO: if the service is installed, get the executable from the service settings
 #endif /* ifdef _WIN32 */

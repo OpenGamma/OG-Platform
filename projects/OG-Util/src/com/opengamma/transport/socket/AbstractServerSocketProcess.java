@@ -19,7 +19,6 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -32,7 +31,7 @@ import com.opengamma.util.ThreadUtils;
  * 
  *
  */
-public abstract class AbstractServerSocketProcess implements Lifecycle, InitializingBean, EndPointDescriptionProvider {
+public abstract class AbstractServerSocketProcess implements Lifecycle, EndPointDescriptionProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractServerSocketProcess.class);
 
   private final ExecutorService _executorService;
@@ -159,14 +158,6 @@ public abstract class AbstractServerSocketProcess implements Lifecycle, Initiali
   }
 
   protected abstract void socketOpened(Socket socket);
-
-  // THE FOLLOWING IS A NASTY HACK - the spring context created by Tomcat doesn't get started properly so the lifecycle methods never get called
-  public void afterPropertiesSet() {
-    if (!System.getProperty("user.name").startsWith("bamboo")) {
-      s_logger.error("Hacking a call to start - take this code out when the context starts up properly!");
-      start();
-    }
-  }
 
   /**
    * Type of connection. Always {@link #TYPE_VALUE}.

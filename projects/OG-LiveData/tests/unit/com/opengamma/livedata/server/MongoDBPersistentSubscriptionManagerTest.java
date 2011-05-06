@@ -18,7 +18,7 @@ import com.opengamma.util.test.MongoDBTestUtils;
  */
 public class MongoDBPersistentSubscriptionManagerTest {
   
-  @Test
+  @Test(enabled=false)
   public void persistentSubscriptionManagement() {
     
     IdentificationScheme identificationDomain = IdentificationScheme.of("TestDomain");

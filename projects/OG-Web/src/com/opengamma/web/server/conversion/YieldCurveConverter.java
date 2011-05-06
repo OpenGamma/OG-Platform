@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
@@ -21,7 +22,7 @@ import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 public class YieldCurveConverter implements ResultConverter<YieldCurve> {
 
   @Override
-  public Object convert(ResultConverterCache context, YieldCurve value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, YieldCurve value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {
@@ -93,7 +94,7 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
   }
 
   @Override
-  public String getResultTypeName() {
+  public String getFormatterName() {
     return "YIELD_CURVE";
   }
   

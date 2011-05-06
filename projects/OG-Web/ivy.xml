@@ -3,7 +3,9 @@
     
     <publications>
       <artifact name="og-web" type="jar"/>
-      <artifact name="web-engine" type="zip"/>
+      <artifact name="og-web" type="source" ext="jar" />
+      <artifact name="web-engine" type="webapp" ext="zip" />
+      <artifact name="web-marketdata" type="webapp" ext="zip" />
     </publications>
     
     <dependencies>

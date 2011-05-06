@@ -174,7 +174,7 @@ public class DependencyNode {
     _inputValues.clear();
   }
 
-  /* package */void addInputValue(ValueSpecification inputValue) {
+  public void addInputValue(ValueSpecification inputValue) {
     ArgumentChecker.notNull(inputValue, "Input value");
     _inputValues.add(inputValue);
   }

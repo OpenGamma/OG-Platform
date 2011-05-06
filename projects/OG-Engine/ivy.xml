@@ -3,6 +3,7 @@
     
     <publications>
       <artifact name="og-engine" type="jar"/>
+      <artifact name="og-engine" type="source" ext="jar" />
     </publications>
     <dependencies>
     	<dependency name="og-livedata" rev="latest.integration" />

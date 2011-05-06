@@ -2,15 +2,23 @@
 {% for package_name, package_info in javadocs['packages'].items() %}
 
 <!-- split "{{package_name}}" -->
-<h1 id="package-{{ package_name }}">Package {{ package_name }}</h1>
+<h2 id="package-{{ package_name }}">Package {{ package_name }}</h2>
 
+<p>view <a href="../../java/javadocs/{{ package_name.replace(".", "/")}}/package-summary.html">javadocs</a> for this package</p>
+
+<ul>
+{% for class_name, class_info in package_info['classes'].items() %}
+<li><a href="{{ class_info['qualified-name'] }}.html">{{ class_name }}</a></li>
+{% endfor %}
+</ul>
 
 {% for class_name, class_info in package_info['classes'].items() %}
-
+<!-- split "{{ class_info['qualified-name'] }}" -->
 <h2 id="class-{{ class_info['qualified-name'] }}">Class {{ class_name }}</h2>
+<p>view <a href="../../java/javadocs/{{ class_info['qualified-name'].replace(".", "/")}}.html">javadocs</a> for this class</p>
 {% if class_info.has_key('superclass') %} {% if not class_info['superclass'].startswith('java.lang') %}
 {% set superclass_package = class_info['superclass'].rpartition(".")[0] %}
-<p>Subclass of: <a href="{{ superclass_package}}.html#class-{{ class_info['superclass'] }}">{{ class_info['superclass'] }}</a></p>
+<p>Subclass of: <a href="{{ class_info['superclass'] }}.html">{{ class_info['superclass'] }}</a></p>
 {% endif %} {% endif %}
 
 {{ class_info['comment-text'] }}
@@ -20,7 +28,7 @@
 {% set sig_array = constructor_info['signature'].lstrip("(").rstrip(")").split(",") %}
 <h4>{{ constructor_info['name'] }}({% set i = 0 -%}{% for s in sig_array -%}{% set i = i+1 %}
   {% set s_package, _, s_class = s.strip().rstrip('[]').rpartition(".") -%}
-  {% if s_package.startswith('com.opengamma') %}<a href="{{ s_package }}.html#class-{{ s.strip().rstrip('[]') }}">{{ s_class }}</a>
+  {% if s_package.startswith('com.opengamma') %}<a href="{{ s.strip().rstrip('[]') }}.html">{{ s_class }}</a>
   {% else -%}{{ s }}{% endif -%}{% if (i < sig_array.__len__()) -%},{% endif -%}{% endfor -%})
 </h4>
 
@@ -37,7 +45,7 @@
   {% for s in sig_array -%}
   {% set i = i+1 %}
   {% set s_package, _, s_class = s.strip().rstrip('[]').rpartition(".") -%}
-  {% if s_package.startswith('com.opengamma') %}<a href="{{ s_package }}.html#class-{{ s.strip().rstrip('[]') }}">{{ s_class }}</a>
+  {% if s_package.startswith('com.opengamma') %}<a href="{{ s.strip().rstrip('[]') }}.html">{{ s_class }}</a>
   {% else -%}
   {{ s }}
   {% endif -%}

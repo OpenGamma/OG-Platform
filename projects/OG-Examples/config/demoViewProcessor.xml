@@ -220,7 +220,7 @@
   </bean>
   
   <!-- External interfaces to connect the view processor to the calc nodes -->
-  <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver">
+  <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg>
       <bean class="com.opengamma.engine.view.cache.ViewComputationCacheServer">
         <constructor-arg ref="demoComputationCacheSource" />
@@ -228,11 +228,11 @@
     </constructor-arg>
     <constructor-arg ref="fudgeContext" />
   </bean>
-  <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher">
+  <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher" init-method="start" destroy-method="stop">
     <constructor-arg ref="demoViewProcessorQueryReceiver" />
     <constructor-arg ref="fudgeContext" />
   </bean>
-  <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver">
+  <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">

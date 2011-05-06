@@ -52,8 +52,8 @@ public interface JobInvoker {
   String getInvokerId();
 
   /**
-   * Attempts to cancel the set of jobs previously started by a call to {@link invoke}. After
-   * cancellation the job should not generate a callback to the invocation receiver, but may
+   * Attempts to cancel the set of jobs previously started by a call to {@link #invoke(CalculationJob, JobInvocationReceiver)}.
+   * After cancellation the job should not generate a callback to the invocation receiver, but may
    * do so if cancellation is not possible.
    * 
    * @param jobs jobs to cancel

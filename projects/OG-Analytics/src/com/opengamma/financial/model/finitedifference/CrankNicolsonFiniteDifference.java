@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -21,8 +21,24 @@ import com.opengamma.math.surface.Surface;
  */
 public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolver {
 
-  private static final double THETA = 0.5; // TODO investigate adjusting this (Douglas schemes)
+  private final double _theta; // TODO investigate adjusting this (Douglas schemes)
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+
+  /**
+   * Sets up a standard Crank-Nicolson scheme 
+   */
+  public CrankNicolsonFiniteDifference() {
+    _theta = 0.5;
+  }
+
+  /**
+   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
+   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit 
+   */
+  public CrankNicolsonFiniteDifference(final double theta) {
+    Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
+    _theta = theta;
+  }
 
   public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary) {
@@ -56,9 +72,9 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
         a = pdeData.getA(t - dt, x[i]);
         b = pdeData.getB(t - dt, x[i]);
         c = pdeData.getC(t - dt, x[i]);
-        aa = THETA * (-nu1 * a + 0.5 * nu2 * b);
-        bb = 1 + THETA * (2 * nu1 * a - dt * c);
-        cc = THETA * (-nu1 * a - 0.5 * nu2 * b);
+        aa = (1 - _theta) * (-nu1 * a + 0.5 * nu2 * b);
+        bb = 1 + (1 - _theta) * (2 * nu1 * a - dt * c);
+        cc = (1 - _theta) * (-nu1 * a - 0.5 * nu2 * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
         // TODO could store these
@@ -68,9 +84,9 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
         aa = (-nu1 * a + 0.5 * nu2 * b);
         bb = (2 * nu1 * a - dt * c);
         cc = (-nu1 * a - 0.5 * nu2 * b);
-        m[i][i - 1] = (THETA - 1) * aa;
-        m[i][i] = 1 + (THETA - 1) * bb;
-        m[i][i + 1] = (THETA - 1) * cc;
+        m[i][i - 1] = -_theta * aa;
+        m[i][i] = 1 - _theta * bb;
+        m[i][i + 1] = -_theta * cc;
       }
 
       double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, t);

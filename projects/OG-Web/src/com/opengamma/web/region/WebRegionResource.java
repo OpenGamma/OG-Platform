@@ -39,7 +39,7 @@ import com.opengamma.util.money.Currency;
  */
 @Path("/regions/{regionId}")
 public class WebRegionResource extends AbstractWebRegionResource {
-  
+
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -51,7 +51,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     RegionSearchRequest search = new RegionSearchRequest();
     search.setPagingRequest(PagingRequest.ALL);  // may need to add paging
     search.setChildrenOfId(data().getRegion().getUniqueId());
@@ -84,11 +84,12 @@ public class WebRegionResource extends AbstractWebRegionResource {
     FlexiBean out = createRootData();
     return getFreemarker().build("regions/jsonregion.ftl", out);
   }
-  
+
+  //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
       @FormParam("classification") String classification,
@@ -96,7 +97,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
     if (data().getRegion().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -122,7 +123,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     URI uri = addRegion(name, fullName, regionClassification, countryISO, currencyISO, timeZoneId);
     return Response.seeOther(uri).build();
   }
-  
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -134,7 +135,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
     if (data().getRegion().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -145,7 +146,6 @@ public class WebRegionResource extends AbstractWebRegionResource {
     if (name == null || classification == null) {
       Response.status(Status.BAD_REQUEST);
     }
-    
     if (fullName == null) {
       fullName = name;
     }
@@ -164,14 +164,14 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
-    URI uri = WebRegionResource.uri(data(), added.getUniqueId());
-    return uri;
+    return WebRegionResource.uri(data(), added.getUniqueId());
   }
 
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(
+  public Response putHTML(
       @FormParam("name") String name,
       @FormParam("fullname") String fullName,
       @FormParam("classification") String classification,
@@ -179,7 +179,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
     if (data().getRegion().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -205,7 +205,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     URI uri = updateRegion(name, fullName, regionClassification, countryISO, currencyISO, timeZoneId);
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -216,8 +216,8 @@ public class WebRegionResource extends AbstractWebRegionResource {
       @FormParam("country") String countryISO,
       @FormParam("currency") String currencyISO,
       @FormParam("timezone") String timeZoneId) {
-    if (data().getRegion().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+    if (data().getRegion().isLatest() == false) {  // TODO: idempotent
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -252,29 +252,29 @@ public class WebRegionResource extends AbstractWebRegionResource {
     return WebRegionResource.uri(data());
   }
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     RegionDocument doc = data().getRegion();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     data().getRegionMaster().remove(doc.getUniqueId());
     URI uri = WebRegionResource.uri(data());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
     RegionDocument doc = data().getRegion();
-    if (doc.isLatest()) {
+    if (doc.isLatest()) {  // idempotent
       data().getRegionMaster().remove(doc.getUniqueId());
     }
     return Response.ok().build();
   }
-  
 
   //-------------------------------------------------------------------------
   /**

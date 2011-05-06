@@ -44,7 +44,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("exchanges/exchange.ftl", out);
   }
@@ -56,17 +56,18 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     return getFreemarker().build("exchanges/jsonexchange.ftl", out);
   }
 
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(
+  public Response putHTML(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue,
       @FormParam("regionscheme") String regionScheme,
       @FormParam("regionvalue") String regionValue) {
     if (data().getExchange().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -95,7 +96,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     URI uri = updateExchange(name, idScheme, idValue, regionScheme, regionValue);
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -106,7 +107,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
       @FormParam("regionscheme") String regionScheme,
       @FormParam("regionvalue") String regionValue) {
     if (data().getExchange().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -131,18 +132,19 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     return uri;
   }
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     ExchangeDocument doc = data().getExchange();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     data().getExchangeMaster().remove(doc.getUniqueId());
     URI uri = WebExchangeResource.uri(data());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
@@ -152,7 +154,7 @@ public class WebExchangeResource extends AbstractWebExchangeResource {
     }
     return Response.ok().build();
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.

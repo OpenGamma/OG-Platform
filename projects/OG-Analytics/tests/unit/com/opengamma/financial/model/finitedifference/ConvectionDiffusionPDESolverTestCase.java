@@ -11,11 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.financial.model.finitedifference.FixedSecondDerivativeBoundaryCondition;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -79,13 +74,14 @@ public class ConvectionDiffusionPDESolverTestCase {
     VOL_SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(ATM_VOL));
 
     FORWARD = SPOT / YIELD_CURVE.getDiscountFactor(T);
-    OPTION = new EuropeanVanillaOption(FORWARD, T, false);
+    OPTION = new EuropeanVanillaOption(FORWARD, T, false); // put option
     VOL_BETA = ATM_VOL * Math.pow(FORWARD, 1 - BETA);
 
-    LOWER = new DirichletBoundaryCondition(0.0, 0.0);
+    LOWER = new DirichletBoundaryCondition(FORWARD, 0.0);// put is worth the strike when stock falls to zero
+    // UPPER = new DirichletBoundaryCondition(0.0, 5.0 * SPOT);
     UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * SPOT);
 
-    LN_LOWER = new DirichletBoundaryCondition(0.0, Math.log(SPOT / 100.0));
+    LN_LOWER = new DirichletBoundaryCondition(FORWARD, Math.log(SPOT / 100.0));
     LN_UPPER = new FixedSecondDerivativeBoundaryCondition(100 * SPOT, Math.log(100 * SPOT));
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -152,7 +148,7 @@ public class ConvectionDiffusionPDESolverTestCase {
 
       @Override
       public Double evaluate(Double x) {
-        return Math.max(0, FORWARD - x);
+        return Math.max(0, FORWARD - x);// change back to put
       }
     };
 
@@ -281,6 +277,48 @@ public class ConvectionDiffusionPDESolverTestCase {
 
         // System.out.println(spot + "\t" + res[1][i] + "\t" + price);
         assertEquals(price, res[1][i], price * 1e-1);
+      }
+    }
+  }
+
+  public void testBlackScholesEquationNonuniformGrid(final CrankNicolsonFiniteDifferenceSOR solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness) {
+
+    MeshingFunction timeMesh = new ExponentalMeshing(0, T, timeSteps + 1, 0);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.01, spotSteps + 1);
+    // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spotSteps + 1, 0.0);
+
+    double[] timeGrid = new double[timeSteps + 1];
+    for (int n = 0; n <= timeSteps; n++) {
+      timeGrid[n] = timeMesh.evaluate(n);
+    }
+
+    // double dx = (UPPER.getLevel() - LOWER.getLevel()) / spotSteps;
+    // double[] spaceGrid = new double[spotSteps + 1];
+    // for (int i = 0; i < spotSteps; i++) {
+    // spaceGrid[i] = LOWER.getLevel() + i * dx;
+    // }
+    // spaceGrid[spotSteps] = UPPER.getLevel();
+    double[] spaceGrid = new double[spotSteps + 1];
+    for (int i = 0; i <= spotSteps; i++) {
+      spaceGrid[i] = spaceMesh.evaluate(i);
+    }
+
+    double[][] res = solver.solve(DATA, timeGrid, spaceGrid, LOWER, UPPER, null);
+    double df = YIELD_CURVE.getDiscountFactor(T);
+    int n = res[0].length;
+    for (int i = 0; i < n; i++) {
+      double spot = res[0][i];
+      double moneyness = spot / OPTION.getStrike();
+      if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
+        BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+        double impVol;
+        try {
+          impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, res[1][i]);
+        } catch (Exception e) {
+          impVol = 0.0;
+        }
+        System.out.println(spot + "\t" + res[1][i] + "\t" + impVol);
+        // assertEquals(ATM_VOL, impVol, 1e-3);
       }
     }
   }

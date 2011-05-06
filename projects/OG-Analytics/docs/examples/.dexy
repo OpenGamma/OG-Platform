@@ -2,10 +2,11 @@
   "*.py|pyg" : {},
   "*.py|dexy" : {},
   "*.py|jython" : {
-    "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../../OG-Util/build/classes" }
+    "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../../OG-Util/build/classes" },
+    "disabled" : true
   },
-  "*.py|idio|jythoni|pyg" : {
-    "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../../OG-Util/build/classes" }
+  "*.py|idio|jythoni|pyg|l" : {
+    "env" : { "CLASSPATH" : "../../../OG-Util/lib/classpath.jar:../../lib/classpath.jar:../../build/classes:../../../OG-Util/build/classes:/java/fastutil-6.2.2.jar" }
   },
   "*.R|rint|pyg" : {}
 }

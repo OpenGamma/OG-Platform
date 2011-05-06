@@ -26,6 +26,8 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.listener.BasicMasterChangeManager;
@@ -45,7 +47,7 @@ import com.opengamma.util.db.Paging;
 public class InMemoryConfigMaster implements ConfigMaster {
 
   /**
-   * The default scheme used for each {@link ObejctIdentifier}.
+   * The default scheme used for each {@link ObjectIdentifier}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemCfg";
  
@@ -132,7 +134,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
     final UniqueIdentifier uniqueId = objectId.atVersion("");
     final Instant now = Instant.now();
     UniqueIdentifiables.setInto(value, uniqueId);
-    final ConfigDocument<Object> doc = new ConfigDocument<Object>(document.getDocumentClass());
+    final ConfigDocument<Object> doc = new ConfigDocument<Object>(document.getType());
     doc.setName(document.getName());
     doc.setValue(value);
     doc.setUniqueId(uniqueId);
@@ -202,6 +204,21 @@ public class InMemoryConfigMaster implements ConfigMaster {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ConfigMetaDataResult result = new ConfigMetaDataResult();
+    if (request.isConfigTypes()) {
+      Set<Class<?>> types = Sets.newHashSet();
+      for (ConfigDocument<?> doc : _store.values()) {
+        types.add(doc.getValue().getClass());
+      }
+      result.getConfigTypes().addAll(types);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
   public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
@@ -250,15 +267,6 @@ public class InMemoryConfigMaster implements ConfigMaster {
       throw new DataNotFoundException("Config not found: " + objectId);
     }
     return (ConfigDocument<T>) document;
-  }
-  
-  @Override
-  public List<String> getTypes() {
-    Set<String> types = Sets.newHashSet();
-    for (ConfigDocument<?> doc : _store.values()) {
-      types.add(doc.getValue().getClass().getName());
-    }
-    return new ArrayList<String>(types);
   }
 
 }

@@ -12,26 +12,32 @@ package com.opengamma.web.server;
 public class WebViewGridColumn {
   
   private final long _id;
-  private final String _key;
-  private final String _valueRequirementName;
+  private final String _header;
+  private final String _description;
+  private final String _valueName;
   private boolean _typeKnown;
   
-  public WebViewGridColumn(long id, String key, String valueRequirementName) {
+  public WebViewGridColumn(long id, String header, String description, String valueName) {
     _id = id;
-    _key = key;
-    _valueRequirementName = valueRequirementName;
+    _header = header;
+    _description = description;
+    _valueName = valueName;
   }
 
   public long getId() {
     return _id;
   }
   
-  public String getKey() {
-    return _key;
+  public String getHeader() {
+    return _header;
+  }
+  
+  public String getDescription() {
+    return _description;
   }
 
-  public String getValueRequirementName() {
-    return _valueRequirementName;
+  public String getValueName() {
+    return _valueName;
   }
   
   public boolean isTypeKnown() {

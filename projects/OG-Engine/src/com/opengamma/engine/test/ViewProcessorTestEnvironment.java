@@ -62,6 +62,7 @@ import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Provides access to a ready-made and customisable view processing environment for testing.
@@ -99,7 +100,7 @@ public class ViewProcessorTestEnvironment {
     ViewProcessorFactoryBean vpFactBean = new ViewProcessorFactoryBean();
     vpFactBean.setId(0L);
 
-    FudgeContext fudgeContext = new FudgeContext();
+    FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     PositionSource positionSource = getPositionSource() != null ? getPositionSource() : generatePositionSource();
     SecuritySource securitySource = getSecuritySource() != null ? getSecuritySource() : generateSecuritySource();
     FunctionCompilationContext functionCompilationContext = getFunctionCompilationContext() != null ? getFunctionCompilationContext() : generateFunctionCompilationContext();

@@ -38,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
 public class DependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
 
-  private final String _calcConfName;
+  private final String _calculationConfigurationName;
 
   /** Includes the root node(s) */
   private final Set<DependencyNode> _dependencyNodes = new HashSet<DependencyNode>();
@@ -48,7 +48,7 @@ public class DependencyGraph {
   /**
    * A cache of output values from this graph's nodes
    */
-  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  private final Set<ValueSpecification> _outputSpecifications = new HashSet<ValueSpecification>();
 
   /**
    * A cache of terminal output values from this graph's nodes
@@ -73,7 +73,7 @@ public class DependencyGraph {
    */
   public DependencyGraph(String calcConfName) {
     ArgumentChecker.notNull(calcConfName, "Calculation configuration name");
-    _calcConfName = calcConfName;
+    _calculationConfigurationName = calcConfName;
   }
 
   /**
@@ -81,8 +81,8 @@ public class DependencyGraph {
    * 
    * @return the configuration name
    */
-  public String getCalcConfName() {
-    return _calcConfName;
+  public String getCalculationConfigurationName() {
+    return _calculationConfigurationName;
   }
 
   /**
@@ -128,8 +128,8 @@ public class DependencyGraph {
    * 
    * @return the set of output values
    */
-  public Set<ValueSpecification> getOutputValues() {
-    return Collections.unmodifiableSet(_outputValues);
+  public Set<ValueSpecification> getOutputSpecifications() {
+    return Collections.unmodifiableSet(_outputSpecifications);
   }
 
   /**
@@ -140,7 +140,7 @@ public class DependencyGraph {
    * 
    * @return the set of terminal output values
    */
-  public Set<ValueSpecification> getTerminalOutputValues() {
+  public Set<ValueSpecification> getTerminalOutputSpecifications() {
     return Collections.unmodifiableSet(_terminalOutputValues);
   }
 
@@ -160,9 +160,9 @@ public class DependencyGraph {
    * @param type computation target type, not {@code null}
    * @return the set of output values
    */
-  public Set<ValueSpecification> getOutputValues(ComputationTargetType type) {
+  public Set<ValueSpecification> getOutputSpecifications(ComputationTargetType type) {
     Set<ValueSpecification> outputValues = new HashSet<ValueSpecification>();
-    for (ValueSpecification spec : _outputValues) {
+    for (ValueSpecification spec : _outputSpecifications) {
       if (spec.getTargetSpecification().getType() == type) {
         outputValues.add(spec);
       }
@@ -295,7 +295,7 @@ public class DependencyGraph {
     if (!_dependencyNodes.add(node)) {
       throw new IllegalStateException("Node " + node + " already in the graph");
     }
-    _outputValues.addAll(node.getOutputValues());
+    _outputSpecifications.addAll(node.getOutputValues());
     _terminalOutputValues.addAll(node.getTerminalOutputValues());
     Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
     if (liveData != null) {
@@ -357,7 +357,7 @@ public class DependencyGraph {
     if (!_dependencyNodes.remove(node)) {
       return;
     }
-    _outputValues.removeAll(node.getOutputValues());
+    _outputSpecifications.removeAll(node.getOutputValues());
     _terminalOutputValues.removeAll(node.getTerminalOutputValues());
     final Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredLiveData();
     if (liveData != null) {
@@ -426,7 +426,7 @@ public class DependencyGraph {
         Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
         if (!unnecessaryValues.isEmpty()) {
           s_logger.info("{}: removed {} unnecessary potential result(s)", this, unnecessaryValues.size());
-          _outputValues.removeAll(unnecessaryValues);
+          _outputSpecifications.removeAll(unnecessaryValues);
           if (node.getOutputValues().isEmpty()) {
             unnecessaryNodes.add(node);
           }
@@ -492,7 +492,7 @@ public class DependencyGraph {
    * @return A sub-graph consisting of all nodes accepted by the filter.
    */
   public DependencyGraph subGraph(DependencyNodeFilter filter) {
-    DependencyGraph subGraph = new DependencyGraph(getCalcConfName());
+    DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
     for (DependencyNode node : getDependencyNodes()) {
       if (filter.accept(node)) {
         subGraph.addDependencyNode(node);
@@ -509,7 +509,7 @@ public class DependencyGraph {
    * @return Sub-graph of the given nodes
    */
   public DependencyGraph subGraph(Collection<DependencyNode> subNodes) {
-    DependencyGraph subGraph = new DependencyGraph(getCalcConfName());
+    DependencyGraph subGraph = new DependencyGraph(getCalculationConfigurationName());
     for (DependencyNode node : subNodes) {
       subGraph.addDependencyNode(node);
     }
@@ -518,7 +518,7 @@ public class DependencyGraph {
 
   @Override
   public String toString() {
-    return "DependencyGraph[calcConf=" + getCalcConfName() + ",size=" + getSize() + "]";
+    return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",size=" + getSize() + "]";
   }
 
   public void dumpStructureLGL(final PrintStream out) {
