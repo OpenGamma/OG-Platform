@@ -9,9 +9,9 @@ import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 
 /**
  * Provides the ability to merge {@link ViewDeltaResultModel} instances.
@@ -53,17 +53,9 @@ public class ViewDeltaResultModelMerger {
   /**
    * Retrieves the latest merged result.
    * 
-   * @return  the latest merged result, or {@link null} to indicate no change
+   * @return  the latest merged result
    */
   public ViewDeltaResultModel getLatestResult() {
-    if (_currentMergedResult == null) {
-      return null;
-    }
-    if (_currentMergedResult.getAllTargets().size() == 0) {
-      // No changes
-      return null;
-    }
-    
     return _currentMergedResult;
   }
 

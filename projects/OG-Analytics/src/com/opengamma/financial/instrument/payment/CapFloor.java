@@ -25,7 +25,7 @@ public interface CapFloor {
   /**
    * The pay-off of the cap/floor.
    * @param fixing The fixing value to compute the pay-off
-   * @return The pay-off: cap = (fixing-strike)^+ / floor = (strike-fixing)^+
+   * @return The pay-off.
    */
   double payOff(double fixing);
 

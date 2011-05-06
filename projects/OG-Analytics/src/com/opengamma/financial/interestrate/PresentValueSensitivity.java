@@ -28,6 +28,13 @@ public class PresentValueSensitivity {
   private final Map<String, List<DoublesPair>> _sensitivity;
 
   /**
+   * Default constructor, creating an empty HashMap for the sensitivity.
+   */
+  public PresentValueSensitivity() {
+    _sensitivity = new HashMap<String, List<DoublesPair>>();
+  }
+
+  /**
    * Constructor from a map of sensitivity.
    * @param sensitivity The map.
    */

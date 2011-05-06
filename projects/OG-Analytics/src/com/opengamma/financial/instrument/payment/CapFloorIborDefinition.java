@@ -88,6 +88,19 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
   }
 
   /**
+   * Builder from notional, fixing date, index, strike and cap flag.
+   * @param notional Coupon notional.
+   * @param fixingDate The coupon fixing date.
+   * @param index The coupon Ibor index.
+   * @param strike The strike
+   * @param isCap The cap/floor flag.
+   * @return The cap/floor
+   */
+  public static CapFloorIborDefinition from(double notional, ZonedDateTime fixingDate, IborIndex index, double strike, boolean isCap) {
+    return from(CouponIborDefinition.from(notional, fixingDate, index), strike, isCap);
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override

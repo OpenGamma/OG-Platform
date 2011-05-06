@@ -33,6 +33,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
@@ -76,12 +78,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
    */
   protected static final String FROM =
       "FROM cfg_config main ";
-
   /**
    * SQL select types
    */
   protected static final String SELECT_TYPES = "SELECT DISTINCT main.config_type AS config_type ";
-  
+
   /**
    * @param dbSource
    * @param defaultScheme
@@ -90,6 +91,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     super(dbSource, defaultScheme);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ConfigDocument<?> get(UniqueIdentifier uniqueId) {
     return doGet(uniqueId, new ConfigDocumentExtractor(), "Config");
@@ -162,7 +164,19 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
          "VALUES " +
            "(:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :config_type, :config)";
   }
-  
+
+  //-------------------------------------------------------------------------
+  protected ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ConfigMetaDataResult result = new ConfigMetaDataResult();
+    if (request.isConfigTypes()) {
+      List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
+      for (String configType : configTypes) {
+        result.getConfigTypes().add(loadClass(configType));
+      }
+    }
+    return result;
+  }
 
   @SuppressWarnings("unchecked")
   protected <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
@@ -207,10 +221,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         }
       }
     }
-
     return result;
   }
-  
 
   @SuppressWarnings("unchecked")
   protected <T> ConfigHistoryResult<T> history(ConfigHistoryRequest<T> request) {
@@ -246,7 +258,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         }
       }
     }
-
     return result;
   }
 
@@ -275,12 +286,19 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   /**
-   * Gets the list of configuration types.
+   * Loads a class from a class name.
    * 
-   * @return the list of types, independent and modifiable, not null
+   * @param className  the class name, not null
+   * @return the class object, not null
    */
-  protected List<String> getTypes() {
-    return getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);    
+  protected Class<?> loadClass(final String className) {
+    Class<?> reifiedType = null;
+    try {
+      reifiedType = Thread.currentThread().getContextClassLoader().loadClass(className);
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Unable to load class", ex);
+    }
+    return reifiedType;
   }
 
   //-------------------------------------------------------------------------
@@ -314,12 +332,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       final String configType = rs.getString("CONFIG_TYPE");
       LobHandler lob = getDbHelper().getLobHandler();
       byte[] bytes = lob.getBlobAsBytes(rs, "CONFIG");
-      Class<?> reifiedType = null;
-      try {
-        reifiedType = Class.forName(configType);
-      } catch (ClassNotFoundException ex) {
-        throw new OpenGammaRuntimeException("unable to load class", ex);
-      }
+      Class<?> reifiedType = loadClass(configType);
       Object value = FUDGE_CONTEXT.readObject(reifiedType, new ByteArrayInputStream(bytes));
       
       ConfigDocument<Object> doc = new ConfigDocument<Object>(reifiedType);

@@ -24,6 +24,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * RESTful resource for a configuration document.
@@ -43,13 +44,13 @@ public class WebConfigResource extends AbstractWebConfigResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
     out.put("configXml", createXML(doc));
     return getFreemarker().build("configs/config.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
@@ -59,14 +60,15 @@ public class WebConfigResource extends AbstractWebConfigResource {
     return getFreemarker().build("configs/jsonconfig.ftl", out);
   }
 
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(
+  public Response putHTML(
       @FormParam("name") String name,
       @FormParam("configxml") String xml) {
     if (data().getConfig().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -86,7 +88,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     URI uri = updateConfig(name, parseXML(xml));
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -94,7 +96,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       @FormParam("name") String name,
       @FormParam("configxml") String xml) {
     if (data().getConfig().isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
@@ -107,32 +109,31 @@ public class WebConfigResource extends AbstractWebConfigResource {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private URI updateConfig(String name, Object newConfig) {
+  private URI updateConfig(String name, Pair<Object, Class<?>> newConfigValue) {
     ConfigDocument<?> oldDoc = data().getConfig();
     ConfigDocument doc = new ConfigDocument(oldDoc.getDocumentClass());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
-    doc.setValue(newConfig);
+    doc.setValue(newConfigValue.getFirst());
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
     URI uri = WebConfigResource.uri(data());
     return uri;
   }
-  
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     ConfigDocument<?> doc = data().getConfig();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    
     data().getConfigMaster().remove(doc.getUniqueId());
     URI uri = WebConfigsResource.uri(data());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {

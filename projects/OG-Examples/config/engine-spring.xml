@@ -10,15 +10,17 @@
     </property>
   </bean>
 
+  <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+	   <property name="port" value="${jetty.port}" />
+	   <property name="confidentialPort" value="${jetty.securePort}" />
+  </bean>
+    
 	<bean id="server" class="org.eclipse.jetty.server.Server"
 		init-method="start" destroy-method="stop">
-
+		
 		<property name="connectors">
 			<list>
-				<bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-					<property name="port" value="${jetty.port}" />
-					<property name="confidentialPort" value="${jetty.securePort}" />
-				</bean>
+			 <ref bean="connector" />
 			</list>
 		</property>
 

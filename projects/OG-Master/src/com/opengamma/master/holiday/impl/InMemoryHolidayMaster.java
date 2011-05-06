@@ -6,6 +6,7 @@
 package com.opengamma.master.holiday.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,6 +15,7 @@ import javax.time.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.ObjectIdentifierSupplier;
@@ -23,6 +25,8 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMetaDataRequest;
+import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -68,6 +72,17 @@ public class InMemoryHolidayMaster implements HolidayMaster {
   public InMemoryHolidayMaster(final Supplier<ObjectIdentifier> objectIdSupplier) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
     _objectIdSupplier = objectIdSupplier;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HolidayMetaDataResult metaData(HolidayMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    HolidayMetaDataResult result = new HolidayMetaDataResult();
+    if (request.isHolidayTypes()) {
+      result.getHolidayTypes().addAll(Arrays.asList(HolidayType.values()));
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
