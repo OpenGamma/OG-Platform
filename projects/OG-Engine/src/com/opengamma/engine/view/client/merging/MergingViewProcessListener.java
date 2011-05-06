@@ -29,8 +29,9 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Collects and merges view process updates, releasing them only when {@link #drain()} is called. Also ensures that
- * different update types are passed to the underlying listener in the correct order when drained.
+ * Collects and merges view process updates, releasing them only when {@code drain()} is called.
+ * Also ensures that different update types are passed to the underlying listener
+ * in the correct order when drained.
  */
 public class MergingViewProcessListener implements ViewResultListener {
   
@@ -60,11 +61,10 @@ public class MergingViewProcessListener implements ViewResultListener {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets whether incoming updates should be allowed to pass straight through without merging. If this is
-   * <code>false</code> then updates will not be released unless {@link #triggerUpdate()} is called.
+   * Gets whether incoming updates should be allowed to pass straight through without merging.
+   * If this is false then updates will not be released unless an update is triggered.
    *  
-   * @return <code>true</code> if updates should be passed straight to listeners without merging, <code>false</code>
-   *         otherwise.
+   * @return true if updates should be passed straight to listeners without merging
    */
   protected boolean isPassThrough() {
     _mergerLock.lock();
@@ -80,8 +80,8 @@ public class MergingViewProcessListener implements ViewResultListener {
    * <code>true</code> then an update is first triggered to clear any existing merged updates. Subsequent updates will
    * pass straight through until this is set to <code>false</code>.
    * 
-   * @param passThrough  <code>true</code> if incoming updates should be allowed to pass straight through without
-   *                     merging, or <code>false</code> to merge updates until {@link #triggerUpdate()} is called.
+   * @param passThrough  true if incoming updates should be allowed to pass straight through without
+   *                     merging, or false to merge updates until an update is triggered
    */
   protected void setPassThrough(boolean passThrough) {
     _mergerLock.lock();
