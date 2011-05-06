@@ -24,6 +24,8 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class DoubleConverter implements ResultConverter<Object> {
   
+  private static final boolean DISPLAY_UNKNOWN_CCY = false;
+  
   // NOTE jonathan 2011-05-05 --
   // The following is actually quite generic, but it was needed in a short timescale for the web client, so is
   // currently located here. This kind of formatting logic should be moved to a more central place eventually, where
@@ -199,31 +201,36 @@ public class DoubleConverter implements ResultConverter<Object> {
     double doubleValue = (Double) value;
     String displayValue;
     DoubleValueConversionSettings conversion = getConversion(valueSpec);
-    switch (conversion.getPrecisionType()) {
-      case DECIMAL_PLACES:
-        BigDecimal decimalValue = new BigDecimal(doubleValue);
-        displayValue = decimalValue.setScale(conversion.getPrecision(), RoundingMode.HALF_UP).toString();
-        break;
-      case SIGNIFICANT_FIGURES:
-        long maxValueForSigFig = (long) Math.pow(10, conversion.getPrecision() - 1);
-        if (doubleValue > maxValueForSigFig) {
-          displayValue = Long.toString(Math.round(doubleValue));
-        } else {
-          MathContext mathContext = new MathContext(conversion.getPrecision(), RoundingMode.HALF_UP);
-          displayValue = new BigDecimal(doubleValue, mathContext).toString();
-        }
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported precision type: " + conversion.getPrecisionType());
+    
+    if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
+      displayValue = Double.toString(doubleValue);
+    } else {
+      switch (conversion.getPrecisionType()) {
+        case DECIMAL_PLACES:
+          BigDecimal decimalValue = new BigDecimal(doubleValue);
+          displayValue = decimalValue.setScale(conversion.getPrecision(), RoundingMode.HALF_UP).toString();
+          break;
+        case SIGNIFICANT_FIGURES:
+          long maxValueForSigFig = (long) Math.pow(10, conversion.getPrecision() - 1);
+          if (doubleValue > maxValueForSigFig) {
+            displayValue = Long.toString(Math.round(doubleValue));
+          } else {
+            MathContext mathContext = new MathContext(conversion.getPrecision(), RoundingMode.HALF_UP);
+            displayValue = new BigDecimal(doubleValue, mathContext).toString();
+          }
+          break;
+        default:
+          throw new IllegalArgumentException("Unsupported precision type: " + conversion.getPrecisionType());
+      }
     }
     
     if (conversion.isCurrencyAmount()) {
       Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
       String ccy;
       if (currencyValues == null) {
-        ccy = "?";
+        ccy = DISPLAY_UNKNOWN_CCY ? "?" : "";
       } else if (currencyValues.isEmpty()) {
-        ccy = "*";
+        ccy = DISPLAY_UNKNOWN_CCY ? "*" : "";
       } else {
         ccy = currencyValues.iterator().next();
       }
