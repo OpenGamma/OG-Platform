@@ -28,6 +28,7 @@ import com.opengamma.web.server.conversion.ConversionMode;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
+ * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.
  */
 public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
 

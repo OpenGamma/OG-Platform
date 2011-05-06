@@ -45,7 +45,7 @@ public enum ResultOutputMode {
     
     @Override
     public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
-      return dependencyGraph.getTerminalOutputValues().contains(outputSpecification);
+      return dependencyGraph.getTerminalOutputSpecifications().contains(outputSpecification);
     }
     
     @Override

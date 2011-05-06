@@ -59,7 +59,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
   @Override
   public Future<CalculationJobResult> execute(final DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     long jobId = JobIdSource.getId();
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewProcessId(), graph.getCalcConfName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(_cycle.getViewProcessId(), graph.getCalculationConfigurationName(), _cycle.getValuationTime().toEpochMillisLong(), jobId);
 
     List<DependencyNode> order = graph.getExecutionOrder();
 
@@ -67,7 +67,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     Map<CalculationJobItem, DependencyNode> item2Node = new HashMap<CalculationJobItem, DependencyNode>();
 
     final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
-    final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputValues());
+    final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(), node
@@ -109,7 +109,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     }
 
     s_logger.info("Enqueuing {} to invoke {} functions", new Object[] {jobSpec, items.size()});
-    statistics.graphProcessed(graph.getCalcConfName(), 1, items.size(), Double.NaN, Double.NaN);
+    statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, items.size(), Double.NaN, Double.NaN);
 
     AtomicExecutorCallable runnable = new AtomicExecutorCallable();
     AtomicExecutorFuture future = new AtomicExecutorFuture(runnable, graph, item2Node, statistics);

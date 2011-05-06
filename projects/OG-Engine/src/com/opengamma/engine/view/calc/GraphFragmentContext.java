@@ -49,10 +49,10 @@ import com.opengamma.util.Cancellable;
     final int hashSize = (graph.getSize() * 4) / 3;
     _item2node = new ConcurrentHashMap<CalculationJobItem, DependencyNode>(hashSize);
     _sharedCacheValues = new ConcurrentHashMap<ValueSpecification, Boolean>();
-    for (ValueSpecification specification : graph.getTerminalOutputValues()) {
+    for (ValueSpecification specification : graph.getTerminalOutputSpecifications()) {
       _sharedCacheValues.put(specification, Boolean.TRUE);
     }
-    _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalcConfName());
+    _functionCost = executor.getFunctionCosts().getStatistics(graph.getCalculationConfigurationName());
     _functionInitializationTimestamp = executor.getFunctionInitId();
   }
 

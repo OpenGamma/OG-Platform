@@ -173,7 +173,7 @@ public class CompiledViewDefinitionTest {
   private CompiledViewDefinitionWithGraphsImpl buildCompiledViewDefinition(final DependencyGraph... graphs) {
     final Map<String, DependencyGraph> map = new HashMap<String, DependencyGraph>();
     for (DependencyGraph graph : graphs) {
-      map.put(graph.getCalcConfName(), graph);
+      map.put(graph.getCalculationConfigurationName(), graph);
     }
     return new CompiledViewDefinitionWithGraphsImpl(mock(ViewDefinition.class), map, null, 0);
   }
