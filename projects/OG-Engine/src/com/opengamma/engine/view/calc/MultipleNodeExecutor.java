@@ -106,7 +106,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
       statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
-      for (ValueSpecification terminalOutput : graph.getTerminalOutputValues()) {
+      for (ValueSpecification terminalOutput : graph.getTerminalOutputSpecifications()) {
         context.getSharedCacheValues().put(terminalOutput, Boolean.TRUE);
       }
       fragment.executeImpl();
