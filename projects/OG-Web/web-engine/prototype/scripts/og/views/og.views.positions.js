@@ -126,8 +126,7 @@ $.register_module({
             details_page = function (args) {
                 var render_securities = function (json) {
                         $('.OG-position .og-js-main').html([
-                            '<td class="og-security"><a href=#/securities/', json.security.unique_id, '/type=',
-                            json.security.security_type, '>', json.security.name, '</a></td>',
+                            '<td class="og-security"><a href=#/securities/', json.security.unique_id, '>', json.security.name, '</a></td>',
                             '<td>', json.security.security_type, '</td>',
                             '<td><strong class="og-quantity" data-og-editable="quantity">',
                             json.template_data.quantity, '</strong></td>'

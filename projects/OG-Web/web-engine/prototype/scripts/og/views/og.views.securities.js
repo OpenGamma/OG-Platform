@@ -159,15 +159,14 @@ $.register_module({
                         api.text({
                             module: module.name + '.' + details_json.templateData.securityType,
                             handler: function (template) {
-                                var html = [], id, json = details_json.identifiers;
-                                $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
-                                for (id in json) if (json.hasOwnProperty(id))
-                                        html.push('<div><strong>', json[id], '</strong></div>');
-                                $('.OG-security .og-js-identifiers').html(html.join(''));
-                                details.favorites();
-                                ui.message({location: '#OG-details', destroy: true});
-                            }
-                        });
+                            var html = [], id, json = details_json.identifiers;
+                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            for (id in json) if (json.hasOwnProperty(id))
+                                    html.push('<div><strong>', json[id], '</strong></div>');
+                            $('.OG-security .og-js-identifiers').html(html.join(''));
+                            details.favorites();
+                            ui.message({location: '#OG-details', destroy: true});
+                        }});
                     },
                     id: args.id,
                     loading: function () {
@@ -180,17 +179,17 @@ $.register_module({
             },
             state = {};
         module.rules = {
-            load: {route: '/' + page_name + '/name:?/filter_type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/filter_type:?',
+            load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?',
                     method: module.name + '.load_filter'},
             load_delete: {
-                route: '/' + page_name + '/:id/deleted:/name:?/filter_type:?', method: module.name + '.load_delete'
+                route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
             },
             load_securities: {
-                route: '/' + page_name + '/:id/name:?/filter_type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/type:?/type:?', method: module.name + '.load_' + page_name
             },
             load_new_securities: {
-                route: '/' + page_name + '/:id/new:/name:?/filter_type:?', method: module.name + '.load_new_' + page_name
+                route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
             }
         };
         return securities = {

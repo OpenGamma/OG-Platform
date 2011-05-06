@@ -1,74 +1,28 @@
 /**
  * @copyright 2009 - 2010 by OpenGamma Inc
  * @license See distribution for license
+ *
+ * Binds routes.go to each search form filter element
+ *
  */
 $.register_module({
     name: 'og.common.search.filter',
-    dependencies: [],
+    dependencies: ['og.common.routes'],
     obj: function () {
-        return function (obj) {
-            /**
-             * name filter
-             */
-            $(obj.location + ' .og-js-name-filter').unbind('keyup').bind('keyup', function () {
-                var routes = og.common.routes,
-                      last = routes.last(),
-                      name = last.page.substring(1),
-                      view = og.views[name],
-                       obj = $.extend(true, {}, routes.last().args, {name: $(this).val(), filter: true}),
-                      hash = routes.hash(view.rules.load_filter, obj);
-                clearTimeout(window.og_filter_timer);
-                og_filter_timer = setTimeout(function () {
-                    routes.go(hash);
-                    delete window.og_filter_timer;
-                }, 200);
+        var self = this;
+        return function (obj) { // obj holds a selector with the location of the filters container
+            var select = ['type']; // identify select form elements so we can handle these differently
+            ['name', 'type', 'quantity', 'datasource'].forEach(function (filter) {
+                var event_type = !!select.indexOf(filter) ? 'keyup' : 'change',
+                    $selector = $(obj.location + ' .og-js-' + filter + '-filter');
+                if (!$selector.length) return;
+                $selector.unbind(event_type).bind(event_type, function () {
+                    var routes = og.common.routes, view = og.views[routes.last().page.substring(1)], hash, obj;
+                    obj = {}, obj[filter] = $(this).val(), obj.filter = true;
+                    hash = routes.hash(view.rules.load_filter, $.extend(true, {}, routes.last().args, obj));
+                    clearTimeout(self.t), self.t = setTimeout(function () {routes.go(hash), delete self.t;}, 200);
+                });
             });
-            /**
-             * filter_type filter
-             */
-            $(obj.location + ' .og-js-type-filter').unbind('change').bind('change', function () {
-                var routes = og.common.routes,
-                      last = routes.last(),
-                      name = last.page.substring(1),
-                      view = og.views[name],
-                       obj = $.extend(true, {}, routes.last().args,
-                            {filter_type: $(this).val().toUpperCase(), filter: true}),
-                      hash = routes.hash(view.rules.load_filter, obj);
-                    routes.go(hash);
-            });
-            /**
-             * quantity filter
-             */
-            $(obj.location + ' .og-js-quantity-filter').unbind('keyup').bind('keyup', function () {
-                var routes = og.common.routes,
-                      last = routes.last(),
-                      name = last.page.substring(1),
-                      view = og.views[name],
-                       obj = $.extend(true, {}, routes.last().args, {quantity: $(this).val(), filter: true}),
-                      hash = routes.hash(view.rules.load_filter, obj);
-                clearTimeout(window.og_filter_timer);
-                og_filter_timer = setTimeout(function () {
-                    routes.go(hash);
-                    delete window.og_filter_timer;
-                }, 200);
-            });
-            /**
-             * datasource filter
-             */
-            $(obj.location + ' .og-js-datasource-filter').unbind('keyup').bind('keyup', function () {
-                var routes = og.common.routes,
-                      last = routes.last(),
-                      name = last.page.substring(1),
-                      view = og.views[name],
-                       obj = $.extend(true, {}, routes.last().args, {dataSource: $(this).val(), filter: true}),
-                      hash = routes.hash(view.rules.load_filter, obj);
-                clearTimeout(window.og_filter_timer);
-                og_filter_timer = setTimeout(function () {
-                    routes.go(hash);
-                    delete window.og_filter_timer;
-                }, 200);
-            });
-
         }
     }
 });
