@@ -123,6 +123,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
   }
 
   private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(Map<String, DependencyGraph> graphsByConfiguration) {
+    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
     Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<CompiledViewCalculationConfiguration>();
     for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
       DependencyGraph depGraph = entry.getValue();
