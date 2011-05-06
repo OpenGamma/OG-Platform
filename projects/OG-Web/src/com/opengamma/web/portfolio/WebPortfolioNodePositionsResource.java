@@ -41,7 +41,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
   @POST
   @Produces(MediaType.TEXT_HTML)
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response post(
+  public Response postHTML(
       @FormParam("positionurl") String positionUrlStr) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
@@ -71,17 +71,6 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     return Response.seeOther(uri).build();
   }
 
-  private URI addPosition(PortfolioDocument doc, UniqueIdentifier posUid) {
-    ManageablePortfolioNode node = data().getNode();
-    URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
-    if (node.getPositionIds().contains(posUid) == false) {
-      node.addPosition(posUid);
-      doc = data().getPortfolioMaster().update(doc);
-      data().setPortfolio(doc);
-    }
-    return uri;
-  }
- 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -103,8 +92,17 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     URI uri = addPosition(doc, posUid);
     return Response.created(uri).build();
   }
-  
-  
+
+  private URI addPosition(PortfolioDocument doc, UniqueIdentifier posUid) {
+    ManageablePortfolioNode node = data().getNode();
+    URI uri = WebPortfolioNodeResource.uri(data());  // lock URI before updating data()
+    if (node.getPositionIds().contains(posUid) == false) {
+      node.addPosition(posUid);
+      doc = data().getPortfolioMaster().update(doc);
+      data().setPortfolio(doc);
+    }
+    return uri;
+  }
 
   //-------------------------------------------------------------------------
   /**
