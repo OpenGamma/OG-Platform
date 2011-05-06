@@ -99,14 +99,15 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.exchange_functions;
+                        console.log(result.data);
                         details_json = result.data;
                         history.put({
-                            name: details_json.name,
+                            name: details_json.template_data.name,
                             item: 'history.exchanges.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json).appendTo($('#OG-details .og-main').empty());
+                            $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
                             f.render_info('.OG-exchange .og-js-info', details_json);
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
