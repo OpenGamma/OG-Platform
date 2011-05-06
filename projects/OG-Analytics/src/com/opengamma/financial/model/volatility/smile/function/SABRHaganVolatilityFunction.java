@@ -185,9 +185,11 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     double xp = ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / (sqrtf2 + f2 - rho);
     double xpp = -((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) * ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / ((sqrtf2 + f2 - rho) * (sqrtf2 + f2 - rho))
         + (-(-2 * rho + 2 * f2) * (-2 * rho + 2 * f2) / (sqrtf2 * sqrtf2 * sqrtf2) / 4.0 + 1.0 / sqrtf2) / (sqrtf2 + f2 - rho);
-
+    double xDr = (-f2 / sqrtf2 - 1 + (sqrtf2 + f2 - rho) / (1 - rho)) / (sqrtf2 + f2 - rho);
     double sigmaDf2 = alpha / f1 * (1 + f3 * theta) * (1.0 / x - f2 * xp / (x * x));
     double sigmaDf3 = alpha / f1 * f2 / x * theta;
+    double sigmaDf4 = f2 / x / f1 * (1 + f3 * theta);
+    double sigmaDx = -alpha / f1 * f2 / (x * x) * (1 + f3 * theta);
     double[][] sigmaD2ff = new double[3][3];
     sigmaD2ff[0][0] = -sigmaDf1 / f1 + sigma / (f1 * f1); //OK
     sigmaD2ff[0][1] = -sigmaDf2 / f1;
@@ -205,6 +207,23 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     f2Dh[1] = nu / alpha * h1;
     f3Dh[0] = -2 * betaO2 * betaO2 / 6.0 * alpha * alpha / h13 - rho * beta * nu * alpha / 4.0 / h12;
     f3Dh[1] = 0.0;
+    double[] f1Dp = new double[3]; // Derivative to sabr parameters
+    double[] f2Dp = new double[3];
+    double[] f3Dp = new double[3];
+    double[] f4Dp = new double[3];
+    f1Dp[0] = 0.0;
+    f1Dp[1] = 0.0;
+    f1Dp[2] = 0.0;
+    f2Dp[0] = -f2 / alpha;
+    f2Dp[1] = 0.0;
+    f2Dp[2] = h1 * h2 / alpha;
+    //    double f3 = betaO2 * betaO2 / 6.0 * alpha * alpha / h12 + rho * beta * nu * alpha / 4.0 / h1 + (2 - 3 * rho * rho) / 24.0 * nu * nu;
+    f3Dp[0] = betaO2 * betaO2 / 3.0 * alpha / h12 + rho * beta * nu / 4.0 / h1;
+    f3Dp[1] = beta * nu * alpha / 4.0 / h1 - rho / 4.0 * nu * nu;
+    f3Dp[2] = rho * beta * alpha / 4.0 / h1 + (2 - 3 * rho * rho) / 12.0 * nu;
+    f4Dp[0] = 1.0;
+    f4Dp[1] = 0.0;
+    f4Dp[2] = 0.0;
     double sigmaDh1 = sigmaDf1 * f1Dh[0] + sigmaDf2 * f2Dh[0] + sigmaDf3 * f3Dh[0];
     double sigmaDh2 = sigmaDf1 * f1Dh[1] + sigmaDf2 * f2Dh[1] + sigmaDf3 * f3Dh[1];
     double[][] f1D2hh = new double[2][2];
@@ -240,6 +259,9 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     double h2D2kk = 1.0 / (k * k);
     volatilityD[0] = sigmaDh1 * h1Df + sigmaDh2 * h2Df;
     volatilityD[1] = sigmaDh1 * h1Dk + sigmaDh2 * h2Dk;
+    volatilityD[2] = sigmaDf1 * f1Dp[0] + sigmaDf2 * f2Dp[0] + sigmaDf3 * f3Dp[0] + sigmaDf4 * f4Dp[0];
+    volatilityD[3] = sigmaDf1 * f1Dp[1] + sigmaDx * xDr + sigmaDf3 * f3Dp[1] + sigmaDf4 * f4Dp[1];
+    volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDf2 * f2Dp[2] + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
     volatilityD2[0][0] = (sigmaD2hh[0][0] * h1Df + sigmaD2hh[0][1] * h2Df) * h1Df + sigmaDh1 * h1D2ff + (sigmaD2hh[0][1] * h1Df + sigmaD2hh[1][1] * h2Df) * h2Df + sigmaDh2 * h2D2ff;
     volatilityD2[0][1] = (sigmaD2hh[0][0] * h1Dk + sigmaD2hh[0][1] * h2Dk) * h1Df + sigmaDh1 * h1D2kf + (sigmaD2hh[0][1] * h1Dk + sigmaD2hh[1][1] * h2Dk) * h2Df + sigmaDh2 * h2D2fk;
     volatilityD2[1][0] = volatilityD2[0][1];
