@@ -1,0 +1,94 @@
+Setting up Eclipse and using Ivy to resolve dependencies
+========================================================
+
+You probably should run a command-line build (see README.txt) as well before setting up an Eclipse 
+workspace, although this isn't required.  
+
+Note: If you choose not to run a command line build, and you're using the source bundle without 
+      dependencies, be aware it can take a significant amount of time the first time you start after
+      you finish the procedure below, when Eclipse resolves the ivy artifacts.  This will of course 
+      depend on your internet connection.  Once you've done it for the first time, your ivy cache 
+      should make building much faster.
+
+Procedure
+---------
+It's very important you follow the steps below exactly in the order specified, or the result will be
+incorrect
+
+ 1. Make sure you install, as a minimum: Eclipse itself, the IvyDE plugin and the Checkstyle plugin.
+   a. Install Eclipse [http://www.eclipse.org], we recommend the 'Classic' bundle, and then create a 
+      fresh workspace created in a location separate from your source tree.
+      Note: The .project files we use only work with the latest Helios stable release of Eclipse.
+   b. Install IvyDE|http://ant.apache.org/ivy/ivyde/download.cgi] (required)
+   c. Install Eclipse-CS [http://eclipse-cs.sourceforge.net/downloads.html] (optional, but 
+      recommended)
+   d. Install TestNG plug-in [http://testng.org/doc/download.html] (optional, but recommended)
+ 2. Import the default preferences
+   a. Go to 'File->Import'
+   b. Under 'General' choose 'Preferences'
+   c. Click 'Next'
+ 3. Click the 'Browse...' button
+   a. Navigate the file chooser to the OG-Platform/common/ folder and choose the file 
+      OpenGamma-Eclipse-Preferences.epf
+   b. Click 'Finish'
+ 4. Turn off auto-builds until we've finished setting up
+   a. Go to 'Project->Build Automatically' to uncheck the 'Build Automatically' menu entry
+ 5. Import the sub-projects
+   a. Go to 'File->Import'
+ 6. Under 'General' choose 'Existing Projects into Workspace'
+   a. Click the 'Browse...' button
+   b. Navigate the file chooser to the OG-Platform/projects/ folder and click 'Open'. 
+      IMPORTANT: Pay special attention to the fact it's the 'projects/' subfolder, not the root.
+   c. A large list of projects should appear 
+   d. Click 'Finish'
+ 8. Import the top-level project
+   a. Go to 'File->Import'
+   b. Under 'General' choose 'Existing Projects into Workspace'
+   c. Click the 'Browse...' button
+   d. Navigate the file chooser to the OG-Platform/ folder and click 'Open'. 
+      IMPORTANT: This time it is the root folder
+   e. 'OG-Platform' should appear as a project on it's own
+   f. Click 'Finish'
+ 9. Turn on auto-builds
+   a. Go to 'Project->Build Automatically' to check the 'Build Automatically' menu entry
+10. Quit Eclipse and Restart (Do Not Just Use 'File->Restart')
+    Note: It will take several minutes of building, but eventually show all projects error free.  If
+    you have not run a command line build it may take even longer to download all the artifacts.
+   a. If there is an error shown in the 'OG-Engine' project
+      i. Find the source files (PutRequest.java and GetRequest.java are the culprits) in the package
+         explorer
+     ii. Right-click on each one in turn in the package explorer and choose 
+         'Checkstyle->Clear Checkstyle violations'.  This is necessary because of a bug in the 
+         Checkstyle parser.
+11. Get exploring!
+
+Recommended Extras for Contributors
+-----------------------------------
+1. Load the code templates
+   a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
+      under 'Window->Preferences...')
+   b. Under 'Java->Code Style->Code Templates' click on 'Import...'
+   c. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-CodeTemplates.xml'
+   d. Click 'Open'
+2. Load the code formatter
+   a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
+      under 'Window->Preferences...')  
+   b. Under 'Java->Code Style->Formatter' click on 'Import...'
+3. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-Formatter.xml'
+   a. Click 'Open'
+4. Install more Eclipse plugins
+   a. Install Spring IDE [http://springide.org/updatesite] (Core/Spring IDE), although make sure you
+      disable spring file validation if you do as it's rather slow.
+
+Tips if you have problems
+-------------------------
+* Make sure you have the latest Eclipse (Helios at the time of writing).  The settings files don't 
+  work with Galileo properly: specifically, if you get an error about 'path fragments', that is 
+  because you're trying to use Galileo.
+* Eclipse doesn't always refresh things when you think it will.  Try highlighting all projects, 
+  right-clicking and choose 'Refresh' on the menu
+* Sometimes IvyDE needs a kick to resolve/refresh artifacts
+* Running command line unit tests can occasionally conflict with a running copy of Eclipse, in which
+  case a workaround is to shut down Eclipse while you run tests
+* If you have the Spring plug-in installed, turn off spring file validation
+* If you do a fresh pull from the git repository, you'll need to refresh all the projects
