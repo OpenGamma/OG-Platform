@@ -197,7 +197,7 @@ public class DoubleConverter implements ResultConverter<Object> {
   //-------------------------------------------------------------------------
   
   @Override
-  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
     double doubleValue = (Double) value;
     String displayValue;
     DoubleValueConversionSettings conversion = getConversion(valueSpec);
@@ -253,6 +253,15 @@ public class DoubleConverter implements ResultConverter<Object> {
       conversion = DEFAULT_CONVERSION;
     }
     return conversion;
+  }
+
+  @Override
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    double doubleValue = (Double) value;
+    if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
+      doubleValue = 0;
+    }
+    return doubleValue;
   }
 
 }

@@ -39,6 +39,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
+import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -131,17 +132,29 @@ public abstract class WebViewGrid {
         
         ConversionMode mode = getConversionMode(cell);
         Object originalValue = value.getValue();
+        ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+
         Object displayValue;
-        try {
-          displayValue = convertResult(column, value.getSpecification(), originalValue, mode);
-        } catch (Exception e) {
-          s_logger.error("Exception when converting: ", e);
-          displayValue = "Conversion Error";
+        if (originalValue != null) {
+          try {
+            displayValue = converter.convertForDisplay(_resultConverterCache, value.getSpecification(), originalValue, mode);
+          } catch (Exception e) {
+            s_logger.error("Exception when converting: ", e);
+            displayValue = "Conversion Error";
+          }
+        } else {
+          displayValue = null;
         }
         
         boolean isHistoryOutput = isHistoryOutput(colId);
         if (isHistoryOutput) {
-          addCellHistory(cell, resultTimestamp, originalValue);
+          Object historyValue;
+          if (originalValue != null) {
+            historyValue = converter.convertForHistory(_resultConverterCache, value.getSpecification(), originalValue);
+          } else {
+            historyValue = null;
+          }
+          addCellHistory(cell, resultTimestamp, historyValue);
         }
         
         Object cellValue;
@@ -170,16 +183,13 @@ public abstract class WebViewGrid {
     }
   }
   
-  private <T> Object convertResult(WebViewGridColumn column, ValueSpecification valueSpec, T value, ConversionMode mode) {
-    if (value == null) {
-      return null;
-    }
-    
+  @SuppressWarnings("unchecked")
+  private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
     if (!column.isTypeKnown()) {
       sendColumnDetails(Collections.singleton(column));
     }
     
-    return _resultConverterCache.convert(valueSpec, value, mode);
+    return (ResultConverter<Object>) _resultConverterCache.getAndCacheConverter(valueName, valueType);
   }
   
   public ConversionMode getConversionMode(WebGridCell cell) {
