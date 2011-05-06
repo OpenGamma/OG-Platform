@@ -30,7 +30,7 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
       for (int i = 0; i < length; i++) {
         Object label = value.getLabels()[i];
         Object currentLabel = context.convert(label, mode);
-        Object currentValue = context.getDoubleConverter().convert(context, null, value.getValues()[i], ConversionMode.SUMMARY);
+        Object currentValue = context.getDoubleConverter().convert(context, valueSpec, value.getValues()[i], ConversionMode.SUMMARY);
         labelledValues.put(currentLabel, currentValue);
       }
       result.put("full", labelledValues);
