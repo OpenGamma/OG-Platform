@@ -28,7 +28,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.equity.CAPMFromRegressionCalculator;
+import com.opengamma.financial.equity.capm.CAPMFromRegressionCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;

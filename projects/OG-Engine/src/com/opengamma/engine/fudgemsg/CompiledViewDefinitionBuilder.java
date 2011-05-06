@@ -5,7 +5,9 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.time.Instant;
 
@@ -40,18 +42,29 @@ public class CompiledViewDefinitionBuilder implements FudgeBuilder<CompiledViewD
     MutableFudgeMsg msg = context.newMessage();
     context.addToMessage(msg, VIEW_DEFINITION_FIELD, null, object.getViewDefinition());
     context.addToMessage(msg, PORTFOLIO_FIELD, null, object.getPortfolio());
-    context.addToMessage(msg, COMPILED_CALCULATION_CONFIGURATIONS_FIELD, null, object.getCompiledCalculationConfigurations());
+    
+    // Serialise manually for more control on deserialisation 
+    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : object.getCompiledCalculationConfigurations()) {
+      context.addToMessage(msg, COMPILED_CALCULATION_CONFIGURATIONS_FIELD, null, compiledCalculationConfiguration);
+    }
+    
     context.addToMessage(msg, EARLIEST_VALIDITY_FIELD, null, object.getValidFrom());
     context.addToMessage(msg, LATEST_VALIDITY_FIELD, null, object.getValidTo());
     return msg;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CompiledViewDefinition buildObject(FudgeDeserializationContext context, FudgeMsg message) {
     ViewDefinition viewDefinition = context.fieldValueToObject(ViewDefinition.class, message.getByName(VIEW_DEFINITION_FIELD));
     Portfolio portfolio = context.fieldValueToObject(Portfolio.class, message.getByName(PORTFOLIO_FIELD));
-    Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = context.fieldValueToObject(Collection.class, message.getByName(COMPILED_CALCULATION_CONFIGURATIONS_FIELD));
+    
+    // Deserialise each instance specifically into the required type
+    Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = new ArrayList<CompiledViewCalculationConfiguration>();
+    List<FudgeField> calcConfigFields = message.getAllByName(COMPILED_CALCULATION_CONFIGURATIONS_FIELD);
+    for (FudgeField field : calcConfigFields) {
+      compiledCalculationConfigurations.add(context.fieldValueToObject(CompiledViewCalculationConfiguration.class, field));
+    }
+    
     FudgeField earliestValidityField = message.getByName(EARLIEST_VALIDITY_FIELD);
     Instant earliestValidity = earliestValidityField != null ? context.fieldValueToObject(Instant.class, earliestValidityField) : null;
     FudgeField latestValidityField = message.getByName(LATEST_VALIDITY_FIELD);
