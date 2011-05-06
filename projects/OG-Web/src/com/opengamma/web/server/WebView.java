@@ -95,7 +95,12 @@ public class WebView {
   //-------------------------------------------------------------------------
   // Initialisation
   
-  private void initGrids(CompiledViewDefinition compiledViewDefinition) {   
+  private void initGrids(CompiledViewDefinition compiledViewDefinition) {
+    if (_isInit.getAndSet(true)) {
+      // Already initialised
+      return;
+    }
+    
     WebViewGrid portfolioGrid = new WebViewPortfolioGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
@@ -113,7 +118,6 @@ public class WebView {
     }
     
     notifyInitialized();
-    _isInit.set(true);
   }
   
   private void notifyInitialized() {
