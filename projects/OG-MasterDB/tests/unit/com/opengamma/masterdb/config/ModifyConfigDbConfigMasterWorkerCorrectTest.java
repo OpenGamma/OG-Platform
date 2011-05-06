@@ -116,7 +116,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     
     ConfigDocument<Identifier> old = _cfgMaster.get(uid, Identifier.class);
     assertEquals(base.getUniqueId(), old.getUniqueId());
-    assertEquals(now, old.getVersionToInstant());  // old version ended
+    assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
     assertEquals(base.getValue(), old.getValue());
   }
