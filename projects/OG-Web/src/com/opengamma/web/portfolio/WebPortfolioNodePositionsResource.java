@@ -45,7 +45,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       @FormParam("positionurl") String positionUrlStr) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).get()).build();
+      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).getHTML()).build();
     }
     
     positionUrlStr = StringUtils.trimToNull(positionUrlStr);
@@ -88,7 +88,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
   public Response postJSON(@FormParam("uid") String uidStr) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).get()).build();
+      return Response.status(Status.FORBIDDEN).entity(new WebPortfolioNodeResource(this).getHTML()).build();
     }
     uidStr = StringUtils.trimToNull(uidStr);
     if (uidStr == null) {

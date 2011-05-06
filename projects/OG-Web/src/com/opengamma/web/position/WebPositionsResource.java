@@ -50,7 +50,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/positions")
 public class WebPositionsResource extends AbstractWebPositionResource {
-  
+
   /**
    * Creates the resource.
    * @param positionMaster  the position master, not null
@@ -64,7 +64,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("identifier") String identifier,
@@ -73,7 +73,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr);
     return getFreemarker().build("positions/positions.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
@@ -114,7 +114,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue) {
@@ -151,7 +151,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     URI uri = addPosition(quantity, secUid);
     return Response.seeOther(uri).build();
   }
-  
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -173,7 +173,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     Map<IdentifierBundle, UniqueIdentifier> loaded = data().getSecurityLoader().loadSecurity(Collections.singleton(id));
     UniqueIdentifier secUid = loaded.get(id);
     if (secUid == null) {
-      throw new DataNotFoundException("invalid " + idScheme + "::" + idValue);
+      throw new DataNotFoundException("invalid " + idScheme + "~" + idValue);
     }
     URI uri = addPosition(quantity, secUid);
     return Response.created(uri).build();
@@ -187,7 +187,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     data().setPosition(doc);
     return WebPositionResource.uri(data());
   }
-  
+
   //-------------------------------------------------------------------------
   @Path("{positionId}")
   public WebPositionResource findPosition(@PathParam("positionId") String idStr) {

@@ -53,9 +53,10 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/timeseries")
 public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(WebAllTimeSeriesResource.class);
-  
+
   /**
    * Creates the resource.
    * @param timeSeriesMaster  the time series master, not null
@@ -68,7 +69,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("identifier") String identifier,
@@ -80,7 +81,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     FlexiBean out = createSearchResultData(page, pageSize, identifier, dataSource, dataProvider, dataField, observationTime, uriInfo);
     return getFreemarker().build("timeseries/alltimeseries.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
@@ -96,6 +97,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     return getFreemarker().build("timeseries/jsonalltimeseries.ftl", out);
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String dataSource, String dataProvider, String dataField, String observationTime, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
@@ -120,12 +122,12 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     }
     return out;
   }
-  
+
   //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("dataProvider") String dataProvider,
       @FormParam("dataField") String dataField,
       @FormParam("start") String start,
@@ -200,7 +202,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     }
     return Response.seeOther(uri).build();
   }
-  
+
   private Set<Identifier> buildSecurityRequest(final IdentificationScheme identificationScheme, final String idValue) {
     if (idValue == null) {
       return Collections.emptySet();
@@ -230,6 +232,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @SuppressWarnings("rawtypes")
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     TimeSeriesSearchRequest<?> searchRequest = new TimeSeriesSearchRequest();
