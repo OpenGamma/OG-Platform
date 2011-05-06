@@ -92,36 +92,55 @@
 
       .tickindicator {
         height: 16px;
-        width: 16px;
+        width: 10px;
         display: inline-block;
         vertical-align: middle;
-        margin: 0 0 0 4px;
         padding: 0;
+        position: absolute;
+        right: 2px;
+        top: 50%;
+        margin: -7px 0 0 0;
       }
 
       .tickindicator.up {
-        background: url(/images/tick-up.png) no-repeat center center;
+        background: url(/images/tick-up.png) no-repeat;
       }
 
       .tickindicator.down {
-        background: url(/images/tick-down.png) no-repeat center center;
+        background: url(/images/tick-down.png) no-repeat;
       }
 
       .tickindicator.same {
-        background: url(/images/tick-same.png) no-repeat center center;
+        background: url(/images/tick-same.png) no-repeat;
+      }
+      
+      .cell-contents {
+        width: 100%;
+        height: 100%;
+        vertical-align: middle;
+        position: relative;
       }
       
       .cell-value {
-        display: inline-block;
-        vertical-align: middle;
+        text-overflow: ellipsis;
         margin: 0;
         padding: 0 4px;
+      }
+      
+      .cell-value.right {
+        position: absolute;
+        right: 12px;
+        background: white;
+      }
+      
+      .negative {
+        color: red;
       }
 
       .primitive-history-sparkline {
         display: inline-block;
         vertical-align: middle;
-        margin: 0 0 0 4px;
+        margin: 0 0 0 2px;
         padding: 0;
         height: 14px;
         width: 50px;

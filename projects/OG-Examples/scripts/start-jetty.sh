@@ -35,7 +35,7 @@ MEM_OPTS="-Xms4096m -Xmx4096m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"
 
 $JAVA $JMX_OPTS $MEM_OPTS -jar lib/org.eclipse-jetty-jetty-start-7.0.1.v20091125.jar \
-  -Djetty.port=8080 -DSTOP.PORT=8079 -DSTOP.KEY=OpenGamma \
+  -DSTOP.PORT=8079 -DSTOP.KEY=OpenGamma \
   -Dopengamma.platform.os=posix -Dopengamma.platform.runmode=$RUN_MODE \
   -Dopengamma.platform.marketdatasource=direct \
   -Dlogback.configurationFile=jetty-logback.xml \

@@ -46,7 +46,7 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     assertEncodeDecodeCycle(ViewDefinition.class, testViewDefinition);
   }
 
-  public static ViewDefinition getTestViewDefinition() {
+  private ViewDefinition getTestViewDefinition() {
     
     ValueProperties constraints = ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_ID.toString()).withAny(ValuePropertyNames.CURVE).get();
     ValueProperties allConstraints = ValueProperties.all();

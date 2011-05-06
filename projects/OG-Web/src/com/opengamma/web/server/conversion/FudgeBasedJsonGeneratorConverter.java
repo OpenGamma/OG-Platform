@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.engine.value.ValueSpecification;
+
 /**
  * Converts a result value into an object which can serialize its Fudge representation as JSON.
  */
@@ -22,7 +24,7 @@ public class FudgeBasedJsonGeneratorConverter implements ResultConverter<Object>
   }
   
   @Override
-  public Object convert(ResultConverterCache context, Object value, ConversionMode mode) {
+  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     result.put("name", value.getClass().getSimpleName());
     
@@ -34,7 +36,7 @@ public class FudgeBasedJsonGeneratorConverter implements ResultConverter<Object>
   }
 
   @Override
-  public String getResultTypeName() {
+  public String getFormatterName() {
     return "GENERIC";
   }
 

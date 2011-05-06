@@ -102,16 +102,19 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     return doGetByOidInstants(objectId, versionCorrection, new ConfigDocumentExtractor(), "Config");
   }
 
-  /**
-   * Inserts a new document.
-   * 
-   * @param document  the document, not null
-   * @return the new document, not null
-   */
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Override
+  protected void mergeNonUpdatedFields(ConfigDocument<?> newDocument, ConfigDocument<?> oldDocument) {
+    if (newDocument.getValue() == null) {
+      ConfigDocument hackGenerics = newDocument;
+      hackGenerics.setValue(oldDocument.getValue());
+    }
+  }
+
   @Override
   protected ConfigDocument<?> insert(ConfigDocument<?> document) {
-    ArgumentChecker.notNull(document.getValue(), "document.value");
     ArgumentChecker.notNull(document.getName(), "document.name");
+    ArgumentChecker.notNull(document.getValue(), "document.value");
     
     final Object value = document.getValue();
     final long docId = nextId("cfg_config_seq");
@@ -137,7 +140,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("config_type", document.getDocumentClass().getName())
+      .addValue("config_type", document.getType().getName())
       .addValue("config", new SqlLobValue(bytes, getDbHelper().getLobHandler()), Types.BLOB);
     getJdbcTemplate().update(sqlInsertConfig(), configArgs);
     return document;

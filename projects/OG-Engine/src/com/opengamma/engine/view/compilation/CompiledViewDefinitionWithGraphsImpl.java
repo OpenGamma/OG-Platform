@@ -1,27 +1,20 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.time.Instant;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -44,17 +37,14 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    */
   public CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition,
       Map<String, DependencyGraph> graphsByConfiguration, Portfolio portfolio, long functionInitId) {
-    this(viewDefinition, portfolio, processLiveDataRequirements(graphsByConfiguration),
-        processOutputValueNames(graphsByConfiguration), processComputationTargets(graphsByConfiguration),
-        processSecurityTypes(graphsByConfiguration), processValidityRange(graphsByConfiguration),
-        graphsByConfiguration, functionInitId);
+    this(viewDefinition, portfolio, processCompiledCalculationConfigurations(graphsByConfiguration),
+        processValidityRange(graphsByConfiguration), graphsByConfiguration, functionInitId);
   }
   
   private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio,
-      Map<ValueRequirement, ValueSpecification> liveDataRequirements, Set<String> outputValueNames,
-      Set<ComputationTarget> computationTargets, Set<String> securityTypes, Pair<Instant, Instant> validityRange,
-      Map<String, DependencyGraph> graphsByConfiguration, long functionInitId) {
-    super(viewDefinition, portfolio, liveDataRequirements, outputValueNames, computationTargets, securityTypes, validityRange.getFirst(), validityRange.getSecond());
+      Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      Pair<Instant, Instant> validityRange, Map<String, DependencyGraph> graphsByConfiguration, long functionInitId) {
+    super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);
   }
@@ -100,32 +90,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     return _functionInitId;
   }
 
-  //--------------------------------------------------------------------------
-  private static Map<ValueRequirement, ValueSpecification> processLiveDataRequirements(Map<String, DependencyGraph> graphsByConfiguration) {
-    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    Map<ValueRequirement, ValueSpecification> result = new HashMap<ValueRequirement, ValueSpecification>();
-    for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
-      for (Pair<ValueRequirement, ValueSpecification> liveData : dependencyGraph.getAllRequiredLiveData()) {
-        result.put(liveData.getFirst(), liveData.getSecond());
-      }
-    }
-    return result;
-  }
-
-  private static Set<String> processSecurityTypes(Map<String, DependencyGraph> graphsByConfiguration) {
-    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    Set<String> securityTypes = new TreeSet<String>();
-    for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
-      for (DependencyNode dependencyNode : dependencyGraph.getDependencyNodes()) {
-        if (dependencyNode.getComputationTarget().getType() != ComputationTargetType.SECURITY) {
-          continue;
-        }
-        securityTypes.add(dependencyNode.getComputationTarget().getSecurity().getSecurityType());
-      }
-    }
-    return securityTypes;
-  }
-  
+  //-------------------------------------------------------------------------- 
   private static Pair<Instant, Instant> processValidityRange(Map<String, DependencyGraph> graphsByConfiguration) {
     ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
     Instant earliest = null;
@@ -156,26 +121,16 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
     }
     return Pair.of(earliest, latest);
   }
-  
-  private static Set<String> processOutputValueNames(Map<String, DependencyGraph> graphsByConfiguration) {
-    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    Set<String> valueNames = new HashSet<String>();
-    for (DependencyGraph graph : graphsByConfiguration.values()) {
-      for (ValueSpecification spec : graph.getOutputValues()) {
-        valueNames.add(spec.getValueName());
-      }
-    }
-    return valueNames;
-  }
-  
-  private static Set<ComputationTarget> processComputationTargets(Map<String, DependencyGraph> graphsByConfiguration) {
-    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
-    Set<ComputationTarget> targets = new HashSet<ComputationTarget>();
-    for (DependencyGraph dependencyGraph : graphsByConfiguration.values()) {
-      Set<ComputationTarget> requiredLiveData = dependencyGraph.getAllComputationTargets();
-      targets.addAll(requiredLiveData);
-    }
-    return targets;
-  }
 
+  private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(Map<String, DependencyGraph> graphsByConfiguration) {
+    ArgumentChecker.notNull(graphsByConfiguration, "graphsByConfiguration");
+    Collection<CompiledViewCalculationConfiguration> compiledViewCalculationConfigurations = new ArrayList<CompiledViewCalculationConfiguration>();
+    for (Map.Entry<String, DependencyGraph> entry : graphsByConfiguration.entrySet()) {
+      DependencyGraph depGraph = entry.getValue();
+      CompiledViewCalculationConfigurationImpl compiledCalcConfig = new CompiledViewCalculationConfigurationImpl(depGraph);
+      compiledViewCalculationConfigurations.add(compiledCalcConfig);
+    }
+    return compiledViewCalculationConfigurations;
+  }
+  
 }

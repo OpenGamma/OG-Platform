@@ -46,11 +46,11 @@ import com.opengamma.util.db.DbSource;
  * <p>
  * Because of this, clients of this writer MUST collect
  * all results pertaining to a single computation target together and then call 
- * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)}
+ * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)}
  * with the entire set of results for that computation target.
  * <p>
  * A call to
- * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)} 
+ * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)} 
  * can include results for multiple computation targets, as long as it
  * is still true that results for the <i>same</i> target are not scattered across
  * multiple calls. 
@@ -164,11 +164,11 @@ public class CommandLineBatchResultWriter extends AbstractBatchResultWriter impl
   
   private boolean shouldExecute(DependencyGraph graph, DependencyNode node) {
     
-    ViewComputationCache cache = getCache(graph.getCalcConfName());
+    ViewComputationCache cache = getCache(graph.getCalculationConfigurationName());
      
     if (_resultModelDefinition.shouldOutputFromNode(node)) {
       // e.g., POSITIONS and PORTFOLIOS
-      StatusEntry.Status status = getStatus(graph.getCalcConfName(), node.getComputationTarget().toSpecification());
+      StatusEntry.Status status = getStatus(graph.getCalculationConfigurationName(), node.getComputationTarget().toSpecification());
       switch (status) {
         case SUCCESS:
           if (allOutputsInCache(node, cache)) {

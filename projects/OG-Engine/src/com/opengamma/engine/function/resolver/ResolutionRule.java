@@ -88,7 +88,7 @@ public class ResolutionRule {
    * 
    * @param target the computation target
    * @param context This should really be refactored out
-   * @return the set of all value specifications produced by the function, or {@code null} if none can be produced
+   * @return the set of all value specifications produced by the function, null if none can be produced
    */
   public Set<ValueSpecification> getResults(final ComputationTarget target, final FunctionCompilationContext context) {
     final CompiledFunctionDefinition function = _parameterizedFunction.getFunction();
@@ -106,8 +106,9 @@ public class ResolutionRule {
   }
 
   /**
-   * The second half of the full {@link #getResult(ValueRequirement,DependencyNode,FunctionCompilationContext}) implementation
-   * taking the set of all function outputs produced by {@link #getResults}.
+   * The second half of the full
+   * {@link #getResult(ValueRequirement, DependencyNode, FunctionCompilationContext)})
+   * implementation taking the set of all function outputs produced by {@link #getResults}.
    * 
    * @param output Output you want the function to produce
    * @param atNode Where in the dep graph this function would be applied.
@@ -118,7 +119,7 @@ public class ResolutionRule {
    * <li>Functions and computation targets of the nodes above this node
    * </ul>  
    * @param context This should really be refactored out.
-   * @param resultSpecs The results from {@link getResults}, not {@code null}
+   * @param resultSpecs The results from {@code getResults()}, not null
    * @return Null if this the function advertised by this rule cannot produce 
    * the desired output, a valid ValueSpecification otherwise - as returned by
    * the function. The specification is not composed against the requirement
@@ -157,7 +158,7 @@ public class ResolutionRule {
    * If multiple rules can produce a given output, the one with the highest 
    * priority is chosen.
    * 
-   * @return The priority. 
+   * @return the priority
    */
   public int getPriority() {
     return _priority;

@@ -6,7 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.util.PublicAPI;
@@ -30,6 +30,6 @@ public interface ViewTargetResultModel {
    * @param calcConfigurationName the calculation configuration
    * @return the values as a map of value name to computed value, or {@code null} if the configuration name is invalid
    */
-  Map<String, ComputedValue> getValues(String calcConfigurationName);
+  Set<ComputedValue> getAllValues(String calcConfigurationName);
 
 }
