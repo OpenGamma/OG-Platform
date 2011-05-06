@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
@@ -120,12 +121,46 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
     SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
     result = pvbpDr.multiply(sabrExtrapolation.price(option));
-    double priceDF = sabrExtrapolation.priceDF(option);
+    double priceDF = sabrExtrapolation.priceDerivativeForward(option);
     result = result.add(forwardDr.multiply(pvbp * priceDF));
     if (!swaption.isLong()) {
       result = result.multiply(-1);
     }
     return result;
+  }
+
+  /**
+   * Computes the present value SABR sensitivity of a physical delivery European swaption in the SABR model with extrapolation to the right.
+   * @param swaption The swaption.
+   * @param sabrData The SABR data. The SABR function need to be the Hagan function.
+   * @return The present value SABR sensitivity.
+   */
+  public PresentValueSABRSensitivity presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
+    Validate.notNull(swaption);
+    Validate.notNull(sabrData);
+    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    ParRateCalculator prc = ParRateCalculator.getInstance();
+    AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
+    double pvbp = SwapFixedIborMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()));
+    double strike = SwapFixedIborMethod.couponEquivalent(swaption.getUnderlyingSwap(), pvbp, sabrData);
+    double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
+    DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, swaption.getTimeToExpiry(), swaption.isCall());
+    double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
+    double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
+    double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
+    double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
+    SABRFormulaData sabrParam = new SABRFormulaData(forward, alpha, beta, nu, rho);
+    SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
+    double[] priceDSabr = new double[3];
+    sabrExtrapolation.priceAdjointSABR(option, priceDSabr);
+    double omega = (swaption.isLong() ? 1.0 : -1.0);
+    sensi.addAlpha(expiryMaturity, omega * pvbp * priceDSabr[0]);
+    sensi.addRho(expiryMaturity, omega * pvbp * priceDSabr[1]);
+    sensi.addNu(expiryMaturity, omega * pvbp * priceDSabr[2]);
+    return sensi;
   }
 
 }

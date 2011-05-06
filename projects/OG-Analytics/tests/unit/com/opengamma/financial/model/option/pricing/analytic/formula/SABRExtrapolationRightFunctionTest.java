@@ -67,8 +67,7 @@ public class SABRExtrapolationRightFunctionTest {
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
-  public void priceDerivative() {
-
+  public void priceDerivativeForward() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
     double strikeOut = 0.12;
@@ -81,18 +80,18 @@ public class SABRExtrapolationRightFunctionTest {
     // Below cut-off strike
     double priceIn = SABR_EXTRAPOLATION.price(optionIn);
     double priceInFP = sabrExtrapolationFP.price(optionIn);
-    double priceInDF = SABR_EXTRAPOLATION.priceDF(optionIn);
+    double priceInDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionIn);
     double priceInDFExpected = (priceInFP - priceIn) / shiftF;
     assertEquals("SABR extrapolation: derivative with respect to forward, below cut-off", priceInDFExpected, priceInDF, 1E-5);
     // At cut-off strike
     double priceAt = SABR_EXTRAPOLATION.price(optionAt);
     double priceAtFP = sabrExtrapolationFP.price(optionAt);
-    double priceAtDF = SABR_EXTRAPOLATION.priceDF(optionAt);
+    double priceAtDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionAt);
     double priceAtDFExpected = (priceAtFP - priceAt) / shiftF;
     assertEquals("SABR extrapolation: derivative with respect to forward, at cut-off", priceAtDFExpected, priceAtDF, 1E-6);
     // Above cut-off strike
     double[] abc = SABR_EXTRAPOLATION.getParameter();
-    double[] abcDF = SABR_EXTRAPOLATION.getParameterDF();
+    double[] abcDF = SABR_EXTRAPOLATION.getParameterDerivativeForward();
     double[] abcFP = sabrExtrapolationFP.getParameter();
     double[] abcDFExpected = new double[3];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
@@ -101,9 +100,84 @@ public class SABRExtrapolationRightFunctionTest {
     }
     double priceOut = SABR_EXTRAPOLATION.price(optionOut);
     double priceOutFP = sabrExtrapolationFP.price(optionOut);
-    double priceOutDF = SABR_EXTRAPOLATION.priceDF(optionOut);
+    double priceOutDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionOut);
     double priceOutDFExpected = (priceOutFP - priceOut) / shiftF;
     assertEquals("SABR extrapolation: derivative with respect to forward, above cut-off", priceOutDFExpected, priceOutDF, 1E-5);
+  }
+
+  @Test
+  /**
+   * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
+   */
+  public void priceDerivativeSABR() {
+    double strikeIn = 0.08;
+    double strikeAt = CUT_OFF_STRIKE;
+    double strikeOut = 0.12;
+    EuropeanVanillaOption optionIn = new EuropeanVanillaOption(strikeIn, TIME_TO_EXPIRY, true);
+    EuropeanVanillaOption optionAt = new EuropeanVanillaOption(strikeAt, TIME_TO_EXPIRY, true);
+    EuropeanVanillaOption optionOut = new EuropeanVanillaOption(strikeOut, TIME_TO_EXPIRY, true);
+    double shift = 0.000001;
+    SABRFormulaData sabrDataAP = new SABRFormulaData(FORWARD, ALPHA + shift, BETA, NU, RHO);
+    SABRFormulaData sabrDataRP = new SABRFormulaData(FORWARD, ALPHA, BETA, NU, RHO + shift);
+    SABRFormulaData sabrDataNP = new SABRFormulaData(FORWARD, ALPHA, BETA, NU + shift, RHO);
+    SABRExtrapolationRightFunction sabrExtrapolationAP = new SABRExtrapolationRightFunction(sabrDataAP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRExtrapolationRightFunction sabrExtrapolationRP = new SABRExtrapolationRightFunction(sabrDataRP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    SABRExtrapolationRightFunction sabrExtrapolationNP = new SABRExtrapolationRightFunction(sabrDataNP, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU);
+    // Below cut-off strike
+    double priceInExpected = SABR_EXTRAPOLATION.price(optionIn);
+    double[] priceInPP = new double[3];
+    priceInPP[0] = sabrExtrapolationAP.price(optionIn);
+    priceInPP[1] = sabrExtrapolationRP.price(optionIn);
+    priceInPP[2] = sabrExtrapolationNP.price(optionIn);
+    double[] priceInDsabr = new double[3];
+    double priceIn = SABR_EXTRAPOLATION.priceAdjointSABR(optionIn, priceInDsabr);
+    assertEquals("SABR extrapolation below cut-off: price in adjoint", priceInExpected, priceIn, 1E-5);
+    double[] priceInDsabrExpected = new double[3];
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      priceInDsabrExpected[loopparam] = (priceInPP[loopparam] - priceIn) / shift;
+      assertEquals("SABR extrapolation below cut-off: derivative with respect to SABR parameter " + loopparam, priceInDsabrExpected[loopparam], priceInDsabr[loopparam], 1E-5);
+    }
+    // At cut-off strike
+    double priceAtExpected = SABR_EXTRAPOLATION.price(optionAt);
+    double[] priceAtPP = new double[3];
+    priceAtPP[0] = sabrExtrapolationAP.price(optionAt);
+    priceAtPP[1] = sabrExtrapolationRP.price(optionAt);
+    priceAtPP[2] = sabrExtrapolationNP.price(optionAt);
+    double[] priceAtDsabr = new double[3];
+    double priceAt = SABR_EXTRAPOLATION.priceAdjointSABR(optionAt, priceAtDsabr);
+    assertEquals("SABR extrapolation at cut-off: price in adjoint", priceAtExpected, priceAt, 1E-5);
+    double[] priceAtDsabrExpected = new double[3];
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      priceAtDsabrExpected[loopparam] = (priceAtPP[loopparam] - priceAt) / shift;
+      assertEquals("SABR extrapolation at cut-off: derivative with respect to SABR parameter " + loopparam, priceAtDsabrExpected[loopparam], priceAtDsabr[loopparam], 1E-5);
+    }
+    // Above cut-off strike
+    double[] abc = SABR_EXTRAPOLATION.getParameter();
+    double[][] abcDP = SABR_EXTRAPOLATION.getParameterDerivativeSABR();
+    double[][] abcPP = new double[3][3];
+    abcPP[0] = sabrExtrapolationAP.getParameter();
+    abcPP[1] = sabrExtrapolationRP.getParameter();
+    abcPP[2] = sabrExtrapolationNP.getParameter();
+    double[][] abcDPExpected = new double[3][3];
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      for (int loopabc = 0; loopabc < 3; loopabc++) {
+        abcDPExpected[loopparam][loopabc] = (abcPP[loopparam][loopabc] - abc[loopabc]) / shift;
+        assertEquals("SABR extrapolation: parameters derivative " + loopparam + " " + loopabc, 1.0, abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], 5.0E-2);
+      }
+    }
+    double priceOutExpected = SABR_EXTRAPOLATION.price(optionOut);
+    double[] priceOutPP = new double[3];
+    priceOutPP[0] = sabrExtrapolationAP.price(optionOut);
+    priceOutPP[1] = sabrExtrapolationRP.price(optionOut);
+    priceOutPP[2] = sabrExtrapolationNP.price(optionOut);
+    double[] priceOutDsabr = new double[3];
+    double priceOut = SABR_EXTRAPOLATION.priceAdjointSABR(optionOut, priceOutDsabr);
+    assertEquals("SABR extrapolation above cut-off: price in adjoint", priceOutExpected, priceOut, 1E-5);
+    double[] priceOutDsabrExpected = new double[3];
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      priceOutDsabrExpected[loopparam] = (priceOutPP[loopparam] - priceOut) / shift;
+      assertEquals("SABR extrapolation above cut-off: derivative with respect to SABR parameter " + loopparam, 1.0, priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], 4.0E-4);
+    }
   }
 
   @Test

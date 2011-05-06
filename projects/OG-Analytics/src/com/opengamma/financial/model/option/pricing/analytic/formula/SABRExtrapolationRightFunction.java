@@ -42,11 +42,20 @@ public class SABRExtrapolationRightFunction {
    * An array containing the derivative of the three fitting parameters with respect to the forward.
    * Those parameters are computed only when and if required.
    */
-  private double[] _parameterDF = new double[3];
+  private double[] _parameterDerivativeForward = new double[3];
   /**
-   * Flag indicating if the parameter derivatives have been computed.
+   * Flag indicating if the parameter derivatives to forward have been computed.
    */
-  private boolean _parameterDerivativeComputed;
+  private boolean _parameterDerivativeForwardComputed;
+  /**
+   * An array containing the derivative of the three fitting parameters with respect to the alpha parameter.
+   * Those parameters are computed only when and if required.
+   */
+  private double[][] _parameterDerivativeSABR = new double[3][3];
+  /**
+   * Flag indicating if the parameter derivatives to SABR parameters have been computed.
+   */
+  private boolean _parameterDerivativeSABRComputed;
   /**
    * The Black implied volatility at the cut-off strike.
    */
@@ -106,7 +115,7 @@ public class SABRExtrapolationRightFunction {
    * @param option The option.
    * @return The option derivative.
    */
-  public double priceDF(final EuropeanVanillaOption option) {
+  public double priceDerivativeForward(final EuropeanVanillaOption option) {
     double[] pA;
     double priceDerivative;
     double k = option.getStrike();
@@ -116,17 +125,53 @@ public class SABRExtrapolationRightFunction {
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       priceDerivative = pA[1] + pA[2] * volatilityA[1];
     } else { // Uses extrapolation for call.
-      if (!_parameterDerivativeComputed) {
-        _parameterDF = computesDerivativeParameters();
-        _parameterDerivativeComputed = true;
+      if (!_parameterDerivativeForwardComputed) {
+        _parameterDerivativeForward = computesParametersDerivativeForward();
+        _parameterDerivativeForwardComputed = true;
       }
       double f = extrapolation(k);
       double fDa = f;
       double fDb = f / k;
       double fDc = fDb / k;
-      priceDerivative = fDa * _parameterDF[0] + fDb * _parameterDF[1] + fDc * _parameterDF[2];
+      priceDerivative = fDa * _parameterDerivativeForward[0] + fDb * _parameterDerivativeForward[1] + fDc * _parameterDerivativeForward[2];
     }
     return priceDerivative;
+  }
+
+  /**
+   * Computes the option price derivative with respect to the SABR parameters. The price is SABR below the cut-off strike and extrapolated beyond.
+   * @param option The option.
+   * @param priceDerivativeSABR An array of three doubles in which the derivative with respect to SABR parameters will be stored. 
+   * The derivatives are w.r.t. [0] alpha, [1] rho, and [2] nu.
+   * @return The option derivative.
+   */
+  public double priceAdjointSABR(final EuropeanVanillaOption option, double[] priceDerivativeSABR) {
+    double[] pA;
+    double price;
+    double k = option.getStrike();
+    if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
+      double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _sabrData);
+      BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, volatilityA[0]);
+      pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+      price = pA[0];
+      for (int loopparam = 0; loopparam < 3; loopparam++) {
+        priceDerivativeSABR[loopparam] = pA[2] * volatilityA[loopparam + 3];
+      }
+    } else { // Uses extrapolation for call.
+      if (!_parameterDerivativeSABRComputed) {
+        _parameterDerivativeSABR = computesParametersDerivativeSABR();
+        _parameterDerivativeSABRComputed = true;
+      }
+      double f = extrapolation(k);
+      double fDa = f;
+      double fDb = f / k;
+      double fDc = fDb / k;
+      price = f;
+      for (int loopparam = 0; loopparam < 3; loopparam++) {
+        priceDerivativeSABR[loopparam] = fDa * _parameterDerivativeSABR[loopparam][0] + fDb * _parameterDerivativeSABR[loopparam][1] + fDc * _parameterDerivativeSABR[loopparam][2];
+      }
+    }
+    return price;
   }
 
   /**
@@ -173,12 +218,24 @@ public class SABRExtrapolationRightFunction {
    * Gets the three fitting parameters derivatives with respect to the forward.
    * @return The parameters derivative.
    */
-  public double[] getParameterDF() {
-    if (!_parameterDerivativeComputed) {
-      _parameterDF = computesDerivativeParameters();
-      _parameterDerivativeComputed = true;
+  public double[] getParameterDerivativeForward() {
+    if (!_parameterDerivativeForwardComputed) {
+      _parameterDerivativeForward = computesParametersDerivativeForward();
+      _parameterDerivativeForwardComputed = true;
     }
-    return _parameterDF;
+    return _parameterDerivativeForward;
+  }
+
+  /**
+   * Gets the three fitting parameters derivatives with respect to the SABR parameters.
+   * @return The parameters derivative.
+   */
+  public double[][] getParameterDerivativeSABR() {
+    if (!_parameterDerivativeSABRComputed) {
+      _parameterDerivativeSABR = computesParametersDerivativeSABR();
+      _parameterDerivativeSABRComputed = true;
+    }
+    return _parameterDerivativeSABR;
   }
 
   /**
@@ -189,7 +246,7 @@ public class SABRExtrapolationRightFunction {
     double[] param = new double[3];
     EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     // Computes derivatives at cut-off.
-    double[] vD = new double[2];
+    double[] vD = new double[5];
     double[][] vD2 = new double[2][2];
     _volatilityK = _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
     BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
@@ -216,12 +273,12 @@ public class SABRExtrapolationRightFunction {
    * Used to compute the derivative of the price with respect to the forward.
    * @return The derivatives.
    */
-  private double[] computesDerivativeParameters() {
+  private double[] computesParametersDerivativeForward() {
     // Derivative of price with respect to forward.
     double[] pDF = new double[3];
     double shift = 0.00001;
     EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
-    double[] vD = new double[2];
+    double[] vD = new double[5];
     double[][] vD2 = new double[2][2];
     _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
     BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
@@ -244,7 +301,7 @@ public class SABRExtrapolationRightFunction {
     double bsD3sFs = (bsD2VP[0][1] - bsD2[0][1]) / (_volatilityK * shift);
     double bsD3sKK = (bsD2VP[2][2] - bsD2[2][2]) / (_volatilityK * shift);
     double bsD3ssK = (bsD2VP[1][2] - bsD2[1][2]) / (_volatilityK * shift);
-    double[] vDKP = new double[2];
+    double[] vDKP = new double[5];
     double[][] vD2KP = new double[2][2];
     _sabrFunction.getVolatilityAdjoint2(optionKP, _sabrData, vDKP, vD2KP);
     double vD3KKF = (vD2KP[1][0] - vD2[1][0]) / (_cutOffStrike * shift);
@@ -272,6 +329,77 @@ public class SABRExtrapolationRightFunction {
     OGMatrixAlgebra algebraOG = new OGMatrixAlgebra();
     DoubleMatrix1D derivativeF = (DoubleMatrix1D) algebraOG.multiply(fDInverse, pDFvector);
     return derivativeF.getData();
+  }
+
+  private double[][] computesParametersDerivativeSABR() {
+    // Derivative of price with respect to SABR parameters.
+    double[][] pDSABR = new double[3][3]; // parameter SABR - equation
+    double shift = 0.00001;
+    EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
+    double[] vD = new double[5];
+    double[][] vD2 = new double[2][2];
+    _sabrFunction.getVolatilityAdjoint2(option, _sabrData, vD, vD2);
+    BlackFunctionData dataBlack = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK);
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      int paramIndex = 2 + loopparam;
+      double[] bsD = new double[3];
+      double[][] bsD2 = new double[3][3];
+      BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
+      pDSABR[loopparam][0] = bsD[1] * vD[paramIndex];
+      double[] vDpP = new double[5];
+      double[][] vD2pP = new double[2][2];
+      SABRFormulaData sabrDatapP;
+      double param;
+      if (loopparam == 0) {
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha() * (1 + shift), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho());
+        param = _sabrData.getAlpha();
+      } else if (loopparam == 1) {
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu(), _sabrData.getRho() * (1 + shift));
+        param = _sabrData.getRho();
+      } else {
+        sabrDatapP = new SABRFormulaData(_sabrData.getForward(), _sabrData.getAlpha(), _sabrData.getBeta(), _sabrData.getNu() * (1 + shift), _sabrData.getRho());
+        param = _sabrData.getNu();
+      }
+      _sabrFunction.getVolatilityAdjoint2(option, sabrDatapP, vDpP, vD2pP);
+      double vD2Kp = (vDpP[1] - vD[1]) / (param * shift);
+      double vD3KKa = (vD2pP[1][1] - vD2[1][1]) / (param * shift);
+      pDSABR[loopparam][1] = (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[paramIndex] + bsD[1] * vD2Kp;
+      double[] bsDVP = new double[3];
+      double[][] bsD2VP = new double[3][3];
+      BlackFunctionData dataBlackVP = new BlackFunctionData(_sabrData.getForward(), 1.0, _volatilityK * (1 + shift));
+      BLACK_FUNCTION.getPriceAdjoint2(option, dataBlackVP, bsDVP, bsD2VP);
+      double bsD3sss = (bsD2VP[1][1] - bsD2[1][1]) / (_volatilityK * shift);
+      double bsD3sKK = (bsD2VP[2][2] - bsD2[2][2]) / (_volatilityK * shift);
+      double bsD3ssK = (bsD2VP[1][2] - bsD2[1][2]) / (_volatilityK * shift);
+      pDSABR[loopparam][2] = (bsD3sKK + bsD3ssK * vD[1] + (bsD3ssK + bsD3sss * vD[1]) * vD[1] + bsD2[1][1] * vD2[1][1]) * vD[paramIndex] + 2 * (bsD2[1][2] + bsD2[1][1] * vD[1]) * vD2Kp + bsD[1]
+          * vD3KKa;
+    }
+    // Derivative of f with respect to abc.
+    double[][] fD = new double[3][3]; // fD[i][j]: derivative with respect to jth variable of f_i
+    double f = _priceK[0];
+    double fp = _priceK[1];
+    double fpp = _priceK[2];
+    fD[0][0] = f;
+    fD[0][1] = f / _cutOffStrike;
+    fD[0][2] = fD[0][1] / _cutOffStrike;
+    fD[1][0] = fp;
+    fD[1][1] = (fp - fD[0][1]) / _cutOffStrike;
+    fD[1][2] = (fp - 2 * fD[0][1]) / (_cutOffStrike * _cutOffStrike);
+    fD[2][0] = fpp;
+    fD[2][1] = (fpp + fD[0][2] * (2 * (_mu + 1) + 2 * _parameter[1] / _cutOffStrike + 4 * _parameter[2] / (_cutOffStrike * _cutOffStrike))) / _cutOffStrike;
+    fD[2][2] = (fpp + fD[0][2] * (2 * (2 * _mu + 3) + 4 * _parameter[1] / _cutOffStrike + 8 * _parameter[2] / (_cutOffStrike * _cutOffStrike))) / (_cutOffStrike * _cutOffStrike);
+    DoubleMatrix2D fDmatrix = new DoubleMatrix2D(fD);
+    // Derivative of abc with respect to forward
+    ColtMatrixAlgebra algebra = new ColtMatrixAlgebra();
+    DoubleMatrix2D fDInverse = algebra.getInverse(fDmatrix);
+    OGMatrixAlgebra algebraOG = new OGMatrixAlgebra();
+    double[][] result = new double[3][3];
+    for (int loopparam = 0; loopparam < 3; loopparam++) {
+      DoubleMatrix1D pDSABRvector = new DoubleMatrix1D(pDSABR[loopparam]);
+      DoubleMatrix1D derivativeSABR = (DoubleMatrix1D) algebraOG.multiply(fDInverse, pDSABRvector);
+      result[loopparam] = derivativeSABR.getData();
+    }
+    return result;
   }
 
   /**
