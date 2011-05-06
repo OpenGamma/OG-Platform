@@ -27,6 +27,9 @@
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 	
+	<path id="lib.path.id.full">
+		<fileset dir="${lib.dir}/jar" />
+	</path>
 	<path id="lib.path.id">
 		<fileset dir="${lib.dir}/jar">
 			<exclude name="org.apache.ant/ant/*.jar" />

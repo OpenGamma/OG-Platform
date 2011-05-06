@@ -46,11 +46,11 @@ import com.opengamma.util.db.DbSource;
  * <p>
  * Because of this, clients of this writer MUST collect
  * all results pertaining to a single computation target together and then call 
- * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)}
+ * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)}
  * with the entire set of results for that computation target.
  * <p>
  * A call to
- * {@link BatchResultWriter#write(ViewComputationCache, CalculationJobResult, DependencyGraph)} 
+ * {@link BatchResultWriter#write(CalculationJobResult, DependencyGraph)} 
  * can include results for multiple computation targets, as long as it
  * is still true that results for the <i>same</i> target are not scattered across
  * multiple calls. 
