@@ -31,6 +31,8 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMetaDataRequest;
+import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -44,7 +46,7 @@ import com.opengamma.web.WebPaging;
  */
 @Path("/holidays")
 public class WebHolidaysResource extends AbstractWebHolidayResource {
-  
+
   /**
    * Creates the resource.
    * @param holidayMaster  the holiday master, not null
@@ -56,7 +58,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -66,7 +68,7 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
     return getFreemarker().build("holidays/holidays.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
@@ -155,6 +157,15 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
 //  }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Path("metaData")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getMetaDataJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("holidays/jsonmetadata.ftl", out);
+  }
+
+  //-------------------------------------------------------------------------
   @Path("{holidayId}")
   public WebHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
     data().setUriHolidayId(idStr);
@@ -183,6 +194,8 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
     FlexiBean out = super.createRootData();
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
     out.put("searchRequest", searchRequest);
+    HolidayMetaDataResult metaData = data().getHolidayMaster().metaData(new HolidayMetaDataRequest());
+    out.put("holidayTypes", metaData.getHolidayTypes());
     return out;
   }
 

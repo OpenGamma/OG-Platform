@@ -7,11 +7,8 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
-import com.opengamma.financial.model.finitedifference.PeacemanRachfordFiniteDifference2D;
-
 /**
- * NOT WORKING 
+ * These tests are only valid for rho = 0
  */
 public class PeacemanRachfordTest {
 
@@ -33,10 +30,11 @@ public class PeacemanRachfordTest {
   public void testHeston() {
 
     int timeSteps = 50;
-    int xSteps = 100;
-    int ySteps = 100;
+    int xSteps = 150;
+    int ySteps = 40;
+    boolean print = false; // make sure this is false before commits
 
-    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps);
+    HESTON_TESTER.testCallPrice(SOLVER, timeSteps, xSteps, ySteps, print);
   }
 
 }

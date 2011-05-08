@@ -31,7 +31,7 @@
       
       var $cellContents = $cell.data("contents");
       if (!$cellContents) {
-        $cellContents = $("<div></div>").width("100%").height("100%").appendTo($cell.empty());
+        $cellContents = $("<div></div>").addClass("cell-contents").appendTo($cell.empty());
         $cell.data("contents", $cellContents);
         if (_columnStructure.typeFormatter.createDetail) {
           $("<div class='imgbutton revealmore'></div>")

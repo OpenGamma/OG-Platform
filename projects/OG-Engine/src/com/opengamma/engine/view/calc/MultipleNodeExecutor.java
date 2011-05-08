@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -77,7 +78,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
   }
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalcConfName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
+    return new CalculationJobSpecification(getCycle().getViewProcessId(), graph.getCalculationConfigurationName(), getCycle().getValuationTime().toEpochMillisLong(), JobIdSource.getId());
   }
 
   protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
@@ -103,8 +104,11 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
       final RootGraphFragment fragment = new RootGraphFragment(context, statistics, graph.getExecutionOrder());
-      statistics.graphProcessed(graph.getCalcConfName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
+      statistics.graphProcessed(graph.getCalculationConfigurationName(), 1, graph.getSize(), fragment.getJobInvocationCost(), Double.NaN);
       context.allocateFragmentMap(1);
+      for (ValueSpecification terminalOutput : graph.getTerminalOutputSpecifications()) {
+        context.getSharedCacheValues().put(terminalOutput, Boolean.TRUE);
+      }
       fragment.executeImpl();
       timer.finished();
       return fragment;
@@ -151,7 +155,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<Object> {
         fragmentIterator.remove();
       }
     }
-    statistics.graphProcessed(graph.getCalcConfName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
+    statistics.graphProcessed(graph.getCalculationConfigurationName(), count, (double) totalSize / (double) count, (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (GraphFragment fragment : allFragments) {

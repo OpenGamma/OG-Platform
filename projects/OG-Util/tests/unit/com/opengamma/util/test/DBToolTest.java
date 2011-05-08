@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -39,8 +40,7 @@ public class DBToolTest {
   @BeforeMethod
   public void setUp() throws Exception {
     Properties props = new Properties();
-    File file = new File("tests.properties");
-    props.load(new FileInputStream(file));
+    props.load(getClass().getResourceAsStream("/tests.properties"));
 
     _dbHost = props.getProperty("jdbc.url");
     _user = props.getProperty("jdbc.username");

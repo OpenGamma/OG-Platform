@@ -2,13 +2,10 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.financial.model.finitedifference.CrankNicolsonFiniteDifferenceSOR;
-
 public class CrankNicolsonFiniteDifferenceSORTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ConvectionDiffusionPDESolver SOLVER = new CrankNicolsonFiniteDifferenceSOR();
+  private static final ConvectionDiffusionPDESolver SOLVER = new CrankNicolsonFiniteDifferenceSOR(0.5);
 
   @Test
   public void testBlackScholesEquation() {
@@ -47,6 +44,15 @@ public class CrankNicolsonFiniteDifferenceSORTest {
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
     TESTER.testAmericanPrice(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
+  }
+
+  @Test(enabled = false)
+  public void testBlackScholesEquationNonuniformGrid() {
+    int timeSteps = 100; // one less step with exp meshing
+    int priceSteps = 100;
+    double lowerMoneyness = 0.4;
+    double upperMoneyness = 3.0;
+    TESTER.testBlackScholesEquationNonuniformGrid((CrankNicolsonFiniteDifferenceSOR) SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
 }

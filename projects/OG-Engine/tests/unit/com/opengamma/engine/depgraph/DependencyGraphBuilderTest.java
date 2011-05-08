@@ -64,8 +64,8 @@ public class DependencyGraphBuilderTest {
 
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
-    assertTrue(graph.getOutputValues().contains(helper.getSpec2()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec2()));
 
     Collection<DependencyNode> nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
@@ -144,8 +144,8 @@ public class DependencyGraphBuilderTest {
 
     graph.removeUnnecessaryValues();
 
-    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
-    assertTrue(graph.getOutputValues().contains(helper.getSpec2()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec2()));
 
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
@@ -181,7 +181,7 @@ public class DependencyGraphBuilderTest {
 
     graph.removeUnnecessaryValues();
 
-    assertTrue(graph.getOutputValues().contains(helper.getSpec1()));
+    assertTrue(graph.getOutputSpecifications().contains(helper.getSpec1()));
 
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);

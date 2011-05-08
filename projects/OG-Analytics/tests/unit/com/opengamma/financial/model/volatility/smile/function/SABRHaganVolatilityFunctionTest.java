@@ -64,6 +64,9 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   @Test
+  /**
+   * Tests the first order adjoint derivatives for the SABR Hagan volatility function. The derivatives with respect to the forward, strike, alpha, rho and nu are provided.
+   */
   public void testVolatilityAdjoint() {
     // Price
     double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(DATA);
@@ -113,6 +116,45 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     double volatilityNM = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(dataNM);
     double derivativeN_FD = (volatilityNP - volatilityNM) / (2 * deltaF);
     assertEquals(derivativeN_FD, volatilityAdjoint[5], 1E-6);
+  }
+
+  @Test
+  /**
+   * Tests the second order adjoint derivatives for the SABR Hagan volatility function. Only the derivatives with respect to the forward and the strike are provided.
+   */
+  public void testVolatilityAdjoint2() {
+    // Price
+    double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(DATA);
+    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_STRIKE, DATA);
+    double[] volD = new double[5];
+    double[][] volD2 = new double[2][2];
+    double vol = FUNCTION.getVolatilityAdjoint2(CALL_STRIKE, DATA, volD, volD2);
+    assertEquals(volatility, vol, 1E-6);
+    // Derivative
+    for (int loopder = 0; loopder < 5; loopder++) {
+      assertEquals("Derivative " + loopder, volatilityAdjoint[loopder + 1], volD[loopder], 1E-6);
+    }
+    // Derivative forward-forward
+    double deltaF = 0.000001;
+    SABRFormulaData dataFP = new SABRFormulaData(FORWARD + deltaF, ALPHA, BETA, NU, RHO);
+    SABRFormulaData dataFM = new SABRFormulaData(FORWARD - deltaF, ALPHA, BETA, NU, RHO);
+    double volatilityFP = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(dataFP);
+    double volatilityFM = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(dataFM);
+    double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
+    assertEquals("SABR adjoint order 2: forward-forward", derivativeFF_FD, volD2[0][0], 1E-2);
+    // Derivative strike-strike
+    double deltaK = 0.000001;
+    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(STRIKE + deltaK, T, true);
+    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(STRIKE - deltaK, T, true);
+    double volatilityKP = FUNCTION.getVolatilityFunction(optionKP).evaluate(DATA);
+    double volatilityKM = FUNCTION.getVolatilityFunction(optionKM).evaluate(DATA);
+    double derivativeKK_FD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
+    assertEquals("SABR adjoint order 2: strike-strike", derivativeKK_FD, volD2[1][1], 1E-2);
+    // Derivative strike-forward
+    double volatilityFPKP = FUNCTION.getVolatilityFunction(optionKP).evaluate(dataFP);
+    double derivativeFK_FD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
+    assertEquals("SABR adjoint order 2: forward-strike", derivativeFK_FD, volD2[0][1], 1E-2);
+    assertEquals("SABR adjoint order 2: strike-forward", volD2[0][1], volD2[1][0], 1E-6);
   }
 
   @Test

@@ -24,8 +24,10 @@ import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives {@link EntitlementRequests EntitlementRequest}, passes them onto a delegate
- * {@link LiveDataEntitlementChecker}, and returns {@link EntitlementResponseMsgs EntitlementResponseMsg}.
+ * Server managing entitlements.
+ * <p>
+ * This receives {@link EntitlementRequest} requests, passing them onto a delegate
+ * {@link LiveDataEntitlementChecker}, and returning {@link EntitlementResponseMsg} responses.
  */
 public class EntitlementServer implements FudgeRequestReceiver {
   

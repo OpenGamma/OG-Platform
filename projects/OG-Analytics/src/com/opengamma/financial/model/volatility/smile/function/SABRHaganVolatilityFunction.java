@@ -74,7 +74,7 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
   /**
    * Return the Black implied volatility in the SABR model and its derivatives.
    * @param option The option.
-   * @param data The Black data.
+   * @param data The SABR data.
    * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
    * [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu
    */
@@ -144,6 +144,129 @@ public class SABRHaganVolatilityFunction implements VolatilityFunctionProvider<S
     volatilityAdjoint[5] = nuBar;
 
     return volatilityAdjoint;
+  }
+
+  /**
+   * Computes the first and second order derivatives of the Black implied volatility in the SABR model.
+   * @param option The option.
+   * @param data The SABR data.
+   * @param volatilityD The array used to return the first order derivatives. [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike
+   * @param volatilityD2 The array of array used to return the second order derivative. Only the second order derivative with respect to the forward and strike are implemented.
+   * [0][0] forward-forward; [0][1] forward-strike; [1][1] strike-strike. 
+   * Implemented by finite difference on the first order derivative.
+   * @return The Black implied volatility.
+   */
+  public double getVolatilityAdjoint2(final EuropeanVanillaOption option, final SABRFormulaData data, double[] volatilityD, double[][] volatilityD2) {
+    final double k = Math.max(option.getStrike(), 0.000001);
+    final double theta = option.getTimeToExpiry();
+    final double alpha = data.getAlpha();
+    final double beta = data.getBeta();
+    final double rho = data.getRho();
+    final double nu = data.getNu();
+    final double f = data.getForward();
+    // Forward
+    double betaO2 = (1 - beta) / 2;
+    double h1 = Math.pow(f * k, betaO2);
+    double h12 = h1 * h1;
+    double h13 = h12 * h1;
+    double h14 = h13 * h1;
+    double h2 = Math.log(f / k);
+    double h22 = h2 * h2;
+    double h23 = h22 * h2;
+    double h24 = h23 * h2;
+    double f1 = h1 * (1 + betaO2 * betaO2 / 6.0 * (h22 + betaO2 * betaO2 / 20.0 * h24));
+    double f2 = nu / alpha * h1 * h2;
+    double f3 = betaO2 * betaO2 / 6.0 * alpha * alpha / h12 + rho * beta * nu * alpha / 4.0 / h1 + (2 - 3 * rho * rho) / 24.0 * nu * nu;
+    double sqrtf2 = Math.sqrt(1 - 2 * rho * f2 + f2 * f2);
+    double x = Math.log((sqrtf2 + f2 - rho) / (1 - rho));
+    double sigma = alpha / f1 * f2 / x * (1 + f3 * theta);
+    // First level
+    double sigmaDf1 = -sigma / f1;
+    double xp = ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / (sqrtf2 + f2 - rho);
+    double xpp = -((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) * ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / ((sqrtf2 + f2 - rho) * (sqrtf2 + f2 - rho))
+        + (-(-2 * rho + 2 * f2) * (-2 * rho + 2 * f2) / (sqrtf2 * sqrtf2 * sqrtf2) / 4.0 + 1.0 / sqrtf2) / (sqrtf2 + f2 - rho);
+    double xDr = (-f2 / sqrtf2 - 1 + (sqrtf2 + f2 - rho) / (1 - rho)) / (sqrtf2 + f2 - rho);
+    double sigmaDf2 = alpha / f1 * (1 + f3 * theta) * (1.0 / x - f2 * xp / (x * x));
+    double sigmaDf3 = alpha / f1 * f2 / x * theta;
+    double sigmaDf4 = f2 / x / f1 * (1 + f3 * theta);
+    double sigmaDx = -alpha / f1 * f2 / (x * x) * (1 + f3 * theta);
+    double[][] sigmaD2ff = new double[3][3];
+    sigmaD2ff[0][0] = -sigmaDf1 / f1 + sigma / (f1 * f1); //OK
+    sigmaD2ff[0][1] = -sigmaDf2 / f1;
+    sigmaD2ff[0][2] = -sigmaDf3 / f1;
+    sigmaD2ff[1][1] = alpha / f1 * (1 + f3 * theta) * (-2 * xp / (x * x) - f2 * xpp / (x * x) + 2 * f2 * xp * xp / (x * x * x)); // OK
+    sigmaD2ff[1][2] = alpha / f1 * theta * (1.0 / x - f2 * xp / (x * x));
+    sigmaD2ff[2][2] = 0.0;
+    // Second level
+    double[] f1Dh = new double[2];
+    double[] f2Dh = new double[2];
+    double[] f3Dh = new double[2];
+    f1Dh[0] = 1 + betaO2 * betaO2 / 6.0 * (h22 + betaO2 * betaO2 / 20.0 * h24);
+    f1Dh[1] = h1 * (betaO2 * betaO2 / 6.0 * (2.0 * h2 + 4 * betaO2 * betaO2 / 20.0 * h23));
+    f2Dh[0] = nu / alpha * h2;
+    f2Dh[1] = nu / alpha * h1;
+    f3Dh[0] = -2 * betaO2 * betaO2 / 6.0 * alpha * alpha / h13 - rho * beta * nu * alpha / 4.0 / h12;
+    f3Dh[1] = 0.0;
+    double[] f1Dp = new double[3]; // Derivative to sabr parameters
+    double[] f2Dp = new double[3];
+    double[] f3Dp = new double[3];
+    double[] f4Dp = new double[3];
+    f1Dp[0] = 0.0;
+    f1Dp[1] = 0.0;
+    f1Dp[2] = 0.0;
+    f2Dp[0] = -f2 / alpha;
+    f2Dp[1] = 0.0;
+    f2Dp[2] = h1 * h2 / alpha;
+    //    double f3 = betaO2 * betaO2 / 6.0 * alpha * alpha / h12 + rho * beta * nu * alpha / 4.0 / h1 + (2 - 3 * rho * rho) / 24.0 * nu * nu;
+    f3Dp[0] = betaO2 * betaO2 / 3.0 * alpha / h12 + rho * beta * nu / 4.0 / h1;
+    f3Dp[1] = beta * nu * alpha / 4.0 / h1 - rho / 4.0 * nu * nu;
+    f3Dp[2] = rho * beta * alpha / 4.0 / h1 + (2 - 3 * rho * rho) / 12.0 * nu;
+    f4Dp[0] = 1.0;
+    f4Dp[1] = 0.0;
+    f4Dp[2] = 0.0;
+    double sigmaDh1 = sigmaDf1 * f1Dh[0] + sigmaDf2 * f2Dh[0] + sigmaDf3 * f3Dh[0];
+    double sigmaDh2 = sigmaDf1 * f1Dh[1] + sigmaDf2 * f2Dh[1] + sigmaDf3 * f3Dh[1];
+    double[][] f1D2hh = new double[2][2];
+    double[][] f2D2hh = new double[2][2];
+    double[][] f3D2hh = new double[2][2];
+    f1D2hh[0][0] = 0.0;
+    f1D2hh[0][1] = betaO2 * betaO2 / 6.0 * (2.0 * h2 + 4.0 * betaO2 * betaO2 / 20.0 * h23);
+    f1D2hh[1][1] = h1 * (betaO2 * betaO2 / 6.0 * (2.0 + 12.0 * betaO2 * betaO2 / 20.0 * h2));
+    f2D2hh[0][0] = 0.0;
+    f2D2hh[0][1] = nu / alpha;
+    f2D2hh[1][1] = 0.0;
+    f3D2hh[0][0] = 2.0 * 3.0 * betaO2 * betaO2 / 6.0 * alpha * alpha / h14 + 2.0 * rho * beta * nu * alpha / 4.0 / h13;
+    f3D2hh[0][1] = 0.0;
+    f3D2hh[1][1] = 0.0;
+    double[][] sigmaD2hh = new double[2][2];
+    for (int loopx = 0; loopx < 2; loopx++) {
+      for (int loopy = loopx; loopy < 2; loopy++) {
+        sigmaD2hh[loopx][loopy] = (sigmaD2ff[0][0] * f1Dh[loopy] + sigmaD2ff[0][1] * f2Dh[loopy] + sigmaD2ff[0][2] * f3Dh[loopy]) * f1Dh[loopx] + sigmaDf1 * f1D2hh[loopx][loopy]
+            + (sigmaD2ff[0][1] * f1Dh[loopy] + sigmaD2ff[1][1] * f2Dh[loopy] + sigmaD2ff[1][2] * f3Dh[loopy]) * f2Dh[loopx] + sigmaDf2 * f2D2hh[loopx][loopy]
+            + (sigmaD2ff[0][2] * f1Dh[loopy] + sigmaD2ff[1][2] * f2Dh[loopy] + sigmaD2ff[2][2] * f3Dh[loopy]) * f3Dh[loopx] + sigmaDf3 * f3D2hh[loopx][loopy];
+      }
+    }
+    // Third level
+    double h1Df = betaO2 * h1 / f;
+    double h1Dk = betaO2 * h1 / k;
+    double h1D2ff = betaO2 * (h1Df / f - h1 / (f * f));
+    double h1D2kf = betaO2 * h1Dk / f;
+    double h1D2kk = betaO2 * (h1Dk / k - h1 / (k * k));
+    double h2Df = 1.0 / f;
+    double h2Dk = -1.0 / k;
+    double h2D2ff = -1 / (f * f);
+    double h2D2fk = 0.0;
+    double h2D2kk = 1.0 / (k * k);
+    volatilityD[0] = sigmaDh1 * h1Df + sigmaDh2 * h2Df;
+    volatilityD[1] = sigmaDh1 * h1Dk + sigmaDh2 * h2Dk;
+    volatilityD[2] = sigmaDf1 * f1Dp[0] + sigmaDf2 * f2Dp[0] + sigmaDf3 * f3Dp[0] + sigmaDf4 * f4Dp[0];
+    volatilityD[3] = sigmaDf1 * f1Dp[1] + sigmaDx * xDr + sigmaDf3 * f3Dp[1] + sigmaDf4 * f4Dp[1];
+    volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDf2 * f2Dp[2] + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
+    volatilityD2[0][0] = (sigmaD2hh[0][0] * h1Df + sigmaD2hh[0][1] * h2Df) * h1Df + sigmaDh1 * h1D2ff + (sigmaD2hh[0][1] * h1Df + sigmaD2hh[1][1] * h2Df) * h2Df + sigmaDh2 * h2D2ff;
+    volatilityD2[0][1] = (sigmaD2hh[0][0] * h1Dk + sigmaD2hh[0][1] * h2Dk) * h1Df + sigmaDh1 * h1D2kf + (sigmaD2hh[0][1] * h1Dk + sigmaD2hh[1][1] * h2Dk) * h2Df + sigmaDh2 * h2D2fk;
+    volatilityD2[1][0] = volatilityD2[0][1];
+    volatilityD2[1][1] = (sigmaD2hh[0][0] * h1Dk + sigmaD2hh[0][1] * h2Dk) * h1Dk + sigmaDh1 * h1D2kk + (sigmaD2hh[0][1] * h1Dk + sigmaD2hh[1][1] * h2Dk) * h2Dk + sigmaDh2 * h2D2kk;
+    return sigma;
   }
 
   private double getZOverChi(final double rho, final double z) {

@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
-      
-  <!-- Property file configuration -->
-  <bean id="commonProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreUnresolvablePlaceholders" value="true" />
-    <property name="locations">
-      <list>
-        <value>classpath:referencedata-${opengamma.platform.os}.properties</value>
-      </list>
-    </property>
-  </bean>
-   
+<beans> 
   <bean id="regionFileReader" class="com.opengamma.master.region.impl.RegionFileReader" factory-method="createPopulated" />
   <bean id="regionMaster" factory-bean="regionFileReader" factory-method="getRegionMaster" />
   <bean id="regionSource" factory-bean="regionFileReader" factory-method="getRegionSource" />

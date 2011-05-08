@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -31,6 +32,8 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
 import com.opengamma.master.holiday.HolidayHistoryResult;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMetaDataRequest;
+import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -94,6 +97,17 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    */
   public DbHolidayMaster(final DbSource dbSource) {
     super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HolidayMetaDataResult metaData(HolidayMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    HolidayMetaDataResult result = new HolidayMetaDataResult();
+    if (request.isHolidayTypes()) {
+      result.getHolidayTypes().addAll(Arrays.asList(HolidayType.values()));
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

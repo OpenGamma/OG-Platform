@@ -98,7 +98,7 @@ public final class ViewDefinitionCompiler {
       sb.append("DepGraph for ").append(configName);
 
       DependencyGraph depGraph = entry.getValue();
-      sb.append("\tProducing values ").append(depGraph.getOutputValues());
+      sb.append("\tProducing values ").append(depGraph.getOutputSpecifications());
       for (DependencyNode depNode : depGraph.getDependencyNodes()) {
         sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
       }

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -99,6 +101,20 @@ public final class CalculationNodeProcess {
     return url.substring(0, slash + 1);
   }
 
+  private static void setConnectionDefaults(final String url) {
+    try {
+      final URI uri = new URI(url);
+      if (uri.getHost() != null) {
+        System.setProperty("opengamma.engine.calcnode.host", uri.getHost());
+      }
+      if (uri.getPort() != -1) {
+        System.setProperty("opengamma.engine.calcnode.port", Integer.toString(uri.getPort()));
+      }
+    } catch (URISyntaxException e) {
+      s_logger.warn("Couldn't set connection defaults", e);
+    }
+  }
+
   /**
    * Starts a calculation node, retrieving configuration from the given URL
    * 
@@ -123,6 +139,7 @@ public final class CalculationNodeProcess {
     }
     // Create and start the spring config
     System.setProperty("opengamma.engine.calcnode.baseurl", getBaseUrl(url));
+    setConnectionDefaults(url);
     if (startContext(configuration)) {
       s_logger.info("Calculation node started");
     } else {

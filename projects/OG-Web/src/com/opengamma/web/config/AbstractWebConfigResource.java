@@ -30,10 +30,14 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -61,13 +65,11 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _data = new WebConfigData();
     data().setConfigMaster(configMaster);
-    for (String type : configMaster.getTypes()) {
-      try {
-        Class<?> typeClazz = getClass().getClassLoader().loadClass(type);
-        data().getTypeMap().put(typeClazz.getSimpleName(), typeClazz);
-      } catch (ClassNotFoundException ex) {
-        throw new RuntimeException(ex);
-      }
+    
+    // init meta-data
+    ConfigMetaDataResult metaData = configMaster.metaData(new ConfigMetaDataRequest());
+    for (Class<?> configType : metaData.getConfigTypes()) {
+      data().getTypeMap().put(configType.getSimpleName(), configType);
     }
   }
 
@@ -117,11 +119,20 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
    * @param xml the configuration xml
    * @return the configuration object
    */
-  protected Object parseXML(String xml) {
+  @SuppressWarnings("unchecked")
+  protected Pair<Object, Class<?>> parseXML(String xml) {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(FUDGE_CONTEXT, car));
-    FudgeMsg message = fmr.nextMessage();
-    return FUDGE_CONTEXT.fromFudgeMsg(message);
+    final FudgeMsg message = fmr.nextMessage();
+    final String logicalClassName = message.getString(0);
+    final Class<?> logicalClass;
+    try {
+      logicalClass = Class.forName(logicalClassName);
+    } catch (Throwable t) {
+      throw new OpenGammaRuntimeException("Invalid logical class name in message " + message, t);
+    }
+    final Object value = FUDGE_CONTEXT.fromFudgeMsg(logicalClass, message);
+    return (Pair<Object, Class<?>>) (Pair<?, ?>) Pair.of(value, logicalClass);
   }
 
   protected String createXML(ConfigDocument<?> doc) {

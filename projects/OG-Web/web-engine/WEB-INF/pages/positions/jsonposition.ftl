@@ -1,13 +1,18 @@
 <#escape x as x?html>
 {
     "templateData": {
-            "NAME": "${position.name}",
-            "QUANTITY": "${position.quantity}"
+      "name": "${position.name}",
+      "objectId":"${position.uniqueId.objectId}",
+      "versionId":"${position.uniqueId.version}",
+<#if deleted>
+      "deleted":"${positionDoc.versionToInstant}",
+</#if>
+      "quantity": "${position.quantity}"
     },
     "security": {
     	"name":"${security.name}",
     	"uniqueId":"${security.uniqueId.objectId}",
-      	"security_type":"${security.securityType}"
+      "security_type":"${security.securityType}"
     },
     "securities": [
     <#list position.securityKey.identifiers as item>
