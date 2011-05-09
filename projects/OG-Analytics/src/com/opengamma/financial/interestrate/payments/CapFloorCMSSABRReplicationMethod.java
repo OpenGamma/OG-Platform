@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -184,7 +184,7 @@ public class CapFloorCMSSABRReplicationMethod {
    * @return The present value sensitivity to SABR parameters.
    */
   @SuppressWarnings("synthetic-access")
-  public PresentValueSABRSensitivity presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
+  public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
@@ -219,7 +219,7 @@ public class CapFloorCMSSABRReplicationMethod {
       }
       totalSensi[loopparameter] = (strikePartPrice[loopparameter] + integralPart[loopparameter]) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     }
-    final PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, totalSensi[0]);
     sensi.addRho(expiryMaturity, totalSensi[1]);

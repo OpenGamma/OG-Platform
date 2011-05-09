@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
@@ -135,10 +135,10 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value SABR sensitivity.
    */
-  public PresentValueSABRSensitivity presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
+  public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, SABRInterestRateDataBundle sabrData) {
     Validate.notNull(swaption);
     Validate.notNull(sabrData);
-    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     ParRateCalculator prc = ParRateCalculator.getInstance();
     AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double forward = prc.visit(swaption.getUnderlyingSwap(), sabrData);
