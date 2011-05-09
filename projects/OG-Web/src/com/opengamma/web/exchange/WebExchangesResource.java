@@ -60,7 +60,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -68,7 +68,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     FlexiBean out = createSearchResultData(page, pageSize, name, uriInfo);
     return getFreemarker().build("exchanges/exchanges.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(
@@ -105,7 +105,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(
+  public Response postHTML(
       @FormParam("name") String name,
       @FormParam("idscheme") String idScheme,
       @FormParam("idvalue") String idValue,
@@ -140,16 +140,6 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     return Response.seeOther(uri).build();
   }
 
-  private URI createExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
-    Identifier id = Identifier.of(idScheme, idValue);
-    Identifier region = Identifier.of(regionScheme, regionValue);
-    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
-    ExchangeDocument doc = new ExchangeDocument(exchange);
-    ExchangeDocument added = data().getExchangeMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return uri;
-  }
-  
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -169,6 +159,16 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     }
     URI uri = createExchange(name, idScheme, idValue, regionScheme, regionValue);
     return Response.created(uri).build();
+  }
+
+  private URI createExchange(String name, String idScheme, String idValue, String regionScheme, String regionValue) {
+    Identifier id = Identifier.of(idScheme, idValue);
+    Identifier region = Identifier.of(regionScheme, regionValue);
+    ManageableExchange exchange = new ManageableExchange(IdentifierBundle.of(id), name, IdentifierBundle.of(region), null);
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    ExchangeDocument added = data().getExchangeMaster().add(doc);
+    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+    return uri;
   }
 
   //-------------------------------------------------------------------------

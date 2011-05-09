@@ -3,10 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.equity;
+package com.opengamma.financial.equity.capm;
 
 import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
+
+import com.opengamma.financial.equity.capm.CAPMBetaCalculator;
+import com.opengamma.financial.equity.capm.CAPMExpectedReturnCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.GeometricMeanCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;

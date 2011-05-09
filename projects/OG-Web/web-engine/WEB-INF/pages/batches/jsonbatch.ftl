@@ -1,12 +1,12 @@
 <#escape x as x?html>
 {
     "templateData": {
-            "name": "${batch.observationDate} - ${batch.observationTime}",
-            "date": "${batch.observationDate}",
-            "time": "${batch.observationTime}",
-            "version": "${batch.status}",
-            "total_results": "${resultPaging.totalItems}",
-            "total_errors": "${errorPaging.totalItems}"
+      "name": "${batch.observationDate} - ${batch.observationTime}",
+      "date": "${batch.observationDate}",
+      "time": "${batch.observationTime}",
+      "version": "${batch.status}",
+      "total_results": "${resultPaging.totalItems}",
+      "total_errors": "${errorPaging.totalItems}"
     },
     "data": {
         "batch_results": [

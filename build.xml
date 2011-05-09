@@ -27,7 +27,8 @@
 
 	<import file="${common.dir}/common-ivy.xml"/>
 
-	<target name="init" depends="get-build-projects-file-for-user"/>
+	<target name="init" depends="get-build-projects-file-for-user"
+		description="initialises the system config (user/pw required)" />
 	
 	<!-- get user-specific build-projects.xml file -->
 	<target name="get-build-projects-file-for-user" depends="init-credentials">
@@ -87,16 +88,17 @@
 	</macrodef>
 
 	<target name="publish-all" depends="buildlist"
-		description="compile, jar and publish all projects in the right order">
+		description="compile &amp; publish all projects to the shared repo">
 		<og-subant target="publish" buildpathref="build-path" />
 	</target>
 
 	<target name="publish-all-local" depends="buildlist"
-		description="compile, jar and publish all projects in the right order">
+		description="compile &amp; publish all projects to the local repo">
 		<og-subant target="publish-local" buildpathref="build-path" />
 	</target>
 
-	<target name="resolve-all" depends="buildlist" description="resolve all projects in the right order">
+	<target name="resolve-all" depends="buildlist"
+		description="resolve all projects via ivy in the right order">
 		<og-subant target="resolve" buildpathref="build-path" />
 	</target>
 
@@ -105,13 +107,12 @@
 		<og-subant target="compile" buildpathref="build-path" />
 	</target>
 
-	<target name="tarball" depends="buildlist"
-		description="build tarballs for all projects">
+  <!-- ================================================================== -->
+	<target name="tarball" depends="buildlist">
 		<og-subant target="tarball" buildpathref="build-path" />
 	</target>
 
-	<target name="zipfile" depends="buildlist"
-		description="build zip files for all projects">
+	<target name="zipfile" depends="buildlist">
 		<og-subant target="src-zipfile" buildpathref="build-path" />
 		<og-subant target="zipfile" buildpathref="build-path" />
 	</target>
@@ -190,29 +191,30 @@
 		<replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
 		<replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
 	</target>
-	<target name="source-dist" depends="init,clone-or-pull,clean,dist-name,eclipse-readme" description="builds a single source distribution zipfile">
+	<target name="dist-source" depends="init,clone-or-pull,clean,dist-name,eclipse-readme"
+		  description="builds a single source distribution zipfile">
 		<mkdir dir="${dist.dir}" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="..">
-				<include name="OG-Platform/**" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/build/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/repository/" />
+				<exclude name="repository/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
-			<tarfileset uid="0" gid="0" dir=".." filemode="755">
-				<include name="OG-Platform/**/*.sh" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+				<include name="**/*.sh" />
 			</tarfileset>
 		</tar>
 		<zip destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.zip">
-			<fileset dir="..">
-				<include name="OG-Platform/**" />
+			<zipfileset dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/build/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/repository/" />
-			</fileset>
+				<exclude name="repository/" />
+			</zipfileset>
 		</zip>
 		<subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
 			<dirset dir="projects" includes="*" />
@@ -229,27 +231,28 @@
 		<replaceregexp file="common/build.properties" match="^env\.IVY_SHARED_DEFAULT_ROOT=.*$" replace="" flags="mg" />
 		<replaceregexp file="common/build.properties" match="^\n(env\.IVY_SHARED_DEFAULT_ROOT_.*)$" replace="env.IVY_SHARED_DEFAULT_ROOT=$${wkspace.dir}/repository${line.separator}\1" flags="mg" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="..">
-				<include name="OG-Platform/**" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/projects/**/lib/" />
+				<exclude name="projects/**/lib/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
-			<tarfileset uid="0" gid="0" dir=".." filemode="755">
-				<include name="OG-Platform/**/*.sh" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+				<include name="**/*.sh" />
 			</tarfileset>
 		</tar>
 		<zip destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.zip">
-			<fileset dir="..">
-				<include name="OG-Platform/**" />
+			<zipfileset dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/projects/**/lib/" />
-			</fileset>
+				<exclude name="projects/**/lib/" />
+			</zipfileset>
 		</zip>
 	</target>
-	<target name="binary-dist" depends="init,clean-all,publish-all-local,binary-dist-impl" description="builds a single binary distribution zipfile" />
+	<target name="dist-binary" depends="init,clean-all,publish-all-local,binary-dist-impl"
+		description="builds a single binary distribution zipfile" />
 	<target name="binary-dist-impl" depends="buildlist,dist-name">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
 		<antcall target="dist-archive">
@@ -264,7 +267,8 @@
 		</antcall>
 	</target>
 	<!-- og-examples-dist is probably more useful than binary-dist -->
-	<target name="og-examples-dist" depends="init,clean-all,publish-all-local,og-examples-dist-impl" description="builds a distribution zipfile for OG-Examples" />
+	<target name="dist-og-examples" depends="init,clean-all,publish-all-local,og-examples-dist-impl"
+		description="builds a distribution zipfile for OG-Examples" />
 	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
 		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
 			<property name="og.build.invoked" value="true" />
@@ -283,13 +287,14 @@
 		</copy>
 	</target>
 	
+  <!-- ================================================================== -->
 	<target name="tests-individual-reports" depends="buildlist"
-		description="run unit tests for all projects">
+		description="run tests for all projects with separate reports">
 		<og-subant target="tests" buildpathref="build-path" />
 	</target>
 
 	<target name="tests" depends="test-batch,junit-report"
-		    description="run unit tests for all projects"/>
+		description="run tests for all projects with combined report"/>
 
 	<target name="test-batch" depends="buildlist,test-batch-clean">
 		<subant target="test-batch" buildpathref="build-path">
@@ -314,40 +319,49 @@
 			<report todir="${tests.junit.dir}/html" format="noframes" />
 		</junitreport>
 	</target>
-	
-	<target name="clean-all" depends="buildlist" description="clean all projects">
+
+  <!-- ================================================================== -->
+	<target name="clean-ivy-cache" depends="load-ivy"
+		description="clean the ivy cache">
+		<ivy:cleancache />
+	</target>
+
+	<target name="clean-all" depends="buildlist"
+		description="clean all projects">
 		<og-subant target="clean" buildpathref="build-path" />
 	</target>
 
+	<!-- this may be redundent -->
 	<target name="clean-src" depends="buildlist">
 		<og-subant target="clean-src" buildpathref="build-path" />
 	</target>
-	
+
 	<target name="clean-lib"
-		description="--> clean the project libraries directory (dependencies)">
+		description="clean the project libraries directory (dependencies)">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
+	<target name="clean" depends="clean-all, load-ivy"
+		description="clean all projects, delete repository &amp; reload ivy">
+		<delete dir="${repository.dir}" />
+		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
+	</target>
+
+  <!-- ================================================================== -->
 	<target name="fudge-proto" depends="clean-src">
 		<og-subant target="fudge-proto" buildpathref="build-path" />
 	</target>
 
-    <target name="joda-bean" depends="buildlist"
-    	description="builds the Joda-Bean files">
-	<og-subant target="joda-bean" buildpathref="build-path" />
-    </target>
-
-	<target name="clean" depends="clean-all, load-ivy"
-		description="delete repository, clean ivy cache, and clean all projects">
-		<delete dir="${repository.dir}" />
-		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
+	<target name="joda-bean" depends="buildlist"
+		description="builds the Joda-Bean files">
+		<og-subant target="joda-bean" buildpathref="build-path" />
 	</target>
-	
-	<target name="clean-ivy-cache" depends="load-ivy">
-	  <ivy:cleancache />
-    </target>
-	
-	<target name="javadoc-public" depends="load-ivy, resolve" description="--> build Javadocs for public APIs and SPIs of the project">
+
+  <!-- ================================================================== -->
+	<!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
+	<!-- to filter the output -->
+	<target name="javadoc-public" depends="load-ivy, resolve" 
+		description="javadoc for public APIs and SPIs of the project">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
@@ -387,8 +401,9 @@
 		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
 	</target>
-	
-  <target name="javadoc-all" depends="load-ivy, resolve" description="--> build Javadocs for whole system (requires > 2GB RAM and LaTeX)">
+
+  <target name="javadoc-all" depends="load-ivy, resolve"
+  	description="javadoc whole system (requires > 2GB RAM and LaTeX)">
     <mkdir dir="${docs.dir}" />
     <mkdir dir="${docs.dir}/javadoc-all" />
     <mkdir dir="${docs.dir}/temp-src" />
@@ -422,12 +437,14 @@
   
 	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
 	<target name="javadoc-public-jar" depends="javadoc-public"
-		description="--> make a javadoc jar file for this project">
+		description="javadoc (public) built into a jar file">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
 			compress="${jar.compress}" />
 	</target>
 
-	<target name="publish-common-dir" if="publish-common-dir" depends="init" description="publish common files">
+  <!-- ================================================================== -->
+	<!-- publishes common directory for Bamboo -->
+	<target name="publish-common-dir" if="publish-common-dir" depends="init">
 		<echo message="Syncing common files to ${publish-common-dir}" />
 		<sync todir="${publish-common-dir}/common">
 			<fileset dir="common"/>
@@ -459,7 +476,8 @@
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.clone-or-pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	<target name="clone-or-pull" depends="clone-or-pull-noload,clone-or-pull-load" />
+	<target name="clone-or-pull" depends="clone-or-pull-noload,clone-or-pull-load"
+		description="git sync all projects using clone/pull" />
 
 	<target name="pull-noload" if="build.projects.ok">
 		<antcall target="projects.pull" />
@@ -468,7 +486,8 @@
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	<target name="pull" depends="pull-noload,pull-load" />
+	<target name="pull" depends="pull-noload,pull-load"
+		description="git sync all projects using pull" />
 
 	<target name="status-noload" if="build.projects.ok">
 		<antcall target="projects.status" />
@@ -477,7 +496,8 @@
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.status" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	<target name="status" depends="status-noload,status-load" />
+	<target name="status" depends="status-noload,status-load"
+		description="git status check" />
 
 </project>
 

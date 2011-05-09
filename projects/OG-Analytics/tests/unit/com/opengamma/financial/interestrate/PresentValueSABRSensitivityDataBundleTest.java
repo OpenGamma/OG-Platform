@@ -1,6 +1,7 @@
 package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.DoublesPair;
 
-public class PresentValueSABRSensitivityTest {
+public class PresentValueSABRSensitivityDataBundleTest {
 
   private static Map<DoublesPair, Double> ALPHA = new HashMap<DoublesPair, Double>();
   private static Map<DoublesPair, Double> RHO = new HashMap<DoublesPair, Double>();
@@ -17,17 +18,17 @@ public class PresentValueSABRSensitivityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAlpha() {
-    new PresentValueSABRSensitivity(null, RHO, NU);
+    new PresentValueSABRSensitivityDataBundle(null, RHO, NU);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRho() {
-    new PresentValueSABRSensitivity(ALPHA, null, NU);
+    new PresentValueSABRSensitivityDataBundle(ALPHA, null, NU);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNu() {
-    new PresentValueSABRSensitivity(ALPHA, RHO, null);
+    new PresentValueSABRSensitivityDataBundle(ALPHA, RHO, null);
   }
 
   @Test
@@ -38,7 +39,7 @@ public class PresentValueSABRSensitivityTest {
     RHO.put(new DoublesPair(1.5, 5.0), 22.0);
     NU.put(new DoublesPair(0.5, 5.0), 31.0);
     NU.put(new DoublesPair(1.5, 5.0), 32.0);
-    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity(ALPHA, RHO, NU);
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle(ALPHA, RHO, NU);
     assertEquals(sensi.getAlpha(), ALPHA);
     assertEquals(sensi.getRho(), RHO);
     assertEquals(sensi.getNu(), NU);
@@ -46,10 +47,10 @@ public class PresentValueSABRSensitivityTest {
 
   @Test
   public void testAdd() {
-    Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>();
-    Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>();
-    Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>();
-    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    final Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>();
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     alpha.put(new DoublesPair(0.5, 5.0), 11.0);
     alpha.put(new DoublesPair(1.5, 5.0), 12.0);
     sensi.addAlpha(new DoublesPair(0.5, 5.0), 11.0);
@@ -69,10 +70,10 @@ public class PresentValueSABRSensitivityTest {
 
   @Test
   public void testMultiply() {
-    Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>();
-    Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>();
-    Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>();
-    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    final Map<DoublesPair, Double> alpha = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> rho = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> nu = new HashMap<DoublesPair, Double>();
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     sensi.addAlpha(new DoublesPair(0.5, 5.0), 11.0);
     sensi.addAlpha(new DoublesPair(1.5, 5.0), 12.0);
     sensi.addRho(new DoublesPair(0.5, 5.0), 21.0);
@@ -89,5 +90,21 @@ public class PresentValueSABRSensitivityTest {
     nu.put(new DoublesPair(0.5, 5.0), 310.0);
     nu.put(new DoublesPair(1.5, 5.0), 320.0);
     assertEquals(sensi.getNu(), nu);
+  }
+
+  @Test
+  public void testHashCodeAndEquals() {
+    final PresentValueSABRSensitivityDataBundle data = new PresentValueSABRSensitivityDataBundle(ALPHA, NU, RHO);
+    PresentValueSABRSensitivityDataBundle other = new PresentValueSABRSensitivityDataBundle(ALPHA, NU, RHO);
+    assertEquals(data, other);
+    assertEquals(data.hashCode(), other.hashCode());
+    other.addNu(DoublesPair.of(1., 2.), 10.);
+    assertFalse(data.equals(other));
+    other = new PresentValueSABRSensitivityDataBundle(NU, NU, RHO);
+    assertFalse(data.equals(other));
+    other = new PresentValueSABRSensitivityDataBundle(ALPHA, ALPHA, RHO);
+    assertFalse(data.equals(other));
+    other = new PresentValueSABRSensitivityDataBundle(ALPHA, NU, NU);
+    assertFalse(data.equals(other));
   }
 }

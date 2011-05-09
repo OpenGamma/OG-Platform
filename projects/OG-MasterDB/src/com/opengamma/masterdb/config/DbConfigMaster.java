@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.config;
 
-import java.util.List;
-
 import javax.time.TimeSource;
 
 import com.opengamma.DataNotFoundException;
@@ -17,6 +15,8 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.master.listener.BasicMasterChangeManager;
@@ -141,6 +141,11 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   }
 
   @Override
+  public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
+    return _worker.metaData(request);
+  }
+
+  @Override
   public <T> ConfigSearchResult<T> search(ConfigSearchRequest<T> request) {
     return _worker.search(request);
   }
@@ -153,11 +158,6 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   @Override
   public void remove(UniqueIdentifier uniqueId) {
     _worker.remove(uniqueId);
-  }
-
-  @Override
-  public List<String> getTypes() {
-    return _worker.getTypes();
   }
 
   @Override

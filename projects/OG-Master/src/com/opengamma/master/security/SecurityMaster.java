@@ -19,6 +19,16 @@ import com.opengamma.util.PublicSPI;
 public interface SecurityMaster extends AbstractMaster<SecurityDocument>, NotifyingMaster {
 
   /**
+   * Queries the meta-data about the master.
+   * <p>
+   * This can return information that is useful for drop-down lists.
+   * 
+   * @param request  the search request, not null
+   * @return the requested meta-data, not null
+   */
+  SecurityMetaDataResult metaData(SecurityMetaDataRequest request);
+
+  /**
    * Searches for securities matching the specified search criteria.
    * 
    * @param request  the search request, not null

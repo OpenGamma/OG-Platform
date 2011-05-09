@@ -21,7 +21,7 @@
         <@rowout label="Short name">${security.shortName}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Company name">${security.companyName}</@rowout>
-        <@rowout label="Currency">${security.currency.ISOCode}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="GICS code">
           ${security.gicsCode.sectorCode}&nbsp;
           ${security.gicsCode.industryGroupCode}&nbsp;
@@ -34,7 +34,7 @@
         <@rowout label="Issuer type">${security.issuerType}</@rowout>
         <@rowout label="Issuer domicile">${security.issuerDomicile}</@rowout>
         <@rowout label="Market">${security.market}</@rowout>
-        <@rowout label="Currency">${security.currency.ISOCode}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
         <@rowout label="Yield convention">${security.yieldConvention.conventionName}</@rowout>
         <#if security.guaranteeType?has_content>
           <@rowout label="Guarantee type">${security.guaranteeType}</@rowout>
@@ -66,7 +66,7 @@
         <@rowout label="Expiry accuracy">${security.expiry.accuracy?replace("_", " ")}</@rowout>
         <@rowout label="Trading exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement exchange">${security.settlementExchange}</@rowout>
-        <@rowout label="Redemption value">${security.currency.ISOCode}</@rowout>
+        <@rowout label="Redemption value">${security.currency}</@rowout>
         <#break>
       <#case "EQUITY_OPTION">
         <@rowout label="Exercise type">${security.exerciseType}</@rowout>

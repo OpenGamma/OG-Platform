@@ -19,10 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -48,7 +46,10 @@ public class WebView {
   private final ResultConverterCache _resultConverterCache;
   
   private final ReentrantLock _updateLock = new ReentrantLock();
-  private boolean _awaitingUpdate;
+  
+  private boolean _awaitingNextUpdate;
+  private boolean _continueUpdateThread;
+  private boolean _updateThreadRunning;
   
   private AtomicBoolean _isInit = new AtomicBoolean(false);
   
@@ -70,7 +71,8 @@ public class WebView {
       
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition) {
-        // TODO: support for changing compilation results        
+        // TODO: support for changing compilation results     
+        s_logger.warn("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
       
@@ -79,9 +81,9 @@ public class WebView {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
         _updateLock.lock();
         try {
-          if (_awaitingUpdate) {
-            _awaitingUpdate = false;
-            sendUpdateAsync(fullResult);
+          if (_awaitingNextUpdate) {
+            _awaitingNextUpdate = false;
+            sendImmediateUpdate();
           }
         } finally {
           _updateLock.unlock();
@@ -96,20 +98,22 @@ public class WebView {
   //-------------------------------------------------------------------------
   // Initialisation
   
-  private void initGrids(CompiledViewDefinition compiledViewDefinition) {   
-    ViewDefinition viewDefinition = compiledViewDefinition.getViewDefinition();
-    Portfolio portfolio = compiledViewDefinition.getPortfolio();
+  private void initGrids(CompiledViewDefinition compiledViewDefinition) {
+    if (_isInit.getAndSet(true)) {
+      // Already initialised
+      return;
+    }
     
-    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(viewDefinition, portfolio, getResultConverterCache(), getLocal(), getRemote());
-    if (portfolioGrid.isEmpty()) {
+    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
       _portfolioGrid = portfolioGrid;
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
     
-    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(viewDefinition, getResultConverterCache(), getLocal(), getRemote());
-    if (primitivesGrid.isEmpty()) {
+    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
       _primitivesGrid = primitivesGrid;
@@ -117,11 +121,10 @@ public class WebView {
     }
     
     notifyInitialized();
-    _isInit.set(true);
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getGridStructures(), null);
+    getRemote().deliver(getLocal(), "/initialize", getJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -171,18 +174,15 @@ public class WebView {
       getPrimitivesGrid().setViewport(processViewportData(primitiveViewport));
     }
 
+    // Can only provide an immediate response if there is a result available
+    immediateResponse &= getViewClient().isResultAvailable();
+    
     _updateLock.lock();
     try {
-      if (!immediateResponse) {
-        _awaitingUpdate = true;
+      if (immediateResponse) {
+        sendImmediateUpdate();
       } else {
-        ViewComputationResultModel latestResult = getViewClient().getLatestResult();
-        if (latestResult == null) {
-          _awaitingUpdate = true;
-        } else {
-          sendUpdateAsync(latestResult);
-          _awaitingUpdate = false;
-        }
+        _awaitingNextUpdate = true;
       }
     } finally {
       _updateLock.unlock();
@@ -211,23 +211,56 @@ public class WebView {
     }
     return result;
   }
+  
+  private void sendImmediateUpdate() {
+    _updateLock.lock();
+    try {
+      if (!_updateThreadRunning) {
+        _updateThreadRunning = true;
+        runUpdateThread();
+      } else {
+        _continueUpdateThread = true;
+      }
+    } finally {
+      _updateLock.unlock();
+    }
+  }
 
-  private void sendUpdateAsync(final ViewComputationResultModel update) {
+  private void runUpdateThread() {
     getExecutorService().submit(new Runnable() {
       @Override
       public void run() {
-        getRemote().startBatch();
-        
-        long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
-        long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
-        sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
-        
-        processResult(update);
-        
-        sendEndMessage();
-        getRemote().endBatch();
+        do {
+          ViewComputationResultModel update = getViewClient().getLatestResult();
+          
+          getRemote().startBatch();
+          
+          long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
+          long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
+          
+          sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
+          processResult(update);
+          sendEndMessage();
+          
+          getRemote().endBatch();
+        } while (continueUpdateThread());
       }
     });
+  }
+  
+  private boolean continueUpdateThread() {
+    _updateLock.lock();
+    try {
+      if (_continueUpdateThread) {
+        _continueUpdateThread = false;
+        return true;
+      } else {
+        _updateThreadRunning = false;
+        return false;
+      }
+    } finally {
+      _updateLock.unlock();
+    }
   }
   
   private void processResult(ViewComputationResultModel resultModel) {
@@ -278,13 +311,13 @@ public class WebView {
   
   //-------------------------------------------------------------------------
   
-  public Map<String, Object> getGridStructures() {
+  public Map<String, Object> getJsonGridStructures() {
     Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
-      gridStructures.put("primitives", getPrimitivesGrid().getGridStructure());
+      gridStructures.put("primitives", getPrimitivesGrid().getJsonGridStructure());
     }
     if (getPortfolioGrid() != null) {
-      gridStructures.put("portfolio", getPortfolioGrid().getGridStructure());
+      gridStructures.put("portfolio", getPortfolioGrid().getJsonGridStructure());
     }
     return gridStructures;
   }

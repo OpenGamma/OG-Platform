@@ -40,21 +40,21 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createRootData();
     return getFreemarker().build("timeseries/onetimeseries.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON() {
     FlexiBean out = createRootData();
     return getFreemarker().build("timeseries/jsononetimeseries.ftl", out);
   }
-  
+
   @GET
   @Produces("text/csv")
-  public String getCsv() {
+  public String getCSV() {
     StringWriter stringWriter  = new StringWriter();
     CSVWriter csvWriter = new CSVWriter(stringWriter);
     csvWriter.writeNext(new String[] {"Time", "Value"});
@@ -64,6 +64,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
     return stringWriter.toString();
   }
 
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
   public Response delete() {
@@ -77,7 +78,7 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
     deleteTimeSeries();
     return Response.ok().build();
   }
-  
+
   private URI deleteTimeSeries() {
     TimeSeriesDocument<?> doc = data().getTimeSeries();
     data().getTimeSeriesMaster().removeTimeSeries(doc.getUniqueId());

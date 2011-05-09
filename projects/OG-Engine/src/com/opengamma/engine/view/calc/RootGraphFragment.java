@@ -39,7 +39,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
     if (!isCancelled()) {
       _done = true;
       notifyAll();
-      _statistics.graphExecuted(getContext().getGraph().getCalcConfName(), getContext().getGraph().getSize(), getContext().getExecutionTime(), System.nanoTime() - _jobStarted);
+      _statistics.graphExecuted(getContext().getGraph().getCalculationConfigurationName(), getContext().getGraph().getSize(), getContext().getExecutionTime(), System.nanoTime() - _jobStarted);
       getContext().freeSharedCacheValues();
       getContext().getExecutor().getCache().cacheExecutionPlan(getContext().getGraph(), this);
     }

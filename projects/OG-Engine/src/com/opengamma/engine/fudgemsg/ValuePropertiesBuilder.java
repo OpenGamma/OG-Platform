@@ -20,6 +20,7 @@ import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.NearlyInfinitePropertiesImpl;
 
 /**
  * Fudge message builder for {@link ValueProperties}.
@@ -31,7 +32,7 @@ import com.opengamma.engine.value.ValueProperties;
  *  For infinite properties there is a field named without:
  *    Format is one field per property, named after the property.
  * 
- * See {@link NearlyInfiniteValuePropertiesBuilder} for an exception to this builder
+ * See {@link NearlyInfinitePropertiesImpl} for an exception to this builder
  */
 @GenericFudgeBuilderFor(ValueProperties.class)
 public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
@@ -52,8 +53,9 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
 
         if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(object)) {
           ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) (object);
+          int counter = 0;
           for (String without : nearlyInifite.getWithout()) {
-            withoutMessage.add((String) null, without);
+            withoutMessage.add(String.valueOf(counter++), without);
           }
         }
 
@@ -67,10 +69,11 @@ public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {
           if ((propertyValues.size() > 1) || optional) {
             final MutableFudgeMsg subMessage = context.newMessage();
             if (optional) {
-              subMessage.add(null, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
+              subMessage.add("optional", null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
             }
+            int counter = 0;
             for (String propertyValue : propertyValues) {
-              subMessage.add(null, null, FudgeWireType.STRING, propertyValue);
+              subMessage.add(String.valueOf(counter++), null, FudgeWireType.STRING, propertyValue);
             }
             withMessage.add(propertyName, null, FudgeWireType.SUB_MESSAGE, subMessage);
           } else if (propertyValues.isEmpty()) {

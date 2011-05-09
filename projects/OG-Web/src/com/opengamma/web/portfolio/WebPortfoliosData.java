@@ -57,6 +57,11 @@ public class WebPortfoliosData extends DirectBean {
   @PropertyDefinition
   private String _uriNodeId;
   /**
+   * The position id from the input URI.
+   */
+  @PropertyDefinition
+  private String _uriPositionId;
+  /**
    * The version id from the URI.
    */
   @PropertyDefinition
@@ -149,6 +154,8 @@ public class WebPortfoliosData extends DirectBean {
         return getUriPortfolioId();
       case 1130377033:  // uriNodeId
         return getUriNodeId();
+      case 1240319664:  // uriPositionId
+        return getUriPositionId();
       case 666567687:  // uriVersionId
         return getUriVersionId();
       case 1121781064:  // portfolio
@@ -180,6 +187,9 @@ public class WebPortfoliosData extends DirectBean {
         return;
       case 1130377033:  // uriNodeId
         setUriNodeId((String) newValue);
+        return;
+      case 1240319664:  // uriPositionId
+        setUriPositionId((String) newValue);
         return;
       case 666567687:  // uriVersionId
         setUriVersionId((String) newValue);
@@ -323,6 +333,31 @@ public class WebPortfoliosData extends DirectBean {
    */
   public final Property<String> uriNodeId() {
     return metaBean().uriNodeId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the position id from the input URI.
+   * @return the value of the property
+   */
+  public String getUriPositionId() {
+    return _uriPositionId;
+  }
+
+  /**
+   * Sets the position id from the input URI.
+   * @param uriPositionId  the new value of the property
+   */
+  public void setUriPositionId(String uriPositionId) {
+    this._uriPositionId = uriPositionId;
+  }
+
+  /**
+   * Gets the the {@code uriPositionId} property.
+   * @return the property, not null
+   */
+  public final Property<String> uriPositionId() {
+    return metaBean().uriPositionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -481,6 +516,10 @@ public class WebPortfoliosData extends DirectBean {
      */
     private final MetaProperty<String> _uriNodeId = DirectMetaProperty.ofReadWrite(this, "uriNodeId", String.class);
     /**
+     * The meta-property for the {@code uriPositionId} property.
+     */
+    private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(this, "uriPositionId", String.class);
+    /**
      * The meta-property for the {@code uriVersionId} property.
      */
     private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
@@ -513,6 +552,7 @@ public class WebPortfoliosData extends DirectBean {
       temp.put("uriInfo", _uriInfo);
       temp.put("uriPortfolioId", _uriPortfolioId);
       temp.put("uriNodeId", _uriNodeId);
+      temp.put("uriPositionId", _uriPositionId);
       temp.put("uriVersionId", _uriVersionId);
       temp.put("portfolio", _portfolio);
       temp.put("parentNode", _parentNode);
@@ -575,6 +615,14 @@ public class WebPortfoliosData extends DirectBean {
      */
     public final MetaProperty<String> uriNodeId() {
       return _uriNodeId;
+    }
+
+    /**
+     * The meta-property for the {@code uriPositionId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> uriPositionId() {
+      return _uriPositionId;
     }
 
     /**

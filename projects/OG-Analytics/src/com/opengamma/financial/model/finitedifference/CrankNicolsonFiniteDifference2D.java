@@ -33,28 +33,30 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
   }
 
   @Override
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, int tSteps, int xSteps, int ySteps, double tMax, BoundaryCondition2D xLowerBoundary, BoundaryCondition2D xUpperBoundary,
-      BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary) {
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary,
+      final BoundaryCondition2D xUpperBoundary,
+      final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary) {
     return solve(pdeData, tSteps, xSteps, ySteps, tMax, xLowerBoundary, xUpperBoundary, yLowerBoundary, yUpperBoundary, null);
   }
 
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, BoundaryCondition2D xLowerBoundary,
-      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
+  @Override
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary,
+      final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
 
-    double dt = tMax / (tSteps);
-    double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
-    double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
-    double dtdx2 = dt / dx / dx;
-    double dtdx = dt / dx;
-    double dtdy2 = dt / dy / dy;
-    double dtdy = dt / dy;
-    double dtdxdy = dt / dy / dx;
-    int size = (xSteps + 1) * (ySteps + 1);
+    final double dt = tMax / (tSteps);
+    final double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
+    final double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
+    final double dtdx2 = dt / dx / dx;
+    final double dtdx = dt / dx;
+    final double dtdy2 = dt / dy / dy;
+    final double dtdy = dt / dy;
+    final double dtdxdy = dt / dy / dx;
+    final int size = (xSteps + 1) * (ySteps + 1);
 
-    double[][] v = new double[xSteps + 1][ySteps + 1];
-    double[] u = new double[size];
-    double[] x = new double[xSteps + 1];
-    double[] y = new double[ySteps + 1];
+    final double[][] v = new double[xSteps + 1][ySteps + 1];
+    final double[] u = new double[size];
+    final double[] x = new double[xSteps + 1];
+    final double[] y = new double[ySteps + 1];
     final double[] q = new double[size];
 
     double currentX = 0;
@@ -68,7 +70,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
     for (int j = 0; j <= ySteps; j++) {
       currentY = yLowerBoundary.getLevel() + j * dy;
       y[j] = currentY;
-      int offset = j * (xSteps + 1);
+      final int offset = j * (xSteps + 1);
       for (int i = 0; i <= xSteps; i++) {
         u[offset + i] = pdeData.getInitialValue(x[i], currentY);
       }
@@ -76,7 +78,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
     double t = 0.0;
     double a, b, c, d, e, f;
-    double[][] w = new double[size][9];
+    final double[][] w = new double[size][9];
 
     for (int n = 0; n < tSteps; n++) {
       t += dt;
@@ -133,7 +135,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       }
 
       // The y boundary conditions
-      double[][][] yBoundary = new double[2][xSteps + 1][];
+      final double[][][] yBoundary = new double[2][xSteps + 1][];
 
       for (int i = 0; i <= xSteps; i++) {
         yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
@@ -142,7 +144,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          int offset = k * (xSteps + 1);
+          final int offset = k * (xSteps + 1);
           sum += temp[k] * u[offset + i];
         }
         q[i] = sum + yLowerBoundary.getConstant(pdeData, t, x[i], dy);
@@ -150,14 +152,14 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         temp = yUpperBoundary.getRightMatrixCondition(pdeData, t, x[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          int offset = (ySteps - k) * (xSteps + 1);
+          final int offset = (ySteps - k) * (xSteps + 1);
           sum += temp[k] * u[offset + i];
         }
         q[i + ySteps * (xSteps + 1)] = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
       }
 
       // The x boundary conditions
-      double[][][] xBoundary = new double[2][ySteps - 1][];
+      final double[][][] xBoundary = new double[2][ySteps - 1][];
 
       for (int j = 1; j < ySteps; j++) {
         xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
@@ -204,7 +206,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
             sum += w[l][7] * u[l + xSteps + 1];
             sum += w[l][8] * u[l + xSteps + 2];
 
-            double correction = omega / w[l][4] * (q[l] - sum);
+            final double correction = omega / w[l][4] * (q[l] - sum);
             // if (freeBoundary != null) {
             // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
             // }
@@ -218,12 +220,12 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int i = 0; i <= xSteps; i++) {
           sum = 0;
           l = i;
-          double[] temp = yBoundary[0][i];
+          final double[] temp = yBoundary[0][i];
           for (int k = 0; k < temp.length; k++) {
-            int offset = k * (xSteps + 1);
+            final int offset = k * (xSteps + 1);
             sum += temp[k] * u[offset + i];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -233,12 +235,12 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int i = 0; i <= xSteps; i++) {
           sum = 0;
           l = (xSteps + 1) * ySteps + i;
-          double[] temp = yBoundary[1][i];
+          final double[] temp = yBoundary[1][i];
           for (int k = 0; k < temp.length; k++) {
-            int offset = (ySteps - k) * (xSteps + 1);
+            final int offset = (ySteps - k) * (xSteps + 1);
             sum += temp[k] * u[offset + i];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -248,11 +250,11 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int j = 1; j < ySteps; j++) {
           sum = 0;
           l = j * (xSteps + 1);
-          double[] temp = xBoundary[0][j - 1];
+          final double[] temp = xBoundary[0][j - 1];
           for (int k = 0; k < temp.length; k++) {
             sum += temp[k] * u[l + k];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -262,11 +264,11 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int j = 1; j < ySteps; j++) {
           sum = 0;
           l = (j + 1) * (xSteps + 1) - 1;
-          double[] temp = xBoundary[1][j - 1];
+          final double[] temp = xBoundary[1][j - 1];
           for (int k = 0; k < temp.length; k++) {
             sum += temp[k] * u[l - k];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -278,7 +280,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
     // unpack vector to matrix
     for (int j = 0; j <= ySteps; j++) {
-      int offset = j * (xSteps + 1);
+      final int offset = j * (xSteps + 1);
       for (int i = 0; i <= xSteps; i++) {
         v[i][j] = u[offset + i];
       }

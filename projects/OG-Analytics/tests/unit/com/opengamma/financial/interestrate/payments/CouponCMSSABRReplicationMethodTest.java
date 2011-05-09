@@ -31,7 +31,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -196,8 +196,8 @@ public class CouponCMSSABRReplicationMethodTest {
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     CouponCMSSABRReplicationMethod method = new CouponCMSSABRReplicationMethod();
     // Swaption sensitivity
-    PresentValueSABRSensitivity pvsReceiver = method.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
-    PresentValueSABRSensitivity pvsPayer = method.presentValueSABRSensitivity(CMS_COUPON_PAYER, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsReceiver = method.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsPayer = method.presentValueSABRSensitivity(CMS_COUPON_PAYER, sabrBundle);
     // Long/short parity
     pvsPayer.multiply(-1.0);
     assertEquals(pvsPayer.getAlpha(), pvsReceiver.getAlpha());

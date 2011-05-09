@@ -47,12 +47,11 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get() {
+  public String getHTML() {
     FlexiBean out = createPortfolioNodeData();
     return getFreemarker().build("portfolios/portfolionode.ftl", out);
   }
-  
-  //-------------------------------------------------------------------------
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
@@ -75,11 +74,12 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     out.put("positions", positionsResult.getPositions());
     return out;
   }
-  
+
+  //-------------------------------------------------------------------------
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response post(@FormParam("name") String name) {
+  public Response postHTML(@FormParam("name") String name) {
     name = StringUtils.trimToNull(name);
     if (name == null) {
       FlexiBean out = createRootData();
@@ -90,7 +90,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     URI uri = createPortfolioNode(name);
     return Response.seeOther(uri).build();
   }
-  
+
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
@@ -110,15 +110,15 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     data().setPortfolio(doc);
     return uri;
   }
-  
 
+  //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response put(@FormParam("name") String name) {
+  public Response putHTML(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     name = StringUtils.trimToNull(name);
     if (name == null) {
@@ -130,14 +130,14 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     URI uri = updatePortfolioNode(name, doc);
     return Response.seeOther(uri).build();
   }
-  
+
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(@FormParam("name") String name) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      return Response.status(Status.FORBIDDEN).entity(get()).build();
+      return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     name = StringUtils.trimToNull(name);
     updatePortfolioNode(name, doc);
@@ -154,13 +154,14 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     }
     return uri;
   }
-  
+
+  //-------------------------------------------------------------------------
   @DELETE
   @Produces(MediaType.TEXT_HTML)
-  public Response delete() {
+  public Response deleteHTML() {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
-      Response.status(Status.FORBIDDEN).entity(get()).build();
+      Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     if (data().getParentNode() == null) {
@@ -174,7 +175,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
     URI uri = WebPortfolioNodeResource.uri(data(), data().getParentNode().getUniqueId());
     return Response.seeOther(uri).build();
   }
-  
+
   @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {

@@ -55,7 +55,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(
+  public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
@@ -64,7 +64,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
     FlexiBean out = createSearchResultData(page, pageSize, name, classification, uriInfo);
     return getFreemarker().build("regions/regions.ftl", out);
   }
-  
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getJSON(

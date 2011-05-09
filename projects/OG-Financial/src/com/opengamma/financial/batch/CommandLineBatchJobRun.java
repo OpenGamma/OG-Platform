@@ -32,6 +32,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -47,6 +48,7 @@ import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
@@ -63,6 +65,7 @@ import com.opengamma.transport.InMemoryRequestConduit;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A batch run started from the command line. 
@@ -412,7 +415,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   
   @Override
   public Set<String> getAllOutputValueNames() {
-    return getCompiledViewDefinition().getOutputValueNames();
+    // REVIEW jonathan 2011-05-04 -- restoring previous behaviour, but this ignores ValueProperties
+    Set<String> valueRequirementNames = new HashSet<String>();
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledViewDefinition().getCompiledCalculationConfigurations()) {
+      for (Pair<String, ValueProperties> output : compiledCalcConfig.getTerminalOutputValues()) {
+        valueRequirementNames.add(output.getFirst());
+      }
+    }
+    return valueRequirementNames;
   }
   
   @Override
