@@ -50,8 +50,8 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
    */
-  public CapFloorCMSDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
-      ZonedDateTime fixingDate, SwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
+  public CapFloorCMSDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap, final CMSIndex cmsIndex, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
     _strike = strike;
     _isCap = isCap;
@@ -71,8 +71,8 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS cap/floor.
    */
-  public static CapFloorCMSDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
-      SwapFixedIborDefinition underlyingSwap, CMSIndex cmsIndex, double strike, boolean isCap) {
+  public static CapFloorCMSDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap, final CMSIndex cmsIndex, final double strike, final boolean isCap) {
     Validate.notNull(underlyingSwap, "underlying swap");
     return new CapFloorCMSDefinition(underlyingSwap.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex, strike, isCap);
   }
@@ -84,7 +84,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS cap/floor.
    */
-  public static CapFloorCMSDefinition from(CouponCMSDefinition coupon, double strike, boolean isCap) {
+  public static CapFloorCMSDefinition from(final CouponCMSDefinition coupon, final double strike, final boolean isCap) {
     Validate.notNull(coupon);
     return new CapFloorCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCmsIndex(), strike, isCap);
@@ -110,8 +110,8 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
    * {@inheritDoc}
    */
   @Override
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
+  public double payOff(final double fixing) {
+    final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
   }
 
@@ -145,7 +145,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -155,7 +155,7 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorCMSDefinition other = (CapFloorCMSDefinition) obj;
+    final CapFloorCMSDefinition other = (CapFloorCMSDefinition) obj;
     if (_isCap != other._isCap) {
       return false;
     }

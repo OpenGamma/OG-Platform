@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
+import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 

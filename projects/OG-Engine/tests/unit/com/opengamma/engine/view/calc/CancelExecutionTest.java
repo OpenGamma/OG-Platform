@@ -164,7 +164,7 @@ public class CancelExecutionTest {
     ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final Map<String, DependencyGraph> graphs = new HashMap<String, DependencyGraph>();
-    graphs.put(graph.getCalcConfName(), graph);
+    graphs.put(graph.getCalculationConfigurationName(), graph);
     CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphs, new PortfolioImpl("Test Portfolio"), 0);
     final SingleComputationCycle cycle = new SingleComputationCycle(
         UniqueIdentifier.of("Test", "Cycle1"),

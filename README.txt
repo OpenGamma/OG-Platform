@@ -52,11 +52,18 @@ wait for "END JETTY START" in the debug output and point your browser at http://
 
 ant -p will give you all the targets available and they're pretty self explainatory.
 
+Eclipse
+-------
+Importing the projects into Eclipse requires following a very specific set of instructions to work properly,
+see the file ECLIPSE.txt
+
 Ivy Repositories and settings files
 -----------------------------------
-If you wish to set up a shared ivy repository, the mount location of the shared ivy repository is currently set to
-O:\OG-PrivateIvy on windows or /ogdev/OG-PrivateIvy on Linux. If mounted elsewhere, this can be specified as the 
-IVY_SHARED_DEFAULT_ROOT environment variable.  See the ivy settings files in common/
+If you wish to set up a shared ivy repository, this can be specified as the IVY_SHARED_DEFAULT_ROOT environment 
+variable.  See the ivy settings files in common/.  By default the shared repository is configured to be the
+repository/ directory in the root, which is where the dependencies go when you download a source tarball that 
+includes the dependencies.  If they're not present, Ivy will continue up the resolver chain until it finds the 
+artifacts from the OpenGamma public Ivy repos, or fails if you do not have connectivity.
 
 Each project's build.xml includes the common.xml file in common/ which defines most targets.  Any tasks that need
 further customization can be customized by simply overriding that task (for an example, see the javadocs task in 

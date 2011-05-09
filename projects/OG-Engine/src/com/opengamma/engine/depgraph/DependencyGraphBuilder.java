@@ -202,6 +202,7 @@ public class DependencyGraphBuilder {
           final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = itr.next();
           //s_logger.debug("Considering {} for {}", resolvedFunction, requirement);
           final CompiledFunctionDefinition functionDefinition = resolvedFunction.getFirst().getFunction();
+          // TODO: can we move this down to where it's needed to avoid the getResults call for nodes already in the graph?
           final Set<ValueSpecification> outputValues = functionDefinition.getResults(getCompilationContext(), target);
           final ValueSpecification originalOutput = resolvedFunction.getSecond();
           final ValueSpecification resolvedOutput = originalOutput.compose(requirement);
@@ -269,6 +270,7 @@ public class DependencyGraphBuilder {
               final Pair<DependencyNode, ValueSpecification> inputValue = addTargetRequirement(inputState);
               graphNode.addInputNode(inputValue.getFirst());
               graphNode.addInputValue(inputValue.getSecond());
+              //s_logger.debug("inputValue={}", inputValue);
               requirementLookup.put(inputValue.getSecond(), inputRequirement);
               if (!inputState.isEmpty()) {
                 pendingInputStates = true;
@@ -382,6 +384,8 @@ public class DependencyGraphBuilder {
             }
           } else {
             s_logger.debug("Deep backtracking as provisional specification {} no longer in output after late resolution of {}", resolutionNode.getValueSpecification(), resolved.getValueRequirement());
+            //s_logger.debug("originalOutputValues = {}", originalOutputValues);
+            //s_logger.debug("newOutputValues = {}", newOutputValues);
             graphNode.clearInputs();
             graphNode.clearOutputValues();
             graphNode.addOutputValues(originalOutputValues);

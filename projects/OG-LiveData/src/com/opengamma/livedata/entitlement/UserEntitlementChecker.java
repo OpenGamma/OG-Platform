@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * For access to be granted, the user must have a permission to the JMS topic
  * name, with dots in the name replaced by slashes.  
  * <p>
- * Say {@link #isEntitled(UserPrincipal, DistributionSpecification)} is called with a
+ * Say {@link #isEntitled(UserPrincipal, LiveDataSpecification)} is called with a
  * {@link DistributionSpecification} with JMS topic name LiveData.Reuters.AAPL.O.
  * If the user for example has <code>Authority</code>
  * LiveData/Reuters/&#42;, access is granted. But if the user has no
@@ -35,12 +35,13 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class UserEntitlementChecker extends AbstractEntitlementChecker {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(UserEntitlementChecker.class);
-  
+
   private final UserManager _userManager;
   private final DistributionSpecificationResolver _resolver;
-  
+
   /**
    * @param userManager
    *          Used to load users (their permissions really)

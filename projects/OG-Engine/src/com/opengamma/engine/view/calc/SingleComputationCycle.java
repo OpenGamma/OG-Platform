@@ -233,7 +233,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @param previousCycle  the previous cycle from which a delta cycle should be performed, or {@code null} to perform
    *                       a full cycle
    * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
-   *                               Execution of any outstanding jobs will be cancelled, but {@link #releaseResources()}
+   *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
    *                               still must be called.
    */
   public void execute(SingleComputationCycle previousCycle) throws InterruptedException {    
@@ -407,7 +407,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputValues(), CacheSelectHint.allShared())) {
+    for (Pair<ValueSpecification, Object> value : computationCache.getValues(depGraph.getOutputSpecifications(), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
         continue;
       }
@@ -468,7 +468,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
 
       TreeMap<String, Object> key2Value = new TreeMap<String, Object>();
-      for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
+      for (ValueSpecification outputSpec : depGraph.getOutputSpecifications()) {
         Object value = computationCache.getValue(outputSpec);
         key2Value.put(outputSpec.toString(), value);
       }

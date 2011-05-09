@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,13 +30,16 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewTargetResultModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ConversionMode;
+import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -54,8 +56,7 @@ public abstract class WebViewGrid {
   private final String _updateChannel;
   private final String _columnStructureChannel;
   
-  private final Map<UniqueIdentifier, Long> _targetIdMap;
-  private final Map<String, WebViewGridColumn> _columnDetailsMap;
+  private final WebViewGridStructure _gridStructure;
   private final ResultConverterCache _resultConverterCache;
   private final Client _local;
   private final Client _remote;
@@ -71,11 +72,11 @@ public abstract class WebViewGrid {
   private final Set<WebGridCell> _fullConversionModeCells = new HashSet<WebGridCell>();
   private final Map<WebGridCell, SortedMap<Long, Object>> _cellValueHistory = new HashMap<WebGridCell, SortedMap<Long, Object>>();
   
-  protected WebViewGrid(String name, List<UniqueIdentifier> targets, ViewDefinition viewDefinition,
-      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue) {
+  protected WebViewGrid(String name, CompiledViewDefinition compiledViewDefinition, List<UniqueIdentifier> targets,
+      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local,
+      Client remote, String nullCellValue) {
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(targets, "targets");
-    ArgumentChecker.notNull(viewDefinition, "viewDefinition");
+    ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     ArgumentChecker.notNull(targetTypes, "targetTypes");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
     ArgumentChecker.notNull(local, "local");
@@ -85,14 +86,8 @@ public abstract class WebViewGrid {
     _updateChannel = UPDATES_ROOT_CHANNEL + "/" + name;
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
     
-    // Order of targets could be important, so use a linked map
-    _targetIdMap = new LinkedHashMap<UniqueIdentifier, Long>();
-    long nextId = 0;
-    for (UniqueIdentifier target : targets) {
-      _targetIdMap.put(target, nextId++);
-    }
-    
-    _columnDetailsMap = generateColumns(viewDefinition, targetTypes);
+    List<WebViewGridColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
+    _gridStructure = new WebViewGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     
     _resultConverterCache = resultConverterCache;
     _local = local;
@@ -104,14 +99,10 @@ public abstract class WebViewGrid {
     return _name;
   }
   
-  public boolean isEmpty() {
-    return _columnDetailsMap.isEmpty() || _targetIdMap.isEmpty();
-  }
-  
   //-------------------------------------------------------------------------
 
   public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
-    Long rowId = getRowId(target.getUniqueId());
+    Long rowId = getGridStructure().getRowId(target.getUniqueId());
     if (rowId == null) {
       // Result not in the grid
       return;
@@ -125,42 +116,62 @@ public abstract class WebViewGrid {
     }
     
     for (String configName : resultModel.getCalculationConfigurationNames()) {
-      for (Map.Entry<String, ComputedValue> value : resultModel.getValues(configName).entrySet()) {
-        String valueRequirementName = value.getKey();
-        String columnName = getColumnKey(configName, valueRequirementName);
-        WebViewGridColumn columnDetails = _columnDetailsMap.get(columnName);
-        long colId = columnDetails.getId();
+      for (ComputedValue value : resultModel.getAllValues(configName)) {
+        ValueSpecification specification = value.getSpecification();
+        WebViewGridColumn column = getGridStructure().getColumn(configName, specification);
+        if (column == null) {
+          s_logger.warn("Could not find column for calculation configuration {} with value specification {}", configName, specification);
+          continue;
+        }
+        
+        long colId = column.getId();
         
         // s_logger.debug("{} {} = {} {}", new Object[] {target.getUniqueId(), columnName, value.getValue().getValue(), value.getValue().getSpecification().getProperties()});
 
         WebGridCell cell = WebGridCell.of(rowId, colId);
         
         ConversionMode mode = getConversionMode(cell);
-        Object latestValue;
-        try {
-          latestValue = convertResult(columnDetails, value.getValue().getValue(), mode);
-        } catch (Exception e) {
-          s_logger.error("Exception when converting: ", e);
-          latestValue = "Conversion Error";
+        Object originalValue = value.getValue();
+        ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
+
+        Object displayValue;
+        if (originalValue != null) {
+          try {
+            displayValue = converter.convertForDisplay(_resultConverterCache, value.getSpecification(), originalValue, mode);
+          } catch (Exception e) {
+            s_logger.error("Exception when converting: ", e);
+            displayValue = "Conversion Error";
+          }
+        } else {
+          displayValue = null;
         }
         
         boolean isHistoryOutput = isHistoryOutput(colId);
         if (isHistoryOutput) {
-          addCellHistory(cell, resultTimestamp, latestValue);
+          Object historyValue;
+          if (originalValue != null) {
+            historyValue = converter.convertForHistory(_resultConverterCache, value.getSpecification(), originalValue);
+          } else {
+            historyValue = null;
+          }
+          addCellHistory(cell, resultTimestamp, historyValue);
         }
         
+        Object cellValue;
         if (rowInViewport) {
           // Client requires this row
-          Object cellValue = null;
           if (isHistoryOutput) {
+            Map<String, Object> cellData = new HashMap<String, Object>();
+            cellData.put("display", displayValue);
             SortedMap<Long, Object> history = getCellHistory(cell, lastHistoryTime);
             if (history != null) {
-              cellValue = history.values();
+              cellData.put("history", history.values());
             }
+            cellValue = cellData;
           } else {
-            cellValue = latestValue;
+            cellValue = displayValue;
           }
-          
+
           if (cellValue != null) {
             valuesToSend.put(Long.toString(colId), cellValue);
           }
@@ -172,16 +183,14 @@ public abstract class WebViewGrid {
     }
   }
   
-  private <T> Object convertResult(WebViewGridColumn column, T value, ConversionMode mode) {
-    if (value == null) {
-      return null;
-    }
-    
+  @SuppressWarnings("unchecked")
+  private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
+    // Ensure the converter is cached against the value name before sending the column details 
+    ResultConverter<Object> converter = (ResultConverter<Object>) _resultConverterCache.getAndCacheConverter(valueName, valueType);
     if (!column.isTypeKnown()) {
       sendColumnDetails(Collections.singleton(column));
     }
-    
-    return _resultConverterCache.convert(column.getValueRequirementName(), value, mode);
+    return converter;
   }
   
   public ConversionMode getConversionMode(WebGridCell cell) {
@@ -200,34 +209,35 @@ public abstract class WebViewGrid {
   
   //-------------------------------------------------------------------------
   
-  public Object getGridStructure() {
+  public Object getJsonGridStructure() {
     Map<String, Object> gridStructure = new HashMap<String, Object>();
     gridStructure.put("name", getName());
-    gridStructure.put("rows", getRowStructures());
-    gridStructure.put("columns", getColumnStructures(_columnDetailsMap.values()));
+    gridStructure.put("rows", getJsonRowStructures());
+    gridStructure.put("columns", getJsonColumnStructures(getGridStructure().getColumns()));
     return gridStructure;
   }
 
   private void sendColumnDetails(Collection<WebViewGridColumn> columnDetails) {
-    _remote.deliver(_local, _columnStructureChannel, getColumnStructures(columnDetails), null);
+    _remote.deliver(_local, _columnStructureChannel, getJsonColumnStructures(columnDetails), null);
   }
   
-  private Map<String, Object> getColumnStructures(Collection<WebViewGridColumn> columns) {
+  private Map<String, Object> getJsonColumnStructures(Collection<WebViewGridColumn> columns) {
     Map<String, Object> columnStructures = new HashMap<String, Object>();
     for (WebViewGridColumn columnDetails : columns) {
-      columnStructures.put(Long.toString(columnDetails.getId()), getColumnStructure(columnDetails));
+      columnStructures.put(Long.toString(columnDetails.getId()), getJsonColumnStructure(columnDetails));
     }
     return columnStructures;
   }
   
-  private Map<String, Object> getColumnStructure(WebViewGridColumn column) {
+  private Map<String, Object> getJsonColumnStructure(WebViewGridColumn column) {
     Map<String, Object> detailsToSend = new HashMap<String, Object>();
     long colId = column.getId();
-    detailsToSend.put("key", column.getKey());
     detailsToSend.put("colId", colId);
+    detailsToSend.put("header", column.getHeader());
+    detailsToSend.put("description", column.getDescription());
     detailsToSend.put("nullValue", _nullCellValue);
     
-    String resultType = _resultConverterCache.getKnownResultTypeName(column.getValueRequirementName());
+    String resultType = _resultConverterCache.getKnownResultTypeName(column.getValueName());
     if (resultType != null) {
       column.setTypeKnown(true);
       detailsToSend.put("dataType", resultType);
@@ -241,9 +251,9 @@ public abstract class WebViewGrid {
     return detailsToSend;
   }
 
-  private List<Object> getRowStructures() {
+  private List<Object> getJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
-    for (Map.Entry<UniqueIdentifier, Long> targetEntry : _targetIdMap.entrySet()) {
+    for (Map.Entry<UniqueIdentifier, Long> targetEntry : getGridStructure().getTargets().entrySet()) {
       Map<String, Object> rowDetails = new HashMap<String, Object>();
       UniqueIdentifier target = targetEntry.getKey();
       long rowId = targetEntry.getValue();
@@ -264,6 +274,10 @@ public abstract class WebViewGrid {
   
   public void setViewport(SortedMap<Long, Long> viewportMap) {
     _viewportMap.set(viewportMap);
+  }
+  
+  protected WebViewGridStructure getGridStructure() {
+    return _gridStructure;
   }
   
   //-------------------------------------------------------------------------
@@ -300,18 +314,17 @@ public abstract class WebViewGrid {
   }
 
   //-------------------------------------------------------------------------
-  // Utilities
-  
-  private Map<String, WebViewGridColumn> generateColumns(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
-    Map<String, WebViewGridColumn> columns = new LinkedHashMap<String, WebViewGridColumn>();
-    long colId = 0;
+
+  private static List<WebViewGridColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
+    List<WebViewGridColumnKey> result = new ArrayList<WebViewGridColumnKey>();
     for (ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
-      String configName = calcConfig.getName();
-      
+      String calcConfigName = calcConfig.getName();
       if (targetTypes.contains(ComputationTargetType.POSITION) || targetTypes.contains(ComputationTargetType.PORTFOLIO_NODE)) {
         for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
-          String columnKey = getColumnKey(configName, portfolioOutput.getFirst());
-          columns.put(columnKey, new WebViewGridColumn(colId++, columnKey, portfolioOutput.getFirst()));
+          String valueName = portfolioOutput.getFirst();
+          ValueProperties constraints = portfolioOutput.getSecond();
+          WebViewGridColumnKey columnKey = new WebViewGridColumnKey(calcConfigName, valueName, constraints);
+          result.add(columnKey);
         }
       }
       
@@ -320,19 +333,12 @@ public abstract class WebViewGrid {
           continue;
         }
         String valueName = specificRequirement.getValueName();
-        String columnKey = getColumnKey(configName, valueName);
-        columns.put(columnKey, new WebViewGridColumn(colId++, columnKey, valueName));
+        ValueProperties constraints = specificRequirement.getConstraints();
+        WebViewGridColumnKey columnKey = new WebViewGridColumnKey(calcConfigName, valueName, constraints);
+        result.add(columnKey);
       }
     }
-    return columns;
+    return result;
   }
-  
-  private static String getColumnKey(String configName, String outputName) {
-    return configName + "/" + outputName;
-  }
-  
-  protected Long getRowId(UniqueIdentifier target) {
-    return _targetIdMap.get(target);
-  }
-  
+    
 }

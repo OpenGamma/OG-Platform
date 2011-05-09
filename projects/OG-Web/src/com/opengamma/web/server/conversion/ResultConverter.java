@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.server.conversion;
 
+import com.opengamma.engine.value.ValueSpecification;
+
 /**
  * Converts from a function result into a JSON-friendly object suitable for consumption by the web client.
  * 
@@ -13,14 +15,25 @@ package com.opengamma.web.server.conversion;
 public interface ResultConverter<T> {
 
   /**
-   * Converts from a function result into an object suitable for consumption by the web client as JSON.
+   * Converts from a function result into an object suitable for consumption by the web client as JSON, for display.
    * 
-   * @param value  a function result, not null
-   * @param mode  the mode in which the value should be converted
    * @param context  the converter context
-   * @return  the converted, JSON-friendly value
+   * @param valueSpec  the value specification if applicable, may be {@code null}
+   * @param value  a function result, not {@code null}
+   * @param mode  the mode in which the value should be converted
+   * @return  the converted, JSON-friendly value for display
    */
-  Object convert(ResultConverterCache context, T value, ConversionMode mode);
+  Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, T value, ConversionMode mode);
+  
+  /**
+   * Converts from a function result into an object suitable for consumption by the web client as JSON, for history.
+   * 
+   * @param context  the converter context
+   * @param valueSpec  the value specification if applicable, may be {@code null}
+   * @param value  a function result, not {@code null}
+   * @return  the converted, JSON-friendly value for history
+   */
+  Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, T value);
   
   /**
    * A unique name which indicates to a client both
@@ -29,8 +42,8 @@ public interface ResultConverter<T> {
    *   <li>how it should be rendered</li>
    * </ul>
    * 
-   * @return a unique name
+   * @return a unique name, not {@code null}
    */
-  String getResultTypeName();
+  String getFormatterName();
   
 }

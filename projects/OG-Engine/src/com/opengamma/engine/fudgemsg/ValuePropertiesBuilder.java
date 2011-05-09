@@ -20,6 +20,7 @@ import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.NearlyInfinitePropertiesImpl;
 
 /**
  * Fudge message builder for {@link ValueProperties}.
@@ -31,7 +32,7 @@ import com.opengamma.engine.value.ValueProperties;
  *  For infinite properties there is a field named without:
  *    Format is one field per property, named after the property.
  * 
- * See {@link NearlyInfiniteValuePropertiesBuilder} for an exception to this builder
+ * See {@link NearlyInfinitePropertiesImpl} for an exception to this builder
  */
 @GenericFudgeBuilderFor(ValueProperties.class)
 public class ValuePropertiesBuilder implements FudgeBuilder<ValueProperties> {

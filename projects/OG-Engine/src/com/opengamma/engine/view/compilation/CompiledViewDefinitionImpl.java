@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,29 +23,25 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Default implementation of {@link CompiledViewDefinition}.
  */
 public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   private final ViewDefinition _viewDefinition;
   private final Portfolio _portfolio;
-  private final Map<ValueRequirement, ValueSpecification> _liveDataRequirements;
-  private final Set<String> _outputValueNames;
-  private final Set<ComputationTarget> _computationTargets;
-  private final Set<String> _securityTypes;
+  private final Map<String, CompiledViewCalculationConfiguration> _compiledCalculationConfigurations;
   private final Instant _earliestValidity;
   private final Instant _latestValidity;
 
   public CompiledViewDefinitionImpl(ViewDefinition viewDefinition, Portfolio portfolio,
-      Map<ValueRequirement, ValueSpecification> liveDataRequirements, Set<String> outputValueNames,
-      Set<ComputationTarget> computationTargets, Set<String> securityTypes, Instant earliestValidity,
-      Instant latestValidity) {
+      Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      Instant earliestValidity, Instant latestValidity) {
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
-    _liveDataRequirements = liveDataRequirements;
-    _outputValueNames = outputValueNames;
-    _computationTargets = computationTargets;
-    _securityTypes = securityTypes;
+    _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
+    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+      _compiledCalculationConfigurations.put(compiledCalculationConfiguration.getName(), compiledCalculationConfiguration);
+    }
     _earliestValidity = earliestValidity;
     _latestValidity = latestValidity;
   }
@@ -55,25 +55,34 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Portfolio getPortfolio() {
     return _portfolio;
   }
-
+  
   @Override
-  public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
-    return _liveDataRequirements;
+  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
+    ArgumentChecker.notNull(viewCalculationConfiguration, "viewCalculationConfiguration");
+    return _compiledCalculationConfigurations.get(viewCalculationConfiguration);
+  }
+  
+  @Override
+  public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
+    return Collections.unmodifiableCollection(_compiledCalculationConfigurations.values());
   }
 
   @Override
-  public Set<String> getOutputValueNames() {
-    return _outputValueNames;
+  public Map<ValueRequirement, ValueSpecification> getLiveDataRequirements() {
+    Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+      allRequirements.putAll(compiledCalcConfig.getLiveDataRequirements());
+    }
+    return Collections.unmodifiableMap(allRequirements);
   }
 
   @Override
   public Set<ComputationTarget> getComputationTargets() {
-    return _computationTargets;
-  }
-
-  @Override
-  public Set<String> getSecurityTypes() {
-    return _securityTypes;
+    Set<ComputationTarget> allTargets = new HashSet<ComputationTarget>();
+    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+      allTargets.addAll(compiledCalcConfig.getComputationTargets());
+    }
+    return Collections.unmodifiableSet(allTargets);
   }
 
   @Override
@@ -104,7 +113,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "CompiledViewDefinitionWithGraphs[" + getViewDefinition().getName() + ", " + getValidityString() + "]";
+    return "CompiledViewDefinition[" + getViewDefinition().getName() + ", " + getValidityString() + "]";
   }
   
   protected String getValidityString() {

@@ -437,6 +437,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             document.setCorrectionFromInstant(now);
             document.setCorrectionToInstant(null);
             document.setUniqueId(oldDoc.getUniqueId().toLatest());
+            mergeNonUpdatedFields(document, oldDoc);
             insert(document);
             return document;
           }
@@ -510,6 +511,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
             document.setCorrectionFromInstant(now);
             document.setCorrectionToInstant(null);
             document.setUniqueId(oldDoc.getUniqueId().toLatest());
+            mergeNonUpdatedFields(document, oldDoc);
             insert(document);
             return document;
           }
@@ -525,6 +527,24 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Merges any fields from the old document that have not been updated.
+   * <p>
+   * Masters can choose to accept a null value for a field to mean
+   * 
+   * @param newDocument  the new document to merge into, not null
+   * @param oldDocument  the old document to merge from, not null
+   */
+  protected void mergeNonUpdatedFields(D newDocument, D oldDocument) {
+    // do nothing (override in subclass)
+    // the following code would merge all null fields, but not sure if that makes sense
+//    for (MetaProperty<Object> prop : newDocument.metaBean().metaPropertyIterable()) {
+//      if (prop.get(newDocument) == null) {
+//        prop.set(newDocument, prop.get(oldDocument));
+//      }
+//    }
+  }
+
   /**
    * Inserts a new document.
    * 

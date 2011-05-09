@@ -61,11 +61,9 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/:type?/name:?/filter_type:?',
-                method: module.name + '.load_filter'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
             load_holidays: {
-                route: '/' + page_name + '/:id/type:/name:?/filter_type:?',
-                method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/type:/name:?/type:?', method: module.name + '.load_' + page_name
             }
         };
         return holidays = {

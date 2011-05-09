@@ -116,7 +116,7 @@
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc" />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
-			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
+			classpathref="lib.path.id.full" author="false" windowtitle="${javadocs.windowtitle}"
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
 			<link href="http://download.oracle.com/javase/6/docs/api/" />
 			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />

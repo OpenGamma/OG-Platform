@@ -91,11 +91,12 @@ public abstract class PropertyPreservingFunction extends AbstractFunction.NonCom
         previousInput = input;
       } else {
         if (!properties.equals(inputProperties)) {
-          throw new IllegalArgumentException("composition of input constraints with " + input + " yields different results to " + previousInput);
+          throw new IllegalArgumentException("Composition of input constraints with " + input + " yields different results to " + previousInput + ". Previous composition = " + properties +
+              ", this composition = " + inputProperties);
         }
       }
     }
-    return getResultProperties(properties);
+    return properties.copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
   }
 
   protected ValueProperties getCompositeValueProperties(final Collection<ComputedValue> inputs) {
