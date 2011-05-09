@@ -6,7 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 
@@ -21,8 +21,8 @@ public class ViewTargetResultModelImpl extends AbstractResultModel<String> imple
   }
   
   @Override
-  public Map<String, ComputedValue> getValues(final String target) {
-    return super.getValuesByName(target);
+  public Set<ComputedValue> getAllValues(final String calcConfigurationName) {
+    return super.getAllValues(calcConfigurationName);
   }
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.equity;
+package com.opengamma.financial.equity.capm;
 
 import org.apache.commons.lang.Validate;
 

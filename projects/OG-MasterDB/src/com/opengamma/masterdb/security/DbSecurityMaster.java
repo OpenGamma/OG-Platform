@@ -29,6 +29,8 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
@@ -77,6 +79,10 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    */
   protected static final String FROM =
       "FROM sec_security main LEFT JOIN sec_security2idkey si ON (si.security_id = main.id) LEFT JOIN sec_idkey i ON (si.idkey_id = i.id) ";
+  /**
+   * SQL select types.
+   */
+  protected static final String SELECT_TYPES = "SELECT DISTINCT main.sec_type AS sec_type ";
 
   /**
    * The detail provider.
@@ -112,6 +118,18 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     ArgumentChecker.notNull(detailProvider, "detailProvider");
     detailProvider.init(this);
     _detailProvider = detailProvider;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    SecurityMetaDataResult result = new SecurityMetaDataResult();
+    if (request.isSecurityTypes()) {
+      List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(SELECT_TYPES + FROM, String.class);
+      result.getSecurityTypes().addAll(securityTypes);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

@@ -20,29 +20,29 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * 
+ * Represents a portfolio grid
  */
 public class WebViewPortfolioGrid extends WebViewGrid {
   
   private Map<Long, PortfolioRow> _rowIdToRowMap;
   
-  public WebViewPortfolioGrid(ViewDefinition viewDefinition, Portfolio portfolio, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    this(viewDefinition, flattenPortfolio(portfolio), resultConverterCache, local, remote);
+  public WebViewPortfolioGrid(CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
+    this(compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote);
   }
   
-  private WebViewPortfolioGrid(ViewDefinition viewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
+  private WebViewPortfolioGrid(CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
       Client local, Client remote) {
-    super("portfolio", getTargets(rows), viewDefinition, EnumSet.of(ComputationTargetType.PORTFOLIO_NODE,
-        ComputationTargetType.POSITION), resultConverterCache, local, remote, "undefined");
-    
+    super("portfolio", compiledViewDefinition, getTargets(rows),
+        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
+        remote, "undefined"); 
     _rowIdToRowMap = new HashMap<Long, PortfolioRow>();
     for (PortfolioRow row : rows) {
-      long rowId = getRowId(row.getTarget().getUniqueId());
+      long rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
       _rowIdToRowMap.put(rowId, row);
     }
   }
@@ -52,7 +52,7 @@ public class WebViewPortfolioGrid extends WebViewGrid {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
-      long parentRowId = getRowId(row.getParentRow().getTarget().getUniqueId());
+      long parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget().getUniqueId());
       details.put("parentRowId", parentRowId);
     }
     ComputationTargetType targetType = row.getTarget().getType();

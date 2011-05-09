@@ -21,9 +21,11 @@ import com.opengamma.util.PublicAPI;
 public interface ViewResultListener {
   
   /**
-   * Called to indicate that the view definition has been compiled. This is always called before
-   * {@link #result(ViewComputationResultModel, ViewDeltaResultModel)} for exactly those results calculated from the
-   * compiled view definition; it will be called again if recompilation is necessary for future results.
+   * Called to indicate that the view definition has been compiled.
+   * This is always called before
+   * {@link #cycleCompleted(ViewComputationResultModel, ViewDeltaResultModel)} for
+   * exactly those results calculated from the compiled view definition;
+   * it will be called again if recompilation is necessary for future results.
    * 
    * @param compiledViewDefinition  the compiled view definition, not null
    */

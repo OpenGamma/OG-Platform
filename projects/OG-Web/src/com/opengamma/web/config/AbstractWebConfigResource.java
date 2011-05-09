@@ -33,6 +33,8 @@ import org.xml.sax.InputSource;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
@@ -63,13 +65,11 @@ public abstract class AbstractWebConfigResource extends AbstractWebResource {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _data = new WebConfigData();
     data().setConfigMaster(configMaster);
-    for (String type : configMaster.getTypes()) {
-      try {
-        Class<?> typeClazz = getClass().getClassLoader().loadClass(type);
-        data().getTypeMap().put(typeClazz.getSimpleName(), typeClazz);
-      } catch (ClassNotFoundException ex) {
-        throw new RuntimeException(ex);
-      }
+    
+    // init meta-data
+    ConfigMetaDataResult metaData = configMaster.metaData(new ConfigMetaDataRequest());
+    for (Class<?> configType : metaData.getConfigTypes()) {
+      data().getTypeMap().put(configType.getSimpleName(), configType);
     }
   }
 

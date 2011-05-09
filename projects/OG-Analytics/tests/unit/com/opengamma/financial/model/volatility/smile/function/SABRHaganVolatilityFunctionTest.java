@@ -126,13 +126,13 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     // Price
     double volatility = FUNCTION.getVolatilityFunction(CALL_STRIKE).evaluate(DATA);
     double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_STRIKE, DATA);
-    double[] volD = new double[2];
+    double[] volD = new double[5];
     double[][] volD2 = new double[2][2];
     double vol = FUNCTION.getVolatilityAdjoint2(CALL_STRIKE, DATA, volD, volD2);
     assertEquals(volatility, vol, 1E-6);
     // Derivative
-    for (int loopder = 0; loopder < 2; loopder++) {
-      assertEquals(volatilityAdjoint[loopder + 1], volD[loopder], 1E-6);
+    for (int loopder = 0; loopder < 5; loopder++) {
+      assertEquals("Derivative " + loopder, volatilityAdjoint[loopder + 1], volD[loopder], 1E-6);
     }
     // Derivative forward-forward
     double deltaF = 0.000001;

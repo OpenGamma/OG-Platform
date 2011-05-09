@@ -42,6 +42,8 @@ import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.db.PagingRequest;
@@ -209,6 +211,15 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  @Path("metaData")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getMetaDataJSON() {
+    FlexiBean out = createRootData();
+    return getFreemarker().build("securities/jsonmetadata.ftl", out);
+  }
+
+  //-------------------------------------------------------------------------
   @Path("{securityId}")
   public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
@@ -237,6 +248,8 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
     out.put("searchRequest", searchRequest);
+    SecurityMetaDataResult metaData = data().getSecurityMaster().metaData(new SecurityMetaDataRequest());
+    out.put("securityTypes", metaData.getSecurityTypes());
     return out;
   }
 

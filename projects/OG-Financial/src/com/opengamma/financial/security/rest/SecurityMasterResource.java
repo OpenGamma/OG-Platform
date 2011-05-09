@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.rest;
 
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_HISTORIC;
+import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_METADATA;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SEARCH;
 import static com.opengamma.financial.security.rest.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
 
@@ -33,6 +34,8 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -159,6 +162,14 @@ public class SecurityMasterResource {
   @Path(SECURITYMASTER_SECURITY)
   public SecurityResource securityResource() {
     return new SecurityResource();
+  }
+
+  @POST
+  @Path(SECURITYMASTER_METADATA)
+  public FudgeMsgEnvelope metaData(final FudgeMsgEnvelope payload) {
+    final SecurityMetaDataRequest request = getFudgeDeserializationContext().fudgeMsgToObject(SecurityMetaDataRequest.class, payload.getMessage());
+    final SecurityMetaDataResult result = getSecurityMaster().metaData(request);
+    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
   }
 
   @POST

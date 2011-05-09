@@ -6,7 +6,9 @@
 package com.opengamma.master.security.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,6 +29,8 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
@@ -95,6 +99,21 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
     _changeManager = changeManager;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    SecurityMetaDataResult result = new SecurityMetaDataResult();
+    if (request.isSecurityTypes()) {
+      Set<String> types = new HashSet<String>();
+      for (SecurityDocument doc : _store.values()) {
+        types.add(doc.getSecurity().getSecurityType());
+      }
+      result.getSecurityTypes().addAll(types);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

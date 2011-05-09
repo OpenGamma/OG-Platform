@@ -22,6 +22,10 @@ public final class SecurityMasterServiceNames {
    */
   public static final String SECURITYMASTER_SECURITY = "security";
   /**
+   * For meta-data (GET).
+   */
+  public static final String SECURITYMASTER_METADATA = "metaData";
+  /**
    * For search (GET).
    */
   public static final String SECURITYMASTER_SEARCH = "search";

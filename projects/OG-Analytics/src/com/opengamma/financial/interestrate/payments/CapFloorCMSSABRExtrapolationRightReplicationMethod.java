@@ -398,7 +398,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       double[] result = new double[2];
       EuropeanVanillaOption option = new EuropeanVanillaOption(strike, getTimeToExpiry(), isCall());
       result[0] = getSabrExtrapolation().price(option);
-      result[1] = getSabrExtrapolation().priceDF(option);
+      result[1] = getSabrExtrapolation().priceDerivativeForward(option);
       return result;
     }
 

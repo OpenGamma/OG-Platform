@@ -52,10 +52,6 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
     FlexiBean out = createPortfolioData();
-    PortfolioDocument doc = data().getPortfolio();
-    if (!doc.isLatest()) {
-      return Response.status(Status.NOT_FOUND).build();
-    }
     return Response.ok(getFreemarker().build("portfolios/jsonportfolio.ftl", out)).build();
   }
 

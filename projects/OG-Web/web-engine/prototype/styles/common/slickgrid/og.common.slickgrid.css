@@ -11,7 +11,7 @@
 }
 
 /* Remove borders from cells */
-.slick-cell, .slick-headerrow-column { 
+.slick-cell, .slick-headerrow-column {
     border: none!important;
     padding: 0 0 0 4px;
 }
@@ -109,17 +109,14 @@
     border-top: none!important;
 }
 
-
-
-
-
-
 .slick-headerrow-column.ui-state-default {
-    padding: 3px 2px 0 3px;
+    padding: 0;
     height: auto;
+    margin: 2px 0 4px 4px;
 }
 
 .slick-headerrow-column {
+    background-color: transparent;
     padding: 0;
     height: auto;
 }
@@ -127,4 +124,14 @@
 .slick-headerrow-column input {
     margin: 0;
     padding: 0;
+}
+
+.slick-headerrow-columns {
+    background-color: transparent;
+    height: 30px;
+    background-image: -webkit-gradient(linear, left top, left bottom,
+        color-stop(0.0, #ececec),
+        color-stop(1, #e7e7e7)
+    );
+    background-image: -moz-linear-gradient(#ececec 0%, #e7e7e7 100%);
 }

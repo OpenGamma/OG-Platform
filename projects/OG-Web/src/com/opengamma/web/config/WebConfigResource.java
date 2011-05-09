@@ -111,7 +111,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @SuppressWarnings({"unchecked", "rawtypes" })
   private URI updateConfig(String name, Pair<Object, Class<?>> newConfigValue) {
     ConfigDocument<?> oldDoc = data().getConfig();
-    ConfigDocument doc = new ConfigDocument(oldDoc.getDocumentClass());
+    ConfigDocument doc = new ConfigDocument(oldDoc.getType());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
     doc.setValue(newConfigValue.getFirst());
