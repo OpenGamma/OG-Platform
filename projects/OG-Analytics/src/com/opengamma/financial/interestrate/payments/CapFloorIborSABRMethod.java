@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -98,7 +98,7 @@ public class CapFloorIborSABRMethod {
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value SABR sensitivity.
    */
-  public PresentValueSABRSensitivity presentValueSABRSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
+  public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     EuropeanVanillaOption option = new EuropeanVanillaOption(cap.geStrike(), cap.getFixingTime(), cap.isCap());
@@ -109,7 +109,7 @@ public class CapFloorIborSABRMethod {
     BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
-    PresentValueSABRSensitivity sensi = new PresentValueSABRSensitivity();
+    PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsAdjoint[2] * volatilityAdjoint[3]);
     sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsAdjoint[2] * volatilityAdjoint[4]);
     sensi.addNu(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsAdjoint[2] * volatilityAdjoint[5]);

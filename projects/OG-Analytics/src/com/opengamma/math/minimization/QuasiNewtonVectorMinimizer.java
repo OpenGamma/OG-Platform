@@ -19,8 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class QuasiNewtonVectorMinimizer implements Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D>,
-    MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
+public class QuasiNewtonVectorMinimizer implements MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
 
   private static final int RESET_FREQ = 200;
   private static final double ALPHA = 1e-4;

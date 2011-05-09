@@ -64,7 +64,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
    */
-  public CapFloorCMSSABRExtrapolationRightReplicationMethod(double cutOffStrike, double mu) {
+  public CapFloorCMSSABRExtrapolationRightReplicationMethod(final double cutOffStrike, final double mu) {
     _integrationInterval = 1.00;
     _mu = mu;
     _cutOffStrike = cutOffStrike;
@@ -79,17 +79,17 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
   public double presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cmsCapFloor);
     Validate.notNull(sabrData);
-    SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
-    FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    double forward = PRC.visit(underlyingSwap, sabrData);
-    double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
-    double strike = cmsCapFloor.geStrike();
-    double factor = discountFactorTp / integrant.h(forward) * integrant.g(forward);
-    double strikePart = factor * integrant.k(strike) * integrant.bs(strike);
-    double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    double relativeTolerance = 1E-10;
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
+    final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
+    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
+    final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
+    final double strike = cmsCapFloor.geStrike();
+    final double factor = discountFactorTp / integrant.h(forward) * integrant.g(forward);
+    final double strikePart = factor * integrant.k(strike) * integrant.bs(strike);
+    final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
+    final double relativeTolerance = 1E-10;
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     double integralPart;
     try {
       if (cmsCapFloor.isCap()) {
@@ -97,10 +97,10 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       } else {
         integralPart = discountFactorTp * integrator.integrate(integrant, 0.0, strike);
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
+    final double priceCMS = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     return priceCMS;
   }
 
@@ -113,22 +113,23 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
   public PresentValueSensitivity presentValueSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cmsCapFloor);
     Validate.notNull(sabrData);
-    SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
-    FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    double forward = PRC.visit(underlyingSwap, sabrData);
-    double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    double strike = cmsCapFloor.geStrike();
+    final SABRInterestRateParameter sabrParameter = sabrData.getSABRParameter();
+    final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
+    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
+    final double strike = cmsCapFloor.geStrike();
     // Common
-    CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
-    CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
-    double factor = discountFactor / integrantDelta.h(forward) * integrantDelta.g(forward);
-    double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
-    double relativeTolerance = 1E-10;
-    RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
+    final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
+    final double factor = discountFactor / integrantDelta.h(forward) * integrantDelta.g(forward);
+    final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
+    final double relativeTolerance = 1E-10;
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
     // Price
-    double[] bs = integrantDelta.bsbsp(strike);
-    double[] n = integrantDelta.nnp(forward);
-    double strikePartPrice = discountFactor * integrantDelta.k(strike) * n[0] * bs[0];
+    final double[] bs = integrantDelta.bsbsp(strike);
+    @SuppressWarnings("synthetic-access")
+    final double[] n = integrantDelta.nnp(forward);
+    final double strikePartPrice = discountFactor * integrantDelta.k(strike) * n[0] * bs[0];
     double integralPartPrice;
     try {
       if (cmsCapFloor.isCap()) {
@@ -136,12 +137,12 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       } else {
         integralPartPrice = discountFactor * integrator.integrate(integrantPrice, 0.0, strike);
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    double price = (strikePartPrice + integralPartPrice) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
+    final double price = (strikePartPrice + integralPartPrice) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     // Delta
-    double strikePart = discountFactor * integrantDelta.k(strike) * (n[1] * bs[0] + n[0] * bs[1]);
+    final double strikePart = discountFactor * integrantDelta.k(strike) * (n[1] * bs[0] + n[0] * bs[1]);
     double integralPart;
     try {
       if (cmsCapFloor.isCap()) {
@@ -149,19 +150,19 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       } else {
         integralPart = discountFactor * integrator.integrate(integrantDelta, 0.0, strike);
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
-    double deltaPD = price / discountFactor;
+    final double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
+    final double deltaPD = price / discountFactor;
 
-    double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
+    final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     PresentValueSensitivity result = new PresentValueSensitivity(resultMap);
-    PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
+    final PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
     result = result.add(forwardDr.multiply(deltaS0));
     return result;
 
@@ -260,22 +261,22 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     /**
      * Constructor
      */
-    public CMSIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameter sabrParameter, double forward, double cutOffStrike, double mu) {
+    public CMSIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameter sabrParameter, final double forward, final double cutOffStrike, final double mu) {
       _nbFixedPeriod = cmsCap.getUnderlyingSwap().getFixedLeg().getPayments().length;
       _nbFixedPaymentYear = (int) Math.round(1.0 / cmsCap.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getPaymentYearFraction());
       _tau = 1.0 / _nbFixedPaymentYear;
       _delta = cmsCap.getPaymentTime() - cmsCap.getSettlementTime();
       _eta = -_delta;
       _timeToExpiry = cmsCap.getFixingTime();
-      AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
+      final AnnuityCouponFixed annuityFixed = cmsCap.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - cmsCap.getSettlementTime();
       _forward = forward;
-      DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
-      double alpha = sabrParameter.getAlpha(expiryMaturity);
-      double beta = sabrParameter.getBeta(expiryMaturity);
-      double rho = sabrParameter.getRho(expiryMaturity);
-      double nu = sabrParameter.getNu(expiryMaturity);
-      SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
+      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      final double alpha = sabrParameter.getAlpha(expiryMaturity);
+      final double beta = sabrParameter.getBeta(expiryMaturity);
+      final double rho = sabrParameter.getRho(expiryMaturity);
+      final double nu = sabrParameter.getNu(expiryMaturity);
+      final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
       _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
       _strike = cmsCap.geStrike();
@@ -283,8 +284,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     }
 
     @Override
-    public Double evaluate(Double x) {
-      double[] kD = kpkpp(x);
+    public Double evaluate(final Double x) {
+      final double[] kD = kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x) * _factor;
     }
@@ -294,7 +295,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param x The swap rate.
      * @return The discount factor.
      */
-    double h(double x) {
+    double h(final double x) {
       return Math.pow(1.0 + _tau * x, _eta);
     }
 
@@ -303,10 +304,10 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param x The swap rate.
      * @return The annuity.
      */
-    double g(double x) {
+    double g(final double x) {
       if (x >= EPS) {
-        double periodFactor = 1 + x / _nbFixedPaymentYear;
-        double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
+        final double periodFactor = 1 + x / _nbFixedPaymentYear;
+        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
         return 1.0 / x * (1.0 - nPeriodDiscount);
       }
       return ((double) _nbFixedPeriod) / _nbFixedPaymentYear;
@@ -317,12 +318,12 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param x The swap rate. 
      * @return The factor.
      */
-    double k(double x) {
+    double k(final double x) {
       double g;
       double h;
       if (x >= EPS) {
-        double periodFactor = 1 + x / _nbFixedPaymentYear;
-        double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
+        final double periodFactor = 1 + x / _nbFixedPaymentYear;
+        final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
         g = 1.0 / x * (1.0 - nPeriodDiscount);
         h = Math.pow(1.0 + _tau * x, _eta);
       } else {
@@ -337,9 +338,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param x The swap rate.
      * @return The derivative (first element is the first derivative, second element is second derivative.
      */
-    protected double[] kpkpp(double x) {
-      double periodFactor = 1 + x / _nbFixedPaymentYear;
-      double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
+    protected double[] kpkpp(final double x) {
+      final double periodFactor = 1 + x / _nbFixedPaymentYear;
+      final double nPeriodDiscount = Math.pow(periodFactor, -_nbFixedPeriod);
       /**
        * The value of the annuity and its first and second derivative.
        */
@@ -355,11 +356,11 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
         gp = -_nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear);
         gpp = _nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) * (1.0 + (_nbFixedPeriod + 2.0) / 3.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear * _nbFixedPaymentYear);
       }
-      double h = Math.pow(1.0 + _tau * x, _eta);
-      double hp = _eta * _tau * h / periodFactor;
-      double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
-      double kp = hp / g - h * gp / (g * g);
-      double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
+      final double h = Math.pow(1.0 + _tau * x, _eta);
+      final double hp = _eta * _tau * h / periodFactor;
+      final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
+      final double kp = hp / g - h * gp / (g * g);
+      final double kpp = hpp / g - 2 * hp * gp / (g * g) - h * (gpp / (g * g) - 2 * (gp * gp) / (g * g * g));
       return new double[] {kp, kpp};
     }
 
@@ -368,24 +369,24 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param strike The strike.
      * @return The Black-Scholes formula.
      */
-    double bs(double strike) {
-      EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
+    double bs(final double strike) {
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _timeToExpiry, _isCall);
       return _sabrExtrapolation.price(option);
     }
   }
 
   private class CMSDeltaIntegrant extends CMSIntegrant {
 
-    public CMSDeltaIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameter sabrParameter, double forward, double cutOffStrike, double mu) {
+    public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameter sabrParameter, final double forward, final double cutOffStrike, final double mu) {
       super(cmsCap, sabrParameter, forward, cutOffStrike, mu);
     }
 
     @Override
-    public Double evaluate(Double x) {
-      double[] kD = kpkpp(x);
+    public Double evaluate(final Double x) {
+      final double[] kD = kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
-      double[] bs = bsbsp(x);
-      double[] n = nnp(getForward());
+      final double[] bs = bsbsp(x);
+      final double[] n = nnp(getForward());
       return (kD[1] * (x - getStrike()) + 2.0 * kD[0]) * (n[1] * bs[0] + n[0] * bs[1]);
     }
 
@@ -394,28 +395,28 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
      * @param strike The strike.
      * @return The Black-Scholes formula and its derivative.
      */
-    double[] bsbsp(double strike) {
-      double[] result = new double[2];
-      EuropeanVanillaOption option = new EuropeanVanillaOption(strike, getTimeToExpiry(), isCall());
+    double[] bsbsp(final double strike) {
+      final double[] result = new double[2];
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, getTimeToExpiry(), isCall());
       result[0] = getSabrExtrapolation().price(option);
       result[1] = getSabrExtrapolation().priceDerivativeForward(option);
       return result;
     }
 
-    private double[] nnp(double x) {
-      double[] result = new double[2];
-      double[] ggp = ggp(x);
-      double[] hhp = hhp(x);
+    private double[] nnp(final double x) {
+      final double[] result = new double[2];
+      final double[] ggp = ggp(x);
+      final double[] hhp = hhp(x);
       result[0] = ggp[0] / hhp[0];
       result[1] = ggp[1] / hhp[0] - ggp[0] * hhp[1] / (hhp[0] * hhp[0]);
       return result;
     }
 
-    private double[] ggp(double x) {
-      double[] result = new double[2];
+    private double[] ggp(final double x) {
+      final double[] result = new double[2];
       if (x >= EPS) {
-        double periodFactor = 1 + x / getNbFixedPaymentYear();
-        double nPeriodDiscount = Math.pow(periodFactor, -getNbFixedPeriod());
+        final double periodFactor = 1 + x / getNbFixedPaymentYear();
+        final double nPeriodDiscount = Math.pow(periodFactor, -getNbFixedPeriod());
         result[0] = 1.0 / x * (1.0 - nPeriodDiscount);
         result[1] = -result[0] / x + getTau() * getNbFixedPeriod() / x * nPeriodDiscount / periodFactor;
       } else {
@@ -425,8 +426,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       return result;
     }
 
-    private double[] hhp(double x) {
-      double[] result = new double[2];
+    private double[] hhp(final double x) {
+      final double[] result = new double[2];
       result[0] = Math.pow(1.0 + getTau() * x, getEta());
       result[1] = getEta() * getTau() * result[0] / (1 + x * getTau());
       return result;

@@ -5,10 +5,11 @@ $.register_module({
     name: 'og.common.util.history',
     dependencies: ['og.common.util.hashqueue'],
     obj: function () {
-        var hashqueue = og.common.util.hashqueue, queues = [], queue, self = this;
+        var hashqueue = og.common.util.hashqueue, queues = {}, queue, module = this;
         queue = function (item) {
-            if (typeof item !== 'string') throw new TypeError(self.name + ': "item" should be a string');
-            return queues[item] || new hashqueue(localStorage.getItem(item) || 5);
+            if (typeof item !== 'string') throw new TypeError(module.name + ': "item" should be a string');
+            if (queues[item]) return queues[item];
+            return queues[item] = new hashqueue(localStorage.getItem(item) || 5);
         };
         return {
             get: function (item) {return queue(item).all();},

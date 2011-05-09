@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessContext;
@@ -75,6 +75,8 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
    * Nanoseconds
    */
   private double _totalTimeNanos;
+
+  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   
   public ViewComputationJob(ViewProcessImpl viewProcess, ViewExecutionOptions executionOptions,
       ViewProcessContext processContext, EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
@@ -89,7 +91,9 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
 
     _executeCycles = !getExecutionOptions().isCompileOnly();
 
-    processContext.getLiveDataSnapshotProvider().addListener(this);
+    _liveDataSnapshotProvider = _processContext.getLiveDataSnapshotProvider(executionOptions);
+    
+    _liveDataSnapshotProvider.addListener(this);
   }
 
   //-------------------------------------------------------------------------
@@ -348,7 +352,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     if (_previousCycleReference != null) {
       _previousCycleReference.release();
     }
-    _processContext.getLiveDataSnapshotProvider().removeListener(this);
+    _liveDataSnapshotProvider.removeListener(this);
     removeLiveDataSubscriptions();
     _latestCompiledViewDefinition = null;
   }
@@ -381,7 +385,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
   private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions) {
     UniqueIdentifier cycleId = getViewProcess().generateCycleId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = getCompiledViewDefinition(executionOptions.getValuationTime());
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions);
+    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(), getProcessContext(), compiledViewDefinition, executionOptions, _executionOptions);
     return getCycleManager().manage(cycle);
   }
   
@@ -470,7 +474,7 @@ public class ViewComputationJob extends TerminatableJob implements LiveDataSnaps
     final OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", requiredSubscriptions.size());
     _pendingSubscriptions.addAll(requiredSubscriptions);
     _pendingSubscriptionLatch = new CountDownLatch(requiredSubscriptions.size());
-    getProcessContext().getLiveDataSnapshotProvider().addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
+    _liveDataSnapshotProvider.addSubscription(getViewProcess().getDefinition().getLiveDataUser(), requiredSubscriptions);
     _liveDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(LIVE_DATA_SUBSCRIPTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {

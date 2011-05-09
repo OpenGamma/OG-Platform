@@ -180,10 +180,8 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
 
         // SOR
         final double omega = 1.5;
-        final double scale = 1.0;
-        final double errorSqr = Double.POSITIVE_INFINITY;
-        final int count = sor(xSteps, vt, q, mx, j, omega, scale, errorSqr);
-        Validate.isTrue(count < 1000, "SOR exceeded max interations");
+        final int count = sor(xSteps, vt, q, mx, j, omega);
+        Validate.isTrue(count < 1000, "SOR exceeded max iterations");
       }
 
       // stag 3 explicit in y
@@ -320,11 +318,13 @@ public class CraigSneydFiniteDifference2D implements ConvectionDiffusionPDESolve
   }
 
   // TODO there is almost identical code lines 297-319
-  private int sor(final int steps, final double[][] v, final double[] q, final double[][] mx, final int j, final double omega, double scale, double errorSqr) {
+  private int sor(final int steps, final double[][] v, final double[] q, final double[][] mx, final int j, final double omega) {
     double sum;
     int min;
     int max;
     int count = 0;
+    double scale = 1.0;
+    double errorSqr = Double.POSITIVE_INFINITY;
     while (errorSqr / (scale + 1e-10) > 1e-18 && count < 1000) {
       errorSqr = 0.0;
       scale = 0.0;
