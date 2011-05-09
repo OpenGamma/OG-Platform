@@ -27,6 +27,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.engine.ComputationTarget;
@@ -147,9 +149,18 @@ public class CancelExecutionTest {
         viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider(securitySource, liveDataEntitlementChecker);
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
+    
+    final MarketDataSnapshotSource marketDataSnapshotSource = new MarketDataSnapshotSource() {
+      
+      @Override
+      public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
+        return null;
+      }
+    };
+    
     final ViewProcessContext vpc = new ViewProcessContext(viewPermissionProvider, liveData, liveData, compilationService, functionResolver, positionSource, securitySource,
         new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource, jobDispatcher,
-        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider);
+        viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider, marketDataSnapshotSource);
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
