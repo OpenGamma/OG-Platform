@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.interestrate.payments;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
@@ -100,12 +101,12 @@ public class Coupon extends Payment {
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    throw new NotImplementedException("Coupon visitor should be implemented at the specific coupon level");
   }
 
 }

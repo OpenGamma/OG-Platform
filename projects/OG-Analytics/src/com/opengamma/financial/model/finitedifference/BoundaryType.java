@@ -8,6 +8,9 @@ package com.opengamma.financial.model.finitedifference;
 /**
  * 
  */
-public enum UpperOrLowerBoundary {
-  Upper, Lower
+public enum BoundaryType {
+  /** Upper boundary */
+  UPPER,
+  /** Lower boundary */
+  LOWER
 }

@@ -47,8 +47,9 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param strike The strike
    * @param isCap The cap/floor flag.
    */
-  public CapFloorIborDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
-      ZonedDateTime fixingDate, IborIndex index, double strike, boolean isCap) {
+  public CapFloorIborDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional,
+      final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
     Validate.isTrue(currency == index.getCurrency(), "payment currency should be same as the index currency");
     _strike = strike;
@@ -68,8 +69,9 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param isCap The cap/floor flag.
    * @return The cap/floor.
    */
-  public static CapFloorIborDefinition from(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional, ZonedDateTime fixingDate,
-      IborIndex index, double strike, boolean isCap) {
+  public static CapFloorIborDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional, final ZonedDateTime fixingDate,
+      final IborIndex index, final double strike, final boolean isCap) {
     Validate.notNull(index, "index");
     return new CapFloorIborDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, strike, isCap);
   }
@@ -81,7 +83,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param isCap The cap/floor flag.
    * @return The cap/floor
    */
-  public static CapFloorIborDefinition from(CouponIborDefinition couponIbor, double strike, boolean isCap) {
+  public static CapFloorIborDefinition from(final CouponIborDefinition couponIbor, final double strike, final boolean isCap) {
     Validate.notNull(couponIbor, "coupon Ibor");
     return new CapFloorIborDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(),
         couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), strike, isCap);
@@ -96,7 +98,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * @param isCap The cap/floor flag.
    * @return The cap/floor
    */
-  public static CapFloorIborDefinition from(double notional, ZonedDateTime fixingDate, IborIndex index, double strike, boolean isCap) {
+  public static CapFloorIborDefinition from(final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
     return from(CouponIborDefinition.from(notional, fixingDate, index), strike, isCap);
   }
 
@@ -120,13 +122,13 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * {@inheritDoc}
    */
   @Override
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
+  public double payOff(final double fixing) {
+    final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
   }
 
   @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+  public Payment toDerivative(final LocalDate date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
@@ -138,14 +140,14 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
     if (isFixed()) { // The Ibor cap/floor has already fixed, it is now a fixed coupon.
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
-    } else { // Ibor is not fixed yet, all the details are required.
-      final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
-      final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
-      final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
-      //TODO: Definition has no spread and time version has one: to be standardized.
-      return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
     }
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
+    //TODO: Definition has no spread and time version has one: to be standardized.
+    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
   }
 
   @Override
@@ -165,7 +167,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -175,7 +177,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorIborDefinition other = (CapFloorIborDefinition) obj;
+    final CapFloorIborDefinition other = (CapFloorIborDefinition) obj;
     if (_isCap != other._isCap) {
       return false;
     }

@@ -51,6 +51,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
+  private boolean _allowViewDefaultCurrency; // = false;
   private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
   private String _defaultCurrencyValueName = DefaultCurrencyInjectionFunction.createValueName(DEFAULT_LOOKUP_VALUE_NAME);
   private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
@@ -100,12 +101,21 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     return _valueNames;
   }
 
+  public void setAllowViewDefaultCurrency(final boolean allowViewDefaultCurrency) {
+    _allowViewDefaultCurrency = allowViewDefaultCurrency;
+  }
+
+  public boolean isAllowViewDefaultCurrency() {
+    return _allowViewDefaultCurrency;
+  }
+
   private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue) {
     return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withAny(ValuePropertyNames.CURRENCY).get());
   }
 
   private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue, final String forceCurrency) {
-    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().with(ValuePropertyNames.CURRENCY, forceCurrency).get());
+    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
+        ValuePropertyNames.CURRENCY, forceCurrency).get());
   }
 
   /**
@@ -171,16 +181,21 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     }
     final Set<String> possibleCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (possibleCurrencies == null) {
-      // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
-      String defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
-      s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
-      final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
-      req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));
-      // Eject this requirement as a hack to force the final result to be correct
-      req.add(new ValueRequirement(getDefaultCurrencyValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, target.getUniqueId())));
-      return req;
+      throw new IllegalArgumentException("Must specify a currency constraint; use DefaultCurrencyFunction instead");
     } else if (possibleCurrencies.isEmpty()) {
-      throw new IllegalArgumentException("Cannot satisfy a wild-card currency constraint " + desiredValue);
+      if (isAllowViewDefaultCurrency()) {
+        // The original function may not have delivered a result because it had heterogeneous input currencies, so try forcing the view default
+        String defaultCurrencyISO = DefaultCurrencyInjectionFunction.getViewDefaultCurrencyISO(context);
+        s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
+        final Set<ValueRequirement> req = new HashSet<ValueRequirement>();
+        req.add(getInputValueRequirement(desiredValue, defaultCurrencyISO));
+        // Eject this requirement as a hack to force the final result to be correct
+        req.add(new ValueRequirement(getDefaultCurrencyValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, target.getUniqueId()), ValueProperties.with(
+            ValuePropertyNames.CURRENCY, defaultCurrencyISO).get()));
+        return req;
+      } else {
+        throw new IllegalArgumentException("Cannot satisfy a wildcard currency constraint");
+      }
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded
       return Collections.singleton(getInputValueRequirement(desiredValue));

@@ -45,12 +45,11 @@ public class ExponentalMeshing extends MeshingFunction {
   }
 
   @Override
-  public Double evaluate(Integer i) {
+  public Double evaluate(final Integer i) {
     if (_linear) {
       return _theta + _eta * i;
-    } else {
-      return _theta + _eta * Math.exp(i * _lambda);
     }
+    return _theta + _eta * Math.exp(i * _lambda);
   }
 
 }

@@ -21,7 +21,7 @@ import com.opengamma.util.PublicAPI;
 /**
  * An immutable representation of the metadata that describes an actual value.
  * <p>
- * This may be a value a function is capable of producing, or the describe resolved value passed
+ * This may be a value a function is capable of producing, or describe a resolved value passed
  * into a function to satisfy a {@link ValueRequirement}.
  * <p>
  * For example the {@code ValueRequirement} for a currency converting function may state a constraint such as

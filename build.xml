@@ -195,26 +195,26 @@
 		  description="builds a single source distribution zipfile">
 		<mkdir dir="${dist.dir}" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="..">
-				<include name="OG-Platform/**" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/build/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/repository/" />
+				<exclude name="repository/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
-			<tarfileset uid="0" gid="0" dir=".." filemode="755">
-				<include name="OG-Platform/**/*.sh" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+				<include name="**/*.sh" />
 			</tarfileset>
 		</tar>
 		<zip destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.zip">
-			<fileset dir="..">
-				<include name="OG-Platform/**" />
+			<zipfileset dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/build/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/repository/" />
-			</fileset>
+				<exclude name="repository/" />
+			</zipfileset>
 		</zip>
 		<subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
 			<dirset dir="projects" includes="*" />
@@ -231,24 +231,24 @@
 		<replaceregexp file="common/build.properties" match="^env\.IVY_SHARED_DEFAULT_ROOT=.*$" replace="" flags="mg" />
 		<replaceregexp file="common/build.properties" match="^\n(env\.IVY_SHARED_DEFAULT_ROOT_.*)$" replace="env.IVY_SHARED_DEFAULT_ROOT=$${wkspace.dir}/repository${line.separator}\1" flags="mg" />
 		<tar destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="..">
-				<include name="OG-Platform/**" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/projects/**/lib/" />
+				<exclude name="projects/**/lib/" />
 				<exclude name="**/*.sh" />
 			</tarfileset>
-			<tarfileset uid="0" gid="0" dir=".." filemode="755">
-				<include name="OG-Platform/**/*.sh" />
+			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+				<include name="**/*.sh" />
 			</tarfileset>
 		</tar>
 		<zip destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.zip">
-			<fileset dir="..">
-				<include name="OG-Platform/**" />
+			<zipfileset dir="." prefix="OG-Platform">
+				<include name="**/*" />
 				<exclude name="**/.git/" />
 				<exclude name="**/dist/" />
-				<exclude name="OG-Platform/projects/**/lib/" />
-			</fileset>
+				<exclude name="projects/**/lib/" />
+			</zipfileset>
 		</zip>
 	</target>
 	<target name="dist-binary" depends="init,clean-all,publish-all-local,binary-dist-impl"

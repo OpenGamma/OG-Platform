@@ -46,7 +46,10 @@ public class WebView {
   private final ResultConverterCache _resultConverterCache;
   
   private final ReentrantLock _updateLock = new ReentrantLock();
-  private boolean _awaitingUpdate;
+  
+  private boolean _awaitingNextUpdate;
+  private boolean _continueUpdateThread;
+  private boolean _updateThreadRunning;
   
   private AtomicBoolean _isInit = new AtomicBoolean(false);
   
@@ -78,9 +81,9 @@ public class WebView {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionName());
         _updateLock.lock();
         try {
-          if (_awaitingUpdate) {
-            _awaitingUpdate = false;
-            sendUpdateAsync(fullResult);
+          if (_awaitingNextUpdate) {
+            _awaitingNextUpdate = false;
+            sendImmediateUpdate();
           }
         } finally {
           _updateLock.unlock();
@@ -171,18 +174,15 @@ public class WebView {
       getPrimitivesGrid().setViewport(processViewportData(primitiveViewport));
     }
 
+    // Can only provide an immediate response if there is a result available
+    immediateResponse &= getViewClient().isResultAvailable();
+    
     _updateLock.lock();
     try {
-      if (!immediateResponse) {
-        _awaitingUpdate = true;
+      if (immediateResponse) {
+        sendImmediateUpdate();
       } else {
-        ViewComputationResultModel latestResult = getViewClient().getLatestResult();
-        if (latestResult == null) {
-          _awaitingUpdate = true;
-        } else {
-          sendUpdateAsync(latestResult);
-          _awaitingUpdate = false;
-        }
+        _awaitingNextUpdate = true;
       }
     } finally {
       _updateLock.unlock();
@@ -211,23 +211,56 @@ public class WebView {
     }
     return result;
   }
+  
+  private void sendImmediateUpdate() {
+    _updateLock.lock();
+    try {
+      if (!_updateThreadRunning) {
+        _updateThreadRunning = true;
+        runUpdateThread();
+      } else {
+        _continueUpdateThread = true;
+      }
+    } finally {
+      _updateLock.unlock();
+    }
+  }
 
-  private void sendUpdateAsync(final ViewComputationResultModel update) {
+  private void runUpdateThread() {
     getExecutorService().submit(new Runnable() {
       @Override
       public void run() {
-        getRemote().startBatch();
-        
-        long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
-        long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
-        sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
-        
-        processResult(update);
-        
-        sendEndMessage();
-        getRemote().endBatch();
+        do {
+          ViewComputationResultModel update = getViewClient().getLatestResult();
+          
+          getRemote().startBatch();
+          
+          long liveDataTimestampMillis = update.getValuationTime().toEpochMillisLong();
+          long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
+          
+          sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
+          processResult(update);
+          sendEndMessage();
+          
+          getRemote().endBatch();
+        } while (continueUpdateThread());
       }
     });
+  }
+  
+  private boolean continueUpdateThread() {
+    _updateLock.lock();
+    try {
+      if (_continueUpdateThread) {
+        _continueUpdateThread = false;
+        return true;
+      } else {
+        _updateThreadRunning = false;
+        return false;
+      }
+    } finally {
+      _updateLock.unlock();
+    }
   }
   
   private void processResult(ViewComputationResultModel resultModel) {

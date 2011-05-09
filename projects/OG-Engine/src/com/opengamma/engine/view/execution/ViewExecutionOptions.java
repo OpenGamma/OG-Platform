@@ -7,6 +7,7 @@ package com.opengamma.engine.view.execution;
 
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Encapsulates settings affecting the overall execution of a view process.
@@ -60,5 +61,12 @@ public interface ViewExecutionOptions {
    *         {@code false} for normal execution
    */
   boolean isCompileOnly();
+  
+  
+  /**
+   * Gets the snapshot ID used to provide live data for this cycle, or null not to use one
+   * @return the snapshot id to use, or null
+   */
+  UniqueIdentifier getMarketDataSnapshotIdentifier();
   
 }
