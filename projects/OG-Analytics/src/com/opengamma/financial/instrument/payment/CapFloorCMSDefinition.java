@@ -116,6 +116,24 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   }
 
   @Override
+  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
+    } else { // CMS is not fixed yet, all the details are required.
+      CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
+      return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+    }
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -145,24 +163,6 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
       return false;
     }
     return true;
-  }
-
-  @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final String fundingCurveName = yieldCurveNames[0];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
-    } else { // CMS is not fixed yet, all the details are required.
-      CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
-      return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
-    }
   }
 
 }
