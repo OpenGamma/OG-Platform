@@ -387,11 +387,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         composed.put(property.getKey(), property.getValue());
       }
       if ((composed.size() == otherAvailable) && (otherAvailable == _properties.size())) {
-        // We've just built a map containing only the other property values, so return that original
-        return properties;
-      } else {
-        return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+        // We've just built a map containing only the other property values, so possibly return that original
+        if (properties instanceof ValuePropertiesImpl) {
+          if (otherAvailable == ((ValuePropertiesImpl) properties)._properties.size()) {
+            return properties;
+          }
+        }
       }
+      return new ValuePropertiesImpl(Collections.unmodifiableMap(composed), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
     }
 
     @Override
