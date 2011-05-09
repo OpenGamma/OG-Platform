@@ -72,18 +72,38 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         a = pdeData.getA(t - dt, x[i]);
         b = pdeData.getB(t - dt, x[i]);
         c = pdeData.getC(t - dt, x[i]);
-        aa = (1 - _theta) * (-dtdx2 * a + 0.5 * dtdx * b);
-        bb = 1 + (1 - _theta) * (2 * dtdx2 * a - dt * c);
-        cc = (1 - _theta) * (-dtdx2 * a - 0.5 * dtdx * b);
+
+        double rho;
+        double bdx = (b * dx / 2);
+        if (Math.abs(bdx) > 10 * Math.abs(a)) {
+          rho = Math.abs(bdx);
+        } else if (Math.abs(a) > 10 * Math.abs(bdx)) {
+          rho = a;
+        } else {
+          rho = bdx / Math.tanh(bdx / a);
+        }
+
+        aa = (1 - _theta) * (-dtdx2 * rho + 0.5 * dtdx * b);
+        bb = 1 + (1 - _theta) * (2 * dtdx2 * rho - dt * c);
+        cc = (1 - _theta) * (-dtdx2 * rho - 0.5 * dtdx * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
         // TODO could store these
         a = pdeData.getA(t, x[i]);
         b = pdeData.getB(t, x[i]);
         c = pdeData.getC(t, x[i]);
-        aa = (-dtdx2 * a + 0.5 * dtdx * b);
-        bb = (2 * dtdx2 * a - dt * c);
-        cc = (-dtdx2 * a - 0.5 * dtdx * b);
+        bdx = (b * dx / 2);
+        if (Math.abs(bdx) > 10 * Math.abs(a)) {
+          rho = Math.abs(bdx);
+        } else if (Math.abs(a) > 10 * Math.abs(bdx)) {
+          rho = a;
+        } else {
+          rho = bdx / Math.tanh(bdx / a);
+        }
+
+        aa = (-dtdx2 * rho + 0.5 * dtdx * b);
+        bb = (2 * dtdx2 * rho - dt * c);
+        cc = (-dtdx2 * rho - 0.5 * dtdx * b);
         m[i][i - 1] = -_theta * aa;
         m[i][i] = 1 - _theta * bb;
         m[i][i + 1] = -_theta * cc;
@@ -180,31 +200,13 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
 
     for (int n = 1; n < tNodes; n++) {
 
-      // debug
-      // a = -dx[xNodes - 2] / dx[xNodes - 3] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // b = (dx[xNodes - 2] - dx[xNodes - 3]) / dx[xNodes - 3] / dx[xNodes - 2];
-      // c = dx[xNodes - 3] / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      //
-      // double first = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      // a = 2 / dx[xNodes - 3] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // b = -2 / dx[xNodes - 3] / dx[xNodes - 2];
-      // c = 2 / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // double second = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      //
-      // a = 1 / dx[xNodes - 2];
-      // c = a;
-      // b = -2 * a;
-      // double secondStar = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      // System.out.println("First:" + first + " Second: " + second + " Uniform Second: " + secondStar);
-      // end debug
-
       for (int i = 1; i < xNodes - 1; i++) {
         a = pdeData.getA(timeGrid[n - 1], spaceGrid[i]);
         b = pdeData.getB(timeGrid[n - 1], spaceGrid[i]);
         c = pdeData.getC(timeGrid[n - 1], spaceGrid[i]);
 
         aa = (1 - _theta) * dt[n - 1] * (-2 / dx[i - 1] / (dx[i - 1] + dx[i]) * a + dx[i] / dx[i - 1] / (dx[i - 1] + dx[i]) * b);
-        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c);
+        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c);// TODO check sign of c
         cc = (1 - _theta) * dt[n - 1] * (-2 / dx[i] / (dx[i - 1] + dx[i]) * a - dx[i - 1] / dx[i] / (dx[i - 1] + dx[i]) * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
@@ -246,8 +248,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
-      // debug
-      // q[xNodes - 1] = 0.0;
+
       q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, timeGrid[n], dx[xNodes - 2]);
 
       // SOR

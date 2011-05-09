@@ -16,10 +16,28 @@ public class CrankNicolsonFiniteDifferenceSORTest {
     TESTER.testBlackScholesEquation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
+  @Test(enabled = false)
+  public void testSpaceExtrapolation() {
+    int timeSteps = 10;
+    int priceSteps = 100;
+    double lowerMoneyness = 0.4;
+    double upperMoneyness = 3.0;
+    TESTER.testSpaceExtrapolation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
+  }
+
+  @Test(enabled = false)
+  public void testTimeExtrapolation() {
+    int timeSteps = 10;
+    int priceSteps = 100;
+    double lowerMoneyness = 0.0;
+    double upperMoneyness = 3.0;
+    TESTER.testTimeExtrapolation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
+  }
+
   /**
    * This needs more price steps for the same accuracy, but can push to greater moneyness range
    */
-  @Test
+  @Test(enabled = false)
   public void testLogTransformedBlackScholesEquation() {
     int timeSteps = 10;
     int priceSteps = 200;
@@ -28,7 +46,7 @@ public class CrankNicolsonFiniteDifferenceSORTest {
     TESTER.testLogTransformedBlackScholesEquation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testCEV() {
     int timeSteps = 25;
     int priceSteps = 100;
@@ -37,7 +55,7 @@ public class CrankNicolsonFiniteDifferenceSORTest {
     TESTER.testCEV(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testAmericanPrice() {
     int timeSteps = 10;
     int priceSteps = 100;
@@ -48,7 +66,7 @@ public class CrankNicolsonFiniteDifferenceSORTest {
 
   @Test(enabled = false)
   public void testBlackScholesEquationNonuniformGrid() {
-    int timeSteps = 100; // one less step with exp meshing
+    int timeSteps = 10; // one less step with exp meshing
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;

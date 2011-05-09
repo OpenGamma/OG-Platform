@@ -153,7 +153,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
           int offset = (ySteps - k) * (xSteps + 1);
           sum += temp[k] * u[offset + i];
         }
-        q[i + ySteps * (xSteps + 1)] = sum + xUpperBoundary.getConstant(pdeData, t, x[i], dy);
+        q[i + ySteps * (xSteps + 1)] = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
       }
 
       // The x boundary conditions
@@ -177,7 +177,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int k = 0; k < temp.length; k++) {
           sum += temp[k] * u[offset - k];
         }
-        q[offset] = sum + xLowerBoundary.getConstant(pdeData, t, y[j], dx);
+        q[offset] = sum + xUpperBoundary.getConstant(pdeData, t, y[j], dx);
       }
 
       // SOR
@@ -287,6 +287,278 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
   }
 
-  // private double[][] solveSOR(double[][] m, double[][] v)
+  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final double[] timeGrid, final double[] xGrid, final double[] yGrid, BoundaryCondition2D xLowerBoundary,
+      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
 
+    Validate.notNull(pdeData, "pde data");
+    int tNodes = timeGrid.length;
+    int xNodes = xGrid.length;
+    int yNodes = yGrid.length;
+    Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
+    Validate.isTrue(xNodes > 2, "need at least 3 x nodes");
+    Validate.isTrue(yNodes > 2, "need at least 3 y nodes");
+
+    // check grid and boundaries are consistent
+    Validate.isTrue(Math.abs(xGrid[0] - xLowerBoundary.getLevel()) < 1e-7, "x grid not consistent with boundary level");
+    Validate.isTrue(Math.abs(xGrid[xNodes - 1] - xUpperBoundary.getLevel()) < 1e-7, "x grid not consistent with boundary level");
+    Validate.isTrue(Math.abs(yGrid[0] - yLowerBoundary.getLevel()) < 1e-7, "y grid not consistent with boundary level");
+    Validate.isTrue(Math.abs(yGrid[yNodes - 1] - yUpperBoundary.getLevel()) < 1e-7, "y grid not consistent with boundary level");
+
+    double[] dt = new double[tNodes - 1];
+    for (int n = 0; n < tNodes - 1; n++) {
+      dt[n] = timeGrid[n + 1] - timeGrid[n];
+      Validate.isTrue(dt[n] > 0, "time steps must be increasing");
+    }
+
+    double[] dx = new double[xNodes - 1];
+
+    for (int i = 0; i < xNodes - 1; i++) {
+      dx[i] = xGrid[i + 1] - xGrid[i];
+      Validate.isTrue(dx[i] > 0, "x steps must be increasing");
+    }
+
+    double[] dy = new double[yNodes - 1];
+    for (int i = 0; i < yNodes - 1; i++) {
+      dy[i] = yGrid[i + 1] - yGrid[i];
+      Validate.isTrue(dy[i] > 0, "y steps must be increasing");
+    }
+
+    // since the space grid is time independent, we can calculate the coefficients for derivatives once
+    double[][] x1st = new double[xNodes - 2][3];
+    double[][] x2nd = new double[xNodes - 2][3];
+    for (int i = 0; i < xNodes - 2; i++) {
+      x1st[i][0] = -dx[i + 1] / dx[i] / (dx[i] + dx[i + 1]);
+      x1st[i][1] = (dx[i + 1] - dx[i]) / dx[i] / dx[i + 1];
+      x1st[i][2] = dx[i] / dx[i + 1] / (dx[i] + dx[i + 1]);
+      x2nd[i][0] = 2 / dx[i] / (dx[i] + dx[i + 1]);
+      x2nd[i][1] = -2 / dx[i] / dx[i + 1];
+      x2nd[i][2] = 2 / dx[i + 1] / (dx[i] + dx[i + 1]);
+    }
+
+    double[][] y1st = new double[yNodes - 2][3];
+    double[][] y2nd = new double[yNodes - 2][3];
+    for (int i = 0; i < yNodes - 2; i++) {
+      y1st[i][0] = -dy[i + 1] / dy[i] / (dy[i] + dy[i + 1]);
+      y1st[i][1] = (dy[i + 1] - dy[i]) / dy[i] / dy[i + 1];
+      y1st[i][2] = dy[i] / dy[i + 1] / (dy[i] + dy[i + 1]);
+      y2nd[i][0] = 2 / dy[i] / (dy[i] + dy[i + 1]);
+      y2nd[i][1] = -2 / dy[i] / dy[i + 1];
+      y2nd[i][2] = 2 / dy[i + 1] / (dy[i] + dy[i + 1]);
+    }
+
+    int size = xNodes * yNodes;
+
+    double[][] v = new double[xNodes][yNodes];
+    double[] u = new double[size];
+    final double[] q = new double[size];
+
+    int index = 0;
+    for (int j = 0; j < yNodes; j++) {
+      for (int i = 0; i < xNodes; i++) {
+        u[index++] = pdeData.getInitialValue(xGrid[i], yGrid[j]);
+      }
+    }
+
+    double a, b, c, d, e, f;
+    double[][] w = new double[size][9];
+
+    for (int n = 1; n < tNodes; n++) {
+
+      for (int i = 1; i < xNodes - 1; i++) {
+        for (int j = 1; j < yNodes - 1; j++) {
+          index = j * xNodes + i;
+          a = pdeData.getA(timeGrid[n - 1], xGrid[i], yGrid[j]);
+          b = pdeData.getB(timeGrid[n - 1], xGrid[i], yGrid[j]);
+          c = pdeData.getC(timeGrid[n - 1], xGrid[i], yGrid[j]);
+          d = pdeData.getD(timeGrid[n - 1], xGrid[i], yGrid[j]);
+          e = pdeData.getE(timeGrid[n - 1], xGrid[i], yGrid[j]);
+          f = pdeData.getF(timeGrid[n - 1], xGrid[i], yGrid[j]);
+
+          double sum = 0;
+          if (_theta != 1.0) {
+
+            sum -= a * (x2nd[i - 1][0] * u[index - 1] + x2nd[i - 1][1] * u[index] + x2nd[i - 1][2] * u[index + 1]);
+            sum -= b * (x1st[i - 1][0] * u[index - 1] + x1st[i - 1][1] * u[index] + x1st[i - 1][2] * u[index + 1]);
+            sum -= c * u[index];
+            sum -= d * (y2nd[j - 1][0] * u[index - xNodes] + y2nd[j - 1][1] * u[index] + y2nd[j - 1][2] * u[index + xNodes]);
+            sum -= e
+                * (x1st[i - 1][0] * (y1st[j - 1][0] * u[index - xNodes - 1] + y1st[j - 1][1] * u[index - 1] + y1st[j - 1][2] * u[index + xNodes - 1]) + x1st[i - 1][1]
+                    * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]) + x1st[i - 1][2]
+                    * (y1st[j - 1][0] * u[index - xNodes + 1] + y1st[j - 1][1] * u[index + 1] + y1st[j - 1][2] * u[index + xNodes + 1]));
+            sum -= f * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]);
+
+            sum *= (1 - _theta) * dt[n - 1];
+          }
+          sum += u[index];
+
+          q[index] = sum;
+
+          w[index][0] = _theta * dt[n - 1] * x1st[i - 1][0] * y1st[j - 1][0] * e; // i-1,j-1
+          w[index][1] = _theta * dt[n - 1] * (y2nd[j - 1][0] * d + x1st[i - 1][1] * y1st[j - 1][0] * e + y1st[j - 1][0] * f); // i,j-1
+          w[index][2] = -_theta * dt[n - 1] * x1st[i - 1][2] * y1st[j - 1][0] * e; // i+1,j-1
+
+          w[index][3] = _theta * dt[n - 1] * (x2nd[i - 1][0] * a + x1st[i - 1][0] * b + x1st[i - 1][0] * y1st[j - 1][1] * e); // i-1,j
+          w[index][4] = 1 + _theta * dt[n - 1] * (x2nd[i - 1][1] * a + x1st[i - 1][1] * b + c + y2nd[j - 1][1] * d + x1st[i - 1][1] * y1st[j - 1][1] * e + y1st[j - 1][1] * f); // i,j
+          w[index][5] = _theta * dt[n - 1] * (x2nd[i - 1][2] * a + x1st[i - 1][2] * b + x1st[i - 1][2] * y1st[j - 1][1] * e); // i+1,j
+
+          w[index][6] = -_theta * dt[n - 1] * x1st[i - 1][0] * y1st[j - 1][2] * e; // i-1,j+1
+          w[index][7] = _theta * (y2nd[j - 1][2] * d + x1st[i - 1][1] * y1st[j - 1][2] * e + y1st[j - 1][2] * f); // i,j+1
+          w[index][8] = _theta * dt[n - 1] * x1st[i - 1][2] * y1st[j - 1][2] * e; // i+1,j+1
+        }
+      }
+
+      // The y boundary conditions
+      double[][][] yBoundary = new double[2][xNodes][];
+
+      for (int i = 0; i < xNodes; i++) {
+        yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        yBoundary[1][i] = yUpperBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+
+        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        double sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          int offset = k * xNodes;
+          sum += temp[k] * u[offset + i];
+        }
+        q[i] = sum + yLowerBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[0]); // TODO need to change how boundary are calculated
+
+        temp = yUpperBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
+        sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          int offset = (yNodes - 1 - k) * xNodes;
+          sum += temp[k] * u[offset + i];
+        }
+        q[i + (yNodes - 1) * xNodes] = sum + yUpperBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[yNodes - 2]);
+      }
+
+      // The x boundary conditions
+      double[][][] xBoundary = new double[2][yNodes - 2][];
+
+      for (int j = 1; j < yNodes - 1; j++) {
+        xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        xBoundary[1][j - 1] = xUpperBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+
+        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        int offset = j * xNodes;
+        double sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          sum += temp[k] * u[offset + k];
+        }
+        q[offset] = sum + xLowerBoundary.getConstant(pdeData, timeGrid[n], yGrid[j], dx[0]);
+
+        temp = xUpperBoundary.getRightMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
+        offset = (j + 1) * xNodes - 1;
+        sum = 0;
+        for (int k = 0; k < temp.length; k++) {
+          sum += temp[k] * u[offset - k];
+        }
+        q[offset] = sum + xUpperBoundary.getConstant(pdeData, timeGrid[n], yGrid[j], dx[xNodes - 2]);
+      }
+
+      // SOR
+      final double omega = 1.0;
+      double scale = 1.0;
+      double errorSqr = Double.POSITIVE_INFINITY;
+      double sum;
+      int l;
+      while (errorSqr / (scale + 1e-10) > 1e-18) {
+        errorSqr = 0.0;
+        scale = 0.0;
+        // solve for the innards first
+        for (int i = 1; i < xNodes - 1; i++) {
+          for (int j = 1; j < yNodes - 1; j++) {
+            l = j * xNodes + i;
+            sum = 0;
+            sum += w[l][0] * u[l - xNodes - 1];
+            sum += w[l][1] * u[l - xNodes];
+            sum += w[l][2] * u[l - xNodes + 1];
+            sum += w[l][3] * u[l - 1];
+            sum += w[l][4] * u[l];
+            sum += w[l][5] * u[l + 1];
+            sum += w[l][6] * u[l + xNodes - 1];
+            sum += w[l][7] * u[l + xNodes];
+            sum += w[l][8] * u[l + xNodes + 1];
+
+            double correction = omega / w[l][4] * (q[l] - sum);
+            // if (freeBoundary != null) {
+            // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
+            // }
+            errorSqr += correction * correction;
+            u[l] += correction;
+            scale += u[l] * u[l];
+          }
+        }
+
+        // the lower y boundary
+        for (int i = 0; i < xNodes; i++) {
+          sum = 0;
+          l = i;
+          double[] temp = yBoundary[0][i];
+          for (int k = 0; k < temp.length; k++) {
+            int offset = k * xNodes;
+            sum += temp[k] * u[offset + i];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+        // the upper y boundary
+        for (int i = 0; i < xNodes; i++) {
+          sum = 0;
+          l = xNodes * (yNodes - 1) + i;
+          double[] temp = yBoundary[1][i];
+          for (int k = 0; k < temp.length; k++) {
+            int offset = (yNodes - 1 - k) * xNodes;
+            sum += temp[k] * u[offset + i];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+        // the lower x boundary
+        for (int j = 1; j < yNodes - 1; j++) {
+          sum = 0;
+          l = j * xNodes;
+          double[] temp = xBoundary[0][j - 1];
+          for (int k = 0; k < temp.length; k++) {
+            sum += temp[k] * u[l + k];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+        // the upper x boundary
+        for (int j = 1; j < yNodes - 1; j++) {
+          sum = 0;
+          l = (j + 1) * xNodes - 1;
+          double[] temp = xBoundary[1][j - 1];
+          for (int k = 0; k < temp.length; k++) {
+            sum += temp[k] * u[l - k];
+          }
+          double correction = omega / temp[0] * (q[l] - sum);
+          errorSqr += correction * correction;
+          u[l] += correction;
+          scale += u[l] * u[l];
+        }
+
+      } // end of SOR
+
+    } // time loop
+
+    // unpack vector to matrix
+    for (int j = 0; j < yNodes; j++) {
+      int offset = j * xNodes;
+      for (int i = 0; i < xNodes; i++) {
+        v[i][j] = u[offset + i];
+      }
+    }
+    return v;
+
+  }
 }

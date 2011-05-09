@@ -208,6 +208,57 @@ public class ConvectionDiffusionPDESolverTestCase {
     }
   }
 
+  public void testSpaceExtrapolation(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness) {
+    double[][] res1 = solver.solve(DATA, timeSteps, spotSteps, T, LOWER, UPPER);
+    double[][] res2 = solver.solve(DATA, timeSteps, 2 * spotSteps, T, LOWER, UPPER);
+
+    double df = YIELD_CURVE.getDiscountFactor(T);
+    int n = res1[0].length;
+    double price;
+    for (int i = 0; i < n; i++) {
+      double spot = res1[0][i];
+      assertEquals(res1[0][i], res2[0][2 * i], 1e-9);
+      double moneyness = spot / OPTION.getStrike();
+      if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
+        BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+        price = 2.0 * res2[1][2 * i] - res1[1][i];
+        double impVol;
+        try {
+          impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
+        } catch (Exception e) {
+          impVol = 0.0;
+        }
+        // System.out.println(spot + "\t" + price + "\t" + impVol);
+        assertEquals(ATM_VOL, impVol, 1e-3);
+      }
+    }
+  }
+
+  public void testTimeExtrapolation(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness) {
+    double[][] res1 = solver.solve(DATA, timeSteps, spotSteps, T, LOWER, UPPER);
+    double[][] res2 = solver.solve(DATA, 2 * timeSteps, spotSteps, T, LOWER, UPPER);
+
+    double df = YIELD_CURVE.getDiscountFactor(T);
+    int n = res1[0].length;
+    double price;
+    for (int i = 0; i < n; i++) {
+      double spot = res1[0][i];
+      double moneyness = spot / OPTION.getStrike();
+      if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
+        BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
+        price = 2.0 * res2[1][i] - res1[1][i];
+        double impVol;
+        try {
+          impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
+        } catch (Exception e) {
+          impVol = 0.0;
+        }
+        // System.out.println(spot + "\t" + price + "\t" + impVol);
+        assertEquals(ATM_VOL, impVol, 1e-3);
+      }
+    }
+  }
+
   public void testLogTransformedBlackScholesEquation(ConvectionDiffusionPDESolver solver, int timeSteps, int spotSteps, final double lowerMoneyness, final double upperMoneyness) {
     double[][] res = solver.solve(LN_DATA, timeSteps, spotSteps, T, LN_LOWER, LN_UPPER);
     double df = YIELD_CURVE.getDiscountFactor(T);
