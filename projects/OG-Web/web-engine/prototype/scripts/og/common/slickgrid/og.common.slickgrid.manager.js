@@ -28,7 +28,7 @@ $.register_module({
                     ui = og.common.util.ui,
                     filters = args.filters,
                     is_new_filter = args.filter_being_applied || false;
-                
+
                 if (!is_new_filter) {
                     while (data[from_page * DEAFULT_PAGESIZE] !== undefined && from_page < to_page) from_page++;
                     while (data[to_page * DEAFULT_PAGESIZE] !== undefined && from_page < to_page) to_page--;
@@ -74,24 +74,12 @@ $.register_module({
                             tmp_val;
                         data[from + i] = {};
                         $.each(field_names, function (k, field_name) {
-                            (function () { // this is only for timeseries
-                                var id_type, id_name,
-                                    id = field_values[k].split('&'),
-                                    q = id.length;
-                                if (id) {
-                                    while (q--) {
-                                        id_type = id[q].split('::')[0];
-                                        id_name = id[q].split('::')[1];
-                                        data[from + i][id_type] = id_name;
-                                    }
-                                }
-                            })();
                             tmp_val = field_values[k];
                             if (field_names[k] === 'type') {
                                 data[from + i][field_name] = tmp_val.toLowerCase();
                             } else data[from + i][field_name] = tmp_val;
                         });
-                        if (filters.filter_type) data[from + i].type = filters.filter_type.replace(/_/g, ' ');
+                        if (filters.type) data[from + i].type = filters.type.replace(/_/g, ' ');
                         data[from + i].index = from + i;
                     });
                     on_data_loaded.notify({from: from,to: to});
@@ -112,7 +100,7 @@ $.register_module({
                     }, (function () {
                            var t = {};
                            if (filters.name) t.name = ('*' + filters.name + '*').replace(/\s/g, '*');
-                           if (filters.filter_type) t.type = filters.filter_type.replace('option', 'equity_option');
+                           if (filters.type) t.type = filters.type.replace('option', 'equity_option').toUpperCase();
                            if (filters.dataSource) t.data_source = ('*' + filters.dataSource + '*').replace(/\s/g, '*');
                            if (filters.quantity) {
                                t.min_quantity = filters.min_quantity;

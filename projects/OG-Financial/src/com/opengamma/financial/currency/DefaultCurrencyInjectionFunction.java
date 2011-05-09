@@ -8,7 +8,6 @@ package com.opengamma.financial.currency;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -71,8 +70,7 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    final String defaultCurrencyISO = getViewDefaultCurrencyISO(context);
-    return Collections.singleton(new ValueSpecification(getDefaultCurrencyValueName(), target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, defaultCurrencyISO).get()));
+    return Collections.singleton(new ValueSpecification(getDefaultCurrencyValueName(), target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()));
   }
 
   @Override
@@ -83,7 +81,9 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
   protected static String getViewDefaultCurrencyISO(final FunctionCompilationContext context) {
     ViewCalculationConfiguration viewCalculationConfiguration = context.getViewCalculationConfiguration();
     if (viewCalculationConfiguration == null) {
-      throw new OpenGammaRuntimeException("View calculation configuration not found in function compilation context");
+      // No calculation configuration available when called from a function resolver. Only available when
+      // called from within the dependency graph builder.
+      return null;
     }
     ValueProperties defaultProperties = viewCalculationConfiguration.getDefaultProperties();
     if (defaultProperties == null) {
