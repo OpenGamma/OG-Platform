@@ -135,6 +135,7 @@
       } else if (message.channel == '/updates/control/end') {
         if (!_inBatch) {
           _logger.warn('Batch flag already cleared before END message');
+          return;
         }
         
         handleUpdate(_primitivesEventHandler, _batchPrimitivesUpdate, _batchMetadata.timestamp, _batchMetadata.latency);

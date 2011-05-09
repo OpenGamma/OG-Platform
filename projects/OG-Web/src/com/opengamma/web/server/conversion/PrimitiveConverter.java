@@ -13,13 +13,18 @@ import com.opengamma.engine.value.ValueSpecification;
 public class PrimitiveConverter implements ResultConverter<Object> {
 
   @Override
-  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
     return value;
   }
 
   @Override
   public String getFormatterName() {
     return "PRIMITIVE";
+  }
+
+  @Override
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    return null;
   }
 
 }

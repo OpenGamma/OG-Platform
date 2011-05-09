@@ -24,7 +24,7 @@ public class FudgeBasedJsonGeneratorConverter implements ResultConverter<Object>
   }
   
   @Override
-  public Object convert(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     result.put("name", value.getClass().getSimpleName());
     
@@ -38,6 +38,11 @@ public class FudgeBasedJsonGeneratorConverter implements ResultConverter<Object>
   @Override
   public String getFormatterName() {
     return "GENERIC";
+  }
+
+  @Override
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+    return null;
   }
 
 }
