@@ -8,6 +8,8 @@ package com.opengamma.examples.livedata;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -71,6 +73,16 @@ public class MockLiveDataSnapshotProviderFactoryBean extends SingletonFactoryBea
       @Override
       public void addListener(LiveDataSnapshotListener listener) {
         printWarning();
+      }
+
+      @Override
+      public boolean hasStructuredData() {
+        return false;
+      }
+
+      @Override
+      public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
+        return null;
       }
     };
   }
