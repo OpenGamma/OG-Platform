@@ -99,8 +99,8 @@ public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final DayCount dayCount = _convention.getDayCount();
-    final double tradeTime = dayCount.getDayCountFraction(zonedDate, zonedStartDate);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double tradeTime = actAct.getDayCountFraction(zonedDate, zonedStartDate);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
     return new Cash(paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);

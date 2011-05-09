@@ -49,7 +49,7 @@ public class Cash implements InterestRateDerivative {
     checkInputs(maturity, rate, yieldCurveName);
     Validate.isTrue(tradeTime >= 0, "trade time is negative");
     Validate.isTrue(yearFraction >= 0, "year fraction is negative");
-    //Validate.isTrue(tradeTime < maturity, "Trade time must be less than payment time");
+    Validate.isTrue(tradeTime < maturity, "Trade time must be less than payment time");
     _maturity = maturity;
     _curveName = yieldCurveName;
     _tradeTime = tradeTime;

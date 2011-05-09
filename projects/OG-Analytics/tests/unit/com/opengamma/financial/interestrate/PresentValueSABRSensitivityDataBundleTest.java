@@ -99,8 +99,6 @@ public class PresentValueSABRSensitivityDataBundleTest {
     assertEquals(data, other);
     assertEquals(data.hashCode(), other.hashCode());
     other.addNu(DoublesPair.of(1., 2.), 10.);
-    System.out.println(data.getNu());
-    System.out.println(other.getNu());
     assertFalse(data.equals(other));
     other = new PresentValueSABRSensitivityDataBundle(NU, NU, RHO);
     assertFalse(data.equals(other));
