@@ -78,6 +78,13 @@
     </constructor-arg>
   </bean>
   
+  <!-- Market data snapshot -->
+  <!-- TODO impl and combine in user store -->
+  
+  <bean id="combinedMarketDataSnaphotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
+    <constructor-arg ref="userFinancialSnapshotMaster" />
+  </bean>
+  
   <!-- User Yield curves -->
   <bean id="userInterpolatedYieldCurveDefinitions" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
     <property name="identifierScheme" value="UserCurves" />
@@ -276,6 +283,7 @@
     <property name="liveDataSnapshotProvider" ref="liveDataSnapshotProvider" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="marketDataSnaphotSource" ref="combinedMarketDataSnaphotSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
