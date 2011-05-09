@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -204,7 +205,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
           holidaySource, regionSource, conventionSource);
       final LocalDate localNow = now.toLocalDate();
       
-      Map<Identifier, Double> marketDataMap = buildMarketDataMap(inputs);
+      Map<Identifier, Double> marketDataMap = buildMarketDataMap(inputs).getDataPoints();
       
       if (getFundingCurveDefinitionName().equals(getForwardCurveDefinitionName())) {
         return getSingleCurveResult(marketDataMap, builder, swapConverter, tenorSwapConverter, instrumentAdapter, futureAdapter, now, localNow);
@@ -529,10 +530,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
   
 
   @SuppressWarnings("unchecked")
-  private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
+  private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
     
     Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
-    return (Map<Identifier, Double>) marketDataBundle;
+    return (SnapshotDataBundle) marketDataBundle;
   }
 
   @Override

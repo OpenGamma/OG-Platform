@@ -24,16 +24,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.YieldCurveDataSourcingFunction;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -45,6 +52,7 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -64,9 +72,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
+  private final ViewExecutionOptions _jobExecutingOptions;
 
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
+  private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
 
   private volatile ViewCycleState _state = ViewCycleState.AWAITING_EXECUTION;
 
@@ -89,7 +99,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(UniqueIdentifier cycleId, UniqueIdentifier viewProcessId,
-      ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, ViewCycleExecutionOptions executionOptions) {
+      ViewProcessContext viewProcessContext, CompiledViewDefinitionWithGraphsImpl compiledViewDefinition,
+      ViewCycleExecutionOptions executionOptions, ViewExecutionOptions jobExecutingOptions) {
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
 
@@ -99,6 +110,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _compiledViewDefinition = compiledViewDefinition;
     
     _executionOptions = executionOptions;
+    _jobExecutingOptions = jobExecutingOptions;
 
     _resultModel = new InMemoryViewComputationResultModel();
     _resultModel.setCalculationConfigurationNames(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
@@ -111,6 +123,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
+    _liveDataSnapshotProvider = getViewProcessContext().getLiveDataSnapshotProvider(_jobExecutingOptions);
   }
   
   //-------------------------------------------------------------------------
@@ -296,17 +309,37 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private void prepareInputs() {
     Map<ValueRequirement, ValueSpecification> allLiveDataRequirements = getCompiledViewDefinition().getLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getValuationTime());
-    
-    getViewProcessContext().getLiveDataSnapshotProvider().snapshot(getInputDataTime().toEpochMillisLong());
+
+    _liveDataSnapshotProvider.snapshot(getInputDataTime().toEpochMillisLong());
 
     Set<ValueSpecification> missingLiveData = new HashSet<ValueSpecification>();
+
+    if (_liveDataSnapshotProvider.hasStructuredData()) {
+      for (Map.Entry<YieldCurveKey, ValueSpecification> yieldCurveReq : getYieldCurveDataRequirements().entrySet()) {
+        SnapshotDataBundle bundle = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(),
+            yieldCurveReq.getKey());
+        if (bundle == null) {
+          throw new NotImplementedException("Should use unstructured data here");
+        }
+        if (bundle.getDataPoints() == null) { // TODO duplicate below
+          s_logger.debug("Unable to load yield curve value for {} at snapshot {}.", yieldCurveReq.getKey(),
+              getValuationTime());
+          missingLiveData.add(yieldCurveReq.getValue());
+        } else {
+          ComputedValue dataAsValue = new ComputedValue(yieldCurveReq.getValue(), bundle);
+          addToAllCaches(dataAsValue);
+          getResultModel().addLiveData(dataAsValue);
+        }
+      }
+    }
+
     for (Map.Entry<ValueRequirement, ValueSpecification> liveDataRequirement : allLiveDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
       // ComputedValue instance where the specification satisfies the requirement. Functions should then declare their requirements and
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      Object data = getViewProcessContext().getLiveDataSnapshotProvider().querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      Object data = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement.getValue());
@@ -320,7 +353,39 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
     }
   }
-  
+
+  private Map<YieldCurveKey, ValueSpecification> getYieldCurveDataRequirements() {
+    Map<YieldCurveKey, ValueSpecification> ret = new HashMap<YieldCurveKey, ValueSpecification>();
+
+    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
+      Map<YieldCurveKey, ValueSpecification> configReqs = processYieldCurveDataRequirements(getDependencyGraph(calcConfigurationName));
+      ret.putAll(configReqs);
+    }
+    return ret;
+  }
+
+  /**
+   * TODO: should this be in CompiledViewCalculationConfiguration like the unstructured data
+   * @param dependencyGraph
+   * @return
+   */
+  private static Map<YieldCurveKey, ValueSpecification> processYieldCurveDataRequirements(
+      DependencyGraph dependencyGraph) {
+    ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
+    HashMap<YieldCurveKey, ValueSpecification> ret = new HashMap<YieldCurveKey, ValueSpecification>();
+
+    Set<DependencyNode> dependencyNodes = dependencyGraph.getDependencyNodes();
+    for (DependencyNode dependencyNode : dependencyNodes) {
+      CompiledFunctionDefinition compiledFunction = dependencyNode.getFunction().getFunction();
+      if (compiledFunction instanceof YieldCurveDataSourcingFunction) {
+        YieldCurveDataSourcingFunction function = (YieldCurveDataSourcingFunction) compiledFunction;
+        ValueSpecification spec = Iterables.getOnlyElement(compiledFunction.getResults(null, null));
+        ret.put(function.getYieldCurveKey(), spec);
+      }
+    }
+    return ret;
+  }
+
   private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
     StringBuilder sb = new StringBuilder();
     for (ValueSpecification spec : missingLiveData) {
@@ -431,10 +496,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {
     DependencyGraph originalDepGraph = getDependencyGraph(calcConfName);
 
+    final boolean haveResolvedStructuredData = _liveDataSnapshotProvider.hasStructuredData();
+
     DependencyGraph dependencyGraph = originalDepGraph.subGraph(new DependencyNodeFilter() {
       public boolean accept(DependencyNode node) {
         // LiveData functions do not need to be computed.
         if (node.getFunction().getFunction() instanceof LiveDataSourcingFunction) {
+          markExecuted(node);
+        }
+        if (haveResolvedStructuredData && node.getFunction().getFunction() instanceof YieldCurveDataSourcingFunction) {
           markExecuted(node);
         }
 
@@ -456,7 +526,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
 
     // [PLAT-1124] BUG - what if 2 cycles use the same snapshot provider with the same evaluation time?
-    getViewProcessContext().getLiveDataSnapshotProvider().releaseSnapshot(getValuationTime().toEpochMillisLong());
+    _liveDataSnapshotProvider.releaseSnapshot(getValuationTime().toEpochMillisLong());
     getViewProcessContext().getComputationCacheSource().releaseCaches(getViewProcessId(), getValuationTime().toEpochMillisLong());
 
     _state = ViewCycleState.DESTROYED;

@@ -65,6 +65,7 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.permission.DefaultViewPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
@@ -182,7 +183,7 @@ public class CancelExecutionTest {
         UniqueIdentifier.of("Test", "ViewProcess1"),
         vpc, 
         viewEvaluationModel, 
-        new ViewCycleExecutionOptions(Instant.ofEpochMillis(1)));
+        new ViewCycleExecutionOptions(Instant.ofEpochMillis(1)), ExecutionOptions.realTime());
     return cycle.getDependencyGraphExecutor().execute(graph, cycle.getStatisticsGatherer());
   }
 

@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -26,6 +27,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
   private static final String LIVE_DATA_TRIGGER_ENABLED_FIELD = "liveDataTriggerEnabled";
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String COMPILE_ONLY_FIELD = "compileOnly";
+  private static final String SNAPSHOT_FIELD = "snapshotId";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ExecutionOptions object) {
@@ -37,6 +39,7 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
     msg.add(COMPILE_ONLY_FIELD, object.isCompileOnly());
+    msg.add(SNAPSHOT_FIELD, object.getMarketDataSnapshotIdentifier());
     return msg;
   }
 
@@ -50,7 +53,8 @@ public class ExecutionOptionsBuilder implements FudgeBuilder<ExecutionOptions> {
       maxSuccessiveDeltaCycles = message.getInt(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD);
     }
     boolean compileOnly = message.getBoolean(COMPILE_ONLY_FIELD);
-    return new ExecutionOptions(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, compileOnly);
+    UniqueIdentifier snapshotId = message.getValue(UniqueIdentifier.class, SNAPSHOT_FIELD);
+    return new ExecutionOptions(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, compileOnly, snapshotId);
   }
   
   

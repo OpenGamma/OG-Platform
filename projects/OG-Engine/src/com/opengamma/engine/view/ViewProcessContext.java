@@ -18,13 +18,16 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotLiveDataProvider;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -112,9 +115,19 @@ public class ViewProcessContext {
    * Gets the live data snapshot provider.
    * 
    * @return the live data snapshot provider, not null
+   * @param executionOptions 
    */
-  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
-    return _liveDataSnapshotProvider;
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider(ViewExecutionOptions executionOptions) {
+    //TODO should we change the data availability as well?
+    //TODO configure merging of live and snapshot data
+    UniqueIdentifier snapshotId = executionOptions.getMarketDataSnapshotIdentifier();
+    if (snapshotId == null) {
+      //TODO configure merging of live and snapshot data
+      return _liveDataSnapshotProvider;
+    } else {
+      return new MarketDataSnapshotLiveDataProvider(getMarketDataSnapshotSource(),
+          executionOptions.getMarketDataSnapshotIdentifier());
+    }
   }
 
   /**
@@ -207,8 +220,7 @@ public class ViewProcessContext {
     return _graphExecutorStatisticsGathererProvider;
   }
 
-  
-  public MarketDataSnapshotSource getMarketDataSnapshotSource() {
+  private MarketDataSnapshotSource getMarketDataSnapshotSource() {
     return _marketDataSnapshotSource;
   }
 

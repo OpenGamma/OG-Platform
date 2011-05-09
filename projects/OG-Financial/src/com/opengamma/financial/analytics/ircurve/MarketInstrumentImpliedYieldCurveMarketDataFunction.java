@@ -12,12 +12,17 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.google.common.collect.Sets;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.YieldCurveDataSourcingFunction;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -29,7 +34,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketInstrumentImpliedYieldCurveFunctionHelper {
+public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketInstrumentImpliedYieldCurveFunctionHelper  {
 
   private ValueSpecification _marketDataResult;
   
@@ -67,7 +72,7 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
   /**
    * 
    */
-  private final class CompiledImpl extends Compiled {
+  private final class CompiledImpl extends Compiled  implements YieldCurveDataSourcingFunction {
 
     private CompiledImpl(final InstantProvider earliest, final InstantProvider latest, final Currency targetCurrency,
         final Set<ValueRequirement> fundingCurveRequirements, final Set<ValueRequirement> forwardCurveRequirements) {
@@ -93,11 +98,25 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
     public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
       return _results;
     }
+
+    public String getCurveName() {
+      if (!getForwardCurveDefinitionName().equals(getFundingCurveDefinitionName())) {
+        throw new NotImplementedException("Don't currently represent the two curve names");
+      }
+      return getForwardCurveDefinitionName();
+    }
+
+    @Override
+    public YieldCurveKey getYieldCurveKey() {
+      return new YieldCurveKey(getCurrency(), getCurveName());
+    }
+    
+    
   }
 
   
 
-  private Map<Identifier, Double> buildMarketDataMap(final FunctionInputs inputs) {
+  private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
     final Map<Identifier, Double> marketDataMap = new HashMap<Identifier, Double>();
     for (final ComputedValue value : inputs.getAllValues()) {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
@@ -105,7 +124,9 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
         marketDataMap.put(targetSpecification.getIdentifier(), (Double) value.getValue());
       }
     }
-    return marketDataMap;
+    SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
+    snapshotDataBundle.setDataPoints(marketDataMap);
+    return snapshotDataBundle;
   }
 
   @Override
