@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -113,6 +114,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   
   private boolean _isStarted;
   private boolean _isSuspended;
+
+  private final MarketDataSnapshotSource _marketDataSnapshotSource;
   
   public ViewProcessorImpl(
       UniqueIdentifier uniqueId,
@@ -130,7 +133,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
-      ViewPermissionProviderFactory permissionProviderFactory) {
+      ViewPermissionProviderFactory permissionProviderFactory,
+      MarketDataSnapshotSource marketDataSnapshotSource) {
     _uniqueId = uniqueId;
     _viewDefinitionRepository = viewDefinitionRepository;
     _securitySource = securitySource;
@@ -147,6 +151,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutionStatistics = graphExecutionStatisticsProvider;
     _permissionProviderFactory = permissionProviderFactory;
+    _marketDataSnapshotSource = marketDataSnapshotSource;
   }
 
   //-------------------------------------------------------------------------
@@ -476,7 +481,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _computationJobDispatcher,
         _viewProcessorQueryReceiver,
         _dependencyGraphExecutorFactory,
-        _graphExecutionStatistics);
+        _graphExecutionStatistics,
+        _marketDataSnapshotSource);
   }
   
   private String generateIdValue(AtomicLong source) {

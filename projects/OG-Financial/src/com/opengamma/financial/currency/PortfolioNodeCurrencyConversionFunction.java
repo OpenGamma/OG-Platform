@@ -14,10 +14,12 @@ public class PortfolioNodeCurrencyConversionFunction extends CurrencyConversionF
 
   public PortfolioNodeCurrencyConversionFunction(final String valueName) {
     super(ComputationTargetType.PORTFOLIO_NODE, valueName);
+    setAllowViewDefaultCurrency(true);
   }
 
   public PortfolioNodeCurrencyConversionFunction(final String... valueNames) {
     super(ComputationTargetType.PORTFOLIO_NODE, valueNames);
+    setAllowViewDefaultCurrency(true);
   }
 
 }

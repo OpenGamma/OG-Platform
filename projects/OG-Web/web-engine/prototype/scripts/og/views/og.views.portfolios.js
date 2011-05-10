@@ -184,8 +184,9 @@ $.register_module({
                         if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();
                         $parent.empty();
                         iterator = function (acc, val) {
-                            acc.push('<tr><td><a href="#',
-                                    routes.hash(rule, {id: id, node: val.id}), '">', val.name, '</a></td></tr>'
+                            acc.push(
+                                '<tr><td><a href="#', routes.hash(rule, {id: id, node: val.id}), '">',
+                                val.name, '</a></td></tr>'
                             );
                             return acc;
                         };
@@ -197,7 +198,7 @@ $.register_module({
                         };
                         render(0, CHUNK);
                     },
-                     render_position_rows = function (selector, json, handler) {
+                    render_position_rows = function (selector, json, handler) {
                         var $parent = $(selector), positions = json.positions, length = positions.length, render,
                             iterator, rule = og.views.positions.rules['load_positions'], CHUNK = 500;
                         if (!positions[0]) return $parent.html('<tr><td colspan="2">No Positions</td></tr>'), handler();

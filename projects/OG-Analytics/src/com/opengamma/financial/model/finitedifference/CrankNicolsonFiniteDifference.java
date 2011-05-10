@@ -40,6 +40,7 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
     _theta = theta;
   }
 
+  @Override
   public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary) {
     Validate.notNull(pdeData, "pde data");
@@ -131,8 +132,9 @@ public class CrankNicolsonFiniteDifference implements ConvectionDiffusionPDESolv
    * @throws NotImplementedException 
    */
   @Override
-  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
-      Surface<Double, Double, Double> freeBoundary) {
+  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
     throw new NotImplementedException();
   }
 

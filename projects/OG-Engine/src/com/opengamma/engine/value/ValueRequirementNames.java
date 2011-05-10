@@ -32,6 +32,7 @@ public final class ValueRequirementNames {
   
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
+  public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   public static final String YIELD_CURVE = "YieldCurve";
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
   

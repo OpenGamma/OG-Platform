@@ -19,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.livedata.PendingCombinedLiveDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
@@ -155,6 +157,32 @@ public class CombiningLiveDataSnapshotProvider implements LiveDataSnapshotProvid
     }
     return null;
   }
+  
+  
+  @Override
+  public boolean hasStructuredData() {
+    for (LiveDataSnapshotProvider provider : _providers) {
+      if (provider.hasStructuredData()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
+    Collection<Pair<Long, LiveDataSnapshotProvider>> providerSnapshots = _providerSnapshots.get(snapshot);
+    
+    for (Pair<Long, LiveDataSnapshotProvider> providerSnapshot : providerSnapshots) {
+      Long snapshotTimestamp = providerSnapshot.getFirst();
+      LiveDataSnapshotProvider provider = providerSnapshot.getSecond();
+      SnapshotDataBundle result = provider.querySnapshot(snapshotTimestamp, yieldCurveKey);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
+  }
 
   @Override
   public void releaseSnapshot(long snapshot) {
@@ -218,5 +246,4 @@ public class CombiningLiveDataSnapshotProvider implements LiveDataSnapshotProvid
       listener.valueChanged(requirement);
     }
   }
-
 }

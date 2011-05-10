@@ -48,6 +48,7 @@ public class ViewCycleExecutionOptions {
   public Instant getInputDataTime() {
     return _inputDataTime;
   }
+  
 
   @Override
   public String toString() {
