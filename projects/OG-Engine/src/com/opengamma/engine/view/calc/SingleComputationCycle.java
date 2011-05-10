@@ -451,7 +451,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       deltaCalculator.computeDelta();
 
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator.getChangedNodes().size()});
+          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize()});
 
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         markExecuted(unchangedNode);
