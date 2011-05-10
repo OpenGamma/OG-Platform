@@ -24,6 +24,7 @@ public class ViewCycleExecutionOptionsBuilder implements FudgeBuilder<ViewCycleE
 
   private static final String VALUATION_TIME_FIELD = "valuation";
   private static final String INPUT_DATA_TIME_FIELD = "inputData";
+
   
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewCycleExecutionOptions object) {

@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.Arrays;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -17,13 +18,16 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.marketdatasnapshot.MarketDataSnapshotLiveDataProvider;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -45,6 +49,7 @@ public class ViewProcessContext {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
+  private final MarketDataSnapshotSource _marketDataSnapshotSource;
 
   public ViewProcessContext(ViewPermissionProvider viewPermissionProvider,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider, LiveDataSnapshotProvider liveDataSnapshotProvider,
@@ -53,7 +58,9 @@ public class ViewProcessContext {
       CachingComputationTargetResolver computationTargetResolver, ViewComputationCacheSource computationCacheSource,
       JobDispatcher computationJobDispatcher, ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider) {
+      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
+      MarketDataSnapshotSource marketDataSnapshotSource) {
+    _marketDataSnapshotSource = marketDataSnapshotSource;
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "liveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "liveDataSnapshotProvider");
@@ -66,6 +73,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
+    ArgumentChecker.notNull(marketDataSnapshotSource, "marketDataSnapshotSource");
 
     _viewPermissionProvider = viewPermissionProvider;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -107,9 +115,19 @@ public class ViewProcessContext {
    * Gets the live data snapshot provider.
    * 
    * @return the live data snapshot provider, not null
+   * @param executionOptions 
    */
-  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
-    return _liveDataSnapshotProvider;
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider(ViewExecutionOptions executionOptions) {
+    //TODO should we change the data availability as well?
+    //TODO configure merging of live and snapshot data
+    UniqueIdentifier snapshotId = executionOptions.getMarketDataSnapshotIdentifier();
+    if (snapshotId == null) {
+      //TODO configure merging of live and snapshot data
+      return _liveDataSnapshotProvider;
+    } else {
+      return new MarketDataSnapshotLiveDataProvider(getMarketDataSnapshotSource(),
+          executionOptions.getMarketDataSnapshotIdentifier());
+    }
   }
 
   /**
@@ -200,6 +218,10 @@ public class ViewProcessContext {
 
   public GraphExecutorStatisticsGathererProvider getGraphExecutorStatisticsGathererProvider() {
     return _graphExecutorStatisticsGathererProvider;
+  }
+
+  private MarketDataSnapshotSource getMarketDataSnapshotSource() {
+    return _marketDataSnapshotSource;
   }
 
   // -------------------------------------------------------------------------

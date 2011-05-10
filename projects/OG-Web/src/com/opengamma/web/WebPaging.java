@@ -12,6 +12,7 @@ import java.util.List;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 
 /**
@@ -34,6 +35,8 @@ public class WebPaging {
    * @param uriInfo  the URI, not null
    */
   public WebPaging(Paging paging, UriInfo uriInfo) {
+    ArgumentChecker.notNull(paging, "Paging must not be null");
+    ArgumentChecker.notNull(uriInfo, "UriInfo must not be null");
     _paging = paging;
     _uriInfo = uriInfo;
   }

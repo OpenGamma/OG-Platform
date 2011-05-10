@@ -7,6 +7,8 @@ package com.opengamma.engine.livedata;
 
 import java.util.Set;
 
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicSPI;
@@ -71,6 +73,22 @@ public interface LiveDataSnapshotProvider {
    *          found in the snapshot.
    */
   Object querySnapshot(long snapshot, ValueRequirement requirement); 
+  
+  
+  /**
+   * Queries whether this snapshot provider has any structured data
+   *  If this method returns false then the structured data queries should all return null.
+   * @return whether this snapshot provider has any structured data 
+   */
+  boolean hasStructuredData();
+  
+  /**
+   * Queries an existing snapshot for a particular bundle of data for a yield curve.
+   * @param snapshot the time of the snapshot. 
+   * @param yieldCurveKey the yield curve to get data for
+   * @return null if unstructured data should be used, empty bundle if missing, full bundle otherwise 
+   */
+  SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey);
   
   /**
    * Indicates that a particular snapshot is no longer required and should be deleted. Following a call to this method,

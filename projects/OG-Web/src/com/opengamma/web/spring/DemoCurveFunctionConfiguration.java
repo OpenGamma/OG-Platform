@@ -7,6 +7,7 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -81,10 +83,10 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         final Set<String> curveNames = currencyCurves.getValue();
         if (_conventionBundleSource.getConventionBundle(Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyISO + "_SWAP")) != null) {
           if (curveNames.contains("SINGLE")) {
-            configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList(currencyISO, "SINGLE")));
+            addYieldCurveFunction(configs, currencyISO, "SINGLE");
           }
           if (curveNames.contains("FUNDING") && curveNames.contains("FORWARD")) {
-            configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList(currencyISO, "FUNDING", "FORWARD")));
+            addYieldCurveFunction(configs, currencyISO, "FUNDING", "FORWARD");
           }
         } else {
           s_logger.debug("Ignoring {} as no swap convention required by MarketInstrumentImpliedYieldCurveFunction", currencyISO);
@@ -93,18 +95,27 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     } else {
       // [PLAT-1094] This is the wrong approach and should be disposed of at the earliest opportunity
       s_logger.warn("[PLAT-1094] Using hardcoded curve definitions");
-      configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("USD", "FUNDING", "FORWARD")));
-      configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("GBP", "FUNDING", "FORWARD")));
-      configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("USD", "SINGLE")));
-      configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("GBP", "SINGLE")));
+      addYieldCurveFunction(configs, "USD", "FUNDING", "FORWARD");
+      addYieldCurveFunction(configs, "GBP", "FUNDING", "FORWARD");
+      addYieldCurveFunction(configs, "USD", "SINGLE");
+      addYieldCurveFunction(configs, "GBP", "SINGLE");
     }
 
     // The curves below are for testing curve names as value requirements - they might not be particularly useful
-    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("USD", "SWAP_ONLY_NO3YR", "SWAP_ONLY_NO3YR")));
-    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), Arrays.asList("USD", "SWAP_ONLY", "SWAP_ONLY")));
-
+    addYieldCurveFunction(configs, "USD", "SWAP_ONLY_NO3YR", "SWAP_ONLY_NO3YR");
+    addYieldCurveFunction(configs, "USD", "SWAP_ONLY", "SWAP_ONLY");
+    
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
     return new RepositoryConfiguration(configs);
+  }
+
+  
+  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, String... parameters) {
+    addYieldCurveFunction(configs, Arrays.asList(parameters));
+  }
+  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, Collection<String> parameters) {
+    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
+    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveMarketDataFunction.class.getName(), parameters));
   }
 
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
