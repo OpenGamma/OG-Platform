@@ -17,6 +17,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 
 /**
@@ -59,9 +60,16 @@ public class ViewCompilationContext {
       builder.setLiveDataAvailabilityProvider(compilationServices.getLiveDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
       final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
-      compilationContext.setViewCalculationConfiguration(viewDefinition.getCalculationConfiguration(configName));
-      // TODO: get a resolution rule transformation from the calculation configuration definition
-      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, rules));
+      final ViewCalculationConfiguration calcConfig = viewDefinition.getCalculationConfiguration(configName);
+      compilationContext.setViewCalculationConfiguration(calcConfig);
+      final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
+      if (transformedRules == rules) {
+        // No transformation applied; use the default resolver
+        builder.setFunctionResolver(functionResolver);
+      } else {
+        // Create a new resolver with the transformed rules
+        builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
+      }
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }

@@ -291,10 +291,13 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
   public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
     final Collection<ResolutionRule> result = new ArrayList<ResolutionRule>(rules.size());
     for (ResolutionRule rule : rules) {
-      final Action action = _functionTransformations.get(rule.getFunction().getFunction().getFunctionDefinition().getShortName());
+      final String function = rule.getFunction().getFunction().getFunctionDefinition().getShortName();
+      final Action action = _functionTransformations.get(function);
       if (action == null) {
+        s_logger.debug("Function {} has no transformation rules", function);
         result.add(rule);
       } else {
+        s_logger.debug("Applying transformation rules for function {}", function);
         action.apply(rule, result);
       }
     }

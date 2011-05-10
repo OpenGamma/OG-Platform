@@ -217,7 +217,7 @@ public abstract class MarketInstrumentImpliedYieldCurveFunctionHelper extends Ab
   @Override
   public String getShortName() {
     return "[" + _fundingCurveDefinitionName + ", " + _forwardCurveDefinitionName + ", " + _currency + "]"
-        + "_MarketInstrumentImpliedYieldCurveMarketDataFunctionHelper";
+        + "_" + getClass().getSimpleName();
   }
 
   protected YieldCurveDefinition getFundingCurveDefinition() {
