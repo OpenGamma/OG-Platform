@@ -15,7 +15,7 @@ public final class IdentityResolutionRuleTransform implements ResolutionRuleTran
   /**
    * Default instance.
    */
-  public static final ResolutionRuleTransform INSTANCE = new IdentityResolutionRuleTransform();
+  public static final IdentityResolutionRuleTransform INSTANCE = new IdentityResolutionRuleTransform();
 
   @Override
   public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
