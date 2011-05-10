@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,8 @@ import javax.time.Instant;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
+import com.opengamma.engine.function.resolver.ResolutionRule;
 import com.opengamma.engine.view.ViewDefinition;
 
 /**
@@ -49,15 +52,16 @@ public class ViewCompilationContext {
   private Map<String, DependencyGraphBuilder> generateBuilders(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant atInstant) {
     Map<String, DependencyGraphBuilder> result = new HashMap<String, DependencyGraphBuilder>();
     final CompiledFunctionResolver functionResolver = compilationServices.getFunctionResolver().compile(atInstant);
+    final Collection<ResolutionRule> rules = functionResolver.getAllResolutionRules();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
-      DependencyGraphBuilder builder = new DependencyGraphBuilder();
+      final DependencyGraphBuilder builder = new DependencyGraphBuilder();
       builder.setCalculationConfigurationName(configName);
       builder.setLiveDataAvailabilityProvider(compilationServices.getLiveDataAvailabilityProvider());
       builder.setTargetResolver(compilationServices.getComputationTargetResolver());
-      // REVIEW 2010-12-22 Andrew -- should the same function resolver be used for all view configurations? How do we select e.g. different function parameters, or re-prioritize the repository?
-      builder.setFunctionResolver(functionResolver);
       final FunctionCompilationContext compilationContext = compilationServices.getFunctionCompilationContext().clone();
       compilationContext.setViewCalculationConfiguration(viewDefinition.getCalculationConfiguration(configName));
+      // TODO: get a resolution rule transformation from the calculation configuration definition
+      builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, rules));
       builder.setCompilationContext(compilationContext);
       result.put(configName, builder);
     }
