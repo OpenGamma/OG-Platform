@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
@@ -33,6 +34,8 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshotProvider {
 
+  private final ConcurrentHashMap<Long, StructuredMarketDataSnapshot> _snapshots = new ConcurrentHashMap<Long, StructuredMarketDataSnapshot>();
+  
   private final MarketDataSnapshotSource _marketDataSnapshotSource;
   private final UniqueIdentifier _marketDataSnapshotIdentifier;
 
@@ -55,17 +58,25 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
 
   @Override
   public long snapshot() {
-    return 0;
+    long snapshotTime = System.currentTimeMillis();
+    snapshot(snapshotTime);
+    return snapshotTime;
   }
 
   @Override
   public long snapshot(long snapshot) {
+    StructuredMarketDataSnapshot snap = _marketDataSnapshotSource.getSnapshot(_marketDataSnapshotIdentifier);
+    _snapshots.putIfAbsent(snapshot, snap);
     return snapshot;
   }
 
+  private StructuredMarketDataSnapshot getSnapshot(long snapshot) {
+    return _snapshots.get(snapshot);
+  }
+  
   @Override
   public Object querySnapshot(long snapshot, ValueRequirement requirement) {
-    UnstructuredMarketDataSnapshot globalValues = getSnapshot().getGlobalValues();
+    UnstructuredMarketDataSnapshot globalValues = getSnapshot(snapshot).getGlobalValues();
     MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(
         getTargetType(requirement), requirement.getTargetSpecification().getUniqueId());
     
@@ -88,7 +99,7 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
   
   @Override
   public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
-    YieldCurveSnapshot yieldCurveSnapshot = getSnapshot().getYieldCurves().get(yieldCurveKey);
+    YieldCurveSnapshot yieldCurveSnapshot = getSnapshot(snapshot).getYieldCurves().get(yieldCurveKey);
     if (yieldCurveSnapshot == null) {
       return new SnapshotDataBundle(); //NOTE: this is not the same as return null;
     }
@@ -106,10 +117,6 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
     return valueSnapshot.getMarketValue();
   }
   
-  private StructuredMarketDataSnapshot getSnapshot() {
-    StructuredMarketDataSnapshot snap = _marketDataSnapshotSource.getSnapshot(_marketDataSnapshotIdentifier);
-    return snap;
-  }
   
   private SnapshotDataBundle buildSnapshot(YieldCurveSnapshot yieldCurveSnapshot) {
     SnapshotDataBundle ret = new SnapshotDataBundle();
@@ -125,6 +132,7 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
 
   @Override
   public void releaseSnapshot(long snapshot) {
+    _snapshots.remove(snapshot);
   }
 
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {
