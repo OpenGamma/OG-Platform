@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
+import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -54,6 +55,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
+  private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
@@ -105,6 +107,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       }
       context.addToMessage(calcConfigMsg, DELTA_DEFINITION_FIELD, null, calcConfig.getDeltaDefinition());
       context.addToMessage(calcConfigMsg, DEFAULT_PROPERTIES_FIELD, null, calcConfig.getDefaultProperties());
+      context.addToMessage(calcConfigMsg, RESOLUTION_RULE_TRANSFORM_FIELD, null, calcConfig.getResolutionRuleTransform());
       message.add(CALCULATION_CONFIGURATION_FIELD, null, calcConfigMsg);
     }
     context.addToMessageWithClassHeaders(message, "uniqueId", null, viewDefinition.getUniqueId(), UniqueIdentifier.class);
@@ -166,6 +169,9 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
       calcConfig.setDeltaDefinition(context.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));
       if (calcConfigMsg.hasField(DEFAULT_PROPERTIES_FIELD)) {
         calcConfig.setDefaultProperties(context.fieldValueToObject(ValueProperties.class, calcConfigMsg.getByName(DEFAULT_PROPERTIES_FIELD)));
+      }
+      if (calcConfigMsg.hasField(RESOLUTION_RULE_TRANSFORM_FIELD)) {
+        calcConfig.setResolutionRuleTransform(context.fieldValueToObject(ResolutionRuleTransform.class, calcConfigMsg.getByName(RESOLUTION_RULE_TRANSFORM_FIELD)));
       }
       viewDefinition.addViewCalculationConfiguration(calcConfig);
     }

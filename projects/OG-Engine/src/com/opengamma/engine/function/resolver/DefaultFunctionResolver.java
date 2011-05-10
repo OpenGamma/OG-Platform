@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,7 +14,9 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -58,9 +61,23 @@ public class DefaultFunctionResolver implements FunctionResolver {
     _defaultRules.addAll(resolutionRules);
   }
 
+  protected int getPriority(final CompiledFunctionDefinition function) {
+    return (_prioritizer != null) ? _prioritizer.getPriority(function) : 0;
+  }
+
+  protected Collection<ResolutionRule> getRepositoryRules(final CompiledFunctionRepository repository) {
+    final Collection<CompiledFunctionDefinition> functions = repository.getAllFunctions();
+    final Collection<ResolutionRule> functionRules = new ArrayList<ResolutionRule>(functions.size());
+    for (CompiledFunctionDefinition function : repository.getAllFunctions()) {
+      functionRules.add(new ResolutionRule(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()), ApplyToAllTargets.INSTANCE, getPriority(function)));
+    }
+    return functionRules;
+  }
+
   @Override
-  public CompiledFunctionResolver compile(InstantProvider atInstant) {
-    final DefaultCompiledFunctionResolver result = new DefaultCompiledFunctionResolver(_functionCompilationService.compileFunctionRepository(atInstant), _prioritizer);
+  public CompiledFunctionResolver compile(final InstantProvider atInstant) {
+    final DefaultCompiledFunctionResolver result = new DefaultCompiledFunctionResolver(_functionCompilationService.getFunctionCompilationContext());
+    result.addRules(getRepositoryRules(_functionCompilationService.compileFunctionRepository(atInstant)));
     if (_defaultRules != null) {
       result.addRules(_defaultRules);
     }
