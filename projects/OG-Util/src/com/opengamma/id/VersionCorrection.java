@@ -7,8 +7,10 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 
+import javax.time.CalendricalException;
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.OffsetDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
@@ -105,6 +107,49 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   public static VersionCorrection ofCorrectedTo(InstantProvider correctedTo) {
     return of(null, correctedTo);
+  }
+
+  /**
+   * Parses a {@code VersionCorrection} from the standard string format.
+   * <p>
+   * This parses the version-correction from the form produced by {@code toString()}.
+   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
+   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
+   * The text 'LATEST' is used in place of the instant for a latest version or correction.
+   * 
+   * @param str  the identifier to parse, not null
+   * @return the version-correction combination, not null
+   * @throws IllegalArgumentException if the version-correction cannot be parsed
+   */
+  public static VersionCorrection parse(String str) {
+    ArgumentChecker.notEmpty(str, "str");
+    int posC = str.indexOf(".C");
+    if (str.charAt(0) != 'V' || posC < 0) {
+      throw new IllegalArgumentException("Invalid identifier format: " + str);
+    }
+    String verStr = str.substring(1, posC);
+    String corrStr = str.substring(posC + 2);
+    Instant versionAsOf;
+    Instant correctedTo;
+    if (verStr.equals("LATEST")) {
+      versionAsOf = null;
+    } else {
+      try {
+        versionAsOf = OffsetDateTime.parse(verStr).toInstant();  // TODO: should be Instant.parse()
+      } catch (CalendricalException ex) {
+        throw new IllegalArgumentException(ex);
+      }
+    }
+    if (corrStr.equals("LATEST")) {
+      correctedTo = null;
+    } else {
+      try {
+        correctedTo = OffsetDateTime.parse(corrStr).toInstant();  // TODO: should be Instant.parse()
+      } catch (CalendricalException ex) {
+        throw new IllegalArgumentException(ex);
+      }
+    }
+    return of(versionAsOf, correctedTo);
   }
 
   /**
@@ -226,13 +271,18 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Returns the version-correction instants separated by a tilde.
+   * Returns the version-correction instants.
+   * <p>
+   * This is a standard format that can be parsed.
+   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
+   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
+   * The text 'LATEST' is used in place of the instant for a latest version or correction.
    * 
-   * @return the string version, not null
+   * @return the string version-correction, not null
    */
   @Override
   public String toString() {
-    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + "~C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
+    return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + ".C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
   }
 
   //-------------------------------------------------------------------------
