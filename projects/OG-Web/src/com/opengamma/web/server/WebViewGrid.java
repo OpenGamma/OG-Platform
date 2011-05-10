@@ -185,11 +185,12 @@ public abstract class WebViewGrid {
   
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
+    // Ensure the converter is cached against the value name before sending the column details 
+    ResultConverter<Object> converter = (ResultConverter<Object>) _resultConverterCache.getAndCacheConverter(valueName, valueType);
     if (!column.isTypeKnown()) {
       sendColumnDetails(Collections.singleton(column));
     }
-    
-    return (ResultConverter<Object>) _resultConverterCache.getAndCacheConverter(valueName, valueType);
+    return converter;
   }
   
   public ConversionMode getConversionMode(WebGridCell cell) {

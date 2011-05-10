@@ -58,6 +58,12 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
     return getMockFunction(UNIQUE_ID, target, output);
   }
 
+  public static MockFunction getMockFunction(final ComputationTarget target, final ValueSpecification spec, final Object value) {
+    final MockFunction fn = new MockFunction(UNIQUE_ID, target);
+    fn.addResult(new ComputedValue(spec, value));
+    return fn;
+  }
+
   public static ValueRequirement getOutputRequirement(ComputationTarget target) {
     ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
     return outputReq;

@@ -29,7 +29,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -261,8 +261,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     SwaptionCashFixedIbor swaptionShortPayerHighStrike = swaptionDefinitionShortPayerHighStrike.toDerivative(REFERENCE_DATE, CURVES_NAME);
     //    SwaptionCashFixedIborSABRExtrapolationRightMethod methodExtra = new SwaptionCashFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
     // Swaption sensitivity
-    PresentValueSABRSensitivity pvsLongPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionLongPayerHighStrike, sabrBundle);
-    PresentValueSABRSensitivity pvsShortPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionShortPayerHighStrike, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsLongPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionLongPayerHighStrike, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsShortPayer = METHOD_EXTRAPOLATION.presentValueSABRSensitivity(swaptionShortPayerHighStrike, sabrBundle);
     // Long/short parity
     pvsShortPayer.multiply(-1.0);
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());

@@ -1226,7 +1226,8 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
 	identifier_value VARCHAR(255) NOT NULL,
 	valid_from date,
-	valid_to date
+	valid_to date,
+	constraint rsk_chk_uq_identifier unique (identification_scheme_id, identifier_value, valid_from, valid_to)
 );
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);
@@ -1264,14 +1265,4 @@ CREATE INDEX ix_snp_snapshot_ver_to_instant ON snp_snapshot(ver_to_instant);
 CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant);
 CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
 CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
-
-create table eng_functioncosts (
-    configuration varchar(255) not null,
-    function varchar(255) not null,
-    version_instant timestamp not null,
-    invocation_cost decimal(31,8) not null,
-    data_input_cost decimal(31,8) not null,
-    data_output_cost decimal(31,8) not null,
-    primary key (configuration, function, version_instant)
-);
 

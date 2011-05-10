@@ -48,8 +48,9 @@ $.register_module({
                             $(({input: input_html(), select: select_html()})[filter_type])
                                     .data('columnId', id).width($(header).width() - 10).appendTo(header);
                             // update the select to match the filter, bookmark support
-                            if (filter_type === 'select') $('.' + filter_class).val(routes.current().args.filter_type);
-                        };
+                            if (filter_type === 'select' && routes.current().args.filter_type)
+                                    $('.' + filter_class).val(routes.current().args.filter_type.toLowerCase());
+                        }
                     })();
                     // Handle click
                     $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {

@@ -17,8 +17,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 /**
  * This implementation of the conjugate gradient method is taken from <i>"An Introduction to the Conjugate Gradient Method Without the Agonizing Pain", Shewchuk</i>.
  */
-public class ConjugateGradientVectorMinimizer implements Minimizer<Function1D<DoubleMatrix1D, Double>, DoubleMatrix1D>,
-    MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
+public class ConjugateGradientVectorMinimizer implements MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> {
 
   private static final double SMALL = 1e-25;
   private static final double DEFAULT_TOL = 1e-8;
@@ -109,7 +108,7 @@ public class ConjugateGradientVectorMinimizer implements Minimizer<Function1D<Do
       deltaNew = OG_ALGEBRA.getInnerProduct(g, g);
 
       if (Math.sqrt(deltaNew) < _relTol * delta0 + _absTol
-      // in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion
+          // in practice may never get exactly zero gradient (especially if using finite difference to find it), so it shouldn't be the critical stopping criterion
           && OG_ALGEBRA.getNorm2(deltaX) < _relTol * OG_ALGEBRA.getNorm2(x) + _absTol) {
 
         boolean flag = true;

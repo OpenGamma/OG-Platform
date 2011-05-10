@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.instrument.cash;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -83,13 +85,13 @@ public class CashDefinitionTest {
     Cash cash = CASH.toDerivative(DATE, name);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 2. / 360, 0);
+    assertEquals(cash.getTradeTime(), 2. / 365, 0);
     assertEquals(cash.getYearFraction(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
     cash = CASH.toDerivative(DATE, name, name, name);
     assertEquals(cash.getMaturity(), 181. / 365, 0);
     assertEquals(cash.getRate(), RATE, 0);
-    assertEquals(cash.getTradeTime(), 2. / 360, 0);
+    assertEquals(cash.getTradeTime(), 2. / 365, 0);
     assertEquals(cash.getYearFraction(), 179. / 360, 0);
     assertEquals(cash.getYieldCurveName(), name);
   }

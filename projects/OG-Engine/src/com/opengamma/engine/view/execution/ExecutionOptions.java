@@ -7,6 +7,7 @@ package com.opengamma.engine.view.execution;
 
 import javax.time.Instant;
 
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -21,6 +22,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
   private final boolean _liveDataTriggerEnabled;
   private final Integer _maxSuccessiveDeltaCycles;
   private final boolean _compileOnly;
+  private final UniqueIdentifier _marketDataSnapshotIdentifier;
   
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean liveDataTriggerEnabled) {
     this(executionSequence, liveDataTriggerEnabled, null);
@@ -37,6 +39,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
   
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
       boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles, boolean compileOnly) {
+    this(executionSequence, runAsFastAsPossible, liveDataTriggerEnabled, maxSuccessiveDeltaCycles, compileOnly, null);
+  }
+  
+  public ExecutionOptions(ViewCycleExecutionSequence executionSequence, boolean runAsFastAsPossible,
+      boolean liveDataTriggerEnabled, Integer maxSuccessiveDeltaCycles, boolean compileOnly, UniqueIdentifier marketDataSnapshotIdentifier) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
     
     _executionSequence = executionSequence;
@@ -44,6 +51,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     _liveDataTriggerEnabled = liveDataTriggerEnabled;
     _maxSuccessiveDeltaCycles = maxSuccessiveDeltaCycles;
     _compileOnly = compileOnly;
+    _marketDataSnapshotIdentifier = marketDataSnapshotIdentifier;
   }
   
   public static ViewExecutionOptions realTime() {
@@ -117,6 +125,12 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public boolean isCompileOnly() {
     return _compileOnly;
   }
+  
+
+  @Override
+  public UniqueIdentifier getMarketDataSnapshotIdentifier() {
+    return _marketDataSnapshotIdentifier;
+  }
 
   @Override
   public int hashCode() {
@@ -161,7 +175,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (_compileOnly != other._compileOnly) {
       return false;
     }
+    if (_marketDataSnapshotIdentifier != other._marketDataSnapshotIdentifier) {
+      return false;
+    }
     return true;
   }
+
 
 }

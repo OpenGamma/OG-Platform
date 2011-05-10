@@ -14,13 +14,13 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 
 public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMarketDataSnapshot, Serializable {
 
-  private Map<MarketDataValueSpecification, ValueSnapshot> _values;
+  private Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> _values;
 
   /**
    * Gets the values field.
    * @return the values
    */
-  public Map<MarketDataValueSpecification, ValueSnapshot> getValues() {
+  public Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getValues() {
     return _values;
   }
 
@@ -28,7 +28,7 @@ public class ManageableUnstructuredMarketDataSnapshot implements UnstructuredMar
    * Sets the values field.
    * @param values  the values
    */
-  public void setValues(Map<MarketDataValueSpecification, ValueSnapshot> values) {
+  public void setValues(Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> values) {
     _values = values;
   }
   

@@ -51,7 +51,7 @@ public class CouponCMS extends CouponFloating {
    * @param settlementTime  The time (in years) to swap settlement.
    * @return The CMS coupon.
    */
-  public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<Payment> underlyingSwap, double settlementTime) {
+  public static CouponCMS from(CouponFloating coupon, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime) {
     Validate.notNull(coupon, "floating coupon");
     Validate.notNull(underlyingSwap, "underlying swap");
     return new CouponCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap, settlementTime);

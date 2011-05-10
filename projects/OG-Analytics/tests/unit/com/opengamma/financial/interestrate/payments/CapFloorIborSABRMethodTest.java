@@ -30,7 +30,7 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.PresentValueSABRSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -213,8 +213,8 @@ public class CapFloorIborSABRMethodTest {
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     double pv = METHOD.presentValue(CAP_LONG, sabrBundle);
-    PresentValueSABRSensitivity pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, sabrBundle);
-    PresentValueSABRSensitivity pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_SHORT, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, sabrBundle);
+    PresentValueSABRSensitivityDataBundle pvsCapShort = METHOD.presentValueSABRSensitivity(CAP_SHORT, sabrBundle);
     // Long/short parity
     pvsCapShort.multiply(-1.0);
     assertEquals(pvsCapShort.getAlpha(), pvsCapLong.getAlpha());

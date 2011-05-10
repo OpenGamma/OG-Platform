@@ -9,6 +9,7 @@ $.register_module({
             common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = encodeURIComponent,
             outstanding_requests = {}, registrations = [],
+            meta_data = {configs: null, holidays: null, securities: null},
             request_id = 0, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
             /** @ignore */
             register = function (obj) {
@@ -98,15 +99,24 @@ $.register_module({
             /** @ignore */
             default_get = function (fields, api_fields, config) {
                 var root = this.root, method = [root], data = {}, meta,
+                    all = fields.concat('id', 'version', 'page_size', 'page');
                     id = str(config.id), version = str(config.version), version_search = version === '*',
                     field_search = fields.some(function (val) {return val in config;}),
+                    has_meta = root in meta_data, meta_request = has_meta && config.meta,
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                 meta = check({
                     bundle: {method: root + '#get', config: config},
                     dependencies: [{fields: ['version'], require: 'id'}],
-                    empties: [{condition: field_search, label: 'search request', fields: ['version', 'id']}]
+                    empties: [
+                        {condition: field_search, label: 'search request', fields: ['version', 'id']},
+                        {condition: !has_meta, label: 'meta data unavailable for /' + root, fields: ['meta']},
+                        {condition: meta_request, label: 'meta data request', fields: all}
+                    ]
                 });
-                if (field_search || version_search || !id) data = {pageSize: page_size, page: page};
+                if (meta_request)
+                    method.push('metaData');
+                else if ((field_search || version_search || !id))
+                    data = {pageSize: page_size, page: page};
                 if (field_search) fields.forEach(function (val, idx) {
                     if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
                 });
@@ -114,9 +124,8 @@ $.register_module({
                 return request(method, {data: data, meta: meta});
             },
             /** @ignore */
-            default_del = function (config) { // *this* refers to the child node of api that default_del is in
-                var root = this.root, method = [root], meta,
-                    id = str(config.id), version = str(config.version);
+            default_del = function (config) {
+                var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
                 meta = check({
                     bundle: {method: root + '#del', config: config},
                     required: [{all_of: ['id']}],
@@ -181,17 +190,22 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version), version_search = version === '*',
                         fields = ['name', 'type'], type_search = config.type === '*',
+                        all = fields.concat('id', 'version', 'page_size', 'page');
                         field_search = !type_search && fields.some(function (val) {return val in config;}),
+                        meta_request = config.meta,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
                         empties: [
                             {condition: field_search, label: 'search request', fields: ['version', 'id']},
-                            {condition: type_search, label: 'type search request', fields: ['version', 'id', 'name']}
+                            {condition: type_search, label: 'type search request', fields: ['version', 'id', 'name']},
+                            {condition: meta_request, label: 'meta data request', fields: all}
                         ]
                     });
-                    if (!type_search && (field_search || version_search || !id))
+                    if (meta_request)
+                        method.push('metaData');
+                    else if (!type_search && (field_search || version_search || !id))
                         data = {pageSize: page_size, page: page};
                     if (field_search) fields.forEach(function (val, idx) {
                         if (val = str(config[val])) data[fields[idx]] = val;
@@ -202,7 +216,7 @@ $.register_module({
                 put: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), fields = ['name', 'xml'], api_fields = ['name', 'configxml'];
-                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]});
+                    meta = check({bundle: {method: root + '#put', config: config}, required: [{one_of: fields}]});
                     meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     if (id) method.push(id);
@@ -268,15 +282,20 @@ $.register_module({
                 },
                 del: function (config) {
                     var root = this.root, method = [root], meta,
-                        id = str(config.id), version = str(config.version), node = str(config.node);
+                        id = str(config.id), version = str(config.version),
+                        node = str(config.node), position = str(config.position);
                     meta = check({
                         bundle: {method: root + '#del', config: config},
                         required: [{all_of: ['id']}],
-                        dependencies: [{fields: ['node', 'version'], require: 'id'}]
+                        dependencies: [
+                            {fields: ['node', 'version', 'position'], require: 'id'},
+                            {fields: ['position'], require: 'node'}
+                        ]
                     });
                     meta.type = 'DELETE';
                     method = method.concat(version ? [id, 'versions', version] : id);
                     if (node) method.push('nodes', node);
+                    if (position) method.push('positions', position);
                     return request(method, {data: {}, meta: meta});
                 }
             },

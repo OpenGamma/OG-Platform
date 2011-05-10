@@ -25,8 +25,6 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.UnsatisfiableDependencyGraphException;
-import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -39,6 +37,10 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
 
+  /**
+   * Custom comparator to sort integers in descending order - the natural ordering is ascending which
+   * is incorrect for descending priority iteration over the resolution rules.
+   */
   private static final Comparator<Integer> s_priorityComparator = new Comparator<Integer>() {
     @Override
     public int compare(Integer o1, Integer o2) {
@@ -56,17 +58,6 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext) {
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
     _functionCompilationContext = functionCompilationContext;
-  }
-
-  public DefaultCompiledFunctionResolver(final CompiledFunctionRepository repository, final DefaultFunctionResolver.FunctionPriority prioritizer) {
-    this(repository.getCompilationContext());
-    Collection<ResolutionRule> resolutionRules = new ArrayList<ResolutionRule>();
-    for (CompiledFunctionDefinition function : repository.getAllFunctions()) {
-      ResolutionRule rule = new ResolutionRule(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()), new ApplyToAllTargets(),
-          (prioritizer != null) ? prioritizer.getPriority(function) : 0);
-      resolutionRules.add(rule);
-    }
-    addRules(resolutionRules);
   }
 
   public DefaultCompiledFunctionResolver(final FunctionCompilationContext functionCompilationContext, Collection<ResolutionRule> resolutionRules) {
@@ -94,6 +85,17 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       rules.add(resolutionRule);
     }
+  }
+
+  @Override
+  public Collection<ResolutionRule> getAllResolutionRules() {
+    final ArrayList<ResolutionRule> rules = new ArrayList<ResolutionRule>();
+    for (Map<Integer, Collection<ResolutionRule>> priority2Rules : _type2Priority2Rules.values()) {
+      for (Collection<ResolutionRule> priorityRules : priority2Rules.values()) {
+        rules.addAll(priorityRules);
+      }
+    }
+    return rules;
   }
 
   protected FunctionCompilationContext getFunctionCompilationContext() {

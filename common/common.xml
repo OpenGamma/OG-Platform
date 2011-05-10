@@ -644,6 +644,7 @@
 		<attribute name="path" />
 		<attribute name="scriptDir" />
 		<attribute name="catalog" />
+		<attribute name="dropTable" />
 		<sequential>
 			<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
 			<dbtool 
@@ -651,7 +652,7 @@
 		catalog="@{catalog}" 
 		user="" 
 		password="" 
-		drop="true" 
+		drop="@{dropTable}" 
 		create="true" 
 		createTables="true" 
 		dbScriptDir="@{scriptDir}" />

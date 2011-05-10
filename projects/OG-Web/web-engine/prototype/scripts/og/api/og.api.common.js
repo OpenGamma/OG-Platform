@@ -13,7 +13,7 @@ $.register_module({
                             if (config[dependency.require] !== void 0) return;
                             dependency.fields.forEach(function (field) {
                                 if (config[field] === void 0) return;
-                                throw new ReferenceError(method + ': ' + field + ' require ' + dependency.require);
+                                throw new ReferenceError(method + ': ' + field + ' require(s) ' + dependency.require);
                             });
                         });
                     },

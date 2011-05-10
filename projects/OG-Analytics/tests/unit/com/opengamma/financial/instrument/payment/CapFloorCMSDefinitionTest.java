@@ -30,10 +30,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Test related to CouponCMSDefinition construction.
+ * Test related to CapFloorCMSDefinition construction.
  */
 public class CapFloorCMSDefinitionTest {
-
   //Swap 5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

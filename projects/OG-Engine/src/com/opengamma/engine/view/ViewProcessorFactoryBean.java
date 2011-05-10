@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
@@ -56,6 +57,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProviderFactory _permissionProviderFactory;
+  private MarketDataSnapshotSource _marketDataSnaphotSource;
   
   //-------------------------------------------------------------------------
   public Long getId() {
@@ -186,6 +188,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _permissionProviderFactory = permissionProviderFactory;
   }
   
+  public MarketDataSnapshotSource getMarketDataSnaphotSource() {
+    return _marketDataSnaphotSource;
+  }
+
+  public void setMarketDataSnaphotSource(MarketDataSnapshotSource marketDataSnaphotSource) {
+    _marketDataSnaphotSource = marketDataSnaphotSource;
+  }
+
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -206,6 +216,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
     ArgumentChecker.notNullInjected(getViewPermissionProviderFactory(), "viewPermissionProviderFactory");
+    ArgumentChecker.notNullInjected(getMarketDataSnaphotSource(), "marketDataSnaphotSource");
   }
 
   @Override
@@ -227,7 +238,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewProcessorQueryReceiver(),
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
-        getViewPermissionProviderFactory());
+        getViewPermissionProviderFactory(),
+        getMarketDataSnaphotSource());
   }
 
 }

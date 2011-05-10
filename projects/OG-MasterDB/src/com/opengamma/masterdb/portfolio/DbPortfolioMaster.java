@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -284,7 +286,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     argsList.add(treeArgs);
     
     // store position links
-    for (ObjectIdentifier positionId : node.getPositionIds()) {
+    Set<ObjectIdentifier> positionIds = new LinkedHashSet<ObjectIdentifier>(node.getPositionIds());
+    node.getPositionIds().clear();
+    node.getPositionIds().addAll(positionIds);
+    for (ObjectIdentifier positionId : positionIds) {
       final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
         .addValue("node_id", nodeId)
         .addValue("key_scheme", positionId.getScheme())

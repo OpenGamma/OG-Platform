@@ -252,9 +252,7 @@ public interface TimeSeriesMaster<T> {
 
   //-------------------------------------------------------------------------
   /**
-   * Searches for a time-series matching specific criteria.
-   * <p>
-   * This is an optimized search for a bundle of identifiers.
+   * Searches for a timeseries unique identifier matching specific criteria.
    * 
    * @param securityBundle  the security identifier bundle, not null
    * @param dataSource  the data source, not null
@@ -265,9 +263,7 @@ public interface TimeSeriesMaster<T> {
   UniqueIdentifier resolveIdentifier(IdentifierBundle securityBundle, String dataSource, String dataProvider, String dataField);
 
   /**
-   * Searches for a time-series matching specific criteria.
-   * <p>
-   * This is an optimized search for a bundle of identifiers.
+   * Searches for a timeseries unique identifier matching specific criteria.
    * 
    * @param securityBundle  the security identifier bundle, not null
    * @param currentDate  the current trade date if applicable
