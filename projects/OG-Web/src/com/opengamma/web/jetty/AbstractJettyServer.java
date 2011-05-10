@@ -52,9 +52,10 @@ public abstract class AbstractJettyServer {
     ApplicationContext appContext = new FileSystemXmlApplicationContext(springConfig);
     Server server = appContext.getBean("server", Server.class);
     server.start();
-    System.out.println("================================== JETTY START COMPLETE =====================================");
     System.out.println();
     System.out.println("Server started on port " + getServerPort(appContext));
+    System.out.println();
+    System.out.println("================================== JETTY START COMPLETE =====================================");
     System.out.println();
     server.join();
   }

@@ -63,7 +63,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.Identifier;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.ParallelArrayBinarySort;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
@@ -228,9 +227,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
       _identifierToForwardNodeTimes.clear();
       int i = 0, fundingIndex = 0, forwardIndex = 0;
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
-        final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            strip.getSecurityIdentifier());
-        final Double marketValue = (Double) inputs.getValue(stripRequirement);
+        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
         if (marketValue == null) {
           throw new NullPointerException("Could not get market data for " + strip);
         }
@@ -273,9 +270,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
         fundingIndex++;
       }
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
-        final ValueRequirement stripRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            strip.getSecurityIdentifier());
-        final Double marketValue = (Double) inputs.getValue(stripRequirement);
+        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
         if (marketValue == null) {
           throw new NullPointerException("Could not get market data for " + strip);
         }

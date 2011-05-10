@@ -48,6 +48,7 @@ import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.cache.MissingLiveDataSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -340,14 +341,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
       Object data = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      ComputedValue dataAsValue;
+      
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement.getValue());
+        dataAsValue = new ComputedValue(liveDataRequirement.getValue(), MissingLiveDataSentinel.getInstance());
       } else {
-        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
-        addToAllCaches(dataAsValue);
+        dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
         getResultModel().addLiveData(dataAsValue);
       }
+      addToAllCaches(dataAsValue);
     }
     if (!missingLiveData.isEmpty()) {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
@@ -477,6 +481,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         continue;
       }
       if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
+        continue;
+      }
+      if (value.getSecond() instanceof MissingLiveDataSentinel) {
         continue;
       }
       getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
