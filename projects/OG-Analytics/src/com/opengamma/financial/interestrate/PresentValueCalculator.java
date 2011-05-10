@@ -57,6 +57,18 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
+  public Double[] visit(final InterestRateDerivative[] derivative, final YieldCurveBundle curves) {
+    Validate.notNull(derivative, "derivative");
+    Validate.noNullElements(derivative, "derivative");
+    Validate.notNull(curves, "curves");
+    Double[] output = new Double[derivative.length];
+    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
+      output[loopderivative] = derivative[loopderivative].accept(this, curves);
+    }
+    return output;
+  }
+
+  @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(cash);
