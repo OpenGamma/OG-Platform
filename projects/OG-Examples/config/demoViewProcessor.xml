@@ -78,7 +78,12 @@
     </constructor-arg>
   </bean>
   
-  <!-- Market data snapshot -->
+  <!-- Market data snapshots -->
+  <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="userFinancialDbSource" />
+    <!-- TODO <property name="identifierScheme" value="${opengamma.financial-user.db.marketdatasnapshotmaster.scheme}" /> -->
+  </bean>
+  
   <!-- TODO impl and combine in user store -->
   
   <bean id="combinedMarketDataSnaphotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
