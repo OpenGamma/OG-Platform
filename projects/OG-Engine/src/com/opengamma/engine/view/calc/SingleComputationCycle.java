@@ -453,17 +453,28 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
           new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize()});
 
+      Collection<ValueSpecification> specsToCopy = new HashSet<ValueSpecification>();
+      
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         markExecuted(unchangedNode);
+        specsToCopy.addAll(unchangedNode.getOutputValues());
+      }
+      
+      copyValues(cache, previousCache, specsToCopy);
+    }
+  }
 
-        for (ValueSpecification spec : unchangedNode.getOutputValues()) {
-          Object previousValue = previousCache.getValue(spec);
-          if (previousValue != null) {
-            cache.putSharedValue(new ComputedValue(spec, previousValue));
-          }
-        }
+  private void copyValues(ViewComputationCache cache, ViewComputationCache previousCache, Collection<ValueSpecification> specsToCopy) {
+    Collection<Pair<ValueSpecification, Object>> valuesToCopy = previousCache.getValues(specsToCopy);
+    
+    Collection<ComputedValue> newValues = new HashSet<ComputedValue>();
+    for (Pair<ValueSpecification, Object> pair : valuesToCopy) {
+      Object previousValue = pair.getSecond();
+      if (previousValue != null) {
+        newValues.add(new ComputedValue(pair.getFirst(), previousValue));
       }
     }
+    cache.putSharedValues(newValues);
   }
   
   private void populateResultModel() {
