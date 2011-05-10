@@ -62,6 +62,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
       String uidStr = StringUtils.substringAfterLast(positionUrlStr, "/positions/");
       uidStr = StringUtils.substringBefore(uidStr, "/");
       posUid = UniqueIdentifier.parse(uidStr);
+      data().getPositionMaster().get(posUid);  // validate position exists
     } catch (Exception ex) {
       FlexiBean out = createRootData();
       out.put("err_positionUrlInvalid", true);
@@ -87,6 +88,7 @@ public class WebPortfolioNodePositionsResource extends AbstractWebPortfolioResou
     UniqueIdentifier posUid = null;
     try {
       posUid = UniqueIdentifier.parse(uidStr);
+      data().getPositionMaster().get(posUid);  // validate position exists
     } catch (Exception ex) {
       return Response.status(Status.BAD_REQUEST).build();
     }
