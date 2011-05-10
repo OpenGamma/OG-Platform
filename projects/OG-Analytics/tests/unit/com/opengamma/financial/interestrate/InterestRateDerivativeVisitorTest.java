@@ -310,6 +310,16 @@ public class InterestRateDerivativeVisitorTest {
     public Class<?> visitBondTransaction(BondTransaction<? extends Payment> bond) {
       return visit(bond);
     }
+
+    @Override
+    public Class<?>[] visit(InterestRateDerivative[] derivative, Object data) {
+      return visit(derivative, data);
+    }
+
+    @Override
+    public Class<?>[] visit(InterestRateDerivative[] derivative) {
+      return visit(derivative);
+    }
   };
 
   @Test

@@ -37,7 +37,11 @@ import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
  */
 public interface InterestRateDerivativeVisitor<S, T> {
 
+  // Two arguments
+
   T visit(InterestRateDerivative derivative, S data);
+
+  T[] visit(InterestRateDerivative[] derivative, S data);
 
   T visitBond(Bond bond, S data);
 
@@ -85,7 +89,11 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
 
+  // One argument
+
   T visit(InterestRateDerivative derivative);
+
+  T[] visit(InterestRateDerivative[] derivative);
 
   T visitBond(Bond bond);
 
