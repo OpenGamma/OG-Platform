@@ -35,7 +35,21 @@ message com.opengamma.id.IdentificationScheme {
 **
 message com.opengamma.id.IdentifierBundle {
 
-  ** The scheme name.
+  ** The identifiers.
   com.opengamma.id.Identifier[] ID
+
+}
+
+#----------------------------------------------------------------------------
+**
+** The version-correction representing history in two dimensions.
+**
+message com.opengamma.id.VersionCorrection {
+
+  ** The version as of instant.
+  datetime versionAsOf
+
+  ** The corrected to instant.
+  datetime correctedTo
 
 }

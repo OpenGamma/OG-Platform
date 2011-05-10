@@ -101,10 +101,11 @@ public class WebConfigResource extends AbstractWebConfigResource {
     
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    // JSON allows a null config to just change the name
+    if (name == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    updateConfig(name, parseXML(xml));
+    updateConfig(name, xml != null ? parseXML(xml) : null);
     return Response.ok().build();
   }
 
@@ -114,7 +115,9 @@ public class WebConfigResource extends AbstractWebConfigResource {
     ConfigDocument doc = new ConfigDocument(oldDoc.getType());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
-    doc.setValue(newConfigValue.getFirst());
+    if (newConfigValue != null) {  // null means only update the name
+      doc.setValue(newConfigValue.getFirst());
+    }
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);
     URI uri = WebConfigResource.uri(data());
