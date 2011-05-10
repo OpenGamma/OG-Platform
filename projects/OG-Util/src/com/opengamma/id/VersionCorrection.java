@@ -13,9 +13,6 @@ import javax.time.InstantProvider;
 import javax.time.calendar.OffsetDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
-import org.fudgemsg.MutableFudgeMsg;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -283,54 +280,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   @Override
   public String toString() {
     return "V" + ObjectUtils.defaultIfNull(_versionAsOf, "LATEST") + ".C" + ObjectUtils.defaultIfNull(_correctedTo, "LATEST");
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Serializes this version-correction to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param factory a message creator, not {@code null}
-   * @param message the message to serialize into, not {@code null}
-   * @return the serialized message
-   */
-  public MutableFudgeMsg toFudgeMsg(final FudgeMsgFactory factory, final MutableFudgeMsg message) {
-    ArgumentChecker.notNull(factory, "factory");
-    ArgumentChecker.notNull(message, "message");
-    if (_versionAsOf != null) {
-      message.add("VersionAsOf", _versionAsOf);
-    }
-    if (_correctedTo != null) {
-      message.add("CorrectedTo", _correctedTo);
-    }
-    return message;
-  }
-
-  /**
-   * Serializes this version-correction to a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param factory a message creator, not {@code null}
-   * @return the serialized Fudge message
-   */
-  public FudgeMsg toFudgeMsg(FudgeMsgFactory factory) {
-    return toFudgeMsg(factory, factory.newMessage());
-  }
-
-  /**
-   * Deserializes a version-correction from a Fudge message.
-   * This is used by the Fudge Serialization Framework and Fudge-Proto generated code to allow
-   * unique identifiers to be embedded within Fudge-Proto specified messages with minimal overhead.
-   * 
-   * @param msg the Fudge message, not {@code null}
-   * @return the identifier
-   */
-  public static VersionCorrection fromFudgeMsg(FudgeMsg msg) {
-    Instant version = msg.getValue(Instant.class, "VersionAsOf");
-    Instant correction = msg.getValue(Instant.class, "CorrectedTo");
-    return VersionCorrection.of(version, correction);
   }
 
 }

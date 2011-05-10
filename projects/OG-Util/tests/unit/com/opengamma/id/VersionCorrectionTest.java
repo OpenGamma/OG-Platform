@@ -6,14 +6,11 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 
 /**
@@ -245,27 +242,6 @@ public class VersionCorrectionTest {
     VersionCorrection d1b = VersionCorrection.of(INSTANT1, INSTANT2);
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_fudgeEncoding_notNull() {
-    VersionCorrection test = VersionCorrection.of(INSTANT1, INSTANT2);
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-    
-    VersionCorrection decoded = VersionCorrection.fromFudgeMsg(msg);
-    assertEquals(test, decoded);
-  }
-
-  public void test_fudgeEncoding_nulls() {
-    VersionCorrection test = VersionCorrection.of(null, null);
-    FudgeMsg msg = test.toFudgeMsg(new FudgeContext());
-    assertNotNull(msg);
-    assertEquals(0, msg.getNumFields());
-    
-    VersionCorrection decoded = VersionCorrection.fromFudgeMsg(msg);
-    assertEquals(test, decoded);
   }
 
 }
