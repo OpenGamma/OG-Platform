@@ -4,7 +4,7 @@
 	<import file="${common.dir}/common.xml"/>
 
 	<target name="new-hsqldb-impl">
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${og-engine.scripts.dir}, ${og-master.scripts.dir}" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}" catalog="og-financial" />
 	</target>
 
 	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl" description="--> creates the hsqldb tables" />
