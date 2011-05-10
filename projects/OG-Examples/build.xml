@@ -4,8 +4,10 @@
 	<import file="${common.dir}/common.xml"/>
 
 	<target name="new-hsqldb-impl">
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${db.scripts.dir}" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${og-master.scripts.dir}" catalog="og-financial" dropTable="false" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${og-engine.scripts.dir}" catalog="og-financial" dropTable="false" />
 	</target>
+	
 	<target name="new-hsqldb" depends="resolve,new-hsqldb-impl" description="--> creates the hsqldb tables" />
 
 	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
@@ -32,7 +34,7 @@
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">
 		<java jar="${jetty.start}" fork="true" spawn="false">
-			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
 			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
