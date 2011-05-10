@@ -74,8 +74,8 @@ public class DbMarketDataSnapshotMasterTest extends DBTest {
     
     HashMap<YieldCurveKey,YieldCurveSnapshot> yieldCurves = new HashMap<YieldCurveKey,YieldCurveSnapshot>();
     
-    UnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
-    
+    ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
+    globalValues.setValues(new HashMap<MarketDataValueSpecification, Map<String,ValueSnapshot>>());
     marketDataSnapshot.setGlobalValues(globalValues);
     marketDataSnapshot.setYieldCurves(yieldCurves);
         
