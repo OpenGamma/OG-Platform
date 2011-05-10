@@ -47,9 +47,19 @@ public abstract class AbstractInterestRateDerivativeVisitor<S, T> implements Int
   }
 
   @Override
+  public T[] visit(final InterestRateDerivative[] derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visit(derivative[], data)");
+  }
+
+  @Override
   public T visit(final InterestRateDerivative derivative) {
     Validate.notNull(derivative, "derivative");
     return derivative.accept(this);
+  }
+
+  @Override
+  public T[] visit(final InterestRateDerivative[] derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visit(derivative[])");
   }
 
   @Override

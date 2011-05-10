@@ -159,7 +159,7 @@ public abstract class AbstractDbMaster {
    */
   protected void checkScheme(final ObjectIdentifiable objectId) {
     if (getIdentifierScheme().equals(objectId.getObjectId().getScheme()) == false) {
-      throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + getIdentifierScheme() + "): " + objectId);
+      throw new IllegalArgumentException("UniqueIdentifier is not from this master (" + toString() + "): " + objectId);
     }
   }
 
