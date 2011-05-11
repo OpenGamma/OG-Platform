@@ -1226,7 +1226,8 @@ CREATE TABLE tss_identifier (
 	  constraint fk_identifier_identification_scheme  REFERENCES tss_identification_scheme(id),
 	identifier_value VARCHAR(255) NOT NULL,
 	valid_from date,
-	valid_to date
+	valid_to date,
+	constraint rsk_chk_uq_identifier unique (identification_scheme_id, identifier_value, valid_from, valid_to)
 );
 CREATE INDEX idx_identifier_scheme_value on tss_identifier (identification_scheme_id, identifier_value);
 CREATE INDEX idx_identifier_value ON tss_identifier(identifier_value);

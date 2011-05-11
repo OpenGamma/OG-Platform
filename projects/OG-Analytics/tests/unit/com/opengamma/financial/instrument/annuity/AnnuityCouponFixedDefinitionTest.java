@@ -311,10 +311,18 @@ public class AnnuityCouponFixedDefinitionTest {
     AnnuityCouponFixedDefinition definition2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
         RATE, IS_PAYER);
     assertEquals(definition1, definition2);
+    assertEquals(IS_PAYER, definition1.isPayer());
+    definition2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+    assertEquals(!IS_PAYER, definition2.isPayer());
     definition1 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
         IS_PAYER);
     definition2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
         RATE, IS_PAYER);
     assertEquals(definition1, definition2);
+    definition2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
   }
 }

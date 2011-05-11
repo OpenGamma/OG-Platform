@@ -24,6 +24,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -57,8 +58,8 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test
   public void test() {
-    CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
-    double sign = IS_PAYER ? -1.0 : 1.0;
+    final CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
+    final double sign = IS_PAYER ? -1.0 : 1.0;
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign
         * NOTIONAL, 0.0);
@@ -70,14 +71,14 @@ public class AnnuityCouponIborDefinitionTest {
       fixingDate = ScheduleCalculator.getAdjustedDate(PAYMENT_DATES[loopcpn - 1], BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(coupons);
+    final AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(coupons);
     //    assertEquals(iborAnnuity.getPayments(), coupons);
     assertEquals(iborAnnuity.isPayer(), IS_PAYER);
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       assertEquals(iborAnnuity.getNthPayment(loopcpn), coupons[loopcpn]);
       assertEquals(iborAnnuity.getPayments()[loopcpn], coupons[loopcpn]);
     }
-    AnnuityCouponIborDefinition iborAnnuity2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
+    final AnnuityCouponIborDefinition iborAnnuity2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
     assertEquals(iborAnnuity, iborAnnuity2);
 
   }
@@ -89,7 +90,7 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testOneNullPayment() {
-    CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
+    final CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), NOTIONAL, 0.0);
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
@@ -105,15 +106,17 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test
   public void testFrom() {
-    ZonedDateTime settleDate = DateUtil.getUTCDate(2014, 3, 20);
-    Period INDEX_TENOR = Period.ofMonths(3);
-    DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-    AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, INDEX, IS_PAYER);
-    ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 20)};
-    ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 18), DateUtil.getUTCDate(2014, 6, 18), DateUtil.getUTCDate(2014, 9, 18), DateUtil.getUTCDate(2014, 12, 18)};
-    ZonedDateTime[] startPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 20), DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22)};
-    ZonedDateTime[] endPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 23)};
+    final ZonedDateTime settleDate = DateUtil.getUTCDate(2014, 3, 20);
+    final Period indexTenor = Period.ofMonths(3);
+    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final IborIndex index = new IborIndex(CUR, indexTenor, SETTLEMENT_DAYS, CALENDAR, dayCount, BUSINESS_DAY, IS_EOM);
+    final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, index, IS_PAYER);
+    final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22), DateUtil.getUTCDate(2015, 03, 20)};
+    final ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 18), DateUtil.getUTCDate(2014, 6, 18), DateUtil.getUTCDate(2014, 9, 18), DateUtil.getUTCDate(2014, 12, 18)};
+    final ZonedDateTime[] startPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 3, 20), DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22),
+        DateUtil.getUTCDate(2014, 12, 22)};
+    final ZonedDateTime[] endPeriodDates = new ZonedDateTime[] {DateUtil.getUTCDate(2014, 6, 20), DateUtil.getUTCDate(2014, 9, 22), DateUtil.getUTCDate(2014, 12, 22),
+        DateUtil.getUTCDate(2015, 03, 23)};
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       assertEquals(paymentDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getPaymentDate());
       assertEquals(fixingDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingDate());
@@ -124,7 +127,7 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test
   public void testEqualHash() {
-    CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
+    final CouponIborDefinition[] coupons = new CouponIborDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), NOTIONAL, 0.0);
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
@@ -135,13 +138,13 @@ public class AnnuityCouponIborDefinitionTest {
       fixingDate = ScheduleCalculator.getAdjustedDate(PAYMENT_DATES[loopcpn - 1], BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
       coupons[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(coupons);
-    AnnuityCouponIborDefinition iborAnnuity2 = new AnnuityCouponIborDefinition(coupons);
+    final AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(coupons);
+    final AnnuityCouponIborDefinition iborAnnuity2 = new AnnuityCouponIborDefinition(coupons);
     assertEquals(iborAnnuity, iborAnnuity2);
     assertEquals(iborAnnuity.hashCode(), iborAnnuity2.hashCode());
     AnnuityCouponIborDefinition modifiedIborAnnuity = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
     assertFalse(iborAnnuity.equals(modifiedIborAnnuity));
-    CouponIborDefinition[] couponsModified = new CouponIborDefinition[PAYMENT_DATES.length];
+    final CouponIborDefinition[] couponsModified = new CouponIborDefinition[PAYMENT_DATES.length];
     CouponFixedDefinition couponModified = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]),
         NOTIONAL, 0.0);
     fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, BUSINESS_DAY, CALENDAR, -SETTLEMENT_DAYS);
@@ -158,15 +161,111 @@ public class AnnuityCouponIborDefinitionTest {
 
   @Test
   public void testToDerivative() {
-    String fundingCurve = "Funding";
-    String forwardCurve = "Forward";
-    String[] curves = {fundingCurve, forwardCurve};
-    Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
+    final String fundingCurve = "Funding";
+    final String forwardCurve = "Forward";
+    final String[] curves = {fundingCurve, forwardCurve};
+    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, curves);
     }
-    GenericAnnuity<Payment> referenceAnnuity = new GenericAnnuity<Payment>(couponIborConverted);
-    GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(REFERENCE_DATE, curves);
+    final GenericAnnuity<Payment> referenceAnnuity = new GenericAnnuity<Payment>(couponIborConverted);
+    final GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(REFERENCE_DATE, curves);
     assertEquals(referenceAnnuity, convertedDefinition);
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate1() {
+    AnnuityCouponIborDefinition.from(null, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate2() {
+    AnnuityCouponIborDefinition.from(null, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate3() {
+    AnnuityCouponIborDefinition.fromAccrualUnadjusted(null, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullPeriod() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, (Period) null, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullMaturityDate1() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, (ZonedDateTime) null, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullMaturityDate2() {
+    AnnuityCouponIborDefinition.fromAccrualUnadjusted(SETTLEMENT_DATE, null, NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNegativeNotional1() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, -NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNegativeNotional2() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, -NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNegativeNotional3() {
+    AnnuityCouponIborDefinition.fromAccrualUnadjusted(SETTLEMENT_DATE, MATURITY_DATE, -NOTIONAL, INDEX, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullIndex1() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, null, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullIndex2() {
+    AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, null, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullIndex3() {
+    AnnuityCouponIborDefinition.fromAccrualUnadjusted(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, null, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullAnnuity() {
+    AnnuityCouponIborDefinition.from(null);
+  }
+
+  @Test
+  public void testStaticConstruction() {
+    AnnuityCouponIborDefinition definition1 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
+    AnnuityCouponIborDefinition definition2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER);
+    assertEquals(definition1, definition2);
+    assertEquals(IS_PAYER, definition1.isPayer());
+    definition2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+    definition2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+    definition1 = AnnuityCouponIborDefinition.fromAccrualUnadjusted(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER);
+    definition2 = AnnuityCouponIborDefinition.fromAccrualUnadjusted(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+  }
+
+  @Test
+  public void testNoSpread() {
+    final AnnuityCouponIborDefinition definition = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, INDEX, IS_PAYER);
+    final CouponIborDefinition[] noSpreadCoupons = definition.getPayments();
+    final int n = noSpreadCoupons.length;
+    final double spread = 0.01;
+    final CouponIborSpreadDefinition[] spreadCoupons = new CouponIborSpreadDefinition[n];
+    for (int i = 0; i < n; i++) {
+      final CouponIborDefinition coupon = noSpreadCoupons[i];
+      spreadCoupons[i] = new CouponIborSpreadDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(),
+          coupon.getNotional(), coupon.getFixingDate(), coupon.getIndex(), spread);
+    }
+    assertEquals(definition, AnnuityCouponIborDefinition.from(new AnnuityCouponIborSpreadDefinition(spreadCoupons)));
+  }
+
 }
