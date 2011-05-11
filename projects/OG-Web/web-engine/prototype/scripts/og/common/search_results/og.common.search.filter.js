@@ -14,6 +14,7 @@ $.register_module({
             var select = ['type'], // identify select form elements so we can handle these differently
                 fields = ['name', 'type', 'quantity', 'data_source', 'identifier', 'data_provider', 'data_field',
                     'observation_time'];
+            //og.api.rest.configs.get({handler: console.log, meta: true})
             fields.forEach(function (filter) {
                 var event_type = !!select.indexOf(filter) ? 'keyup' : 'change',
                     $selector = $(obj.location + ' .og-js-' + filter + '-filter');

@@ -98,16 +98,18 @@ $.register_module({
                         page_size: request_page_size,
                         page: request_page_number + 1 // 0 and 1 are the same
                     }, (function () {
-                           var t = {};
-                           if (filters.name) t.name = ('*' + filters.name + '*').replace(/\s/g, '*');
-                           if (filters.type) t.type = filters.type.replace('option', 'equity_option').toUpperCase();
-                           if (filters.data_source) t.data_source = ('*' + filters.data_source + '*').replace(/\s/g, '*');
-                           if (filters.identifier) t.identifier = ('*' + filters.identifier + '*').replace(/\s/g, '*');
-                           if (filters.quantity) {
-                               t.min_quantity = filters.min_quantity;
-                               t.max_quantity = filters.max_quantity;
-                           }
-                           return t;
+                        var fields = ['name', 'type', 'data_source', 'identifier', 'data_provider',
+                            'data_field', 'observation_time', 'quantity'];
+                        return fields.reduce(function (acc, val) {
+                            if (!filters[val]) return acc;
+                            if (val === 'type')
+                                return acc[val] = filters.type.replace('option', 'equity_option'), acc;
+                            if (val === 'quantity') {
+                                acc.min_quantity = filters.min_quantity, acc.max_quantity = filters.max_quantity;
+                                return acc;
+                            }
+                            return acc[val] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
+                        }, {});
                     }())));
                 }
             }
