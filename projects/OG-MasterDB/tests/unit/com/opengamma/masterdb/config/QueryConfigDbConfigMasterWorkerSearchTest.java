@@ -7,6 +7,7 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.ArrayList;
 import java.util.TimeZone;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -153,6 +155,36 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assertEquals(2, test.getDocuments().size());
     assert102(test.getDocuments().get(0));
     assert101(test.getDocuments().get(1));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_configIds_none() {
+    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    request.setConfigIds(new ArrayList<ObjectIdentifier>());
+    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+
+  @Test
+  public void test_search_configIds() {
+    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    request.addConfigId(ObjectIdentifier.of("DbCfg", "101"));
+    request.addConfigId(ObjectIdentifier.of("DbCfg", "201"));
+    request.addConfigId(ObjectIdentifier.of("DbCfg", "9999"));
+    ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert202(test.getDocuments().get(0));
+    assert101(test.getDocuments().get(1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_search_configIds_badSchemeValidOid() {
+    ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
+    request.addConfigId(ObjectIdentifier.of("Rubbish", "102"));
+    _cfgMaster.search(request);
   }
 
   //-------------------------------------------------------------------------

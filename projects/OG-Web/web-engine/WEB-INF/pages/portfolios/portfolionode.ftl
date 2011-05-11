@@ -28,11 +28,12 @@
 
 <#-- SUBSECTION Positions -->
 <@subsection title="Positions">
-  <@table items=positions empty="No positions" headers=["Name","Reference","Quantity","Actions"]; item>
+  <@table items=positions empty="No positions" headers=["Name","Reference","Quantity","Actions",""]; item>
       <td><a href="${positionUris.position(item)}">${item.name}</a></td>
       <td>${item.uniqueId.value}</td>
       <td>${item.quantity}</td>
       <td><a href="${positionUris.position(item)}">View</a></td>
+      <td><@form method="DELETE" action="${uris.nodePosition(item.uniqueId)}"><input type="submit" value="Delete" /></@form></td>
   </@table>
 </@subsection>
 </@section>

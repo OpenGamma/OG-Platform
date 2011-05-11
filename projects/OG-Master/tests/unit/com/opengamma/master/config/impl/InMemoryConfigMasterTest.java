@@ -96,6 +96,22 @@ public class InMemoryConfigMasterTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_search_oneId_noMatch() {
+    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
+    request.addConfigId(ObjectIdentifier.of("A", "UNREAL"));
+    ConfigSearchResult<Identifier> result = _testPopulated.search(request);
+    assertEquals(0, result.getDocuments().size());
+  }
+
+  public void test_search_oneId() {
+    ConfigSearchRequest<Identifier> request = new ConfigSearchRequest<Identifier>();
+    request.addConfigId(_doc2.getObjectId());
+    ConfigSearchResult<Identifier> result = _testPopulated.search(request);
+    assertEquals(1, result.getDocuments().size());
+    assertEquals(_doc2, result.getFirstDocument());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_metaData() {
     ConfigMetaDataResult test = _testPopulated.metaData(new ConfigMetaDataRequest());
     assertNotNull(test);

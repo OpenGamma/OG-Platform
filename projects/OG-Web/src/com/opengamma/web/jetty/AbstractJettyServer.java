@@ -26,7 +26,7 @@ public abstract class AbstractJettyServer {
     
     // Logging
     if (System.getProperty("logback.configurationFile") == null) {
-      System.setProperty("logback.configurationFile", "jetty.logback");
+      System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
     PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV, PlatformConfigUtils.MarketDataSource.DIRECT);
