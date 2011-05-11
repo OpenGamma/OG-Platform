@@ -2,7 +2,7 @@
 {
     "header": {
         "type": "Time Series",
-        "dataFields": ["id","identifiers","datasource","dataprovider","datafield","observationtime"],
+        "dataFields": ["id","identifier","data_source","data_provider","data_field","observation_time"],
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
         "count": ${"${paging.pagingSize}"?replace(',','')}

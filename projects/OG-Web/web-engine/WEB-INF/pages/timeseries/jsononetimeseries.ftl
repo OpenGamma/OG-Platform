@@ -2,10 +2,10 @@
 {
     "templateData": {
             "id": "${timeseriesDoc.uniqueId.value}",
-            "dataSource": "${timeseriesDoc.dataSource}",
-            "dataProvider": "${timeseriesDoc.dataProvider}",
-            "dataField": "${timeseriesDoc.dataField}",
-            "observationTime": "${timeseriesDoc.observationTime}"
+            "data_source": "${timeseriesDoc.dataSource}",
+            "data_provider": "${timeseriesDoc.dataProvider}",
+            "data_field": "${timeseriesDoc.dataField}",
+            "observation_time": "${timeseriesDoc.observationTime}"
     },
     "identifiers": [
     <#list timeseriesDoc.identifiers.iterator() as item>

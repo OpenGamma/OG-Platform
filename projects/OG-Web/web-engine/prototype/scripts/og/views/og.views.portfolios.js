@@ -124,9 +124,9 @@ $.register_module({
             },
             details_page = function (args) {
                 var hook_up_add_portfolio_form = function () {
-                        var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button');
-                        $button.unbind('click').bind('click', function (e) {
-                            e.stopPropagation();
+                        var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button'),
+                            do_update;
+                        do_update = function () {
                             if ($input.val() === ('' || 'name')) return;
                             api.rest.portfolios.put({
                                 handler: function (r) {
@@ -140,11 +140,32 @@ $.register_module({
                                 node: details_json.template_data.node,
                                 'new': true
                             });
-                        });
+                        };
+                        $input.unbind('keydown').bind('keydown',
+                                function (e) {if (e.keyCode + '' === '13') do_update();});
+                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
                         ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-create-portfolio-node');
                     },
                     hook_up_add_position_form = function () {
-                        $('.OG-portfolio .og-js-add-position input').autocomplete({
+                        var $input = $('.OG-portfolio .og-js-add-position'), $button = $input.find('+ button'),
+                            do_update;
+                        do_update = function (e, id) {
+                            if (e && e.keyCode === 13) return; // If enter was pressed on the autosuggest list
+                            api.rest.portfolios.put({
+                                handler: function (r) {
+                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                    // TODO: prevent search from reloading
+                                    routes.go(routes.hash(module.rules.load_new_portfolios,
+                                         $.extend({}, routes.last().args,
+                                             {id: details_json.template_data.id, 'new': true})
+                                    ));
+                                },
+                                position: id ? id.item.value : $input.val(),
+                                id: details_json.template_data.id,
+                                node: details_json.template_data.node
+                           });
+                        };
+                        $input.autocomplete({
                             source: function (obj, callback) {
                                 api.rest.positions.get({
                                     handler: function (r) {
@@ -155,27 +176,16 @@ $.register_module({
                                             })
                                         );
                                     },
-                                    loading: '',
-                                    page_size: 10,
-                                    page: 1,
+                                    loading: '', page_size: 10, page: 1,
                                     identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
                                 });
-                                ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position input');
                             },
                             minLength: 1,
-                            select: function (e, ui) {
-                            // TODO: API not implemented yet
-                            // api.portfolios.put({
-                            //     handler: function (r) {
-                            //         if (r.error) return og.common.util.ui.dialog({type: 'error', message: r.message});
-                            //         routes.go(routes.hash(module.rules.load_new_portfolios,
-                            //              $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                            //         ));
-                            //     },
-                            //     position_id: ui.item.value, id: 'DbPos~97338', node: 'DbPrt~97339'
-                            // });
-                            }
-                        })
+                            select: function (e, ui) {do_update(e, ui);}
+                        });
+                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
+                        $input.bind('keydown', function (e) {if (e.keyCode + '' === '13') do_update();});
+                        ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position');
                     },
                     render_portfolio_rows = function (selector, json, handler) {
                         var $parent = $(selector), id = json.template_data.id, portfolios = json.portfolios,
