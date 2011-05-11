@@ -13,6 +13,7 @@ $.register_module({
             'data-tooltip-location': ['top', 'bottom']
         };
         return function (selector) {
+            if (typeof selector !== 'string') throw new TypeError();
             selector = selector || 'body';
             /* Create a new tooltip if none already exists */
             if (!$('.OG-tooltip').length) $('body').append('<span class="OG-tooltip OG-shadow"></span>');
@@ -23,7 +24,7 @@ $.register_module({
                 /**
                  * Set up CSS classes for tooltip Style and Location
                  * Style: warning, danger...
-                 * Location: top, bottom... 
+                 * Location: top, bottom...
                  */
                 classes['data-attributes'].forEach(function (val) {
                     $e_target.attr(val) ? $tooltip.addClass('og-' + $e_target.attr(val))
@@ -38,7 +39,7 @@ $.register_module({
                     top: $offset.top - 19 + 'px'
                 }).show();
             });
-            $('[data-tooltip]').mouseleave(function () {$tooltip.empty().hide();});
+            $('[data-tooltip]').unbind('mouseleave').bind('mouseleave', function () {$tooltip.empty().hide();});
         };
     }
 });
