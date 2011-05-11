@@ -96,12 +96,13 @@ $.register_module({
                             ui.message({location: '#OG-sr', message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,
-                        page: request_page_number
+                        page: request_page_number + 1 // 0 and 1 are the same
                     }, (function () {
                            var t = {};
                            if (filters.name) t.name = ('*' + filters.name + '*').replace(/\s/g, '*');
                            if (filters.type) t.type = filters.type.replace('option', 'equity_option').toUpperCase();
-                           if (filters.dataSource) t.data_source = ('*' + filters.dataSource + '*').replace(/\s/g, '*');
+                           if (filters.data_source) t.data_source = ('*' + filters.data_source + '*').replace(/\s/g, '*');
+                           if (filters.identifier) t.identifier = ('*' + filters.identifier + '*').replace(/\s/g, '*');
                            if (filters.quantity) {
                                t.min_quantity = filters.min_quantity;
                                t.max_quantity = filters.max_quantity;
