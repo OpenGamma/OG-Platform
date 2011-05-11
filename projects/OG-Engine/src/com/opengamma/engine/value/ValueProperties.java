@@ -499,10 +499,10 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     // REVIEW jonathan 2011-05-11 -- this is bordering on being complex enough to write a grammar and auto-generate the
     // lexer, but it works and ValueProperties is unlikely to change.
     
-    s = s.trim();
     if (StringUtils.isBlank(s) || EMPTY.toString().equals(s)) {
       return EMPTY;
     }
+    s = s.trim();
     if (INFINITE.toString().equals(s)) {
       return INFINITE;
     }
