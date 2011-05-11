@@ -19,7 +19,8 @@
         					SELECT dsi.bundle_id as bundleId, d.name as scheme, dsi.identifier_value as identifier_value, dsi.valid_from as valid_from, dsi.valid_to as valid_to
         					FROM tss_identifier dsi
         					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-        					ORDER by dsi.bundle_id
+        					WHERE :LOAD_ALL_IDENTIFIERS_WHERE
+        					ORDER by d.name, dsi.identifier_value
         				]]>
         			</value>
         		</entry>
@@ -59,7 +60,7 @@
 	        					FROM tss_identifier_bundle as bundle
 	        					JOIN tss_identifier as dsi ON bundle.id = dsi.bundle_id
 	        					JOIN tss_identification_scheme as d ON dsi.identification_scheme_id = d.id
-	        					WHERE :identifierBundleClause
+	        					WHERE :BUNDLE_IDENTIFIERS_WHERE
 	        				)
         				]]>
         			</value>
@@ -83,6 +84,20 @@
         			</value>
         		</entry>
         		<entry> 
+              <key><value>getActiveTimeSeriesKey</value></key>
+              <value>
+                <![CDATA[
+                  SELECT tskey.id 
+                  FROM tss_meta_data as tskey
+                  JOIN tss_data_source as ds ON tskey.data_source_id = ds.id
+                  JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
+                  JOIN tss_data_field as df ON tskey.data_field_id = df.id
+                  JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
+                  WHERE tsKey.active = 1
+                ]]>
+              </value>
+            </entry>
+        		<entry> 
         			<key><value>deactivateMetaData</value></key>
         			<value>
         				<![CDATA[
@@ -102,8 +117,7 @@
         					JOIN tss_data_provider as dp ON tskey.data_provider_id = dp.id
         					JOIN tss_data_field as df ON tskey.data_field_id = df.id
         					JOIN tss_observation_time ot ON tskey.observation_time_id = ot.id
-        					WHERE tskey.bundle_id in (SELECT distinct bundle_id FROM tss_identifier)
-        					AND tsKey.active = 1
+        					WHERE tsKey.active = 1
         				]]>
         			</value>
         		</entry>
@@ -196,7 +210,7 @@
         			<value>
         				<![CDATA[
         					INSERT into tss_meta_data (bundle_id, active, data_source_id, data_provider_id, data_field_id, observation_time_id) 
-        					VALUES (:bundleId, 1, :dataSourceId, :dataProviderId, :dataFieldId, :observationTimeId)
+        					VALUES (:bundleId, 1, :dataSource, :dataProvider, :dataField, :observationTime)
         				]]>
         			</value>
         		</entry>

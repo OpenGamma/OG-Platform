@@ -18,10 +18,12 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 
 /**
- * Advertises a function to a FunctionResolver. 
+ * Advertises a function to a {@link CompiledFunctionResolver}. 
  */
+@PublicAPI
 public class ResolutionRule {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolutionRule.class);
@@ -44,6 +46,13 @@ public class ResolutionRule {
    */
   public ParameterizedFunction getFunction() {
     return _parameterizedFunction;
+  }
+
+  /**
+   * @return The computation target filter being used.
+   */
+  public ComputationTargetFilter getComputationTargetFilter() {
+    return _computationTargetFilter;
   }
 
   /**

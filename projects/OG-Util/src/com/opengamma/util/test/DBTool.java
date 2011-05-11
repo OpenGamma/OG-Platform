@@ -252,10 +252,16 @@ public class DBTool extends Task {
   /**
    * Primarily for ant
    * 
-   * @param directory  the script directory
+   * @param directories  comma separated list of directory
    */
-  public void setDbScriptDir(String directory) {
-    addDbScriptDirectory(directory);
+  public void setDbScriptDir(String directories) {
+    if (directories != null) {
+      for (String directory : directories.split(",")) {
+        _dbScriptDirs.add(directory);
+      }
+    } else {
+      _dbScriptDirs.add(getWorkingDirectory());
+    }
   }
   
   /**
