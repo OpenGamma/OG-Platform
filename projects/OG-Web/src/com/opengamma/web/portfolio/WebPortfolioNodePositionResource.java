@@ -13,8 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.sleepycat.je.DatabaseNotFoundException;
@@ -80,10 +80,10 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
    * @param overridePositionId  the override node id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebPortfoliosData data, final UniqueIdentifier overridePositionId) {
+  public static URI uri(final WebPortfoliosData data, final ObjectIdentifiable overridePositionId) {
     String portfolioId = data.getBestPortfolioUriId(null);
     String nodeId = data.getBestNodeUriId(null);
-    String positionId = data.getBestNodeUriId(overridePositionId);
+    String positionId = overridePositionId.getObjectId().toString();
     return data.getUriInfo().getBaseUriBuilder().path(WebPortfolioNodePositionResource.class).build(portfolioId, nodeId, positionId);
   }
 
