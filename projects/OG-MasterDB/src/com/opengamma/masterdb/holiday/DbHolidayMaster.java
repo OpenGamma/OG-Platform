@@ -42,6 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -125,6 +126,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
         IdentifierSearch.canMatch(regionKeys) == false ||
         IdentifierSearch.canMatch(exchangeKeys) == false) {
+      result.setPaging(new Paging(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
