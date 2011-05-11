@@ -35,6 +35,21 @@ public class WebPortfolioNodePositionResource extends AbstractWebPortfolioResour
 
   //-------------------------------------------------------------------------
   @DELETE
+  @Produces(MediaType.TEXT_HTML)
+  public Response deleteHTML() {
+    ObjectIdentifier positionId = ObjectIdentifier.parse(data().getUriPositionId());
+    PortfolioDocument doc = data().getPortfolio();
+    if (doc.isLatest()) {
+      ManageablePortfolioNode node = data().getNode();
+      if (node.getPositionIds().remove(positionId) == false) {
+        throw new DatabaseNotFoundException("Position id not found: " + positionId);
+      }
+      doc = data().getPortfolioMaster().update(doc);
+    }
+    return Response.seeOther(WebPortfolioNodeResource.uri(data())).build();
+  }
+
+  @DELETE
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteJSON() {
     ObjectIdentifier positionId = ObjectIdentifier.parse(data().getUriPositionId());
