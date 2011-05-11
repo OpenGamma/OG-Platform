@@ -6,6 +6,8 @@
 package com.opengamma.engine.fudgemsg;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.engine.function.resolver.SimpleResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -58,9 +60,7 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     calcConfig1.addSpecificRequirement(new ValueRequirement ("Value1", UniqueIdentifier.of ("Test", "Foo")));
     calcConfig1.addSpecificRequirement(new ValueRequirement ("Value1", UniqueIdentifier.of ("Test", "Bar"), constraints));
     calcConfig1.setDefaultProperties (ValueProperties.with(ValuePropertyNames.CURRENCY, "GBP").get ());
-    
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOutput", constraints);
-    
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "SomeOtherOutput", allConstraints);
     calcConfig1.addPortfolioRequirement("SomeSecType", "YetAnotherOutput", noConstraints);
@@ -69,6 +69,10 @@ public class ViewDefinitionBuilderTest extends AbstractBuilderTestCase {
     final ViewCalculationConfiguration calcConfig2 = new ViewCalculationConfiguration (viewDefinition, "2");
     calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Foo")));
     calcConfig2.addSpecificRequirement(new ValueRequirement ("Value2", UniqueIdentifier.of ("Test", "Bar")));
+    final SimpleResolutionRuleTransform transform = new SimpleResolutionRuleTransform();
+    transform.suppressRule("Foo");
+    calcConfig2.setResolutionRuleTransform(transform);
+
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.addViewCalculationConfiguration(calcConfig1);
     viewDefinition.addViewCalculationConfiguration(calcConfig2);
