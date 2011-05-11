@@ -801,7 +801,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
               return true;
             }
           } else {
-            if (isEqualDateRange(loadedIdentifier, identifierWithDates)) {
+            if (TimeSeriesUtils.isIdenticalRange(loadedIdentifier, identifierWithDates)) {
               if (getActiveTimeSeriesKey(bundleID, 
                   document.getDataSource(), 
                   document.getDataProvider(), 
@@ -821,15 +821,6 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
 
   private boolean isWithoutDates(final IdentifierWithDates identifierWithDates) {
     return identifierWithDates.getValidFrom() == null && identifierWithDates.getValidTo() == null;
-  }
-
-  private boolean isEqualDateRange(final IdentifierWithDates currentIdentifier, final IdentifierWithDates newIdentifier) {
-    if (currentIdentifier.getValidFrom() != null && newIdentifier.getValidFrom() != null) {
-      if (currentIdentifier.getValidTo() != null && newIdentifier.getValidTo() != null) {
-        return currentIdentifier.getValidFrom().equals(newIdentifier.getValidFrom()) && currentIdentifier.getValidTo().equals(newIdentifier.getValidTo());
-      }
-    }
-    return false;
   }
 
   @Override
