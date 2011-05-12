@@ -17,7 +17,7 @@ $.register_module({
                     dependencies = obj.config.meta.dependencies || [], id = obj.id;
                 if (!update) return;
                 registrations.push({id: id, dependencies: dependencies, update: update, url: url, current: current});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             filter_registrations = function (filter) {registrations = registrations.filter(filter);},
