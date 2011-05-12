@@ -5,23 +5,11 @@
  */
 package com.opengamma.web.json;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.wire.FudgeMsgReader;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.json.FudgeJSONStreamReader;
-import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,16 +26,14 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Custom JSON builder to convert ViewDefinition to JSON object and vice versa
  */
-public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefinition> {
-  
-  private static final String FUDGE_ENVELOPE = "fudgeEnvelope";
+public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
+ 
   private static final String NAME_FIELD = "name";
   private static final String IDENTIFIER_FIELD = "identifier";
   private static final String UNIQUE_IDENTIFIER_FIELD = "unique";
@@ -70,10 +56,6 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
   private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   
-  private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
-  private final FudgeSerializationContext _serialization = new FudgeSerializationContext(_fudgeContext);
-  private final FudgeDeserializationContext _deserialization = new FudgeDeserializationContext(_fudgeContext);
-
   /**
    * Creates an instance
    */
@@ -81,12 +63,12 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   }
 
   @Override
-  public ViewDefinition fromJSON(String json) {
+  public ViewDefinition fromJSON(final String json) {
     ArgumentChecker.notNull(json, "JSON document");
     
     ViewDefinition viewDefinition = null;
     try {
-      JSONObject viewJSON = new JSONObject(json).getJSONObject(FUDGE_ENVELOPE);
+      JSONObject viewJSON = new JSONObject(json).getJSONObject(FUDGE_ENVELOPE_FIELD);
       UniqueIdentifier portfolioIdentifier = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
         portfolioIdentifier = convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(IDENTIFIER_FIELD));
@@ -166,19 +148,8 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
     return viewDefinition;
   }
   
-  private <T> T convertJsonToObject(Class<T> clazz, JSONObject json) {
-    FudgeMsg fudgeMsg = convertJSONToFudgeMsg(json);
-    return _deserialization.fudgeMsgToObject(clazz, fudgeMsg);
-  }
-
-  private FudgeMsg convertJSONToFudgeMsg(final JSONObject uniqueIdentifier) {
-    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeJSONStreamReader(_fudgeContext, new StringReader(uniqueIdentifier.toString())));
-    FudgeMsg fudgeMsg = fmr.nextMessage();
-    return fudgeMsg;
-  }
-
   @Override
-  public String toJSON(ViewDefinition viewDefinition) {
+  public String toJSON(final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     JSONObject result = new JSONObject();
     JSONObject jsonObject = new JSONObject();
@@ -246,7 +217,7 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
       }
       jsonObject.put(UNIQUE_IDENTIFIER_FIELD, toJSONObject(viewDefinition.getUniqueId()));
       
-      result.put(FUDGE_ENVELOPE, jsonObject);
+      result.put(FUDGE_ENVELOPE_FIELD, jsonObject);
       
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
@@ -255,37 +226,4 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
     return result.toString();
   }
   
-  private JSONObject toJSONObject(Object obj) throws JSONException {
-    return toJSONObject(obj, true);
-  }
-
-  private JSONObject toJSONObject(Object obj, boolean removeRedundantFields) throws JSONException {
-    MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
-    StringWriter buf = new StringWriter(1024);  
-    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, buf));
-    if (removeRedundantFields) {
-      writer.writeMessage(removeRedundantFields(fudgeMsg));
-    } else {
-      writer.writeMessage(fudgeMsg);
-    }
-    
-    JSONObject jsonObject = new JSONObject(buf.toString());
-    return jsonObject;
-  }
-
-  private FudgeMsg removeRedundantFields(final FudgeMsg message) {
-    MutableFudgeMsg result = _fudgeContext.newMessage();
-    for (FudgeField fudgeField : message) {
-      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != 0)) {
-        if (fudgeField.getValue() instanceof FudgeMsg) {
-          FudgeMsg subMsg = (FudgeMsg) fudgeField.getValue();
-          subMsg = removeRedundantFields(subMsg);
-          result.add(fudgeField.getName(), subMsg);
-        } else {
-          result.add(fudgeField);
-        }
-      }
-    }
-    return result;
-  }
 }
