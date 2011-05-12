@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import com.beust.jcommander.internal.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -67,10 +68,11 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   private static final String DELTA_DEFINITION_FIELD = "deltaDefinition";
   private static final String CURRENCY_FIELD = "currency";
   private static final String DEFAULT_PROPERTIES_FIELD = "defaultProperties";
+  private static final String RESOLUTION_RULE_TRANSFORM_FIELD = "resolutionRuleTransform";
   
-  private static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
-  private FudgeSerializationContext _serialization = new FudgeSerializationContext(FUDGE_CONTEXT);
-  private FudgeDeserializationContext _deserialization = new FudgeDeserializationContext(FUDGE_CONTEXT);
+  private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
+  private final FudgeSerializationContext _serialization = new FudgeSerializationContext(_fudgeContext);
+  private final FudgeDeserializationContext _deserialization = new FudgeDeserializationContext(_fudgeContext);
 
   /**
    * Creates an instance
@@ -149,6 +151,9 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
           if (calcConfigJSON.opt(DEFAULT_PROPERTIES_FIELD) != null) {
             calcConfig.setDefaultProperties(convertJsonToObject(ValueProperties.class, calcConfigJSON.getJSONObject(DEFAULT_PROPERTIES_FIELD)));
           }
+          if (calcConfigJSON.opt(RESOLUTION_RULE_TRANSFORM_FIELD) != null) {
+            calcConfig.setResolutionRuleTransform(convertJsonToObject(ResolutionRuleTransform.class, calcConfigJSON.getJSONObject(RESOLUTION_RULE_TRANSFORM_FIELD)));
+          }
           viewDefinition.addViewCalculationConfiguration(calcConfig);
         }
       }
@@ -167,7 +172,7 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
   }
 
   private FudgeMsg convertJSONToFudgeMsg(final JSONObject uniqueIdentifier) {
-    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeJSONStreamReader(FUDGE_CONTEXT, new StringReader(uniqueIdentifier.toString())));
+    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeJSONStreamReader(_fudgeContext, new StringReader(uniqueIdentifier.toString())));
     FudgeMsg fudgeMsg = fmr.nextMessage();
     return fudgeMsg;
   }
@@ -233,6 +238,7 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
         }
         calcConfigJSON.put(DELTA_DEFINITION_FIELD, toJSONObject(calcConfig.getDeltaDefinition()));
         calcConfigJSON.put(DEFAULT_PROPERTIES_FIELD, toJSONObject(calcConfig.getDefaultProperties()));
+        calcConfigJSON.put(RESOLUTION_RULE_TRANSFORM_FIELD, toJSONObject(calcConfig.getResolutionRuleTransform(), false));
         calConfigJSONList.add(calcConfigJSON);
       }  
       if (!calConfigJSONList.isEmpty()) {
@@ -248,18 +254,27 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
     
     return result.toString();
   }
-
+  
   private JSONObject toJSONObject(Object obj) throws JSONException {
+    return toJSONObject(obj, true);
+  }
+
+  private JSONObject toJSONObject(Object obj, boolean removeRedundantFields) throws JSONException {
     MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
     StringWriter buf = new StringWriter(1024);  
-    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(FUDGE_CONTEXT, buf));
-    writer.writeMessage(removeRedundantFields(fudgeMsg));
+    FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, buf));
+    if (removeRedundantFields) {
+      writer.writeMessage(removeRedundantFields(fudgeMsg));
+    } else {
+      writer.writeMessage(fudgeMsg);
+    }
+    
     JSONObject jsonObject = new JSONObject(buf.toString());
     return jsonObject;
   }
 
   private FudgeMsg removeRedundantFields(final FudgeMsg message) {
-    MutableFudgeMsg result = FUDGE_CONTEXT.newMessage();
+    MutableFudgeMsg result = _fudgeContext.newMessage();
     for (FudgeField fudgeField : message) {
       if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != 0)) {
         if (fudgeField.getValue() instanceof FudgeMsg) {
