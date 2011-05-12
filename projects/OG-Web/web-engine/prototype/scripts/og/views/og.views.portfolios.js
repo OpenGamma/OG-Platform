@@ -276,9 +276,13 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/:node?/name:?', method: module.name + '.load_filter'},
+            load_filter_node: {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
+            load_delete_node: {
+                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
+            },
             load_delete: {
-                route: '/' + page_name + '/deleted:/name:?/:id?/:node?', method: module.name + '.load_delete'
+                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
             },
             load_portfolios: {
                 route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name

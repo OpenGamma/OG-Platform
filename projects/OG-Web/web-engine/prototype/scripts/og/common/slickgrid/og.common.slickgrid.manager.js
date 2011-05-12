@@ -96,17 +96,24 @@ $.register_module({
                             ui.message({location: '#OG-sr', message: {0: 'loading...', 3000: 'still loading...'}});
                         },
                         page_size: request_page_size,
-                        page: request_page_number + 1 // 0 and 1 are the same
+                        page: request_page_number + 1, // 0 and 1 are the same
+                        search: true
                     }, (function () {
                         var fields = ['name', 'type', 'data_source', 'identifier', 'data_provider',
-                            'data_field', 'observation_time', 'quantity'];
+                            'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
-                            if (val === 'type')
-                                return acc[val] = filters.type.replace('option', 'equity_option'), acc;
+                            if (val === 'type') return acc[val] = filters.type.replace('option', 'equity_option'), acc;
                             if (val === 'quantity') {
                                 acc.min_quantity = filters.min_quantity, acc.max_quantity = filters.max_quantity;
                                 return acc;
+                            }
+                            if (val === 'ob_date')
+                                if (/19|20[0-9]{2}-[01][0-9]-[0123][0-9]/.test(filters['ob_date']))
+                                    return acc['observation_date'] = filters[val], acc;
+                                else return acc;
+                            if (val === 'ob_time') {
+                                return acc['observation_time'] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc
                             }
                             return acc[val] = ('*' + filters[val] + '*').replace(/\s/g, '*'), acc;
                         }, {});
