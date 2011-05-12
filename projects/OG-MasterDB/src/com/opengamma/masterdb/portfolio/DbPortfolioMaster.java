@@ -44,6 +44,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -112,6 +113,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final PortfolioSearchResult result = new PortfolioSearchResult();
     if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
+      result.setPaging(new Paging(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

@@ -8,6 +8,7 @@ package com.opengamma.web.position;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -30,6 +31,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
@@ -69,8 +71,10 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
-      @QueryParam("maxquantity") String maxQuantityStr) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr);
+      @QueryParam("maxquantity") String maxQuantityStr,
+      @QueryParam("positionId") List<String> positionIdStrs,
+      @QueryParam("tradeId") List<String> tradeIdStrs) {
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
     return getFreemarker().build("positions/positions.ftl", out);
   }
 
@@ -81,12 +85,15 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("identifier") String identifier,
       @QueryParam("minquantity") String minQuantityStr,
-      @QueryParam("maxquantity") String maxQuantityStr) {
-    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr);
+      @QueryParam("maxquantity") String maxQuantityStr,
+      @QueryParam("positionId") List<String> positionIdStrs,
+      @QueryParam("tradeId") List<String> tradeIdStrs) {
+    FlexiBean out = createSearchResultData(page, pageSize, identifier, minQuantityStr, maxQuantityStr, positionIdStrs, tradeIdStrs);
     return getFreemarker().build("positions/jsonpositions.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String minQuantityStr, String maxQuantityStr) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String identifier, String minQuantityStr,
+      String maxQuantityStr, List<String> positionIdStrs, List<String> tradeIdStrs) {
     minQuantityStr = StringUtils.defaultString(minQuantityStr).replace(",", "");
     maxQuantityStr = StringUtils.defaultString(maxQuantityStr).replace(",", "");
     FlexiBean out = createRootData();
@@ -99,6 +106,12 @@ public class WebPositionsResource extends AbstractWebPositionResource {
     }
     if (NumberUtils.isNumber(maxQuantityStr)) {
       searchRequest.setMaxQuantity(NumberUtils.createBigDecimal(maxQuantityStr));
+    }
+    for (String positionIdStr : positionIdStrs) {
+      searchRequest.addPositionId(ObjectIdentifier.parse(positionIdStr));
+    }
+    for (String tradeIdStr : tradeIdStrs) {
+      searchRequest.addPositionId(ObjectIdentifier.parse(tradeIdStr));
     }
     out.put("searchRequest", searchRequest);
     

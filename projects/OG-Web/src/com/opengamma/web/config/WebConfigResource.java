@@ -22,9 +22,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
@@ -32,6 +34,8 @@ import com.opengamma.util.tuple.Pair;
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
+  
+  private final ViewDefinitionJSONBuilder _viewDefinitionBuilder = new ViewDefinitionJSONBuilder();
 
   /**
    * Creates the resource.
@@ -56,7 +60,11 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String getJSON() {
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    out.put("configXml", StringEscapeUtils.escapeJavaScript(createXML(doc)));
+    if (doc.getValue().getClass().isAssignableFrom(ViewDefinition.class)) {
+      out.put("configJSON", _viewDefinitionBuilder.toJSON((ViewDefinition) doc.getValue()));
+    } else {
+      out.put("configXml", StringEscapeUtils.escapeJavaScript(createXML(doc)));
+    }
     return getFreemarker().build("configs/jsonconfig.ftl", out);
   }
 

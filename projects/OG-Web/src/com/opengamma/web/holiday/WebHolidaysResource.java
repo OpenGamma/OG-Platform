@@ -7,6 +7,7 @@ package com.opengamma.web.holiday;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,6 +27,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayHistoryRequest;
@@ -64,8 +66,9 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
+      @QueryParam("holidayId") List<String> holidayIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, holidayIdStrs, uriInfo);
     return getFreemarker().build("holidays/holidays.ftl", out);
   }
 
@@ -77,12 +80,14 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       @QueryParam("name") String name,
       @QueryParam("type") String type,
       @QueryParam("currency") String currencyISO,
+      @QueryParam("holidayId") List<String> holidayIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, type, currencyISO, holidayIdStrs, uriInfo);
     return getFreemarker().build("holidays/jsonholidays.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String type, String currencyISO,
+      List<String> holidayIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
@@ -102,6 +107,9 @@ public class WebHolidaysResource extends AbstractWebHolidayResource {
       } else { // assume settlement/trading
         searchRequest.addExchangeKey(id);
       }
+    }
+    for (String holidayIdStr : holidayIdStrs) {
+      searchRequest.addHolidayId(ObjectIdentifier.parse(holidayIdStr));
     }
     out.put("searchRequest", searchRequest);
     
