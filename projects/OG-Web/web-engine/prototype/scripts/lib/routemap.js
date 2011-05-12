@@ -145,7 +145,7 @@
                     // construct the parameters
                     if (val.match(star_exp)) return (rules.star = RegExp.$2 || RegExp.$3), acc;
                     if (val.match(scalar_exp)) {
-                        if (!RegExp.$2 && acc.last_optional) // required scalars cannot follow optional scalars
+                        if (!!RegExp.$2 && acc.last_optional) // required scalars cannot follow optional scalars
                             throw new SyntaxError(self + ': "' + val + '" cannot follow an optional rule');
                         if (!!RegExp.$2) acc.last_optional = val;
                         return scalars.push({name: RegExp.$1, required: !RegExp.$2}), acc;
