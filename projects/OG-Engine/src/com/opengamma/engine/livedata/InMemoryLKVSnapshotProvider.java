@@ -143,7 +143,8 @@ public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvide
       
       // 2 - see if the so-called Identifier is actually the UniqueIdentifier of a security
       if (security == null) {
-        security = _securitySource.getSecurity(uniqueIdentifier);
+        // Can't do this as the UniqueIdentifier may be the wrong type for the master - does this case really matter?
+        //security = _securitySource.getSecurity(uniqueIdentifier);
       }
     }
     
