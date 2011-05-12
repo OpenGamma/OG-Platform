@@ -50,7 +50,7 @@ public class RemoteLiveDataInjector implements LiveDataInjector {
   
   private void addValue(AddValueRequest request) {
     URI uri = UriBuilder.fromUri(_baseUri).path(LiveDataInjectorResource.PATH_ADD).build();
-    _client.access(uri).put(request);    
+    _client.access(uri).post(request);    
   }
 
   @Override
