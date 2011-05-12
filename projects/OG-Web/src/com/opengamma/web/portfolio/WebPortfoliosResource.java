@@ -6,6 +6,7 @@
 package com.opengamma.web.portfolio;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -19,9 +20,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -57,8 +60,11 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   public String getHTML(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name) {
-    FlexiBean out = createSearchResultData(page, pageSize, name);
+      @QueryParam("name") String name,
+      @QueryParam("depth") String depthStr,
+      @QueryParam("portfolioId") List<String> portfolioIdStrs,
+      @QueryParam("nodeId") List<String> nodeIdStrs) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, depthStr, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/portfolios.ftl", out);
   }
 
@@ -67,17 +73,28 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
   public String getJSON(
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
-      @QueryParam("name") String name) {
-    FlexiBean out = createSearchResultData(page, pageSize, name);
+      @QueryParam("name") String name,
+      @QueryParam("depth") String depthStr,
+      @QueryParam("portfolioId") List<String> portfolioIdStrs,
+      @QueryParam("nodeId") List<String> nodeIdStrs) {
+    FlexiBean out = createSearchResultData(page, pageSize, name, depthStr, portfolioIdStrs, nodeIdStrs);
     return getFreemarker().build("portfolios/jsonportfolios.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String depthStr,
+      List<String> portfolioIdStrs, List<String> nodeIdStrs) {
     FlexiBean out = createRootData();
     
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     searchRequest.setName(StringUtils.trimToNull(name));
+    searchRequest.setDepth(NumberUtils.toInt(depthStr, -1));
+    for (String portfolioIdStr : portfolioIdStrs) {
+      searchRequest.addPortfolioId(ObjectIdentifier.parse(portfolioIdStr));
+    }
+    for (String nodeIdStr : nodeIdStrs) {
+      searchRequest.addNodeId(ObjectIdentifier.parse(nodeIdStr));
+    }
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {

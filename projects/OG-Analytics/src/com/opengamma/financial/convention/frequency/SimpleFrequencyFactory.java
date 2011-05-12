@@ -32,13 +32,13 @@ public final class SimpleFrequencyFactory {
    * Creates the factory.
    */
   private SimpleFrequencyFactory() {
-    store(SimpleFrequency.ANNUAL);
-    store(SimpleFrequency.SEMI_ANNUAL);
-    store(SimpleFrequency.QUARTERLY);
-    store(SimpleFrequency.BIMONTHLY);
-    store(SimpleFrequency.MONTHLY);
-    store(SimpleFrequency.BIWEEKLY);
-    store(SimpleFrequency.WEEKLY);
+    store(SimpleFrequency.ANNUAL, "12m");
+    store(SimpleFrequency.SEMI_ANNUAL, "6m");
+    store(SimpleFrequency.QUARTERLY, "3m");
+    store(SimpleFrequency.BIMONTHLY, "2m");
+    store(SimpleFrequency.MONTHLY, "1m");
+    store(SimpleFrequency.BIWEEKLY, "2w");
+    store(SimpleFrequency.WEEKLY, "1w");
     store(SimpleFrequency.DAILY);
     store(SimpleFrequency.CONTINUOUS);
   }
@@ -47,8 +47,11 @@ public final class SimpleFrequencyFactory {
    * Stores the convention.
    * @param convention  the convention to store, not null
    */
-  private void store(final SimpleFrequency convention) {
+  private void store(final SimpleFrequency convention, final String... alternativeNames) {
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
+    for (String alternativeName : alternativeNames) {
+      _conventionMap.put(alternativeName.toLowerCase(Locale.ENGLISH), convention);
+    }
     _periodsMap.put((int) convention.getPeriodsPerYear(), convention);
   }
 
