@@ -238,7 +238,7 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
         }
         calcConfigJSON.put(DELTA_DEFINITION_FIELD, toJSONObject(calcConfig.getDeltaDefinition()));
         calcConfigJSON.put(DEFAULT_PROPERTIES_FIELD, toJSONObject(calcConfig.getDefaultProperties()));
-        calcConfigJSON.put(RESOLUTION_RULE_TRANSFORM_FIELD, toJSONObject(calcConfig.getResolutionRuleTransform()));
+        calcConfigJSON.put(RESOLUTION_RULE_TRANSFORM_FIELD, toJSONObject(calcConfig.getResolutionRuleTransform(), false));
         calConfigJSONList.add(calcConfigJSON);
       }  
       if (!calConfigJSONList.isEmpty()) {
@@ -254,12 +254,21 @@ public final class ViewDefinitionJSONBuilder implements JSONBuilder<ViewDefiniti
     
     return result.toString();
   }
-
+  
   private JSONObject toJSONObject(Object obj) throws JSONException {
+    return toJSONObject(obj, true);
+  }
+
+  private JSONObject toJSONObject(Object obj, boolean removeRedundantFields) throws JSONException {
     MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
     StringWriter buf = new StringWriter(1024);  
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, buf));
-    writer.writeMessage(removeRedundantFields(fudgeMsg));
+    if (removeRedundantFields) {
+      writer.writeMessage(removeRedundantFields(fudgeMsg));
+    } else {
+      writer.writeMessage(fudgeMsg);
+    }
+    
     JSONObject jsonObject = new JSONObject(buf.toString());
     return jsonObject;
   }
