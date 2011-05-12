@@ -11,6 +11,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
 
@@ -30,21 +31,49 @@ public class RemoteLiveDataInjector implements LiveDataInjector {
   @Override
   public void addValue(ValueRequirement valueRequirement, Object value) {
     ArgumentChecker.notNull(valueRequirement, "valueRequirement");
-    ArgumentChecker.notNull(value, "value");
-    _client.access(getValueRequirementUri(_baseUri, valueRequirement)).put(value);
+    AddValueRequest request = new AddValueRequest();
+    request.setValueRequirement(valueRequirement);
+    request.setValue(value);
+    addValue(request);
+  }
+  
+  @Override
+  public void addValue(Identifier identifier, String valueName, Object value) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    ArgumentChecker.notNull(valueName, "valueName");
+    AddValueRequest request = new AddValueRequest();
+    request.setIdentifier(identifier);
+    request.setValueName(valueName);
+    request.setValue(value);
+    addValue(request);
+  }
+  
+  private void addValue(AddValueRequest request) {
+    URI uri = UriBuilder.fromUri(_baseUri).path(LiveDataInjectorResource.PATH_ADD).build();
+    _client.access(uri).post(request);    
   }
 
   @Override
   public void removeValue(ValueRequirement valueRequirement) {
     ArgumentChecker.notNull(valueRequirement, "valueRequirement");
-    _client.access(getValueRequirementUri(_baseUri, valueRequirement)).delete();
+    RemoveValueRequest request = new RemoveValueRequest();
+    request.setValueRequirement(valueRequirement);
+    removeValue(request);
+  }
+
+  @Override
+  public void removeValue(Identifier identifier, String valueName) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    ArgumentChecker.notNull(valueName, "valueName");
+    RemoveValueRequest request = new RemoveValueRequest();
+    request.setIdentifier(identifier);
+    request.setValueName(valueName);
+    removeValue(request);
   }
   
-  private URI getValueRequirementUri(URI baseUri, ValueRequirement valueRequirement) {
-    return UriBuilder.fromUri(baseUri)
-        .segment(valueRequirement.getValueName())
-        .segment(valueRequirement.getTargetSpecification().getType().name())
-        .segment(valueRequirement.getTargetSpecification().getUniqueId().toString()).build();
+  private void removeValue(RemoveValueRequest request) {
+    URI uri = UriBuilder.fromUri(_baseUri).path(LiveDataInjectorResource.PATH_REMOVE).build();
+    _client.access(uri).post(request);    
   }
 
 }
