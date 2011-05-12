@@ -25,6 +25,7 @@ public class CoupledFiniteDifference {
       final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary, final double lambda12, final double lambda21, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
+    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
     int tNodes = timeGrid.length;
     int xNodes = spaceGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
@@ -120,55 +121,55 @@ public class CoupledFiniteDifference {
         m[i + xNodes][i] = -dt[n - 1] * _theta * lambda21;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData1, timeGrid[n]);
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData1, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData1, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData1, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getLeftMatrixCondition(pdeData2, timeGrid[n]);
+      temp = lowerBoundary.getLeftMatrixCondition(pdeData2, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes][xNodes + k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData2, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData2, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[2 * xNodes - 1][2 * xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData1, timeGrid[n]);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData1, grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData1, timeGrid[n], dx[0]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
+      q[0] = sum + lowerBoundary.getConstant(pdeData1, timeGrid[n]);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData1, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData1, grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData1, timeGrid[n], dx[xNodes - 2]);
+      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData1, timeGrid[n]);
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData2, timeGrid[n]);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData2, grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[xNodes] = sum + lowerBoundary.getConstant(pdeData2, timeGrid[n], dx[0]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
+      q[xNodes] = sum + lowerBoundary.getConstant(pdeData2, timeGrid[n]);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData2, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData2, grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[2 * xNodes - 1] = sum + upperBoundary.getConstant(pdeData2, timeGrid[n], dx[xNodes - 2]);
+      q[2 * xNodes - 1] = sum + upperBoundary.getConstant(pdeData2, timeGrid[n]);
 
       final DoubleMatrix2D mM = new DoubleMatrix2D(m);
       final DecompositionResult res = DCOMP.evaluate(mM);

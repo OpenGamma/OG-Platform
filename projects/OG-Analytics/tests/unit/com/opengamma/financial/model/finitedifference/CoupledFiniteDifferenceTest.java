@@ -56,7 +56,7 @@ public class CoupledFiniteDifferenceTest {
 
     LOWER = new DirichletBoundaryCondition(0.0, 0.0);// call is worth 0 when stock falls to zero
     // UPPER = new DirichletBoundaryCondition(0.0, 5.0 * SPOT);
-    UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 10 * SPOT);
+    UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 10 * SPOT, false);
 
     final Function<Double, Double> a1 = new Function<Double, Double>() {
       @Override
