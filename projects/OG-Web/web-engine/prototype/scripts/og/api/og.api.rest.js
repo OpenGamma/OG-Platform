@@ -31,7 +31,7 @@ $.register_module({
                     });
                 });
                 handlers.forEach(function (val) {val.update(val);});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             request = function (method, config) {
@@ -159,7 +159,7 @@ $.register_module({
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE,
                         observation_date = str(config.observation_date),
                         observation_time = str(config.observation_time),
-                        is_id = !!observation_date && !!observation_time;
+                        is_id = !config.search && !!observation_date && !!observation_time;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
@@ -182,7 +182,6 @@ $.register_module({
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
                 }
-                deliver_updates([]);
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -225,9 +224,8 @@ $.register_module({
                 del: default_del
             },
             deregister: function (id) {
-                // if request is registered as an update listener, remove it
                 filter_registrations(function (val) {return val.id !== id;});
-                deliver_updates([]);
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
