@@ -27,6 +27,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifiables;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
@@ -188,7 +189,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-
+    
+    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
+    if (request.getConfigIds() != null && request.getConfigIds().size() == 0) {
+      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      return result;
+    }
+    
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
@@ -199,7 +206,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       args.addValue("config_type", request.getType().getName());
     }
 
-    final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
     String[] sql = sqlSearchConfigs(request);
 
     final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
@@ -280,7 +286,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     if (!request.getType().isInstance(Object.class)) {
       where += "AND config_type = :config_type ";
     }
-
+    if (request.getConfigIds() != null) {
+      StringBuilder buf = new StringBuilder(request.getConfigIds().size() * 10);
+      for (ObjectIdentifier objectId : request.getConfigIds()) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      where += "AND oid IN (" + buf + ") ";
+    }
+    
     String selectFromWhereInner = "SELECT id FROM cfg_config " + where;
     String inner = getDbHelper().sqlApplyPaging(selectFromWhereInner, "ORDER BY ver_from_instant DESC, corr_from_instant DESC ", request.getPagingRequest());
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.ver_from_instant DESC, main.corr_from_instant DESC" + sqlAdditionalOrderBy(false);

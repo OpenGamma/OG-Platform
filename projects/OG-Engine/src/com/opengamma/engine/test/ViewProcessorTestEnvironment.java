@@ -11,6 +11,8 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -124,7 +126,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setLiveDataClient(liveDataClient);
 
     if (getSnapshotProvider() == null) {
-      generateProviders();
+      generateProviders(securitySource);
     }
     vpFactBean.setLiveDataSnapshotProvider(getSnapshotProvider());
     vpFactBean.setLiveDataAvailabilityProvider(getAvailabilityProvider());
@@ -151,6 +153,14 @@ public class ViewProcessorTestEnvironment {
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
+    
+    vpFactBean.setMarketDataSnaphotSource(new MarketDataSnapshotSource() {
+      
+      @Override
+      public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
+        return null;
+      }
+    });
     
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
   }
@@ -207,8 +217,8 @@ public class ViewProcessorTestEnvironment {
     _availabilityProvider = liveDataAvailabilityProvider;
   }
   
-  private void generateProviders() {
-    InMemoryLKVSnapshotProvider provider = new InMemoryLKVSnapshotProvider();
+  private void generateProviders(SecuritySource securitySource) {
+    InMemoryLKVSnapshotProvider provider = new InMemoryLKVSnapshotProvider(securitySource);
     provider.addValue(getPrimitive1(), 0);
     provider.addValue(getPrimitive2(), 0);
     setProviders(provider, provider);

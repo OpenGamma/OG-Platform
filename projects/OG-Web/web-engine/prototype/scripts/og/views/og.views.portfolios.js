@@ -124,9 +124,9 @@ $.register_module({
             },
             details_page = function (args) {
                 var hook_up_add_portfolio_form = function () {
-                        var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button');
-                        $button.unbind('click').bind('click', function (e) {
-                            e.stopPropagation();
+                        var $input = $('.OG-portfolio .og-js-create-portfolio-node'), $button = $input.find('+ button'),
+                            do_update;
+                        do_update = function () {
                             if ($input.val() === ('' || 'name')) return;
                             api.rest.portfolios.put({
                                 handler: function (r) {
@@ -140,11 +140,32 @@ $.register_module({
                                 node: details_json.template_data.node,
                                 'new': true
                             });
-                        });
+                        };
+                        $input.unbind('keydown').bind('keydown',
+                                function (e) {if (e.keyCode + '' === '13') do_update();});
+                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
                         ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-create-portfolio-node');
                     },
                     hook_up_add_position_form = function () {
-                        $('.OG-portfolio .og-js-add-position input').autocomplete({
+                        var $input = $('.OG-portfolio .og-js-add-position'), $button = $input.find('+ button'),
+                            do_update;
+                        do_update = function (e, id) {
+                            if (e && e.keyCode === 13) return; // If enter was pressed on the autosuggest list
+                            api.rest.portfolios.put({
+                                handler: function (r) {
+                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                    // TODO: prevent search from reloading
+                                    routes.go(routes.hash(module.rules.load_new_portfolios,
+                                         $.extend({}, routes.last().args,
+                                             {id: details_json.template_data.id, 'new': true})
+                                    ));
+                                },
+                                position: id ? id.item.value : $input.val(),
+                                id: details_json.template_data.id,
+                                node: details_json.template_data.node
+                           });
+                        };
+                        $input.autocomplete({
                             source: function (obj, callback) {
                                 api.rest.positions.get({
                                     handler: function (r) {
@@ -155,27 +176,16 @@ $.register_module({
                                             })
                                         );
                                     },
-                                    loading: '',
-                                    page_size: 10,
-                                    page: 1,
+                                    loading: '', page_size: 10, page: 1,
                                     identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
                                 });
-                                ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position input');
                             },
                             minLength: 1,
-                            select: function (e, ui) {
-                            // TODO: API not implemented yet
-                            // api.portfolios.put({
-                            //     handler: function (r) {
-                            //         if (r.error) return og.common.util.ui.dialog({type: 'error', message: r.message});
-                            //         routes.go(routes.hash(module.rules.load_new_portfolios,
-                            //              $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
-                            //         ));
-                            //     },
-                            //     position_id: ui.item.value, id: 'DbPos~97338', node: 'DbPrt~97339'
-                            // });
-                            }
-                        })
+                            select: function (e, ui) {do_update(e, ui);}
+                        });
+                        $button.unbind('click').bind('click', function (e) {e.stopPropagation(), do_update();});
+                        $input.bind('keydown', function (e) {if (e.keyCode + '' === '13') do_update();});
+                        ui.toggle_text_on_focus.set_selector('.OG-portfolio .og-js-add-position');
                     },
                     render_portfolio_rows = function (selector, json, handler) {
                         var $parent = $(selector), id = json.template_data.id, portfolios = json.portfolios,
@@ -184,8 +194,9 @@ $.register_module({
                         if (!portfolios[0]) return $parent.html('<tr><td>No Portfolios</td></tr>'), handler();
                         $parent.empty();
                         iterator = function (acc, val) {
-                            acc.push('<tr><td><a href="#',
-                                    routes.hash(rule, {id: id, node: val.id}), '">', val.name, '</a></td></tr>'
+                            acc.push(
+                                '<tr><td><a href="#', routes.hash(rule, {id: id, node: val.id}), '">',
+                                val.name, '</a></td></tr>'
                             );
                             return acc;
                         };
@@ -197,7 +208,7 @@ $.register_module({
                         };
                         render(0, CHUNK);
                     },
-                     render_position_rows = function (selector, json, handler) {
+                    render_position_rows = function (selector, json, handler) {
                         var $parent = $(selector), positions = json.positions, length = positions.length, render,
                             iterator, rule = og.views.positions.rules['load_positions'], CHUNK = 500;
                         if (!positions[0]) return $parent.html('<tr><td colspan="2">No Positions</td></tr>'), handler();
@@ -265,9 +276,13 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/:node?/name:?', method: module.name + '.load_filter'},
+            load_filter_node: {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
+            load_delete_node: {
+                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
+            },
             load_delete: {
-                route: '/' + page_name + '/deleted:/name:?/:id?/:node?', method: module.name + '.load_delete'
+                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
             },
             load_portfolios: {
                 route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name

@@ -111,7 +111,12 @@ public class ViewClientImpl implements ViewClient {
           ViewResultMode resultMode = getResultMode();
           ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
           ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
-          listener.cycleCompleted(userFullResult, userDeltaResult);
+          if (userFullResult != null || userDeltaResult != null) {
+            listener.cycleCompleted(userFullResult, userDeltaResult);
+          } else if (!isFirstResult || resultMode != ViewResultMode.DELTA_ONLY) {
+            // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
+            s_logger.warn("Ignored CycleCompleted call with no useful results to propagate");
+          }
         }
       }
 

@@ -51,15 +51,15 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test
   public void test() {
-    CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
+    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
-    double sign = IS_PAYER ? -1.0 : 1.0;
+    final double sign = IS_PAYER ? -1.0 : 1.0;
     coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
 
     assertEquals(fixedAnnuity.isPayer(), IS_PAYER);
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
@@ -74,21 +74,38 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test
   public void testEqualHash() {
-    double sign = IS_PAYER ? -1.0 : 1.0;
-    CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
+    final double sign = IS_PAYER ? -1.0 : 1.0;
+    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
     coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
-    AnnuityCouponFixedDefinition fixedAnnuity2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
         IS_PAYER);
     assertEquals(fixedAnnuity, fixedAnnuity2);
     assertEquals(fixedAnnuity.hashCode(), fixedAnnuity2.hashCode());
-    AnnuityCouponFixedDefinition modifiedFixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
-        RATE, !IS_PAYER);
-    assertFalse(fixedAnnuity.equals(modifiedFixedAnnuity));
+    final AnnuityCouponFixedDefinition modifiedFixedAnnuity1 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, !IS_PAYER);
+    assertFalse(fixedAnnuity.equals(modifiedFixedAnnuity1));
+    final AnnuityCouponFixedDefinition modifiedFixedAnnuity2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, IS_PAYER);
+    assertFalse(modifiedFixedAnnuity2.equals(modifiedFixedAnnuity1));
+    final AnnuityCouponFixedDefinition bond1 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, !IS_PAYER);
+    AnnuityCouponFixedDefinition bond2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, IS_PAYER);
+    assertFalse(bond1.equals(bond2));
+    bond2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, IS_PAYER);
+    assertFalse(bond1.equals(bond2));
+    bond2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM,
+        NOTIONAL, RATE, !IS_PAYER);
+    assertEquals(bond1, bond2);
+    final CouponFixedDefinition[] payments = bond2.getPayments();
+    bond2 = new AnnuityCouponFixedDefinition(payments);
+    assertEquals(bond1, bond2);
   }
 
   @Test
@@ -102,14 +119,14 @@ public class AnnuityCouponFixedDefinitionTest {
       assertEquals(expectedPaymentDate[loopcpn], fixedAnnuity.getNthPayment(loopcpn).getPaymentDate());
     }
     // Check modified in modified following.
-    ZonedDateTime settlementDateModified = DateUtil.getUTCDate(2011, 3, 31);
+    final ZonedDateTime settlementDateModified = DateUtil.getUTCDate(2011, 3, 31);
     fixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, settlementDateModified, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
     expectedPaymentDate = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 9, 30), DateUtil.getUTCDate(2012, 3, 30), DateUtil.getUTCDate(2012, 9, 28), DateUtil.getUTCDate(2013, 3, 29)};
     for (int loopcpn = 0; loopcpn < expectedPaymentDate.length; loopcpn++) {
       assertEquals(expectedPaymentDate[loopcpn], fixedAnnuity.getNthPayment(loopcpn).getPaymentDate());
     }
     // End-of-month
-    ZonedDateTime settlementDateEOM = DateUtil.getUTCDate(2011, 2, 28);
+    final ZonedDateTime settlementDateEOM = DateUtil.getUTCDate(2011, 2, 28);
     fixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, settlementDateEOM, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
     expectedPaymentDate = new ZonedDateTime[] {DateUtil.getUTCDate(2011, 8, 31), DateUtil.getUTCDate(2012, 2, 29), DateUtil.getUTCDate(2012, 8, 31), DateUtil.getUTCDate(2013, 2, 28)};
     for (int loopcpn = 0; loopcpn < expectedPaymentDate.length; loopcpn++) {
@@ -120,26 +137,192 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test
   public void testToDerivative() {
-    double sign = IS_PAYER ? -1.0 : 1.0;
-    CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
+    final double sign = IS_PAYER ? -1.0 : 1.0;
+    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
           PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
 
     //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     //    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
-    String fundingCurve = "Funding";
-    CouponFixed[] couponFixedConverted = new CouponFixed[PAYMENT_DATES.length];
+    final String fundingCurve = "Funding";
+    final CouponFixed[] couponFixedConverted = new CouponFixed[PAYMENT_DATES.length];
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
       couponFixedConverted[loopcpn] = fixedAnnuity.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, fundingCurve);
     }
-    AnnuityCouponFixed referenceAnnuity = new AnnuityCouponFixed(couponFixedConverted);
-    AnnuityCouponFixed convertedDefinition = fixedAnnuity.toDerivative(REFERENCE_DATE, fundingCurve);
+    final AnnuityCouponFixed referenceAnnuity = new AnnuityCouponFixed(couponFixedConverted);
+    final AnnuityCouponFixed convertedDefinition = fixedAnnuity.toDerivative(REFERENCE_DATE, fundingCurve);
     assertEquals(referenceAnnuity, convertedDefinition);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCurrency1() {
+    AnnuityCouponFixedDefinition.from(null, SETTLEMENT_DATE, PAYMENT_TENOR, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate1() {
+    AnnuityCouponFixedDefinition.from(CUR, null, PAYMENT_TENOR, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullTenorPeriod() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, null, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullPaymentTenor1() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, PAYMENT_TENOR, null, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCalendar1() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, PAYMENT_TENOR, ANNUITY_TENOR, null, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullDayCount1() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, PAYMENT_TENOR, ANNUITY_TENOR, CALENDAR, null, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullBusinessDay1() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, PAYMENT_TENOR, ANNUITY_TENOR, CALENDAR, DAY_COUNT, null, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCurrency2() {
+    AnnuityCouponFixedDefinition.from(null, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate2() {
+    AnnuityCouponFixedDefinition.from(CUR, null, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullMaturityDate() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, null, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullPaymentFrequency() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, null, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCalendar2() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, null, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullDayCount2() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, null, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullBusinessDay2() {
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, null, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCurrency3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(null, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, null, MATURITY_DATE, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullMaturityDate2() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, null, ANNUITY_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullPaymentTenor2() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, null, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCalendar3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, null, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullDayCount3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, CALENDAR, null, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullBusinessDay3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, CALENDAR, DAY_COUNT, null, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCurrency4() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(null, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullSettlementDate4() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, null, MATURITY_DATE, ANNUITY_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullMaturityDate3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, null, ANNUITY_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullPaymentTenor3() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, null, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionPaymentsPerYear() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, -2, null, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullCalendar4() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, 2, null, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullDayCount4() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, 2, CALENDAR, null, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testStaticConstructionNullBusinessDay4() {
+    AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, ANNUITY_TENOR, 2, CALENDAR, DAY_COUNT, null, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+  }
+
+  @Test
+  public void testStaticConstruction() {
+    AnnuityCouponFixedDefinition definition1 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
+        IS_PAYER);
+    AnnuityCouponFixedDefinition definition2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, IS_PAYER);
+    assertEquals(definition1, definition2);
+    assertEquals(IS_PAYER, definition1.isPayer());
+    definition2 = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+    assertEquals(!IS_PAYER, definition2.isPayer());
+    definition1 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE,
+        IS_PAYER);
+    definition2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, IS_PAYER);
+    assertEquals(definition1, definition2);
+    definition2 = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_TENOR, 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL,
+        RATE, !IS_PAYER);
+    assertFalse(definition1.equals(definition2));
+  }
 }

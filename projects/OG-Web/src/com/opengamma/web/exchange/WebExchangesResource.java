@@ -7,6 +7,7 @@ package com.opengamma.web.exchange;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -30,6 +31,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
@@ -64,8 +66,9 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
+      @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/exchanges.ftl", out);
   }
 
@@ -75,12 +78,13 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       @QueryParam("page") int page,
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
+      @QueryParam("exchangeId") List<String> exchangeIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, exchangeIdStrs, uriInfo);
     return getFreemarker().build("exchanges/jsonexchanges.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, List<String> exchangeIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest();
@@ -90,6 +94,9 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
       searchRequest.addExchangeKey(id);
+    }
+    for (String exchangeIdStr : exchangeIdStrs) {
+      searchRequest.addExchangeId(ObjectIdentifier.parse(exchangeIdStr));
     }
     out.put("searchRequest", searchRequest);
     

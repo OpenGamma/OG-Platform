@@ -81,7 +81,7 @@ public abstract class ViewResultModelBuilder {
     InMemoryViewResultModel resultModel = constructImpl();
     for (Map.Entry<String, ViewCalculationResultModel> configurationEntry : configurationMap.entrySet()) {
       for (ComputationTargetSpecification targetSpec : configurationEntry.getValue().getAllTargets()) {
-        for (ComputedValue value : configurationEntry.getValue().getValues(targetSpec).values()) {
+        for (ComputedValue value : configurationEntry.getValue().getAllValues(targetSpec)) {
           resultModel.addValue(configurationEntry.getKey(), value);
         }
       }

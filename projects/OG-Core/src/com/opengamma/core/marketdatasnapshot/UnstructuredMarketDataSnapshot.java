@@ -18,6 +18,6 @@ public interface UnstructuredMarketDataSnapshot {
    * 
    * @return the values
    */
-  Map<MarketDataValueSpecification, ValueSnapshot> getValues();
+  Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> getValues();
 
 }

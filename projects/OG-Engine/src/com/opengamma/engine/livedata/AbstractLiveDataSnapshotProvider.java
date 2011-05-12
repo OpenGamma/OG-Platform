@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -83,4 +85,14 @@ public abstract class AbstractLiveDataSnapshotProvider implements LiveDataSnapsh
     }
   }
   
+  
+  @Override
+  public boolean hasStructuredData() {
+    return false;
+  }
+
+  @Override
+  public SnapshotDataBundle querySnapshot(long snapshot, YieldCurveKey yieldCurveKey) {
+    return null;
+  }
 }

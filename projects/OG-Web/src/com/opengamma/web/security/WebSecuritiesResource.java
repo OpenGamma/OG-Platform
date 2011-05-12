@@ -36,6 +36,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -76,8 +77,9 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
+      @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/securities.ftl", out);
   }
 
@@ -89,12 +91,14 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
       @QueryParam("name") String name,
       @QueryParam("identifier") String identifier,
       @QueryParam("type") String type,
+      @QueryParam("securityId") List<String> securityIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, identifier, type, securityIdStrs, uriInfo);
     return getFreemarker().build("securities/jsonsecurities.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, String identifier, String type, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, String identifier,
+      String type, List<String> securityIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
@@ -102,6 +106,9 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setIdentifierValue(StringUtils.trimToNull(identifier));
     searchRequest.setSecurityType(StringUtils.trimToNull(type));
+    for (String securityIdStr : securityIdStrs) {
+      searchRequest.addSecurityId(ObjectIdentifier.parse(securityIdStr));
+    }
     MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));

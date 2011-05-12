@@ -6,6 +6,7 @@
 package com.opengamma.web.config;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -25,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
@@ -63,8 +65,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
+      @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/configs.ftl", out);
   }
 
@@ -75,13 +78,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("type") String type,
+      @QueryParam("configId") List<String> configIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = search(page, pageSize, name, type, uriInfo);
+    FlexiBean out = search(page, pageSize, name, type, configIdStrs, uriInfo);
     return getFreemarker().build("configs/jsonconfigs.ftl", out);
   }
 
   @SuppressWarnings("unchecked")
-  private FlexiBean search(int page, int pageSize, String name, String type, UriInfo uriInfo) {
+  private FlexiBean search(int page, int pageSize, String name, String type, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
@@ -97,7 +101,10 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
     out.put("type", type);
-        
+    for (String configIdStr : configIdStrs) {
+      searchRequest.addConfigId(ObjectIdentifier.parse(configIdStr));
+    }
+    
     if (data().getUriInfo().getQueryParameters().size() > 0) {
       ConfigSearchResult<Object> searchResult = null;
       if (searchRequest.getType() != null) {

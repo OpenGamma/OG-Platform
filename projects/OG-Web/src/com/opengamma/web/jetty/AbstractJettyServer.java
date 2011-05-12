@@ -26,7 +26,7 @@ public abstract class AbstractJettyServer {
     
     // Logging
     if (System.getProperty("logback.configurationFile") == null) {
-      System.setProperty("logback.configurationFile", "jetty.logback");
+      System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
     PlatformConfigUtils.configureSystemProperties(PlatformConfigUtils.RunMode.SHAREDDEV, PlatformConfigUtils.MarketDataSource.DIRECT);
@@ -51,10 +51,12 @@ public abstract class AbstractJettyServer {
     System.out.println("================================== JETTY START BEGINS =======================================");
     ApplicationContext appContext = new FileSystemXmlApplicationContext(springConfig);
     Server server = appContext.getBean("server", Server.class);
+    System.out.println(server.dump());
     server.start();
-    System.out.println("================================== JETTY START COMPLETE =====================================");
     System.out.println();
     System.out.println("Server started on port " + getServerPort(appContext));
+    System.out.println();
+    System.out.println("================================== JETTY START COMPLETE =====================================");
     System.out.println();
     server.join();
   }

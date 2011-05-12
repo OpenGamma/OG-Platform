@@ -5,20 +5,22 @@
  */
 package com.opengamma.financial.livedata.rest;
 
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.livedata.LiveDataInjector;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Wrapper to provide RESTful access to a {@link LiveDataInjector}.
  */
 public class LiveDataInjectorResource {
+  
+  //CSOFF: just constants
+  public static final String PATH_ADD = "add";
+  public static final String PATH_REMOVE = "remove";
+  //CSON: just constants
   
   private final LiveDataInjector _injector;
   
@@ -27,15 +29,29 @@ public class LiveDataInjectorResource {
     _injector = injector;
   }
 
-  @Path("{valueName}/{targetType}/{uniqueIdentifier}")
-  public LiveDataInjectorValueResource get(
-      @PathParam("valueName") String valueName,
-      @PathParam("targetType") String targetTypeName,
-      @PathParam("uniqueIdentifier") String uidString) {
-    ComputationTargetType targetType = Enum.valueOf(ComputationTargetType.class, targetTypeName);
-    UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
-    ValueRequirement valueRequirement = new ValueRequirement(valueName, new ComputationTargetSpecification(targetType, uid));
-    return new LiveDataInjectorValueResource(_injector, valueRequirement);
+  @POST
+  @Path(PATH_ADD)
+  public void put(AddValueRequest request) {
+    ArgumentChecker.notNull(request.getValue(), "value");
+    if (request.getValueRequirement() != null) {
+      _injector.addValue(request.getValueRequirement(), request.getValue());
+    } else if (request.getIdentifier() != null && request.getValueName() != null) {
+      _injector.addValue(request.getIdentifier(), request.getValueName(), request.getValue());
+    } else {
+      throw new OpenGammaRuntimeException("Invalid request: " + request);
+    }
+  }
+  
+  @POST
+  @Path(PATH_REMOVE)
+  public void remove(RemoveValueRequest request) {
+    if (request.getValueRequirement() != null) {
+      _injector.removeValue(request.getValueRequirement());
+    } else if (request.getIdentifier() != null && request.getValueName() != null) {
+      _injector.removeValue(request.getIdentifier(), request.getValueName());
+    } else {
+      throw new OpenGammaRuntimeException("Invalid request: " + request);
+    }
   }
   
 }
