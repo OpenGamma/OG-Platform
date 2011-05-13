@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -33,7 +32,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -150,12 +148,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _fundingCurveDefinition = _fundingHelper.init(context, this);
   }
 
-  private ValueRequirement getMarketDataValueRequirement(String curveName) {
-    ValueRequirement marketDataValueRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, _currencySpec,
-        ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
-    return marketDataValueRequirement;
-  }
-  
+    
   /**
    *
    */
@@ -222,12 +215,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       
       
       if (_fundingCurveDefinitionName.equals(_forwardCurveDefinitionName)) {
-        Map<Identifier, Double> marketDataMap = buildMarketDataMap(inputs, _fundingCurveDefinitionName).getDataPoints();
+        Map<Identifier, Double> marketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
         return getSingleCurveResult(marketDataMap, builder, swapConverter, tenorSwapConverter, instrumentAdapter, futureAdapter, now);
       }
 
-      Map<Identifier, Double> fundingMarketDataMap = buildMarketDataMap(inputs, _fundingCurveDefinitionName).getDataPoints();
-      Map<Identifier, Double> forwardMarketDataMap = buildMarketDataMap(inputs, _forwardCurveDefinitionName).getDataPoints();
+      Map<Identifier, Double> fundingMarketDataMap = _fundingHelper.buildMarketDataMap(inputs).getDataPoints();
+      Map<Identifier, Double> forwardMarketDataMap = _forwardHelper.buildMarketDataMap(inputs).getDataPoints();
       
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
           .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);
@@ -412,8 +405,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
       
-      result.add(getMarketDataValueRequirement(_forwardCurveDefinitionName));
-      result.add(getMarketDataValueRequirement(_fundingCurveDefinitionName));
+      result.add(_forwardHelper.getMarketDataValueRequirement());
+      result.add(_fundingHelper.getMarketDataValueRequirement());
       return result;
     }
 
@@ -550,11 +543,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   }
 
   
-
-  private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs, String curveName) {
-    Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement(curveName));
-    return (SnapshotDataBundle) marketDataBundle;
-  }
 
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
