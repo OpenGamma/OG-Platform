@@ -9,6 +9,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameter;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -36,6 +37,7 @@ public class TestsDataSets {
   /**
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 10 years, maturity between 0 and 10 years. 
    * Beta is 0.5.  Alpha 0.05 at 1Y and 0.06 at 10Y. Rho 0.50 at 1Y and 0.30 at 10Y. Nu -0.25 at 1Y and 0.00 at 10Y. 
+   * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
   public static SABRInterestRateParameter createSABR1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction) {
@@ -58,7 +60,7 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Alpha data is bumped by 0.0001 with respect to SABR1.
+   * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function.
    * @return The SABR parameters parameters.
    */
   public static SABRInterestRateParameter createSABR1() {
@@ -217,6 +219,28 @@ public class TestsDataSets {
   public static SABRInterestRateParameter createSABR1NuBumped() {
     double shift = 0.0001;
     return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
+  }
+
+  /**
+   * Create a SABR surface with extrapolation parameters based on createSABR1.
+   * @param sabrFunction The SABR function.
+   * @param cutOffStrike The cut-off strike.
+   * @param mu The tail thickness parameter.
+   * @return The SABR surface with extrapolation parameters.
+   */
+  public static SABRInterestRateExtrapolationParameter createSABRExtrapolation1(VolatilityFunctionProvider<SABRFormulaData> sabrFunction, double cutOffStrike, double mu) {
+    SABRInterestRateParameter sabr = createSABR1();
+    return SABRInterestRateExtrapolationParameter.from(sabr, cutOffStrike, mu);
+  }
+
+  /**
+   * Create a SABR surface with extrapolation and with Hagan volatility function parameters based on createSABR1.
+   * @param cutOffStrike The cut-off strike.
+   * @param mu The tail thickness parameter.
+   * @return The SABR surface with extrapolation parameters.
+   */
+  public static SABRInterestRateExtrapolationParameter createSABRExtrapolation1(double cutOffStrike, double mu) {
+    return createSABRExtrapolation1(new SABRHaganVolatilityFunction(), cutOffStrike, mu);
   }
 
   /**
