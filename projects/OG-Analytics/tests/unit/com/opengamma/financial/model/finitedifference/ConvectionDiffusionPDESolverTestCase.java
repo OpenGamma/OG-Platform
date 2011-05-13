@@ -343,30 +343,51 @@ public class ConvectionDiffusionPDESolverTestCase {
   // }
   // }
 
-  // public void testTimeExtrapolation(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness) {
-  // double[][] res1 = solver.solve(DATA, timeSteps, spotSteps, T, LOWER, UPPER);
-  // double[][] res2 = solver.solve(DATA, 2 * timeSteps, spotSteps, T, LOWER, UPPER);
-  //
-  // double df = YIELD_CURVE.getDiscountFactor(T);
-  // int n = res1[0].length;
-  // double price;
-  // for (int i = 0; i < n; i++) {
-  // double spot = res1[0][i];
-  // double moneyness = spot / OPTION.getStrike();
-  // if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
-  // BlackFunctionData data = new BlackFunctionData(spot / df, df, 0.0);
-  // price = 2.0 * res2[1][i] - res1[1][i];
-  // double impVol;
-  // try {
-  // impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
-  // } catch (Exception e) {
-  // impVol = 0.0;
-  // }
-  // // System.out.println(spot + "\t" + price + "\t" + impVol);
-  // assertEquals(ATM_VOL, impVol, 1e-3);
-  // }
-  // }
-  // }
+  public void testTimeExtrapolation(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness, final double volTol,
+      final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
+    PDEGrid1D grid1 = new PDEGrid1D(timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
+    PDEGrid1D grid2 = new PDEGrid1D(2 * timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
+    PDEResults1D res1 = solver.solve(DATA, grid1, LOWER, UPPER);
+    PDEResults1D res2 = solver.solve(DATA, grid2, LOWER, UPPER);
+
+    double df = YIELD_CURVE.getDiscountFactor(T);
+    int n = res1.getNumberSpaceNodes();
+
+    for (int i = 0; i < n; i++) {
+      double spot = res1.getSpaceValue(i);
+      double price = 2.0 * res2.getFunctionValue(i) - res1.getFunctionValue(i);
+      double delta = 2.0 * res2.getFirstSpatialDerivative(i) - res1.getFirstSpatialDerivative(i);
+      double gamma = 2.0 * res2.getSecondSpatialDerivative(i) - res1.getSecondSpatialDerivative(i);
+      double moneyness = spot / OPTION.getStrike();
+
+      final StandardOptionDataBundle standOptData = new StandardOptionDataBundle(YIELD_CURVE, RATE, VOL_SURFACE, spot, DATE);
+      GreekResultCollection greekResults = BS_MODEL.getGreeks(OPTION_DEFINITION, standOptData, GREEKS);
+
+      BlackFunctionData data = new BlackFunctionData(spot / df, df, ATM_VOL);
+
+      double impVol;
+      try {
+        impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
+      } catch (Exception e) {
+        impVol = 0.0;
+      }
+
+      double bs_price = BS_PRICE.evaluate(standOptData);
+      double bs_delta = greekResults.get(Greek.DELTA);
+      double bs_gamma = greekResults.get(Greek.GAMMA);
+
+      if (print) {
+        System.out.println(spot + "\t" + impVol + "\t" + price + "\t" + bs_price + "\t" + delta + "\t" + bs_delta + '\t' + gamma + "\t" + bs_gamma);
+      } else {
+        if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
+          assertEquals(ATM_VOL, impVol, volTol * ATM_VOL);
+          assertEquals(bs_price, price, priceTol * (bs_price + 1e-8));
+          assertEquals(bs_delta, delta, deltaTol * (Math.abs(bs_delta) + 1e-8));
+          assertEquals(bs_gamma, gamma, gammaTol * (bs_gamma + 1e-8));
+        }
+      }
+    }
+  }
 
   /**
    * Tests that the solver can solve the form of Black_scholes equation when the log of spot is the space variable 

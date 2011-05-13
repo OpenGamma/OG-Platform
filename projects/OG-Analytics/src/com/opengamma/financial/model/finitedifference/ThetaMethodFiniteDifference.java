@@ -11,6 +11,7 @@ import com.opengamma.math.surface.Surface;
 
 /**
  * A theta (i.e. weighted between explicit and implicit time stepping) scheme using SOR algorithm to solve the matrix system at each time step 
+ * This uses the exponentially fitted scheme of duffy 
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
 

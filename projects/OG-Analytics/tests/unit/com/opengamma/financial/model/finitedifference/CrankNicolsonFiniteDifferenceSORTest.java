@@ -2,6 +2,9 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+/**
+ * This test the old Crank-Nicolson (strictly a theta method) code 
+ */
 public class CrankNicolsonFiniteDifferenceSORTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
