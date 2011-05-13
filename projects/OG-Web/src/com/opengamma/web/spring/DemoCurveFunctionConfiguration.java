@@ -7,7 +7,6 @@ package com.opengamma.web.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,8 +21,8 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
+import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.Identifier;
@@ -113,10 +112,18 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, String... parameters) {
     addYieldCurveFunction(configs, Arrays.asList(parameters));
   }
-  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, Collection<String> parameters) {
+
+  private void addYieldCurveFunction(final List<FunctionConfiguration> configs, List<String> parameters) {
+    if (parameters.size() < 2) {
+      throw new IllegalArgumentException();
+    }
+    
     configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class.getName(), parameters));
-    configs.add(new ParameterizedFunctionConfiguration(MarketInstrumentImpliedYieldCurveMarketDataFunction.class.getName(), parameters));
+    for (int i = 1; i < parameters.size(); i++) {
+      configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList(parameters.get(0), parameters.get(i))));
+    }
   }
+
 
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new RepositoryConfigurationSource() {
