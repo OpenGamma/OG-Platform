@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,13 +13,13 @@ import java.util.TreeMap;
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -31,6 +30,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -65,6 +65,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   private Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
+  private ValueSpecification _specResult;
   private Set<ValueSpecification> _results;
 
 
@@ -109,10 +110,15 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);
     
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(_definition.getCurrency());
+    ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
-    _result = new ValueSpecification(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, new ComputationTargetSpecification(_definition.getCurrency()),
-        createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get());
-    _results = Collections.singleton(_result);
+    String curveReqName = _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE;
+    _result = new ValueSpecification(curveReqName, targetSpec, properties);
+    
+    _specResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties); 
+    
+    _results = Sets.newHashSet(_result, _specResult);
   }
 
   @Override
@@ -128,7 +134,6 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstantProvider);
     
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
     final InterpolatedYieldCurveSpecification specification = compile.getThird();
     
     // ENG-252 see MarkingInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
@@ -197,7 +202,8 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
         final YieldAndDiscountCurve curve = _isYieldCurve ? new YieldCurve(InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator)) : new DiscountCurve(
             InterpolatedDoublesCurve.from(timeInYearsToRates, _interpolator));
         final ComputedValue resultValue = new ComputedValue(_result, curve);
-        return Collections.singleton(resultValue);
+        final ComputedValue specValue = new ComputedValue(_specResult, specWithSecurities);
+        return Sets.newHashSet(resultValue, specValue);
       }
 
     };
