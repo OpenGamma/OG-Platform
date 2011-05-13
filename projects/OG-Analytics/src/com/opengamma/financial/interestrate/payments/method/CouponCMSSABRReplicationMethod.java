@@ -3,10 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments;
+package com.opengamma.financial.interestrate.payments.method;
 
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 
 /**

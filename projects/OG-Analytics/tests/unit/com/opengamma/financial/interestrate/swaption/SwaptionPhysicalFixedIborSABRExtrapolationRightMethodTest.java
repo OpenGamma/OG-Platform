@@ -28,7 +28,8 @@ import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
@@ -36,6 +37,8 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod;
+import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -91,12 +94,13 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_DEFINITION_LONG_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_DEFINITION_SHORT_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  // Calculators
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   // Extrapolation
   private static final double CUT_OFF_STRIKE = 0.08;
   private static final double MU = 10.0;
   private static final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod METHOD_EXTRAPOLATION = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
+  // Calculators
+  private static final PresentValueSABRExtrapolationCalculator PVC = PresentValueSABRExtrapolationCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC_NO_EXTRA = PresentValueSABRCalculator.getInstance();
 
   /**
    * Tests present value in the region where there is no extrapolation. Tests long/short parity.
@@ -110,10 +114,10 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     double priceShortPayer = METHOD_EXTRAPOLATION.presentValue(SWAPTION_SHORT_PAYER, sabrBundle);
     double priceLongReceiver = METHOD_EXTRAPOLATION.presentValue(SWAPTION_LONG_RECEIVER, sabrBundle);
     double priceShortReceiver = METHOD_EXTRAPOLATION.presentValue(SWAPTION_SHORT_RECEIVER, sabrBundle);
-    double priceLongPayerNoExtra = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    double priceShortPayerNoExtra = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    double priceLongReceiverNoExtra = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    double priceShortReceiverNoExtra = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    double priceLongPayerNoExtra = PVC_NO_EXTRA.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    double priceShortPayerNoExtra = PVC_NO_EXTRA.visit(SWAPTION_SHORT_PAYER, sabrBundle);
+    double priceLongReceiverNoExtra = PVC_NO_EXTRA.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
+    double priceShortReceiverNoExtra = PVC_NO_EXTRA.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     assertEquals("Swaption SABR extrapolation: below cut-off strike", priceLongPayerNoExtra, priceLongPayer, 1E-2);
     assertEquals("Swaption SABR extrapolation: below cut-off strike", priceShortPayerNoExtra, priceShortPayer, 1E-2);
     assertEquals("Swaption SABR extrapolation: below cut-off strike", priceLongReceiverNoExtra, priceLongReceiver, 1E-2);
@@ -142,8 +146,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     double priceLongPayer = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     double priceShortPayer = METHOD_EXTRAPOLATION.presentValue(swaptionShortPayerHighStrike, sabrBundle);
     double priceLongReceiver = METHOD_EXTRAPOLATION.presentValue(swaptionLongReceiverHighStrike, sabrBundle);
-    double priceLongPayerSABR = PVC.visit(swaptionLongPayerHighStrike, sabrBundle);
-    double priceLongReceiverSABR = PVC.visit(swaptionLongReceiverHighStrike, sabrBundle);
+    double priceLongPayerSABR = PVC_NO_EXTRA.visit(swaptionLongPayerHighStrike, sabrBundle);
+    double priceLongReceiverSABR = PVC_NO_EXTRA.visit(swaptionLongReceiverHighStrike, sabrBundle);
     assertEquals("Swaption SABR extrapolation: extrapolation limit", priceLongPayerSABR, priceLongPayer, 1E-1);
     assertEquals("Swaption SABR extrapolation: extrapolation limit", priceLongReceiverSABR, priceLongReceiver, 1E-1);
     assertEquals("Swaption SABR extrapolation: long/short parity", priceLongPayer, -priceShortPayer, 1E-2);

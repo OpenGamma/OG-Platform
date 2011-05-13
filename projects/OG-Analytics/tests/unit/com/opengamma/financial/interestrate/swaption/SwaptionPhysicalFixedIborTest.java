@@ -20,7 +20,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
@@ -100,7 +100,7 @@ public class SwaptionPhysicalFixedIborTest {
   private static final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
   // Calculators
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
   // Volatility and pricing functions
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();

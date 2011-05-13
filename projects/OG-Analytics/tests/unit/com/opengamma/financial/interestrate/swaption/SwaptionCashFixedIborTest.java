@@ -26,6 +26,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -135,11 +136,12 @@ public class SwaptionCashFixedIborTest {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
     SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    PresentValueSABRCalculator pvcSabr = PresentValueSABRCalculator.getInstance();
     // Swaption pricing.
-    double priceLongPayer = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    double priceShortPayer = PVC.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    double priceLongReceiver = PVC.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    double priceLongPayer = pvcSabr.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    double priceShortPayer = pvcSabr.visit(SWAPTION_SHORT_PAYER, sabrBundle);
+    double priceLongReceiver = pvcSabr.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
+    double priceShortReceiver = pvcSabr.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);

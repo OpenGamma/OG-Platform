@@ -361,7 +361,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   /**
-   * Deserializes an identifier bundle from a Fudge message. Thsi is used by the Fudge Serialization Framework and Fudge-Proto generated
+   * Deserializes an identifier bundle from a Fudge message. This is used by the Fudge Serialization Framework and Fudge-Proto generated
    * code to allow identifier bundles to be embedded within Fudge-Proto specified messages with minimal overhead.
    * 
    * @param msg the Fudge message, not {@code null}
