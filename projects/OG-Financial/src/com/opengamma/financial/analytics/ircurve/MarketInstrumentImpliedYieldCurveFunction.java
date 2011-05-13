@@ -132,9 +132,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
         _forwardCurveSpecResult);
   }
 
-  private ValueRequirement getMarketDataValueRequirement() {
+  private ValueRequirement getMarketDataValueRequirement(String curveName) {
     ValueRequirement marketDataValueRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(getCurrency()),
-        ValueProperties.with(ValuePropertyNames.CURVE, getFundingCurveDefinitionName()).with(ValuePropertyNames.CURVE, getForwardCurveDefinitionName()).get());
+        ValueProperties.with(ValuePropertyNames.CURVE, curveName).get());
     return marketDataValueRequirement;
   }
   
@@ -204,16 +204,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
           holidaySource, regionSource, conventionSource);
       final LocalDate localNow = now.toLocalDate();
       
-      Map<Identifier, Double> marketDataMap = buildMarketDataMap(inputs).getDataPoints();
+      
       
       if (getFundingCurveDefinitionName().equals(getForwardCurveDefinitionName())) {
+        Map<Identifier, Double> marketDataMap = buildMarketDataMap(inputs, getFundingCurveDefinitionName()).getDataPoints();
         return getSingleCurveResult(marketDataMap, builder, swapConverter, tenorSwapConverter, instrumentAdapter, futureAdapter, now, localNow);
       }
 
+      Map<Identifier, Double> fundingMarketDataMap = buildMarketDataMap(inputs, getFundingCurveDefinitionName()).getDataPoints();
+      Map<Identifier, Double> forwardMarketDataMap = buildMarketDataMap(inputs, getForwardCurveDefinitionName()).getDataPoints();
+      
       final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpecificationWithSecurities = builder
-          .resolveToSecurity(_fundingCurveSpecification, marketDataMap);
+          .resolveToSecurity(_fundingCurveSpecification, fundingMarketDataMap);
       final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities = builder
-          .resolveToSecurity(_forwardCurveSpecification, marketDataMap);
+          .resolveToSecurity(_forwardCurveSpecification, forwardMarketDataMap);
       final List<InterestRateDerivative> derivatives = new ArrayList<InterestRateDerivative>();
       final Set<FixedIncomeStrip> fundingStrips = getFundingCurveDefinition().getStrips();
       final Set<FixedIncomeStrip> forwardStrips = getForwardCurveDefinition().getStrips();
@@ -227,10 +231,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
       _identifierToForwardNodeTimes.clear();
       int i = 0, fundingIndex = 0, forwardIndex = 0;
       for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
-        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
-        if (marketValue == null) {
-          throw new NullPointerException("Could not get market data for " + strip);
+        
+        final Double fundingMarketValue = fundingMarketDataMap.get(strip.getSecurityIdentifier());
+        if (fundingMarketValue == null) {
+          throw new NullPointerException("Could not get funding market data for " + strip);
         }
+        double marketValue = fundingMarketValue; //TODO is this right
+        
+        
+
+        
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
@@ -269,13 +279,17 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
         _identifierToFundingNodeTimes.put(strip.getSecurityIdentifier(), fundingNodeTimes[fundingIndex]); // just for debugging.
         fundingIndex++;
       }
+      
       for (final FixedIncomeStripWithSecurity strip : forwardCurveSpecificationWithSecurities.getStrips()) {
-        final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());
-        if (marketValue == null) {
-          throw new NullPointerException("Could not get market data for " + strip);
+        
+        final Double forwardMarketValue = forwardMarketDataMap.get(strip.getSecurityIdentifier());
+        if (forwardMarketValue == null) {
+          throw new NullPointerException("Could not get funding market data for " + strip);
         }
-        InterestRateDerivative derivative;
+        double marketValue = forwardMarketValue; //TODO is this right
+        
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
+        InterestRateDerivative derivative;
         if (strip.getInstrumentType() == StripInstrumentType.SWAP) {
           //derivative = financialSecurity.accept(instrumentAdapter).toDerivative(localNow, getFundingCurveDefinitionName(),
           //    getForwardCurveDefinitionName());
@@ -386,7 +400,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
         final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
       
-      result.add(getMarketDataValueRequirement());
+      result.add(getMarketDataValueRequirement(getForwardCurveDefinitionName()));
+      result.add(getMarketDataValueRequirement(getFundingCurveDefinitionName()));
       return result;
     }
 
@@ -525,9 +540,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends MarketInstrumentI
   
 
   @SuppressWarnings("unchecked")
-  private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
+  private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs, String curveName) {
     
-    Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
+    Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement(curveName));
     return (SnapshotDataBundle) marketDataBundle;
   }
 

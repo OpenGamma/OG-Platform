@@ -23,10 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
+import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
@@ -35,8 +37,6 @@ import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
   
-  private final ViewDefinitionJSONBuilder _viewDefinitionBuilder = new ViewDefinitionJSONBuilder();
-
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -60,12 +60,25 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String getJSON() {
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-    if (doc.getValue().getClass().isAssignableFrom(ViewDefinition.class)) {
-      out.put("configJSON", _viewDefinitionBuilder.toJSON((ViewDefinition) doc.getValue()));
+   
+    String json = toJSON(doc.getValue());
+    if (json != null) {
+      out.put("configJSON", json);
     } else {
       out.put("configXml", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     }
     return getFreemarker().build("configs/jsonconfig.ftl", out);
+  }
+
+  private String toJSON(final Object config) {
+    String result = null;
+    if (config.getClass().isAssignableFrom(ViewDefinition.class)) {
+      result =  new ViewDefinitionJSONBuilder().toJSON((ViewDefinition) config);
+    }
+    if (config.getClass().isAssignableFrom(YieldCurveDefinition.class)) {
+      result = new YieldCurveDefinitionJSONBuilder().toJSON((YieldCurveDefinition) config);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

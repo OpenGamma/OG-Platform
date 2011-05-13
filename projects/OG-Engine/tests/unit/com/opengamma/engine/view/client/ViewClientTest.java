@@ -39,6 +39,7 @@ import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 
@@ -522,6 +523,10 @@ public class ViewClientTest {
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
+    
+    @Override
+    public void addValue(Identifier identifier, String valueName, Object value) {
+    }
 
     @Override
     public void removeValue(ValueRequirement valueRequirement) {
@@ -529,6 +534,10 @@ public class ViewClientTest {
         _lastKnownValues.remove(valueRequirement);
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
+    }
+    
+    @Override
+    public void removeValue(Identifier identifier, String valueName) {
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
@@ -105,6 +106,20 @@ public class CapFloorIborSABRMethodTest {
     Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
     double expectedPrice = funcBlack.evaluate(dataBlack) * CAP_LONG.getNotional() * CAP_LONG.getPaymentYearFraction();
     assertEquals("Cap/floor: SABR pricing", expectedPrice, methodPrice, 1E-2);
+  }
+
+  @Test
+  /**
+   * Test the present value using the method and the calculator.
+   */
+  public void methodVsCalculator() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    double expectedPv = METHOD.presentValue(CAP_LONG, sabrBundle);
+    PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
+    double pv = PVC.visit(CAP_LONG, sabrBundle);
+    assertEquals("Cap/floor SABR pricing: method and calculator", expectedPv, pv, 1E-2);
   }
 
   @Test

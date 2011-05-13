@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.surface.Surface;
@@ -33,14 +34,18 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
   }
 
   @Override
-  public double[][] solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
     return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
   }
 
   @Override
-  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
+
+    // simple test code - doesn't use a PDEGrid1D
+    PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+
     final double dt = tMax / (tSteps);
     final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
     final double dtdx2 = dt / dx / dx;
@@ -72,45 +77,68 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         a = pdeData.getA(t - dt, x[i]);
         b = pdeData.getB(t - dt, x[i]);
         c = pdeData.getC(t - dt, x[i]);
-        aa = (1 - _theta) * (-dtdx2 * a + 0.5 * dtdx * b);
-        bb = 1 + (1 - _theta) * (2 * dtdx2 * a - dt * c);
-        cc = (1 - _theta) * (-dtdx2 * a - 0.5 * dtdx * b);
+
+        double rho = a;
+        ;
+        // double bdx = (b * dx / 2);
+        // if (Math.abs(bdx) > 10 * Math.abs(a)) {
+        // rho = Math.abs(bdx);
+        // } else if (Math.abs(a) > 10 * Math.abs(bdx)) {
+        // rho = a;
+        // } else {
+        // rho = bdx / Math.tanh(bdx / a);
+        // }
+
+        aa = (1 - _theta) * (-dtdx2 * rho + 0.5 * dtdx * b);
+        bb = 1 + (1 - _theta) * (2 * dtdx2 * rho - dt * c);
+        cc = (1 - _theta) * (-dtdx2 * rho - 0.5 * dtdx * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
         // TODO could store these
         a = pdeData.getA(t, x[i]);
         b = pdeData.getB(t, x[i]);
         c = pdeData.getC(t, x[i]);
-        aa = (-dtdx2 * a + 0.5 * dtdx * b);
-        bb = (2 * dtdx2 * a - dt * c);
-        cc = (-dtdx2 * a - 0.5 * dtdx * b);
+
+        rho = a;
+        // bdx = (b * dx / 2);
+        // if (Math.abs(bdx) > 10 * Math.abs(a)) {
+        // rho = Math.abs(bdx);
+        // } else if (Math.abs(a) > 10 * Math.abs(bdx)) {
+        // rho = a;
+        // } else {
+        // rho = bdx / Math.tanh(bdx / a);
+        // }
+
+        aa = (-dtdx2 * rho + 0.5 * dtdx * b);
+        bb = (2 * dtdx2 * rho - dt * c);
+        cc = (-dtdx2 * rho - 0.5 * dtdx * b);
         m[i][i - 1] = -_theta * aa;
         m[i][i] = 1 - _theta * bb;
         m[i][i + 1] = -_theta * cc;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, t);
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, grid, t);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
-      temp = upperBoundary.getLeftMatrixCondition(pdeData, t);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData, grid, t);
       for (int k = 0; k < temp.length; k++) {
         m[xSteps][xSteps - k] = temp[k];
       }
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData, t);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData, grid, t);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData, t, dx);
+      q[0] = sum + lowerBoundary.getConstant(pdeData, t);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData, t);
+      temp = upperBoundary.getRightMatrixCondition(pdeData, grid, t);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xSteps - k];
       }
-      q[xSteps] = sum + upperBoundary.getConstant(pdeData, t, dx);
+      q[xSteps] = sum + upperBoundary.getConstant(pdeData, t);
 
       // SOR
       final double omega = 1.0;
@@ -136,17 +164,15 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
 
     }
 
-    final double[][] res = new double[2][];
-    res[0] = x;
-    res[1] = f;
-
-    return res;
-
+    return new PDETerminalResults1D(grid, f);
   }
 
-  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final double[] timeGrid, final double[] spaceGrid, final BoundaryCondition lowerBoundary,
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final double[] timeGrid, final double[] spaceGrid, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
+
+    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+
     int tNodes = timeGrid.length;
     int xNodes = spaceGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
@@ -180,31 +206,13 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
 
     for (int n = 1; n < tNodes; n++) {
 
-      // debug
-      // a = -dx[xNodes - 2] / dx[xNodes - 3] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // b = (dx[xNodes - 2] - dx[xNodes - 3]) / dx[xNodes - 3] / dx[xNodes - 2];
-      // c = dx[xNodes - 3] / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      //
-      // double first = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      // a = 2 / dx[xNodes - 3] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // b = -2 / dx[xNodes - 3] / dx[xNodes - 2];
-      // c = 2 / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
-      // double second = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      //
-      // a = 1 / dx[xNodes - 2];
-      // c = a;
-      // b = -2 * a;
-      // double secondStar = a * f[xNodes - 3] + b * f[xNodes - 2] + c * f[xNodes - 1];
-      // System.out.println("First:" + first + " Second: " + second + " Uniform Second: " + secondStar);
-      // end debug
-
       for (int i = 1; i < xNodes - 1; i++) {
         a = pdeData.getA(timeGrid[n - 1], spaceGrid[i]);
         b = pdeData.getB(timeGrid[n - 1], spaceGrid[i]);
         c = pdeData.getC(timeGrid[n - 1], spaceGrid[i]);
 
         aa = (1 - _theta) * dt[n - 1] * (-2 / dx[i - 1] / (dx[i - 1] + dx[i]) * a + dx[i] / dx[i - 1] / (dx[i - 1] + dx[i]) * b);
-        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c);
+        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c);// TODO check sign of c
         cc = (1 - _theta) * dt[n - 1] * (-2 / dx[i] / (dx[i - 1] + dx[i]) * a - dx[i - 1] / dx[i] / (dx[i - 1] + dx[i]) * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
@@ -220,12 +228,12 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         m[i][i + 1] = -_theta * cc;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n]);
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData, grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - 1 - k] = temp[k];
       }
@@ -234,21 +242,20 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
       // m[xNodes - 1][xNodes - 2] = -2 / dx[xNodes - 3] / dx[xNodes - 2];
       // m[xNodes - 1][xNodes - 1] = 2 / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n]);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData, grid, timeGrid[n]);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData, timeGrid[n], dx[0]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
+      q[0] = sum + lowerBoundary.getConstant(pdeData, timeGrid[n]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData, grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
-      // debug
-      // q[xNodes - 1] = 0.0;
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, timeGrid[n], dx[xNodes - 2]);
+
+      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, timeGrid[n]);
 
       // SOR
       final double omega = 1.0;
@@ -274,11 +281,17 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
 
     }
 
-    final double[][] res = new double[2][];
-    res[0] = spaceGrid;
-    res[1] = f;
+    return new PDETerminalResults1D(grid, f);
 
-    return res;
+  }
 
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
+    throw new NotImplementedException();
   }
 }

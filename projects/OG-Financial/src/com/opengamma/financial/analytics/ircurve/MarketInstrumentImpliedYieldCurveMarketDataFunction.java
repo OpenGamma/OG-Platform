@@ -36,7 +36,8 @@ import com.opengamma.util.money.Currency;
  */
 public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketInstrumentImpliedYieldCurveFunctionHelper  {
 
-  private ValueSpecification _marketDataResult;
+  private ValueSpecification _fundingCurveMarketDataResult;
+  private ValueSpecification _forwardCurveMarketDataResult;
   
   private Set<ValueSpecification> _results;
   
@@ -63,9 +64,11 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
   public void init(final FunctionCompilationContext context) {
     super.init(context);
     
-    _marketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(getCurrency()),
-        createValueProperties().with(ValuePropertyNames.CURVE, getFundingCurveDefinitionName()).with(ValuePropertyNames.CURVE, getForwardCurveDefinitionName()).get());
-    _results = Sets.newHashSet(_marketDataResult);
+    _fundingCurveMarketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(getCurrency()),
+        createValueProperties().with(ValuePropertyNames.CURVE, getFundingCurveDefinitionName()).get());
+    _forwardCurveMarketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(getCurrency()),
+        createValueProperties().with(ValuePropertyNames.CURVE, getForwardCurveDefinitionName()).get());
+    _results = Sets.newHashSet(_fundingCurveMarketDataResult, _forwardCurveMarketDataResult);
   }
 
 
@@ -82,7 +85,10 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
     @Override
     public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
         ComputationTarget target, Set<ValueRequirement> desiredValues) {
-      return Sets.newHashSet(new ComputedValue(_marketDataResult, buildMarketDataMap(inputs)));
+      SnapshotDataBundle map = buildMarketDataMap(inputs);
+      return Sets.newHashSet(
+          new ComputedValue(_fundingCurveMarketDataResult, map),
+          new ComputedValue(_forwardCurveMarketDataResult, map));
     }
 
     @Override
@@ -107,8 +113,8 @@ public class MarketInstrumentImpliedYieldCurveMarketDataFunction extends MarketI
     }
 
     @Override
-    public YieldCurveKey getYieldCurveKey() {
-      return new YieldCurveKey(getCurrency(), getCurveName());
+    public Set<YieldCurveKey> getYieldCurveKeys() {
+      return Sets.newHashSet(new YieldCurveKey(getCurrency(), getFundingCurveDefinitionName()), new YieldCurveKey(getCurrency(), getForwardCurveDefinitionName()));
     }
     
     
