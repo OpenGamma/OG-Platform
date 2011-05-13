@@ -228,5 +228,63 @@ public class ValuePropertiesTest {
     compare(oneBar, oneBarAnyFoo);
     compare(oneBarAnyFoo, oneFooAnyBar);
   }
+  
+  public void testParseCycle() {
+    parseCycle(ValueProperties.none());
+    parseCycle(ValueProperties.all());
+    parseCycle(ValueProperties.with("Foo", "1").get());
+    parseCycle(ValueProperties.with("Foo", "1").with("Bar", "456").get());
+    parseCycle(ValueProperties.with("Foo", "1").withAny("Bar").get());
+    parseCycle(ValueProperties.with("Foo", "1").withOptional("Bar").get());
+    
+    parseCycle(ValueProperties.all().withoutAny("ABC"));
+    parseCycle(ValueProperties.all().withoutAny("ABC").withoutAny("DEF"));
+  }
+  
+  public void testParseFlexibility() {   
+    assertEquals(ValueProperties.with("Ccy", "USD").get(), ValueProperties.parse("Ccy=USD"));
+    assertEquals(ValueProperties.with("Ccy", "USD", "GBP").get(), ValueProperties.parse("Ccy=[GBP,USD]"));
+    
+    assertEquals(ValueProperties.withAny("Foo").get(), ValueProperties.parse("Foo"));
+    
+    ValueProperties twoFooOneBar = ValueProperties.with("Foo", "123", "456").with("Bar", "7").get();
+    assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123,456],Bar=7"));
+    assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123, 456],Bar=7"));
+    assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123,456], Bar=7"));
+    assertEquals(twoFooOneBar, ValueProperties.parse("Bar=7, Foo=[123,456]"));
+    
+    assertEquals(ValueProperties.withOptional("Foo").get(), ValueProperties.parse("Foo=[]?"));
+    assertEquals(ValueProperties.with("Foo", "1").withOptional("Foo").get(), ValueProperties.parse("Foo=[1]?"));
+    
+    ValueProperties oneOptionalFooTwoBar = ValueProperties.with("Foo", "123").withOptional("Foo").with("Bar", "7", "8").get();
+    assertEquals(oneOptionalFooTwoBar, ValueProperties.parse("Foo=[123]?,Bar=[7,8]"));
+    assertEquals(oneOptionalFooTwoBar, ValueProperties.parse("Bar=[7,8],Foo=[123]?"));
+
+    assertEquals(ValueProperties.withAny("ValueName").get(), ValueProperties.parse("ValueName="));
+    assertEquals(ValueProperties.withAny("ValueName").get(), ValueProperties.parse("ValueName=[]"));
+    
+    ValueProperties allButFoo = ValueProperties.all().withoutAny("Foo");
+    assertEquals(allButFoo, ValueProperties.parse("INFINITE-{Foo}"));
+    assertEquals(allButFoo, ValueProperties.parse("INFINITE-{ Foo }"));
+    assertEquals(allButFoo, ValueProperties.parse("INFINITE-{ Foo=[] }"));
+    assertEquals(allButFoo, ValueProperties.parse("INFINITE-Foo"));
+    assertEquals(allButFoo, ValueProperties.parse("INFINITE- Foo"));
+  }
+  
+  public void testCharacterEscaping() {
+    assertEquals(ValueProperties.with("[", " ]").get(), ValueProperties.parse("\\[=\\ \\]"));
+    assertEquals(ValueProperties.with(",", "=").get(), ValueProperties.parse("\\,=\\="));
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testParseInvalidNoValue() {
+    ValueProperties.parse("ValueName=[");
+  }
+  
+  private static void parseCycle(ValueProperties original) {
+    String vpString = original.toString();
+    ValueProperties parsed = ValueProperties.parse(vpString);
+    assertEquals(original, parsed);
+  }
 
 }

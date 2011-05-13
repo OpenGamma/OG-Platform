@@ -16,10 +16,12 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -319,6 +321,26 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?>[] visit(InterestRateDerivative[] derivative) {
       return visit(derivative);
+    }
+
+    @Override
+    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, Object data) {
+      return visit(fra, data);
+    }
+
+    @Override
+    public Class<?> visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra) {
+      return visit(fra);
+    }
+
+    @Override
+    public Class<?> visitCapFloorIbor(CapFloorIbor payment, Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCapFloorIbor(CapFloorIbor payment) {
+      return visit(payment);
     }
   };
 

@@ -98,15 +98,15 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'timeseries',
                     'columns': [
-                        {id: 'datasource', name: 'Datasource', field: 'datasource', width: 90, cssClass: 'og-uppercase',
+                        {id: 'data_source', name: 'Datasource', field: 'data_source', width: 90, cssClass: 'og-uppercase',
                                 filter_type: 'input'},
-                        {id: 'identifiers', name: 'Identifiers', field: 'identifiers', width: 150, cssClass: 'og-link',
+                        {id: 'identifier', name: 'Identifiers', field: 'identifier', width: 150, cssClass: 'og-link',
                                 filter_type: 'input'},
-                        {id: 'dataProvider', name: 'Data Provider',  field: 'dataprovider', width: 85, cssClass: 'og-link',
+                        {id: 'data_provider', name: 'Data Provider',  field: 'data_provider', width: 85, cssClass: 'og-link',
                                 filter_type: 'input'},
-                        {id: 'dataField', name: 'Data Field', field: 'datafield', width: 70, cssClass: 'og-link',
+                        {id: 'data_field', name: 'Data Field', field: 'data_field', width: 70, cssClass: 'og-link',
                                 filter_type: 'input'},
-                        {id: 'observationTime', name: 'Observation Time', field: 'observationtime', width: 120,
+                        {id: 'observation_time', name: 'Observation Time', field: 'observation_time', width: 120,
                                 cssClass: 'og-link', filter_type: 'input'}
                     ]
                 },
@@ -152,18 +152,18 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
             load_filter: {route: '/' + page_name +
-                    '/filter:/:id?/identifier:?/dataSource:?/dataProvider:?/dataField:?/observationTime:?',
+                    '/filter:/:id?/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
                     method: module.name + '.load_filter'
             },
             load_delete: {route: '/' + page_name +
-                    '/:id/deleted:/identifier:?/dataSource:?/dataProvider:?/dataField:?/observationTime:?',
+                    '/:id/deleted:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
                     method: module.name + '.load_delete'
             },
             load_timeseries: {route: '/' + page_name +
-                    '/:id/identifier:?/dataSource:?/dataProvider:?/dataField:?/observationTime:?',
+                    '/:id/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
                     method: module.name + '.load_' + page_name},
             load_new_timeseries: {route: '/' + page_name +
-                    '/:id/new:/identifier:?/dataSource:?/dataProvider:?/dataField:?/observationTime:?',
+                    '/:id/new:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
                     method: module.name + '.load_new_' + page_name
             }
         };

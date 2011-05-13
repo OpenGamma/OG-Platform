@@ -44,8 +44,13 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     _dofOverTwo = degrees / 2.0;
     _lambdaOverTwo = nonCentrality / 2.0;
     _k = (int) Math.round(_lambdaOverTwo);
-    final double logP = -_lambdaOverTwo + _k * Math.log(_lambdaOverTwo) - Gamma.logGamma(_k + 1);
-    _pStart = Math.exp(logP);
+
+    if (_lambdaOverTwo == 0) {
+      _pStart = 0.0;
+    } else {
+      final double logP = -_lambdaOverTwo + _k * Math.log(_lambdaOverTwo) - Gamma.logGamma(_k + 1);
+      _pStart = Math.exp(logP);
+    }
     final GammaFunction func = new GammaFunction();
     _gammaStart = func.evaluate(_dofOverTwo + _k);
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -31,5 +32,12 @@ public interface CompiledFunctionResolver {
    * @throws UnsatisfiableDependencyGraphException if there is a problem
    */
   Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, DependencyNode atNode);
-  
+
+  /**
+   * Returns a full set of resolution rules backing the resolver.
+   * 
+   * @return the full set of resolution rules, not {@code null}
+   */
+  Collection<ResolutionRule> getAllResolutionRules();
+
 }

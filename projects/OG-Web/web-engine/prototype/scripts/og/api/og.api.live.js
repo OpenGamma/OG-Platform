@@ -14,10 +14,10 @@ $.register_module({
             register: (function () {
                 // since register sometimes gets called quickly in rapid succession, we wait a small amount of time
                 // to make sure requests that will supersede each other very quickly don't all have to be sent out
-                var registration_timer = null;
+                var timer = null;
                 return function (urls) {
-                    if (registration_timer) clearTimeout(registration_timer);
-                    registration_timer = setTimeout(function () {(registration_timer = null), request(urls);}, 25);
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(function () {(timer = null), request(urls.join('\n'));}, 25);
                 }
             })()
         };

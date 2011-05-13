@@ -12,6 +12,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
@@ -148,6 +149,11 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
     return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
+    return visitCouponIbor(payment, data);
   }
 
   @Override

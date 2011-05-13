@@ -6,6 +6,7 @@
 package com.opengamma.financial.interestrate.payments;
 
 import com.opengamma.financial.instrument.payment.CapFloor;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,6 +59,16 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
   public double payOff(double fixing) {
     double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
+  }
+
+  @Override
+  public <S, T> T accept(final InterestRateDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCapFloorIbor(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCapFloorIbor(this);
   }
 
   @Override

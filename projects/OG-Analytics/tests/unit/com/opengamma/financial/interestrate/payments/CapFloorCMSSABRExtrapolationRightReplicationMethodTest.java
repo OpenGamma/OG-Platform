@@ -34,6 +34,10 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRExtrapolationRightReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRExtrapolationRightReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -239,8 +243,6 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       assertEquals("Sensitivity to discounting curve: Node " + i, nodeTimesFunding[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Sensitivity to discounting curve: Node " + i, resDsc[i], pair.getSecond(), deltaTolerance);
     }
-    double test = 0.0;
-    test++;
   }
 
   @Test(enabled = false)

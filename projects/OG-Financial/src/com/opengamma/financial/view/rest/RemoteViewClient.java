@@ -12,20 +12,23 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.jms.ExceptionListener;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.ws.rs.core.UriBuilder;
+import javax.jms.MessageConsumer;
+import javax.jms.Session;
+import javax.jms.TemporaryQueue;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.google.common.base.Function;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.livedata.LiveDataInjector;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewProcessor;
@@ -65,20 +68,22 @@ public class RemoteViewClient implements ViewClient {
   private final ViewResultListener _internalResultListener;
   private long _listenerDemand;
   private ViewResultListener _resultListener;
-  private DefaultMessageListenerContainer _resultListenerContainer;
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
   
   private final FudgeContext _fudgeContext;
-  private final JmsTemplate _jmsTemplate;
+  private final ConnectionFactory _connectionFactory;
   private final ScheduledExecutorService _scheduler;
   private final ScheduledFuture<?> _scheduledHeartbeat;
   
-  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, JmsTemplate jmsTemplate, ScheduledExecutorService scheduler) {
+  private Connection _connection;
+  private MessageConsumer _consumer;
+  
+  public RemoteViewClient(ViewProcessor viewProcessor, URI baseUri, FudgeContext fudgeContext, ConnectionFactory connectionFactory, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
     _fudgeContext = fudgeContext;
-    _jmsTemplate = jmsTemplate;
+    _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     
     _internalResultListener = new AbstractViewResultListener() {
@@ -199,23 +204,26 @@ public class RemoteViewClient implements ViewClient {
         _listenerDemand--;
       }
       configureResultListener();
+    } catch (JMSException e) {
+      throw new OpenGammaRuntimeException("JMS error configuring result listener", e);
     } finally {
       _listenerLock.unlock();
     }
   }
   
-  private void configureResultListener() {
+  private void configureResultListener() throws JMSException {
     if (_listenerDemand == 0) {
       URI uri = getUri(_baseUri, DataViewClientResource.PATH_STOP_JMS_RESULT_STREAM);
       _client.access(uri).post();
-      tearDownResultListener();
+      closeJms();
       _completionLatch = null;
     } else if (_listenerDemand == 1) {
       _completionLatch = new CountDownLatch(1);
-      
+      String destination = startJms();
+      MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+      msg.add(DataViewClientResource.DESTINATION_FIELD, destination);
       URI uri = getUri(_baseUri, DataViewClientResource.PATH_START_JMS_RESULT_STREAM);
-      String destinationName = _client.access(uri).post(String.class);
-      initResultListener(destinationName);
+      _client.access(uri).post(msg);
       
       // We have not been listening to results so far, so initialise the state of the latch
       if (isAttached() && isCompleted()) {
@@ -224,36 +232,36 @@ public class RemoteViewClient implements ViewClient {
     }
   }
   
-  private void initResultListener(final String destinationName) {
-    s_logger.info("Set up result JMS subscription to {}", destinationName);
-    _resultListenerContainer = new DefaultMessageListenerContainer();
-    _resultListenerContainer.setConnectionFactory(_jmsTemplate.getConnectionFactory());
-    _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-        s_logger.debug("Result listener call received on {}", destinationName);
-        Function<ViewResultListener, ?> listenerCall;
-        try {
-          listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
-        } catch (Exception e) {
-          s_logger.warn("Caught exception parsing message", e);
-          s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
-          return;
+  private String startJms() throws JMSException {
+    try {
+      _connection = _connectionFactory.createConnection();
+      Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      TemporaryQueue tempQueue = session.createTemporaryQueue();
+      _consumer = session.createConsumer(tempQueue);
+      _consumer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
+        @SuppressWarnings("unchecked")
+        @Override
+        public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+          s_logger.debug("Result listener call received");
+          Function<ViewResultListener, ?> listenerCall;
+          try {
+            listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
+          } catch (Exception e) {
+            s_logger.warn("Caught exception parsing message", e);
+            s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
+            return;
+          }
+          dispatchListenerCall(listenerCall);
         }
-        dispatchListenerCall(listenerCall);
-      }
-    }, _fudgeContext)));
-    _resultListenerContainer.setDestinationName(destinationName);
-    _resultListenerContainer.setPubSubDomain(true);
-    _resultListenerContainer.setExceptionListener(new ExceptionListener() {
-      @Override
-      public void onException(JMSException exception) {
-        s_logger.warn("Error in listener call receiver", exception);
-      }
-    });
-    _resultListenerContainer.afterPropertiesSet();
-    _resultListenerContainer.start();
+      }, _fudgeContext)));
+      _connection.start();
+      s_logger.info("Set up result JMS subscription to {}", tempQueue);
+      return tempQueue.getQueueName();
+    } catch (JMSException e) {
+      s_logger.error("Exception setting up JMS result listener", e);
+      closeJms();
+      throw e;
+    }
   }
   
   private void dispatchListenerCall(Function<ViewResultListener, ?> listenerCall) {
@@ -268,10 +276,17 @@ public class RemoteViewClient implements ViewClient {
     listenerCall.apply(_internalResultListener);
   }
   
-  private void tearDownResultListener() {
-    _resultListenerContainer.stop();
-    _resultListenerContainer.destroy();
-    _resultListenerContainer = null;
+  private void closeJms() {
+    if (_consumer != null) {
+      try {
+        _connection.close();
+      } catch (Exception e) {
+        s_logger.error("Error closing JMS connection", e);
+      } finally {
+        _connection = null;
+        _consumer = null;
+      }
+    }
   }
 
   @Override
@@ -313,6 +328,8 @@ public class RemoteViewClient implements ViewClient {
     try {
       _listenerDemand++;
       configureResultListener();
+    } catch (JMSException e) {
+      throw new OpenGammaRuntimeException("JMS error while setting up result listener", e);
     } finally {
       _listenerLock.unlock();
     }
@@ -323,6 +340,8 @@ public class RemoteViewClient implements ViewClient {
     try {
       _listenerDemand--;
       configureResultListener();
+    } catch (JMSException e) {
+      throw new OpenGammaRuntimeException("JMS error while removing result listener following completion", e);
     } finally {
       _listenerLock.unlock();
     }

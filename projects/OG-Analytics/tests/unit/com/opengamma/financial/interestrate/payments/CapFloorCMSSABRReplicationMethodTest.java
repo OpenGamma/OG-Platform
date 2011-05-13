@@ -26,9 +26,10 @@ import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.util.money.Currency;
@@ -89,7 +90,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMS CMS_FLOOR = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
 
   @Test
   /**

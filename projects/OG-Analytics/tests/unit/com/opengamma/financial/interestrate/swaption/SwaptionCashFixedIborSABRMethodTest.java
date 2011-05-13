@@ -32,7 +32,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
@@ -43,6 +43,7 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.SwapFixedIborMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -109,7 +110,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_DEFINITION_SHORT_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculators
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
   // Pricing functions
@@ -160,12 +161,6 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final Double[] presentValue = PVC.visit(totalSwaption, sabrBundle);
     assertEquals("swaption present value with premium", -expectedPriceLongPayer, presentValue[0], 1.0E-2);
     assertEquals("swaption present value with premium", expectedPriceLongPayer, presentValue[1], 1.0E-2);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNoSABRData() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    PVC.visit(SWAPTION_LONG_PAYER, curves);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

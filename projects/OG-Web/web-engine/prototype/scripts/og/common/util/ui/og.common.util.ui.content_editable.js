@@ -40,7 +40,7 @@ $.register_module({
                         });
                     },
                     update_field = function () {
-                        var current = routes.current(), put_config
+                        var current = routes.current(), put_config,
                             new_content = $editable_element.find('input[type=text]').attr('value');
                         if (!new_content) return;
                         put_config = {

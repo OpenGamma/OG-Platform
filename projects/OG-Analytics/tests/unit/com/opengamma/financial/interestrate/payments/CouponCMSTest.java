@@ -28,9 +28,11 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -94,7 +96,7 @@ public class CouponCMSTest {
 
   // Calculators
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
 
   @Test
   public void testGetter() {
@@ -136,7 +138,8 @@ public class CouponCMSTest {
     assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
     final double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);
     assertEquals(priceCMS_method, priceCMS_calculator, 2E-1);// Different precision in integration.
-    final double priceCMS_noConvexity = PVC.visit(CMS_COUPON_RECEIVER, curves);// Price without convexity adjustment.
+    final PresentValueCalculator pvcNoConvexity = PresentValueCalculator.getInstance();
+    final double priceCMS_noConvexity = pvcNoConvexity.visit(CMS_COUPON_RECEIVER, curves);// Price without convexity adjustment.
     assertEquals(priceCMS_calculator, priceCMS_noConvexity, 400.0);
     assertEquals(priceCMS_calculator > priceCMS_noConvexity, true);
   }
@@ -151,7 +154,8 @@ public class CouponCMSTest {
     // From previous run
     assertEquals(8853.207, priceHagan, 1E-2);
     // No convexity adjustment
-    final double priceNoConvexity = PVC.visit(CMS_COUPON_RECEIVER, curves);
+    final PresentValueCalculator pvcNoConvexity = PresentValueCalculator.getInstance();
+    final double priceNoConvexity = pvcNoConvexity.visit(CMS_COUPON_RECEIVER, curves);
     assertEquals(priceHagan, priceNoConvexity, 400.0);
     // SABR Hagan alternative volatility function
     final SABRInterestRateParameter sabrParameterHaganAlt = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());

@@ -11,6 +11,9 @@
     <appender-ref ref="STDOUT" />
   </root>
   
+<<<<<<< HEAD
   <!-- logger name="com.opengamma.excel.udf.debug" level="warn" -->
   
+=======
+>>>>>>> 4bfd8804b82e777c62efb4f60e831359eaa5dfb4
 </configuration>

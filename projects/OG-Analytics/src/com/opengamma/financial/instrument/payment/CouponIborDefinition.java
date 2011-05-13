@@ -27,7 +27,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class CouponIborDefinition extends CouponFloatingDefinition {
 
   /**
-   * Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
    */
   private final IborIndex _index;
   /**
@@ -124,11 +124,10 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     Validate.notNull(coupon, "coupon");
     return new CouponIborDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
         coupon.getFixingDate(), coupon.getIndex());
-
   }
 
   /**
-   * Gets the index field.
+   * Gets the Ibor index of the instrument.
    * @return The index.
    */
   public IborIndex getIndex() {

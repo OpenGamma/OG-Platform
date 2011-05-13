@@ -2,7 +2,7 @@
 {
     "header": {
         "type": "Batches",
-        "dataFields": ["id", "observationTime", "status"],
+        "dataFields": ["id", "id_time", "status"],
         <#if searchResult??>
         "total" : ${"${paging.totalItems}"?replace(',','')},
 	      "count": ${"${paging.pagingSize}"?replace(',','')}
