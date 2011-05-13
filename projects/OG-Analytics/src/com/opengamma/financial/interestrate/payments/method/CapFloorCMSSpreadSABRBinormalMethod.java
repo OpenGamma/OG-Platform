@@ -3,11 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments;
+package com.opengamma.financial.interestrate.payments.method;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;

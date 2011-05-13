@@ -18,7 +18,14 @@ import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
 
 /**
  * Pricing function in the SABR model with Hagan et al. volatility function and controlled extrapolation for large strikes by extrapolation on call prices.
- * OpenGamma implementation note: Smile extrapolation, version 1.0, April 2011.
+ * The form of the extrapolation as a function of the strike is
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{equation*}
+ * f(K) = K^{-\\mu} \\exp\\left( a + \\frac{b}{K} + \\frac{c}{K^2} \\right).
+ * \\end{equation*}
+ * }
+ * Reference: Benaim, S., Dodgson, M., and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. Technical report, Royal Bank of Scotland.
+ * OpenGamma implementation note: Smile extrapolation, version 1.2, May 2011.
  */
 public class SABRExtrapolationRightFunction {
 
@@ -446,9 +453,8 @@ public class SABRExtrapolationRightFunction {
       data[0] = _price[0] * -(_myMu + (x.getEntry(0) + 2 * x.getEntry(1) / _myCutOffStrike) / _myCutOffStrike) / _myCutOffStrike - _price[1];
       data[1] = _price[0]
           * (_myMu * (_myMu + 1) + 2 * x.getEntry(0) * (_myMu + 1) / _myCutOffStrike + (2 * x.getEntry(1) * (2 * _myMu + 3) + x.getEntry(0) * x.getEntry(0)) / (_myCutOffStrike * _myCutOffStrike) + 4
-              * x.getEntry(0) * x.getEntry(1) / (_myCutOffStrike * _myCutOffStrike * _myCutOffStrike)
-              + 4 * x.getEntry(1) * x.getEntry(1) / (_myCutOffStrike * _myCutOffStrike * _myCutOffStrike * _myCutOffStrike))
-          / (_myCutOffStrike * _myCutOffStrike) - _price[2];
+              * x.getEntry(0) * x.getEntry(1) / (_myCutOffStrike * _myCutOffStrike * _myCutOffStrike) + 4 * x.getEntry(1) * x.getEntry(1)
+              / (_myCutOffStrike * _myCutOffStrike * _myCutOffStrike * _myCutOffStrike)) / (_myCutOffStrike * _myCutOffStrike) - _price[2];
       return new DoubleMatrix1D(data);
     }
 

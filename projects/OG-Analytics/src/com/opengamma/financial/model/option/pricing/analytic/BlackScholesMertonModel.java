@@ -79,6 +79,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
         final double t = definition.getTimeToExpiry(date);
         final double r = data.getInterestRate(t);
         final double b = data.getCostOfCarry();
+
+        if (s == 0) {
+          return definition.isCall() ? 0 : Math.exp(-r * t) * k;
+        }
+
         final double sigma = data.getVolatility(t, k);
         final double d1 = getD1(s, k, t, sigma, b);
         final double d2 = getD2(d1, sigma, t);
@@ -241,6 +246,9 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
      */
     @Override
     public Double visitGamma() {
+      if (_s == 0) {
+        return 0.0;
+      }
       final double value = _df * NORMAL.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
       return value;
     }

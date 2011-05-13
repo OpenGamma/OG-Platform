@@ -28,13 +28,14 @@ import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -90,12 +91,12 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   private static final SwaptionCashFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_DEFINITION_LONG_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_DEFINITION_SHORT_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwaptionCashFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_DEFINITION_SHORT_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  // Calculators
-  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   // Extrapolation
   private static final double CUT_OFF_STRIKE = 0.08;
   private static final double MU = 10.0;
   private static final SwaptionCashFixedIborSABRExtrapolationRightMethod METHOD_EXTRAPOLATION = new SwaptionCashFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
+  // Calculators
+  private static final PresentValueSABRExtrapolationCalculator PVC = PresentValueSABRExtrapolationCalculator.getInstance();
 
   /**
    * Tests present value in the region where there is no extrapolation. Tests long/short parity.
@@ -103,7 +104,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   @Test
   public void testPresentValueNoExtra() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABRExtrapolation1(CUT_OFF_STRIKE, MU);
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
     double priceLongPayer = method.presentValue(SWAPTION_LONG_PAYER, sabrBundle);
