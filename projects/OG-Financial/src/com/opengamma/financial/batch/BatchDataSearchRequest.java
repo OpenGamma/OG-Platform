@@ -22,26 +22,28 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * 
+ * Request for searching for batch data.
+ * <p>
+ * Documents will be returned that match the search criteria.
+ * This class provides the ability to page the results and to search
+ * as at a specific version and correction instant.
  */
 @BeanDefinition
 public class BatchDataSearchRequest extends DirectBean {
-  
+
   /**
    * The request for paging.
    * By default all matching items will be returned.
    */
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
-  
   /**
-   * The batch date. Not null
+   * The batch date, not null
    */
   @PropertyDefinition
   private LocalDate _observationDate;
-  
   /**
-   * The batch time - e.g., LDN_CLOSE. Not null
+   * The batch time, such as LDN_CLOSE. Not null
    */
   @PropertyDefinition
   private String _observationTime;
@@ -120,7 +122,7 @@ public class BatchDataSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch date. Not null
+   * Gets the batch date, not null
    * @return the value of the property
    */
   public LocalDate getObservationDate() {
@@ -128,7 +130,7 @@ public class BatchDataSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the batch date. Not null
+   * Sets the batch date, not null
    * @param observationDate  the new value of the property
    */
   public void setObservationDate(LocalDate observationDate) {
@@ -145,7 +147,7 @@ public class BatchDataSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch time - e.g., LDN_CLOSE. Not null
+   * Gets the batch time, such as LDN_CLOSE. Not null
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -153,7 +155,7 @@ public class BatchDataSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the batch time - e.g., LDN_CLOSE. Not null
+   * Sets the batch time, such as LDN_CLOSE. Not null
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {

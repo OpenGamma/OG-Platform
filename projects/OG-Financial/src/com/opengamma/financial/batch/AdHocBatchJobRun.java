@@ -15,6 +15,7 @@ import javax.time.Instant;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.VersionUtils;
 
 /**
@@ -26,32 +27,36 @@ import com.opengamma.util.VersionUtils;
  * enough that they want to save them in the batch DB.
  */
 public class AdHocBatchJobRun extends BatchJobRun {
-  
+
   /**
-   * The result that already exists in memory
+   * The result that already exists in memory.
    */
   private final AdHocBatchResult _result;
-  
   /**
-   * Snapshot ID
+   * The snapshot id.
    */
   private final SnapshotId _snapshotId;
-  
-  // --------------------------------------------------------------------------
-  
-  public AdHocBatchJobRun(AdHocBatchResult result,
-      SnapshotId snapshotId) {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Create an instance.
+   * 
+   * @param result  the batch result, not null
+   * @param snapshotId  the snapshot id, not null
+   */
+  public AdHocBatchJobRun(AdHocBatchResult result, SnapshotId snapshotId) {
     super(result.getBatchId());
+    ArgumentChecker.notNull(result, "result");
+    ArgumentChecker.notNull(snapshotId, "snapshotId");
     _result = result;
     _snapshotId = snapshotId;
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public ViewComputationResultModel getResultModel() {
     return _result.getResult();
   }
-  
+
   @Override
   public SnapshotId getSnapshotId() {
     return _snapshotId;
@@ -112,5 +117,5 @@ public class AdHocBatchJobRun extends BatchJobRun {
   public ComputationTarget resolve(ComputationTargetSpecification spec) {
     return null;
   }
-  
+
 }
