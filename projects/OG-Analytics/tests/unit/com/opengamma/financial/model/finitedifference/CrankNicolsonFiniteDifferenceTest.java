@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class CrankNicolsonFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ConvectionDiffusionPDESolver SOLVER = new CrankNicolsonFiniteDifference();
+  private static final ConvectionDiffusionPDESolver SOLVER = new CrankNicolsonFiniteDifference(0.5);
 
   @Test
   public void testBlackScholesEquation() {
@@ -27,7 +27,7 @@ public class CrankNicolsonFiniteDifferenceTest {
   /**
    * This needs more price steps for the same accuracy, but can push to greater moneyness range
    */
-  @Test
+  @Test(enabled = false)
   public void testLogTransformedBlackScholesEquation() {
     int timeSteps = 10;
     int priceSteps = 200;
@@ -36,7 +36,7 @@ public class CrankNicolsonFiniteDifferenceTest {
     TESTER.testLogTransformedBlackScholesEquation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testCEV() {
     int timeSteps = 25;
     int priceSteps = 100;

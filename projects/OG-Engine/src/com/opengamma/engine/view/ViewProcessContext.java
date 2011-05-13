@@ -77,7 +77,7 @@ public class ViewProcessContext {
 
     _viewPermissionProvider = viewPermissionProvider;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-    InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider();
+    InMemoryLKVSnapshotProvider liveDataOverrideSnapshotProvider = new InMemoryLKVSnapshotProvider(securitySource);
     _liveDataOverrideInjector = liveDataOverrideSnapshotProvider;
     _liveDataSnapshotProvider = new CombiningLiveDataSnapshotProvider(Arrays.asList(liveDataOverrideSnapshotProvider, liveDataSnapshotProvider));
     _functionCompilationService = functionCompilationService;

@@ -8,6 +8,7 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.fudgemsg.FudgeMsg;
-import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
@@ -70,6 +71,7 @@ public class DataViewClientResource {
   public static final String PATH_UPDATE_PERIOD = "updatePeriod";
   
   public static final String UPDATE_PERIOD_FIELD = "updatePeriod";
+  public static final String DESTINATION_FIELD = "destination";
   public static final String VIEW_CYCLE_ACCESS_SUPPORTED_FIELD = "isViewCycleAccessSupported";
   //CSON: just constants
   
@@ -79,11 +81,10 @@ public class DataViewClientResource {
   private final AtomicLong _lastAccessed = new AtomicLong();
   
   public DataViewClientResource(ViewClient viewClient,
-      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsTemplate jmsTemplate,
-      String topicPrefix) {
+      DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, ConnectionFactory connectionFactory) {
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
-    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), topicPrefix, jmsTemplate);
+    _resultPublisher = new JmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), connectionFactory);
     updateLastAccessed();
   }
   
@@ -172,17 +173,27 @@ public class DataViewClientResource {
   //-------------------------------------------------------------------------  
   @POST
   @Path(PATH_START_JMS_RESULT_STREAM)
-  public Response startResultStream() {
+  @Consumes(FudgeRest.MEDIA)
+  public Response startResultStream(FudgeMsg msg) {
     updateLastAccessed();
-    _resultPublisher.startPublishingResults();
-    return Response.ok(_resultPublisher.getDestinationName()).build();
+    String destination = msg.getString(DESTINATION_FIELD);
+    try {
+      _resultPublisher.startPublishingResults(destination);
+      return Response.ok(destination).build();
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Error starting result publisher", e);
+    }
   }
   
   @POST
   @Path(PATH_STOP_JMS_RESULT_STREAM)
   public Response stopResultStream() {
     updateLastAccessed();
-    _resultPublisher.stopPublishingResults();
+    try {
+      _resultPublisher.stopPublishingResults();
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Error stopping result publisher", e);
+    }
     return Response.ok().build();
   }
   

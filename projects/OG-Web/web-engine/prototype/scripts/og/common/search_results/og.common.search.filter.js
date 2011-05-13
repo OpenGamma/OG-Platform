@@ -13,9 +13,10 @@ $.register_module({
         return function (obj) { // obj holds a selector with the location of the filters container
             var select = ['type'], // identify select form elements so we can handle these differently
                 fields = ['name', 'type', 'quantity', 'data_source', 'identifier', 'data_provider', 'data_field',
-                    'observation_time'];
+                    'ob_time', 'ob_date', 'status', 'observation_time'];
+            //og.api.rest.configs.get({handler: console.log, meta: true})
             fields.forEach(function (filter) {
-                var event_type = !!select.indexOf(filter) ? 'keyup' : 'change',
+                var event_type = !!select.indexOf(filter) ? 'keyup change' : 'change',
                     $selector = $(obj.location + ' .og-js-' + filter + '-filter');
                 if (!$selector.length) return;
                 $selector.unbind(event_type).bind(event_type, function () {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -45,23 +45,23 @@ public class DirichletBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t, final double dx) {
+  public double getConstant(final PDEDataBundle data, final double t) {
     return _timeValue.evaluate(t);
-  }
-
-  @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, double t) {
-    return new double[] {1.0};
-  }
-
-  @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, double t) {
-    return new double[0];
   }
 
   @Override
   public double getLevel() {
     return _level;
+  }
+
+  @Override
+  public double[] getLeftMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+    return new double[] {1.0};
+  }
+
+  @Override
+  public double[] getRightMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+    return new double[0];
   }
 
 }

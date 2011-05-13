@@ -7,7 +7,8 @@ package com.opengamma.financial.view.rest;
 
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
+import javax.jms.ConnectionFactory;
+
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -20,8 +21,7 @@ import com.opengamma.util.SingletonFactoryBean;
 public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewProcessorsResource> {
 
   private ViewProcessor _viewProcessor;
-  private ActiveMQConnectionFactory _connectionFactory;
-  private String _topicPrefix;
+  private ConnectionFactory _connectionFactory;
   private FudgeContext _fudgeContext;
   private ScheduledExecutorService _scheduler;
    
@@ -33,20 +33,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     _viewProcessor = viewProcessor;
   }
 
-  public ActiveMQConnectionFactory getConnectionFactory() {
+  public ConnectionFactory getConnectionFactory() {
     return _connectionFactory;
   }
 
-  public void setConnectionFactory(ActiveMQConnectionFactory connectionFactory) {
+  public void setConnectionFactory(ConnectionFactory connectionFactory) {
     _connectionFactory = connectionFactory;
-  }
-
-  public String getTopicPrefix() {
-    return _topicPrefix;
-  }
-
-  public void setTopicPrefix(String topicPrefix) {
-    _topicPrefix = topicPrefix;
   }
   
   public FudgeContext getFudgeContext() {
@@ -73,15 +65,12 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     if (_connectionFactory == null) {
       throw new OpenGammaRuntimeException("The connectionFactory property must be set");
     }
-    if (_topicPrefix == null) {
-      throw new OpenGammaRuntimeException("The topicPrefix property must be set");
-    }
     if (_scheduler == null) {
       throw new OpenGammaRuntimeException("The scheduler property must be set");
     }
     
     DataViewProcessorsResource resource = new DataViewProcessorsResource();
-    resource.addViewProcessor(getViewProcessor(), getConnectionFactory(), getTopicPrefix(), getFudgeContext(), getScheduler());
+    resource.addViewProcessor(getViewProcessor(), getConnectionFactory(), getFudgeContext(), getScheduler());
     return resource;
   }
 

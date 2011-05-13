@@ -139,16 +139,16 @@ $.register_module({
             },
             state = {};
         module.rules = {
-            load: {route: '/' + page_name + '/name:?/filter_type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/filter_type:?',
+            load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?',
                     method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/name:?/filter_type:?',
+            load_delete: {route: '/' + page_name + '/deleted:/name:?/type:?',
                     method: module.name + '.load_delete'},
             load_configs: {
-                route: '/' + page_name + '/:id/name:?/filter_type:?', method: module.name + '.load_' + page_name
+                route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name
             },
             load_new_configs: {
-                route: '/' + page_name + '/:id/new:/name:?/filter_type:?',
+                route: '/' + page_name + '/:id/new:/name:?/type:?',
                 method: module.name + '.load_new_' + page_name
             }
         };

@@ -95,7 +95,6 @@ $.register_module({
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     },
-                    dependencies: ['id'],
                     update: regions.details.partial(args)
                 });
             },
