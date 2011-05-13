@@ -7,7 +7,6 @@ package com.opengamma.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -42,7 +41,7 @@ public class AnnuityPaymentFixedDefinitionTest {
   public void testConverter() {
     final PaymentFixedDefinition[] annuityDefinitions = new PaymentFixedDefinition[PAYMENT_DATE.length];
     PaymentFixed[] payment = new PaymentFixed[PAYMENT_DATE.length];
-    LocalDate date = LocalDate.of(2011, 6, 19);
+    ZonedDateTime date = DateUtil.getUTCDate(2011, 6, 19);
     final String name = "A";
     for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
       annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
@@ -51,7 +50,7 @@ public class AnnuityPaymentFixedDefinitionTest {
     final AnnuityPaymentFixedDefinition definition = new AnnuityPaymentFixedDefinition(annuityDefinitions);
     AnnuityPaymentFixed annuity = new AnnuityPaymentFixed(payment);
     assertEquals(annuity, definition.toDerivative(date, name));
-    date = LocalDate.of(2011, 8, 19);
+    date = DateUtil.getUTCDate(2011, 8, 19);
     payment = new PaymentFixed[PAYMENT_DATE.length - 1];
     for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
       annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);

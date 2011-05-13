@@ -68,8 +68,8 @@ public class BondFixedTransactionTest {
   private static final ZonedDateTime STANDARD_SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_Z_1, CALENDAR, SETTLEMENT_DAYS);
   private static final double STANDARD_SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z_1, STANDARD_SETTLEMENT_DATE);
   private static final double QUANTITY = 100000000; //100m
-  private static final AnnuityCouponFixed COUPON = BOND_DESCRIPTION_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-  private static final AnnuityPaymentFixed NOMINAL = BOND_DESCRIPTION_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+  private static final AnnuityCouponFixed COUPON = BOND_DESCRIPTION_DEFINITION.getCoupon().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
+  private static final AnnuityPaymentFixed NOMINAL = BOND_DESCRIPTION_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
   private static final AnnuityCouponFixed COUPON_TR = COUPON.trimBefore(BOND_SETTLEMENT_TIME);
   private static final AnnuityPaymentFixed NOMINAL_TR = NOMINAL.trimBefore(BOND_SETTLEMENT_TIME);
   private static final AnnuityCouponFixed COUPON_STD = COUPON.trimBefore(STANDARD_SETTLEMENT_TIME);
@@ -109,7 +109,7 @@ public class BondFixedTransactionTest {
 
   @Test
   public void testToDerivative() {
-    BondFixedTransaction convertedTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
+    final BondFixedTransaction convertedTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_Z_1, CURVES_NAME);
     convertedTransaction.equals(BOND_TRANSACTION);
     assertEquals(convertedTransaction, BOND_TRANSACTION);
 

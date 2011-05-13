@@ -84,7 +84,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     final double factor = discountFactorTp / integrant.h(forward) * integrant.g(forward);
     final double strikePart = factor * integrant.k(strike) * integrant.bs(strike);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
@@ -117,7 +117,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     // Common
     final CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
     final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
@@ -279,7 +279,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
       _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
-      _strike = cmsCap.geStrike();
+      _strike = cmsCap.getStrike();
       _factor = g(_forward) / h(_forward);
     }
 

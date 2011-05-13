@@ -46,7 +46,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     return s_instance;
   }
 
-  private PresentValueCalculator() {
+  PresentValueCalculator() {
   }
 
   @Override
@@ -61,7 +61,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(derivative, "derivative");
     Validate.noNullElements(derivative, "derivative");
     Validate.notNull(curves, "curves");
-    Double[] output = new Double[derivative.length];
+    final Double[] output = new Double[derivative.length];
     for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
       output[loopderivative] = derivative[loopderivative].accept(this, curves);
     }
@@ -122,8 +122,8 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(curves);
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
-    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
+    final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    final SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
     return method.presentValue(swaption, sabr);
   }
 
@@ -133,8 +133,8 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
     Validate.notNull(curves);
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
     // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
-    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
+    final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+    final SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
     return method.presentValue(swaption, sabr);
   }
 
@@ -163,7 +163,7 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   public Double visitBondTransaction(final BondTransaction<? extends Payment> bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValue(bond, curves);
   }
 
@@ -230,29 +230,29 @@ public final class PresentValueCalculator extends AbstractInterestRateDerivative
   }
 
   @Override
-  public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
+  public Double visitCouponCMS(final CouponCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     // Implementation comment: if not SABR data, price without convexity adjustment is used.
-    ParRateCalculator parRate = ParRateCalculator.getInstance();
-    double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
+    final ParRateCalculator parRate = ParRateCalculator.getInstance();
+    final double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
+    final double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;
   }
 
   @Override
-  public Double visitCapFloorCMS(CapFloorCMS payment, final YieldCurveBundle curves) {
+  public Double visitCapFloorCMS(final CapFloorCMS payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
-      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      CapFloorCMSSABRReplicationMethod replication = new CapFloorCMSSABRReplicationMethod();
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      final CapFloorCMSSABRReplicationMethod replication = new CapFloorCMSSABRReplicationMethod();
       return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");

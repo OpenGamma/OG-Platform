@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -34,7 +31,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
    * @param paymentDate The payment date.
    * @param amount The payment amount.
    */
-  public PaymentFixedDefinition(Currency currency, ZonedDateTime paymentDate, double amount) {
+  public PaymentFixedDefinition(final Currency currency, final ZonedDateTime paymentDate, final double amount) {
     super(currency, paymentDate);
     this._amount = amount;
   }
@@ -58,7 +55,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -68,7 +65,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PaymentFixedDefinition other = (PaymentFixedDefinition) obj;
+    final PaymentFixedDefinition other = (PaymentFixedDefinition) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
       return false;
     }
@@ -81,25 +78,24 @@ public class PaymentFixedDefinition extends PaymentDefinition {
   }
 
   @Override
-  public PaymentFixed toDerivative(LocalDate date, String... yieldCurveNames) {
+  public PaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
     return new PaymentFixed(getCurrency(), paymentTime, _amount, fundingCurveName);
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitPaymentFixed(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitPaymentFixed(this);
   }
 

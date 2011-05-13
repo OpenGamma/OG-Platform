@@ -45,7 +45,7 @@ public class CapFloorIbor extends CouponIbor implements CapFloor {
   }
 
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 

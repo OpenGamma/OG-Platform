@@ -20,14 +20,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 
 /**
  * 
  */
-public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
+public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
   private static final Logger s_logger = LoggerFactory.getLogger(CashDefinition.class);
   private final Convention _convention;
   private final ZonedDateTime _maturityDate;
@@ -87,21 +87,21 @@ public class CashDefinition implements FixedIncomeInstrumentDefinition<Cash> {
   }
 
   @Override
-  public Cash toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
-    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate), "Date is after maturity");
     if (yieldCurveNames.length > 1) {
       s_logger.warn("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
     }
-    final LocalDate settlementDate = getSettlementDate(date, _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final LocalDate settlementDate = getSettlementDate(date.toLocalDate(), _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
+    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final DayCount dayCount = _convention.getDayCount();
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double tradeTime = actAct.getDayCountFraction(zonedDate, zonedStartDate);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, _maturityDate);
+    final double tradeTime = actAct.getDayCountFraction(date, zonedStartDate);
+    final double paymentTime = actAct.getDayCountFraction(date, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
     return new Cash(paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
   }

@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -79,7 +78,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMSDefinition CMS_FLOOR_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
   private static final CouponFixedDefinition COUPON_STRIKE_DEFINITION = new CouponFixedDefinition(CMS_COUPON_DEFINITION, STRIKE);
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -97,18 +96,18 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the price of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against hard-coded values.
    */
   public void testPriceReplication() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // CMS cap/floor with strike 0 has the same price as a CMS coupon.
-    double priceCMSCoupon = PVC.visit(CMS_COUPON, sabrBundle);
-    double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
+    final double priceCMSCoupon = PVC.visit(CMS_COUPON, sabrBundle);
+    final double priceCMSCap0 = PVC.visit(CMS_CAP_0, sabrBundle);
     assertEquals(priceCMSCoupon, priceCMSCap0, 1E-2);
-    double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
+    final double priceCMSCap = PVC.visit(CMS_CAP, sabrBundle);
     assertEquals(717.182, priceCMSCap, 1E-2);//From previous run
-    double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
+    final double priceCMSFloor = PVC.visit(CMS_FLOOR, sabrBundle);
     assertEquals(597.902, priceCMSFloor, 1E-2);//From previous run
-    double priceStrike = PVC.visit(COUPON_STRIKE, curves);
+    final double priceStrike = PVC.visit(COUPON_STRIKE, curves);
     // Cap/floor parity: !cash-settled swaption price is arbitrable: no exact cap/floor/swap parity!
     assertEquals(priceCMSCap - priceCMSFloor + 24.0, priceCMSCoupon - priceStrike, 1.0);
   }
@@ -118,12 +117,12 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void testPerformance() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
-    int nbTest = 1000;
+    final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_CAP, sabrBundle);
