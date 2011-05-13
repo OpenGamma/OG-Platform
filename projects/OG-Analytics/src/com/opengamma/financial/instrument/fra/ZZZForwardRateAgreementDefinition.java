@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.instrument.fra;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -23,6 +22,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a Forward Rate Agreement (FRA). The pay-off is (Ibor fixing-FRA rate) multiplied by the notional and accrual fraction and discounted with the fixing rate to the payment date.
@@ -64,7 +64,8 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
    * @param index The coupon Ibor index. Should of the same currency as the payment.
    * @param rate The FRA rate.
    */
-  public ZZZForwardRateAgreementDefinition(Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+  public ZZZForwardRateAgreementDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(index, "index");
@@ -133,18 +134,39 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
   }
 
   @Override
-  public Payment toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    if (isFixed()) { // The FRA has already fixed, it is now a fixed coupon.
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getFixedRate() - _rate);
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
+    return new ZZZForwardRateAgreement(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        getFixingPeriodAccrualFactor(), _rate, forwardCurveName);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final String forwardCurveName = yieldCurveNames[1];
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The FRA has already fixed, it is now a fixed coupon.
+      final double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
     }
     // Ibor is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
@@ -170,7 +192,7 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -180,7 +202,7 @@ public class ZZZForwardRateAgreementDefinition extends CouponFloatingDefinition 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ZZZForwardRateAgreementDefinition other = (ZZZForwardRateAgreementDefinition) obj;
+    final ZZZForwardRateAgreementDefinition other = (ZZZForwardRateAgreementDefinition) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
       return false;
     }

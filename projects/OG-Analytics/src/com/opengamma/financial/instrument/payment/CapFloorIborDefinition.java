@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -19,6 +16,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on Ibor. The notional is positive for long the option and negative for short the option.
@@ -106,7 +104,7 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    * {@inheritDoc}
    */
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 
@@ -128,23 +126,44 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
   }
 
   @Override
-  public Payment toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    if (isFixed()) { // The Ibor cap/floor has already fixed, it is now a fixed coupon.
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    // Ibor is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
+    //TODO: Definition has no spread and time version has one: to be standardized.
+    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+          getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(indexFixingTS, "index fixing time series");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final String forwardCurveName = yieldCurveNames[1];
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The Ibor cap/floor has already fixed, it is now a fixed coupon.
+      final double fixedRate = indexFixingTS.getValue(getFixingDate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
     // Ibor is not fixed yet, all the details are required.
-    final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
-    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodStartDate());
-    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, getFixindPeriodEndDate());
+    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
     //TODO: Definition has no spread and time version has one: to be standardized.
     return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
           getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);

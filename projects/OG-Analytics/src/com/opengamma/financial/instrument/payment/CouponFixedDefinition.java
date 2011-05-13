@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -42,7 +39,8 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param notional Coupon notional.
    * @param rate Fixed rate.
    */
-  public CouponFixedDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional, double rate) {
+  public CouponFixedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
+      final double notional, final double rate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     _rate = rate;
     _amount = notional * rate * paymentYearFraction;
@@ -53,7 +51,7 @@ public class CouponFixedDefinition extends CouponDefinition {
    * @param coupon Underlying coupon.
    * @param rate Fixed rate.
    */
-  public CouponFixedDefinition(CouponDefinition coupon, double rate) {
+  public CouponFixedDefinition(final CouponDefinition coupon, final double rate) {
     super(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional());
     this._rate = rate;
     this._amount = coupon.getNotional() * rate * coupon.getPaymentYearFraction();
@@ -93,7 +91,7 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -103,7 +101,7 @@ public class CouponFixedDefinition extends CouponDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixedDefinition other = (CouponFixedDefinition) obj;
+    final CouponFixedDefinition other = (CouponFixedDefinition) obj;
     if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
       return false;
     }
@@ -114,25 +112,25 @@ public class CouponFixedDefinition extends CouponDefinition {
   }
 
   @Override
-  public CouponFixed toDerivative(LocalDate date, String... yieldCurveNames) {
+  public CouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date"); // Required: reference date <= payment date
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date"); // Required: reference date <= payment date
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
+    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
     return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), getRate(), getAccrualStartDate(), getAccrualEndDate());
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponFixed(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponFixed(this);
   }
 

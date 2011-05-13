@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
@@ -23,12 +23,12 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
  * @param <P2> The payment type on second leg.
  *
  */
-public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<Swap<? extends Payment, ? extends Payment>> {
+public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefinition> implements FixedIncomeInstrumentConverter<Swap<? extends Payment, ? extends Payment>> {
 
   private final AnnuityDefinition<P1> _firstLeg;
   private final AnnuityDefinition<P2> _secondLeg;
 
-  public SwapDefinition(AnnuityDefinition<P1> firstLeg, AnnuityDefinition<P2> secondLeg) {
+  public SwapDefinition(final AnnuityDefinition<P1> firstLeg, final AnnuityDefinition<P2> secondLeg) {
     Validate.notNull(firstLeg, "first leg");
     Validate.notNull(secondLeg, "second leg");
     Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
@@ -70,7 +70,7 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -80,7 +80,7 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwapDefinition<?, ?> other = (SwapDefinition<?, ?>) obj;
+    final SwapDefinition<?, ?> other = (SwapDefinition<?, ?>) obj;
     if (!ObjectUtils.equals(_firstLeg, other._firstLeg)) {
       return false;
     }
@@ -91,17 +91,17 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
   }
 
   @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(LocalDate date, String... yieldCurveNames) {
+  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return null;
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitSwapDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwapDefinition(this);
   }
 
