@@ -16,12 +16,19 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.IdentifierBundle;
@@ -64,8 +71,7 @@ public class YieldCurveFunctionHelper {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
     final LocalDate curveDate = atInstant.toLocalDate();
-    final InterpolatedYieldCurveSpecification fundingCurveSpecification = _curveSpecificationBuilder.buildCurve(
-        curveDate, _definition);
+    final InterpolatedYieldCurveSpecification fundingCurveSpecification = buildCurve(curveDate);
 
     // ENG-252 expiry logic is wrong so make it valid for the current day only
     final Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
@@ -119,7 +125,25 @@ public class YieldCurveFunctionHelper {
   }
   
   
+  public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate) {
+    return _curveSpecificationBuilder.buildCurve(curveDate, _definition);
+  }
+  
   public YieldCurveKey getYieldCurveKey() {
     return new YieldCurveKey(_currency, _curveName);
   }
+  
+  public ValueRequirement getMarketDataValueRequirement() {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, 
+        new ComputationTargetSpecification(_currency),
+        ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
+  }
+  
+  @SuppressWarnings("unchecked")
+  public SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
+    Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
+    return (SnapshotDataBundle) marketDataBundle;
+  }
+
+
 }
