@@ -100,7 +100,9 @@ public class IdentifierBundleFunction implements PublishedFunction {
         return execute(parameters);
       }
     };
-    return new MetaFunction("IdentifierBundle", args, invoker);
+    final MetaFunction meta = new MetaFunction("IdentifierBundle", args, invoker);
+    meta.setDescription("Creates an IdentifierBundle from one or more identifiers");
+    return meta;
   }
 
 }
