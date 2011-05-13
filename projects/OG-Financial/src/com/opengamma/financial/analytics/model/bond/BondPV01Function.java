@@ -64,7 +64,7 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
         .getConventionBundleSource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    Bond bond = ((BondDefinition) security.accept(visitor)).toDerivative(now.toLocalDate(), curveName);
+    Bond bond = ((BondDefinition) security.accept(visitor)).toDerivative(now, curveName);
     final YieldCurveBundle bundle;
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     bundle = new YieldCurveBundle(new String[] {curveName}, new YieldAndDiscountCurve[] {curve});

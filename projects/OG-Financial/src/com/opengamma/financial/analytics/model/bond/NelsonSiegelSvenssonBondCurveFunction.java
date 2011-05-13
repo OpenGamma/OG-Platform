@@ -14,7 +14,7 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -108,7 +108,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final Clock snapshotClock = executionContext.getSnapshotClock();
-        final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+        final ZonedDateTime now = snapshotClock.zonedDateTime();
         final BondSecurityToBondDefinitionConverter converter = new BondSecurityToBondDefinitionConverter(holidaySource, conventionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
         final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
@@ -117,7 +117,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           final Security sec = iter.next();
           if (sec instanceof BondSecurity) {
             final BondSecurity bond = (BondSecurity) sec;
-            if (bond.getLastTradeDate().getExpiry().toLocalDate().isBefore(now)) {
+            if (bond.getLastTradeDate().getExpiry().isBefore(now)) {
               iter.remove();
             }
             s_logger.info(bond.getLastTradeDate().toString());
