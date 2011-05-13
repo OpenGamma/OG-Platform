@@ -26,9 +26,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Tests the interest rate future transaction construction.
+ * Tests the interest rate future option with margin security description.
  */
-public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
+public class InterestRateFutureOptionMarginSecurityDefinitionTest {
+  //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -37,49 +38,53 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
-  // Future
+  // Future option mid-curve 1Y
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtil.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, CALENDAR, -SETTLEMENT_DAYS);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
   private static final InterestRateFutureSecurityDefinition ERU2 = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
-  // Transaction
-  private static final int QUANTITY = -123;
-  private static final ZonedDateTime TRADE_DATE = DateUtil.getUTCDate(2011, 5, 12);
-  private static final double TRADE_PRICE = 0.985;
-  private static final InterestRateFutureTransactionDefinition FUTURE_TRANSACTION = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
+  private static final ZonedDateTime EXPIRATION_DATE = DateUtil.getUTCDate(2011, 9, 16);
+  private static final double STRIKE = 0.9895;
+  private static final boolean IS_CALL = true;
+  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_ERU2 = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, IS_CALL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullunderlying() {
-    new InterestRateFutureTransactionDefinition(null, QUANTITY, TRADE_DATE, TRADE_PRICE);
+  public void testNullUnderlying() {
+    new InterestRateFutureOptionMarginSecurityDefinition(null, EXPIRATION_DATE, STRIKE, IS_CALL);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullTradeDate() {
-    new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, null, TRADE_PRICE);
+  public void testNullExpiration() {
+    new InterestRateFutureOptionMarginSecurityDefinition(ERU2, null, STRIKE, IS_CALL);
   }
 
   @Test
+  /**
+   * Tests the class getters.
+   */
   public void getter() {
-    assertEquals(ERU2, FUTURE_TRANSACTION.getUnderlyingFuture());
-    assertEquals(QUANTITY, FUTURE_TRANSACTION.getQuantity());
-    assertEquals(TRADE_DATE, FUTURE_TRANSACTION.getTradeDate());
-    assertEquals(TRADE_PRICE, FUTURE_TRANSACTION.getTradePrice());
+    assertEquals(ERU2, OPTION_ERU2.getUnderlyingFuture());
+    assertEquals(EXPIRATION_DATE, OPTION_ERU2.getExpirationDate());
+    assertEquals(STRIKE, OPTION_ERU2.getStrike());
+    assertEquals(IS_CALL, OPTION_ERU2.isCall());
   }
 
   @Test
+  /**
+   * Tests the equal and hashCode methods.
+   */
   public void equalHash() {
-    InterestRateFutureTransactionDefinition other = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
-    assertTrue(FUTURE_TRANSACTION.equals(other));
-    assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
-    InterestRateFutureTransactionDefinition modifiedFuture;
-    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY + 1, TRADE_DATE, TRADE_PRICE);
-    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, LAST_TRADING_DATE, TRADE_PRICE);
-    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE + 0.001);
-    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    InterestRateFutureOptionMarginSecurityDefinition other = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, IS_CALL);
+    assertTrue(OPTION_ERU2.equals(other));
+    assertTrue(OPTION_ERU2.hashCode() == other.hashCode());
+    InterestRateFutureOptionMarginSecurityDefinition modifiedFuture;
+    modifiedFuture = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, LAST_TRADING_DATE, STRIKE, IS_CALL);
+    assertFalse(OPTION_ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE + 0.001, IS_CALL);
+    assertFalse(OPTION_ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureOptionMarginSecurityDefinition(ERU2, EXPIRATION_DATE, STRIKE, !IS_CALL);
+    assertFalse(OPTION_ERU2.equals(modifiedFuture));
   }
-
 }

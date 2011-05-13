@@ -17,13 +17,16 @@ import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFuturesTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -103,6 +106,15 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     final double tb = future.getMaturity();
     final double rate = (liborCurve.getDiscountFactor(ta) / liborCurve.getDiscountFactor(tb) - 1.0) / future.getIndexYearFraction();
     return future.getValueYearFraction() * (1 - rate - future.getPrice() / 100);
+  }
+
+  @Override
+  /**
+   * Future pricing without convexity adjustment.
+   */
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    InterestRateFuturesTransactionDiscountingMethod method = new InterestRateFuturesTransactionDiscountingMethod();
+    return method.presentValueFromCurve(future, curves);
   }
 
   @Override
@@ -214,14 +226,9 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   /**
    * CMS coupon pricing without convexity adjustment.
    */
-  public Double visitCouponCMS(CouponCMS payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
-    ParRateCalculator parRate = ParRateCalculator.getInstance();
-    double swapRate = parRate.visitFixedCouponSwap(payment.getUnderlyingSwap(), curves);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    double paymentDiscountFactor = fundingCurve.getDiscountFactor(payment.getPaymentTime());
-    return swapRate * payment.getPaymentYearFraction() * payment.getNotional() * paymentDiscountFactor;
+  public Double visitCouponCMS(CouponCMS cmsCoupon, final YieldCurveBundle curves) {
+    CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    return method.presentValue(cmsCoupon, curves);
   }
 
 }
