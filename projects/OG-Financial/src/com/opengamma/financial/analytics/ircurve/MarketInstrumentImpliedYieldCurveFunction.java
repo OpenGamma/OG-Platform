@@ -551,7 +551,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   
 
-  @SuppressWarnings("unchecked")
   private SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs, String curveName) {
     Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement(curveName));
     return (SnapshotDataBundle) marketDataBundle;
