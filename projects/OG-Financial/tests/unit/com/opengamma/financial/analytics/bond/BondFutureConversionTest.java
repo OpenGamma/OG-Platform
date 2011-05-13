@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.analytics.bond;
 
-import static org.testng.AssertJUnit.assertArrayEquals;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+
 import java.util.Arrays;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
@@ -107,7 +109,7 @@ public class BondFutureConversionTest {
     for (int i = 0; i < N_BONDS; i++) {
       final BondForwardDefinition bondForwardDefinition = BOND_FORWARD_CONVERTER.getBondForward(DELIVERABLE_BONDS[i], LAST_DELIVERY_DATE);
       deliverables[i] = bondForwardDefinition.getUnderlyingBond();
-      final Bond bond = BOND_CONVERTER.getBond(DELIVERABLE_BONDS[i], true).toDerivative(TRADE_DATE.toLocalDate(), CURVE_NAME);
+      final Bond bond = BOND_CONVERTER.getBond(DELIVERABLE_BONDS[i], true).toDerivative(TRADE_DATE, CURVE_NAME);
       final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, CLEAN_PRICE[i]);
       double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
       yield = 2 * (Math.exp(yield / 2) - 1.0);
@@ -120,7 +122,7 @@ public class BondFutureConversionTest {
     final BondConvention convention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar, conventionBundle.isEOMConvention(),
         "USD_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(deliverables, C_FACTOR, convention, LAST_DELIVERY_DATE.toLocalDate());
-    final BondFuture bondFuture = bondFutureDefinition.toDerivative(TRADE_DATE.toLocalDate(), FUTURE_PRICE, CURVE_NAME);
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(TRADE_DATE, FUTURE_PRICE, CURVE_NAME);
     final BondFutureDeliverableBasketDataBundle basketData = new BondFutureDeliverableBasketDataBundle(CLEAN_PRICE, repoRates);
     final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basketData);
     assertArrayEquals(grossBasis, GROSS_BASIS, 1e-5);
@@ -158,8 +160,8 @@ public class BondFutureConversionTest {
     final double conversionFactor = 1.1525705;
     assertEquals(accruedInterestForBond, bondDayCount.getAccruedInterest(firstCouponDate, settlementDate, firstCouponDate.plusMonths(6), coupon, 2), 1e-8);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
-    assertEquals(accruedInterestForBond, delivered.getUnderlyingBond().toDerivative(tradeDate.toLocalDate(), CURVE_NAME).getAccruedInterest(), 1e-8);
-    assertEquals(accruedToDelivery, delivered.toDerivative(settlementDate.toLocalDate(), CURVE_NAME).getAccruedInterestAtDelivery(), 1e-7);
+    assertEquals(accruedInterestForBond, delivered.getUnderlyingBond().toDerivative(tradeDate, CURVE_NAME).getAccruedInterest(), 1e-8);
+    assertEquals(accruedToDelivery, delivered.toDerivative(settlementDate, CURVE_NAME).getAccruedInterestAtDelivery(), 1e-7);
     final double[] repoRates = new double[] {repoRate};
     final double[] cleanPrices = new double[] {cleanPrice};
     final BondFutureDeliverableBasketDataBundle basket = new BondFutureDeliverableBasketDataBundle(cleanPrices, repoRates);
@@ -171,7 +173,7 @@ public class BondFutureConversionTest {
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
         deliveryDate.toLocalDate());
-    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date.toLocalDate(), futuresPrice, CURVE_NAME);
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date, futuresPrice, CURVE_NAME);
     final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket);
     final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket);
     assertEquals(grossBasis[0], 0.0124358491, 1e-10);
@@ -207,8 +209,8 @@ public class BondFutureConversionTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
         new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
-    final Bond bond = delivered.getUnderlyingBond().toDerivative(tradeDate.toLocalDate(), CURVE_NAME);
-    final BondForward bondForward = delivered.toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
+    final Bond bond = delivered.getUnderlyingBond().toDerivative(tradeDate, CURVE_NAME);
+    final BondForward bondForward = delivered.toDerivative(settlementDate, CURVE_NAME);
     assertEquals(accruedInterestForBond, bond.getAccruedInterest(), 1e-6);
     assertEquals(accruedToDelivery, bondForward.getAccruedInterestAtDelivery(), 1e-6);
     assertEquals(dirtyPrice, DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice), 1e-7);
@@ -226,7 +228,7 @@ public class BondFutureConversionTest {
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
         deliveryDate.toLocalDate());
-    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date.toLocalDate(), futuresPrice, CURVE_NAME);
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date, futuresPrice, CURVE_NAME);
     final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket);
     final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket);
     final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket);
@@ -259,7 +261,7 @@ public class BondFutureConversionTest {
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), accruedInterestDayCount, new DateTimeWithZone(firstCouponDate), new DateTimeWithZone(firstCouponDate),
         new DateTimeWithZone(firstCouponDate), 100, 100000000, 5000, 1000, 100, 100);
     final BondForwardDefinition delivered = BOND_FORWARD_CONVERTER.getBondForward(bondSecurity, deliveryDate);
-    final Bond bond = delivered.getUnderlyingBond().toDerivative(settlementDate.toLocalDate(), CURVE_NAME);
+    final Bond bond = delivered.getUnderlyingBond().toDerivative(settlementDate, CURVE_NAME);
     final double dirtyPrice = DIRTY_PRICE_CALCULATOR.calculate(bond, cleanPrice);
     double yield = YIELD_CALCULATOR.calculate(bond, dirtyPrice);
     yield = 2 * (Math.exp(yield / 2) - 1.0); //convert to semi-annual compounding
@@ -275,7 +277,7 @@ public class BondFutureConversionTest {
         "GBP_BOND_FUTURE_DELIVERABLE", conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
     final BondFutureDefinition bondFutureDefinition = new BondFutureDefinition(new BondDefinition[] {delivered.getUnderlyingBond()}, new double[] {conversionFactor}, convention,
         deliveryDate.toLocalDate());
-    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date.toLocalDate(), futuresPrice, CURVE_NAME);
+    final BondFuture bondFuture = bondFutureDefinition.toDerivative(date, futuresPrice, CURVE_NAME);
     final double[] grossBasis = GROSS_BASIS_CALCULATOR.calculate(bondFuture, basket);
     final double[] netBasis = NET_BASIS_CALCULATOR.calculate(bondFuture, basket);
     final double[] irr = IMPLIED_REPO_CALCULATOR.calculate(bondFuture, basket);

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.instrument.bond;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -41,10 +40,10 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
    * @param settlementDate Transaction settlement date.
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondFixedTransactionDefinition(BondFixedDescriptionDefinition underlyingBond, double quantity, ZonedDateTime settlementDate, double price) {
+  public BondFixedTransactionDefinition(final BondFixedDescriptionDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
     super(underlyingBond, quantity, settlementDate, price);
     _accruedInterestAtSettlement = 0;
-    int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
+    final int nbCoupon = underlyingBond.getCoupon().getNumberOfPayments();
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(), settlementDate,
         getNextAccrualDate(), underlyingBond.getCoupon().getNthPayment(getCouponIndex()).getRate(), underlyingBond.getCouponPerYear(), underlyingBond.isEOM());
     if (underlyingBond.getExCouponDays() != 0 && getNextAccrualDate().minusDays(underlyingBond.getExCouponDays()).isBefore(settlementDate)) {
@@ -72,7 +71,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
   }
 
   @Override
-  public BondFixedTransaction toDerivative(LocalDate date, String... yieldCurveNames) {
+  public BondFixedTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
     // TODO: Take the ex-coupon days into account.
     Validate.notNull(date, "date");
@@ -83,7 +82,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(zonedDate, getUnderlyingBond().getCalendar(), getUnderlyingBond().getSettlementDays());
-    double spotTime = actAct.getDayCountFraction(zonedDate, spot);
+    final double spotTime = actAct.getDayCountFraction(zonedDate, spot);
     final double settlementTime;
     final double settlementAmount;
     if (getSettlementDate().isBefore(zonedDate)) {
@@ -93,16 +92,16 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
       settlementTime = actAct.getDayCountFraction(zonedDate, getSettlementDate());
       settlementAmount = getPaymentAmount();
     }
-    PaymentFixed settlement = new PaymentFixed(getUnderlyingBond().getCurrency(), settlementTime, settlementAmount, riskFreeCurveName);
-    AnnuityPaymentFixed nominal = getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    AnnuityCouponFixed coupon = getUnderlyingBond().getCoupon().toDerivative(date, creditCurveName);
-    AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
-    AnnuityCouponFixed couponPurchase = coupon.trimBefore(settlementTime);
-    AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
-    AnnuityCouponFixed couponStandard = coupon.trimBefore(spotTime);
-    BondFixedDescription bondPurchase = new BondFixedDescription(nominalPurchase, couponPurchase, getUnderlyingBond().getYieldConvention());
-    BondFixedDescription bondStandard = new BondFixedDescription(nominalStandard, couponStandard, getUnderlyingBond().getYieldConvention());
-    int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
+    final PaymentFixed settlement = new PaymentFixed(getUnderlyingBond().getCurrency(), settlementTime, settlementAmount, riskFreeCurveName);
+    final AnnuityPaymentFixed nominal = getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
+    final AnnuityCouponFixed coupon = getUnderlyingBond().getCoupon().toDerivative(date, creditCurveName);
+    final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
+    final AnnuityCouponFixed couponPurchase = coupon.trimBefore(settlementTime);
+    final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
+    final AnnuityCouponFixed couponStandard = coupon.trimBefore(spotTime);
+    final BondFixedDescription bondPurchase = new BondFixedDescription(nominalPurchase, couponPurchase, getUnderlyingBond().getYieldConvention());
+    final BondFixedDescription bondStandard = new BondFixedDescription(nominalStandard, couponStandard, getUnderlyingBond().getYieldConvention());
+    final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
       if (getUnderlyingBond().getCoupon().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
@@ -110,19 +109,19 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
         break;
       }
     }
-    double accruedInterestAtSpot = (getUnderlyingBond()).accruedInterest(spot);
-    double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
-    BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), settlement, bondStandard, spotTime, accruedInterestAtSpot, notionalStandard);
+    final double accruedInterestAtSpot = (getUnderlyingBond()).accruedInterest(spot);
+    final double notionalStandard = getUnderlyingBond().getCoupon().getNthPayment(couponIndex).getNotional();
+    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), settlement, bondStandard, spotTime, accruedInterestAtSpot, notionalStandard);
     return result;
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return null;
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return null;
   }
 
@@ -137,7 +136,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -147,7 +146,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Co
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFixedTransactionDefinition other = (BondFixedTransactionDefinition) obj;
+    final BondFixedTransactionDefinition other = (BondFixedTransactionDefinition) obj;
     if (Double.doubleToLongBits(_accruedInterestAtSettlement) != Double.doubleToLongBits(other._accruedInterestAtSettlement)) {
       return false;
     }

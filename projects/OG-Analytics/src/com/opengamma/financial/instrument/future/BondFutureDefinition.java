@@ -8,6 +8,7 @@ package com.opengamma.financial.instrument.future;
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -93,9 +94,9 @@ public class BondFutureDefinition implements FixedIncomeFutureInstrumentDefiniti
   }
 
   @Override
-  public BondFuture toDerivative(final LocalDate date, final double price, final String... yieldCurveNames) {
+  public BondFuture toDerivative(final ZonedDateTime date, final double price, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_deliveryDate), date + " is after delivery date (" + _deliveryDate + ")");
+    Validate.isTrue(!date.toLocalDate().isAfter(_deliveryDate), date + " is after delivery date (" + _deliveryDate + ")");
     Validate.notNull(yieldCurveNames, "yield curve name(s)");
     final int n = _deliverableBonds.length;
     final BondForward[] bondForwards = new BondForward[n];

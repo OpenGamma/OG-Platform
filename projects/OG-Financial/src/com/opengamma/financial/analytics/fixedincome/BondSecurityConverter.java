@@ -28,7 +28,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.bond.BondConvention;
 import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -43,7 +43,7 @@ import com.opengamma.id.Identifier;
 /**
  * 
  */
-public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class BondSecurityConverter implements BondSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondSecurityConverter.class);
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;

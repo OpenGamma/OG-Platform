@@ -28,11 +28,11 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -42,7 +42,10 @@ import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.YieldCurveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
@@ -383,11 +386,21 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       CompiledFunctionDefinition compiledFunction = dependencyNode.getFunction().getFunction();
       if (compiledFunction instanceof YieldCurveDataSourcingFunction) {
         YieldCurveDataSourcingFunction function = (YieldCurveDataSourcingFunction) compiledFunction;
-        ValueSpecification spec = Iterables.getOnlyElement(compiledFunction.getResults(null, null));
-        ret.put(function.getYieldCurveKey(), spec);
+        Set<YieldCurveKey> yieldCurveKeys = function.getYieldCurveKeys();
+        for (YieldCurveKey yieldCurveKey : yieldCurveKeys) {
+          ret.put(yieldCurveKey, getYieldCurveDataSpec(compiledFunction, yieldCurveKey));
+        }
       }
     }
     return ret;
+  }
+
+  private static ValueSpecification getYieldCurveDataSpec(CompiledFunctionDefinition compiledFunction,
+      YieldCurveKey yieldCurveKey) {
+    String uniqueId = compiledFunction.getFunctionDefinition().getUniqueId();
+    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(yieldCurveKey.getCurrency()),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, uniqueId).with(ValuePropertyNames.CURVE, yieldCurveKey.getName()).get());
+    return spec;
   }
 
   private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {

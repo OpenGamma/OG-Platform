@@ -59,7 +59,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(derivative, "derivative");
     Validate.noNullElements(derivative, "derivative");
     Validate.notNull(curves, "curves");
-    Double[] output = new Double[derivative.length];
+    final Double[] output = new Double[derivative.length];
     for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
       output[loopderivative] = derivative[loopderivative].accept(this, curves);
     }
@@ -93,7 +93,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitZZZForwardRateAgreement(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(fra);
-    ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
+    final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
     return method.presentValue(fra, curves);
   }
 
@@ -138,13 +138,6 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     return visitSwap(swap, curves);
   }
 
-  //  @Override
-  //  public Double visitFloatingRateNote(final FloatingRateNote frn, final YieldCurveBundle curves) {
-  //    Validate.notNull(curves);
-  //    Validate.notNull(frn);
-  //    return visitSwap(frn, curves);
-  //  }
-
   @Override
   public Double visitBond(final Bond bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -156,7 +149,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   public Double visitBondTransaction(final BondTransaction<? extends Payment> bond, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(bond);
-    BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
+    final BondTransactionDiscountingMethod method = new BondTransactionDiscountingMethod();
     return method.presentValue(bond, curves);
   }
 
@@ -226,7 +219,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   /**
    * CMS coupon pricing without convexity adjustment.
    */
-  public Double visitCouponCMS(CouponCMS cmsCoupon, final YieldCurveBundle curves) {
+  public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
     CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
     return method.presentValue(cmsCoupon, curves);
   }

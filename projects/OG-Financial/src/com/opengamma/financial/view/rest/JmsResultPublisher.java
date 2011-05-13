@@ -128,7 +128,7 @@ public class JmsResultPublisher implements ViewResultListener {
           }
         }
       }
-    }, "QueueingJmsByteArrayMessageSender %s" + _producer.getDestination());
+    }, String.format("JmsResultPublisher %s", _producer.getDestination()));
     senderThread.setDaemon(true);
     senderThread.start();
   }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.instrument.fra;
 
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
-import javax.time.calendar.LocalDate;
+import static org.testng.AssertJUnit.assertFalse;
+
 import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -31,7 +32,7 @@ public class FRADefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String NAME = "CONVENTION";
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
-  private static final LocalDate DATE = LocalDate.of(2011, 1, 25);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2011, 1, 25);
   private static final ZonedDateTime START = DateUtil.getUTCDate(2011, 4, 25);
   private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2011, 7, 25);
   private static final double RATE = 0.05;
