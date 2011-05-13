@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class ThetaMethodFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(1.0);
+  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5);
 
   @Test
   public void testBlackScholesEquation() {
@@ -25,7 +25,7 @@ public class ThetaMethodFiniteDifferenceTest {
     double priceTol = 5e-2;
     double deltaTol = 5e-2;
     double gammaTol = 1.0; // Crank-Nicolson gives awful greeks around ATM - this is why it shouldn't be used
-    boolean print = true; // set to false before pushing
+    boolean print = false; // set to false before pushing
 
     TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }
