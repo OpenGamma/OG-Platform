@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -8,13 +8,17 @@ package com.opengamma.financial.model.finitedifference;
 /**
  * 
  */
-public class PDEResults1D {
+public interface PDEResults1D {
 
-  private double[] _f;
-  //private double[] _x;
+  int getNumberSpaceNodes();
 
-  double getFunctionValue(int index) {
-    return _f[index];
-  }
+  double getSpaceValue(int spaceIndex);
+
+  double getFunctionValue(int spaceIndex);
+
+  // spatial derivative
+  double getFirstSpatialDerivative(int spaceIndex);
+
+  double getSecondSpatialDerivative(int spaceIndex);
 
 }

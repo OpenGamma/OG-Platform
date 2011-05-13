@@ -11,6 +11,7 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -26,6 +27,12 @@ import com.opengamma.util.ArgumentChecker;
  * Dummy function to work with {@link CurrencyConversionFunction} to reduce a wild-card currency constraint to the
  * default currency. References to this function from a dependency graph are only temporary to force value specification
  * resolution and dropped during construction.
+ * <p>
+ * If a function makes a requirement for the default currency value with a specific currency constraint, this function
+ * will match. This allows the function to pass a currency from the {@link CompiledFunctionDefinition#getRequirements}
+ * function to {@link CompiledFunctionDefinition#getResults} without maintaining any internal state. The rewritten result
+ * then matches the other input requirement and both the injection and original conversion function are removed from
+ * the dependency graph.
  */
 public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -68,6 +75,16 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
     return Collections.emptySet();
   }
 
+  /**
+   * Returns the set of results. This is the "default currency value" and a constraint of "any" currency. This will be composed
+   * against the specific currency required by the peer function. Note that this does not specify the view's default currency -
+   * it is the responsibility of the peer function to request the default in the value requirement satisfied by this function.
+   * This allows the function to be used to inject currencies other than the view's default to functions that require it.
+   * 
+   * @param context the function compilation context, not {@code null}
+   * @param target the target, not {@code null}
+   * @return a singleton describing the default currency value and a constraint of "any" currency, not {@code null}
+   */
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getDefaultCurrencyValueName(), target.toSpecification(), createValueProperties().withAny(ValuePropertyNames.CURRENCY).get()));
@@ -81,9 +98,7 @@ public class DefaultCurrencyInjectionFunction extends AbstractFunction.NonCompil
   protected static String getViewDefaultCurrencyISO(final FunctionCompilationContext context) {
     ViewCalculationConfiguration viewCalculationConfiguration = context.getViewCalculationConfiguration();
     if (viewCalculationConfiguration == null) {
-      // No calculation configuration available when called from a function resolver. Only available when
-      // called from within the dependency graph builder.
-      return null;
+      throw new IllegalStateException("No view calculation configuration");
     }
     ValueProperties defaultProperties = viewCalculationConfiguration.getDefaultProperties();
     if (defaultProperties == null) {

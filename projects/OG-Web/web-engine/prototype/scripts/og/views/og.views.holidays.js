@@ -26,7 +26,7 @@ $.register_module({
                     {
                         id: 'type', name: 'Type', field: 'type', width: 200,
                         filter_type: 'select',
-                        filter_type_options: ['currency', 'bank', 'settlement', 'trading']
+                        filter_type_options: ['CURRENCY', 'BANK', 'SETTLEMENT', 'TRADING']
                     }
                 ]
             },
@@ -119,7 +119,7 @@ $.register_module({
                                 stepMonths: 12,                             // Pagination moves 1 year at a time
                                 firstDay: 1,                                // Start the week on Monday
                                 displayOnly: true,                          // This is an OG custom configuration
-                                specialDates: details_json.dates                    // This is an OG custom configuration
+                                specialDates: details_json.dates            // This is an OG custom configuration
                             });
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});

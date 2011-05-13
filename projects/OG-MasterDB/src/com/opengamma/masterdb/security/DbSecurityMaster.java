@@ -39,6 +39,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 
 /**
  * A security master implementation using a database for persistence.
@@ -143,6 +144,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final SecuritySearchResult result = new SecuritySearchResult();
     if ((request.getSecurityIds() != null && request.getSecurityIds().size() == 0) ||
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
+      result.setPaging(new Paging(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

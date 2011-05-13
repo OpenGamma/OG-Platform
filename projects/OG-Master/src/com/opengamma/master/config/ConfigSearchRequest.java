@@ -5,8 +5,10 @@
  */
 package com.opengamma.master.config;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.BeanDefinition;
@@ -15,6 +17,8 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
@@ -35,6 +39,12 @@ import com.opengamma.util.RegexUtils;
 @BeanDefinition
 public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
+  /**
+   * The set of configuration object identifiers, null to not limit by configuration object identifiers.
+   * Note that an empty set will return no configurations.
+   */
+  @PropertyDefinition(set = "manual")
+  private List<ObjectIdentifier> _configIds;
   /**
    * The name, wildcards allowed, null to not match on name.
    */
@@ -63,12 +73,46 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Adds a single configuration object identifier to the set.
+   * 
+   * @param configId  the configuration object identifier to add, not null
+   */
+  public void addConfigId(ObjectIdentifiable configId) {
+    ArgumentChecker.notNull(configId, "configId");
+    if (_configIds == null) {
+      _configIds = new ArrayList<ObjectIdentifier>();
+    }
+    _configIds.add(configId.getObjectId());
+  }
+
+  /**
+   * Sets the set of configuration object identifiers, null to not limit by configuration object identifiers.
+   * Note that an empty set will return no configurations.
+   * 
+   * @param configIds  the new configuration identifiers, null clears the configuration id search
+   */
+  public void setConfigIds(Iterable<? extends ObjectIdentifiable> configIds) {
+    if (configIds == null) {
+      _configIds = null;
+    } else {
+      _configIds = new ArrayList<ObjectIdentifier>();
+      for (ObjectIdentifiable configId : configIds) {
+        _configIds.add(configId.getObjectId());
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean matches(final AbstractDocument obj) {
     if (obj instanceof ConfigDocument == false) {
       return false;
     }
     final ConfigDocument<?> document = (ConfigDocument<?>) obj;
+    if (getConfigIds() != null && getConfigIds().contains(document.getObjectId()) == false) {
+      return false;
+    }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), document.getName()) == false) {
       return false;
     }
@@ -99,6 +143,8 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   @Override
   protected Object propertyGet(String propertyName) {
     switch (propertyName.hashCode()) {
+      case -804471786:  // configIds
+        return getConfigIds();
       case 3373707:  // name
         return getName();
       case 3575610:  // type
@@ -111,6 +157,9 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   @Override
   protected void propertySet(String propertyName, Object newValue) {
     switch (propertyName.hashCode()) {
+      case -804471786:  // configIds
+        setConfigIds((List<ObjectIdentifier>) newValue);
+        return;
       case 3373707:  // name
         setName((String) newValue);
         return;
@@ -119,6 +168,25 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of configuration object identifiers, null to not limit by configuration object identifiers.
+   * Note that an empty set will return no configurations.
+   * @return the value of the property
+   */
+  public List<ObjectIdentifier> getConfigIds() {
+    return _configIds;
+  }
+
+  /**
+   * Gets the the {@code configIds} property.
+   * Note that an empty set will return no configurations.
+   * @return the property, not null
+   */
+  public final Property<List<ObjectIdentifier>> configIds() {
+    return metaBean().configIds().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -183,6 +251,11 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code configIds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<ObjectIdentifier>> _configIds = DirectMetaProperty.ofReadWrite(this, "configIds", (Class) List.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
@@ -199,6 +272,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     @SuppressWarnings({"unchecked", "rawtypes" })
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
+      temp.put("configIds", _configIds);
       temp.put("name", _name);
       temp.put("type", _type);
       _map = Collections.unmodifiableMap(temp);
@@ -221,6 +295,14 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code configIds} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<ObjectIdentifier>> configIds() {
+      return _configIds;
+    }
+
     /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null

@@ -113,7 +113,7 @@ function Datepicker() {
 		showButtonPanel: false, // True to show button panel, false to not show it
         autoSize: false, // True to size the input for the date format, false to leave as is
         displayOnly: false, // True to remove interactivity from the calendar dates (OG CUSTOM)
-        specialDates: null // Object that contains special dates to highlight, for example bank holidays (OG CUSTOM)
+        specialDates: {} // Object that contains special dates to highlight, for example bank holidays (OG CUSTOM)
 	};
 	$.extend(this._defaults, this.regional['']);
 	this.dpDiv = $('<div id="' + this._mainDivId + '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all"></div>');
@@ -1378,6 +1378,7 @@ $.extend(Datepicker.prototype, {
 
     /* OG custom */
     _isSpecialDate: function (arr, year, month, day) {
+        if (!arr) return;
         var i = arr.length, str;
         while(i--) {
             str = arr[i].split('-');

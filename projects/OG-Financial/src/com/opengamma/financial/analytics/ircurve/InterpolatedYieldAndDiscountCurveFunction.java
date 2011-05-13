@@ -33,6 +33,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,12 +64,6 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
 
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldAndDiscountCurveFunction.class);
 
-  /**
-   * Resultant value specification property for the curve result. Note these should be moved into either the ValuePropertyNames class
-   * if there are generic terms, or an OpenGammaValuePropertyNames if they are more specific to our financial integration.
-   */
-  public static final String PROPERTY_CURVE_DEFINITION_NAME = "NAME";
-
   private Interpolator1D<? extends Interpolator1DDataBundle> _interpolator;
   private YieldCurveDefinition _definition;
   private ValueSpecification _result;
@@ -88,6 +83,11 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
     _interpolator = null;
     _result = null;
     _results = null;
+  }
+
+  // Temporary for debugging
+  public InterpolatedYieldAndDiscountCurveFunction(final String currency, final String name) {
+    this(Currency.of(currency), name, true);
   }
 
   public Currency getCurveCurrency() {
@@ -110,7 +110,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
     _result = new ValueSpecification(_isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE, new ComputationTargetSpecification(_definition.getCurrency()),
-        createValueProperties().with(PROPERTY_CURVE_DEFINITION_NAME, _curveName).get());
+        createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get());
     _results = Collections.singleton(_result);
     if (_definition.getUniqueId() != null) {
       context.getFunctionReinitializer().reinitializeFunction(this, _definition.getUniqueId());

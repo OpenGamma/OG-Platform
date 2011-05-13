@@ -41,7 +41,7 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
   private final SecuritySource _securitySource;
 
   // Runtime State:
-  private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
+  private final InMemoryLKVSnapshotProvider _underlyingProvider;
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
 
@@ -56,6 +56,8 @@ public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvid
     _liveDataClient = liveDataClient;
     _securitySource = securitySource;
     _fudgeContext = fudgeContext;
+    
+    _underlyingProvider = new InMemoryLKVSnapshotProvider(securitySource);
   }
 
   //-------------------------------------------------------------------------
