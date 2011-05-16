@@ -314,19 +314,19 @@ CSynchronousCallSlot *CSynchronousCalls::Acquire () {
 // TODO: the slots don't have to be pointers as they don't move in the array once allocated; they should be inline fragments
 
 void CSynchronousCalls::PostAndRelease (fudge_i32 nHandle, FudgeMsg msg) {
-	int nIdentifier, nSequence;
+	int nIdentifier, nSequence, nSequenceMask;
 	if (nHandle & 0x80000000) {
 		// 20-bit identifier, 11-bit sequence
 		nIdentifier = (nHandle >> 11) & 0xFFFFF;
-		nSequence = nHandle & 0x7FF;
+		nSequence = nHandle & (nSequenceMask = 0x7FF);
 	} else if (nHandle & 0x40000000) {
 		// 16-bit identifier, 14-bit sequence
 		nIdentifier = (nHandle >> 14) & 0xFFFF;
-		nSequence = nHandle & 0x3FFF;
+		nSequence = nHandle & (nSequenceMask = 0x3FFF);
 	} else if (nHandle & 0x20000000) {
 		// 10-bit identifier, 19-bit sequence
 		nIdentifier = (nHandle >> 19) & 0x3FF;
-		nSequence = nHandle & 0x7FFFF;
+		nSequence = nHandle & (nSequenceMask = 0x7FFFF);
 	} else {
 		FudgeMsg_release (msg);
 		LOGFATAL (TEXT ("Bad handle, ") << nHandle);
@@ -335,7 +335,7 @@ void CSynchronousCalls::PostAndRelease (fudge_i32 nHandle, FudgeMsg msg) {
 	}
 	m_mutex.Enter ();
 	if ((nIdentifier >= 0) && (nIdentifier < m_nAllocatedSlots)) {
-		int nExpected = m_ppoSlots[nIdentifier]->GetSequence ();
+		int nExpected = m_ppoSlots[nIdentifier]->GetSequence () & nSequenceMask;
 		if (nExpected == nSequence) {
 			LOGDEBUG (TEXT ("Delivering message ") << nSequence << TEXT (" to slot ") << nIdentifier);
 			m_ppoSlots[nIdentifier]->PostAndRelease (nSequence, msg);
