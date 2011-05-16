@@ -26,7 +26,8 @@ public interface ConvectionDiffusionPDESolver {
    * @param upperBoundary Descriptor of the upper boundary in x 
    * @return An 2 by (xSteps + 1) array, with the first column  giving the spatial (x) grid points and the second given the value of the fucntion f at tMax and these grid points 
    */
-  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
+  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary);
 
   /**
     *Solver for convection-diffusion type partial differential equations (PDEs), i.e. 

@@ -13,10 +13,10 @@
       <#if clazz.canonicalName = "com.opengamma.engine.view.ViewDefinition">
         "configJSON" : ${configJSON}
       <#elseif clazz.canonicalName = "com.opengamma.financial.analytics.ircurve.YieldCurveDefinition">
-        "configJSON" : ${configJSON} 
+        "configJSON" : ${configJSON}
       <#else>
         "configXml":"${configXml}"
       </#if>
-      
+
    	}
 }

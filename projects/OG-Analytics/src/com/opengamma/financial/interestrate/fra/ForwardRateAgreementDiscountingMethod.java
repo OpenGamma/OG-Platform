@@ -12,8 +12,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -27,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * \\end{equation*}
  * }
  */
-public class ForwardRateAgreementDiscountingMethod {
+public class ForwardRateAgreementDiscountingMethod implements PricingMethod {
 
   /**
    * Compute the present value of a FRA by discounting.
@@ -44,6 +46,12 @@ public class ForwardRateAgreementDiscountingMethod {
     double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
     double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward);
     return presentValue;
+  }
+
+  @Override
+  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ZZZForwardRateAgreement, "Forward rate agreement");
+    return presentValue((ZZZForwardRateAgreement) instrument, curves);
   }
 
   /**

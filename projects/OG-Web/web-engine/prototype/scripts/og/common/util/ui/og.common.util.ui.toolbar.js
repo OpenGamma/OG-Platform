@@ -9,10 +9,10 @@ $.register_module({
             var $new_obj = [], html,
                 buttons = [
                     {name: 'new', 'tooltip': 'NEW'},
-                    {name: 'up', 'tooltip': 'UP'},
-                    {name: 'edit', 'tooltip': 'EDIT'},
+                    {name: 'up', 'tooltip': 'UP', 'style': 'display: none'},
+                    {name: 'edit', 'tooltip': 'EDIT', 'style': 'display: none'},
                     {name: 'delete', 'tooltip': 'DELETE', 'level': 'danger'},
-                    {name: 'favorites', 'tooltip': 'FAVORITES'}
+                    {name: 'favorites', 'tooltip': 'FAVORITES', 'style': 'display: none'}
                 ];
             if (!obj) throw new Error('obj is a required input for toolbar');
             if (!obj.location) throw new Error('You need to supply a selector/location for a toolbar to be placed');
@@ -21,6 +21,7 @@ $.register_module({
             });
             html = $.tmpl('<div '
                                 + 'class="OG-icon og-icon-${name} og-js-${name} ${enabled}" '
+                                + 'style="${style}" '
                                 + 'data-tooltip="${tooltip}" '
                                 + 'data-tooltip-location="top" '
                                 + 'data-tooltip-level="${level}"></div>',

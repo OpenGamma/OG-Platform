@@ -12,9 +12,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -22,7 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the present value and its sensitivities for an interest rate future with discounting (like a forward). 
  * No convexity adjustment is done. 
  */
-public class InterestRateFuturesTransactionDiscountingMethod {
+public class InterestRateFutureTransactionDiscountingMethod implements PricingMethod {
 
   /**
    * Compute the present value of a future transaction from a quoted price.
@@ -41,15 +43,22 @@ public class InterestRateFuturesTransactionDiscountingMethod {
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The present value.
    */
-  public double presentValueFromCurve(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  public double presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
     double forward = (forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime()) 
         / forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime()) - 1)
         / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
-    double pv = (1 - forward - future.getReferencePrice()) * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity();
+    double futurePrice = 1 - forward;
+    double pv = presentValueFromPrice(future, futurePrice);
     return pv;
+  }
+
+  @Override
+  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
+    return presentValue((InterestRateFutureTransaction) instrument, curves);
   }
 
   /**

@@ -89,7 +89,7 @@
   
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
-    <constructor-arg ref="batchDbManager" />
+    <constructor-arg ref="dbBatchMaster" />
     <constructor-arg ref="fudgeContext" />
   </bean>
   

@@ -20,23 +20,21 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
- * 
+ * The status of a batch.
  */
 @BeanDefinition
 public class BatchSearchResultItem extends DirectBean {
-  
+
   /**
-   * The batch date.
+   * The batch date, should not be null.
    */
   @PropertyDefinition
   private LocalDate _observationDate;
-  
   /**
-   * The batch time - e.g., LDN_CLOSE.
+   * The batch time, such as LDN_CLOSE, should not be null.
    */
   @PropertyDefinition
   private String _observationTime;
-  
   /**
    * Is the batch running at the moment?
    */
@@ -89,7 +87,7 @@ public class BatchSearchResultItem extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch date.
+   * Gets the batch date, should not be null.
    * @return the value of the property
    */
   public LocalDate getObservationDate() {
@@ -97,7 +95,7 @@ public class BatchSearchResultItem extends DirectBean {
   }
 
   /**
-   * Sets the batch date.
+   * Sets the batch date, should not be null.
    * @param observationDate  the new value of the property
    */
   public void setObservationDate(LocalDate observationDate) {
@@ -114,7 +112,7 @@ public class BatchSearchResultItem extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch time - e.g., LDN_CLOSE.
+   * Gets the batch time, such as LDN_CLOSE, should not be null.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -122,7 +120,7 @@ public class BatchSearchResultItem extends DirectBean {
   }
 
   /**
-   * Sets the batch time - e.g., LDN_CLOSE.
+   * Sets the batch time, such as LDN_CLOSE, should not be null.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {
