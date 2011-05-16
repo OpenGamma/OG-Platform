@@ -37,7 +37,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
   /**
    * The batch master.
    */
-  private final BatchDbManager _batchMaster;
+  private final BatchMaster _batchMaster;
   /**
    * The provider of historical data.
    * In practice, this is the time series database.
@@ -53,7 +53,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
    */
   public BatchLiveDataSnapshotProvider(
       BatchJobRun run,
-      BatchDbManager batchMaster,
+      BatchMaster batchMaster,
       HistoricalLiveDataSnapshotProvider historicalDataProvider) {
     ArgumentChecker.notNull(run, "run");
     ArgumentChecker.notNull(batchMaster, "batchMaster");

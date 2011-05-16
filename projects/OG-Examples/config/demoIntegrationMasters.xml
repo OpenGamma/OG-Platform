@@ -198,7 +198,7 @@
       </list> 
     </property>
   </bean>
-  <bean id="batchDbManager" class="com.opengamma.masterdb.batch.BatchDbManagerImpl">
+  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
     <property name="dbSource" ref="batchDbSource"/>  	
   </bean>
 
