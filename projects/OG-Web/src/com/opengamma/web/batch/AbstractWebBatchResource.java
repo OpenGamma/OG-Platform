@@ -10,13 +10,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.batch.BatchDbManager;
+import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
- * 
+ * Abstract base class for RESTful batch resources.
  */
 public class AbstractWebBatchResource extends AbstractWebResource {
 
@@ -27,12 +27,12 @@ public class AbstractWebBatchResource extends AbstractWebResource {
 
   /**
    * Creates the resource.
-   * @param batchDbManager  the batch db manager, not null
+   * @param batchMaster  the batch master, not null
    */
-  protected AbstractWebBatchResource(final BatchDbManager batchDbManager) {
-    ArgumentChecker.notNull(batchDbManager, "batchDbManager");
+  protected AbstractWebBatchResource(final BatchMaster batchMaster) {
+    ArgumentChecker.notNull(batchMaster, "batchMaster");
     _data = new WebBatchData();
-    data().setBatchDbManager(batchDbManager);
+    data().setBatchMaster(batchMaster);
   }
 
   /**

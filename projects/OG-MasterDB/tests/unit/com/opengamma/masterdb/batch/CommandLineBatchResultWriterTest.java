@@ -704,7 +704,7 @@ public class CommandLineBatchResultWriterTest extends HibernateTest {
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return BatchDbManagerImpl.getHibernateMappingClasses();
+    return DbBatchMaster.getHibernateMappingClasses();
   }
   
   private RiskValue getValueFromDb(CommandLineBatchResultWriter resultWriter) {

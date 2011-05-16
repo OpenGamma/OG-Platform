@@ -5,6 +5,6 @@
  */
 
 /**
- * An implementation of {@code BatchDbManager} that writes batch results into the OpenGamma batch database.
+ * An implementation of {@code BatchMaster} that writes batch results into the OpenGamma batch database.
  */
 package com.opengamma.masterdb.batch;
