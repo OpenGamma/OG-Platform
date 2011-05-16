@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.swaption;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -80,7 +79,7 @@ public class SwaptionCashFixedIborTest {
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_PAYER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_PAYER, !IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_SHORT_RECEIVER = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_RECEIVER, !IS_LONG);
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -102,28 +101,28 @@ public class SwaptionCashFixedIborTest {
   @Test
   public void testPriceBlack() {
     // Black price with given volatility and market standard formula for cash settlement
-    YieldCurveBundle CURVES = new YieldCurveBundle();
+    final YieldCurveBundle CURVES = new YieldCurveBundle();
     CURVES.setCurve(FUNDING_CURVE_NAME, CURVE_5);
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
-    double sigmaBlack = 0.20;
-    double forward = PRC.visit(SWAP_PAYER, CURVES);
-    double pvbp = SwapFixedIborMethod.getAnnuityCash(SWAP_PAYER, forward);
-    BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
+    final double sigmaBlack = 0.20;
+    final double forward = PRC.visit(SWAP_PAYER, CURVES);
+    final double pvbp = SwapFixedIborMethod.getAnnuityCash(SWAP_PAYER, forward);
+    final BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
-    Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
-    double priceLongPayer = funcLongPayer.evaluate(data) * (SWAPTION_LONG_PAYER.isLong() ? 1.0 : -1.0);
-    Function1D<BlackFunctionData, Double> funcLongReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_RECEIVER);
-    double priceLongReceiver = funcLongReceiver.evaluate(data) * (SWAPTION_LONG_RECEIVER.isLong() ? 1.0 : -1.0);
-    Function1D<BlackFunctionData, Double> funcShortPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_PAYER);
-    double priceShortPayer = funcShortPayer.evaluate(data) * (SWAPTION_SHORT_PAYER.isLong() ? 1.0 : -1.0);
-    Function1D<BlackFunctionData, Double> funcShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
-    double priceShortReceiver = funcShortReceiver.evaluate(data) * (SWAPTION_SHORT_RECEIVER.isLong() ? 1.0 : -1.0);
+    final Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
+    final double priceLongPayer = funcLongPayer.evaluate(data) * (SWAPTION_LONG_PAYER.isLong() ? 1.0 : -1.0);
+    final Function1D<BlackFunctionData, Double> funcLongReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_RECEIVER);
+    final double priceLongReceiver = funcLongReceiver.evaluate(data) * (SWAPTION_LONG_RECEIVER.isLong() ? 1.0 : -1.0);
+    final Function1D<BlackFunctionData, Double> funcShortPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_PAYER);
+    final double priceShortPayer = funcShortPayer.evaluate(data) * (SWAPTION_SHORT_PAYER.isLong() ? 1.0 : -1.0);
+    final Function1D<BlackFunctionData, Double> funcShortReceiver = BLACK_FUNCTION.getPriceFunction(SWAPTION_SHORT_RECEIVER);
+    final double priceShortReceiver = funcShortReceiver.evaluate(data) * (SWAPTION_SHORT_RECEIVER.isLong() ? 1.0 : -1.0);
     // From previous run
-    double expectedPvbp = 190280584.377;
+    final double expectedPvbp = 190280584.377;
     assertEquals(expectedPvbp, pvbp, 1E-2);
-    double expectedPriceLongPayer = 1553341.170;
+    final double expectedPriceLongPayer = 1553341.170;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
-    double expectedPriceLongReceiver = 39008.571;
+    final double expectedPriceLongReceiver = 39008.571;
     assertEquals(expectedPriceLongReceiver, priceLongReceiver, 1E-2);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
@@ -133,20 +132,20 @@ public class SwaptionCashFixedIborTest {
 
   @Test
   public void testPriceSABRSurface() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PresentValueSABRCalculator pvcSabr = PresentValueSABRCalculator.getInstance();
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final PresentValueSABRCalculator pvcSabr = PresentValueSABRCalculator.getInstance();
     // Swaption pricing.
-    double priceLongPayer = pvcSabr.visit(SWAPTION_LONG_PAYER, sabrBundle);
-    double priceShortPayer = pvcSabr.visit(SWAPTION_SHORT_PAYER, sabrBundle);
-    double priceLongReceiver = pvcSabr.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
-    double priceShortReceiver = pvcSabr.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
+    final double priceLongPayer = pvcSabr.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final double priceShortPayer = pvcSabr.visit(SWAPTION_SHORT_PAYER, sabrBundle);
+    final double priceLongReceiver = pvcSabr.visit(SWAPTION_LONG_RECEIVER, sabrBundle);
+    final double priceShortReceiver = pvcSabr.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     // Long/Short parity
     assertEquals(priceLongPayer, -priceShortPayer, 1E-2);
     assertEquals(priceLongReceiver, -priceShortReceiver, 1E-2);
     // From previous run
-    double expectedPriceLongPayer = 1599203.405;
+    final double expectedPriceLongPayer = 1599203.405;
     assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
   }
 }

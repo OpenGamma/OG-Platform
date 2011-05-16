@@ -2,7 +2,9 @@ package com.opengamma.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -24,7 +26,10 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
+@SuppressWarnings("unchecked")
 public class BondIborDescriptionTest {
 
   //Quarterly Libor6m 2Y
@@ -49,11 +54,11 @@ public class BondIborDescriptionTest {
   private static final AnnuityPaymentFixedDefinition NOMINAL_DEFINITION = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, BUSINESS_DAY.adjustDate(
       CALENDAR, MATURITY_DATE), 1.0)});
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 8, 18);
   private static final double FIRST_FIXING = 0.02;
   static {
-    BOND_DESCRIPTION_DEFINITION.getCoupon().getNthPayment(0).fixingProcess(FIRST_FIXING); // First coupon has fixed.
-    COUPON_DEFINITION.getNthPayment(0).fixingProcess(FIRST_FIXING);
+    //BOND_DESCRIPTION_DEFINITION.getCoupon().getNthPayment(0).fixingProcess(FIRST_FIXING); // First coupon has fixed.
+    //COUPON_DEFINITION.getNthPayment(0).fixingProcess(FIRST_FIXING);
   }
   //  private static final ZonedDateTime REFERENCE_DATE_2 = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
   //  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC), BUSINESS_DAY, CALENDAR, SETTLEMENT_DAYS);
@@ -64,9 +69,23 @@ public class BondIborDescriptionTest {
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  @SuppressWarnings("unchecked")
-  private static final GenericAnnuity<Payment> COUPON = (GenericAnnuity<Payment>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final BondIborDescription BOND_DESCRIPTION = new BondIborDescription(NOMINAL, COUPON);
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
+  private static final GenericAnnuity<Payment> COUPON;
+  private static final BondIborDescription BOND_DESCRIPTION;
+
+  static {
+    final List<ZonedDateTime> fixingDates = new ArrayList<ZonedDateTime>();
+    final List<Double> fixingRates = new ArrayList<Double>();
+    for (int i = 0; i < COUPON_DEFINITION.getNumberOfPayments(); i++) {
+      if (COUPON_DEFINITION.getNthPayment(i).getFixingDate().isBefore(REFERENCE_DATE)) {
+        fixingDates.add(COUPON_DEFINITION.getNthPayment(i).getFixingDate());
+        fixingRates.add(FIRST_FIXING);
+      }
+    }
+    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(fixingDates, fixingRates);
+    COUPON = (GenericAnnuity<Payment>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
+    BOND_DESCRIPTION = new BondIborDescription(NOMINAL, COUPON);
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominal() {

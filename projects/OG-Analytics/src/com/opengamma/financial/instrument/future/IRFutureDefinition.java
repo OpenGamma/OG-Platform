@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -86,25 +83,25 @@ public class IRFutureDefinition implements FixedIncomeFutureInstrumentDefinition
   }
 
   @Override
-  public InterestRateFuture toDerivative(final LocalDate date, final double price, final String... yieldCurveNames) {
+  public InterestRateFuture toDerivative(final ZonedDateTime date, final double price, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
-    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate), "Date is after maturity");
     s_logger.info("Assuming first yield curve name is the index curve");
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final String indexCurveName = yieldCurveNames[0];
     final BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime lastTradeDate = businessDayConvention.adjustDate(calendar, _lastTradeDate);
     final ZonedDateTime startDate = lastTradeDate.plusDays(_convention.getSettlementDays());
     final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, _maturityDate);
     final DayCount dayCount = _convention.getDayCount();
     final double yearFraction = dayCount.getDayCountFraction(lastTradeDate, maturityDate);
     final double valueYearFraction = _convention.getYearFraction();
-    final double settlementDateFraction = dayCount.getDayCountFraction(zonedDate, startDate);
-    final double lastTradeDateFraction = dayCount.getDayCountFraction(zonedDate, _lastTradeDate);
-    final double maturityDateFraction = dayCount.getDayCountFraction(zonedDate, _maturityDate);
+    final double settlementDateFraction = dayCount.getDayCountFraction(date, startDate);
+    final double lastTradeDateFraction = dayCount.getDayCountFraction(date, _lastTradeDate);
+    final double maturityDateFraction = dayCount.getDayCountFraction(date, _maturityDate);
     return new InterestRateFuture(settlementDateFraction, lastTradeDateFraction, maturityDateFraction, yearFraction, valueYearFraction, price, indexCurveName);
   }
 

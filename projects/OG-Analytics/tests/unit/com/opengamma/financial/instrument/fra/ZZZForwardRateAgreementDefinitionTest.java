@@ -7,7 +7,6 @@ package com.opengamma.financial.instrument.fra;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
@@ -28,6 +27,8 @@ import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Tests the ForwardRateAgreementDefinition construction.
@@ -59,7 +60,7 @@ public class ZZZForwardRateAgreementDefinitionTest {
       NOTIONAL, FIXING_DATE, INDEX, FRA_RATE);
   private static final ZZZForwardRateAgreementDefinition FRA_DEFINITION_2 = ZZZForwardRateAgreementDefinition.from(FRA_DEFINITION, FIXING_DATE, INDEX, FRA_RATE);
 
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 12, 27); //For conversion to derivative
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 12, 27); //For conversion to derivative
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -93,7 +94,7 @@ public class ZZZForwardRateAgreementDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testIncorrectCurrency() {
-    Currency EUR = Currency.EUR;
+    final Currency EUR = Currency.EUR;
     new ZZZForwardRateAgreementDefinition(EUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, null, FRA_RATE);
   }
 
@@ -115,7 +116,8 @@ public class ZZZForwardRateAgreementDefinitionTest {
 
   @Test
   public void equalHash() {
-    ZZZForwardRateAgreementDefinition newFRA = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
+    final ZZZForwardRateAgreementDefinition newFRA = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
+        INDEX,
         FRA_RATE);
     assertEquals(newFRA.equals(FRA_DEFINITION), true);
     assertEquals(newFRA.hashCode() == FRA_DEFINITION.hashCode(), true);
@@ -140,34 +142,36 @@ public class ZZZForwardRateAgreementDefinitionTest {
   public void toDerivativeNotFixed() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
-    double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
-    double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION.getFixindPeriodStartDate());
-    double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION.getFixindPeriodEndDate());
-    String fundingCurve = "Funding";
-    String forwardCurve = "Forward";
-    String[] curves = {fundingCurve, forwardCurve};
-    ZZZForwardRateAgreement fra = new ZZZForwardRateAgreement(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
+    final double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION.getFixindPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION.getFixindPeriodEndDate());
+    final String fundingCurve = "Funding";
+    final String forwardCurve = "Forward";
+    final String[] curves = {fundingCurve, forwardCurve};
+    final ZZZForwardRateAgreement fra = new ZZZForwardRateAgreement(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         FRA_DEFINITION.getFixingPeriodAccrualFactor(), FRA_RATE, forwardCurve);
-    ZZZForwardRateAgreement convertedFra = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, curves);
+    final ZZZForwardRateAgreement convertedFra = (ZZZForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, curves);
     assertEquals(convertedFra, fra);
   }
 
   @Test
   public void toDerivativeFixed() {
-    LocalDate referenceFixed = LocalDate.of(2011, 1, 4);
-    ZZZForwardRateAgreementDefinition fraFixed = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
+    final ZonedDateTime referenceFixed = DateUtil.getUTCDate(2011, 1, 4);
+    final ZZZForwardRateAgreementDefinition fraFixed = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
+        INDEX,
         FRA_RATE);
-    double shift = 0.01;
-    fraFixed.fixingProcess(FRA_RATE + shift);
+    final double shift = 0.01;
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {FRA_RATE + shift});
+    //fraFixed.fixingProcess(FRA_RATE + shift);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(referenceFixed), TimeZone.UTC);
-    double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    String fundingCurve = "Funding";
-    String forwardCurve = "Forward";
-    String[] curves = {fundingCurve, forwardCurve};
-    CouponFixed fra = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, (FRA_RATE + shift) - FRA_RATE);
-    Payment convertedFra = fraFixed.toDerivative(referenceFixed, curves);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
+    final String fundingCurve = "Funding";
+    final String forwardCurve = "Forward";
+    final String[] curves = {fundingCurve, forwardCurve};
+    final CouponFixed fra = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, (FRA_RATE + shift) - FRA_RATE);
+    final Payment convertedFra = fraFixed.toDerivative(referenceFixed, fixingTS, curves);
     assertEquals(convertedFra.equals(fra), true);
   }
 

@@ -45,7 +45,8 @@ public class InterestRateFuturesTransactionDiscountingMethod {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
-    double forward = (forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime()) - 1)
+    double forward = (forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime()) 
+        / forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime()) - 1)
         / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
     double pv = (1 - forward - future.getReferencePrice()) * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity();
     return pv;
@@ -63,7 +64,6 @@ public class InterestRateFuturesTransactionDiscountingMethod {
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
     double dfForwardStart = forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodStartTime());
     double dfForwardEnd = forwardCurve.getDiscountFactor(future.getUnderlyingFuture().getFixingPeriodEndTime());
-    double forward = (dfForwardStart / dfForwardEnd - 1.0) / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
     // Backward sweep
     double pvBar = 1.0;
     double forwardBar = -future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity() * pvBar;

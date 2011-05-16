@@ -8,7 +8,6 @@ package com.opengamma.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -94,8 +93,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition from(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency, final Calendar calendar,
-      final DayCount dayCount,
-      final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
@@ -200,10 +198,10 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   }
 
   @Override
-  public AnnuityCouponFixed toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<CouponFixed> resultList = new ArrayList<CouponFixed>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
-      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate().toLocalDate())) {
+      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
         resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
       }
     }

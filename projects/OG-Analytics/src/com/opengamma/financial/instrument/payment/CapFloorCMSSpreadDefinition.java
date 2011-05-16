@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -22,6 +19,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on CMS spread. The notional is positive for long the option and negative for short the option.
@@ -71,8 +69,10 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    * @param strike The strike
    * @param isCap The cap (true) /floor (false) flag.
    */
-  public CapFloorCMSSpreadDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double accrualFactor, double notional,
-      ZonedDateTime fixingDate, SwapFixedIborDefinition underlyingSwap1, CMSIndex cmsIndex1, SwapFixedIborDefinition underlyingSwap2, CMSIndex cmsIndex2, double strike, boolean isCap) {
+  public CapFloorCMSSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+      final double notional,
+      final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final CMSIndex cmsIndex1, final SwapFixedIborDefinition underlyingSwap2, final CMSIndex cmsIndex2,
+      final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
     Validate.notNull(underlyingSwap1, "underlying swap");
     Validate.notNull(cmsIndex1, "CMS index");
@@ -120,7 +120,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 
@@ -133,40 +133,9 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   /**
    * The "fixing" is the difference between the first and the second CMS rates fixings.
    */
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
+  public double payOff(final double fixing) {
+    final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
-  }
-
-  @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
-    // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final String fundingCurveName = yieldCurveNames[0];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
-    } else { // CMS spread is not fixed yet, all the details are required.
-      final double fixingTime = actAct.getDayCountFraction(zonedDate, getFixingDate());
-      final double settlementTime = actAct.getDayCountFraction(zonedDate, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-      FixedCouponSwap<Payment> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
-      String[] yieldCurveNames2;
-      if (yieldCurveNames.length == 2) {
-        yieldCurveNames2 = yieldCurveNames;
-      } else {
-        yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
-      }
-      FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
-      return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
-          fundingCurveName);
-    }
-
   }
 
   @Override
@@ -185,7 +154,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -195,7 +164,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorCMSSpreadDefinition other = (CapFloorCMSSpreadDefinition) obj;
+    final CapFloorCMSSpreadDefinition other = (CapFloorCMSSpreadDefinition) obj;
     if (!ObjectUtils.equals(_cmsIndex1, other._cmsIndex1)) {
       return false;
     }
@@ -215,6 +184,63 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
       return false;
     }
     return true;
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    // CMS spread is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
+    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final FixedCouponSwap<Payment> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
+    String[] yieldCurveNames2;
+    if (yieldCurveNames.length == 2) {
+      yieldCurveNames2 = yieldCurveNames;
+    } else {
+      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+    }
+    final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
+    return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
+          fundingCurveName);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String fundingCurveName = yieldCurveNames[0];
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
+      final double fixedRate = data.getValue(getFixingDate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
+    }
+    // CMS spread is not fixed yet, all the details are required.
+    final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
+    final double settlementTime = actAct.getDayCountFraction(date, _underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final FixedCouponSwap<Payment> swap1 = _underlyingSwap1.toDerivative(date, yieldCurveNames);
+    String[] yieldCurveNames2;
+    if (yieldCurveNames.length == 2) {
+      yieldCurveNames2 = yieldCurveNames;
+    } else {
+      yieldCurveNames2 = new String[] {yieldCurveNames[0], yieldCurveNames[2]};
+    }
+    final FixedCouponSwap<Payment> swap2 = _underlyingSwap2.toDerivative(date, yieldCurveNames2);
+    return new CapFloorCMSSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap1, _cmsIndex1, swap2, _cmsIndex2, settlementTime, _strike, _isCap,
+          fundingCurveName);
   }
 
 }

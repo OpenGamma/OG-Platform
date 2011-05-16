@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument.future;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -70,4 +72,19 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertEquals(ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, BUSINESS_DAY, CALENDAR, IS_EOM, TENOR), ERU2.getFixingPeriodEndDate());
   }
 
+  @Test
+  public void equalHash() {
+    InterestRateFutureSecurityDefinition other = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    assertTrue(ERU2.equals(other));
+    assertTrue(ERU2.hashCode() == other.hashCode());
+    InterestRateFutureSecurityDefinition modifiedFuture;
+    modifiedFuture = new InterestRateFutureSecurityDefinition(SPOT_LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL + 1.0, FUTURE_FACTOR, NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR * 2.0, NAME);
+    assertFalse(ERU2.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL + 1.0, FUTURE_FACTOR, NAME + "+");
+    assertFalse(ERU2.equals(modifiedFuture));
+  }
 }

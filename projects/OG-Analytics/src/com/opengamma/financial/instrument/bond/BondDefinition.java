@@ -8,6 +8,7 @@ package com.opengamma.financial.instrument.bond;
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -18,7 +19,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.CompareUtils;
@@ -28,7 +29,7 @@ import com.opengamma.util.money.Currency;
  * 
  * A class that defines a coupon bond. 
  */
-public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
+public class BondDefinition implements FixedIncomeInstrumentConverter<Bond> {
   private static final Logger s_logger = LoggerFactory.getLogger(BondDefinition.class);
   private final LocalDate[] _nominalDates;
   private final LocalDate[] _settlementDates; // TODO settlement dates to be calculated in this class?
@@ -41,11 +42,12 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
    */
   private final Currency _currency;
 
-  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double couponsPerYear, final BondConvention convention) {
+  public BondDefinition(final Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double couponsPerYear,
+      final BondConvention convention) {
     this(currency, nominalDates, settlementDates, couponRate, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear,
+  public BondDefinition(final Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double couponRate, final double notional, final double couponsPerYear,
       final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
@@ -64,11 +66,12 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     _currency = currency;
   }
 
-  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double couponsPerYear, final BondConvention convention) {
+  public BondDefinition(final Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double couponsPerYear, 
+      final BondConvention convention) {
     this(currency, nominalDates, settlementDates, coupons, 1, couponsPerYear, convention);
   }
 
-  public BondDefinition(Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear,
+  public BondDefinition(final Currency currency, final LocalDate[] nominalDates, final LocalDate[] settlementDates, final double[] coupons, final double notional, final double couponsPerYear,
       final BondConvention convention) {
     Validate.noNullElements(nominalDates, "nominal dates");
     Validate.noNullElements(settlementDates, "settlement dates");
@@ -168,13 +171,13 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
   }
 
   @Override
-  public Bond toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public Bond toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
+    Validate.isTrue(!date.toLocalDate().isAfter(_settlementDates[_settlementDates.length - 1]), date + " is after final settlement date (" + _settlementDates[_settlementDates.length - 1] + ")");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0);
     s_logger.info("Using the first yield curve name as the funding curve name");
-    final int index = Arrays.binarySearch(_nominalDates, date);
+    final int index = Arrays.binarySearch(_nominalDates, date.toLocalDate());
     int position = index;
     final int n = _settlementDates.length;
     double accrualTime = 0;
@@ -187,10 +190,10 @@ public class BondDefinition implements FixedIncomeInstrumentDefinition<Bond> {
     coupon = _coupons[position];
     final DayCount dayCount = _convention.getDayCount();
     final Calendar calendar = _convention.getWorkingDayCalendar();
-    final LocalDate settlementDate = getSettlementDate(date, calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
+    final LocalDate settlementDate = getSettlementDate(date.toLocalDate(), calendar, _convention.getBusinessDayConvention(), _convention.getSettlementDays());
     double accruedInterest = 0;
-    accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(), 
-      position, calendar);
+    accruedInterest = AccruedInterestCalculator.getAccruedInterest(dayCount, settlementDate, _nominalDates, coupon, _couponsPerYear, _convention.isEOM(), _convention.getExDividendDays(),
+        position, calendar);
     accrualTime = accruedInterest / coupon;
     final double timeBetweenCoupons = 1. / _couponsPerYear;
     final double[] paymentTimes = new double[n - position - 1];

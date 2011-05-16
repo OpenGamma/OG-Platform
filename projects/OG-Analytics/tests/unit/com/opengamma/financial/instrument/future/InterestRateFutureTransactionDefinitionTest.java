@@ -6,6 +6,8 @@
 package com.opengamma.financial.instrument.future;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
@@ -65,4 +67,19 @@ public class InterestRateFutureTransactionDefinitionTest { //EURIBOR 3M Index
     assertEquals(TRADE_DATE, FUTURE_TRANSACTION.getTradeDate());
     assertEquals(TRADE_PRICE, FUTURE_TRANSACTION.getTradePrice());
   }
+
+  @Test
+  public void equalHash() {
+    InterestRateFutureTransactionDefinition other = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    assertTrue(FUTURE_TRANSACTION.equals(other));
+    assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
+    InterestRateFutureTransactionDefinition modifiedFuture;
+    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY + 1, TRADE_DATE, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, LAST_TRADING_DATE, TRADE_PRICE);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+    modifiedFuture = new InterestRateFutureTransactionDefinition(ERU2, QUANTITY, TRADE_DATE, TRADE_PRICE + 0.001);
+    assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
+  }
+
 }

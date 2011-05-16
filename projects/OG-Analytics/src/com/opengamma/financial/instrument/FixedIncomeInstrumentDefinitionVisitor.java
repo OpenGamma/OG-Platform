@@ -12,6 +12,7 @@ import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
@@ -28,9 +29,9 @@ import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
  */
 public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
-  U visit(FixedIncomeInstrumentDefinition<?> definition, T data);
+  U visit(FixedIncomeInstrumentConverter<?> definition, T data);
 
-  U visit(FixedIncomeInstrumentDefinition<?> definition);
+  U visit(FixedIncomeInstrumentConverter<?> definition);
 
   U visitBondDefinition(BondDefinition bond, T data);
 
@@ -44,33 +45,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitCashDefinition(CashDefinition cash);
 
-  //  @Deprecated
-  //  U visitFixedSwapLegDefinition(FixedSwapLegDefinition fixedSwapLeg, T data);
-  //
-  //  @Deprecated
-  //  U visitFixedSwapLegDefinition(FixedSwapLegDefinition fixedSwapLeg);
-  //
-  //  @Deprecated
-  //  U visitFloatingSwapLegDefinition(FloatingSwapLegDefinition floatingSwapLeg, T data);
-  //
-  //  @Deprecated
-  //  U visitFloatingSwapLegDefinition(FloatingSwapLegDefinition floatingSwapLeg);
-
   U visitFRADefinition(FRADefinition fra, T data);
 
   U visitFRADefinition(FRADefinition fra);
-
-  //  @Deprecated
-  //  U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap, T data);
-  //
-  //  @Deprecated
-  //  U visitFixedFloatSwapDefinition(FixedFloatSwapDefinition swap);
-  //
-  //  @Deprecated
-  //  U visitTenorSwapDefinition(TenorSwapDefinition swap, T data);
-  //
-  //  @Deprecated
-  //  U visitTenorSwapDefinition(TenorSwapDefinition swap);
 
   U visitPaymentFixed(PaymentFixedDefinition payment, T data);
 
@@ -79,6 +56,10 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitCouponFixed(CouponFixedDefinition payment, T data);
 
   U visitCouponFixed(CouponFixedDefinition payment);
+
+  U visitCouponFloating(CouponFloatingDefinition payment, T data);
+
+  U visitCouponFloating(CouponFloatingDefinition payment);
 
   U visitCouponIbor(CouponIborDefinition payment, T data);
 

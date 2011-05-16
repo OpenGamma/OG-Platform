@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponCMSDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
@@ -37,9 +38,11 @@ import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
@@ -49,8 +52,10 @@ import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class testing the Fixed income instrument definition visitor.
@@ -86,6 +91,7 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final int SPOT_LAG = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
+  private static final CMSIndex CMS_INDEX = new CMSIndex(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1);
   private static final AnnuityCouponIborDefinition ANNUITY_IBOR = AnnuityCouponIborDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, !IS_PAYER);
   private static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
   private static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
@@ -95,6 +101,23 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR = new SwapFixedIborDefinition(ANNUITY_FIXED, ANNUITY_IBOR);
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
+  private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
+      new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtil.getUTCDate(2012, 1, 1), 1000)});
+  private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
+
+    @Override
+    public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+      return null;
+    }
+
+    @Override
+    public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+      return null;
+    }
+
+  };
+  private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
+  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS});
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -126,17 +149,25 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     assertEquals(SWAP_FIXED_IBOR_SPREAD.accept(VISITOR, o), "SwapFixedIborSpread1");
     assertEquals(SWAP_IBOR_IBOR.accept(VISITOR), "SwapIborIbor2");
     assertEquals(SWAP_IBOR_IBOR.accept(VISITOR, o), "SwapIborIbor1");
+    assertEquals(GENERAL_ANNUITY.accept(VISITOR), "Annuity2");
+    assertEquals(GENERAL_ANNUITY.accept(VISITOR, o), "Annuity1");
+    assertEquals(COUPON_FLOATING.accept(VISITOR), "CouponFloating2");
+    assertEquals(COUPON_FLOATING.accept(VISITOR, o), "CouponFloating1");
+    assertEquals(COUPON_CMS.accept(VISITOR), "CouponCMS2");
+    assertEquals(COUPON_CMS.accept(VISITOR, o), "CouponCMS1");
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR), "AnnuityCouponCMS2");
+    assertEquals(ANNUITY_COUPON_CMS.accept(VISITOR, o), "AnnuityCouponCMS1");
   }
 
   private static class MyVisitor<T, U> implements FixedIncomeInstrumentDefinitionVisitor<T, String>, FixedIncomeFutureInstrumentDefinitionVisitor<T, String> {
 
     @Override
-    public String visit(final FixedIncomeInstrumentDefinition<?> definition, final T data) {
+    public String visit(final FixedIncomeInstrumentConverter<?> definition, final T data) {
       return definition.accept(this, data);
     }
 
     @Override
-    public String visit(final FixedIncomeInstrumentDefinition<?> definition) {
+    public String visit(final FixedIncomeInstrumentConverter<?> definition) {
       return definition.accept(this);
     }
 
@@ -201,143 +232,153 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitPaymentFixed(PaymentFixedDefinition payment, T data) {
+    public String visitPaymentFixed(final PaymentFixedDefinition payment, final T data) {
       return "PaymentFixed1";
     }
 
     @Override
-    public String visitPaymentFixed(PaymentFixedDefinition payment) {
+    public String visitPaymentFixed(final PaymentFixedDefinition payment) {
       return "PaymentFixed2";
     }
 
     @Override
-    public String visitCouponFixed(CouponFixedDefinition payment, T data) {
+    public String visitCouponFixed(final CouponFixedDefinition payment, final T data) {
       return "CouponFixed1";
     }
 
     @Override
-    public String visitCouponFixed(CouponFixedDefinition payment) {
+    public String visitCouponFixed(final CouponFixedDefinition payment) {
       return "CouponFixed2";
     }
 
     @Override
-    public String visitCouponIbor(CouponIborDefinition payment, T data) {
+    public String visitCouponIbor(final CouponIborDefinition payment, final T data) {
       return "CouponIbor1";
     }
 
     @Override
-    public String visitCouponIbor(CouponIborDefinition payment) {
+    public String visitCouponIbor(final CouponIborDefinition payment) {
       return "CouponIbor2";
     }
 
     @Override
-    public String visitCouponCMS(CouponCMSDefinition payment, T data) {
+    public String visitCouponCMS(final CouponCMSDefinition payment, final T data) {
       return "CouponCMS1";
     }
 
     @Override
-    public String visitCouponCMS(CouponCMSDefinition payment) {
+    public String visitCouponCMS(final CouponCMSDefinition payment) {
       return "CouponCMS2";
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+    public String visitCouponIborSpread(final CouponIborDefinition payment, final T data) {
       return "CouponIborSpread1";
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborDefinition payment) {
+    public String visitCouponIborSpread(final CouponIborDefinition payment) {
       return "CouponIborSpread2";
     }
 
     @Override
-    public String visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity, T data) {
+    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity, final T data) {
       return "AnnuityCouponCMS1";
     }
 
     @Override
-    public String visitAnnuityCouponCMSDefinition(AnnuityDefinition<CouponCMSDefinition> annuity) {
+    public String visitAnnuityCouponCMSDefinition(final AnnuityDefinition<CouponCMSDefinition> annuity) {
       return "AnnuityCouponCMS2";
     }
 
     @Override
-    public String visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity, T data) {
+    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity, final T data) {
       return "AnnuityCouponFixed1";
     }
 
     @Override
-    public String visitAnnuityCouponFixedDefinition(AnnuityDefinition<CouponFixedDefinition> annuity) {
+    public String visitAnnuityCouponFixedDefinition(final AnnuityDefinition<CouponFixedDefinition> annuity) {
       return "AnnuityCouponFixed2";
     }
 
     @Override
-    public String visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity, T data) {
+    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity, final T data) {
       return "AnnuityCouponIbor1";
     }
 
     @Override
-    public String visitAnnuityCouponIborDefinition(AnnuityDefinition<CouponIborDefinition> annuity) {
+    public String visitAnnuityCouponIborDefinition(final AnnuityDefinition<CouponIborDefinition> annuity) {
       return "AnnuityCouponIbor2";
     }
 
     @Override
-    public String visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity, T data) {
+    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity, final T data) {
       return "AnnuityCouponIborSpread1";
     }
 
     @Override
-    public String visitAnnuityCouponIborSpreadDefinition(AnnuityDefinition<CouponIborSpreadDefinition> annuity) {
+    public String visitAnnuityCouponIborSpreadDefinition(final AnnuityDefinition<CouponIborSpreadDefinition> annuity) {
       return "AnnuityCouponIborSpread2";
     }
 
     @Override
-    public String visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity, T data) {
+    public String visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final T data) {
       return "Annuity1";
     }
 
     @Override
-    public String visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity) {
+    public String visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
       return "Annuity2";
     }
 
     @Override
-    public String visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap, T data) {
+    public String visitSwapDefinition(final SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap, final T data) {
       return "Swap1";
     }
 
     @Override
-    public String visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap) {
+    public String visitSwapDefinition(final SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap) {
       return "Swap2";
     }
 
     @Override
-    public String visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, T data) {
+    public String visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final T data) {
       return "SwapFixedIbor1";
     }
 
     @Override
-    public String visitSwapFixedIborDefinition(SwapFixedIborDefinition swap) {
+    public String visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap) {
       return "SwapFixedIbor2";
     }
 
     @Override
-    public String visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap, T data) {
+    public String visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final T data) {
       return "SwapFixedIborSpread1";
     }
 
     @Override
-    public String visitSwapFixedIborSpreadDefinition(SwapFixedIborSpreadDefinition swap) {
+    public String visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap) {
       return "SwapFixedIborSpread2";
     }
 
     @Override
-    public String visitSwapIborIborDefinition(SwapIborIborDefinition swap, T data) {
+    public String visitSwapIborIborDefinition(final SwapIborIborDefinition swap, final T data) {
       return "SwapIborIbor1";
     }
 
     @Override
-    public String visitSwapIborIborDefinition(SwapIborIborDefinition swap) {
+    public String visitSwapIborIborDefinition(final SwapIborIborDefinition swap) {
       return "SwapIborIbor2";
+    }
+
+    @Override
+    public String visitCouponFloating(final CouponFloatingDefinition payment, final T data) {
+      return "CouponFloating1";
+    }
+
+    @Override
+    public String visitCouponFloating(final CouponFloatingDefinition payment) {
+      return "CouponFloating2";
     }
   }
 }

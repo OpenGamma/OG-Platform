@@ -43,7 +43,6 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
       return method.presentValue(cap, sabr);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorIbor requires a SABRInterestRateDataBundle as data.");
-
   }
 
   @Override
