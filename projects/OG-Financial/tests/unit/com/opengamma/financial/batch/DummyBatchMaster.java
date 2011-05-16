@@ -18,7 +18,7 @@ import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 /**
  * 
  */
-public class DummyBatchDbManager implements BatchDbManager {
+public class DummyBatchMaster implements BatchMaster {
   
   private Map<SnapshotId, Set<LiveDataValue>> _snapshot2LiveData = new HashMap<SnapshotId, Set<LiveDataValue>>();
   

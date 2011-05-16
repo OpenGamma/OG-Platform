@@ -49,7 +49,7 @@ public class BatchLiveDataSnapshotProviderTest {
     HistoricalLiveDataSnapshotProvider snapshotProvider = new HistoricalLiveDataSnapshotProvider(historicalDataProvider, "BLOOMBERG", "CMPL", "PX_LAST");
     
     BatchLiveDataSnapshotProvider provider = new BatchLiveDataSnapshotProvider(run,
-        new DummyBatchDbManager(),
+        new DummyBatchMaster(),
         snapshotProvider);
     
     long snapshot = provider.snapshot(LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC).toInstant().toEpochMillisLong());

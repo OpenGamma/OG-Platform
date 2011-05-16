@@ -10,7 +10,7 @@ import java.net.URI;
 import javax.time.calendar.LocalDate;
 
 /**
- * 
+ * URIs for web-based batch management.
  */
 public class WebBatchUris {
   

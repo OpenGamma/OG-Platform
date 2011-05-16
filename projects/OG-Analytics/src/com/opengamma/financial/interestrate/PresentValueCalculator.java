@@ -19,7 +19,7 @@ import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.method.InterestRateFuturesTransactionDiscountingMethod;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -113,8 +113,8 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
    * Future pricing without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    InterestRateFuturesTransactionDiscountingMethod method = new InterestRateFuturesTransactionDiscountingMethod();
-    return method.presentValueFromCurve(future, curves);
+    InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    return method.presentValue(future, curves);
   }
 
   @Override
