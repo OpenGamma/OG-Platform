@@ -152,7 +152,7 @@ public:
 	}
 	void Run () {
 		LOGDEBUG (TEXT ("Starting posting thread"));
-		m_oSignal.Release ();
+		m_oSignal.Signal ();
 		while (!m_bPoison) {
 			int nHandle = m_poSlot->GetHandle ();
 			CThread::Sleep (TIMEOUT_MESSAGE / 10);
