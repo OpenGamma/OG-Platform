@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -35,14 +35,14 @@ public class PDEGrid1D {
     _dt = new double[numTimeNodes - 1];
     _dx = new double[numSpaceNodes - 1];
 
-    double dt = tMax / (numTimeNodes - 1);
+    final double dt = tMax / (numTimeNodes - 1);
     _tNodes[numTimeNodes - 1] = tMax;
     for (int i = 0; i < numTimeNodes - 1; i++) {
       _tNodes[i] = i * dt;
       _dt[i] = dt;
     }
 
-    double dx = (xMax - xMin) / (numSpaceNodes - 1);
+    final double dx = (xMax - xMin) / (numSpaceNodes - 1);
     _xNodes[numSpaceNodes - 1] = xMax;
     for (int i = 0; i < numSpaceNodes - 1; i++) {
       _xNodes[i] = xMin + i * dx;
@@ -71,8 +71,8 @@ public class PDEGrid1D {
   }
 
   public PDEGrid1D(final double[] timeGrid, final double[] spaceGrid) {
-    int tNodes = timeGrid.length;
-    int xNodes = spaceGrid.length;
+    final int tNodes = timeGrid.length;
+    final int xNodes = spaceGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
     Validate.isTrue(xNodes > 2, "need at least 3 space nodes");
 
@@ -122,38 +122,38 @@ public class PDEGrid1D {
     return _xNodes.length;
   }
 
-  public double getTimeNode(int n) {
+  public double getTimeNode(final int n) {
     return _tNodes[n];
   }
 
-  public double getSpaceNode(int i) {
+  public double getSpaceNode(final int i) {
     return _xNodes[i];
   }
 
-  public double getTimeStep(int n) {
+  public double getTimeStep(final int n) {
     return _dt[n];
   }
 
-  public double getSpaceStep(int i) {
+  public double getSpaceStep(final int i) {
     return _dx[i];
   }
 
-  public double[] getFirstDerivativeCoefficients(int i) {
+  public double[] getFirstDerivativeCoefficients(final int i) {
     Validate.isTrue(i > 0 && i < _nSpaceNodes - 1, "Can't take central difference at first or last node. Use Forward or backwards");
     return _x1st[i - 1];
   }
 
-  public double[] getFirstDerivativeForwardCoefficients(int i) {
+  public double[] getFirstDerivativeForwardCoefficients(final int i) {
     Validate.isTrue(i < _nSpaceNodes - 1, "Can't take forward difference at last node. Use central or backwards");
     return _x1stFwd[i];
   }
 
-  public double[] getFirstDerivativeBackwardCoefficients(int i) {
+  public double[] getFirstDerivativeBackwardCoefficients(final int i) {
     Validate.isTrue(i > 0, "Can't take backwards difference at first node. Use central or forwards");
     return _x1stBkd[i - 1];
   }
 
-  public double[] getSecondDerivativeCoefficients(int i) {
+  public double[] getSecondDerivativeCoefficients(final int i) {
     if (i == 0) {
       return _x2nd[0]; // TODO check this is still the best 3-point when the grid is non-uniform
     } else if (i == _nSpaceNodes - 1) {

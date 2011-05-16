@@ -256,7 +256,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+    DbBatchMaster dbManager = new DbBatchMaster();
     dbManager.setDbSource(_dbSource);
     
     // try twice to handle situation where two threads contend to insert
@@ -285,7 +285,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+    DbBatchMaster dbManager = new DbBatchMaster();
     dbManager.setDbSource(_dbSource);
     
     // try twice to handle situation where two threads contend to insert
@@ -314,7 +314,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    BatchDbManagerImpl dbManager = new BatchDbManagerImpl();
+    DbBatchMaster dbManager = new DbBatchMaster();
     dbManager.setDbSource(_dbSource);
     
     // try twice to handle situation where two threads contend to insert

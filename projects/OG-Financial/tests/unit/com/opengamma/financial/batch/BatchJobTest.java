@@ -122,13 +122,13 @@ public class BatchJobTest {
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
         Identifier.of("BUID", "EQ12345")), "BID", 11.22);
     
-    DummyBatchDbManager dbManager = new DummyBatchDbManager();
-    dbManager.addLiveData(snapshotId1, value);
-    dbManager.addLiveData(snapshotId2, value);
-    dbManager.addLiveData(snapshotId3, value);
+    DummyBatchMaster batchMaster = new DummyBatchMaster();
+    batchMaster.addLiveData(snapshotId1, value);
+    batchMaster.addLiveData(snapshotId2, value);
+    batchMaster.addLiveData(snapshotId3, value);
     
     CommandLineBatchJob job = new CommandLineBatchJob();
-    job.setBatchDbManager(dbManager);
+    job.setBatchMaster(batchMaster);
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
@@ -176,7 +176,7 @@ public class BatchJobTest {
     };
     
     CommandLineBatchJob job = new CommandLineBatchJob();
-    job.setBatchDbManager(new DummyBatchDbManager());
+    job.setBatchMaster(new DummyBatchMaster());
     job.setHolidaySource(holidaySource);
     job.setHolidayCurrency(Currency.USD);
     
@@ -207,7 +207,7 @@ public class BatchJobTest {
   @Test
   public void dateRangeCommandLineNoHolidayMaster() throws Exception {
     CommandLineBatchJob job = new CommandLineBatchJob();
-    job.setBatchDbManager(new DummyBatchDbManager());
+    job.setBatchMaster(new DummyBatchMaster());
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = parser.parse(CommandLineBatchJob.getOptions(), 
@@ -251,11 +251,11 @@ public class BatchJobTest {
     LiveDataValue value = new LiveDataValue(new ComputationTargetSpecification(
         Identifier.of("BUID", "EQ12345")), "BID", 11.22);
     
-    DummyBatchDbManager dbManager = new DummyBatchDbManager();
-    dbManager.addLiveData(snapshotId, value);
+    DummyBatchMaster batchMaster = new DummyBatchMaster();
+    batchMaster.addLiveData(snapshotId, value);
 
     CommandLineBatchJob job = new CommandLineBatchJob();
-    job.setBatchDbManager(dbManager);
+    job.setBatchMaster(batchMaster);
     
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(new PortfolioImpl(portfolioId, "test_portfolio"));

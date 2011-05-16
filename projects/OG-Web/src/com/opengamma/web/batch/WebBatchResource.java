@@ -63,7 +63,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
     request.setObservationTime(data().getBatch().getObservationTime());
     request.setPagingRequest(PagingRequest.of(page, pageSize));
     
-    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+    BatchDataSearchResult batchResults = data().getBatchMaster().getResults(request);
     data().setBatchResults(batchResults.getItems());
     
     BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
@@ -71,7 +71,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
     errorRequest.setObservationTime(data().getBatch().getObservationTime());
     errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
     
-    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
+    BatchErrorSearchResult batchErrors = data().getBatchMaster().getErrors(errorRequest);
     data().setBatchErrors(batchErrors.getItems());
 
     out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
@@ -94,7 +94,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
     request.setObservationTime(data().getBatch().getObservationTime());
     request.setPagingRequest(PagingRequest.of(page, pageSize));
 
-    BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+    BatchDataSearchResult batchResults = data().getBatchMaster().getResults(request);
     data().setBatchResults(batchResults.getItems());
 
     BatchErrorSearchRequest errorRequest = new BatchErrorSearchRequest();
@@ -102,7 +102,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
     errorRequest.setObservationTime(data().getBatch().getObservationTime());
     errorRequest.setPagingRequest(PagingRequest.of(page, pageSize));
 
-    BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(errorRequest);
+    BatchErrorSearchResult batchErrors = data().getBatchMaster().getErrors(errorRequest);
     data().setBatchErrors(batchErrors.getItems());
 
     out.put("resultPaging", new WebPaging(batchResults.getPaging(), data().getUriInfo()));
@@ -144,7 +144,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
             request.setObservationTime(data().getBatch().getObservationTime());
             request.setPagingRequest(PagingRequest.of(page, pageSize));
             
-            BatchErrorSearchResult batchErrors = data().getBatchDbManager().getErrors(request);
+            BatchErrorSearchResult batchErrors = data().getBatchMaster().getErrors(request);
             for (BatchError entry : batchErrors.getItems()) {
               csvWriter.writeNext(new String[] {
                 entry.getCalculationConfiguration(),
@@ -194,7 +194,7 @@ public class WebBatchResource extends AbstractWebBatchResource {
           request.setObservationTime(data().getBatch().getObservationTime());
           request.setPagingRequest(PagingRequest.of(page, pageSize));
           
-          BatchDataSearchResult batchResults = data().getBatchDbManager().getResults(request);
+          BatchDataSearchResult batchResults = data().getBatchMaster().getResults(request);
           for (ViewResultEntry entry : batchResults.getItems()) {
             ComputedValue value = entry.getComputedValue();
             

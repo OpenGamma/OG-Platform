@@ -54,12 +54,12 @@ import com.opengamma.financial.batch.AdHocBatchJobRun;
 import com.opengamma.financial.batch.AdHocBatchResult;
 import com.opengamma.financial.batch.BatchDataSearchRequest;
 import com.opengamma.financial.batch.BatchDataSearchResult;
-import com.opengamma.financial.batch.BatchDbManager;
 import com.opengamma.financial.batch.BatchError;
 import com.opengamma.financial.batch.BatchErrorSearchRequest;
 import com.opengamma.financial.batch.BatchErrorSearchResult;
 import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchJobRun;
+import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
@@ -77,26 +77,39 @@ import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
 
 /**
- * This implementation uses Hibernate to write all static data, including LiveData snapshots.
+ * A batch master implementation using a database for persistence.
  * <p>
- * Risk itself is written using direct JDBC, however.
+ * This is a full implementation of the batch master using an SQL database.
+ * This implementation uses Hibernate to write all static data, including LiveData snapshots.
+ * Risk itself is written using direct JDBC.
+ * <p>
+ * Full details of the API are in {@link BatchMaster}.
+ * <p>
+ * This class is mutable but must be treated as immutable after configuration.
  */
-public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
-  
-  private static final Logger s_logger = LoggerFactory
-    .getLogger(BatchDbManagerImpl.class);
-  
+public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
+
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
+  /**
+   * The database schema.
+   */
   private static String s_dbSchema = "";
-  
+
+  /**
+   * The database connection.
+   */
   private DbSource _dbSource;
+  /**
+   * The Hibernate template.
+   */
   private HibernateTemplate _hibernateTemplate;
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public static synchronized String getDatabaseSchema() {
     return s_dbSchema;
   }
-  
+
   public static synchronized void setDatabaseSchema(String schema) {
     if (schema == null) {
       s_dbSchema = "";      
@@ -104,9 +117,8 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
       s_dbSchema = schema  + ".";
     }
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public PlatformTransactionManager getTransactionManager() {
     return _dbSource.getTransactionManager();
   }
@@ -114,33 +126,31 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   public SessionFactory getSessionFactory() {
     return _dbSource.getHibernateSessionFactory();
   }
-  
+
   public HibernateTemplate getHibernateTemplate() {
     return _hibernateTemplate;
   }
-  
+
   public SimpleJdbcTemplate getJdbcTemplate() {
     return _dbSource.getJdbcTemplate();
   }
-  
+
   public DbHelper getDbHelper() {
     return _dbSource.getDialect();
   }
-  
+
   public void setDbSource(DbSource dbSource) {
     ArgumentChecker.notNull(dbSource, "dbSource");
-    _dbSource = dbSource;    
+    _dbSource = dbSource;
     _hibernateTemplate = new HibernateTemplate(_dbSource.getHibernateSessionFactory());
     _hibernateTemplate.setAllowCreate(false);
   }
-  
-  // --------------------------------------------------------------------------
-  
-  /*package*/ OpenGammaVersion getOpenGammaVersion(final BatchJobRun job) {
+
+  //-------------------------------------------------------------------------
+  /*package*/OpenGammaVersion getOpenGammaVersion(final BatchJobRun job) {
     OpenGammaVersion version = getHibernateTemplate().execute(new HibernateCallback<OpenGammaVersion>() {
       @Override
-      public OpenGammaVersion doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public OpenGammaVersion doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("OpenGammaVersion.one.byVersion");
         query.setString("version", job.getOpenGammaVersion());
         return (OpenGammaVersion) query.uniqueResult();
@@ -153,17 +163,15 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     }
     return version;
   }
-  
-  
-  /*package*/ ObservationTime getObservationTime(final BatchJobRun job) {
+
+  /*package*/ObservationTime getObservationTime(final BatchJobRun job) {
     return getObservationTime(job.getObservationTime());
   }
-  
+
   /*package*/ ObservationTime getObservationTime(final String label) {
     ObservationTime observationTime = getHibernateTemplate().execute(new HibernateCallback<ObservationTime>() {
       @Override
-      public ObservationTime doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public ObservationTime doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("ObservationTime.one.byLabel");
         query.setString("label", label);
         return (ObservationTime) query.uniqueResult();
@@ -185,8 +193,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ ObservationDateTime getObservationDateTime(final LocalDate observationDate, final String observationTime) {
     ObservationDateTime dateTime = getHibernateTemplate().execute(new HibernateCallback<ObservationDateTime>() {
       @Override
-      public ObservationDateTime doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public ObservationDateTime doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("ObservationDateTime.one.byDateAndTime");
         query.setDate("date", DbDateUtils.toSqlDate(observationDate));
         query.setString("time", observationTime);
@@ -205,8 +212,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ ComputeHost getComputeHost(final String hostName) {
     ComputeHost computeHost = getHibernateTemplate().execute(new HibernateCallback<ComputeHost>() {
       @Override
-      public ComputeHost doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public ComputeHost doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("ComputeHost.one.byHostName");
         query.setString("hostName", hostName);
         return (ComputeHost) query.uniqueResult();
@@ -234,8 +240,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
     
     ComputeNode node = getHibernateTemplate().execute(new HibernateCallback<ComputeNode>() {
       @Override
-      public ComputeNode doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public ComputeNode doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("ComputeNode.one.byNodeName");
         query.setString("nodeName", nodeId);
         return (ComputeNode) query.uniqueResult();
@@ -274,8 +279,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ LiveDataSnapshot getLiveDataSnapshot(final LocalDate observationDate, final String observationTime) {
     LiveDataSnapshot liveDataSnapshot = getHibernateTemplate().execute(new HibernateCallback<LiveDataSnapshot>() {
       @Override
-      public LiveDataSnapshot doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public LiveDataSnapshot doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("LiveDataSnapshot.one.byDateAndTime");
         query.setDate("date", DbDateUtils.toSqlDate(observationDate));
         query.setString("time", observationTime);
@@ -288,8 +292,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ LiveDataField getLiveDataField(final String fieldName) {
     LiveDataField field = getHibernateTemplate().execute(new HibernateCallback<LiveDataField>() {
       @Override
-      public LiveDataField doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public LiveDataField doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("LiveDataField.one.byName");
         query.setString("name", fieldName);
         return (LiveDataField) query.uniqueResult();
@@ -306,8 +309,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   private ComputationTarget getComputationTargetImpl(final ComputationTargetSpecification spec) {
     ComputationTarget computationTarget = getHibernateTemplate().execute(new HibernateCallback<ComputationTarget>() {
       @Override
-      public ComputationTarget doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public ComputationTarget doInHibernate(Session session) throws HibernateException, SQLException {
         Query query;
         if (spec.getUniqueId().getVersion() == null) {
           query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNullVersion");
@@ -359,8 +361,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ RiskValueName getRiskValueName(final String name) {
     RiskValueName riskValueName = getHibernateTemplate().execute(new HibernateCallback<RiskValueName>() {
       @Override
-      public RiskValueName doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public RiskValueName doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("RiskValueName.one.byName");
         query.setString("name", name);
         return (RiskValueName) query.uniqueResult();
@@ -377,8 +378,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ FunctionUniqueId getFunctionUniqueId(final String uniqueId) {
     FunctionUniqueId functionUniqueId = getHibernateTemplate().execute(new HibernateCallback<FunctionUniqueId>() {
       @Override
-      public FunctionUniqueId doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public FunctionUniqueId doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("FunctionUniqueId.one.byUniqueId");
         query.setString("uniqueId", uniqueId);
         return (FunctionUniqueId) query.uniqueResult();
@@ -395,8 +395,7 @@ public class BatchDbManagerImpl implements BatchDbManager, AdHocBatchDbManager {
   /*package*/ RiskRun getRiskRunFromDb(final LocalDate observationDate, final String observationTime) {
     RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
-      public RiskRun doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public RiskRun doInHibernate(Session session) throws HibernateException, SQLException {
         Query query = session.getNamedQuery("RiskRun.one.byRunTime");
         query.setDate("runDate", DbDateUtils.toSqlDate(observationDate));
         query.setString("runTime", observationTime);

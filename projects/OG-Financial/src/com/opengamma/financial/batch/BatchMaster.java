@@ -12,35 +12,40 @@ import javax.time.calendar.OffsetTime;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 
 /**
- * All operations needed to populate the batch database.
+ * A master for storing and managing batch job runs.
  */
-public interface BatchDbManager {
+public interface BatchMaster {
 
   /**
-   * Creates all static data structures
-   * in the batch database (compute host,
-   * OpenGamma version, risk run, etc.). This method 
-   * must be called before any risk can be written into 
-   * the database for the batch in question.
+   * Starts the storage of a batch job run.
+   * <p>
+   * This creates all static data structures, such as compute host, OpenGamma
+   * version and risk run. This method must be called before any risk can be
+   * written for the batch in question.
    * 
-   * @param batch The batch job which is starting, not null
+   * @param batch  the batch job which is starting, not null
    */
   void startBatch(BatchJobRun batch);
 
   /**
-   * Marks the batch as complete.
+   * Ends the storage of a batch job run.
+   * <p>
+   * This marks the batch as complete.
    * 
-   * @param batch The batch job which has finished, not null
+   * @param batch  the batch job which has finished, not null
    */
   void endBatch(BatchJobRun batch);
-  
+
   /**
    * Deletes a batch and all its risk from the database.
+   * <p>
+   * This deletion is permanent.
    * 
-   * @param batch The batch job to delete, not null
+   * @param batch  the batch job to delete, not null
    */
   void deleteBatch(BatchJobRun batch);
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a LiveData snapshot in the database. 
    * If the snapshot already exists, does nothing.
@@ -48,7 +53,7 @@ public interface BatchDbManager {
    * @param snapshotId The date and time of the snapshot, not null
    */
   void createLiveDataSnapshot(SnapshotId snapshotId);
-  
+
   /**
    * Fixes the time of a LiveData snapshot in the database.
    * For example, the head trader may set the time of LDN_CLOSE every day.
@@ -58,7 +63,7 @@ public interface BatchDbManager {
    * @param fix The time to which the observation time was fixed, not null
    */
   void fixLiveDataSnapshotTime(SnapshotId snapshotId, OffsetTime fix);
-  
+
   /**
    * Adds market data fixings to an existing LiveData snapshot. The
    * snapshot must already exist.
@@ -67,7 +72,7 @@ public interface BatchDbManager {
    * @param values The fixings, not null
    */
   void addValuesToSnapshot(SnapshotId snapshotId, Set<LiveDataValue> values);
-  
+
   /**
    * Gets all market data fixings associated with an existing snapshot.
    * 
@@ -77,7 +82,7 @@ public interface BatchDbManager {
    * ID does not exist
    */
   Set<LiveDataValue> getSnapshotValues(SnapshotId snapshotId);
-  
+
   /**
    * Gets a factory for executing dependency graphs and
    * writing risk values into the database.
@@ -92,7 +97,8 @@ public interface BatchDbManager {
    * and write results into the database.
    */
   DependencyGraphExecutorFactory<?> createDependencyGraphExecutorFactory(BatchJobRun batch);
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Searches for batches matching the specified search criteria.
    * 
@@ -103,7 +109,7 @@ public interface BatchDbManager {
   BatchSearchResult search(BatchSearchRequest request);
 
   /**
-   * Gets the results of a batch from the batch DB.
+   * Gets the results of a batch.
    * <p>
    * Risk failures are not included in the result. 
    * 
@@ -112,14 +118,14 @@ public interface BatchDbManager {
    * @throws IllegalArgumentException if the request is invalid
    */
   BatchDataSearchResult getResults(BatchDataSearchRequest request);
-  
+
   /**
-   * Gets the risk failures of a batch from the batch DB.
+   * Gets the risk failures of a batch.
    * 
    * @param request  the search request, not null
    * @return the search result, not null
    * @throws IllegalArgumentException if the request is invalid
    */
   BatchErrorSearchResult getErrors(BatchErrorSearchRequest request);
-  
+
 }

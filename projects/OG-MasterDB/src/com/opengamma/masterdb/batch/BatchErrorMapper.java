@@ -32,13 +32,13 @@ public class BatchErrorMapper {
       "exception_class," +
       "exception_msg," +
       "stack_trace " +
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk_failure where" +
+      " from " + DbBatchMaster.getDatabaseSchema() + "vw_rsk_failure where" +
       " rsk_run_id = :rsk_run_id";
   }
   
   public static String sqlCount() {
     return "select count(*) " + 
-      " from " + BatchDbManagerImpl.getDatabaseSchema() + "vw_rsk_failure where" +
+      " from " + DbBatchMaster.getDatabaseSchema() + "vw_rsk_failure where" +
       " rsk_run_id = :rsk_run_id";
   }
   

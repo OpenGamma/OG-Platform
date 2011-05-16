@@ -12,16 +12,16 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
  * Writes results into batch DB.
  */
 public interface BatchResultWriter {
-  
+
   /**
    * Writes results into batch DB.
    * 
-   * @param result the result to save
-   * @param depGraph context information, useful for determining
-   * which results to write and which to skip
+   * @param result  the result to save
+   * @param depGraph  the context information, useful for determining
+   *  which results to write and which to skip
    */
   void write(CalculationJobResult result, DependencyGraph depGraph);
-  
+
   /**
    * Gets the dependency graph to execute. 
    * <p>
@@ -31,8 +31,8 @@ public interface BatchResultWriter {
    * there, it is possible to skip many calculations
    * and evaluate only a sub-graph of the entire graph.
    *  
-   * @param graph original graph
-   * @return original graph or, possibly, a sub-graph of the original
+   * @param graph  the original graph
+   * @return the original graph or, possibly, a sub-graph of the original
    * graph, if results are already found in batch DB 
    */
   DependencyGraph getGraphToExecute(DependencyGraph graph);

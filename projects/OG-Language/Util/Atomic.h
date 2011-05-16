@@ -55,6 +55,13 @@ public:
 		apr_atomic_set32 (&m_nValue, nValue);
 #endif
 	}
+	int CompareAndSet (int nNewValue, int nCompareWith) {
+#ifdef _WIN32
+		return InterlockedCompareExchange (&m_nValue, nNewValue, nCompareWith);
+#else /* ifdef _WIN32 */
+		return apr_atomic_cas32 (&m_nValue, nNewValue, nCompareWith);
+#endif /* ifdef _WIN32 */
+	}
 };
 
 template <typename PTYPE> class CAtomicPointer {
