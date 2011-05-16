@@ -13,10 +13,12 @@ import org.apache.commons.lang.Validate;
 public class PDEFullResults1D {
 
   private final double[][] _f;
+  @SuppressWarnings("unused")
   private final PDEGrid1D _grid;
+  @SuppressWarnings("unused")
   private final boolean _fullDataSet;
 
-  public PDEFullResults1D(PDEGrid1D grid, double[][] fullSolverData) {
+  public PDEFullResults1D(final PDEGrid1D grid, final double[][] fullSolverData) {
     Validate.isTrue(grid.getNumTimeNodes() == fullSolverData.length, "time steps in grid not equal to that in data");
     Validate.isTrue(grid.getNumSpaceNodes() == fullSolverData[0].length, "space steps in grid not equal to that in data");
     _grid = grid;
@@ -25,7 +27,7 @@ public class PDEFullResults1D {
   }
 
   // penultimate
-  public PDEFullResults1D(PDEGrid1D grid, double[] penultimateTimeStep, double[] finalTimeStep) {
+  public PDEFullResults1D(final PDEGrid1D grid, final double[] penultimateTimeStep, final double[] finalTimeStep) {
     Validate.isTrue(grid.getNumSpaceNodes() == penultimateTimeStep.length, "space steps in grid not equal to that in data");
     Validate.isTrue(grid.getNumSpaceNodes() == finalTimeStep.length, "space steps in grid not equal to that in data");
     _f = new double[2][];
@@ -35,7 +37,7 @@ public class PDEFullResults1D {
     _fullDataSet = false;
   }
 
-  double getFunctionValue(int index) {
+  double getFunctionValue(final int index) {
     return _f[0][index];
   }
 
