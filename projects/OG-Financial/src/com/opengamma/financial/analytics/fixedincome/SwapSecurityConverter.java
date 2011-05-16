@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
@@ -37,7 +37,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -52,12 +52,12 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public FixedIncomeInstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
+  public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
     if (!(security.getPayLeg() instanceof InterestRateLeg) || !(security.getReceiveLeg() instanceof InterestRateLeg)) {
       throw new OpenGammaRuntimeException("Can only handle interest rate swaps");
     }
@@ -108,7 +108,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     return new SwapIborIborDefinition(payLegDefinition, receiveLegDefinition);
   }
 
-  private class MySwapLegVisitor implements SwapLegVisitor<FixedIncomeInstrumentDefinition<?>> {
+  private class MySwapLegVisitor implements SwapLegVisitor<FixedIncomeInstrumentConverter<?>> {
     private final ZonedDateTime _effectiveDate;
     private final ZonedDateTime _maturityDate;
     private final Calendar _calendar;

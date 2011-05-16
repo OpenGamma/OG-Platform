@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments;
+package com.opengamma.financial.interestrate.payments.method;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,8 @@ import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -96,7 +98,7 @@ public class CapFloorCMSSABRReplicationMethod {
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     @SuppressWarnings("synthetic-access")
     final double strikePart = discountFactor * integrant.k(strike) * integrant.g(forward) / integrant.h(forward) * integrant.bs(strike);
     final double absoluteTolerance = 1.0 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
@@ -128,7 +130,7 @@ public class CapFloorCMSSABRReplicationMethod {
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     // Common
     final CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
     final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward);
@@ -189,7 +191,7 @@ public class CapFloorCMSSABRReplicationMethod {
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    double strike = cmsCapFloor.geStrike();
+    double strike = cmsCapFloor.getStrike();
     // Implementation note: to avoid singularity at 0.
     strike = (strike < 1E-4 ? 1E-4 : strike);
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
@@ -273,7 +275,7 @@ public class CapFloorCMSSABRReplicationMethod {
       _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
-      _strike = cmsCap.geStrike();
+      _strike = cmsCap.getStrike();
       _factor = g(_forward) / h(_forward);
     }
 
@@ -417,7 +419,7 @@ public class CapFloorCMSSABRReplicationMethod {
       _sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
-      _strike = cmsCap.geStrike();
+      _strike = cmsCap.getStrike();
     }
 
     @Override
@@ -600,7 +602,7 @@ public class CapFloorCMSSABRReplicationMethod {
       _sabrFunction = sabrParameter.getSabrFunction();
       _isCall = cmsCap.isCap();
       // Implementation note: to avoid singularity at 0.
-      _strike = (cmsCap.geStrike() < 1E-4 ? 1E-4 : cmsCap.geStrike());
+      _strike = (cmsCap.getStrike() < 1E-4 ? 1E-4 : cmsCap.getStrike());
       _factor = g(_forward) / h(_forward);
     }
 

@@ -68,7 +68,7 @@ public class CapFloorIborTest {
   public void testGetters() {
     CapFloorIbor cap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, FIXING_START_TIME, FIXING_END_TIME, FIXING_YEAR_FRACTION,
         FORWARD_CURVE_NAME, STRIKE, IS_CAP);
-    assertEquals("Getter strike", STRIKE, cap.geStrike());
+    assertEquals("Getter strike", STRIKE, cap.getStrike());
     assertEquals("Getter cap flag", IS_CAP, cap.isCap());
     double fixingRate = 0.05;
     assertEquals("Pay-off", Math.max(fixingRate - STRIKE, 0), cap.payOff(fixingRate));

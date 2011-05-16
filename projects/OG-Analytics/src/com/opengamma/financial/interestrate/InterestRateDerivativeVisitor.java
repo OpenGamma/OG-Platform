@@ -12,10 +12,13 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
 import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -75,6 +78,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
+  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future, S data);
+
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
@@ -83,11 +88,15 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIbor(CouponIbor payment, S data);
 
+  T visitCapFloorIbor(CapFloorIbor payment, S data);
+
   T visitCouponCMS(CouponCMS payment, S data);
 
   T visitCapFloorCMS(CapFloorCMS payment, S data);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra, S data);
+
+  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra, S data);
 
   // One argument
 
@@ -127,6 +136,8 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future);
 
+  T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 
   T visitFixedPayment(PaymentFixed payment);
@@ -135,10 +146,14 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitCouponIbor(CouponIbor payment);
 
+  T visitCapFloorIbor(CapFloorIbor payment);
+
   T visitCouponCMS(CouponCMS payment);
 
   T visitCapFloorCMS(CapFloorCMS payment);
 
   T visitForwardRateAgreement(ForwardRateAgreement fra);
+
+  T visitZZZForwardRateAgreement(ZZZForwardRateAgreement fra);
 
 }

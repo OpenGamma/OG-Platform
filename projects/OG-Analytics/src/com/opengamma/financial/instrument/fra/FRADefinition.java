@@ -20,14 +20,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 
 /**
  * 
  */
-public class FRADefinition implements FixedIncomeInstrumentDefinition<ForwardRateAgreement> {
+public class FRADefinition implements FixedIncomeInstrumentConverter<ForwardRateAgreement> {
   private static final Logger s_logger = LoggerFactory.getLogger(FRADefinition.class);
   private final ZonedDateTime _startDate;
   private final ZonedDateTime _maturityDate;
@@ -99,25 +99,25 @@ public class FRADefinition implements FixedIncomeInstrumentDefinition<ForwardRat
   }
 
   @Override
-  public ForwardRateAgreement toDerivative(final LocalDate date, final String... yieldCurveNames) {
+  public ForwardRateAgreement toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1);
-    Validate.isTrue(!date.isAfter(_maturityDate.toLocalDate()), "Date is after maturity");
+    Validate.isTrue(!date.isAfter(_maturityDate), "Date is after maturity");
     s_logger.info("Assuming first yield curve name is the funding curve and the second is the index curve");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final Calendar calendar = _convention.getWorkingDayCalendar();
     final String fundingCurveName = yieldCurveNames[0];
     final String indexCurveName = yieldCurveNames[1];
     final BusinessDayConvention businessDayConvention = _convention.getBusinessDayConvention();
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
+    //final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
     final ZonedDateTime settlementDate = ZonedDateTime.of(LocalDateTime.ofMidnight(getSettlementDate(_startDate.toLocalDate(), calendar, businessDayConvention, _convention.getSettlementDays())),
         TimeZone.UTC);
     final ZonedDateTime fixingDate = businessDayConvention.adjustDate(calendar, _startDate);
     final ZonedDateTime maturityDate = businessDayConvention.adjustDate(calendar, _maturityDate);
-    final double settlementTime = actAct.getDayCountFraction(zonedDate, settlementDate);
-    final double maturityTime = actAct.getDayCountFraction(zonedDate, maturityDate);
-    final double fixingTime = actAct.getDayCountFraction(zonedDate, fixingDate);
+    final double settlementTime = actAct.getDayCountFraction(date, settlementDate);
+    final double maturityTime = actAct.getDayCountFraction(date, maturityDate);
+    final double fixingTime = actAct.getDayCountFraction(date, fixingDate);
     final DayCount dayCount = _convention.getDayCount();
     final double forwardYearFraction = dayCount.getDayCountFraction(fixingDate, _maturityDate);
     final double discountingYearFraction = dayCount.getDayCountFraction(settlementDate, _maturityDate);

@@ -14,7 +14,7 @@ public interface CapFloor {
    * Gets the caplet/floorlet strike.
    * @return The strike
    */
-  double geStrike();
+  double getStrike();
 
   /**
    * Gets the cap/floor flag.

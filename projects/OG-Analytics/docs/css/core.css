@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'MuseoSlab500';
-    src: url('../fonts/MuseoSlab500/Museo_Slab_500-webfont.eot');
-    src: url('../fonts/MuseoSlab500/Museo_Slab_500-webfont.eot?iefix') format('eot'),
-         url('../fonts/MuseoSlab500/Museo_Slab_500-webfont.woff') format('woff'),
-         url('../fonts/MuseoSlab500/Museo_Slab_500-webfont.ttf') format('truetype'),
-         url('../fonts/MuseoSlab500/Museo_Slab_500-webfont.svg#webfont8VbsAwew') format('svg');
+    src: url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.eot');
+    src: url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.eot?iefix') format('eot'),
+         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.woff') format('woff'),
+         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.ttf') format('truetype'),
+         url('http://opengamma.com/res/display/default/fonts/MuseoSlab500/Museo_Slab_500-webfont.svg#webfont8VbsAwew') format('svg');
     font-weight: normal;
     font-style: normal;
 }

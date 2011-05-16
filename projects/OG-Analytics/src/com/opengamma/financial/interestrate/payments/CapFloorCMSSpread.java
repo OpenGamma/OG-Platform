@@ -144,7 +144,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   }
 
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 

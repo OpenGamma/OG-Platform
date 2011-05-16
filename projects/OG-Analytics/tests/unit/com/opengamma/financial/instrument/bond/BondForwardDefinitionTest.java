@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import java.util.Arrays;
 
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -43,6 +44,7 @@ public class BondForwardDefinitionTest {
   private static final double NOTIONAL = 100;
   private static final BondDefinition BOND_DEFINITION = new BondDefinition(CUR, NOMINAL_DATES, SETTLEMENT_DATES, COUPONS, NOTIONAL, COUPONS_PER_YEAR, BOND_CONVENTION);
   private static final LocalDate FORWARD_DATE = LocalDate.of(2000, 6, 30);
+  private static final ZonedDateTime ZONED_FORWARD_DATE = DateUtil.getUTCDate(2000, 6, 30);
   private static final BondConvention BOND_FORWARD_CONVENTION;
   private static final BondForwardDefinition BOND_FORWARD_DEFINITION;
 
@@ -80,7 +82,7 @@ public class BondForwardDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToDerivativeWithNullNames() {
-    BOND_FORWARD_DEFINITION.toDerivative(FORWARD_DATE, (String[]) null);
+    BOND_FORWARD_DEFINITION.toDerivative(ZONED_FORWARD_DATE, (String[]) null);
   }
 
   @Test
@@ -105,7 +107,7 @@ public class BondForwardDefinitionTest {
 
   @Test
   public void testToBondForward() {
-    final LocalDate tradeDate = LocalDate.of(2000, 3, 20);
+    final ZonedDateTime tradeDate = DateUtil.getUTCDate(2000, 3, 20);
     final LocalDate deliveredBondSettlementDate = LocalDate.of(2000, 3, 22);
     final BondForward forward = BOND_FORWARD_DEFINITION.toDerivative(tradeDate, "A");
     final double lastCouponToBondSettlement = DateUtil.getDaysBetween(LocalDate.of(2000, 1, 12), deliveredBondSettlementDate);

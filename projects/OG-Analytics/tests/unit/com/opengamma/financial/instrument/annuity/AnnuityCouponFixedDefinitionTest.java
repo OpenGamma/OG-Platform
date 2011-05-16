@@ -8,7 +8,6 @@ package com.opengamma.financial.instrument.annuity;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -47,7 +46,7 @@ public class AnnuityCouponFixedDefinitionTest {
   private static final ZonedDateTime[] PAYMENT_DATES_UNADJUSTED = ScheduleCalculator.getUnadjustedDateSchedule(SETTLEMENT_DATE, MATURITY_DATE, PAYMENT_FREQUENCY);
   private static final ZonedDateTime[] PAYMENT_DATES = ScheduleCalculator.getAdjustedDateSchedule(PAYMENT_DATES_UNADJUSTED, BUSINESS_DAY, CALENDAR);
 
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 3, 15); //For conversion to derivative
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 3, 15); //For conversion to derivative
 
   @Test
   public void test() {

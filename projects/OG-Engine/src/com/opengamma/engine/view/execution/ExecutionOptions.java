@@ -72,20 +72,32 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
   
   public static ViewExecutionOptions singleCycle() {
-    return singleCycle(Instant.now());
+    return snapshot(null);
   }
-  
+
   public static ViewExecutionOptions singleCycle(long valuationTimeMillis) {
-    return singleCycle(Instant.ofEpochMillis(valuationTimeMillis));
+    return snapshot(null, valuationTimeMillis);
+  }
+
+  public static ViewExecutionOptions singleCycle(Instant valuationTime) {
+    return snapshot(null, valuationTime);
   }
   
-  public static ViewExecutionOptions singleCycle(Instant valuationTime) {
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
+    return snapshot(snapshotIdentifier, Instant.now());
+  }
+  
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, long valuationTimeMillis) {
+    return snapshot(snapshotIdentifier, Instant.ofEpochMillis(valuationTimeMillis));
+  }
+  
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, Instant valuationTime) {
     return new ExecutionOptions(
         ArbitraryViewCycleExecutionSequence.of(valuationTime),
         true,
         false,
         null,
-        false);
+        false, snapshotIdentifier);
   }
   
   public static ViewExecutionOptions compileOnly() {

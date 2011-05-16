@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -55,12 +54,12 @@ public class BondFixedDescriptionTest {
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   YieldCurveBundle CURVES = TestsDataSets.createCurves1();
   // to derivatives: first coupon
-  private static final LocalDate REFERENCE_DATE_1 = LocalDate.of(2011, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE_1 = DateUtil.getUTCDate(2011, 8, 18);
   private static final AnnuityCouponFixed COUPON_1 = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
   private static final AnnuityPaymentFixed NOMINAL_1 = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
   private static final BondFixedDescription BOND_DESCRIPTION_1 = new BondFixedDescription(NOMINAL_1, COUPON_1, YIELD_CONVENTION);
   // to derivatives: second coupon
-  private static final LocalDate REFERENCE_DATE_2 = LocalDate.of(2012, 2, 16);
+  private static final ZonedDateTime REFERENCE_DATE_2 = DateUtil.getUTCDate(2012, 2, 16);
   private static final AnnuityCouponFixed COUPON_2 = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_2, CURVES_NAME);
   private static final AnnuityPaymentFixed NOMINAL_2 = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE_2, CURVES_NAME);
   private static final BondFixedDescription BOND_DESCRIPTION_2 = new BondFixedDescription(NOMINAL_2, COUPON_2, YIELD_CONVENTION);
