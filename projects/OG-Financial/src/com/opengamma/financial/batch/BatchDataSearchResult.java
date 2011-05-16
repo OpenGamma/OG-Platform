@@ -28,6 +28,8 @@ import com.opengamma.util.db.Paging;
  * <p>
  * The returned documents will match the search criteria.
  * See {@link BatchDataSearchRequest} for more details.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 @BeanDefinition
 public class BatchDataSearchResult extends DirectBean {
@@ -43,6 +45,13 @@ public class BatchDataSearchResult extends DirectBean {
   @PropertyDefinition
   private final List<ViewResultEntry> _items = new ArrayList<ViewResultEntry>();
 
+  /**
+   * Creates an instance.
+   */
+  public BatchDataSearchResult() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the unique entry by {@code ComputationTargetSpecification}.
    * Mainly useful in tests because in general uniqueness cannot be assumed.

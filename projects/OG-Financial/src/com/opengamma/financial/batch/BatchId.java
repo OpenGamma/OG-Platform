@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class BatchId {
+public final class BatchId {
 
   /**
    * The date of the batch.

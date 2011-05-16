@@ -29,33 +29,41 @@ import com.opengamma.util.ArgumentChecker;
  * then this step would not strictly be necessary. 
  */
 public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
-  
-  /**
-   * The run for which snapshots are being provided
-   */
-  private final BatchJobRun _run;
 
   /**
-   * Used to write stuff to the batch database
+   * The run for which snapshots are being provided.
    */
-  private final BatchDbManager _batchDbManager;
-  
+  private final BatchJobRun _run;
   /**
-   * In practice, this is the time series DB. 
+   * The batch master.
+   */
+  private final BatchDbManager _batchMaster;
+  /**
+   * The provider of historical data.
+   * In practice, this is the time series database.
    */
   private final HistoricalLiveDataSnapshotProvider _historicalDataProvider;
-  
-  public BatchLiveDataSnapshotProvider(BatchJobRun run, 
-      BatchDbManager batchDbManager,
+
+  /**
+   * Creates an instance.
+   * 
+   * @param run  the run data, not null
+   * @param batchMaster  the batch master, not null
+   * @param historicalDataProvider  the historical data provider, not null
+   */
+  public BatchLiveDataSnapshotProvider(
+      BatchJobRun run,
+      BatchDbManager batchMaster,
       HistoricalLiveDataSnapshotProvider historicalDataProvider) {
     ArgumentChecker.notNull(run, "run");
-    ArgumentChecker.notNull(batchDbManager, "batchDbManager");
+    ArgumentChecker.notNull(batchMaster, "batchMaster");
     ArgumentChecker.notNull(historicalDataProvider, "historicalDataProvider");
     _run = run;
-    _batchDbManager = batchDbManager;
+    _batchMaster = batchMaster;
     _historicalDataProvider = historicalDataProvider;
   }
-  
+
+  //-------------------------------------------------------------------------
   // method is synchronized for now because of the call to .addValuesToSnapshot() which
   // you don't want to be doing multiple times. Could synchronize just on snapshot+requirement 
   // combo
@@ -68,7 +76,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     
     Object valueInTimeSeriesDb = _historicalDataProvider.querySnapshot(snapshot, requirement);
     if (valueInTimeSeriesDb == null) {
-      return null;      
+      return null;
     }
     
     if (!(valueInTimeSeriesDb instanceof Double)) {
@@ -78,13 +86,13 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     Double value = (Double) valueInTimeSeriesDb;
     LiveDataValue liveDataValue = new LiveDataValue(requirement, value);
     Set<LiveDataValue> liveDataValues = Collections.singleton(liveDataValue);
-    _batchDbManager.addValuesToSnapshot(_run.getSnapshotId(), liveDataValues);
+    _batchMaster.addValuesToSnapshot(_run.getSnapshotId(), liveDataValues);
     
     addValue(requirement, valueInTimeSeriesDb);
     
     return valueInTimeSeriesDb;
   }
-  
+
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
     if (super.isAvailable(requirement)) {
@@ -92,5 +100,5 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     }
     return _historicalDataProvider.isAvailable(requirement);
   }
-  
+
 }

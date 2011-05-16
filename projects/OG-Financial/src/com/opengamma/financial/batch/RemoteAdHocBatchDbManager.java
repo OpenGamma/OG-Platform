@@ -13,22 +13,21 @@ import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
-
 /**
- * Provides access to a remote {@link AdHocBatchDbManager}. 
+ * Client-side access to a remote batch master.
  */
 public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
 
   private final RestClient _restClient;
   private final RestTarget _targetBase;
-  
+
   public RemoteAdHocBatchDbManager(final FudgeContext fudgeContext, final RestTarget baseTarget) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(baseTarget, "baseTarget");
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetBase = baseTarget;
   }
-  
+
   protected FudgeContext getFudgeContext() {
     return getRestClient().getFudgeContext();
   }
@@ -40,9 +39,8 @@ public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
   protected RestTarget getTargetBase() {
     return _targetBase;
   }
-  
+
   //-------------------------------------------------------------------------
-  
   @Override
   public void write(AdHocBatchResult batch) {
     final FudgeSerializationContext sctx = new FudgeSerializationContext(getFudgeContext());
@@ -51,5 +49,5 @@ public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
     final RestTarget target = getTargetBase();
     getRestClient().post(target, defnMsg);
   }
-  
+
 }

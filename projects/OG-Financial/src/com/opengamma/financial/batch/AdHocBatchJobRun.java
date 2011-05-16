@@ -25,6 +25,8 @@ import com.opengamma.util.VersionUtils;
  * A typical scenario is that a user plays with Excel, 
  * sets up a view, prices it, and then likes the results
  * enough that they want to save them in the batch DB.
+ * <p>
+ * This class is non-modifiable, however a subclass might not be.
  */
 public class AdHocBatchJobRun extends BatchJobRun {
 

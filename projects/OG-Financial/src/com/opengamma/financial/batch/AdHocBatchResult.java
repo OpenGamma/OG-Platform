@@ -10,6 +10,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * The ad hoc batch result.
+ * <p>
+ * This class is non-modifiable, however a subclass might not be.
  */
 public class AdHocBatchResult {
 
