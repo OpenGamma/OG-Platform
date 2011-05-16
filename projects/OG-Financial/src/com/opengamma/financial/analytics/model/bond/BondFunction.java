@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -66,7 +65,7 @@ public abstract class BondFunction extends NonCompiledInvoker {
       throw new NullPointerException("Could not get " + requirement);
     }
     final BondDefinition bond = (BondDefinition) security.accept(visitor);
-    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now.toLocalDate(),
+    return getComputedValues(executionContext, security.getCurrency(), security, bond, value, now,
         _bondCurveName);
   }
 
@@ -100,6 +99,6 @@ public abstract class BondFunction extends NonCompiledInvoker {
   }
 
   protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, Currency currency,
-      Security security, BondDefinition bond, Object value, LocalDate now, String yieldCurveName);
+      Security security, BondDefinition bond, Object value, ZonedDateTime now, String yieldCurveName);
 
 }

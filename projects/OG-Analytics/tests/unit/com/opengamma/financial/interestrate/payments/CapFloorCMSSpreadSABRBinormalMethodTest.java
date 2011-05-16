@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
@@ -27,6 +26,9 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSpreadSABRBinormalMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -78,7 +80,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -100,9 +102,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   public void getter() {
-    double correlation = 0.80;
-    DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+    final double correlation = 0.80;
+    final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
+    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
     assertEquals("CMS spread binormal method: correlation function getter", correlationFunction, method.getCorrelation());
   }
 
@@ -111,43 +113,43 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the present value against the price explicitly computed for constant correlation. 
    */
   public void presentValue() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    double correlation = 0.80;
-    DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
-    double cmsSpreadPrice = method.presentValue(CMS_SPREAD, sabrBundle);
-    double discountFactorPayment = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(PAYMENT_TIME);
-    CouponCMSSABRReplicationMethod methodCms = new CouponCMSSABRReplicationMethod();
-    CapFloorCMSSABRReplicationMethod methodCmsCap = new CapFloorCMSSABRReplicationMethod();
-    NormalImpliedVolatilityFormula impliedVolatility = new NormalImpliedVolatilityFormula();
-    NormalPriceFunction normalPrice = new NormalPriceFunction();
-    ParRateCalculator parRate = ParRateCalculator.getInstance();
-    CouponCMS cmsCoupon1 = CouponCMS.from(CMS_SPREAD, SWAP_1, SETTLEMENT_TIME);
-    CouponCMS cmsCoupon2 = CouponCMS.from(CMS_SPREAD, SWAP_2, SETTLEMENT_TIME);
-    double cmsCoupon1Price = methodCms.presentValue(cmsCoupon1, sabrBundle);
-    double cmsCoupon2Price = methodCms.presentValue(cmsCoupon2, sabrBundle);
-    double expectedRate1 = cmsCoupon1Price / discountFactorPayment / cmsCoupon1.getNotional() / cmsCoupon1.getPaymentYearFraction();
-    double expectedRate2 = cmsCoupon2Price / discountFactorPayment / cmsCoupon2.getNotional() / cmsCoupon2.getPaymentYearFraction();
-    double forward1 = parRate.visit(SWAP_1, curves);
-    double forward2 = parRate.visit(SWAP_2, curves);
-    CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
-    CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
-    double cmsCap1Price = methodCmsCap.presentValue(cmsCap1, sabrBundle);
-    double cmsCap2Price = methodCmsCap.presentValue(cmsCap2, sabrBundle);
-    EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, FIXING_TIME, true);
-    BlackFunctionData dataCap1 = new BlackFunctionData(expectedRate1, 1.0, 0.0);
-    double cmsCap1IV = impliedVolatility.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price / discountFactorPayment / cmsCoupon1.getNotional() / cmsCoupon1.getPaymentYearFraction());
-    EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, FIXING_TIME, true);
-    BlackFunctionData dataCap2 = new BlackFunctionData(expectedRate2, 1.0, 0.0);
-    double cmsCap2IV = impliedVolatility.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price / discountFactorPayment / cmsCoupon2.getNotional() / cmsCoupon2.getPaymentYearFraction());
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final double correlation = 0.80;
+    final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
+    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+    final double cmsSpreadPrice = method.presentValue(CMS_SPREAD, sabrBundle);
+    final double discountFactorPayment = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(PAYMENT_TIME);
+    final CouponCMSSABRReplicationMethod methodCms = new CouponCMSSABRReplicationMethod();
+    final CapFloorCMSSABRReplicationMethod methodCmsCap = new CapFloorCMSSABRReplicationMethod();
+    final NormalImpliedVolatilityFormula impliedVolatility = new NormalImpliedVolatilityFormula();
+    final NormalPriceFunction normalPrice = new NormalPriceFunction();
+    final ParRateCalculator parRate = ParRateCalculator.getInstance();
+    final CouponCMS cmsCoupon1 = CouponCMS.from(CMS_SPREAD, SWAP_1, SETTLEMENT_TIME);
+    final CouponCMS cmsCoupon2 = CouponCMS.from(CMS_SPREAD, SWAP_2, SETTLEMENT_TIME);
+    final double cmsCoupon1Price = methodCms.presentValue(cmsCoupon1, sabrBundle);
+    final double cmsCoupon2Price = methodCms.presentValue(cmsCoupon2, sabrBundle);
+    final double expectedRate1 = cmsCoupon1Price / discountFactorPayment / cmsCoupon1.getNotional() / cmsCoupon1.getPaymentYearFraction();
+    final double expectedRate2 = cmsCoupon2Price / discountFactorPayment / cmsCoupon2.getNotional() / cmsCoupon2.getPaymentYearFraction();
+    final double forward1 = parRate.visit(SWAP_1, curves);
+    final double forward2 = parRate.visit(SWAP_2, curves);
+    final CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
+    final CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
+    final double cmsCap1Price = methodCmsCap.presentValue(cmsCap1, sabrBundle);
+    final double cmsCap2Price = methodCmsCap.presentValue(cmsCap2, sabrBundle);
+    final EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, FIXING_TIME, true);
+    final BlackFunctionData dataCap1 = new BlackFunctionData(expectedRate1, 1.0, 0.0);
+    final double cmsCap1IV = impliedVolatility.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price / discountFactorPayment / cmsCoupon1.getNotional() / cmsCoupon1.getPaymentYearFraction());
+    final EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, FIXING_TIME, true);
+    final BlackFunctionData dataCap2 = new BlackFunctionData(expectedRate2, 1.0, 0.0);
+    final double cmsCap2IV = impliedVolatility.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price / discountFactorPayment / cmsCoupon2.getNotional() / cmsCoupon2.getPaymentYearFraction());
     double spreadVol = cmsCap1IV * cmsCap1IV - 2 * correlation * cmsCap1IV * cmsCap2IV + cmsCap2IV * cmsCap2IV;
     spreadVol = Math.sqrt(spreadVol);
-    EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(STRIKE, FIXING_TIME, IS_CAP);
-    BlackFunctionData dataSpread = new BlackFunctionData(expectedRate1 - expectedRate2, 1.0, spreadVol);
-    Function1D<BlackFunctionData, Double> priceFunction = normalPrice.getPriceFunction(optionSpread);
-    double cmsSpreadPriceExpected = discountFactorPayment * priceFunction.evaluate(dataSpread) * CMS_SPREAD.getNotional() * CMS_SPREAD.getPaymentYearFraction();
+    final EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(STRIKE, FIXING_TIME, IS_CAP);
+    final BlackFunctionData dataSpread = new BlackFunctionData(expectedRate1 - expectedRate2, 1.0, spreadVol);
+    final Function1D<BlackFunctionData, Double> priceFunction = normalPrice.getPriceFunction(optionSpread);
+    final double cmsSpreadPriceExpected = discountFactorPayment * priceFunction.evaluate(dataSpread) * CMS_SPREAD.getNotional() * CMS_SPREAD.getPaymentYearFraction();
     assertEquals("CMS spread: price with constant correlation", cmsSpreadPriceExpected, cmsSpreadPrice, 1.0E-2);
   }
 
@@ -156,16 +158,16 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the implied correlation computation for a range of correlations.
    */
   public void impliedCorrelation() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
-    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    double[] correlation = new double[] {-0.50, 0.00, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99};
-    int nbCor = correlation.length;
-    double[] impliedCorrelation = new double[nbCor];
+    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1();
+    final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
+    final double[] correlation = new double[] {-0.50, 0.00, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99};
+    final int nbCor = correlation.length;
+    final double[] impliedCorrelation = new double[nbCor];
     for (int loopcor = 0; loopcor < nbCor; loopcor++) {
-      DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation[loopcor]}); // Constant function
-      CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
-      double cmsSpreadPrice = method.presentValue(CMS_SPREAD, sabrBundle);
+      final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation[loopcor]}); // Constant function
+      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+      final double cmsSpreadPrice = method.presentValue(CMS_SPREAD, sabrBundle);
       impliedCorrelation[loopcor] = method.impliedCorrelation(CMS_SPREAD, sabrBundle, cmsSpreadPrice);
       assertEquals("CMS spread cap/floor: implied correlation", correlation[loopcor], impliedCorrelation[loopcor], 1.0E-12);
     }

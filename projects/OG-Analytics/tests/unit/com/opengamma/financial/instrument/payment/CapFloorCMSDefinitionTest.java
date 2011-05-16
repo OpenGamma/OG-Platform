@@ -7,7 +7,6 @@ package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -28,6 +27,8 @@ import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
  * Test related to CapFloorCMSDefinition construction.
@@ -64,15 +65,19 @@ public class CapFloorCMSDefinitionTest {
   private static final double ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FAKE_DATE = DateUtil.getUTCDate(0, 1, 1);
-  private static final CouponFloatingDefinition COUPON = new CouponFloatingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE);
-  private static final CouponFloatingDefinition FLOAT_COUPON = CouponFloatingDefinition.from(COUPON, FIXING_DATE);
+  private static final CouponFloatingDefinition COUPON = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE, IBOR_INDEX);
+  private static final CouponFloatingDefinition FLOAT_COUPON = CouponIborDefinition.from(COUPON, FIXING_DATE, IBOR_INDEX);
   private static final CouponCMSDefinition CMS_COUPON_DEFINITION = CouponCMSDefinition.from(FLOAT_COUPON, SWAP_DEFINITION, CMS_INDEX);
   // CMS cap
   private static final double STRIKE = 0.04;
+  private static final double HIGH_FIXING_RATE = STRIKE + 0.01;
+  private static final DoubleTimeSeries<ZonedDateTime> HIGH_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {HIGH_FIXING_RATE});
+  private static final double LOW_FIXING_RATE = STRIKE - 0.01;
+  private static final DoubleTimeSeries<ZonedDateTime> LOW_FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {FIXING_DATE}, new double[] {LOW_FIXING_RATE});
   private static final boolean IS_CAP = true;
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = " Funding";
   private static final String FORWARD_CURVE_NAME = " Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -85,23 +90,64 @@ public class CapFloorCMSDefinitionTest {
     CapFloorCMSDefinition.from(null, STRIKE, IS_CAP);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullDate1() {
+    CMS_CAP_DEFINITION.toDerivative(null, CURVES_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullDate2() {
+    CMS_CAP_DEFINITION.toDerivative(null, HIGH_FIXING_TS, CURVES_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullNames1() {
+    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, (String[]) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullNames2() {
+    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, (String[]) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionInsufficientNames1() {
+    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME[0]);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionInsufficientNames2() {
+    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, CURVES_NAME[0]);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNoTS() {
+    CMS_CAP_DEFINITION.toDerivative(FIXING_DATE.plusDays(1), CURVES_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullTS() {
+    CMS_CAP_DEFINITION.toDerivative(FIXING_DATE.plusDays(1), null, CURVES_NAME);
+  }
+
   @Test
   public void testGetter() {
-    assertEquals(STRIKE, CMS_CAP.geStrike(), 1E-10);
+    assertEquals(STRIKE, CMS_CAP.getStrike(), 1E-10);
     assertEquals(IS_CAP, CMS_CAP.isCap());
   }
 
   @Test
   public void testEqual() {
-    CapFloorCMSDefinition floor = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
+    final CapFloorCMSDefinition floor = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
     assertEquals(floor == CMS_CAP_DEFINITION, false);
-    CapFloorCMSDefinition capPlus = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE + 0.01, IS_CAP);
+    final CapFloorCMSDefinition capPlus = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE + 0.01, IS_CAP);
     assertEquals(capPlus == CMS_CAP_DEFINITION, false);
   }
 
+  //TODO test
   @Test
   public void testToDerivative() {
-    CapFloorCMS capDirect = CapFloorCMS.from(CMS_COUPON, STRIKE, IS_CAP);
+    final CapFloorCMS capDirect = CapFloorCMS.from(CMS_COUPON, STRIKE, IS_CAP);
     assertEquals(capDirect, CMS_CAP);
   }
 

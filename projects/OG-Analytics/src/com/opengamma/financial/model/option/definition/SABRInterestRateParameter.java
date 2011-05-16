@@ -145,6 +145,38 @@ public class SABRInterestRateParameter {
   }
 
   /**
+   * Gets the alpha surface.
+   * @return The alpha surface.
+   */
+  public VolatilitySurface getAlphaSurface() {
+    return _alphaSurface;
+  }
+
+  /**
+   * Gets the beta surface.
+   * @return The beta surface.
+   */
+  public VolatilitySurface getBetaSurface() {
+    return _betaSurface;
+  }
+
+  /**
+   * Gets the rho surface.
+   * @return The rho surface.
+   */
+  public VolatilitySurface getRhoSurface() {
+    return _rhoSurface;
+  }
+
+  /**
+   * Gets the nu surface.
+   * @return The nu surface.
+   */
+  public VolatilitySurface getNuSurface() {
+    return _nuSurface;
+  }
+
+  /**
    * Return the volatility for a expiry/maturity pair, a strike and a forward rate.
    * @param expiryTime Time to expiry.
    * @param maturity Tenor.

@@ -6,17 +6,17 @@
 package com.opengamma.financial.batch;
 
 /**
- * 
+ * Enum of batch statuses.
  */
 public enum BatchStatus {
-  
+
   /**
-   * Batch still running
+   * The batch is still running.
    */
   RUNNING,
-  
   /**
-   * Batch not running, all results (and failures) written to database
+   * The batch is complete and no longer running, with all results and
+   * failures written to database.
    */
   COMPLETE
 

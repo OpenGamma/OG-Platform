@@ -50,7 +50,6 @@ $.register_module({
                             // update the select to match the filter, bookmark support
                             if (filter_type === 'select' && routes.current().args.filter_type)
                                     $('.' + filter_class).val(routes.current().args.filter_type.toLowerCase());
-                            $('#OG-sr .og-js-ob_date-filter').datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
                         }
                     })();
                     // Handle click

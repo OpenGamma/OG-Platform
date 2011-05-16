@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -21,6 +18,7 @@ import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on CMS rate. The notional is positive for long the option and negative for short the option.
@@ -87,14 +85,14 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   public static CapFloorCMSDefinition from(final CouponCMSDefinition coupon, final double strike, final boolean isCap) {
     Validate.notNull(coupon);
     return new CapFloorCMSDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(),
-        coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCmsIndex(), strike, isCap);
+        coupon.getFixingDate(), coupon.getUnderlyingSwap(), coupon.getCMSIndex(), strike, isCap);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 
@@ -116,21 +114,34 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   }
 
   @Override
-  public Payment toDerivative(LocalDate date, String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
+    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // CMS is not fixed yet, all the details are required.
+    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
+    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+  }
+
+  @Override
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(indexFixingTS, "index fixing time series");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String fundingCurveName = yieldCurveNames[0];
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate());
-    if (isFixed()) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(getFixedRate()));
-    } else { // CMS is not fixed yet, all the details are required.
-      CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
-      return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+    final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
+    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
+      final double fixedRate = indexFixingTS.getValue(getFixingDate());
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
+    // CMS is not fixed yet, all the details are required.
+    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, indexFixingTS, yieldCurveNames);
+    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
   }
 
   @Override

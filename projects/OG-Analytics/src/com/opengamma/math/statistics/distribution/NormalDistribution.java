@@ -29,8 +29,8 @@ import cern.jet.stat.Probability;
  * <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/Normal.html">Colt</a> implementation of the normal distribution.
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
-  private static final double XMIN = -7.0;// -7.6;
-  private static final double DELTA = 0.05; // 0.05
+  private static final double XMIN = -7.6;
+  private static final double DELTA = 0.05;
 
   // TODO need a better seed
   private final double _mean;

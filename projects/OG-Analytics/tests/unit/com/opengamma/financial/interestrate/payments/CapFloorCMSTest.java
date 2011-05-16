@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -67,7 +66,7 @@ public class CapFloorCMSTest {
   private static final boolean IS_CAP = true;
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -81,15 +80,15 @@ public class CapFloorCMSTest {
 
   @Test
   public void testFrom() {
-    CapFloorCMSDefinition capConstructor = new CapFloorCMSDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP_DEFINITION, CMS_INDEX,
+    final CapFloorCMSDefinition capConstructor = new CapFloorCMSDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, SWAP_DEFINITION, CMS_INDEX,
         STRIKE, IS_CAP);
-    CapFloorCMSDefinition capFrom = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
+    final CapFloorCMSDefinition capFrom = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
     assertEquals(capConstructor, capFrom);
   }
 
   @Test
   public void testGetter() {
-    assertEquals(STRIKE, CMS_CAP.geStrike(), 1E-10);
+    assertEquals(STRIKE, CMS_CAP.getStrike(), 1E-10);
     assertEquals(IS_CAP, CMS_CAP.isCap());
   }
 }

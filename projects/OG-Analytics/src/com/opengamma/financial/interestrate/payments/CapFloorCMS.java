@@ -56,7 +56,7 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
   }
 
   @Override
-  public double geStrike() {
+  public double getStrike() {
     return _strike;
   }
 

@@ -11,6 +11,9 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -20,6 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -132,7 +136,7 @@ public class BondDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConvertAfterExpiry() {
-    DEFINITION.toDerivative(SETTLEMENT_DATES[SETTLEMENT_DATES.length - 1].plusMonths(1), "A");
+    DEFINITION.toDerivative(ZonedDateTime.of(LocalDateTime.ofMidnight(SETTLEMENT_DATES[SETTLEMENT_DATES.length - 1].plusMonths(1)), TimeZone.UTC), "A");
   }
 
   @Test
@@ -180,11 +184,11 @@ public class BondDefinitionTest {
   public void testConversion() {
     final int settlementDays = CONVENTION.getSettlementDays();
     final double deltaAI = 0.04 / 12 / 31;
-    LocalDate date;
+    ZonedDateTime date;
     Bond bond;
     for (int i = 1; i < 28; i++) {
-      date = LocalDate.of(2010, 1, i);
-      if (CONVENTION.getWorkingDayCalendar().isWorkingDay(date)) {
+      date = DateUtil.getUTCDate(2010, 1, i);
+      if (CONVENTION.getWorkingDayCalendar().isWorkingDay(date.toLocalDate())) {
         bond = DEFINITION.toDerivative(date, "A");
         final double aI = bond.getAccruedInterest();
         if (date.getDayOfWeek() == DayOfWeek.FRIDAY || date.getDayOfWeek() == DayOfWeek.THURSDAY) {

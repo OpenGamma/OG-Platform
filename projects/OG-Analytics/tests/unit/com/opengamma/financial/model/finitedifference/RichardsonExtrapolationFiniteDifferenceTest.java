@@ -21,11 +21,11 @@ public class RichardsonExtrapolationFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
-    double volTol = 5e-3;
+    double volTol = 5e-2;
     double priceTol = 5e-2;
     double deltaTol = 5e-2;
-    double gammaTol = 1.0; // Crank-Nicolson gives awful greeks around ATM - this is why it shouldn't be used
-    boolean print = true; // set to false before pushing
+    double gammaTol = 1.0;
+    boolean print = false; // set to false before pushing
 
     TESTER.testTimeExtrapolation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments;
+package com.opengamma.financial.interestrate.payments.method;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +16,8 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -30,6 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Class used to compute the price of a CMS cap/floor by swaption replication on a SABR formula with extrapolation.
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
+ *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
 public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
 
@@ -84,7 +87,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactorTp = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     final double factor = discountFactorTp / integrant.h(forward) * integrant.g(forward);
     final double strikePart = factor * integrant.k(strike) * integrant.bs(strike);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
@@ -117,7 +120,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
     final double forward = PRC.visit(underlyingSwap, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    final double strike = cmsCapFloor.geStrike();
+    final double strike = cmsCapFloor.getStrike();
     // Common
     final CMSIntegrant integrantPrice = new CMSIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
     final CMSDeltaIntegrant integrantDelta = new CMSDeltaIntegrant(cmsCapFloor, sabrParameter, forward, _cutOffStrike, _mu);
@@ -279,7 +282,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod {
       final SABRFormulaData sabrData = new SABRFormulaData(_forward, alpha, beta, nu, rho);
       _sabrExtrapolation = new SABRExtrapolationRightFunction(sabrData, cutOffStrike, _timeToExpiry, mu);
       _isCall = cmsCap.isCap();
-      _strike = cmsCap.geStrike();
+      _strike = cmsCap.getStrike();
       _factor = g(_forward) / h(_forward);
     }
 

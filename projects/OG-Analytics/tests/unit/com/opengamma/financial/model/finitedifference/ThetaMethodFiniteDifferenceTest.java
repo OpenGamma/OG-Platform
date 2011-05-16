@@ -16,8 +16,8 @@ public class ThetaMethodFiniteDifferenceTest {
   private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5);
 
   @Test
-  public void testBlackScholesEquation() {
-    int timeSteps = 10;
+  public void testBlackScholesEquation1() {
+    int timeSteps = 10; // with this few steps get massive oscillations in implied vol & gamma around ATM
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
@@ -25,6 +25,21 @@ public class ThetaMethodFiniteDifferenceTest {
     double priceTol = 5e-2;
     double deltaTol = 5e-2;
     double gammaTol = 1.0; // Crank-Nicolson gives awful greeks around ATM - this is why it shouldn't be used
+    boolean print = false; // set to false before pushing
+
+    TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
+  }
+
+  @Test
+  public void testBlackScholesEquation2() {
+    int timeSteps = 20; // with this few steps get massive oscillations in implied vol & gamma around ATM
+    int priceSteps = 100;
+    double lowerMoneyness = 0.4;
+    double upperMoneyness = 3.0;
+    double volTol = 5e-3;
+    double priceTol = 1e-2; // 5 times better than with 10 time steps
+    double deltaTol = 5e-3; // 10 times better than with 10 time steps
+    double gammaTol = 2e-2; // 50 times better than with 10 time steps
     boolean print = false; // set to false before pushing
 
     TESTER.testBlackScholesEquationUniformGrid(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
