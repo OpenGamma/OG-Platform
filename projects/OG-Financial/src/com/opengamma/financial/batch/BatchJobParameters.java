@@ -19,44 +19,36 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
+import javax.time.calendar.format.DateTimeFormatters;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.PropertyDefinition;
 
 /**
- * Batch job parameters.
+ * Configuration parameters for running a batch job.
  * <p> 
- * The parameters are information that does not vary from day to day and
- * can therefore be stored in a configuration database.
+ * These parameters are information that does not typically vary from day to day
+ * and can therefore be stored in a configuration database.
+ * <p>
+ * This class is mutable and not thread-safe.
  */
 public class BatchJobParameters {
-  
+
   /**
    * Used as a default "observation time" for ad hoc batches, i.e., batches that are
-   * started manually by users and whose results should NOT flow to downstream
-   * systems.  
+   * started manually by users and whose results should NOT flow to downstream systems.  
    */
   public static final String AD_HOC_OBSERVATION_TIME = "AD_HOC_RUN";
-
-  // --------------------------------------------------------------------------
-
-  /** yyyyMMddHHmmss[Z] */
-  private static final DateTimeFormatter s_dateTimeFormatter;
-
-  /** yyyyMMdd */
-  private static final DateTimeFormatter s_dateFormatter;
-
-  static {
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMddHHmmss[Z]");
-    s_dateTimeFormatter = builder.toFormatter();
-
-    builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMdd");
-    s_dateFormatter = builder.toFormatter();
-  }
+  /**
+   * Date-time format: yyyyMMddHHmmss[Z]
+   */
+  private static final DateTimeFormatter s_dateTimeFormatter = DateTimeFormatters.pattern("yyyyMMddHHmmss[Z]");
+  /**
+   * Date-time format: yyyyMMdd
+   */
+  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatters.pattern("yyyyMMdd");
 
   /* package */static OffsetDateTime parseDateTime(String dateTime) {
     if (dateTime == null) {
@@ -71,15 +63,15 @@ public class BatchJobParameters {
       return OffsetDateTime.of(localDateTime, ZonedDateTime.now().toOffsetDateTime().getOffset());
     }
   }
-  
+
   /* package */static String formatDateTime(OffsetDateTime dateTime) {
-    return s_dateTimeFormatter.print(dateTime);   
+    return dateTime.toString(s_dateTimeFormatter);
   }
 
   /* package */static LocalDate parseDate(String date) {
-    return s_dateFormatter.parse(date, LocalDate.rule());
+    return LocalDate.parse(date, s_dateFormatter);
   }
-  
+
   /* package */static String formatDate(LocalDate date) {
     return s_dateFormatter.print(date);   
   }
@@ -87,70 +79,89 @@ public class BatchJobParameters {
   /* package */static LocalTime parseTime(String time) {
     return LocalTime.parse(time);
   }
-  
+
   /* package */static String formatTime(LocalTime time) {
     return time.toString();   
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
+  // private field names are exposed in #getParameters()
   /**
-   * Spring config file defining BatchJob 
+   * The Spring config file defining BatchJob.
    */
+  @PropertyDefinition
   private String _springXml;
-  
-  /** 
-   * Why the batch is being run. Would typically tell whether the run is an automatic/manual
-   * run, and if manual, who started it and maybe why.
+  /**
+   * The reason why the batch is being run.
+   * Would typically tell whether the run is an automatic/manual run, and if
+   * manual, who started it and maybe why.
    */
+  @PropertyDefinition
   private String _reason;
-  
-  /** 
-   * A label for the run. Examples: LDN_CLOSE, AD_HOC_RUN. The exact time of LDN_CLOSE could vary
-   * daily due to this time being set by the head trader.
+  /**
+   * The observation time key, such as LDN_CLOSE or AD_HOC_RUN.
+   * The exact time of LDN_CLOSE could vary daily due to this time being set by the head trader.
    * So one day it might be 16:32, the next 16:46, etc. 
    */
+  @PropertyDefinition
   private String _observationTime;
-  
   /**
    * The batch will run against a defined set of market data.
    * <p> 
-   * This variable tells which set exactly. The contents are 
-   * similar to {@link #_observationTime}.
+   * This variable tells which set exactly.
+   * The contents are similar to {@link #_observationTime}.
    */
+  @PropertyDefinition
   private String _snapshotObservationTime;
-  
   /**
-   * Valuation time for purposes of calculating all risk figures. Often referred to as 'T'
-   * in mathematical formulas. Here, this is just a time, not a datetime.
+   * The valuation time for purposes of calculating all risk figures.
+   * Often referred to as 'T' in mathematical formulas.
+   * Here, this is just a time, not a date-time.
    */
+  @PropertyDefinition
   private String _valuationTime;
-
   /**
-   * This view name references the OpenGamma configuration database.
+   * The view name referencing the OpenGamma configuration database.
    * The view will define the portfolio of trades the batch should be run for.
    */
+  @PropertyDefinition
   private String _view;
-
   /**
-   * Historical time used for loading entities out of Config DB.
-   * Here, this is just a time, not a datetime.
+   * The historical time used for loading entities out of Config DB.
+   * Here, this is just a time, not a date-time.
    */
+  @PropertyDefinition
   private String _configDbTime;
-  
   /**
-   * Historical time used for loading entities out of PositionMaster,
-   * SecurityMaster, etc. Here, this is just a time, not a datetime.
+   * The historical time used for loading entities out of PositionMaster,
+   * SecurityMaster, etc. Here, this is just a time, not a date-time.
    */
+  @PropertyDefinition
   private String _staticDataTime;
-  
   /**
-   * Time zone for the user-provided times.
+   * The time-zone id for the user-provided times.
    */
+  @PropertyDefinition
   private String _timeZone;
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
+  public LocalTime getValuationTimeObject() {
+    return parseTime(getValuationTime());
+  }
+
+  public LocalTime getStaticDataTimeObject() {
+    return parseTime(getStaticDataTime());
+  }
+
+  public LocalTime getConfigDbTimeObject() {
+    return parseTime(getConfigDbTime());
+  }
+
+  public TimeZone getTimeZoneObject() {
+    return TimeZone.of(getTimeZone());    
+  }
+
+  //-------------------------------------------------------------------------
   public String getSpringXml() {
     return _springXml;
   }
@@ -179,10 +190,6 @@ public class BatchJobParameters {
     return _valuationTime;
   }
   
-  public LocalTime getValuationTimeObject() {
-    return parseTime(getValuationTime());
-  }
-
   public void setValuationTime(String valuationTime) {
     _valuationTime = valuationTime;
   }
@@ -211,26 +218,14 @@ public class BatchJobParameters {
     _staticDataTime = staticDataTime;
   }
 
-  public LocalTime getStaticDataTimeObject() {
-    return parseTime(getStaticDataTime());
-  }
-  
   public String getConfigDbTime() {
     return _configDbTime;
   }
   
-  public LocalTime getConfigDbTimeObject() {
-    return parseTime(getConfigDbTime());
-  }
-
   public void setConfigDbTime(String configDbTime) {
     _configDbTime = configDbTime;
   }
 
-  public TimeZone getTimeZoneObject() {
-    return TimeZone.of(getTimeZone());    
-  }
-  
   public String getTimeZone() {
     return _timeZone;
   }
@@ -271,19 +266,26 @@ public class BatchJobParameters {
     
     _timeZone = batchJob.getCreationTime().getZone().toString();  
   }
-  
-  public void initialize(BatchJobParameters another) {
-    Map<String, String> parameters = another.getParameters();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes this set of parameters from another set.
+   * 
+   * @param other  the other set of parameters, not null
+   */
+  public void initialize(BatchJobParameters other) {
+    Map<String, String> parameters = other.getParameters();
     initialize(parameters);        
   }
-  
+
   /**
-   * Fills in parameters from a parameter map.
+   * Initializes this set of parameters from another set.
+   * <p>
+   * The mapping is performed based on field names.
    * 
-   * @param parameters the parameter map. Keys of the map must
-   * match field names of this class.
+   * @param other  the other set of parameters, not null
    */
-  public void initialize(Map<String, String> parameters) {
+  public void initialize(Map<String, String> other) {
     Field[] fields = getClass().getDeclaredFields();
     for (Field field : fields) {
       if (!Modifier.isStatic(field.getModifiers())) {
@@ -291,29 +293,27 @@ public class BatchJobParameters {
         if (fieldName.startsWith("_")) {
           fieldName = fieldName.substring(1);
         }
-        String value = parameters.get(fieldName);
+        String value = other.get(fieldName);
         if (value == null) {
           continue;
         }
-        
         try {
           field.set(this, value);
-        } catch (IllegalAccessException e) {
-          throw new RuntimeException("Unexpected IllegalAccessException", e);
+        } catch (IllegalAccessException ex) {
+          throw new RuntimeException("Unexpected IllegalAccessException", ex);
         }
       }
     }
   }
-  
+
   /**
    * Gets the parameters as a map.
    * 
-   * @return the map. Keys of the map match field names of this class.
-   * If a field is null, it will not be in the map.
+   * @return the parameter map, defined by the field names of this class.
+   *  If a field is null, it will not be in the map.
    */
   public Map<String, String> getParameters() {
-    Map<String, String> returnValue = new HashMap<String, String>();
-    
+    Map<String, String> result = new HashMap<String, String>();
     Field[] fields = getClass().getDeclaredFields();
     for (Field field : fields) {
       if (!Modifier.isStatic(field.getModifiers())) {
@@ -324,57 +324,50 @@ public class BatchJobParameters {
             if (fieldName.startsWith("_")) {
               fieldName = fieldName.substring(1);
             }
-            returnValue.put(fieldName, fieldValue.toString());
+            result.put(fieldName, fieldValue.toString());
           }
-        } catch (IllegalAccessException e) {
-          throw new RuntimeException("Unexpected IllegalAccessException", e);
+        } catch (IllegalAccessException ex) {
+          throw new RuntimeException("Unexpected IllegalAccessException", ex);
         }
       }
     }
-    
-    return returnValue;
+    return result;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Validates that all necessary parameters have been correctly set.
    * 
    * @throws IllegalStateException if not all necessary parameters have been set
-   * or if they have been set in an invalid format. 
+   *  or if they have been set in an invalid format
    */
   public void validate() {
-    
     if (_springXml == null) {
-      throw new IllegalStateException("Please specify Spring XML file.");
+      throw new IllegalStateException("The Spring XML file must not be null");
     }
-    
     if (_view == null) {
-      throw new IllegalStateException("Please specify view name.");
+      throw new IllegalStateException("The view name must not be null");
     }
-    
     try {
       parseTime(_valuationTime);
-    } catch (CalendricalParseException e) {
-      throw new IllegalStateException("Valuation time " + _valuationTime + " is not in valid format", e);
+    } catch (CalendricalParseException ex) {
+      throw new IllegalStateException("The valuation time " + _valuationTime + " is not in valid format", ex);
     }
-    
     try {
       parseTime(_configDbTime);
-    } catch (CalendricalParseException e) {
-      throw new IllegalStateException("View time " + _configDbTime + " is not in valid format", e);
+    } catch (CalendricalParseException ex) {
+      throw new IllegalStateException("The view time " + _configDbTime + " is not in valid format", ex);
     }
-    
     try {
       parseTime(_staticDataTime);
-    } catch (CalendricalParseException e) {
-      throw new IllegalStateException("Entity time " + _staticDataTime + " is not in valid format", e);
+    } catch (CalendricalParseException ex) {
+      throw new IllegalStateException("The entity time " + _staticDataTime + " is not in valid format", ex);
     }
-    
     try {
       getTimeZoneObject();
-    } catch (CalendricalException e) {
-      throw new IllegalStateException("Time zone ID " + getTimeZone() + " is not a valid ID", e);
+    } catch (CalendricalException ex) {
+      throw new IllegalStateException("The time-zone ID " + getTimeZone() + " is not a valid ID", ex);
     }
-    
   }
   
   @Override

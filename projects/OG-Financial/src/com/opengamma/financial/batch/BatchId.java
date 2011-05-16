@@ -7,53 +7,75 @@ package com.opengamma.financial.batch;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Uniquely identifies a batch in the batch database.  
+ * An id for a batch in the batch database.
+ * <p>
+ * This class is immutable and thread-safe.
  */
-public class BatchId {
-  
+public final class BatchId {
+
   /**
-   * @return The date of the batch, not null
+   * The date of the batch.
    */
   private final LocalDate _observationDate;
-  
   /**
-   * @return The time of the batch (e.g., LDN_CLOSE), not null
+   * The descriptive time of the batch, such as LDN_CLOSE.
    */
   private final String _observationTime;
-  
-  public BatchId(LocalDate observationDate,
-      String observationTime) {
-    ArgumentChecker.notNull(observationDate, "Observation date");
-    ArgumentChecker.notNull(observationTime, "Observation time");
-    
+
+  /**
+   * Creates an instance.
+   * 
+   * @param observationDate  the observation date, not null
+   * @param observationTimeKey  the descriptive time key, not null
+   */
+  public BatchId(LocalDate observationDate, String observationTimeKey) {
+    ArgumentChecker.notNull(observationDate, "observationDate");
+    ArgumentChecker.notNull(observationTimeKey, "observationTimeKey");
     _observationDate = observationDate;
-    _observationTime = observationTime;
+    _observationTime = observationTimeKey;
   }
- 
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the observation date.
+   * 
+   * @return the date of the batch, not null
+   */
   public LocalDate getObservationDate() {
     return _observationDate;
   }
-  
+
+  /**
+   * Gets the descriptive observation time key, such as LDN_CLOSE.
+   * 
+   * @return the descriptive time key, not null
+   */
   public String getObservationTime() {
     return _observationTime;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof SnapshotId) {
+      SnapshotId other = (SnapshotId) obj;
+      return getObservationDate().equals(other.getObservationDate()) &&
+          getObservationTime().equals(other.getObservationTime());
+    }
+    return false;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
+  public int hashCode() {
+    return getObservationDate().hashCode() ^ getObservationTime().hashCode();
   }
-  
+
   @Override
   public String toString() {
     return getObservationDate() + "/" + getObservationTime();

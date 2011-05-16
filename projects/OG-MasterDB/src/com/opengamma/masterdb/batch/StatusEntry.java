@@ -94,18 +94,18 @@ public class StatusEntry {
   }
   
   public static String sqlGet() {
-    return "SELECT id, calculation_configuration_id, computation_target_id, status FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_run_status WHERE " +
+    return "SELECT id, calculation_configuration_id, computation_target_id, status FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status WHERE " +
       "calculation_configuration_id = :calculation_configuration_id AND " +
       "computation_target_id = :computation_target_id";         
   }
   
   public static String sqlUpdate() {
-    return "UPDATE " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_run_status SET status = :status WHERE " +
+    return "UPDATE " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status SET status = :status WHERE " +
       "id = :id";
   }
   
   public static String sqlInsert() {
-    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_run_status " +
+    return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_run_status " +
       "(id, calculation_configuration_id, computation_target_id, status) VALUES (" +
       ":id, :calculation_configuration_id, :computation_target_id, :status)";      
   }

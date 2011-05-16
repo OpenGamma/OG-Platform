@@ -23,11 +23,26 @@ import com.opengamma.util.NamedThreadPoolFactory;
  * executor and writes them to batch DB.
  */
 public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object> {
-  
+
+  /**
+   * The batch result writer.
+   */
   private final BatchResultWriter _writer;
+  /**
+   * The dependency graph executor.
+   */
   private final DependencyGraphExecutor<CalculationJobResult> _delegate;
+  /**
+   * The executor service.
+   */
   private final ExecutorService _executor;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param writer  the result writer, not null
+   * @param delegate  the underlying graph executor, not null
+   */
   public BatchResultWriterExecutor(
       BatchResultWriter writer,
       DependencyGraphExecutor<CalculationJobResult> delegate) {
@@ -35,34 +50,36 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
         delegate,
         Executors.newSingleThreadExecutor(new NamedThreadPoolFactory("BatchResultWriterExecutor")));
   }
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param writer  the result writer, not null
+   * @param delegate  the underlying graph executor, not null
+   * @param executor  the executor service to use, not null
+   */
   public BatchResultWriterExecutor(
       BatchResultWriter writer,
       DependencyGraphExecutor<CalculationJobResult> delegate,
       ExecutorService executor) {
-    
     ArgumentChecker.notNull(writer, "Batch result writer");
     ArgumentChecker.notNull(delegate, "Dep graph executor");
     ArgumentChecker.notNull(executor, "Task executor");
-    
     _writer = writer;
     _delegate = delegate;
     _executor = executor;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Future<Object> execute(DependencyGraph graph, final GraphExecutorStatisticsGatherer statistics) {
     DependencyGraph subGraph = _writer.getGraphToExecute(graph);
-    
     Future<CalculationJobResult> future = _delegate.execute(subGraph, statistics);
-    
     BatchResultWriterCallable callable = new BatchResultWriterCallable(future, subGraph);
-    
     return _executor.submit(callable);
   }
-  
+
   private class BatchResultWriterCallable implements Callable<Object> {
-    
     private final Future<CalculationJobResult> _future;
     private final DependencyGraph _subGraph;
     
@@ -77,20 +94,19 @@ public class BatchResultWriterExecutor implements DependencyGraphExecutor<Object
       CalculationJobResult result;
       try {
         result = _future.get();
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ex) {
         Thread.interrupted();
         throw new RuntimeException("Should not have been interrupted");
-      } catch (ExecutionException e) {
-        throw new RuntimeException("Execution of dependent job failed", e);
+      } catch (ExecutionException ex) {
+        throw new RuntimeException("Execution of dependent job failed", ex);
       }
-
       jobExecuted(result, _subGraph);
       return null;
     }
   }
-  
+
   private void jobExecuted(CalculationJobResult result, DependencyGraph depGraph) {
     _writer.write(result, depGraph);
   }
-  
+
 }
