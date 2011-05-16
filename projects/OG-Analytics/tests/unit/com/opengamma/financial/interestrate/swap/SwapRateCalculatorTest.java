@@ -61,7 +61,7 @@ public class SwapRateCalculatorTest {
     final YieldCurveBundle bundle = new YieldCurveBundle();
     bundle.setCurve(FUNDING_CURVE_NAME, FUNDING_CURVE);
     bundle.setCurve(FORWARD_CURVE_NAME, FORWARD_CURVE);
-    CALCULATOR.visit(null, bundle);
+    CALCULATOR.visit((FixedFloatSwap) null, bundle);
   }
 
   @Test

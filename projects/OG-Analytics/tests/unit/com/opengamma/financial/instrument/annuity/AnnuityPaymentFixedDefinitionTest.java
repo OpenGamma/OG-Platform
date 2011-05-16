@@ -12,6 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
 
@@ -27,11 +29,36 @@ public class AnnuityPaymentFixedDefinitionTest {
 
   @Test
   public void testGetter() {
-    PaymentFixedDefinition[] payment = new PaymentFixedDefinition[PAYMENT_DATE.length];
+    final PaymentFixedDefinition[] payment = new PaymentFixedDefinition[PAYMENT_DATE.length];
     for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
       payment[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
     }
-    AnnuityPaymentFixedDefinition annuity = new AnnuityPaymentFixedDefinition(payment);
+    final AnnuityPaymentFixedDefinition annuity = new AnnuityPaymentFixedDefinition(payment);
     assertEquals(CUR, annuity.getCurrency());
+  }
+
+  @Test
+  public void testConverter() {
+    final PaymentFixedDefinition[] annuityDefinitions = new PaymentFixedDefinition[PAYMENT_DATE.length];
+    PaymentFixed[] payment = new PaymentFixed[PAYMENT_DATE.length];
+    ZonedDateTime date = DateUtil.getUTCDate(2011, 6, 19);
+    final String name = "A";
+    for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
+      annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
+      payment[looppay] = annuityDefinitions[looppay].toDerivative(date, name);
+    }
+    final AnnuityPaymentFixedDefinition definition = new AnnuityPaymentFixedDefinition(annuityDefinitions);
+    AnnuityPaymentFixed annuity = new AnnuityPaymentFixed(payment);
+    assertEquals(annuity, definition.toDerivative(date, name));
+    date = DateUtil.getUTCDate(2011, 8, 19);
+    payment = new PaymentFixed[PAYMENT_DATE.length - 1];
+    for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
+      annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
+      if (looppay > 0) {
+        payment[looppay - 1] = annuityDefinitions[looppay].toDerivative(date, name);
+      }
+    }
+    annuity = new AnnuityPaymentFixed(payment);
+    assertEquals(annuity, definition.toDerivative(date, name));
   }
 }

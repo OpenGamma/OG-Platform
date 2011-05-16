@@ -58,6 +58,10 @@ public final class DbTimeSeriesMasterConstants {
    */
   public static final String GET_ACTIVE_TIME_SERIES_KEY_BY_ID = "getActiveTimeSeriesKeyByID";
   /**
+   * Key name for getActiveTimeSeriesKey SQL
+   */
+  public static final String GET_ACTIVE_TIME_SERIES_KEY = "getActiveTimeSeriesKey";
+  /**
    * key name  for insertDataField SQL
    */
   public static final String INSERT_DATA_FIELD = "insertDataField";
@@ -185,10 +189,7 @@ public final class DbTimeSeriesMasterConstants {
    * key name  for getActiveMetaDataByIdentifiers SQL
    */
   public static final String GET_ACTIVE_META_DATA_BY_IDENTIFIERS = "getActiveMetaDataByIdentifiers";
-//  /**
-//   * key name  for selectAllIdentifierBundle SQL
-//   */
-//  public static final String SELECT_ALL_BUNDLE = "selectAllIdentifierBundle";
+
   
   //column names
   /**
@@ -223,6 +224,23 @@ public final class DbTimeSeriesMasterConstants {
    * latest date COLUMN NAME
    */
   public static final String LATEST_COLUMN = "latest";
+  /**
+   * Identifier value COLUMN NAME
+   */
+  public static final String IDENTIFIER_VALUE_COLUMN = "identifier_value";
+  /**
+   * Valid_from COLUMN NAME
+   */
+  public static final String VALID_FROM = "valid_from";
+  /**
+   * Valid_to COLUMN NAME
+   */
+  public static final String VALID_TO = "valid_to";
+  
+  /**
+   * Identifier scheme COLUMN NAME
+   */
+  public static final String SCHEME = "scheme";
   
   /**
    * value for invalid row id

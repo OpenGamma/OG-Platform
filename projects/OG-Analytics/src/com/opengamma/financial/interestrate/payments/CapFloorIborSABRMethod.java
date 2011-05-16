@@ -51,12 +51,12 @@ public class CapFloorIborSABRMethod {
   public double presentValue(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.geStrike(), cap.getFixingTime(), cap.isCap());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     double forward = PRC.visit(cap, sabrData);
     double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     // TODO: Improve maturity, using periods?
-    double volatility = sabrData.getSABRParameter().getVolatility(cap.getFixingTime(), maturity, cap.geStrike(), forward);
+    double volatility = sabrData.getSABRParameter().getVolatility(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
     double price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
@@ -72,13 +72,13 @@ public class CapFloorIborSABRMethod {
   public PresentValueSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.geStrike(), cap.getFixingTime(), cap.isCap());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     double forward = PRC.visit(cap, sabrData);
     PresentValueSensitivity forwardDr = new PresentValueSensitivity(PRSC.visit(cap, sabrData));
     double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     double dfDr = -cap.getPaymentTime() * df;
     double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
-    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.geStrike(), forward);
+    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
@@ -101,11 +101,11 @@ public class CapFloorIborSABRMethod {
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.geStrike(), cap.getFixingTime(), cap.isCap());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     double forward = PRC.visit(cap, sabrData);
     double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
-    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.geStrike(), forward);
+    double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);

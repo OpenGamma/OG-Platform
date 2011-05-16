@@ -205,4 +205,29 @@ public final class ValueUtil {
     return sb.toString();
   }
 
+  public static Object toObject(final Value value) {
+    if (value == null) {
+      return null;
+    }
+    if (value.getBoolValue() != null) {
+      return value.getBoolValue();
+    }
+    if (value.getDoubleValue() != null) {
+      return value.getDoubleValue();
+    }
+    if (value.getErrorValue() != null) {
+      return value.getErrorValue();
+    }
+    if (value.getIntValue() != null) {
+      return value.getIntValue();
+    }
+    if (value.getMessageValue() != null) {
+      return value.getMessageValue();
+    }
+    if (value.getStringValue() != null) {
+      return value.getStringValue();
+    }
+    return null;
+  }
+
 }

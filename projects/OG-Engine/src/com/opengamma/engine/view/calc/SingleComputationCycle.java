@@ -28,11 +28,11 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -42,12 +42,16 @@ import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.YieldCurveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
 import com.opengamma.engine.view.cache.CacheSelectHint;
+import com.opengamma.engine.view.cache.MissingLiveDataSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -340,14 +344,17 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       // not the exact specification they want for live data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
       Object data = _liveDataSnapshotProvider.querySnapshot(getValuationTime().toEpochMillisLong(), liveDataRequirement.getKey());
+      ComputedValue dataAsValue;
+      
       if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getValuationTime());
         missingLiveData.add(liveDataRequirement.getValue());
+        dataAsValue = new ComputedValue(liveDataRequirement.getValue(), MissingLiveDataSentinel.getInstance());
       } else {
-        ComputedValue dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
-        addToAllCaches(dataAsValue);
+        dataAsValue = new ComputedValue(liveDataRequirement.getValue(), data);
         getResultModel().addLiveData(dataAsValue);
       }
+      addToAllCaches(dataAsValue);
     }
     if (!missingLiveData.isEmpty()) {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
@@ -379,11 +386,21 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       CompiledFunctionDefinition compiledFunction = dependencyNode.getFunction().getFunction();
       if (compiledFunction instanceof YieldCurveDataSourcingFunction) {
         YieldCurveDataSourcingFunction function = (YieldCurveDataSourcingFunction) compiledFunction;
-        ValueSpecification spec = Iterables.getOnlyElement(compiledFunction.getResults(null, null));
-        ret.put(function.getYieldCurveKey(), spec);
+        Set<YieldCurveKey> yieldCurveKeys = function.getYieldCurveKeys();
+        for (YieldCurveKey yieldCurveKey : yieldCurveKeys) {
+          ret.put(yieldCurveKey, getYieldCurveDataSpec(compiledFunction, yieldCurveKey));
+        }
       }
     }
     return ret;
+  }
+
+  private static ValueSpecification getYieldCurveDataSpec(CompiledFunctionDefinition compiledFunction,
+      YieldCurveKey yieldCurveKey) {
+    String uniqueId = compiledFunction.getFunctionDefinition().getUniqueId();
+    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, new ComputationTargetSpecification(yieldCurveKey.getCurrency()),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, uniqueId).with(ValuePropertyNames.CURVE, yieldCurveKey.getName()).get());
+    return spec;
   }
 
   private static String formatMissingLiveData(Set<ValueSpecification> missingLiveData) {
@@ -447,19 +464,30 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       deltaCalculator.computeDelta();
 
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator.getChangedNodes().size()});
+          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize()});
 
+      Collection<ValueSpecification> specsToCopy = new HashSet<ValueSpecification>();
+      
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         markExecuted(unchangedNode);
+        specsToCopy.addAll(unchangedNode.getOutputValues());
+      }
+      
+      copyValues(cache, previousCache, specsToCopy);
+    }
+  }
 
-        for (ValueSpecification spec : unchangedNode.getOutputValues()) {
-          Object previousValue = previousCache.getValue(spec);
-          if (previousValue != null) {
-            cache.putSharedValue(new ComputedValue(spec, previousValue));
-          }
-        }
+  private void copyValues(ViewComputationCache cache, ViewComputationCache previousCache, Collection<ValueSpecification> specsToCopy) {
+    Collection<Pair<ValueSpecification, Object>> valuesToCopy = previousCache.getValues(specsToCopy);
+    
+    Collection<ComputedValue> newValues = new HashSet<ComputedValue>();
+    for (Pair<ValueSpecification, Object> pair : valuesToCopy) {
+      Object previousValue = pair.getSecond();
+      if (previousValue != null) {
+        newValues.add(new ComputedValue(pair.getFirst(), previousValue));
       }
     }
+    cache.putSharedValues(newValues);
   }
   
   private void populateResultModel() {
@@ -477,6 +505,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         continue;
       }
       if (!getViewDefinition().getResultModelDefinition().shouldOutputResult(value.getFirst(), depGraph)) {
+        continue;
+      }
+      if (value.getSecond() instanceof MissingLiveDataSentinel) {
         continue;
       }
       getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));

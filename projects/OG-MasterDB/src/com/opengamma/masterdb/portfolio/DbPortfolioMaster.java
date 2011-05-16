@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,6 +44,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
+import com.opengamma.util.db.Paging;
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
@@ -110,6 +113,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final PortfolioSearchResult result = new PortfolioSearchResult();
     if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
+      result.setPaging(new Paging(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
@@ -284,7 +288,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     argsList.add(treeArgs);
     
     // store position links
-    for (ObjectIdentifier positionId : node.getPositionIds()) {
+    Set<ObjectIdentifier> positionIds = new LinkedHashSet<ObjectIdentifier>(node.getPositionIds());
+    node.getPositionIds().clear();
+    node.getPositionIds().addAll(positionIds);
+    for (ObjectIdentifier positionId : positionIds) {
       final DbMapSqlParameterSource posArgs = new DbMapSqlParameterSource()
         .addValue("node_id", nodeId)
         .addValue("key_scheme", positionId.getScheme())

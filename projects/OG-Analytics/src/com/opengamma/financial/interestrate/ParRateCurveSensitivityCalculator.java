@@ -19,6 +19,7 @@ import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -255,6 +256,11 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInterestRat
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     result.put(curveName, temp);
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
+    return visitCouponIbor(payment, data);
   }
 
   @Override

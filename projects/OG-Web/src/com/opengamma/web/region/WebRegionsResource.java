@@ -7,6 +7,7 @@ package com.opengamma.web.region;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,6 +27,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
@@ -60,8 +62,9 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("classification") RegionClassification classification,
+      @QueryParam("regionId") List<String> regionIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, classification, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, classification, regionIdStrs, uriInfo);
     return getFreemarker().build("regions/regions.ftl", out);
   }
 
@@ -72,12 +75,14 @@ public class WebRegionsResource extends AbstractWebRegionResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("classification") RegionClassification classification,
+      @QueryParam("regionId") List<String> regionIdStrs,
       @Context UriInfo uriInfo) {
-    FlexiBean out = createSearchResultData(page, pageSize, name, classification, uriInfo);
+    FlexiBean out = createSearchResultData(page, pageSize, name, classification, regionIdStrs, uriInfo);
     return getFreemarker().build("regions/jsonregions.ftl", out);
   }
 
-  private FlexiBean createSearchResultData(int page, int pageSize, String name, RegionClassification classification, UriInfo uriInfo) {
+  private FlexiBean createSearchResultData(int page, int pageSize, String name, RegionClassification classification,
+      List<String> regionIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     RegionSearchRequest searchRequest = new RegionSearchRequest();
@@ -88,6 +93,9 @@ public class WebRegionsResource extends AbstractWebRegionResource {
     for (int i = 0; query.containsKey("idscheme." + i) && query.containsKey("idvalue." + i); i++) {
       Identifier id = Identifier.of(query.getFirst("idscheme." + i), query.getFirst("idvalue." + i));
       searchRequest.addRegionKey(id);
+    }
+    for (String regionIdStr : regionIdStrs) {
+      searchRequest.addRegionId(ObjectIdentifier.parse(regionIdStr));
     }
     out.put("searchRequest", searchRequest);
     

@@ -7,7 +7,6 @@ package com.opengamma.financial.interestrate.payments;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
@@ -66,7 +65,7 @@ public class CapFloorCMSSpreadTest {
   private static final double STRIKE = 0.0050; // 50 bps
   private static final boolean IS_CAP = true;
   // to derivatives
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_1_NAME = "Forward 1";
   //  private static final String FORWARD_CURVE_2_NAME = "Forward 2";
@@ -80,8 +79,8 @@ public class CapFloorCMSSpreadTest {
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
 
-  CapFloorCMSSpread CMS_SPREAD = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE, IS_CAP,
-      FUNDING_CURVE_NAME);
+  private static final CapFloorCMSSpread CMS_SPREAD = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2,
+      SETTLEMENT_TIME, STRIKE, IS_CAP, FUNDING_CURVE_NAME);
 
   @Test
   public void testGetter() {
@@ -89,17 +88,18 @@ public class CapFloorCMSSpreadTest {
     assertEquals(CMS_INDEX_1, CMS_SPREAD.getCmsIndex1());
     assertEquals(SWAP_2, CMS_SPREAD.getUnderlyingSwap2());
     assertEquals(CMS_INDEX_2, CMS_SPREAD.getCmsIndex2());
-    assertEquals(STRIKE, CMS_SPREAD.geStrike(), 1E-10);
+    assertEquals(STRIKE, CMS_SPREAD.getStrike(), 1E-10);
     assertEquals(IS_CAP, CMS_SPREAD.isCap());
   }
 
   @Test
   public void testEqualHash() {
-    CapFloorCMSSpread newCMSSpread = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE, IS_CAP,
+    final CapFloorCMSSpread newCMSSpread = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE,
+        IS_CAP,
         FUNDING_CURVE_NAME);
     assertEquals(newCMSSpread.equals(CMS_SPREAD), true);
     assertEquals(newCMSSpread.hashCode() == CMS_SPREAD.hashCode(), true);
-    Currency newCur = Currency.EUR;
+    final Currency newCur = Currency.EUR;
     CapFloorCMSSpread modifiedCMSSpread;
     modifiedCMSSpread = new CapFloorCMSSpread(newCur, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE, IS_CAP,
         FUNDING_CURVE_NAME);

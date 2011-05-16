@@ -17,7 +17,7 @@ $.register_module({
                     dependencies = obj.config.meta.dependencies || [], id = obj.id;
                 if (!update) return;
                 registrations.push({id: id, dependencies: dependencies, update: update, url: url, current: current});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             filter_registrations = function (filter) {registrations = registrations.filter(filter);},
@@ -30,18 +30,21 @@ $.register_module({
                         return match && handlers.push(val), match;
                     });
                 });
-                handlers.forEach(function (val) {val.update.call(val);});
-                live.register(registrations.map(function (val) {return val.url;}).join('\n'));
+                handlers.forEach(function (val) {val.update(val);});
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             request = function (method, config) {
-                var id = request_id++, url = live_data_root + method.map(encode).join('/'), current = routes.current(),
+                var id = request_id++, no_post_body = {GET: null, DELETE: 0}, url = config.meta.type in no_post_body ?
+                        [live_data_root + method.map(encode).join('/'), $.param(config.data)].filter(Boolean).join('?')
+                            : live_data_root + method.map(encode).join('/'),
+                    current = routes.current(),
                     /** @ignore */
                     send = function () {
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
                             type: config.meta.type,
-                            data: config.data,
+                            data: config.meta.type in no_post_body ? {} : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: TIMEOUT,
@@ -65,15 +68,14 @@ $.register_module({
                                 var meta = {}, location = xhr.getResponseHeader('Location');
                                 delete outstanding_requests[id];
                                 if (location) meta.id = location.split('/').pop();
+                                if (config.meta.type in no_post_body) meta.url = url;
                                 config.meta.handler({error: false, message: status, data: data, meta: meta});
                             },
                             complete: end_loading
                         });
                         return id;
                     };
-                if (config.meta.type === 'GET') register({
-                    id: id, config: config, current: current, url: [url, $.param(config.data)].filter(Boolean).join('?')
-                });
+                if (config.meta.type === 'GET') register({id: id, config: config, current: current, url: url});
                 if (config.meta.update && config.meta.type !== 'GET') og.dev.warn('update functions are only for GETs');
                 start_loading(config.meta.loading);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
@@ -145,9 +147,7 @@ $.register_module({
         return api = {
             abort: function (id) {
                 var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
-                // if request is registered as an update listener, remove it
-                filter_registrations(function (val) {return val.id !== id;});
-                deliver_updates([]);
+                api.deregister(id);
                 // if request is still outstanding remove it
                 if (!xhr) return; else delete outstanding_requests[id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
@@ -159,7 +159,7 @@ $.register_module({
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE,
                         observation_date = str(config.observation_date),
                         observation_time = str(config.observation_time),
-                        is_id = !!observation_date && !!observation_time;
+                        is_id = !config.search && !!observation_date && !!observation_time;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
@@ -177,12 +177,11 @@ $.register_module({
                 del: not_available.partial('del')
             },
             clean: function () {
-                var id, current = routes.current(), request, mismatch;
+                var id, current = routes.current(), request;
                 for (id in outstanding_requests) {
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
                 }
-                deliver_updates([]);
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -223,6 +222,10 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 del: default_del
+            },
+            deregister: function (id) {
+                filter_registrations(function (val) {return val.id !== id;});
+                live.register(registrations.map(function (val) {return val.url;}));
             },
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
@@ -326,6 +329,7 @@ $.register_module({
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            register: register,
             registrations: function () {return registrations;},
             securities: { // all requests that begin with /securities
                 root: 'securities',

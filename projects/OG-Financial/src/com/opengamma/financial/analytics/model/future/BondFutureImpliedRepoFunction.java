@@ -124,7 +124,7 @@ public class BondFutureImpliedRepoFunction extends NonCompiledInvoker {
         }
         final double cleanPrice = (Double) priceObject;
         final BondForwardDefinition forwardDefinition = new BondForwardDefinition(bondDefinition, firstDeliveryDate.toLocalDate(), bondConvention); //TODO this shouldn't be done here
-        final BondForward forward = forwardDefinition.toDerivative(now.toLocalDate(), "dummy");
+        final BondForward forward = forwardDefinition.toDerivative(now, "dummy");
         securities[i] = bondSec;
         deliverables[i] = forward;
         conversionFactors[i] = del.getConversionFactor();

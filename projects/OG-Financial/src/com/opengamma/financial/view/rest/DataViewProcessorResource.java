@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.jms.ConnectionFactory;
 import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -24,9 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
-import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -56,21 +55,16 @@ public class DataViewProcessorResource {
   //CSON: just constants
   
   private final ViewProcessor _viewProcessor;
-  private final JmsTemplate _jmsTemplate;
-  private final String _jmsTopicPrefix;
+  private final ConnectionFactory _connectionFactory;
   private final ScheduledExecutorService _scheduler;
   
   private final AtomicReference<DataViewCycleManagerResource> _cycleManagerResource = new AtomicReference<DataViewCycleManagerResource>();
   
   private final ConcurrentMap<UniqueIdentifier, DataViewClientResource> _createdViewClients = new ConcurrentHashMap<UniqueIdentifier, DataViewClientResource>();
   
-  public DataViewProcessorResource(ViewProcessor viewProcessor, ActiveMQConnectionFactory connectionFactory, String jmsTopicPrefix, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+  public DataViewProcessorResource(ViewProcessor viewProcessor, ConnectionFactory connectionFactory, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
-    
-    _jmsTemplate = new JmsTemplate(connectionFactory);
-    _jmsTemplate.setPubSubDomain(true);
-    
-    _jmsTopicPrefix = jmsTopicPrefix;
+    _connectionFactory = connectionFactory;
     _scheduler = scheduler;
     
     scheduler.scheduleAtFixedRate(new Runnable() {
@@ -184,7 +178,7 @@ public class DataViewProcessorResource {
   
   private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsTemplate, _jmsTopicPrefix);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _connectionFactory);
   }
   
 }

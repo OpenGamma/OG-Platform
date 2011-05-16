@@ -19,9 +19,9 @@ $.register_module({
             search_options = {
                 'selector': '.og-js-results-slick', 'page_type': 'batches',
                 'columns': [
-                    {id: 'observationDate', name: 'ObservationDate', field: 'id', width: 130, cssClass: 'og-link',
+                    {id: 'ob_date', name: 'ObservationDate', field: 'id', width: 130, cssClass: 'og-link',
                         filter_type: 'input'},
-                    {id: 'observationTime', name: 'ObservationTime', field: 'observationTime', width: 130,
+                    {id: 'ob_time', name: 'ObservationTime', field: 'id_time', width: 130,
                         filter_type: 'input'},
                     {id: 'status', name: 'Status', field: 'status', width: 130, filter_type: 'input'}
                 ]
@@ -64,7 +64,9 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name, method: module.name + '.load'},
-            load_batches: {route: '/' + page_name + '/:id/:observation_time', method: module.name + '.load_batches'}
+            load_filter: {route: '/' + page_name + '/filter:/id:?/id_time:?/ob_date:?/ob_time:?',
+                method: module.name + '.load_filter'},
+            load_batches: {route: '/' + page_name + '/id:/id_time:', method: module.name + '.load_batches'}
         };
         return batches = {
             details: function (args) {
@@ -88,7 +90,7 @@ $.register_module({
                         }});
                     },
                     observation_date: args.id,
-                    observation_time: args.observation_time,
+                    observation_time: args.id_time,
                     loading: function () {
                         ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
                     }
@@ -97,6 +99,19 @@ $.register_module({
             load: function (args) {
                 check_state({args: args, conditions: [{new_page: new_page}]});
                 if (!args.id) default_page();
+            },
+            load_filter: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        state = {filter: true};
+                        batches.load(args);
+                        args.id
+                            ? routes.go(routes.hash(module.rules.load_batches, args))
+                            : routes.go(routes.hash(module.rules.load, args));
+                    }}
+                ]});
+                delete args['filter'];
+                search.filter($.extend(args, {filter: true}));
             },
             load_batches: function (args) {
                 check_state({args: args, conditions: [{new_page: batches.load}]});

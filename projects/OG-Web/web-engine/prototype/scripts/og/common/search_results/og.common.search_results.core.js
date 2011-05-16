@@ -57,16 +57,17 @@ $.register_module({
                         var last = routes.last(), obj_url = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
+                                id_time: slick_manager.data[$(e.currentTarget).attr('row')].id_time,
                                 type: slick_manager.data[$(e.currentTarget).attr('row')].type,
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 filter_type: (last && last.args.filter_type) || '',
                                 filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
-                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observationTime
+                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time
                             };
                         delete obj_url.node;
                         routes.go(routes.hash(
-                                og.views[obj.page_type].rules['load_' + obj.page_type], $.extend({}, obj.url, params)));
+                            og.views[obj.page_type].rules['load_' + obj.page_type], $.extend({}, obj.url, params)));
                     });
                     grid.onViewportChanged.subscribe(function () {
                         clearTimeout(timer);

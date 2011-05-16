@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -26,7 +26,7 @@ public interface ConvectionDiffusionPDESolver {
    * @param upperBoundary Descriptor of the upper boundary in x 
    * @return An 2 by (xSteps + 1) array, with the first column  giving the spatial (x) grid points and the second given the value of the fucntion f at tMax and these grid points 
    */
-  double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
+  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
 
   /**
     *Solver for convection-diffusion type partial differential equations (PDEs), i.e. 
@@ -41,7 +41,11 @@ public interface ConvectionDiffusionPDESolver {
    * in the next time step. E.g. for a American put where x is the stock price, then g(t,x) = max(k-x,0), where k is the strike 
    * @return An 2 by (xSteps + 1) array, with the first column  giving the spatial (x) grid points and the second given the value of the fucntion f at tMax and these grid points 
    */
-  double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary);
+  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary);
 
+  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
+
+  PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary);
 }
