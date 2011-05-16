@@ -7,8 +7,8 @@ package com.opengamma.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -26,10 +26,14 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 public class AnnuityCouponIborDefinitionTest {
   //Libor3m
@@ -54,7 +58,18 @@ public class AnnuityCouponIborDefinitionTest {
 
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
 
-  private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 3, 15); //For conversion to derivative
+  private static final ZonedDateTime REFERENCE_DATE = DateUtil.getUTCDate(2011, 3, 15); //For conversion to derivative
+  private static final double FIXING_RATE = 0.05;
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
+
+  static {
+    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {REFERENCE_DATE}, new double[] {FIXING_RATE});
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullConversionDate() {
+    IBOR_ANNUITY.toDerivative(null, FIXING_TS, new String[] {"L", "K"});
+  }
 
   @Test
   public void test() {
@@ -120,8 +135,8 @@ public class AnnuityCouponIborDefinitionTest {
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       assertEquals(paymentDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getPaymentDate());
       assertEquals(fixingDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingDate());
-      assertEquals(startPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixindPeriodStartDate());
-      assertEquals(endPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixindPeriodEndDate());
+      assertEquals(startPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingPeriodStartDate());
+      assertEquals(endPeriodDates[loopcpn], iborAnnuity.getNthPayment(loopcpn).getFixingPeriodEndDate());
     }
   }
 
@@ -160,17 +175,53 @@ public class AnnuityCouponIborDefinitionTest {
   }
 
   @Test
-  public void testToDerivative() {
+  public void testToDerivativeAfterFixing() {
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
     final String[] curves = {fundingCurve, forwardCurve};
     final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
+    ZonedDateTime date = REFERENCE_DATE.plusMonths(1);
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, curves);
+      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
+    }
+    GenericAnnuity<Payment> referenceAnnuity = new GenericAnnuity<Payment>(couponIborConverted);
+    GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
+    assertEquals(referenceAnnuity, convertedDefinition);
+    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
+    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
+    for (int i = 1; i < PAYMENT_DATES.length; i++) {
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+    }
+    date = REFERENCE_DATE;
+    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
+      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
+    }
+    referenceAnnuity = new GenericAnnuity<Payment>(couponIborConverted);
+    convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
+    assertEquals(referenceAnnuity, convertedDefinition);
+    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
+    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
+    for (int i = 1; i < PAYMENT_DATES.length; i++) {
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+    }
+  }
+
+  @Test
+  public void testToDerivativeBeforeFixing() {
+    final String fundingCurve = "Funding";
+    final String forwardCurve = "Forward";
+    final String[] curves = {fundingCurve, forwardCurve};
+    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
+    final ZonedDateTime date = REFERENCE_DATE.minusDays(1);
+    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
+      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
     }
     final GenericAnnuity<Payment> referenceAnnuity = new GenericAnnuity<Payment>(couponIborConverted);
-    final GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(REFERENCE_DATE, curves);
+    final GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
     assertEquals(referenceAnnuity, convertedDefinition);
+    for (int i = 0; i < PAYMENT_DATES.length; i++) {
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+    }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

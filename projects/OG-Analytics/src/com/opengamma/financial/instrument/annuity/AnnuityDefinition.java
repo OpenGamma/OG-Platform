@@ -9,24 +9,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a generic annuity (or leg) with at least one payment. All the annuity payments are in the same currency. 
  * @param <P> The payment type 
  *
  */
-public class AnnuityDefinition<P extends PaymentDefinition> implements FixedIncomeInstrumentDefinition<GenericAnnuity<? extends Payment>> {
-
+public class AnnuityDefinition<P extends PaymentDefinition> implements FixedIncomeInstrumentWithDataConverter<GenericAnnuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
+  /** Empty array for array conversion of list */
+  protected static final Payment[] EMPTY_ARRAY = new Payment[0];
   /** 
    * The list of payments or coupons. All payments have the same currency. All payments have the same sign or are 0.
    */
@@ -45,7 +47,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0);
     double amount = payments[0].getReferenceAmount();
-    Currency currency0 = payments[0].getCurrency();
+    final Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
       amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
@@ -98,8 +100,8 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
   @Override
   public String toString() {
     String result = "Annuity:";
-    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
-      result += _payments[looppayment].toString();
+    for (final P payment : _payments) {
+      result += payment.toString();
     }
     return result;
   }
@@ -114,7 +116,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -124,7 +126,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
     if (getClass() != obj.getClass()) {
       return false;
     }
-    AnnuityDefinition<?> other = (AnnuityDefinition<?>) obj;
+    final AnnuityDefinition<?> other = (AnnuityDefinition<?>) obj;
     if (_isPayer != other._isPayer) {
       return false;
     }
@@ -135,24 +137,42 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements FixedInco
   }
 
   @Override
-  public GenericAnnuity<? extends Payment> toDerivative(LocalDate date, String... yieldCurveNames) {
-    List<Payment> resultList = new ArrayList<Payment>();
+  public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final List<Payment> resultList = new ArrayList<Payment>();
     for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
-      if (!date.isAfter(_payments[loopcoupon].getPaymentDate().toLocalDate())) {
+      if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
         resultList.add(_payments[loopcoupon].toDerivative(date, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Payment>(resultList.toArray(new Payment[0]));
+    return new GenericAnnuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    final List<Payment> resultList = new ArrayList<Payment>();
+    for (final P payment : _payments) {
+      //TODO check this 
+      if (!date.isAfter(payment.getPaymentDate())) {
+        if (payment instanceof FixedIncomeInstrumentWithDataConverter) {
+          resultList.add(((FixedIncomeInstrumentWithDataConverter<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
+        } else {
+          resultList.add(payment.toDerivative(date, yieldCurveNames));
+        }
+      }
+    }
+    return new GenericAnnuity<Payment>(resultList.toArray(EMPTY_ARRAY));
   }
 
   @Override
-  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitAnnuityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitAnnuityDefinition(this);
   }
-
 }

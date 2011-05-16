@@ -27,6 +27,7 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -44,7 +45,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
-public final class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
+public class PresentValueSensitivityCalculator extends AbstractInterestRateDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
   //TODO: Change the output format to PresentValueSensitivity.
 
   private static PresentValueSensitivityCalculator s_instance = new PresentValueSensitivityCalculator();
@@ -53,7 +54,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
     return s_instance;
   }
 
-  private PresentValueSensitivityCalculator() {
+  PresentValueSensitivityCalculator() {
   }
 
   @Override
@@ -318,69 +319,9 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
 
   @Override
   public Map<String, List<DoublesPair>> visitCouponCMS(CouponCMS payment, YieldCurveBundle data) {
-    Validate.notNull(data);
-    Validate.notNull(payment);
-    ParRateCalculator parRateCal = ParRateCalculator.getInstance();
-    double swapRate = parRateCal.visitFixedCouponSwap(payment.getUnderlyingSwap(), data);
-    String fundingCurveName = payment.getFundingCurveName();
-    final YieldAndDiscountCurve fundingCurve = data.getCurve(fundingCurveName);
-    double paymentTime = payment.getPaymentTime();
-    double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
-    ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
-    Map<String, List<DoublesPair>> swapRateSens = parRateSensCal.visit(payment.getUnderlyingSwap(), data);
-    Map<String, List<DoublesPair>> payDFSens = discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime);
-    Map<String, List<DoublesPair>> result = swapRateSens;
-    result = PresentValueSensitivityUtil.multiplySensitivity(result, paymentDiscountFactor);
-    result = PresentValueSensitivityUtil.addSensitivity(data, result, PresentValueSensitivityUtil.multiplySensitivity(payDFSens, swapRate));
-    return PresentValueSensitivityUtil.multiplySensitivity(result, payment.getNotional() * payment.getPaymentYearFraction());
+    CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
+    return method.presentValueSensitivity(payment, data).getSensitivity();
   }
-
-  //  /**
-  //   * Add two maps representing sensitivities into one.
-  //   * @param curves List of curves.
-  //   * @param sense1 First sensitivity.
-  //   * @param sense2 Second sensitivity.
-  //   * @return The total sensitivity.
-  //   */
-  //  @Deprecated
-  //  private static Map<String, List<DoublesPair>> addSensitivity(final YieldCurveBundle curves, final Map<String, List<DoublesPair>> sense1, final Map<String, List<DoublesPair>> sense2) {
-  //    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-  //    for (final String name : curves.getAllNames()) {
-  //      final List<DoublesPair> temp = new ArrayList<DoublesPair>();
-  //      if (sense1.containsKey(name)) {
-  //        for (final DoublesPair pair : sense1.get(name)) {
-  //          temp.add(pair);
-  //        }
-  //      }
-  //      if (sense2.containsKey(name)) {
-  //        for (final DoublesPair pair : sense2.get(name)) {
-  //          final DoublesPair newPair = new DoublesPair(pair.getFirst(), pair.getSecond());
-  //          temp.add(newPair);
-  //        }
-  //      }
-  //      result.put(name, temp);
-  //    }
-  //    return result;
-  //  }
-
-  //  /**
-  //   * Multiply a sensitivity by a common factor.
-  //   * @param sensi The original sensitivity.
-  //   * @param factor The multiplicative factor.
-  //   * @return The multiplied sensitivity.
-  //   */
-  //  @Deprecated
-  //  private static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensi, double factor) {
-  //    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-  //    for (final String name : sensi.keySet()) {
-  //      final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
-  //      for (final DoublesPair pair : sensi.get(name)) {
-  //        curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
-  //      }
-  //      result.put(name, curveSensi);
-  //    }
-  //    return result;
-  //  }
 
   /**
    * Compute the sensitivity of the discount factor at a given time.
@@ -389,7 +330,7 @@ public final class PresentValueSensitivityCalculator extends AbstractInterestRat
    * @param time The time
    * @return The sensitivity.
    */
-  private static Map<String, List<DoublesPair>> discountFactorSensitivity(String curveName, YieldAndDiscountCurve curve, double time) {
+  public static Map<String, List<DoublesPair>> discountFactorSensitivity(String curveName, YieldAndDiscountCurve curve, double time) {
     final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(s);

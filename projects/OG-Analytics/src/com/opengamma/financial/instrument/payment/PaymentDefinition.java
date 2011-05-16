@@ -10,14 +10,14 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a generic payment. The payments can be positive (receiving) or negative (paying).
  */
-public abstract class PaymentDefinition implements FixedIncomeInstrumentDefinition<Payment> {
+public abstract class PaymentDefinition implements FixedIncomeInstrumentConverter<Payment> {
 
   /**
    * The payment currency.
@@ -33,7 +33,7 @@ public abstract class PaymentDefinition implements FixedIncomeInstrumentDefiniti
    * @param currency The payment currency.
    * @param paymentDate The payment date.
    */
-  public PaymentDefinition(Currency currency, ZonedDateTime paymentDate) {
+  public PaymentDefinition(final Currency currency, final ZonedDateTime paymentDate) {
     Validate.notNull(currency, "currency");
     _currency = currency;
     Validate.notNull(paymentDate, "payment date");
@@ -77,7 +77,7 @@ public abstract class PaymentDefinition implements FixedIncomeInstrumentDefiniti
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -87,7 +87,7 @@ public abstract class PaymentDefinition implements FixedIncomeInstrumentDefiniti
     if (getClass() != obj.getClass()) {
       return false;
     }
-    PaymentDefinition other = (PaymentDefinition) obj;
+    final PaymentDefinition other = (PaymentDefinition) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }

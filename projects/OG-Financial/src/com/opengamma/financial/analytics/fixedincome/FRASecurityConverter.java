@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
-import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinition;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -26,7 +26,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentDefinition<?>> {
+public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstrumentConverter<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
