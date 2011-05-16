@@ -19,161 +19,165 @@ import com.opengamma.math.surface.Surface;
 public class CoupledFiniteDifference {
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
 
-  private final double _theta = 0.5;
+  private final double _theta;
 
-  public double[][] solve(final ConvectionDiffusionPDEDataBundle pdeData1, final ConvectionDiffusionPDEDataBundle pdeData2, final double[] timeGrid, final double[] spaceGrid,
-      final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary, final double lambda12, final double lambda21, final Surface<Double, Double, Double> freeBoundary) {
+  /**
+   * 
+   */
+  public CoupledFiniteDifference() {
+    _theta = 0.5;
+  }
+
+  public CoupledFiniteDifference(final double theta) {
+    _theta = theta;
+  }
+
+  public PDEResults1D[] solve(final ConvectionDiffusionPDEDataBundle pdeData1, final ConvectionDiffusionPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final double lambda12, final double lambda21, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-    int tNodes = timeGrid.length;
-    int xNodes = spaceGrid.length;
-    Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
-    Validate.isTrue(xNodes > 2, "need at least 3 space nodes");
 
-    // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
-    Validate.isTrue(Math.abs(spaceGrid[0] - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
-    Validate.isTrue(Math.abs(spaceGrid[xNodes - 1] - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
+    validateSetup(grid, lowerBoundary, upperBoundary);
 
-    double[] dt = new double[tNodes - 1];
-    for (int n = 0; n < tNodes - 1; n++) {
-      dt[n] = timeGrid[n + 1] - timeGrid[n];
-      Validate.isTrue(dt[n] > 0, "time steps must be increasing");
-    }
-
-    double[] dx = new double[xNodes - 1];
-    for (int i = 0; i < xNodes - 1; i++) {
-      dx[i] = spaceGrid[i + 1] - spaceGrid[i];
-      Validate.isTrue(dx[i] > 0, "space steps must be increasing");
-    }
-
-    // since the space grid is time independent, we can calculate the coefficients for derivatives once
-    double[][] x1st = new double[xNodes - 2][3];
-    double[][] x2nd = new double[xNodes - 2][3];
-    for (int i = 0; i < xNodes - 2; i++) {
-      x1st[i][0] = -dx[i + 1] / dx[i] / (dx[i] + dx[i + 1]);
-      x1st[i][1] = (dx[i + 1] - dx[i]) / dx[i] / dx[i + 1];
-      x1st[i][2] = dx[i] / dx[i + 1] / (dx[i] + dx[i + 1]);
-      x2nd[i][0] = 2 / dx[i] / (dx[i] + dx[i + 1]);
-      x2nd[i][1] = -2 / dx[i] / dx[i + 1];
-      x2nd[i][2] = 2 / dx[i + 1] / (dx[i] + dx[i + 1]);
-    }
+    int tNodes = grid.getNumTimeNodes();
+    int xNodes = grid.getNumSpaceNodes();
 
     double[] f = new double[2 * xNodes];
     final double[] q = new double[2 * xNodes];
     final double[][] m = new double[2 * xNodes][2 * xNodes];
 
-    double a, b, c, aa, bb, cc, sum;
+    double[][] rho1 = new double[2][xNodes - 2];
+    double[][] rho2 = new double[2][xNodes - 2];
+    double[][] a1 = new double[2][xNodes - 2];
+    double[][] a2 = new double[2][xNodes - 2];
+    double[][] b1 = new double[2][xNodes - 2];
+    double[][] b2 = new double[2][xNodes - 2];
+    double[][] c1 = new double[2][xNodes - 2];
+    double[][] c2 = new double[2][xNodes - 2];
+
+    double dt, t1, t2, x;
+    double[] x1st, x2nd;
 
     for (int i = 0; i < xNodes; i++) {
-      f[i] = pdeData1.getInitialValue(spaceGrid[i]);
+      f[i] = pdeData1.getInitialValue(grid.getSpaceNode(i));
     }
     for (int i = 0; i < xNodes; i++) {
-      f[i + xNodes] = pdeData1.getInitialValue(spaceGrid[i]);
+      f[i + xNodes] = pdeData1.getInitialValue(grid.getSpaceNode(i));
+    }
+
+    for (int i = 0; i < xNodes - 2; i++) {
+      x = grid.getSpaceNode(i + 1);
+      a1[0][i] = pdeData1.getA(0, x);
+      b1[0][i] = pdeData1.getB(0, x);
+      c1[0][i] = pdeData1.getC(0, x);
+      rho1[0][i] = getFittingParameter(grid, a1[0][i], b1[0][i], i + 1);
+      a1[1][i] = pdeData2.getA(0, x);
+      b1[1][i] = pdeData2.getB(0, x);
+      c1[1][i] = pdeData2.getC(0, x);
+      rho1[1][i] = getFittingParameter(grid, a1[1][i], b1[1][i], i + 1);
     }
 
     for (int n = 1; n < tNodes; n++) {
 
+      t1 = grid.getTimeNode(n - 1);
+      t2 = grid.getTimeNode(n);
+      dt = grid.getTimeStep(n - 1);
+
       for (int i = 1; i < xNodes - 1; i++) {
-        a = pdeData1.getA(timeGrid[n - 1], spaceGrid[i]);
-        b = pdeData1.getB(timeGrid[n - 1], spaceGrid[i]);
-        c = pdeData1.getC(timeGrid[n - 1], spaceGrid[i]);
+        x = grid.getSpaceNode(i);
+        x1st = grid.getFirstDerivativeCoefficients(i);
+        x2nd = grid.getSecondDerivativeCoefficients(i);
 
-        sum = 0;
-        sum -= (1 - _theta) * dt[n - 1] * (x2nd[i - 1][0] * a + x1st[i - 1][0] * b) * f[i - 1];
-        sum += (1 - (1 - _theta) * dt[n - 1] * (lambda12 + x2nd[i - 1][1] * a + x1st[i - 1][1] * b + c)) * f[i];
-        sum -= (1 - _theta) * dt[n - 1] * (x2nd[i - 1][2] * a + x1st[i - 1][2] * b) * f[i + 1];
-        sum += (1 - _theta) * dt[n - 1] * lambda12 * f[i + xNodes];
-        q[i] = sum;
+        q[i] = f[i];
+        q[i] -= (1 - _theta) * dt * (x2nd[0] * rho1[0][i - 1] + x1st[0] * b1[0][i - 1]) * f[i - 1];
+        q[i] -= (1 - _theta) * dt * (x2nd[1] * rho1[0][i - 1] + x1st[1] * b1[0][i - 1] + c1[0][i - 1] + lambda12) * f[i];
+        q[i] -= (1 - _theta) * dt * (x2nd[2] * rho1[0][i - 1] + x1st[2] * b1[0][i - 1]) * f[i + 1];
+        q[i] += (1 - _theta) * dt * lambda12 * f[i + xNodes];
 
-        a = pdeData2.getA(timeGrid[n - 1], spaceGrid[i]);
-        b = pdeData2.getB(timeGrid[n - 1], spaceGrid[i]);
-        c = pdeData2.getC(timeGrid[n - 1], spaceGrid[i]);
+        q[xNodes + i] = f[xNodes + i];
+        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[0] * rho1[1][i - 1] + x1st[0] * b1[1][i - 1]) * f[xNodes + i - 1];
+        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[1] * rho1[1][i - 1] + x1st[1] * b1[1][i - 1] + c1[1][i - 1] + lambda21) * f[xNodes + i];
+        q[xNodes + i] -= (1 - _theta) * dt * (x2nd[2] * rho1[1][i - 1] + x1st[2] * b1[1][i - 1]) * f[xNodes + i + 1];
+        q[xNodes + i] += (1 - _theta) * dt * lambda21 * f[i];
 
-        sum = 0;
-        sum -= (1 - _theta) * dt[n - 1] * (x2nd[i - 1][0] * a + x1st[i - 1][0] * b) * f[xNodes + i - 1];
-        sum += (1 - (1 - _theta) * dt[n - 1] * (lambda21 + x2nd[i - 1][1] * a + x1st[i - 1][1] * b + c)) * f[xNodes + i];
-        sum -= (1 - _theta) * dt[n - 1] * (x2nd[i - 1][2] * a + x1st[i - 1][2] * b) * f[xNodes + i + 1];
-        sum += (1 - _theta) * dt[n - 1] * lambda21 * f[i];
-        q[xNodes + i] = sum;
+        a2[0][i - 1] = pdeData1.getA(t2, x);
+        b2[0][i - 1] = pdeData1.getB(t2, x);
+        c2[0][i - 1] = pdeData1.getC(t2, x);
+        rho2[0][i - 1] = getFittingParameter(grid, a2[0][i - 1], b2[0][i - 1], i);
+        a2[1][i - 1] = pdeData2.getA(t2, x);
+        b2[1][i - 1] = pdeData2.getB(t2, x);
+        c2[1][i - 1] = pdeData2.getC(t2, x);
+        rho2[1][i - 1] = getFittingParameter(grid, a2[1][i - 1], b2[1][i - 1], i);
 
-        // TODO could store these
-        a = pdeData1.getA(timeGrid[n], spaceGrid[i]);
-        b = pdeData1.getB(timeGrid[n], spaceGrid[i]);
-        c = pdeData1.getC(timeGrid[n], spaceGrid[i]);
-        aa = dt[n - 1] * (x2nd[i - 1][0] * a + x1st[i - 1][0] * b);
-        bb = dt[n - 1] * (x2nd[i - 1][1] * a + x1st[i - 1][1] * b + c);
-        cc = dt[n - 1] * (x2nd[i - 1][2] * a + x1st[i - 1][2] * b);
-        m[i][i - 1] = _theta * aa;
-        m[i][i] = 1 + dt[n - 1] * _theta * lambda12 + _theta * bb;
-        m[i][i + 1] = _theta * cc;
-        m[i][i + xNodes] = -dt[n - 1] * _theta * lambda12;
+        m[i][i - 1] = _theta * dt * (x2nd[0] * rho2[0][i - 1] + x1st[0] * b2[0][i - 1]);
+        m[i][i] = 1 + _theta * dt * (x2nd[1] * rho2[0][i - 1] + x1st[1] * b2[0][i - 1] + c2[0][i - 1] + lambda12);
+        m[i][i + 1] = _theta * dt * (x2nd[2] * rho2[0][i - 1] + x1st[2] * b2[0][i - 1]);
+        m[i][i + xNodes] = -dt * _theta * lambda12;
 
-        a = pdeData2.getA(timeGrid[n], spaceGrid[i]);
-        b = pdeData2.getB(timeGrid[n], spaceGrid[i]);
-        c = pdeData2.getC(timeGrid[n], spaceGrid[i]);
-        aa = dt[n - 1] * (x2nd[i - 1][0] * a + x1st[i - 1][0] * b);
-        bb = dt[n - 1] * (x2nd[i - 1][1] * a + x1st[i - 1][1] * b + c);
-        cc = dt[n - 1] * (x2nd[i - 1][2] * a + x1st[i - 1][2] * b);
-        m[i + xNodes][i + xNodes - 1] = _theta * aa;
-        m[i + xNodes][i + xNodes] = 1 + dt[n - 1] * _theta * lambda21 + _theta * bb;
-        m[i + xNodes][i + xNodes + 1] = _theta * cc;
-        m[i + xNodes][i] = -dt[n - 1] * _theta * lambda21;
+        m[xNodes + i][xNodes + i - 1] = _theta * dt * (x2nd[0] * rho2[1][i - 1] + x1st[0] * b2[1][i - 1]);
+        m[xNodes + i][xNodes + i] = 1 + _theta * dt * (x2nd[1] * rho2[1][i - 1] + x1st[1] * b2[1][i - 1] + c2[1][i - 1] + lambda21);
+        m[xNodes + i][xNodes + i + 1] = _theta * dt * (x2nd[2] * rho2[1][i - 1] + x1st[2] * b2[1][i - 1]);
+        m[xNodes + i][i] = -dt * _theta * lambda21;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData1, grid, timeGrid[n]);
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData1, grid, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getLeftMatrixCondition(pdeData2, grid, timeGrid[n]);
+      temp = lowerBoundary.getLeftMatrixCondition(pdeData2, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes][xNodes + k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData2, grid, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData2, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[2 * xNodes - 1][2 * xNodes - 1 - k] = temp[k];
       }
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData1, grid, timeGrid[n]);
-      sum = 0;
+      temp = lowerBoundary.getRightMatrixCondition(pdeData1, grid, t1);
+      double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData1, timeGrid[n]);
+      q[0] = sum + lowerBoundary.getConstant(pdeData1, t2);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData1, grid, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData1, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData1, timeGrid[n]);
+      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData1, t2);
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData2, grid, timeGrid[n]);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData2, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[xNodes] = sum + lowerBoundary.getConstant(pdeData2, timeGrid[n]);
+      q[xNodes] = sum + lowerBoundary.getConstant(pdeData2, t2);
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData2, grid, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData2, grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[2 * xNodes - 1] = sum + upperBoundary.getConstant(pdeData2, timeGrid[n]);
+      q[2 * xNodes - 1] = sum + upperBoundary.getConstant(pdeData2, t2);
 
       final DoubleMatrix2D mM = new DoubleMatrix2D(m);
       final DecompositionResult res = DCOMP.evaluate(mM);
       f = res.solve(q);
+
+      a1 = a2;
+      b1 = b2;
+      c1 = c2;
+      rho1 = rho2;
 
       // SOR
       // final double omega = 1.0;
@@ -199,16 +203,53 @@ public class CoupledFiniteDifference {
 
     }
 
-    final double[][] res = new double[3][];
-    res[0] = spaceGrid;
-    res[1] = new double[xNodes];
-    res[2] = new double[xNodes];
+    final PDEResults1D[] res = new PDEResults1D[2];
+
+    double[] res1 = new double[xNodes];
+    double[] res2 = new double[xNodes];
 
     for (int i = 0; i < xNodes; i++) {
-      res[1][i] = f[i];
-      res[2][i] = f[i + xNodes];
+      res1[i] = f[i];
+      res2[i] = f[i + xNodes];
     }
+    res[0] = new PDETerminalResults1D(grid, res1);
+    res[1] = new PDETerminalResults1D(grid, res2);
     return res;
+  }
 
+  /**
+   * Checks that the lower and upper boundaries match up with the grid
+   * @param grid
+   * @param lowerBoundary
+   * @param upperBoundary
+   */
+  private void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+    // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
+    Validate.isTrue(Math.abs(grid.getSpaceNode(0) - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
+    Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
+  }
+
+  private double getFittingParameter(final PDEGrid1D grid, double a, double b, int i) {
+    double rho;
+    double[] x1st = grid.getFirstDerivativeCoefficients(i);
+    double[] x2nd = grid.getSecondDerivativeCoefficients(i);
+    double bdx1 = (b * grid.getSpaceStep(i - 1));
+    double bdx2 = (b * grid.getSpaceStep(i));
+
+    // convection dominated
+    if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
+      if (b > 0) {
+        rho = -b * x1st[0] / x2nd[0];
+      } else {
+        rho = -b * x1st[2] / x2nd[2];
+      }
+    } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
+      rho = a; // diffusion dominated
+    } else {
+      double expo1 = Math.exp(bdx1 / a);
+      double expo2 = Math.exp(-bdx2 / a);
+      rho = -b * (x1st[0] * expo1 + x1st[1] + x1st[2] * expo2) / (x2nd[0] * expo1 + x2nd[1] + x2nd[2] * expo2);
+    }
+    return rho;
   }
 }

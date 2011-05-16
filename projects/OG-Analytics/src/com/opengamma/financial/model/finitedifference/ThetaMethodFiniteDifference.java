@@ -85,7 +85,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
         q[i] -= (1 - _theta) * dt * (x2nd[1] * rho1[i - 1] + x1st[1] * b1[i - 1] + c1[i - 1]) * f[i];
         q[i] -= (1 - _theta) * dt * (x2nd[2] * rho1[i - 1] + x1st[2] * b1[i - 1]) * f[i + 1];
 
-        // TODO could store these
         a2[i - 1] = pdeData.getA(t2, x);
         b2[i - 1] = pdeData.getB(t2, x);
         c2[i - 1] = pdeData.getC(t2, x);
