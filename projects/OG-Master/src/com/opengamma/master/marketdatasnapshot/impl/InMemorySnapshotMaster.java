@@ -162,6 +162,12 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
 
   @Override
   public void remove(UniqueIdentifier uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    if (_store.remove(uniqueId.getObjectId()) == null) {
+      throw new DataNotFoundException("Security not found: " + uniqueId);
+    }
+    _changeManager.masterChanged(MasterChangedType.REMOVED, uniqueId, null, Instant.now());
   }
 
   @Override
