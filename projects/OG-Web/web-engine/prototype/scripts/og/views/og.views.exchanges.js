@@ -99,7 +99,6 @@ $.register_module({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
                         var f = details.exchange_functions;
-                        console.log(result.data);
                         details_json = result.data;
                         history.put({
                             name: details_json.template_data.name,
