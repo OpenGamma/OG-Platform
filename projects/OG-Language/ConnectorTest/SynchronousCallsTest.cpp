@@ -145,6 +145,7 @@ public:
 		m_msg = msg;
 		m_poSlot = poSlot;
 		m_poCalls = poCalls;
+		m_bPoison = false;
 		ASSERT (Start ());
 	}
 	~CRapidPostThread () {
