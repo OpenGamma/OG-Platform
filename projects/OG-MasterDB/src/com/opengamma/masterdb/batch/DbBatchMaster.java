@@ -8,6 +8,7 @@ package com.opengamma.masterdb.batch;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -903,10 +904,13 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       runTimeCriteria.addOrder(Order.asc("date"));
       observationTimeCriteria.addOrder(Order.asc("label"));
 
-      List<RiskRun> runs = getHibernateTemplate().findByCriteria(
-          criteria,
-          request.getPagingRequest().getFirstItemIndex(),
-          request.getPagingRequest().getPagingSize());
+      List<RiskRun> runs = Collections.emptyList();
+      if (request.getPagingRequest().equals(PagingRequest.NONE) == false) {
+        runs = getHibernateTemplate().findByCriteria(
+            criteria,
+            request.getPagingRequest().getFirstItemIndex(),
+            request.getPagingRequest().getPagingSize());
+      }
       
       for (RiskRun run : runs) {
         BatchSearchResultItem item = new BatchSearchResultItem();

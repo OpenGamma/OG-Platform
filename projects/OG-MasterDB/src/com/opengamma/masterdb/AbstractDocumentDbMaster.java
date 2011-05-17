@@ -358,7 +358,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       s_logger.debug("executing sql {}", sql[1]);
       final int count = namedJdbc.queryForInt(sql[1], args);
       result.setPaging(Paging.of(pagingRequest, count));
-      if (count > 0) {
+      if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
         s_logger.debug("executing sql {}", sql[0]);
         result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       }
