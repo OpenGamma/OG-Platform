@@ -31,13 +31,13 @@ public abstract class BatchJobRun {
    * If the first run attempt, the value is system clock when the BatchJob object was created.
    * If a second, third... run attempt, it's the system clock on the first run attempt.
    * <p>
-   * Set by BatchDbManager.
+   * Set by BatchMaster.
    */
   private Instant _originalCreationTime;
   /**
    * A handle to the database entry for this run.
    * <p>
-   * Set by BatchDbManager.
+   * Set by BatchMaster.
    */
   private Object _dbHandle;
 

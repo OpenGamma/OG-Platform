@@ -89,9 +89,9 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'positions',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'},
+                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link'},
                         {id: 'quantity', name: 'Quantity', field: 'quantity', width: 100, filter_type: 'input'},
-                        {id: 'trades', name: 'Trades', field: 'trades', width: 50, filter_type: 'input'}
+                        {id: 'trades', name: 'Trades', field: 'trades', width: 50}
                     ]
                 },
                 toolbar: {

@@ -271,7 +271,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
   public InMemoryLKVSnapshotProvider createSnapshotProvider() {
     InMemoryLKVSnapshotProvider provider;
     if (getJob().getHistoricalDataProvider() != null) {
-      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchDbManager(), getJob().getHistoricalDataProvider());
+      provider = new BatchLiveDataSnapshotProvider(this, getJob().getBatchMaster(), getJob().getHistoricalDataProvider());
     } else {
       provider = new InMemoryLKVSnapshotProvider();
     }
@@ -280,14 +280,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     
     Set<LiveDataValue> liveDataValues;
     try {
-      liveDataValues = getJob().getBatchDbManager().getSnapshotValues(getSnapshotId());
+      liveDataValues = getJob().getBatchMaster().getSnapshotValues(getSnapshotId());
     } catch (IllegalArgumentException e) {
       if (getJob().getHistoricalDataProvider() != null) {
         // if there is a historical data provider, that provider
         // may potentially provide all market data to run the batch,
         // so no pre-existing snapshot is required
         s_logger.info("Auto-creating snapshot " + getSnapshotId());
-        getJob().getBatchDbManager().createLiveDataSnapshot(getSnapshotId());
+        getJob().getBatchMaster().createLiveDataSnapshot(getSnapshotId());
         liveDataValues = Collections.emptySet();
       } else {
         throw e;
@@ -352,7 +352,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(localNode));
 
-    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getJob().getBatchDbManager().createDependencyGraphExecutorFactory(this);
+    DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory = getJob().getBatchMaster().createDependencyGraphExecutorFactory(this);
     
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), cacheManager);
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionCompilationService);

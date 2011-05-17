@@ -21,9 +21,8 @@ $.register_module({
                 'columns': [
                     {id: 'ob_date', name: 'ObservationDate', field: 'id', width: 130, cssClass: 'og-link',
                         filter_type: 'input'},
-                    {id: 'ob_time', name: 'ObservationTime', field: 'id_time', width: 130,
-                        filter_type: 'input'},
-                    {id: 'status', name: 'Status', field: 'status', width: 130, filter_type: 'input'}
+                    {id: 'ob_time', name: 'ObservationTime', field: 'id_time', width: 130, filter_type: 'input'},
+                    {id: 'status', name: 'Status', field: 'status', width: 130}
                 ]
             },
             default_toolbar_options = {

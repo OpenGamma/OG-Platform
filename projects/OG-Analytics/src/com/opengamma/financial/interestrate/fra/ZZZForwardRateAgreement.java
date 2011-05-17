@@ -9,14 +9,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.payments.CouponFloating;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a Forward Rate Agreement (FRA).
  */
-public class ZZZForwardRateAgreement extends CouponFloating implements InterestRateDerivative {
+public class ZZZForwardRateAgreement extends CouponFloating {
 
   /**
    * Ibor-like index on which the FRA fixes. The index currency should be the same as the instrument currency.
@@ -141,7 +140,7 @@ public class ZZZForwardRateAgreement extends CouponFloating implements InterestR
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -151,7 +150,7 @@ public class ZZZForwardRateAgreement extends CouponFloating implements InterestR
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ZZZForwardRateAgreement other = (ZZZForwardRateAgreement) obj;
+    final ZZZForwardRateAgreement other = (ZZZForwardRateAgreement) obj;
     if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
       return false;
     }
