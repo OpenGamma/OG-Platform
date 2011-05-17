@@ -79,7 +79,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Test
   public void test_search_pageOne() {
     ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    request.setPagingRequest(new PagingRequest(1, 2));
+    request.setPagingRequest(PagingRequest.of(1, 2));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -94,7 +94,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
   @Test
   public void test_search_pageTwo() {
     ConfigSearchRequest<Identifier> request = createIdentifierSearchRequest();
-    request.setPagingRequest(new PagingRequest(2, 2));
+    request.setPagingRequest(PagingRequest.of(2, 2));
     ConfigSearchResult<Identifier> test = _cfgMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());

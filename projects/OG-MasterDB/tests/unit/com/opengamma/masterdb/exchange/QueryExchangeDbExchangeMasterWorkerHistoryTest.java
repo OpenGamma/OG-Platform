@@ -81,7 +81,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   public void test_history_noInstants_pageOne() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(1, 1));
+    request.setPagingRequest(PagingRequest.of(1, 1));
     ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -96,7 +96,7 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
   public void test_history_noInstants_pageTwo() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbExg", "201");
     ExchangeHistoryRequest request = new ExchangeHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(2, 1));
+    request.setPagingRequest(PagingRequest.of(2, 1));
     ExchangeHistoryResult test = _exgMaster.history(request);
     
     assertNotNull(test);

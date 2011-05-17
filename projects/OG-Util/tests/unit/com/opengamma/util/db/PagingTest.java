@@ -35,7 +35,7 @@ public final class PagingTest {
 
   //-------------------------------------------------------------------------
   public void test_factory_of_Collection_PagingRequest_empty() {
-    PagingRequest request = new PagingRequest(1, 20);
+    PagingRequest request = PagingRequest.of(1, 20);
     Paging test = Paging.of(Arrays.asList(), request);
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
@@ -43,7 +43,7 @@ public final class PagingTest {
   }
 
   public void test_factory_of_Collection_PagingRequest_sizeTwo() {
-    PagingRequest request = new PagingRequest(1, 20);
+    PagingRequest request = PagingRequest.of(1, 20);
     Paging test = Paging.of(Arrays.asList("Hello", "There"), request);
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
@@ -92,7 +92,7 @@ public final class PagingTest {
 
   //-------------------------------------------------------------------------
   public void test_constructor_PagingRequest_int() {
-    Paging test = new Paging(new PagingRequest(1, 20), 32);
+    Paging test = new Paging(PagingRequest.of(1, 20), 32);
     assertEquals(1, test.getPage());
     assertEquals(20, test.getPagingSize());
     assertEquals(32, test.getTotalItems());
@@ -100,7 +100,7 @@ public final class PagingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_PagingRequest_int_totalItemsNegative() {
-    new Paging(new PagingRequest(1, 20), -1);
+    new Paging(PagingRequest.of(1, 20), -1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
