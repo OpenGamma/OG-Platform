@@ -12,6 +12,7 @@ import com.opengamma.financial.user.ClientTracker;
 import com.opengamma.financial.user.DummyTracker;
 import com.opengamma.financial.user.UserDataTracker;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -29,6 +30,7 @@ public class UsersResourceContext {
   private SecurityMaster _userSecurityMaster;
   private ManageableViewDefinitionRepository _userViewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _userInterpolatedYieldCurveDefinitionMaster;
+  private MarketDataSnapshotMaster _userSnapshotMaster;
 
   public UsersResourceContext() {
     final DummyTracker tracker = new DummyTracker();
@@ -90,6 +92,14 @@ public class UsersResourceContext {
 
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     return _userViewDefinitionRepository;
+  }
+  
+  public void setUserSnapshotMaster(MarketDataSnapshotMaster snapshotMaster) {
+    _userSnapshotMaster = snapshotMaster;
+  }
+  
+  public MarketDataSnapshotMaster getSnapshotMaster() {
+    return _userSnapshotMaster;
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {

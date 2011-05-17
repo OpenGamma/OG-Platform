@@ -1,9 +1,15 @@
 <#escape x as x?html>
 {
     "template_data": {
-        "name": "${portfolio.name}",
-        "id": "${portfolio.uniqueId.objectId}",
-        "node" : "${rootNode.uniqueId.objectId}"
+      "name": "${portfolio.name}",
+      "objectId":"${portfolio.uniqueId.objectId}",
+      "versionId":"${portfolio.uniqueId.version}",
+<#-- deprecated -->
+      "id": "${portfolio.uniqueId.objectId}",
+<#if deleted>
+      "deleted":"${portfolioDoc.versionToInstant}",
+</#if>
+      "node" : "${rootNode.uniqueId.objectId}"
     },
     "portfolios": [
         <#list childNodes as item>{

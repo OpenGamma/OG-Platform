@@ -127,7 +127,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
       }
     }
     SecuritySearchResult result = new SecuritySearchResult();
-    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }

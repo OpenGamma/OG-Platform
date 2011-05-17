@@ -58,10 +58,14 @@ public class YieldCurveFunctionHelper {
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
 
     _definition = getDefinition(context);
-    if (_definition != null && _definition.getUniqueId() != null) {
-      context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+    if (_definition == null) {
+      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
     } else {
-      s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
+      if (_definition.getUniqueId() != null) {
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+      } else {
+        s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
+      }
     }
     return _definition;
   }
@@ -88,11 +92,7 @@ public class YieldCurveFunctionHelper {
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
     final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext
         .getInterpolatedYieldCurveDefinitionSource(context);
-    final YieldCurveDefinition definition = curveDefinitionSource.getDefinition(_currency, _curveName);
-    if (definition == null) {
-      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
-    }
-    return definition;
+    return curveDefinitionSource.getDefinition(_currency, _curveName);
   }
 
   //ENG-252 This logic is wrong

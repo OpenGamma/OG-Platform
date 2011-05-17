@@ -113,7 +113,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     final PortfolioSearchResult result = new PortfolioSearchResult();
     if ((request.getPortfolioIds() != null && request.getPortfolioIds().size() == 0) ||
         (request.getNodeIds() != null && request.getNodeIds().size() == 0)) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
