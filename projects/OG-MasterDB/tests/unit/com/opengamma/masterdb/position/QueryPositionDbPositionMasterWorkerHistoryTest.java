@@ -91,7 +91,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   public void test_searchPositionHistoric_noInstants_pageOne() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(1, 1));
+    request.setPagingRequest(PagingRequest.of(1, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -106,7 +106,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
   public void test_searchPositionHistoric_noInstants_pageTwo() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbPos", "221");
     PositionHistoryRequest request = new PositionHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(2, 1));
+    request.setPagingRequest(PagingRequest.of(2, 1));
     PositionHistoryResult test = _posMaster.history(request);
     
     assertNotNull(test);

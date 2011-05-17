@@ -192,7 +192,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
     if (request.getConfigIds() != null && request.getConfigIds().size() == 0) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
@@ -217,11 +217,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
           result.getDocuments().add((ConfigDocument<T>) configDocument);
         }
       }
-      result.setPaging(Paging.of(result.getDocuments(), request.getPagingRequest()));
+      result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
     } else {
       final int count = namedJdbc.queryForInt(sql[1], args);
-      result.setPaging(new Paging(request.getPagingRequest(), count));
-      if (count > 0) {
+      result.setPaging(Paging.of(request.getPagingRequest(), count));
+      if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument<?>> queryResult = namedJdbc.query(sql[0], args, configDocumentExtractor);
         for (ConfigDocument<?> configDocument : queryResult) {
           if (request.getType().isInstance(configDocument.getValue())) {
@@ -254,11 +254,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
           result.getDocuments().add((ConfigDocument<T>) configDocument);
         }
       }
-      result.setPaging(Paging.of(result.getDocuments(), request.getPagingRequest()));
+      result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
     } else {
       final int count = namedJdbc.queryForInt(sqlHistory[1], args);
-      result.setPaging(new Paging(request.getPagingRequest(), count));
-      if (count > 0) {
+      result.setPaging(Paging.of(request.getPagingRequest(), count));
+      if (count > 0 && request.getPagingRequest().equals(PagingRequest.NONE) == false) {
         List<ConfigDocument<?>> queryResult = namedJdbc.query(sqlHistory[0], args, extractor);
         for (ConfigDocument<?> configDocument : queryResult) {
           if (request.getType().isInstance(configDocument.getValue())) {
