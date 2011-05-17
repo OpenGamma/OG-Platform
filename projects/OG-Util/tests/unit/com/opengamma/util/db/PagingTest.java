@@ -183,7 +183,7 @@ public final class PagingTest {
   //-------------------------------------------------------------------------
   public void test_toPagingRequest() {
     assertEquals(PagingRequest.of(2, 20), Paging.of(2, 20, 39).toPagingRequest());
-    assertEquals(PagingRequest.of(1, 0), Paging.of(1, 0, 349).toPagingRequest());
+    assertEquals(new PagingRequest(1, 0), Paging.of(1, 0, 349).toPagingRequest());
   }
 
   public void test_nextPagingRequest() {

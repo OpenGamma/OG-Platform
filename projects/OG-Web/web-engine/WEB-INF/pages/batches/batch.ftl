@@ -1,8 +1,7 @@
 <#escape x as x?html>
 <@page title="Batches - ${batch.observationDate}/${batch.observationTime}">
 
-
-<#-- SECTION Time series output -->
+<#-- SECTION batch output -->
 <@section title="Batch">
   <p>
     <@rowout label="Observation date">${batch.observationDate}</@rowout>
@@ -12,7 +11,7 @@
     <@rowout label="Total errors">${errorPaging.totalItems}</@rowout>
   </p>
 <@subsection title="Results">
-<@table items=batchResult paging=resultPaging empty="No results" headers=
+<@table items=batch.data paging=resultPaging empty="No results" headers=
 	["Calculation configuration",
 	"Computation target",
 	"Value name",
@@ -27,7 +26,7 @@
 </@table>
 </@subsection>
 <@subsection title="Errors">
-<@table items=batchErrors paging=errorPaging empty="No errors" headers=
+<@table items=batch.errors paging=errorPaging empty="No errors" headers=
 	["Calculation configuration",
 	"Computation target",
 	"Value name",

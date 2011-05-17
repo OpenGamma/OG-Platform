@@ -26,6 +26,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.security.test.MockSecurity;
@@ -40,14 +41,11 @@ import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.batch.AdHocBatchResult;
-import com.opengamma.financial.batch.BatchDataSearchRequest;
-import com.opengamma.financial.batch.BatchDataSearchResult;
-import com.opengamma.financial.batch.BatchErrorSearchRequest;
-import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchDocument;
+import com.opengamma.financial.batch.BatchGetRequest;
 import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
-import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
@@ -56,6 +54,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
@@ -464,16 +463,18 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     BatchSearchResult result = _batchMaster.search(request);
     assertNotNull(result);
     
-    assertEquals(1, result.getItems().size());
-    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(1, result.getDocuments().size());
+    BatchDocument item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
     
     _batchMaster.endBatch(_batchJobRun);
     result = _batchMaster.search(request);
-    assertEquals(1, result.getItems().size());
-    item = result.getItems().get(0);
+    assertEquals(1, result.getDocuments().size());
+    item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.COMPLETE, item.getStatus());
@@ -491,63 +492,54 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     BatchSearchResult result = _batchMaster.search(request);
     assertNotNull(result);
     
-    assertEquals(1, result.getItems().size());
-    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(1, result.getDocuments().size());
+    BatchDocument item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
   }
 
-  @Test(expectedExceptions=IllegalArgumentException.class)
-  public void getResultsNonexistentBatch() {
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(LocalDate.of(2000, 5, 5));
-    request.setObservationTime(_batchJobRun.getObservationTime());
+  @Test(expectedExceptions=DataNotFoundException.class)
+  public void get_dataNonexistentBatch() {
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", "2000-05-05-" + _batchJobRun.getObservationTime()));
     
-    _batchMaster.getResults(request);
+    _batchMaster.get(request);
   }
 
   @Test
-  public void getResultsExistingBatch() {
+  public void get_dataExistingBatch() {
     _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _batchMaster.startBatch(_batchJobRun);
     
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(_batchJobRun.getObservationDate());
-    request.setObservationTime(_batchJobRun.getObservationTime());
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     
     commit();
     startNewTransaction();
     
-    BatchDataSearchResult result = _batchMaster.getResults(request);
+    BatchDocument result = _batchMaster.get(request);
     assertNotNull(result);
-    assertTrue(result.getItems().isEmpty());
-  }
-
-  @Test(expectedExceptions=IllegalArgumentException.class)
-  public void getErrorsNonexistentBatch() {
-    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
-    request.setObservationDate(LocalDate.of(2000, 5, 5));
-    request.setObservationTime(_batchJobRun.getObservationTime());
-    
-    _batchMaster.getErrors(request);
+    assertTrue(result.getData().isEmpty());
   }
 
   @Test
-  public void getErrorsExistingBatch() {
+  public void get_errorsExistingBatch() {
     _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     _batchMaster.startBatch(_batchJobRun);
     
-    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
-    request.setObservationDate(_batchJobRun.getObservationDate());
-    request.setObservationTime(_batchJobRun.getObservationTime());
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    request.setDataPagingRequest(PagingRequest.NONE);
+    request.setErrorPagingRequest(PagingRequest.ALL);
     
     commit();
     startNewTransaction();
     
-    BatchErrorSearchResult result = _batchMaster.getErrors(request);
+    BatchDocument result = _batchMaster.get(request);
     assertNotNull(result);
-    assertTrue(result.getItems().isEmpty());
+    assertTrue(result.getErrors().isEmpty());
   }
 
   @Test(expectedExceptions=IllegalStateException.class)
