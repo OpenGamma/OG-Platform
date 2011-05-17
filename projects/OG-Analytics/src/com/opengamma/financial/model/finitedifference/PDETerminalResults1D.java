@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -15,28 +15,28 @@ public class PDETerminalResults1D implements PDEResults1D {
   private final double[] _f;
   private final PDEGrid1D _grid;
 
-  public PDETerminalResults1D(PDEGrid1D grid, double[] finalTimeStep) {
+  public PDETerminalResults1D(final PDEGrid1D grid, final double[] finalTimeStep) {
     Validate.isTrue(grid.getNumSpaceNodes() == finalTimeStep.length, "space steps in grid not equal to that in data");
     _f = finalTimeStep;
     _grid = grid;
   }
 
   @Override
-  public double getSpaceValue(int spaceIndex) {
+  public double getSpaceValue(final int spaceIndex) {
     return _grid.getSpaceNode(spaceIndex);
   }
 
   @Override
-  public double getFunctionValue(int spaceIndex) {
+  public double getFunctionValue(final int spaceIndex) {
     return _f[spaceIndex];
   }
 
   @Override
-  public double getFirstSpatialDerivative(int spaceIndex) {
+  public double getFirstSpatialDerivative(final int spaceIndex) {
     checkSpaceIndex(spaceIndex);
     double[] coeff;
     double res = 0;
-    int n = _grid.getNumSpaceNodes();
+    final int n = _grid.getNumSpaceNodes();
     int offset;
     if (spaceIndex == 0) {
       coeff = _grid.getFirstDerivativeForwardCoefficients(spaceIndex);
@@ -55,9 +55,9 @@ public class PDETerminalResults1D implements PDEResults1D {
   }
 
   @Override
-  public double getSecondSpatialDerivative(int spaceIndex) {
+  public double getSecondSpatialDerivative(final int spaceIndex) {
     checkSpaceIndex(spaceIndex);
-    double[] coeff = _grid.getSecondDerivativeCoefficients(spaceIndex);
+    final double[] coeff = _grid.getSecondDerivativeCoefficients(spaceIndex);
     double res = 0;
     int offset;
     if (spaceIndex == 0) {
@@ -74,7 +74,7 @@ public class PDETerminalResults1D implements PDEResults1D {
     return res;
   }
 
-  private void checkSpaceIndex(int spaceIndex) {
+  private void checkSpaceIndex(final int spaceIndex) {
     Validate.isTrue(spaceIndex >= 0 && spaceIndex < _grid.getNumSpaceNodes(), "spaceIndex out of range");
   }
 

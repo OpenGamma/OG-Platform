@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -25,9 +25,9 @@ public class CoupledFiniteDifference {
       final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary, final double lambda12, final double lambda21, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
-    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-    int tNodes = timeGrid.length;
-    int xNodes = spaceGrid.length;
+    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final int tNodes = timeGrid.length;
+    final int xNodes = spaceGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
     Validate.isTrue(xNodes > 2, "need at least 3 space nodes");
 
@@ -35,21 +35,21 @@ public class CoupledFiniteDifference {
     Validate.isTrue(Math.abs(spaceGrid[0] - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
     Validate.isTrue(Math.abs(spaceGrid[xNodes - 1] - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
 
-    double[] dt = new double[tNodes - 1];
+    final double[] dt = new double[tNodes - 1];
     for (int n = 0; n < tNodes - 1; n++) {
       dt[n] = timeGrid[n + 1] - timeGrid[n];
       Validate.isTrue(dt[n] > 0, "time steps must be increasing");
     }
 
-    double[] dx = new double[xNodes - 1];
+    final double[] dx = new double[xNodes - 1];
     for (int i = 0; i < xNodes - 1; i++) {
       dx[i] = spaceGrid[i + 1] - spaceGrid[i];
       Validate.isTrue(dx[i] > 0, "space steps must be increasing");
     }
 
     // since the space grid is time independent, we can calculate the coefficients for derivatives once
-    double[][] x1st = new double[xNodes - 2][3];
-    double[][] x2nd = new double[xNodes - 2][3];
+    final double[][] x1st = new double[xNodes - 2][3];
+    final double[][] x2nd = new double[xNodes - 2][3];
     for (int i = 0; i < xNodes - 2; i++) {
       x1st[i][0] = -dx[i + 1] / dx[i] / (dx[i] + dx[i + 1]);
       x1st[i][1] = (dx[i + 1] - dx[i]) / dx[i] / dx[i + 1];

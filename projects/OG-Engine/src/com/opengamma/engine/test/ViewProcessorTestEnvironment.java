@@ -154,7 +154,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
     
-    vpFactBean.setMarketDataSnaphotSource(new MarketDataSnapshotSource() {
+    vpFactBean.setMarketDataSnapshotSource(new MarketDataSnapshotSource() {
       
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {

@@ -34,9 +34,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
  
-  private static final String NAME_FIELD = "name";
   private static final String IDENTIFIER_FIELD = "identifier";
-  private static final String UNIQUE_IDENTIFIER_FIELD = "unique";
   private static final String USER_FIELD = "user";
   private static final String MIN_DELTA_CALC_PERIOD_FIELD = "minDeltaCalcPeriod";
   private static final String MAX_DELTA_CALC_PERIOD_FIELD = "maxDeltaCalcPeriod";
@@ -68,7 +66,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     
     ViewDefinition viewDefinition = null;
     try {
-      JSONObject viewJSON = new JSONObject(json).getJSONObject(FUDGE_ENVELOPE_FIELD);
+      JSONObject viewJSON = new JSONObject(json);
       UniqueIdentifier portfolioIdentifier = null;
       if (viewJSON.opt(IDENTIFIER_FIELD) != null) {
         portfolioIdentifier = convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(IDENTIFIER_FIELD));
@@ -139,8 +137,8 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
           viewDefinition.addViewCalculationConfiguration(calcConfig);
         }
       }
-      if (viewJSON.opt(UNIQUE_IDENTIFIER_FIELD) != null) {
-        viewDefinition.setUniqueId(convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(UNIQUE_IDENTIFIER_FIELD)));
+      if (viewJSON.opt(UNIQUE_ID_FIELD) != null) {
+        viewDefinition.setUniqueId(convertJsonToObject(UniqueIdentifier.class, viewJSON.getJSONObject(UNIQUE_ID_FIELD)));
       }
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("Unable to create ViewDefinition", ex);
@@ -151,7 +149,6 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   @Override
   public String toJSON(final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
-    JSONObject result = new JSONObject();
     JSONObject jsonObject = new JSONObject();
     try {
       jsonObject.put(NAME_FIELD, viewDefinition.getName());
@@ -215,15 +212,13 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
       if (!calConfigJSONList.isEmpty()) {
         jsonObject.put(CALCULATION_CONFIGURATION_FIELD, calConfigJSONList);
       }
-      jsonObject.put(UNIQUE_IDENTIFIER_FIELD, toJSONObject(viewDefinition.getUniqueId()));
-      
-      result.put(FUDGE_ENVELOPE_FIELD, jsonObject);
-      
+      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(viewDefinition.getUniqueId()));
+            
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
     
-    return result.toString();
+    return jsonObject.toString();
   }
   
 }

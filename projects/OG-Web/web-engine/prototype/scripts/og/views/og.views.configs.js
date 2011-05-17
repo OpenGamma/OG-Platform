@@ -202,7 +202,9 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            var json = details_json.templateData;
+                            if (json.configJSON) json.configJSON = JSON.stringify(json.configJSON, null, 4);
+                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                             ui.content_editable({
