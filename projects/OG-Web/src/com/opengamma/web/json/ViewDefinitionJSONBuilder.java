@@ -151,6 +151,7 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     JSONObject jsonObject = new JSONObject();
     try {
+      jsonObject.put(String.valueOf(0), ViewDefinition.class.getName());
       jsonObject.put(NAME_FIELD, viewDefinition.getName());
       if (viewDefinition.getPortfolioId() != null) {
         jsonObject.put(IDENTIFIER_FIELD, toJSONObject(viewDefinition.getPortfolioId()));
