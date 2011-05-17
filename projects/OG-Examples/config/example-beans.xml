@@ -132,6 +132,7 @@
         <property name="userSecurityMaster" ref="userFinancialSecurityMaster" />
         <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
         <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitions" />
+        <property name="userSnapshotMaster" ref="userFinancialSnapshotMaster" />
       </bean>
     </constructor-arg>
   </bean>
