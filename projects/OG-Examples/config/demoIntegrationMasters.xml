@@ -216,11 +216,20 @@
     </constructor-arg>
   </bean>
   
-  <!-- MarketDataSnapshotMaster -->
-  <bean id="marketDataSnapshotChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
-  <bean id="dbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <!-- MarketDataSnapshotMaster -->
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
+  <bean id="dbSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="finDbSource" />
-    <property name="changeManager" ref="marketDataSnapshotChangeManager" />
-    <!-- TODO <property name="identifierScheme" value="${opengamma.financial.db.marketdatasnapshot.scheme}" /> -->
+    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="identifierScheme" value="${opengamma.financial.db.snapshotmaster.scheme}" />
+  </bean>
+  
+  <!-- TODO EHCachingFinancialSnapshotSource -->
+  <bean id="sharedSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
+  	<constructor-arg>
+      <bean class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
+        <constructor-arg ref="dbSnapshotMaster" />
+      </bean>
+    </constructor-arg>
   </bean>
 </beans>
