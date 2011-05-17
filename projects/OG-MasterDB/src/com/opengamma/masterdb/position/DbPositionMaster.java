@@ -131,7 +131,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     if ((request.getPositionIds() != null && request.getPositionIds().size() == 0) ||
         (request.getTradeIds() != null && request.getTradeIds().size() == 0) ||
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

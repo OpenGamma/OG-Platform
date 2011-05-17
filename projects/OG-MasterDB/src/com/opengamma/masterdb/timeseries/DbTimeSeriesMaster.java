@@ -1102,7 +1102,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
     Map<Long, List<IdentifierWithDates>> bundleMap = searchIdentifierBundles(request);
     
     if (hasIdentifier(request) && bundleMap.isEmpty()) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     
@@ -1140,7 +1140,7 @@ public abstract class DbTimeSeriesMaster<T> implements TimeSeriesMaster<T> {
       }
       result.getDocuments().add(document);
     }
-    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setPaging(Paging.of(request.getPagingRequest(), count));
     return result;
   }
 

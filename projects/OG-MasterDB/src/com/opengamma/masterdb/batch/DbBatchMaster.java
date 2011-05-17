@@ -891,11 +891,11 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       getSessionFactory().getCurrentSession().beginTransaction();
       
       if (request.getPagingRequest().equals(PagingRequest.ALL)) {
-        result.setPaging(Paging.of(result.getItems(), request.getPagingRequest()));
+        result.setPaging(Paging.of(request.getPagingRequest(), result.getItems()));
       } else {
         criteria.setProjection(Projections.rowCount());
         Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
-        result.setPaging(new Paging(request.getPagingRequest(), totalCount.intValue()));
+        result.setPaging(Paging.of(request.getPagingRequest(), totalCount.intValue()));
         criteria.setProjection(null);
         criteria.setResultTransformer(Criteria.ROOT_ENTITY);
       }
@@ -958,7 +958,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
         params);
     
     BatchDataSearchResult result = new BatchDataSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setPaging(Paging.of(request.getPagingRequest(), count));
     result.setItems(values);
     return result;
   }
@@ -996,7 +996,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
         params);
     
     BatchErrorSearchResult result = new BatchErrorSearchResult();
-    result.setPaging(new Paging(request.getPagingRequest(), count));
+    result.setPaging(Paging.of(request.getPagingRequest(), count));
     result.setItems(values);
     return result;
   }

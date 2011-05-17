@@ -50,7 +50,7 @@ public final class PagingBuilder implements FudgeBuilder<Paging> {
     if (totalItems == null) {
       throw new IllegalArgumentException("Fudge message is not a Paging - field 'totalItems' is not present");
     }
-    return new Paging(page, pagingSize, totalItems);
+    return Paging.of(page, pagingSize, totalItems);
   }
 
 }
