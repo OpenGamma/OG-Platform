@@ -79,15 +79,23 @@
   </bean>
   
   <!-- Market data snapshots -->
+
+  <bean id="snapshotMasterChangeManager" class="com.opengamma.master.listener.BasicMasterChangeManager" />
   <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
     <constructor-arg ref="userFinancialDbSource" />
-    <!-- TODO <property name="identifierScheme" value="${opengamma.financial-user.db.marketdatasnapshotmaster.scheme}" /> -->
+    <property name="changeManager" ref="snapshotMasterChangeManager" />
+    <property name="identifierScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
   </bean>
-  
-  <!-- TODO impl and combine in user store -->
-  
-  <bean id="combinedMarketDataSnaphotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
+  <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
     <constructor-arg ref="userFinancialSnapshotMaster" />
+  </bean>
+  <bean id="combinedSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
+    <constructor-arg ref="sharedSnapshotSource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.snapshotmaster.scheme}" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </constructor-arg>
   </bean>
   
   <!-- User Yield curves -->
@@ -288,7 +296,7 @@
     <property name="liveDataSnapshotProvider" ref="liveDataSnapshotProvider" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="marketDataSnaphotSource" ref="combinedMarketDataSnaphotSource" />
+    <property name="marketDataSnapshotSource" ref="combinedSnapshotSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
