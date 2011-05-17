@@ -37,7 +37,6 @@
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="connectionFactory" ref="activeMQConnectionFactory" />
-    <property name="topicPrefix" value="${viewProcessorServerBean.topicPrefix}" />
     <property name="fudgeContext" ref="fudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
