@@ -58,7 +58,7 @@ public class YieldCurveFunctionHelper {
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
 
     _definition = getDefinition(context);
-    if (_definition.getUniqueId() != null) {
+    if (_definition != null && _definition.getUniqueId() != null) {
       context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
     } else {
       s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
