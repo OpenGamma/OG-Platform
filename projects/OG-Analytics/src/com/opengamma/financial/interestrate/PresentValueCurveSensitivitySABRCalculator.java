@@ -12,9 +12,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.CapFloorIborSABRMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorIborSABRMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;

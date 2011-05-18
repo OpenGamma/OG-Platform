@@ -56,22 +56,29 @@ public class InterestRateFutureSecurityTest {
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+  private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, FORWARD_CURVE_NAME, NAME);
+  private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
+      NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new InterestRateFutureSecurity(LAST_TRADING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, FORWARD_CURVE_NAME, NAME);
+    new InterestRateFutureSecurity(LAST_TRADING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullName() {
-    new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, FORWARD_CURVE_NAME, null);
+    new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, null, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDscCurve() {
+    new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, null, FORWARD_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwardCurve() {
-    new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, null, NAME);
+    new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, null);
   }
 
   @Test
@@ -80,6 +87,7 @@ public class InterestRateFutureSecurityTest {
     assertEquals(IBOR_INDEX, ERU2.getIborIndex());
     assertEquals(NOTIONAL, ERU2.getNotional());
     assertEquals(FUTURE_FACTOR, ERU2.getPaymentAccrualFactor());
+    assertEquals(DISCOUNTING_CURVE_NAME, ERU2.getDiscountingCurveName());
     assertEquals(FORWARD_CURVE_NAME, ERU2.getForwardCurveName());
     assertEquals(NAME, ERU2.getName());
     assertEquals(FIXING_START_TIME, ERU2.getFixingPeriodStartTime());

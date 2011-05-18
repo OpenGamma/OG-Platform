@@ -8,7 +8,6 @@ package com.opengamma.financial.instrument.future;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -33,7 +32,6 @@ public class IRFutureDefinitionTest {
   private static final String NAME = "CONVENTION";
   private static final double YEAR_FRACTION = 0.25;
   private static final IRFutureConvention CONVENTION = new IRFutureConvention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, YEAR_FRACTION, NAME);
-  private static final LocalDate DATE = LocalDate.of(2011, 2, 1);
   private static final ZonedDateTime ZONED_DATE = DateUtil.getUTCDate(2011, 2, 1);
   private static final ZonedDateTime LAST_TRADE_DATE = DateUtil.getUTCDate(2011, 3, 14);
   private static final ZonedDateTime MATURITY_DATE = DateUtil.getUTCDate(2011, 6, 15);

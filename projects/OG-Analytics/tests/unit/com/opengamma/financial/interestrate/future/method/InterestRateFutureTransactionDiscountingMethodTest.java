@@ -24,6 +24,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -61,9 +62,10 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+  private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
-      FORWARD_CURVE_NAME, NAME);
+      NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   // Transaction
   private static final int QUANTITY = -123;
   private static final double TRADE_PRICE = 0.985;
@@ -92,6 +94,18 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     assertEquals("Present value from quoted price", expectedPv, pv);
   }
 
+  @Test
+  /**
+   * Comparison of value from the method and value from the present value calculator.
+   */
+  public void methodVsCalculator() {
+    YieldCurveBundle curves = TestsDataSets.createCurves1();
+    double pvMethod = METHOD.presentValue(FUTURE_TRANSACTION, curves);
+    PresentValueCalculator pvc = PresentValueCalculator.getInstance();
+    double pvCalculator = pvc.visit(FUTURE_TRANSACTION, curves);
+    assertEquals("Future discounting: method comparison with present value calculator", pvMethod, pvCalculator);
+  }
+
   /**
    * Test the present value curves sensitivity computed from the curves
    */
@@ -105,7 +119,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
     // 1. Forward curve sensitivity
     String bumpedCurveName = "Bumped Curve";
     InterestRateFutureSecurity futureSecutiryBumpedForward = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
-        bumpedCurveName, NAME);
+        NAME, DISCOUNTING_CURVE_NAME, bumpedCurveName);
     InterestRateFutureTransaction futureTransactionBumpedForward = new InterestRateFutureTransaction(futureSecutiryBumpedForward, QUANTITY, TRADE_PRICE);
     double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
     double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumpedForward, curves, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
