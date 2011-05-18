@@ -27,7 +27,7 @@ public class PagingFudgeEncodingTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void test() {
-    Paging paging = new Paging(1, 20, 210);
+    Paging paging = Paging.of(1, 20, 210);
     testFudgeMessage(paging);
   }
 

@@ -33,27 +33,28 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     _theta = theta;
   }
 
+  @Override
   public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
       final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
     Validate.notNull(grid, "need a grid");
     validateSetup(grid, lowerBoundary, upperBoundary);
 
-    int tNodes = grid.getNumTimeNodes();
-    int xNodes = grid.getNumSpaceNodes();
+    final int tNodes = grid.getNumTimeNodes();
+    final int xNodes = grid.getNumSpaceNodes();
 
     final double[] f = new double[xNodes];
     final double[] q = new double[xNodes];
     final double[][] m = new double[xNodes][xNodes];
 
     double[] rho1 = new double[xNodes - 2];
-    double[] rho2 = new double[xNodes - 2];
+    final double[] rho2 = new double[xNodes - 2];
     double[] a1 = new double[xNodes - 2];
-    double[] a2 = new double[xNodes - 2];
+    final double[] a2 = new double[xNodes - 2];
     double[] b1 = new double[xNodes - 2];
-    double[] b2 = new double[xNodes - 2];
+    final double[] b2 = new double[xNodes - 2];
     double[] c1 = new double[xNodes - 2];
-    double[] c2 = new double[xNodes - 2];
+    final double[] c2 = new double[xNodes - 2];
 
     double dt, t1, t2, x;
     double[] x1st, x2nd;
@@ -133,19 +134,21 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary) {
     return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
-      Surface<Double, Double, Double> freeBoundary) {
-    PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
+    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
     return solve(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     return solve(pdeData, grid, lowerBoundary, upperBoundary, null);
   }
 
@@ -170,7 +173,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param m
    * @param t2
    */
-  private void sor(final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, int xNodes, final double[] f, final double[] q, final double[][] m, double t2) {
+  private void sor(final PDEGrid1D grid, final Surface<Double, Double, Double> freeBoundary, final int xNodes, final double[] f, final double[] q, final double[][] m, final double t2) {
     double sum;
     // SOR
     final double omega = 1.0;
@@ -202,12 +205,12 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param i
    * @return
    */
-  private double getFittingParameter(final PDEGrid1D grid, double a, double b, int i) {
+  private double getFittingParameter(final PDEGrid1D grid, final double a, final double b, final int i) {
     double rho;
-    double[] x1st = grid.getFirstDerivativeCoefficients(i);
-    double[] x2nd = grid.getSecondDerivativeCoefficients(i);
-    double bdx1 = (b * grid.getSpaceStep(i - 1));
-    double bdx2 = (b * grid.getSpaceStep(i));
+    final double[] x1st = grid.getFirstDerivativeCoefficients(i);
+    final double[] x2nd = grid.getSecondDerivativeCoefficients(i);
+    final double bdx1 = (b * grid.getSpaceStep(i - 1));
+    final double bdx2 = (b * grid.getSpaceStep(i));
 
     // convection dominated
     if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
@@ -219,8 +222,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     } else if (Math.abs(a) > 10 * Math.abs(bdx1) || Math.abs(a) > 10 * Math.abs(bdx2)) {
       rho = a; // diffusion dominated
     } else {
-      double expo1 = Math.exp(bdx1 / a);
-      double expo2 = Math.exp(-bdx2 / a);
+      final double expo1 = Math.exp(bdx1 / a);
+      final double expo2 = Math.exp(-bdx2 / a);
       rho = -b * (x1st[0] * expo1 + x1st[1] + x1st[2] * expo2) / (x2nd[0] * expo1 + x2nd[1] + x2nd[2] * expo2);
     }
     return rho;

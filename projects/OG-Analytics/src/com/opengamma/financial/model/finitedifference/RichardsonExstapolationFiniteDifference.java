@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.finitedifference;
@@ -14,32 +14,36 @@ import com.opengamma.math.surface.Surface;
  */
 public class RichardsonExstapolationFiniteDifference implements ConvectionDiffusionPDESolver {
 
+  @SuppressWarnings("unused")
   private final ConvectionDiffusionPDESolver _baseSolver;
 
-  public RichardsonExstapolationFiniteDifference(ConvectionDiffusionPDESolver baseSolver) {
+  public RichardsonExstapolationFiniteDifference(final ConvectionDiffusionPDESolver baseSolver) {
     Validate.notNull(baseSolver, "null baseSolver");
     _baseSolver = baseSolver;
 
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary) {
     return null;
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
-      Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
     return null;
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
     return null;
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
     // PDEGrid1D doubleTimeStep = new PDEGrid1D(grid., null)
     // res1 = _bas
     //

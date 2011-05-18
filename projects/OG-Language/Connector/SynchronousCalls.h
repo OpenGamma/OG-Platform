@@ -19,6 +19,7 @@ class CSynchronousCallSlot {
 private:
 	CSynchronousCalls *m_poOwner;
 	CAtomicPointer<FudgeMsg> m_msg;
+	CAtomicInt m_oState;
 	int m_nIdentifier;
 	CSemaphore m_sem;
 	CAtomicInt m_oSequence;
@@ -27,7 +28,7 @@ private:
 	~CSynchronousCallSlot ();
 	void ResetSemaphore () { m_sem.Wait (0); }
 	void SignalSemaphore () { m_sem.Signal (); }
-	void PostAndRelease (FudgeMsg msg);
+	void PostAndRelease (int nSequence, FudgeMsg msg);
 public:
 	fudge_i32 GetHandle ();
 	int GetIdentifier () { return m_nIdentifier; }

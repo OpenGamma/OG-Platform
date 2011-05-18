@@ -18,3 +18,4 @@ build.number
 .settings/
 /tests/
 /version.h
+/_ReSharper*

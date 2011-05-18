@@ -96,7 +96,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
       }
     }
     final HolidaySearchResult result = new HolidaySearchResult();
-    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }

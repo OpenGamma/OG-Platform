@@ -70,6 +70,7 @@ public class DbSource {
 
   /**
    * Creates an instance.
+   * 
    * @param name  the configuration name, not null
    * @param dataSource  the data source, not null
    * @param helper  the database helper, not null
@@ -101,13 +102,18 @@ public class DbSource {
   }
 
   //-------------------------------------------------------------------------
-
+  /**
+   * Gets the display name of the source.
+   * 
+   * @return a name usable for display, not null
+   */
   public String getName() {
     return _name;
   }
 
   /**
    * Gets the data source.
+   * 
    * @return the data source, not null
    */
   public DataSource getDataSource() {
@@ -116,6 +122,7 @@ public class DbSource {
 
   /**
    * Gets the database dialect.
+   * 
    * @return the database dialect, not null
    */
   public DbHelper getDialect() {
@@ -124,6 +131,7 @@ public class DbSource {
 
   /**
    * Gets the JDBC template.
+   * 
    * @return the JDBC template, not null
    */
   public SimpleJdbcTemplate getJdbcTemplate() {
@@ -133,6 +141,7 @@ public class DbSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the Hibernate session factory.
+   * 
    * @return the Hibernate session factory, may be null
    */
   public SessionFactory getHibernateSessionFactory() {
@@ -140,7 +149,9 @@ public class DbSource {
   }
 
   /**
-   * Gets the Hibernate template.
+   * Gets the shared Hibernate template.
+   * This is shared between all users of this class and must not be further configured.
+   * 
    * @return the Hibernate template, null if the session factory is null
    */
   public HibernateTemplate getHibernateTemplate() {
@@ -150,6 +161,7 @@ public class DbSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the transaction manager.
+   * 
    * @return the transaction manager, may be null
    */
   public PlatformTransactionManager getTransactionManager() {
@@ -158,6 +170,7 @@ public class DbSource {
 
   /**
    * Gets the transaction definition.
+   * 
    * @return the transaction definition, may be null
    */
   public TransactionDefinition getTransactionDefinition() {
@@ -166,6 +179,7 @@ public class DbSource {
 
   /**
    * Gets the transaction template.
+   * 
    * @return the transaction template, may be null
    */
   public TransactionTemplate getTransactionTemplate() {
@@ -175,6 +189,7 @@ public class DbSource {
   //-------------------------------------------------------------------------
   /**
    * Gets the transaction template.
+   * 
    * @return the transaction template, may be null
    */
   public Instant now() {
@@ -184,6 +199,7 @@ public class DbSource {
 
   /**
    * Gets a time-source based on the current database timestamp.
+   * 
    * @return the database time-source, may be null
    */
   public TimeSource timeSource() {

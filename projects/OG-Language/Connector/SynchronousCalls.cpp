@@ -9,15 +9,23 @@
 // Blocking slots for synchronous calls
 
 #include "SynchronousCalls.h"
+#include <Util/Thread.h>
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.SynchronousCalls);
 
-#define NULL_FUDGE_MSG		((FudgeMsg)0)
-#define BUSY_FUDGE_MSG		((FudgeMsg)-1)
 #define SLOT_INCREMENT	8
 
+#define STATE_SEQUENCE_MASK	0x0FFFFFFF
+#define STATE_STATE_MASK	0xF0000000
+#define STATE_IDLE			0x10000000
+#define STATE_MESSAGE_PRE	0x20000000
+#define STATE_MESSAGE_OK	0x30000000
+#define STATE_WAITING		0x40000000
+#define STATE_DONE			0x50000000
+
 CSynchronousCallSlot::CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i32 nIdentifier)
-: m_sem (0, 1), m_oSequence (1) {
+: m_oState (STATE_IDLE | 1), m_oSequence (1), m_sem (0, 1) {
 	LOGDEBUG (TEXT ("Created call slot ") << nIdentifier);
 	m_poOwner = poOwner;
 	m_nIdentifier = nIdentifier;
@@ -25,7 +33,7 @@ CSynchronousCallSlot::CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i3
 
 CSynchronousCallSlot::~CSynchronousCallSlot () {
 	FudgeMsg msg = m_msg.Get ();
-	if ((msg != NULL_FUDGE_MSG) && (msg != BUSY_FUDGE_MSG)) {
+	if (msg) {
 		LOGDEBUG (TEXT ("Releasing message in deleted call slot ") << m_nIdentifier);
 		FudgeMsg_release (msg);
 	}
@@ -37,6 +45,11 @@ CSynchronousCallSlot::~CSynchronousCallSlot () {
 fudge_i32 CSynchronousCallSlot::GetHandle () {
 	if (m_nIdentifier >= 0) {
 		int nSequence = m_oSequence.Get ();
+#ifdef _DEBUG
+		if (!(nSequence & 0x07FF)) {
+			LOGINFO (TEXT ("Sequence ") << nSequence << TEXT (" on slot ") << m_nIdentifier);
+		}
+#endif /* ifdef _DEBUG */
 		if (m_nIdentifier < 0x400) { // 10-bit identifiers, 19-bit sequences
 			return 0x20000000 | (m_nIdentifier << 19) | (nSequence & 0x7FFFF);
 		} else if (m_nIdentifier < 0x10000) { // 16-bit identifiers, 14-bit sequences
@@ -54,63 +67,172 @@ fudge_i32 CSynchronousCallSlot::GetHandle () {
 	return 0;
 }
 
+// Only one thread should call either GetMessage or Release at any one time
 void CSynchronousCallSlot::Release () {
-	m_oSequence.IncrementAndGet ();
-	// Anything new that arrives will not match the sequence number
-	FudgeMsg msg = m_msg.GetAndSet (NULL_FUDGE_MSG);
-	// Clear out anything that arrived before we incremented the sequence
-	if ((msg != NULL_FUDGE_MSG) && (msg != BUSY_FUDGE_MSG)) {
-		LOGDEBUG (TEXT ("Releasing message in released call slot ") << m_nIdentifier);
-		FudgeMsg_release (msg);
+	int nSequence = m_oSequence.IncrementAndGet () & STATE_SEQUENCE_MASK;
+	int nState = m_oState.Get (), nAltState;
+	FudgeMsg msg;
+retry:
+	switch (nState & STATE_STATE_MASK) {
+		case STATE_IDLE :
+			nAltState = m_oState.CompareAndSet (STATE_IDLE | nSequence, nState);
+			if (nAltState != nState) {
+				LOGDEBUG (TEXT ("Retrying after state shift from ") << nState << TEXT (" to ") << nAltState);
+				nState = nAltState;
+				goto retry;
+			}
+			break;
+		case STATE_MESSAGE_PRE :
+			// A message is being posted; need to wait for the post to complete
+			LOGDEBUG (TEXT ("Retrying during call to PostAndRelease on slot ") << m_nIdentifier);
+			CThread::Yield ();
+			nState = m_oState.Get ();
+			goto retry;
+		case STATE_MESSAGE_OK :
+			// Message has been posted, but not consumed discard it
+			msg = m_msg.GetAndSet (NULL);
+			if (msg) {
+				LOGDEBUG (TEXT ("Discarding message in released slot ") << m_nIdentifier);
+				FudgeMsg_release (msg);
+			}
+			m_oState.Set (STATE_IDLE | nSequence);
+			break;
+		// STATE_WAITING cannot happen as calls to Release and GetMessage are mutually exclusive for a thread
+		case STATE_DONE :
+			m_oState.Set (STATE_IDLE | nSequence);
+			break;
+		default :
+			LOGFATAL (TEXT ("Invalid state ") << nState);
+			assert (0);
+			break;
 	}
 	m_poOwner->Release (this);
 }
 
-void CSynchronousCallSlot::PostAndRelease (FudgeMsg msg) {
-	msg = m_msg.GetAndSet (msg);
-	if (msg == NULL_FUDGE_MSG) {
-		// First message received
-		LOGDEBUG (TEXT ("Signalling semaphore on slot ") << m_nIdentifier);
-		m_sem.Signal ();
-	} else if (msg == BUSY_FUDGE_MSG) {
-		// This can happen if the other end sends duplicates
-		LOGWARN (TEXT ("Message already delivered on slot ") << m_nIdentifier);
-		msg = m_msg.GetAndSet (BUSY_FUDGE_MSG);
-		if (msg == NULL_FUDGE_MSG) {
-			// Slot has been released, we may lose data
-retrySetNull:
-			msg = m_msg.GetAndSet (NULL_FUDGE_MSG);
-			if ((msg != NULL_FUDGE_MSG) && (msg != BUSY_FUDGE_MSG)) {
-				LOGWARN (TEXT ("Message discarded on slot ") << m_nIdentifier << TEXT (" recovering from duplicate delivery error"));
-				FudgeMsg_release (msg);
-				goto retrySetNull;
-			}
-		} else if (msg == BUSY_FUDGE_MSG) {
-			// No further action
-		} else {
-			// Hopefully this was our original message
-			FudgeMsg_release (msg);
-		}
-	} else {
-		// This can happen if the other end sends duplicates
-		LOGDEBUG (TEXT ("Message already received on slot ") << m_nIdentifier);
+// Only one thread calling PostAndRelease at any time
+void CSynchronousCallSlot::PostAndRelease (int nSequence, FudgeMsg msg) {
+	nSequence &= STATE_SEQUENCE_MASK;
+	int nState = m_oState.Get (), nAltState;
+retry:
+	if ((nState & STATE_SEQUENCE_MASK) != nSequence) {
+		LOGDEBUG (TEXT ("Sequence on slot ") << m_nIdentifier << TEXT (" already advanced"));
 		FudgeMsg_release (msg);
+		return;
+	}
+	switch (nState & STATE_STATE_MASK) {
+		case STATE_IDLE :
+			nAltState = m_oState.CompareAndSet (STATE_MESSAGE_PRE | nSequence, nState);
+			if (nAltState != nState) {
+				LOGDEBUG (TEXT ("Retrying after state shift from ") << nState << TEXT (" to ") << nAltState << TEXT (" on slot ") << m_nIdentifier);
+				nState = nAltState;
+				goto retry;
+			}
+			// Now in MESSAGE_PRE state, ready to store message
+			msg = m_msg.GetAndSet (msg);
+			if (msg) {
+				LOGDEBUG (TEXT ("Discarding message already in slot ") << m_nIdentifier);
+				FudgeMsg_release (msg);
+			}
+			// Now advance to MESSAGE_OK state, to indicate message is in the slot
+			m_oState.Set (STATE_MESSAGE_OK | nSequence);
+			break;
+		// STATE_MESSAGE_PRE cannot happen as only one thread should ever call PostAndRelease
+		case STATE_MESSAGE_OK :
+			LOGWARN (TEXT ("Discarding duplicate message received on slot ") << m_nIdentifier);
+			FudgeMsg_release (msg);
+			break;
+		case STATE_WAITING :
+			// Message received with another thread waiting for it
+			nAltState = m_oState.CompareAndSet (STATE_MESSAGE_PRE | nSequence, nState);
+			if (nAltState != nState) {
+				LOGDEBUG (TEXT ("Retrying after state shift from ") << nState << TEXT (" to ") << nAltState << TEXT (" on slot ") << m_nIdentifier);
+				nState = nAltState;
+				goto retry;
+			}
+			// Now in MESSAGE_PRE state, ready to store message
+			msg = m_msg.GetAndSet (msg);
+			if (msg) {
+				LOGDEBUG (TEXT ("Discarding message already in slot ") << m_nIdentifier);
+				FudgeMsg_release (msg);
+			}
+			// Now advance to MESSAGE_OK state, to indicate message is in the slot
+			m_oState.Set (STATE_MESSAGE_OK | nSequence);
+			// There was another thread waiting on the semaphore
+			LOGDEBUG (TEXT ("Signalling semaphore on slot ") << m_nIdentifier);
+			m_sem.Signal ();
+			break;
+		case STATE_DONE :
+			LOGWARN (TEXT ("Discarding late delivery of message on slot ") << m_nIdentifier);
+			FudgeMsg_release (msg);
+			break;
+		default :
+			LOGFATAL (TEXT ("Invalid state ") << nState << TEXT (" on slot ") << m_nIdentifier);
+			assert (0);
+			FudgeMsg_release (msg);
+			break;
 	}
 }
 
+// Only one thread should call either GetMessage or Release at any one time
 FudgeMsg CSynchronousCallSlot::GetMessage (unsigned long lTimeout) {
-	LOGDEBUG (TEXT ("Waiting on semaphore on slot ") << m_nIdentifier);
-	if (m_sem.Wait (lTimeout)) {
-		LOGDEBUG (TEXT ("Semaphore signalled"));
-	} else {
-		LOGDEBUG (TEXT ("Timeout elapsed on semaphore"));
-		SetLastError (ETIMEDOUT);
-	}
-	FudgeMsg msg = m_msg.GetAndSet (BUSY_FUDGE_MSG);
-	if (msg == BUSY_FUDGE_MSG) {
-		LOGWARN (TEXT ("Duplicate call to GetMessage"));
-		msg = NULL_FUDGE_MSG;
-		SetLastError (EINVAL);
+	int nState = m_oState.Get (), nAltState;
+	int nSequence = nState & STATE_SEQUENCE_MASK;
+	FudgeMsg msg = NULL;
+retry:
+	switch (nState & STATE_STATE_MASK) {
+		case STATE_IDLE :
+			nAltState = m_oState.CompareAndSet (STATE_WAITING | nSequence, nState);
+			if (nAltState != nState) {
+				LOGDEBUG (TEXT ("Retrying after state shift from ") << nState << TEXT (" to ") << nAltState << TEXT (" on slot ") << m_nIdentifier);
+				nState = nAltState;
+				goto retry;
+			}
+			LOGDEBUG (TEXT ("Waiting on semaphore on slot ") << m_nIdentifier);
+			if (m_sem.Wait (lTimeout)) {
+				LOGDEBUG (TEXT ("Semaphore signalled on slot ") << m_nIdentifier);
+				msg = m_msg.GetAndSet (NULL);
+				m_oState.Set (STATE_DONE | nSequence);
+			} else {
+				LOGDEBUG (TEXT ("Timeout ") << lTimeout << TEXT ("ms elapsed on semaphore for slot ") << m_nIdentifier);
+				nState = STATE_WAITING | nSequence;
+				nAltState = m_oState.CompareAndSet (STATE_IDLE | nSequence, nState);
+				if (nAltState == nState) {
+					// We timed out and reverted to the IDLE state
+					SetLastError (ETIMEDOUT);
+					break;
+				}
+				// We timed out, but the state was changed from WAITING which indicates delivery
+				// and the semaphore has been (or is about to be) signalled.
+				LOGDEBUG (TEXT ("Clearing late message arrival on slot ") << m_nIdentifier);
+				if (!m_sem.Wait (lTimeout)) {
+					LOGERROR (TEXT ("Semaphore was not signalled during post"));
+					// assert (0);
+				}
+				nState = nAltState;
+				goto retry;
+			}
+			break;
+		case STATE_MESSAGE_PRE :
+			// Message is being posted; need to wait for it to complete
+			LOGDEBUG (TEXT ("Retrying during call to PostAndRelease on slot ") << m_nIdentifier);
+			CThread::Yield ();
+			nState = m_oState.Get ();
+			goto retry;
+		case STATE_MESSAGE_OK :
+			// Message has been posted; accept it and move to the DONE state
+			LOGDEBUG (TEXT ("Message delivered on slot ") << m_nIdentifier);
+			msg = m_msg.GetAndSet (NULL);
+			m_oState.Set (STATE_DONE | nSequence);
+			break;
+		// STATE_WAITING cannot happen as only one thread should call GetMessage
+		case STATE_DONE :
+			LOGWARN (TEXT ("Duplicate call to GetMessage"));
+			SetLastError (EINVAL);
+			break;
+		default :
+			LOGFATAL (TEXT ("Invalid state ") << nState << TEXT (" on slot ") << m_nIdentifier);
+			assert (0);
+			break;
 	}
 	return msg;
 }
@@ -197,19 +319,19 @@ CSynchronousCallSlot *CSynchronousCalls::Acquire () {
 // TODO: the slots don't have to be pointers as they don't move in the array once allocated; they should be inline fragments
 
 void CSynchronousCalls::PostAndRelease (fudge_i32 nHandle, FudgeMsg msg) {
-	int nIdentifier, nSequence;
+	int nIdentifier, nMessageSequence, nMessageSequenceMask;
 	if (nHandle & 0x80000000) {
 		// 20-bit identifier, 11-bit sequence
 		nIdentifier = (nHandle >> 11) & 0xFFFFF;
-		nSequence = nHandle & 0x7FF;
+		nMessageSequence = nHandle & (nMessageSequenceMask = 0x7FF);
 	} else if (nHandle & 0x40000000) {
 		// 16-bit identifier, 14-bit sequence
 		nIdentifier = (nHandle >> 14) & 0xFFFF;
-		nSequence = nHandle & 0x3FFF;
+		nMessageSequence = nHandle & (nMessageSequenceMask = 0x3FFF);
 	} else if (nHandle & 0x20000000) {
 		// 10-bit identifier, 19-bit sequence
 		nIdentifier = (nHandle >> 19) & 0x3FF;
-		nSequence = nHandle & 0x7FFFF;
+		nMessageSequence = nHandle & (nMessageSequenceMask = 0x7FFFF);
 	} else {
 		FudgeMsg_release (msg);
 		LOGFATAL (TEXT ("Bad handle, ") << nHandle);
@@ -218,12 +340,13 @@ void CSynchronousCalls::PostAndRelease (fudge_i32 nHandle, FudgeMsg msg) {
 	}
 	m_mutex.Enter ();
 	if ((nIdentifier >= 0) && (nIdentifier < m_nAllocatedSlots)) {
-		int nExpected = m_ppoSlots[nIdentifier]->GetSequence ();
-		if (nExpected == nSequence) {
-			LOGDEBUG (TEXT ("Delivering message ") << nSequence << TEXT (" to slot ") << nIdentifier);
-			m_ppoSlots[nIdentifier]->PostAndRelease (msg);
+		int nSlotSequence = m_ppoSlots[nIdentifier]->GetSequence ();
+		int nExpectedMessageSequence = nSlotSequence & nMessageSequenceMask;
+		if (nExpectedMessageSequence == nMessageSequence) {
+			LOGDEBUG (TEXT ("Delivering message ") << nSlotSequence << TEXT (" (transport sequence ") << nMessageSequence << TEXT (") to slot ") << nIdentifier);
+			m_ppoSlots[nIdentifier]->PostAndRelease (nSlotSequence, msg);
 		} else {
-			LOGWARN (TEXT ("Invalid sequence ") << nSequence << TEXT (" on slot ") << nIdentifier << TEXT (", expected ") << nExpected);
+			LOGWARN (TEXT ("Invalid sequence ") << nMessageSequence << TEXT (" on slot ") << nIdentifier << TEXT (", expected ") << nExpectedMessageSequence);
 			FudgeMsg_release (msg);
 		}
 	} else {

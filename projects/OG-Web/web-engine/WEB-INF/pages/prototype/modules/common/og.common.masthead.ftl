@@ -2,8 +2,8 @@
 <nav>
   <ul>
     <li class="og-analytics">
-      <a href="#/analytics/" class="OG-icon og-icon-header-dropdown">Analytics</a>
-      <div class="og-dd-menu">
+      <a href="/analytics/" class="OG-icon">Analytics</a><!-- og-icon-header-dropdown -->
+      <div class="og-dd-menu" style="display:none">
         <div class="OG-shadow">
           <script id="OG-js-analytics-menu-template" type="text/x-jquery-tmpl">
             <li><a href="#/analytics/${'$'}{hash}">${'$'}{title}</a></li>
@@ -24,7 +24,7 @@
     <li class="og-configs"><a href="#/configs/">Configurations</a></li>
     <li class="og-batches"><a href="#/batches/">Batches</a></li>
   </ul>
-  <div class="og-search">
+  <div class="og-search" style="display: none">
     <form>
       <input type="text" autocomplete="off" value="search..." />
     </form>

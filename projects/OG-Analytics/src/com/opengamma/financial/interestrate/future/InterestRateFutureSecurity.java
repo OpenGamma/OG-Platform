@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of an interest rate future security.
@@ -50,6 +51,10 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
    */
   private final String _name;
   /**
+   * The discounting curve name.
+   */
+  private final String _discountingCurveName;
+  /**
    * The name of the forward curve used in to estimate the fixing index.
    */
   private final String _forwardCurveName;
@@ -63,14 +68,16 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
    * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor. 
-   * @param forwardCurveName  The name of the forward curve used in to estimate the fixing index.
    * @param name Future name.
+   * @param discountingCurveName The discounting curve name.
+   * @param forwardCurveName The forward curve name.
    */
   public InterestRateFutureSecurity(double lastTradingTime, IborIndex iborIndex, double fixingPeriodStartTime, double fixingPeriodEndIme, double fixingPeriodAccrualFactor, double notional,
-      double paymentAccrualFactor, String forwardCurveName, String name) {
+      double paymentAccrualFactor, String name, String discountingCurveName, String forwardCurveName) {
     Validate.notNull(iborIndex, "Ibor index");
-    Validate.notNull(forwardCurveName, "Forward curve name");
     Validate.notNull(name, "Name");
+    Validate.notNull(discountingCurveName, "Discounting curve name");
+    Validate.notNull(forwardCurveName, "Forward curve name");
     this._lastTradingTime = lastTradingTime;
     this._iborIndex = iborIndex;
     this._fixingPeriodStartTime = fixingPeriodStartTime;
@@ -78,6 +85,7 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
     this._fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
+    _discountingCurveName = discountingCurveName;
     _forwardCurveName = forwardCurveName;
     this._name = name;
   }
@@ -139,8 +147,16 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
   }
 
   /**
-   * Gets the _forwardCurveName field.
-   * @return the _forwardCurveName
+   * Gets the discounting curve name.
+   * @return The name.
+   */
+  public String getDiscountingCurveName() {
+    return _discountingCurveName;
+  }
+
+  /**
+   * Gets the forward curve name.
+   * @return The name.
    */
   public String getForwardCurveName() {
     return _forwardCurveName;
@@ -154,14 +170,33 @@ public class InterestRateFutureSecurity implements InterestRateDerivative {
     return _name;
   }
 
+  /**
+   * The future currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _iborIndex.getCurrency();
+  }
+
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitInterestRateFutureSecurity(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitInterestRateFutureSecurity(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "IRFuture Security: " + _name;
+    result += " Last trading date: " + _lastTradingTime;
+    result += " Ibor Index: " + _iborIndex.getName();
+    result += " Start fixing date: " + _fixingPeriodStartTime;
+    result += " End fixing date: " + _fixingPeriodEndTime;
+    result += " Notional: " + _notional;
+    return result;
   }
 
   @Override
