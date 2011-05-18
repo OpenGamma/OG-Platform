@@ -27,6 +27,11 @@ import com.opengamma.util.money.Currency;
  */
 public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<YieldCurveDefinition> {
   
+  private static final String STRIP_FIELD = "strip";
+  private static final String INTERPOLATOR_NAME_FIELD = "interpolatorName";
+  private static final String REGION_FIELD = "region";
+  private static final String CURRENCY_FIELD = "currency";
+
   /**
    * Creates an instance 
    */
@@ -38,18 +43,18 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     ArgumentChecker.notNull(json, "JSON document");
     YieldCurveDefinition curveDefinition = null;
     try {
-      JSONObject message = new JSONObject(json).getJSONObject(FUDGE_ENVELOPE_FIELD);
-      Currency currency = Currency.of(message.getString("currency"));
+      JSONObject message = new JSONObject(json);
+      Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       Identifier region = null;
-      if (message.opt("region") != null) {
-        region = convertJsonToObject(Identifier.class, message.getJSONObject("region"));
+      if (message.opt(REGION_FIELD) != null) {
+        region = convertJsonToObject(Identifier.class, message.getJSONObject(REGION_FIELD));
       }
-      String name = message.getString("name");
-      String interpolatorName = message.getString("interpolatorName");
+      String name = message.getString(NAME_FIELD);
+      String interpolatorName = message.getString(INTERPOLATOR_NAME_FIELD);
 
       SortedSet<FixedIncomeStrip> strips = new TreeSet<FixedIncomeStrip>();
-      if (message.opt("strip") != null) {
-        JSONArray jsonStrips = message.getJSONArray("strip");
+      if (message.opt(STRIP_FIELD) != null) {
+        JSONArray jsonStrips = message.getJSONArray(STRIP_FIELD);
         for (int i = 0; i < jsonStrips.length(); i++) {
           strips.add(convertJsonToObject(FixedIncomeStrip.class, jsonStrips.getJSONObject(i)));
         }
@@ -57,8 +62,8 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
 
       curveDefinition = new YieldCurveDefinition(currency, region, name, interpolatorName, strips);
 
-      if (message.opt("uniqueId") != null) {
-        UniqueIdentifier uid = convertJsonToObject(UniqueIdentifier.class, message.getJSONObject("uniqueId"));
+      if (message.opt(UNIQUE_ID_FIELD) != null) {
+        UniqueIdentifier uid = convertJsonToObject(UniqueIdentifier.class, message.getJSONObject(UNIQUE_ID_FIELD));
         curveDefinition.setUniqueId(uid);
       }
     } catch (JSONException ex) {
@@ -70,30 +75,27 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
   @Override
   public String toJSON(final YieldCurveDefinition object) {
     ArgumentChecker.notNull(object, "yield curve definition");
-    JSONObject result = new JSONObject();
     JSONObject jsonObject = new JSONObject();
     try {
-      jsonObject.put("name", object.getName());
-      jsonObject.put("interpolatorName", object.getInterpolatorName());
-      jsonObject.put("currency", object.getCurrency().getCode());
+      jsonObject.put(NAME_FIELD, object.getName());
+      jsonObject.put(INTERPOLATOR_NAME_FIELD, object.getInterpolatorName());
+      jsonObject.put(CURRENCY_FIELD, object.getCurrency().getCode());
       if (object.getRegion() != null) {
-        jsonObject.put("region", toJSONObject(object.getRegion()));
+        jsonObject.put(REGION_FIELD, toJSONObject(object.getRegion()));
       }
       List<JSONObject> strips = Lists.newArrayList();
       for (FixedIncomeStrip strip : object.getStrips()) {
         strips.add(toJSONObject(strip));
       }
       if (!strips.isEmpty()) {
-        jsonObject.put("strip", strips);
+        jsonObject.put(STRIP_FIELD, strips);
       }
-      jsonObject.put("uniqueId", toJSONObject(object.getUniqueId()));
-      
-      result.put(FUDGE_ENVELOPE_FIELD, jsonObject);
-      
+      jsonObject.put(UNIQUE_ID_FIELD, toJSONObject(object.getUniqueId()));
+            
     } catch (JSONException ex) {
       throw new OpenGammaRuntimeException("unable to convert view definition to JSON", ex);
     }
-    return result.toString();
+    return jsonObject.toString();
   }
 
 }

@@ -84,7 +84,7 @@ public class InMemoryRegionMaster implements RegionMaster {
     }
     Collections.sort(list, RegionDocumentComparator.ASC);
     RegionSearchResult result = new RegionSearchResult();
-    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));
     return result;
   }

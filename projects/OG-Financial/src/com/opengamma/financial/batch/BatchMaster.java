@@ -9,7 +9,9 @@ import java.util.Set;
 
 import javax.time.calendar.OffsetTime;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A master for storing and managing batch job runs.
@@ -108,24 +110,51 @@ public interface BatchMaster {
    */
   BatchSearchResult search(BatchSearchRequest request);
 
-  /**
-   * Gets the results of a batch.
-   * <p>
-   * Risk failures are not included in the result. 
-   * 
-   * @param request  the search request, not null
-   * @return the search result, not null
-   * @throws IllegalArgumentException if the request is invalid
-   */
-  BatchDataSearchResult getResults(BatchDataSearchRequest request);
+//  /**
+//   * Gets the results of a batch.
+//   * <p>
+//   * Risk failures are not included in the result. 
+//   * 
+//   * @param request  the search request, not null
+//   * @return the search result, not null
+//   * @throws IllegalArgumentException if the request is invalid
+//   */
+//  BatchDataSearchResult getResults(BatchDataSearchRequest request);
+//
+//  /**
+//   * Gets the risk failures of a batch.
+//   * 
+//   * @param request  the search request, not null
+//   * @return the search result, not null
+//   * @throws IllegalArgumentException if the request is invalid
+//   */
+//  BatchErrorSearchResult getErrors(BatchErrorSearchRequest request);
 
   /**
-   * Gets the risk failures of a batch.
+   * Gets a batch document by unique identifier.
+   * <p>
+   * This returns a single batch document by unique identifier.
+   * It will return all the risk data and the total count of the errors.
+   * For more control, use {@link #get(BatchGetRequest)}.
    * 
-   * @param request  the search request, not null
-   * @return the search result, not null
+   * @param uniqueId  the unique identifier, not null
+   * @return the document, not null
    * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
    */
-  BatchErrorSearchResult getErrors(BatchErrorSearchRequest request);
+  BatchDocument get(UniqueIdentifier uniqueId);
+
+  /**
+   * Gets a batch document controlling paging of the risk and error data.
+   * <p>
+   * This returns a single batch document by unique identifier.
+   * It will return risk data and errors based on the paging requests.
+   * 
+   * @param request  the batch data request, not null
+   * @return the document, not null
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if there is no document with that unique identifier
+   */
+  BatchDocument get(BatchGetRequest request);
 
 }

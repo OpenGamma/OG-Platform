@@ -129,7 +129,7 @@ public abstract class DbHelper {
    * @return the combined SQL, space terminated, not null
    */
   public String sqlApplyPaging(final String sqlSelectFromWhere, final String sqlOrderBy, final PagingRequest paging) {
-    if (paging == null || paging.equals(PagingRequest.ALL)) {
+    if (paging == null || paging.equals(PagingRequest.ALL) || paging.equals(PagingRequest.NONE)) {
       return sqlSelectFromWhere + sqlOrderBy;
     }
     // use SQL standard

@@ -89,9 +89,13 @@ public:
 #else
 		if (timeout != 0xFFFFFFFF) {
 			struct timespec ts;
-			time (&ts.tv_sec);
+			clock_gettime (CLOCK_REALTIME, &ts);
 			ts.tv_sec += timeout / 1000;
-			ts.tv_nsec = (500000000 + ((timeout % 1000) * 1000000)) % 1000000000;
+			timeout %= 1000;
+			if ((ts.tv_nsec += timeout * 1000000) >= 1000000000) {
+				ts.tv_nsec -= 1000000000;
+				ts.tv_sec++;
+			}
 			return !sem_timedwait (&m_semaphore, &ts);
 		} else {
 			return !sem_wait (&m_semaphore);

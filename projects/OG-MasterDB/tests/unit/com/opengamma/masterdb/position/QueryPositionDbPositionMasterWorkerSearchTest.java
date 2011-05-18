@@ -59,7 +59,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageOne() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(new PagingRequest(1, 2));
+    request.setPagingRequest(PagingRequest.of(1, 2));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -74,7 +74,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageTwo() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(new PagingRequest(2, 2));
+    request.setPagingRequest(PagingRequest.of(2, 2));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(3, test.getPaging().getFirstItem());
@@ -89,7 +89,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   @Test
   public void test_search_pageThree() {
     PositionSearchRequest request = new PositionSearchRequest();
-    request.setPagingRequest(new PagingRequest(3, 2));
+    request.setPagingRequest(PagingRequest.of(3, 2));
     PositionSearchResult test = _posMaster.search(request);
     
     assertEquals(5, test.getPaging().getFirstItem());

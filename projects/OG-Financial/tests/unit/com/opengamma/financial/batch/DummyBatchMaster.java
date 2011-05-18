@@ -14,6 +14,7 @@ import javax.time.calendar.OffsetTime;
 
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -71,13 +72,13 @@ public class DummyBatchMaster implements BatchMaster {
   }
 
   @Override
-  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
-    return new BatchDataSearchResult();
+  public BatchDocument get(UniqueIdentifier uniqueId) {
+    return new BatchDocument(uniqueId);
   }
 
   @Override
-  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
-    return new BatchErrorSearchResult();
+  public BatchDocument get(BatchGetRequest request) {
+    return new BatchDocument(request.getUniqueId());
   }
 
   @Override
