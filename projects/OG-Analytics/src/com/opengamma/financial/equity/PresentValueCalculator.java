@@ -6,16 +6,13 @@
 package com.opengamma.financial.equity;
 
 import com.opengamma.financial.equity.future.EquityIndexDividendFuture;
-import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-
 import org.apache.commons.lang.Validate;
 
 /**
  * TODO: Change YieldCurveBundle to something further fit to Equity
  */
-public class PresentValueCalculator extends AbstractEquityDerivativeVisitor<YieldCurveBundle, Double>  {
+public final class PresentValueCalculator extends AbstractEquityDerivativeVisitor<YieldCurveBundle, Double>  {
   
   private static final PresentValueCalculator s_instance = new PresentValueCalculator();
 
@@ -35,12 +32,15 @@ public class PresentValueCalculator extends AbstractEquityDerivativeVisitor<Yiel
 
   @Override
   public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
+    Validate.notNull(curves); // shall we put the current market price in curves?
     Validate.notNull(future);
-    final double ta = future.getFixingDate();
-    final double tb = future.getDeliveryDate();
+    //final double ta = future.getFixingDate();
+    //final double tb = future.getDeliveryDate();
     
-    return 42.0;
+    final double current = 100.0; // !!! this is garbage? how does this get passed in ? 
+    return (current - future.getStrike()) * future.getPointValue();
+    
+    // !!! or... SpotIndex / Z(0,T) - pV(EquityIndexFuture)
   }
 
   @Override

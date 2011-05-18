@@ -25,10 +25,10 @@ public class PresentValueCalculatorTest {
   public void testEquityIndexDividendFuture() {
     final double settlement = 1.45;
     final double fixing = 1.44;
-    final EquityIndexDividendFuture eidf = new EquityIndexDividendFuture(fixing, settlement, 0, 0, 0);
+    final EquityIndexDividendFuture eidf = new EquityIndexDividendFuture(fixing, settlement, 95., 10, "ZX","GBP");
     
     double pv = PVC.visitEquityIndexDividendFuture(eidf, CURVES);
-    assertEquals(42.0, pv, 1e-12);
+    assertEquals(50.0, pv, 1e-12);
     
     
   }
