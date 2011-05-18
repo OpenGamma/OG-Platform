@@ -158,7 +158,11 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
+                            var $warning, warning_message = 'This position has been deleted';
                             $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
+                                else $warning.empty().hide();
                             render_securities(details_json);
                             render_identifiers(details_json.securities);
                             render_trades(details_json.trades);
