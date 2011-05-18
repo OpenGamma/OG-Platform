@@ -245,8 +245,12 @@ $.register_module({
                                     if (++parts_loaded !== total_parts) return;
                                     ui.message({location: '#OG-details', destroy: true})
                                 };
-                            })();
+                            })(),
+                            $warning, warning_message = 'This portfolio has been deleted';
                             $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
+                                else $warning.empty().hide();
                             hook_up_add_portfolio_form(), hook_up_add_position_form();
                             render_portfolio_rows('.OG-portfolio .og-js-portfolios', details_json, stop_loading);
                             render_position_rows('.OG-portfolio .og-js-positions', details_json, stop_loading);

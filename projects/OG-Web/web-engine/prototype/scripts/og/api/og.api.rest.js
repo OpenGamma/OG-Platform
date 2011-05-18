@@ -262,20 +262,23 @@ $.register_module({
                         id = str(config.id), node = str(config.node), version = str(config.version),
                         name = str(config.name), name_search =  'name' in config, version_search = version === '*',
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
-                        search = !id || id_search || name_search || version_search,
+                        nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
+                        search = !id || id_search || node_search || name_search || version_search,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
                         required: [{condition: version_search, one_of: ['id', 'node']}],
-                        empties: [
-                            {condition: name_search, label: 'name search', fields: ['id', 'node', 'version']},
-                            {condition: id_search, label: 'id search', fields: ['id', 'node', 'version']}
-                        ]
+                        empties: [{
+                            condition: name_search || id_search || node_search,
+                            label: 'search request cannot have id, node, or version',
+                            fields: ['id', 'node', 'version']
+                        }]
                     });
                     if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;
                     if (id_search) data.portfolioId = ids;
+                    if (node_search) data.nodeId = nodes;
                     version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
                     if (id) method = method.concat(node ? [version, 'nodes', node] : version);
                     return request(method, {data: data, meta: meta});

@@ -8,15 +8,7 @@
 <#if deleted>
       "deleted":"${configDoc.versionToInstant}",
 </#if>
-      <#assign clazz = configDoc.value.class/>
-      "type":"${clazz.simpleName}",
-      <#if clazz.canonicalName = "com.opengamma.engine.view.ViewDefinition">
-        "configJSON" : ${configJSON}
-      <#elseif clazz.canonicalName = "com.opengamma.financial.analytics.ircurve.YieldCurveDefinition">
-        "configJSON" : ${configJSON}
-      <#else>
-        "configXml":"${configXml}"
-      </#if>
-
-   	}
+      "type":"${configDoc.value.class.simpleName}",
+      "configData" : ${configData}
+    }
 }

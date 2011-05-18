@@ -13,11 +13,11 @@ import com.opengamma.math.function.Function1D;
  * @param <T> The range type of the function
  * @param <U> The range type of the gradient 
  */
-public interface Derivative<S, T, U> {
+public interface Differentiator<S, T, U> {
 
   /**
    * @param function A function for which to get the gradient function, not null
    * @return A function that calculates the gradient 
    */
-  Function1D<S, U> derivative(Function1D<S, T> function);
+  Function1D<S, U> differentiate(Function1D<S, T> function);
 }

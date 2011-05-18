@@ -15,11 +15,11 @@
 <#-- SUBSECTION Batch results -->
 <#if searchResult??>
 <@subsection title="Results">
-  <@table items=searchResult.items paging=paging empty="No batches" headers=["Observation date","Observation time","Status","Actions"]; item>
+  <@table items=searchResult.documents paging=paging empty="No batches" headers=["Observation date","Observation time","Status","Actions"]; item>
       <td>${item.observationDate}</td>
       <td>${item.observationTime}</td>
       <td>${item.status}</td>
-      <td><a href="${uris.batch(item.observationDate, item.observationTime)}">View</a></td>
+      <td><a href="${uris.batch(item.uniqueId)}">View</a></td>
   </@table>
 </@subsection>
 </#if>

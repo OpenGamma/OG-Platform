@@ -22,7 +22,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
    * Neumann  boundary condition, i.e. du/dx(A,t) = f(t), where A is the boundary level, and f(t) is some specified function of time
    * @param timeValue The value of u at the boundary, i.e. du/dx(A,t) = f(t) 
    * @param level The boundary level (A)
-   * @param isLower Is the boundary a lower bound
+   * @param isLower True if this represents a lower boundary
    */
   public NeumannBoundaryCondition(final Function1D<Double, Double> timeValue, final double level, final boolean isLower) {
     Validate.notNull(timeValue, "null timeValue");
@@ -35,7 +35,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
     _timeValue = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double x) {
+      public Double evaluate(Double x) {
         return fixedValue;
       }
     };
@@ -49,7 +49,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double[] getLeftMatrixCondition(final PDEDataBundle data, final PDEGrid1D grid, final double t) {
+  public double[] getLeftMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
     double[] temp;
     if (_isLower) {
       temp = grid.getFirstDerivativeForwardCoefficients(0);
@@ -65,7 +65,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double[] getRightMatrixCondition(final PDEDataBundle data, final PDEGrid1D grid, final double t) {
+  public double[] getRightMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
     return new double[0];
   }
 

@@ -144,7 +144,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final SecuritySearchResult result = new SecuritySearchResult();
     if ((request.getSecurityIds() != null && request.getSecurityIds().size() == 0) ||
         (IdentifierSearch.canMatch(request.getSecurityKeys()) == false)) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
