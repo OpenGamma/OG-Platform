@@ -39,12 +39,12 @@ public class BatchSearchRequest extends DirectBean {
   @PropertyDefinition
   private PagingRequest _pagingRequest = PagingRequest.ALL;
   /**
-   * The batch date, should not be null.
+   * The batch date, null to not match on date.
    */
   @PropertyDefinition
   private LocalDate _observationDate;
   /**
-   * The batch time, such as LDN_CLOSE, should not be null.
+   * The batch time, such as LDN_CLOSE, null to not match on time key.
    */
   @PropertyDefinition
   private String _observationTime;
@@ -129,7 +129,7 @@ public class BatchSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch date, should not be null.
+   * Gets the batch date, null to not match on date.
    * @return the value of the property
    */
   public LocalDate getObservationDate() {
@@ -137,7 +137,7 @@ public class BatchSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the batch date, should not be null.
+   * Sets the batch date, null to not match on date.
    * @param observationDate  the new value of the property
    */
   public void setObservationDate(LocalDate observationDate) {
@@ -154,7 +154,7 @@ public class BatchSearchRequest extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch time, such as LDN_CLOSE, should not be null.
+   * Gets the batch time, such as LDN_CLOSE, null to not match on time key.
    * @return the value of the property
    */
   public String getObservationTime() {
@@ -162,7 +162,7 @@ public class BatchSearchRequest extends DirectBean {
   }
 
   /**
-   * Sets the batch time, such as LDN_CLOSE, should not be null.
+   * Sets the batch time, such as LDN_CLOSE, null to not match on time key.
    * @param observationTime  the new value of the property
    */
   public void setObservationTime(String observationTime) {

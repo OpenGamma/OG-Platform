@@ -10,6 +10,15 @@ $.register_module({
             end_loading = common.end_loading, encode = encodeURIComponent,
             outstanding_requests = {}, registrations = [],
             meta_data = {configs: null, holidays: null, securities: null},
+            singular = {
+                batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
+                portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
+                timeseries: 'timeseries'
+            },
+            has_id_search = {
+                batches: false, configs: true, exchanges: true, holidays: true, portfolios: true,
+                positions: true, regions: true, securities: true, timeseries: false
+            },
             request_id = 0, PAGE_SIZE = 50, PAGE = 1, TIMEOUT = 120000, // 2 minute timeout
             /** @ignore */
             register = function (obj) {
@@ -35,9 +44,11 @@ $.register_module({
             },
             /** @ignore */
             request = function (method, config) {
-                var id = request_id++, no_post_body = {GET: null, DELETE: 0}, url = config.meta.type in no_post_body ?
-                        [live_data_root + method.map(encode).join('/'), $.param(config.data)].filter(Boolean).join('?')
-                            : live_data_root + method.map(encode).join('/'),
+                var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
+                    url = config.meta.type in no_post_body ? // build GET/DELETE URLs instead of letting $.ajax do it
+                        [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
+                            .filter(Boolean).join('?')
+                                : live_data_root + method.map(encode).join('/'),
                     current = routes.current(),
                     /** @ignore */
                     send = function () {
@@ -101,28 +112,31 @@ $.register_module({
             /** @ignore */
             default_get = function (fields, api_fields, config) {
                 var root = this.root, method = [root], data = {}, meta,
-                    all = fields.concat('id', 'version', 'page_size', 'page');
+                    all = fields.concat('id', 'version', 'page_size', 'page'),
                     id = str(config.id), version = str(config.version), version_search = version === '*',
                     field_search = fields.some(function (val) {return val in config;}),
+                    ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
+                    search = field_search || id_search || version_search || !id,
                     has_meta = root in meta_data, meta_request = has_meta && config.meta,
                     page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                 meta = check({
                     bundle: {method: root + '#get', config: config},
                     dependencies: [{fields: ['version'], require: 'id'}],
                     empties: [
-                        {condition: field_search, label: 'search request', fields: ['version', 'id']},
+                        {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
                         {condition: !has_meta, label: 'meta data unavailable for /' + root, fields: ['meta']},
-                        {condition: meta_request, label: 'meta data request', fields: all}
+                        {condition: meta_request, label: 'meta data request', fields: all},
+                        {condition: !has_id_search[root], label: 'id search unavailable for ' + root, fields: ['ids']}
                     ]
                 });
-                if (meta_request)
-                    method.push('metaData');
-                else if ((field_search || version_search || !id))
-                    data = {pageSize: page_size, page: page};
+                if (meta_request) method.push('metaData');
+                if (search) data = {pageSize: page_size, page: page};
                 if (field_search) fields.forEach(function (val, idx) {
                     if (val = str(config[val])) data[(api_fields || fields)[idx]] = val;
                 });
-                if (id) method = method.concat(version ? [id, 'versions', version_search ? '' : version] : id);
+                if (id_search) data[singular[root] + 'Id'] = ids;
+                version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
+                if (id) method = method.concat(version);
                 return request(method, {data: data, meta: meta});
             },
             /** @ignore */
@@ -189,7 +203,8 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version), version_search = version === '*',
                         fields = ['name', 'type'], type_search = config.type === '*',
-                        all = fields.concat('id', 'version', 'page_size', 'page');
+                        all = fields.concat('id', 'version', 'page_size', 'page'),
+                        ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         field_search = !type_search && fields.some(function (val) {return val in config;}),
                         meta_request = config.meta,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
@@ -197,18 +212,19 @@ $.register_module({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
                         empties: [
-                            {condition: field_search, label: 'search request', fields: ['version', 'id']},
+                            {condition: field_search || id_search, label: 'search request', fields: ['version', 'id']},
                             {condition: type_search, label: 'type search request', fields: ['version', 'id', 'name']},
                             {condition: meta_request, label: 'meta data request', fields: all}
                         ]
                     });
                     if (meta_request)
                         method.push('metaData');
-                    else if (!type_search && (field_search || version_search || !id))
+                    else if (!type_search && (field_search || version_search || id_search || !id))
                         data = {pageSize: page_size, page: page};
                     if (field_search) fields.forEach(function (val, idx) {
                         if (val = str(config[val])) data[fields[idx]] = val;
                     });
+                    if (id_search) data.configId = ids;
                     if (id) method = method.concat(version ? [id, 'versions', version_search ? '' : version] : id);
                     return request(method, {data: data, meta: meta});
                 },
@@ -245,18 +261,25 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), node = str(config.node), version = str(config.version),
                         name = str(config.name), name_search =  'name' in config, version_search = version === '*',
+                        ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
+                        nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
+                        search = !id || id_search || node_search || name_search || version_search,
                         page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
                         dependencies: [{fields: ['node', 'version'], require: 'id'}],
-                        empties: [
-                            {condition: name_search, label: 'name exists', fields: ['node', 'version', 'id']},
-                            {condition: version_search, label: 'version is *', fields: ['node']}
-                        ]
+                        required: [{condition: version_search, one_of: ['id', 'node']}],
+                        empties: [{
+                            condition: name_search || id_search || node_search,
+                            label: 'search request cannot have id, node, or version',
+                            fields: ['id', 'node', 'version']
+                        }]
                     });
-                    if (version_search || name_search || !id) data = {pageSize: page_size, page: page};
+                    if (search) data = {pageSize: page_size, page: page};
                     if (name_search) data.name = name;
-                    version = version ? [id, 'versions', version_search ? '' : version] : id;
+                    if (id_search) data.portfolioId = ids;
+                    if (node_search) data.nodeId = nodes;
+                    version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
                     if (id) method = method.concat(node ? [version, 'nodes', node] : version);
                     return request(method, {data: data, meta: meta});
                 },

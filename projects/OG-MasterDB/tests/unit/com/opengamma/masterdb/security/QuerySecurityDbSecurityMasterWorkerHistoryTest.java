@@ -81,7 +81,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   public void test_history_noInstants_pageOne() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(1, 1));
+    request.setPagingRequest(PagingRequest.of(1, 1));
     SecurityHistoryResult test = _secMaster.history(request);
     
     assertEquals(1, test.getPaging().getFirstItem());
@@ -96,7 +96,7 @@ public class QuerySecurityDbSecurityMasterWorkerHistoryTest extends AbstractDbSe
   public void test_history_noInstants_pageTwo() {
     ObjectIdentifier oid = ObjectIdentifier.of("DbSec", "201");
     SecurityHistoryRequest request = new SecurityHistoryRequest(oid);
-    request.setPagingRequest(new PagingRequest(2, 1));
+    request.setPagingRequest(PagingRequest.of(2, 1));
     SecurityHistoryResult test = _secMaster.history(request);
     
     assertNotNull(test);

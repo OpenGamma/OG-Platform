@@ -7,7 +7,7 @@ package com.opengamma.web.batch;
 
 import java.net.URI;
 
-import javax.time.calendar.LocalDate;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * URIs for web-based batch management.
@@ -46,12 +46,11 @@ public class WebBatchUris {
 
   /**
    * Gets the URI.
-   * @param date batch date, not null
-   * @param observationTime date batch time, e.g., LDN_CLOSE, not null
+   * @param batchId  the override batch id, not null
    * @return the URI
    */
-  public URI batch(final LocalDate date, final String observationTime) {
-    return WebBatchResource.uri(_data, date, observationTime);
+  public URI batch(final UniqueIdentifier batchId) {
+    return WebBatchResource.uri(_data, batchId);
   }
 
 }

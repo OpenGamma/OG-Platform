@@ -136,20 +136,24 @@ private:
 	FudgeMsg m_msg;
 	CSynchronousCallSlot *m_poSlot;
 	CSynchronousCalls *m_poCalls;
+	CSemaphore m_oSignal;
 	volatile bool m_bPoison;
 public:
 	CRapidPostThread (FudgeMsg msg, CSynchronousCallSlot *poSlot, CSynchronousCalls *poCalls)
-	: CThread () {
+	: CThread (), m_oSignal (0, 1) {
 		FudgeMsg_retain (msg);
 		m_msg = msg;
 		m_poSlot = poSlot;
 		m_poCalls = poCalls;
+		m_bPoison = false;
 		ASSERT (Start ());
 	}
 	~CRapidPostThread () {
 		FudgeMsg_release (m_msg);
 	}
 	void Run () {
+		LOGDEBUG (TEXT ("Starting posting thread"));
+		m_oSignal.Signal ();
 		while (!m_bPoison) {
 			int nHandle = m_poSlot->GetHandle ();
 			CThread::Sleep (TIMEOUT_MESSAGE / 10);
@@ -157,6 +161,9 @@ public:
 			FudgeMsg_retain (m_msg);
 			m_poCalls->PostAndRelease (nHandle, m_msg);
 		}
+	}
+	void WaitForStart () {
+		ASSERT (m_oSignal.Wait (TIMEOUT_THREAD));
 	}
 	void Stop () {
 		m_bPoison = true;
@@ -170,6 +177,9 @@ static void RapidCalls () {
 	FudgeMsg msg;
 	ASSERT (FudgeMsg_create (&msg) == FUDGE_OK);
 	CRapidPostThread *poPoster = new CRapidPostThread (msg, poSlot, &oCalls);
+	LOGDEBUG (TEXT ("Waiting for posting thread"));
+	poPoster->WaitForStart ();
+	LOGDEBUG (TEXT ("Reading messages"));
 	int i, nGot = 0;
 	for (i = 0; i < 30; i++) {
 		FudgeMsg msg2 = poSlot->GetMessage ((TIMEOUT_MESSAGE / 100) * i);

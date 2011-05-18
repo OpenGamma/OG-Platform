@@ -16,7 +16,6 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -24,23 +23,12 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute the present value and its sensitivities for an interest rate future with discounting (like a forward). 
  * No convexity adjustment is done. 
  */
-public class InterestRateFutureTransactionDiscountingMethod implements PricingMethod {
-
-  /**
-   * Compute the present value of a future transaction from a quoted price.
-   * @param future The future.
-   * @param price The quoted price.
-   * @return The present value.
-   */
-  public double presentValueFromPrice(final InterestRateFutureTransaction future, final double price) {
-    double pv = (price - future.getReferencePrice()) * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity();
-    return pv;
-  }
+public class InterestRateFutureTransactionDiscountingMethod extends InterestRateFutureTransactionMethod {
 
   /**
    * Computes the present value of future from the curves using an estimation of the future rate without convexity adjustment.
    * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated to the instrument.
    * @return The present value.
    */
   public double presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {

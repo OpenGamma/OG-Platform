@@ -10,6 +10,11 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
+import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponFloatingDefinition;
@@ -48,6 +53,26 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitFRADefinition(FRADefinition fra, T data);
 
   U visitFRADefinition(FRADefinition fra);
+
+  U visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra, T data);
+
+  U visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra);
+
+  U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data);
+
+  U visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future);
+
+  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future, T data);
+
+  U visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future);
+
+  U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
+
+  U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future);
+
+  U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, T data);
+
+  U visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future);
 
   U visitPaymentFixed(PaymentFixedDefinition payment, T data);
 

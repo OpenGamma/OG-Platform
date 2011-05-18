@@ -16,9 +16,9 @@ import com.opengamma.util.rest.AbstractResourceService;
  * RESTful backend for market data snapshots.
  */
 @Path("marketDataSnapshotMaster")
-public class MarketDataSnapshotService extends AbstractResourceService<MarketDataSnapshotMaster, MarketDataSnapshotMasterResource> {
+public class MarketDataSnapshotMasterService extends AbstractResourceService<MarketDataSnapshotMaster, MarketDataSnapshotMasterResource> {
 
-  public MarketDataSnapshotService(FudgeContext fudgeContext) {
+  public MarketDataSnapshotMasterService(FudgeContext fudgeContext) {
     super(fudgeContext);
   }
 

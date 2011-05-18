@@ -221,6 +221,7 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            // TODO: add in deleted message. Need delete api working first
                             f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_timeseries_table('.OG-timeseries .og-js-table', {

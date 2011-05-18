@@ -141,7 +141,7 @@ public abstract class YieldCurveFittingSetup {
       jac = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
     } else if (data.getTestType() == TestType.FD_JACOBIAN) {
       final VectorFieldFirstOrderDifferentiator fdJacCalculator = new VectorFieldFirstOrderDifferentiator();
-      jac = fdJacCalculator.derivative(func);
+      jac = fdJacCalculator.differentiate(func);
     } else {
       throw new IllegalArgumentException("unknown TestType " + data.getTestType());
 
@@ -206,7 +206,7 @@ public abstract class YieldCurveFittingSetup {
     final MultipleYieldCurveFinderFunction func = new MultipleYieldCurveFinderFunction(data, data.getMarketValueCalculator());
     final MultipleYieldCurveFinderJacobian jac = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
     final VectorFieldFirstOrderDifferentiator fdCal = new VectorFieldFirstOrderDifferentiator();
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.derivative(func);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFD = fdCal.differentiate(func);
     final DoubleMatrix2D jacExact = jac.evaluate(data.getStartPosition());
     final DoubleMatrix2D jacFD = jacobianFD.evaluate(data.getStartPosition());
     assertMatrixEquals(jacExact, jacFD, 1e-5);

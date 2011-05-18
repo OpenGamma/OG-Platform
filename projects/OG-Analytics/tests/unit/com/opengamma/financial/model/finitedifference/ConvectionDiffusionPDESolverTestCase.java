@@ -75,6 +75,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static Surface<Double, Double, Double> LN_B;
   private static Surface<Double, Double, Double> BETA_A;
   private static Surface<Double, Double, Double> C;
+  @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;
@@ -96,7 +97,7 @@ public class ConvectionDiffusionPDESolverTestCase {
 
     int secondsInAYear = (int) (365.25 * 24 * 60 * 60);
     OPTION_DEFINITION = new EuropeanVanillaOptionDefinition(STRIKE, new Expiry(DATE.plusSeconds((int) (secondsInAYear * T))), ISCALL);
-    OPTION = new EuropeanVanillaOption(STRIKE, T, ISCALL); // put option
+    OPTION = new EuropeanVanillaOption(STRIKE, T, ISCALL);
     BS_PRICE = BS_MODEL.getPricingFunction(OPTION_DEFINITION);
 
     VOL_BETA = ATM_VOL * Math.pow(FORWARD, 1 - BETA);
@@ -112,9 +113,25 @@ public class ConvectionDiffusionPDESolverTestCase {
       }
     };
 
+    @SuppressWarnings("unused")
+    Function1D<Double, Double> upper1stDev = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double t) {
+        if (ISCALL) {
+          return Math.exp(-RATE * t);
+        } else {
+          return 0.0;
+        }
+      }
+    };
+
     LOWER = new DirichletBoundaryCondition(spotZeroPrice, 0.0);
-    UPPER = new NeumannBoundaryCondition(0.0, 5.0 * FORWARD, false);
-    // UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * SPOT);
+    // UPPER = new NeumannBoundaryCondition(upper1stDev, 5 * FORWARD, ISCALL);
+    if (ISCALL) {
+      UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 5.0 * FORWARD, false);
+    } else {
+      UPPER = new NeumannBoundaryCondition(0.0, 5.0 * FORWARD, false);
+    }
 
     final double logGridLow = Math.log(FORWARD / 10.0);
     final double logGridHi = Math.log(10 * FORWARD);

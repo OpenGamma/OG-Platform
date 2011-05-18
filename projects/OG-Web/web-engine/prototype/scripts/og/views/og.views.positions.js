@@ -89,9 +89,9 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'positions',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', filter_type: 'input'},
+                        {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link'},
                         {id: 'quantity', name: 'Quantity', field: 'quantity', width: 100, filter_type: 'input'},
-                        {id: 'trades', name: 'Trades', field: 'trades', width: 50, filter_type: 'input'}
+                        {id: 'trades', name: 'Trades', field: 'trades', width: 50}
                     ]
                 },
                 toolbar: {
@@ -158,7 +158,11 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
+                            var $warning, warning_message = 'This position has been deleted';
                             $.tmpl(template, details_json.template_data).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (details_json.template_data.deleted) $warning.html(warning_message).show();
+                                else $warning.empty().hide();
                             render_securities(details_json);
                             render_identifiers(details_json.securities);
                             render_trades(details_json.trades);

@@ -202,7 +202,12 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            var json = details_json.templateData, $warning,
+                                warning_message = 'This configuration has been deleted';
+                            if (json.configData) json.configData = JSON.stringify(json.configData, null, 4);
+                            $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                             ui.content_editable({
