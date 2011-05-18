@@ -75,6 +75,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static Surface<Double, Double, Double> LN_B;
   private static Surface<Double, Double, Double> BETA_A;
   private static Surface<Double, Double, Double> C;
+  @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;

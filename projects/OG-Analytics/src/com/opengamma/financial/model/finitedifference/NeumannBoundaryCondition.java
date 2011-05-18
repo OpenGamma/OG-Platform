@@ -22,6 +22,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
    * Neumann  boundary condition, i.e. du/dx(A,t) = f(t), where A is the boundary level, and f(t) is some specified function of time
    * @param timeValue The value of u at the boundary, i.e. du/dx(A,t) = f(t) 
    * @param level The boundary level (A)
+   * @param isLower True if this represents a lower boundary
    */
   public NeumannBoundaryCondition(final Function1D<Double, Double> timeValue, final double level, final boolean isLower) {
     Validate.notNull(timeValue, "null timeValue");

@@ -24,6 +24,7 @@ import com.opengamma.math.surface.Surface;
 /**
  * 
  */
+@SuppressWarnings("unused")
 public class CoupledFiniteDifferenceTest {
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
@@ -259,14 +260,13 @@ public class CoupledFiniteDifferenceTest {
     }
   }
 
-  @SuppressWarnings("unused")
   @Test
   public void testSmile() {
     CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5);
     double lambda12 = 0.2;
     double lambda21 = 2.0;
     int timeNodes = 20;
-    int spaceNodes = 101;
+    int spaceNodes = 150;
     double lowerMoneyness = 0.0;
     double upperMoneyness = 3.0;
 

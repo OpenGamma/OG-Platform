@@ -23,6 +23,7 @@ public class MarkovChain {
   private final double _vol2;
   private final double _lambda12;
   private final double _lambda21;
+  private final double _pi1;
 
   private final Random _rand = new Random();
 
@@ -35,6 +36,7 @@ public class MarkovChain {
     _vol2 = vol2;
     _lambda12 = lambda12;
     _lambda21 = lambda21;
+    _pi1 = lambda21 / (lambda12 + lambda21);
   }
 
   public double price(final double forward, final double df, final double strike, final double timeToExiry, double[] sigmas) {
@@ -54,7 +56,7 @@ public class MarkovChain {
 
     double vol, lambda, tau;
     double[] vols = new double[n];
-
+    double sum = 0;
     for (int i = 0; i < n; i++) {
       boolean state1 = probState1 > _rand.nextDouble();
       double t = 0;
@@ -77,7 +79,13 @@ public class MarkovChain {
         t += tau;
       }
       vols[i] = Math.sqrt(var / timeToExpiry);
+      sum += var;
     }
+    sum /= n;
+    // debug
+    // double ave = _pi1 * timeToExpiry + (probState1 - _pi1) / (_lambda12 + _lambda21) * (1 - Math.exp(-(_lambda12 + _lambda21) * timeToExpiry));
+    // double exvar = _vol2 * _vol2 * timeToExpiry + (_vol1 * _vol1 - _vol2 * _vol2) * ave;
+    // System.out.println("debug " + "\t" + sum + "\t" + exvar);
     return vols;
   }
 

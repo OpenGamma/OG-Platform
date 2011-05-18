@@ -13,7 +13,8 @@ import org.testng.annotations.Test;
 public class RichardsonExtrapolationFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(1.0);
+  private static final ConvectionDiffusionPDESolver BASE_SOLVER = new ThetaMethodFiniteDifference(1.0);
+  private static final ConvectionDiffusionPDESolver SOLVER = new RichardsonExtrapolationFiniteDifference(BASE_SOLVER);
 
   @Test
   public void testBlackScholesEquation() {
