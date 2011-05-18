@@ -547,7 +547,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
     Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _forwardHelper.compile(context, atInstant);
+    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper.compile(context, atInstant);
     
     InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
     InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());

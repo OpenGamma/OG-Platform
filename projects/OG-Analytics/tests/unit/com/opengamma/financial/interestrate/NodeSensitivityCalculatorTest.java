@@ -168,7 +168,7 @@ public class NodeSensitivityCalculatorTest {
     };
 
     final ScalarFieldFirstOrderDifferentiator fd = new ScalarFieldFirstOrderDifferentiator();
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = fd.derivative(f);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = fd.differentiate(f);
 
     return grad.evaluate(new DoubleMatrix1D(yields));
 

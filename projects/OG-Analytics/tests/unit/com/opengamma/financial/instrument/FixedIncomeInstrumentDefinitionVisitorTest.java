@@ -35,9 +35,14 @@ import com.opengamma.financial.instrument.bond.BondDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
+import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.IRFutureConvention;
 import com.opengamma.financial.instrument.future.IRFutureDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumTransactionDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.financial.instrument.index.CMSIndex;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
@@ -379,6 +384,56 @@ public class FixedIncomeInstrumentDefinitionVisitorTest {
     @Override
     public String visitCouponFloating(final CouponFloatingDefinition payment) {
       return "CouponFloating2";
+    }
+
+    @Override
+    public String visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra, T data) {
+      return "ZZZForwardRateAgreement1";
+    }
+
+    @Override
+    public String visitZZZForwardRateAgreementDefinition(ZZZForwardRateAgreementDefinition fra) {
+      return "ZZZForwardRateAgreement2";
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future, T data) {
+      return "InterestRateFutureSecurity1";
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurityDefinition(InterestRateFutureSecurityDefinition future) {
+      return "InterestRateFutureSecurity2";
+    }
+
+    @Override
+    public String visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future, T data) {
+      return "InterestRateFutureTransaction1";
+    }
+
+    @Override
+    public String visitInterestRateFutureTransactionDefinition(InterestRateFutureTransactionDefinition future) {
+      return "InterestRateFutureTransaction2";
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data) {
+      return "InterestRateFutureOptionPremiumSecurity1";
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future) {
+      return "InterestRateFutureOptionPremiumSecurity2";
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future, T data) {
+      return "InterestRateFutureOptionPremiumTransaction1";
+    }
+
+    @Override
+    public String visitInterestRateFutureOptionPremiumTransactionDefinition(InterestRateFutureOptionPremiumTransactionDefinition future) {
+      return "InterestRateFutureOptionPremiumTransaction2";
     }
   }
 }

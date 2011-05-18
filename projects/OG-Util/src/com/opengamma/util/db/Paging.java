@@ -218,7 +218,7 @@ public final class Paging {
    */
   public boolean isPreviousPage() {
     checkPaging();
-    return _page < getTotalPages();
+    return _page > 1;
   }
 
   /**

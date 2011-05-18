@@ -33,12 +33,11 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -53,26 +52,24 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.financial.batch.AdHocBatchDbManager;
 import com.opengamma.financial.batch.AdHocBatchJobRun;
 import com.opengamma.financial.batch.AdHocBatchResult;
-import com.opengamma.financial.batch.BatchDataSearchRequest;
-import com.opengamma.financial.batch.BatchDataSearchResult;
+import com.opengamma.financial.batch.BatchDocument;
 import com.opengamma.financial.batch.BatchError;
-import com.opengamma.financial.batch.BatchErrorSearchRequest;
-import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchGetRequest;
 import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
-import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.LiveDataValue;
 import com.opengamma.financial.batch.SnapshotId;
 import com.opengamma.financial.conversion.ResultConverterCache;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.db.PagingRequest;
@@ -88,23 +85,35 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
+public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHocBatchDbManager {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
+
+  /**
+   * The scheme used for UniqueIdentifier objects.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
   /**
    * The database schema.
    */
   private static String s_dbSchema = "";
 
   /**
-   * The database connection.
-   */
-  private DbSource _dbSource;
-  /**
    * The Hibernate template.
    */
   private HibernateTemplate _hibernateTemplate;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dbSource  the database source combining all configuration, not null
+   */
+  public DbBatchMaster(final DbSource dbSource) {
+    super(dbSource, IDENTIFIER_SCHEME_DEFAULT);
+    _hibernateTemplate = new HibernateTemplate(dbSource.getHibernateSessionFactory());
+    _hibernateTemplate.setAllowCreate(false);
+  }
 
   //-------------------------------------------------------------------------
   public static synchronized String getDatabaseSchema() {
@@ -120,31 +129,22 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
   }
 
   //-------------------------------------------------------------------------
-  public PlatformTransactionManager getTransactionManager() {
-    return _dbSource.getTransactionManager();
-  }
-
+  /**
+   * Gets the Hibernate Session factory.
+   * 
+   * @return the session factory, not null
+   */
   public SessionFactory getSessionFactory() {
-    return _dbSource.getHibernateSessionFactory();
+    return getDbSource().getHibernateSessionFactory();
   }
 
+  /**
+   * Gets the local Hibernate template.
+   * 
+   * @return the template, not null
+   */
   public HibernateTemplate getHibernateTemplate() {
     return _hibernateTemplate;
-  }
-
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return _dbSource.getJdbcTemplate();
-  }
-
-  public DbHelper getDbHelper() {
-    return _dbSource.getDialect();
-  }
-
-  public void setDbSource(DbSource dbSource) {
-    ArgumentChecker.notNull(dbSource, "dbSource");
-    _dbSource = dbSource;
-    _hibernateTemplate = new HibernateTemplate(_dbSource.getHibernateSessionFactory());
-    _hibernateTemplate.setAllowCreate(false);
   }
 
   //-------------------------------------------------------------------------
@@ -455,7 +455,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
   }
   
   /*package*/ void restartRun(BatchJobRun batch, RiskRun riskRun) {
-    Instant now = Instant.now();
+    Instant now = now();
     
     riskRun.setOpenGammaVersion(getOpenGammaVersion(batch));
     riskRun.setMasterProcessHost(getLocalComputeHost());
@@ -484,7 +484,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
   }
   
   /*package*/ void endRun(RiskRun riskRun) {
-    Instant now = Instant.now();
+    Instant now = now();
     
     riskRun.setEndInstant(DbDateUtils.toSqlTimestamp(now));
     riskRun.setComplete(true);
@@ -822,7 +822,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       Map<String, ViewComputationCache> cachesByCalculationConfiguration = cycle.getCachesByCalculationConfiguration();
       
       CommandLineBatchResultWriter writer = new CommandLineBatchResultWriter(
-          _dbSource,
+          getDbSource(),
           cycle.getViewDefinition().getResultModelDefinition(),
           cachesByCalculationConfiguration,
           getDbHandle(_batch)._computationTargets,
@@ -853,7 +853,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
     
     public CommandLineBatchResultWriter createTestWriter() {
       CommandLineBatchResultWriter resultWriter = new CommandLineBatchResultWriter(
-          _dbSource,
+          getDbSource(),
           new ResultModelDefinition(),
           new HashMap<String, ViewComputationCache>(),
           getDbHandle(_batch)._computationTargets,
@@ -862,13 +862,13 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       
       return resultWriter;
     }
-
   }
   
   public static Class<?>[] getHibernateMappingClasses() {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   @SuppressWarnings("unchecked")
   public BatchSearchResult search(BatchSearchRequest request) {
@@ -892,7 +892,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       getSessionFactory().getCurrentSession().beginTransaction();
       
       if (request.getPagingRequest().equals(PagingRequest.ALL)) {
-        result.setPaging(Paging.of(request.getPagingRequest(), result.getItems()));
+        result.setPaging(Paging.of(request.getPagingRequest(), result.getDocuments()));
       } else {
         criteria.setProjection(Projections.rowCount());
         Long totalCount = (Long) getHibernateTemplate().findByCriteria(criteria).get(0);
@@ -912,12 +912,11 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
             request.getPagingRequest().getPagingSize());
       }
       
-      for (RiskRun run : runs) {
-        BatchSearchResultItem item = new BatchSearchResultItem();
-        item.setObservationDate(DbDateUtils.fromSqlDate(run.getRunTime().getDate()));      
-        item.setObservationTime(run.getRunTime().getObservationTime().getLabel());
-        item.setStatus(run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
-        result.getItems().add(item);
+      for (RiskRun riskRun : runs) {
+        BatchDocument doc = new BatchDocument();
+        parseRiskRun(riskRun, doc);
+        doc.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime()));
+        result.getDocuments().add(doc);
       }
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
@@ -925,96 +924,86 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
       throw e;
     }
-
-    return result;
-  }
-  
-  @Override
-  public BatchDataSearchResult getResults(BatchDataSearchRequest request) {
-    ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
-    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
-    
-    RiskRun riskRun;
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-    
-    if (riskRun == null) {
-      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
-    }
-
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("rsk_run_id", riskRun.getId());
-    
-    final int count = _dbSource.getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
-    
-    String sql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getPagingRequest());
-    
-    List<ViewResultEntry> values = _dbSource.getJdbcTemplate().query(
-        sql, 
-        ViewResultEntryMapper.ROW_MAPPER, 
-        params);
-    
-    BatchDataSearchResult result = new BatchDataSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), count));
-    result.setItems(values);
     return result;
   }
 
   @Override
-  public BatchErrorSearchResult getErrors(BatchErrorSearchRequest request) {
+  public BatchDocument get(UniqueIdentifier uniqueId) {
+    return get(new BatchGetRequest(uniqueId));
+  }
+
+  @Override
+  public BatchDocument get(BatchGetRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObservationDate(), "observationDate");
-    ArgumentChecker.notNull(request.getObservationTime(), "observationTime");
+    ArgumentChecker.notNull(request.getUniqueId(), "observationDate");
+    ArgumentChecker.isTrue(request.getUniqueId().getValue().length() >= 12, "Invalid unique id");
+    checkScheme(request.getUniqueId());
     
+    LocalDate date = LocalDate.parse(request.getUniqueId().getValue().substring(0, 10));
+    String timeKey = request.getUniqueId().getValue().substring(11);
     RiskRun riskRun;
+    BatchDocument doc = new BatchDocument(request.getUniqueId());
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(request.getObservationDate(), request.getObservationTime());
+      riskRun = getRiskRunFromDb(date, timeKey);
+      if (riskRun != null) {
+        parseRiskRun(riskRun, doc);
+      }
       getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException ex) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
+      throw ex;
+    }
+    if (riskRun == null) {
+      throw new DataNotFoundException("Batch " + request.getUniqueId() + " not found");
     }
     
-    if (riskRun == null) {
-      throw new IllegalArgumentException("Batch " + request.getObservationDate() + "/" + request.getObservationTime() + " not found");
-    }
-
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("rsk_run_id", riskRun.getId());
     
-    final int count = _dbSource.getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
+    final int dataCount = getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
+    String dataSql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
+    List<ViewResultEntry> data = getJdbcTemplate().query(
+        dataSql, ViewResultEntryMapper.ROW_MAPPER, params);
     
-    String sql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getPagingRequest());
+    final int errorCount = getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
+    String errorSql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
+    List<BatchError> errors = getJdbcTemplate().query(
+        errorSql, BatchErrorMapper.ROW_MAPPER, params);
     
-    List<BatchError> values = _dbSource.getJdbcTemplate().query(
-        sql, 
-        BatchErrorMapper.ROW_MAPPER, 
-        params);
-    
-    BatchErrorSearchResult result = new BatchErrorSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), count));
-    result.setItems(values);
-    return result;
-  }
-  
-  public SnapshotId getAdHocBatchSnapshotId(BatchId batchId) {
-    return new SnapshotId(batchId.getObservationDate(), "AD_HOC_" + Instant.now().toString());
+    doc.setDataPaging(Paging.of(request.getDataPagingRequest(), dataCount));
+    doc.setData(data);
+    doc.setErrorsPaging(Paging.of(request.getErrorPagingRequest(), errorCount));
+    doc.setErrors(errors);
+    return doc;
   }
 
+  /**
+   * Parses the Hibernate object to a document.
+   * 
+   * @param riskRun  the database risk run object, not null
+   * @param doc  the batch document, not null
+   */
+  protected void parseRiskRun(RiskRun riskRun, BatchDocument doc) {
+    doc.setStatus(riskRun.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING);
+    doc.setObservationDate(DbDateUtils.fromSqlDate(riskRun.getRunTime().getDate()));
+    doc.setObservationTime(riskRun.getRunTime().getObservationTime().getLabel());
+    doc.setCreationInstant(DbDateUtils.fromSqlTimestamp(riskRun.getCreateInstant()));
+    doc.setStartInstant(DbDateUtils.fromSqlTimestamp(riskRun.getStartInstant()));
+    if (riskRun.getEndInstant() != null) {
+      doc.setEndInstant(DbDateUtils.fromSqlTimestamp(riskRun.getEndInstant()));
+    }
+    doc.setMasterProcessHost(riskRun.getMasterProcessHost().getHostName());
+    doc.setNumRestarts(riskRun.getNumRestarts());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void write(AdHocBatchResult result) {
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
     
-      SnapshotId snapshotId = getAdHocBatchSnapshotId(result.getBatchId());
+      SnapshotId snapshotId = createAdHocBatchSnapshotId(result.getBatchId());
     
       createLiveDataSnapshotImpl(snapshotId);
       
@@ -1029,7 +1018,7 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       startBatchImpl(batch);
       
       AdHocBatchResultWriter writer = new AdHocBatchResultWriter(
-          _dbSource,
+          getDbSource(),
           getRiskRunFromHandle(batch),
           getLocalComputeNode(),
           new ResultConverterCache(),
@@ -1046,5 +1035,9 @@ public class DbBatchMaster implements BatchMaster, AdHocBatchDbManager {
       throw e;
     }
   }
-  
+
+  protected SnapshotId createAdHocBatchSnapshotId(BatchId batchId) {
+    return new SnapshotId(batchId.getObservationDate(), "AD_HOC_" + Instant.now().toString());
+  }
+
 }

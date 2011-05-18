@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.payments;
+package com.opengamma.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -26,6 +26,10 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
+import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;

@@ -17,7 +17,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  * <i><b>g</b>(<b>x</b>)</i>, i.e. a function that returns the gradient for each point <i><b>x</b></i>, where <i><b>g</b></i> is the n-dimensional vector 
  * {@latex.inline $\\frac{dy}{dx_i}$}.
  */
-public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMatrix1D, Double, DoubleMatrix1D> {
+public class ScalarFieldFirstOrderDifferentiator implements Differentiator<DoubleMatrix1D, Double, DoubleMatrix1D> {
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
   private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
@@ -51,7 +51,7 @@ public class ScalarFieldFirstOrderDifferentiator implements Derivative<DoubleMat
   }
 
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix1D> derivative(final Function1D<DoubleMatrix1D, Double> function) {
+  public Function1D<DoubleMatrix1D, DoubleMatrix1D> differentiate(final Function1D<DoubleMatrix1D, Double> function) {
     Validate.notNull(function);
     switch (_differenceType) {
       case FORWARD:
