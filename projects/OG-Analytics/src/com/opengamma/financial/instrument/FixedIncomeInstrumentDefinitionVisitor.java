@@ -93,9 +93,9 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
 
   U visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity);
 
-  U visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap, T data);
+  U visitSwapDefinition(SwapDefinition swap, T data);
 
-  U visitSwapDefinition(SwapDefinition<? extends PaymentDefinition, ? extends PaymentDefinition> swap);
+  U visitSwapDefinition(SwapDefinition swap);
 
   U visitSwapFixedIborDefinition(SwapFixedIborDefinition swap, T data);
 

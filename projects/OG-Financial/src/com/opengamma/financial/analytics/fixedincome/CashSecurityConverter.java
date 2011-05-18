@@ -19,6 +19,7 @@ import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.util.money.Currency;
+
 /**
  * 
  */
@@ -26,7 +27,8 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
 
-  public CashSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
+  public CashSecurityConverter(final HolidaySource holidaySource,
+      final ConventionBundleSource conventionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     _holidaySource = holidaySource;

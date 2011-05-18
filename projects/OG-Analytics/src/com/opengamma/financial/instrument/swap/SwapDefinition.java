@@ -10,25 +10,25 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentWithDataConverter;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a generic swap with two legs. One should be payer and the other receiver.
- * @param <P1> The payment type on first leg.
- * @param <P2> The payment type on second leg.
  *
  */
-public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefinition> implements FixedIncomeInstrumentConverter<Swap<? extends Payment, ? extends Payment>> {
+//TODO don't just want to pass in the array of time series
+public abstract class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
 
-  private final AnnuityDefinition<P1> _firstLeg;
-  private final AnnuityDefinition<P2> _secondLeg;
+  private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
+  private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
 
-  public SwapDefinition(final AnnuityDefinition<P1> firstLeg, final AnnuityDefinition<P2> secondLeg) {
+  public SwapDefinition(final AnnuityDefinition<? extends PaymentDefinition> firstLeg, final AnnuityDefinition<? extends PaymentDefinition> secondLeg) {
     Validate.notNull(firstLeg, "first leg");
     Validate.notNull(secondLeg, "second leg");
     Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
@@ -40,7 +40,7 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
    * Gets the first leg.
    * @return The first leg.
    */
-  public AnnuityDefinition<P1> getFirstLeg() {
+  public AnnuityDefinition<? extends PaymentDefinition> getFirstLeg() {
     return _firstLeg;
   }
 
@@ -48,7 +48,7 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
    * Gets the second leg.
    * @return The second leg.
    */
-  public AnnuityDefinition<P2> getSecondLeg() {
+  public AnnuityDefinition<? extends PaymentDefinition> getSecondLeg() {
     return _secondLeg;
   }
 
@@ -80,7 +80,7 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SwapDefinition<?, ?> other = (SwapDefinition<?, ?>) obj;
+    final SwapDefinition other = (SwapDefinition) obj;
     if (!ObjectUtils.equals(_firstLeg, other._firstLeg)) {
       return false;
     }
@@ -88,11 +88,6 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
       return false;
     }
     return true;
-  }
-
-  @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return null;
   }
 
   @Override
@@ -104,5 +99,4 @@ public class SwapDefinition<P1 extends PaymentDefinition, P2 extends PaymentDefi
   public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitSwapDefinition(this);
   }
-
 }

@@ -30,8 +30,10 @@ public interface ConventionBundleMaster {
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays);
 
-  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays, 
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays,
       double pointValue);
+
+  UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays, boolean isEOMConvention);
 
   UniqueIdentifier addConventionBundle(IdentifierBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency,
       Integer swapFixedLegSettlementDays, Identifier swapFixedLegRegion, DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,

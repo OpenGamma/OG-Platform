@@ -124,6 +124,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   @Override
+  public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays, boolean isEOMConvention) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, settlementDays, isEOMConvention);
+    final UniqueIdentifier uid = _mapper.add(bundle, convention);
+    convention.setUniqueId(uid);
+    return uid;
+  }
+
+  @Override
   public synchronized UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount swapFixedLegDayCount,
       final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final Identifier swapFixedLegRegion,
       final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -136,15 +145,15 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   @Override
-  public UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
-      final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
-      final Identifier basisSwapPayFloatingLegInitialRate, final Identifier basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
-      final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
-      final Identifier basisSwapReceiveFloatingLegInitialRate, final Identifier basisSwapReceiveFloatingLegRegion) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, basisSwapPayFloatingLegDayCount, basisSwapPayFloatingLegBusinessDayConvention, basisSwapPayFloatingLegFrequency,
-        basisSwapPayFloatingLegSettlementDays, basisSwapPayFloatingLegInitialRate, basisSwapPayFloatingLegRegion, basisSwapReceiveFloatingLegDayCount,
-        basisSwapReceiveFloatingLegBusinessDayConvention, basisSwapReceiveFloatingLegFrequency, basisSwapReceiveFloatingLegSettlementDays, basisSwapReceiveFloatingLegInitialRate,
-        basisSwapReceiveFloatingLegRegion);
+  public UniqueIdentifier addConventionBundle(final IdentifierBundle bundle, final String name, final DayCount tenorSwapPayFloatingLegDayCount,
+      final BusinessDayConvention tenorSwapPayFloatingLegBusinessDayConvention, final Frequency tenorSwapPayFloatingLegFrequency, final Integer tenorSwapPayFloatingLegSettlementDays,
+      final Identifier tenorSwapPayFloatingLegInitialRate, final Identifier tenorSwapPayFloatingLegRegion, final DayCount tenorSwapReceiveFloatingLegDayCount,
+      final BusinessDayConvention tenorSwapReceiveFloatingLegBusinessDayConvention, final Frequency tenorSwapReceiveFloatingLegFrequency, final Integer tenorSwapReceiveFloatingLegSettlementDays,
+      final Identifier tenorSwapReceiveFloatingLegInitialRate, final Identifier tenorSwapReceiveFloatingLegRegion) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, tenorSwapPayFloatingLegDayCount, tenorSwapPayFloatingLegBusinessDayConvention, tenorSwapPayFloatingLegFrequency,
+        tenorSwapPayFloatingLegSettlementDays, tenorSwapPayFloatingLegInitialRate, tenorSwapPayFloatingLegRegion, tenorSwapReceiveFloatingLegDayCount,
+        tenorSwapReceiveFloatingLegBusinessDayConvention, tenorSwapReceiveFloatingLegFrequency, tenorSwapReceiveFloatingLegSettlementDays, tenorSwapReceiveFloatingLegInitialRate,
+        tenorSwapReceiveFloatingLegRegion);
     final UniqueIdentifier uid = _mapper.add(bundle, convention);
     convention.setUniqueId(uid);
     return uid;
@@ -323,7 +332,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360, following, nullPeriod, 2);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IRFUTURE")), "USD_IRFUTURE", act360, following, null, 2, 0.25);
-    
+
+    addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_IBOR_INDEX")), "USD_IBOR_INDEX", act360, following, 2, false);
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP1D")), "USDCASHP1D", act360, following, Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USDCASHP1M")), "USDCASHP1M", act360, modified, Period.ofMonths(1), 2);
@@ -405,7 +415,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EUR_1Y_SWAP")), "EUR_1Y_SWAP", thirty360, modified, annual, 2, eu, act360, modified, quarterly, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu);
-    
+
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1D")), "EURCASHP1D", act360, following, Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "EURCASHP1M")), "EURCASHP1M", act360, modified, Period.ofMonths(1), 2);
@@ -565,7 +575,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Identifier.of(SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb);
 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_IRFUTURE")), "GBP_IRFUTURE", act365, following, null, 2, 0.25);
-    
+
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP1D")), "GBPCASHP1D", act365, following, Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP1M")), "GBPCASHP1M", act365, modified, Period.ofMonths(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBPCASHP2M")), "GBPCASHP2M", act365, modified, Period.ofMonths(2), 0);
@@ -669,7 +679,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     //TODO check reference rate
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360, modified, semiAnnual, 2,
         Identifier.of(SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch);
-    
+
     //Identifiers for external data 
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP1D")), "CHFCASHP1D", act360, following, Period.ofDays(1), 0);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "CHFCASHP1M")), "CHFCASHP1M", act360, modified, Period.ofMonths(1), 2);
@@ -732,7 +742,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP9Y")), "HUFSWAPP9Y", act365, modified, Period.ofYears(9), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HUFSWAPP10Y")), "HUFSWAPP10Y", act365, modified, Period.ofYears(10), 2);
   }
-  
+
   private void addITFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -770,7 +780,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP50Y")), "ITLSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ITLSWAPP60Y")), "ITLSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
-  
+
   private void addDEFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -808,7 +818,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP50Y")), "DEMSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DEMSWAPP60Y")), "DEMSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
-  
+
   private void addDKFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -880,7 +890,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP50Y")), "FRFSWAPP50Y", thirty360, modified, Period.ofYears(50), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FRFSWAPP60Y")), "FRFSWAPP80Y", thirty360, modified, Period.ofYears(80), 2);
   }
-  
+
   private void addSEFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -916,7 +926,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP30Y")), "SEKSWAPP30Y", act360, modified, Period.ofYears(30), 2);
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SEKSWAPP40Y")), "SEKSWAPP40Y", act360, modified, Period.ofYears(40), 2);
   }
-  
+
   private void addUSCAPMDefinition() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "USD_CAPM")), "USD_CAPM", "US0003M Index", "SPX Index");
   }
@@ -924,7 +934,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addUSTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "US_TREASURY_BOND_CONVENTION")), "US_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
   }
-  
+
   //TODO need to get the correct convention
   private void addUSCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1, true);
@@ -938,7 +948,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addGBTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", false, true, 6, 0, true);
   }
-  
+
   private void addGBCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GB_CORPORATE_BOND_CONVENTION")), "GB_CORPORATE_BOND_CONVENTION", false, true, 6, 0, true);
   }
@@ -947,7 +957,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION")), "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0,
         DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), SimpleYieldConvention.MONEY_MARKET);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
   private void addLUTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_TREASURY_BOND_CONVENTION")), "LU_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
@@ -957,7 +967,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addLUCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "LU_CORPORATE_BOND_CONVENTION")), "LU_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addHUTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "HU_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true, true, 0, 2, true);
@@ -977,7 +987,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addITCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "IT_CORPORATE_BOND_CONVENTION")), "IT_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addDETreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DE_TREASURY_BOND_CONVENTION")), "DE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
@@ -987,7 +997,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addDECorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DE_CORPORATE_BOND_CONVENTION")), "DE_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addESTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "ES_TREASURY_BOND_CONVENTION")), "ES_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
@@ -1009,7 +1019,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addDKCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "DK_CORPORATE_BOND_CONVENTION")), "DK_CORPORATE_BOND_CONVENTION", true, true, 30, 3, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addNLTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "NL_TREASURY_BOND_CONVENTION")), "NL_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
@@ -1049,7 +1059,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addFRCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "FR_CORPORATE_BOND_CONVENTION")), "FR_CORPORATE_BOND_CONVENTION", true, true, 0, 3, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addBHTreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_TREASURY_BOND_CONVENTION")), "BH_TREASURY_BOND_CONVENTION", true, true, 0, 1, true);
@@ -1059,7 +1069,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addBHCorporateBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "BH_CORPORATE_BOND_CONVENTION")), "BH_CORPORATE_BOND_CONVENTION", true, true, 0, 1, true);
   }
-  
+
   //TODO all of the conventions named treasury need to be changed
   private void addSETreasuryBondConvention() {
     addConventionBundle(IdentifierBundle.of(Identifier.of(SIMPLE_NAME_SCHEME, "SE_TREASURY_BOND_CONVENTION")), "SE_TREASURY_BOND_CONVENTION", true, true, 4, 3, true);

@@ -91,6 +91,17 @@ public class ConventionBundleImpl implements ConventionBundle {
     _settlementDays = settlementDays;
   }
 
+  // ibor indices that act as underlyings (e.g. floating reference rate for swaps)
+  public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays, boolean isEOMConvention) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = dayCount;
+    _businessDayConvention = businessDayConvention;
+    _settlementDays = settlementDays;
+    _isEOMConvention = isEOMConvention;
+  }
+
   // futures
   public ConventionBundleImpl(final IdentifierBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
       final int settlementDays, final double yearFraction) {
