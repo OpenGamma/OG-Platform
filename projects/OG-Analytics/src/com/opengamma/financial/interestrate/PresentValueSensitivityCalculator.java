@@ -20,7 +20,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -132,6 +134,15 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     result.put(curveName, temp);
     return result;
+  }
+
+  @Override
+  /**
+   * Future transaction pricing without convexity adjustment.
+   */
+  public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
+    return method.presentValueCurveSensitivity(future, curves).getSensitivity();
   }
 
   @Override
