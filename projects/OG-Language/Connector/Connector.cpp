@@ -263,9 +263,9 @@ bool CConnector::CCall::WaitForResult (FudgeMsg *pmsgResponse, unsigned long lTi
 		return false;
 	}
 	FudgeMsg msg = m_poSlot->GetMessage (lTimeout);
-	m_poSlot->Release ();
-	m_poSlot = NULL;
 	if (msg) {
+		m_poSlot->Release ();
+		m_poSlot = NULL;
 		*pmsgResponse = msg;
 		return true;
 	} else {

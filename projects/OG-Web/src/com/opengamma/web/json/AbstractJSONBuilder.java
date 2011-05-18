@@ -30,6 +30,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /* package */abstract class AbstractJSONBuilder<T> implements JSONBuilder<T> {
   
   protected static final String FUDGE_ENVELOPE_FIELD = "fudgeEnvelope";
+  protected static final String NAME_FIELD = "name";
+  protected static final String UNIQUE_ID_FIELD = "uniqueId";
   
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   private final FudgeSerializationContext _serialization = new FudgeSerializationContext(_fudgeContext);
@@ -38,7 +40,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   protected FudgeMsg removeRedundantFields(final FudgeMsg message) {
     MutableFudgeMsg result = _fudgeContext.newMessage();
     for (FudgeField fudgeField : message) {
-      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != 0)) {
+      if (fudgeField.getName() != null || (fudgeField.getOrdinal() != null && fudgeField.getOrdinal() != FudgeSerializationContext.TYPES_HEADER_ORDINAL)) {
         if (fudgeField.getValue() instanceof FudgeMsg) {
           FudgeMsg subMsg = (FudgeMsg) fudgeField.getValue();
           subMsg = removeRedundantFields(subMsg);
@@ -66,6 +68,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   protected JSONObject toJSONObject(Object obj, boolean removeRedundantFields) throws JSONException {
+    if (obj == null) {
+      return null;
+    }
     MutableFudgeMsg fudgeMsg = _serialization.objectToFudgeMsg(obj);
     StringWriter buf = new StringWriter(1024);  
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, buf));

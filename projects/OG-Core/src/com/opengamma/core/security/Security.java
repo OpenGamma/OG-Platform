@@ -14,6 +14,8 @@ import com.opengamma.util.PublicSPI;
  * A security that it may be possible to hold a position in.
  * <p>
  * A security generically defined as anything that a position can be held in.
+ * This includes the security defined in "OTC" trades, permitting back-to-back
+ * trades to be linked correctly.
  */
 @PublicSPI
 public interface Security extends UniqueIdentifiable {

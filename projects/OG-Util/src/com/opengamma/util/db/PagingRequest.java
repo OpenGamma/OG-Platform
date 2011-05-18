@@ -35,6 +35,10 @@ public final class PagingRequest {
    * Singleton constant to request the first matching item.
    */
   public static final PagingRequest ONE = new PagingRequest(1, 1);
+  /**
+   * Singleton constant to request no data, just the total count.
+   */
+  public static final PagingRequest NONE = new PagingRequest(1, 0);
 
   /**
    * The requested page.
@@ -47,6 +51,7 @@ public final class PagingRequest {
 
   /**
    * Obtains an instance, applying default values.
+   * 
    * @param page  the page number, page one chosen if zero, not negative
    * @param pagingSize  the paging size, size twenty chosen if zero, not negative
    * @return the paging request, not null
@@ -59,30 +64,17 @@ public final class PagingRequest {
   }
 
   /**
-   * Creates an instance for page one and size 20.
-   */
-  public PagingRequest() {
-    this(1, DEFAULT_PAGING_SIZE);
-  }
-
-  /**
-   * Creates an instance for the specified page using size 20.
+   * Creates an instance without using defaults.
+   * <p>
+   * A paging size of zero will only return the count of items.
+   * 
    * @param page  the page number, one or greater
-   * @throws IllegalArgumentException if input is negative or zero
-   */
-  public PagingRequest(final int page) {
-    this(page, 20);
-  }
-
-  /**
-   * Creates an instance.
-   * @param page  the page number, one or greater
-   * @param pagingSize  the paging size, one or greater
+   * @param pagingSize  the paging size, zero or greater
    * @throws IllegalArgumentException if either input is negative or zero
    */
   public PagingRequest(final int page, final int pagingSize) {
     ArgumentChecker.notNegativeOrZero(page, "page number");
-    ArgumentChecker.notNegativeOrZero(pagingSize, "paging size");
+    ArgumentChecker.notNegative(pagingSize, "paging size");
     _page = page;
     _pagingSize = pagingSize;
   }
@@ -98,7 +90,7 @@ public final class PagingRequest {
 
   /**
    * Gets the size of each page.
-   * @return the paging size, one or greater
+   * @return the paging size, zero or greater
    */
   public int getPagingSize() {
     return _pagingSize;

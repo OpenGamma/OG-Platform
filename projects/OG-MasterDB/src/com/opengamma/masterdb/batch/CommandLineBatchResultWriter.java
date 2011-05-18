@@ -55,7 +55,7 @@ import com.opengamma.util.db.DbSource;
  * is still true that results for the <i>same</i> target are not scattered across
  * multiple calls. 
  * <p>
- * {@link BatchDbManagerImpl#createDependencyGraphExecutorFactory(com.opengamma.financial.batch.BatchJobRun)} 
+ * {@link DbBatchMaster#createDependencyGraphExecutorFactory(com.opengamma.financial.batch.BatchJobRun)} 
  * shows how to guarantee this in practice by using {@link com.opengamma.engine.view.calc.BatchExecutor}.
  *  
  */

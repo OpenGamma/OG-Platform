@@ -20,9 +20,12 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.financial.batch.BatchDbManager;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.financial.batch.BatchDocument;
+import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.db.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -36,10 +39,10 @@ public class WebBatchesResource extends AbstractWebBatchResource {
 
   /**
    * Creates the resource.
-   * @param batchDbManager  the batch DB manager, not null
+   * @param batchMaster  the batch master, not null
    */
-  public WebBatchesResource(final BatchDbManager batchDbManager) {
-    super(batchDbManager);
+  public WebBatchesResource(final BatchMaster batchMaster) {
+    super(batchMaster);
   }
 
   //-------------------------------------------------------------------------
@@ -72,7 +75,7 @@ public class WebBatchesResource extends AbstractWebBatchResource {
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
-      BatchSearchResult searchResult = data().getBatchDbManager().search(searchRequest);
+      BatchSearchResult searchResult = data().getBatchMaster().search(searchRequest);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));
       out.put("searchResult", searchResult);
     }
@@ -92,21 +95,16 @@ public class WebBatchesResource extends AbstractWebBatchResource {
   }
 
   //-------------------------------------------------------------------------
-  @Path("{observationDate}/{observationTime}")
-  public WebBatchResource findBatch(
-      @PathParam("observationDate") String observationDate,
-      @PathParam("observationTime") String observationTime) {
-    
-    BatchSearchRequest request = new BatchSearchRequest();
-    request.setObservationDate(LocalDate.parse(observationDate));
-    request.setObservationTime(observationTime);
-    
-    BatchSearchResult batchResults = data().getBatchDbManager().search(request);
-    if (batchResults.getItems().size() != 1) {
-      throw new RuntimeException("Expected 1 result, got " + batchResults.getItems().size());
+  @Path("{batchId}")
+  public WebBatchResource findSecurity(@PathParam("batchId") String idStr) {
+    data().setUriBatchId(idStr);
+    UniqueIdentifier oid = UniqueIdentifier.parse(idStr);
+    try {
+      BatchDocument doc = data().getBatchMaster().get(oid);
+      data().setBatch(doc);
+    } catch (DataNotFoundException ex) {
+      return null;
     }
-    data().setBatch(batchResults.getItems().get(0));
-    
     return new WebBatchResource(this);
   }
 

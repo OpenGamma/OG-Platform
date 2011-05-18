@@ -89,14 +89,14 @@ public class ComputeFailure {
 
   
   public static String sqlInsert() {
-    return "INSERT INTO " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_compute_failure " +
+    return "INSERT INTO " + DbBatchMaster.getDatabaseSchema() + "rsk_compute_failure " +
               "(id, function_id, exception_class, exception_msg, stack_trace)" +
             "VALUES " +
               "(:id, :function_id, :exception_class, :exception_msg, :stack_trace)";
   }
   
   public static String sqlGet() {
-    return "SELECT id FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_compute_failure WHERE " +
+    return "SELECT id FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_compute_failure WHERE " +
       "function_id = :function_id AND " +
       "exception_class = :exception_class AND " + 
       "exception_msg = :exception_msg AND " +
@@ -104,7 +104,7 @@ public class ComputeFailure {
   }
   
   public static String sqlCount() {
-    return "SELECT COUNT(*) FROM " + BatchDbManagerImpl.getDatabaseSchema() + "rsk_compute_failure";
+    return "SELECT COUNT(*) FROM " + DbBatchMaster.getDatabaseSchema() + "rsk_compute_failure";
   }
 
 }

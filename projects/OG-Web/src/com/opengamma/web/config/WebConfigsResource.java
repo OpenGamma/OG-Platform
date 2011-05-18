@@ -111,7 +111,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
         searchResult = data().getConfigMaster().search(searchRequest);
       } else {
         searchResult = new ConfigSearchResult<Object>();
-        searchResult.setPaging(Paging.of(searchResult.getDocuments(), searchRequest.getPagingRequest()));
+        searchResult.setPaging(Paging.of(searchRequest.getPagingRequest(), searchResult.getDocuments()));
       }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), uriInfo));

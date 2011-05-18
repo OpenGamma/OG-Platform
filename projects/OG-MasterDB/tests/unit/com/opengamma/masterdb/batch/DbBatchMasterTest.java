@@ -26,6 +26,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.security.test.MockSecurity;
@@ -40,14 +41,11 @@ import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.batch.AdHocBatchResult;
-import com.opengamma.financial.batch.BatchDataSearchRequest;
-import com.opengamma.financial.batch.BatchDataSearchResult;
-import com.opengamma.financial.batch.BatchErrorSearchRequest;
-import com.opengamma.financial.batch.BatchErrorSearchResult;
+import com.opengamma.financial.batch.BatchDocument;
+import com.opengamma.financial.batch.BatchGetRequest;
 import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
-import com.opengamma.financial.batch.BatchSearchResultItem;
 import com.opengamma.financial.batch.BatchStatus;
 import com.opengamma.financial.batch.CommandLineBatchJob;
 import com.opengamma.financial.batch.CommandLineBatchJobRun;
@@ -56,37 +54,37 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.PagingRequest;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.test.TransactionalHibernateTest;
 
 /**
- * Test BatchDbManagerImpl.
+ * Test DbBatchMaster.
  */
-public class BatchDbManagerImplTest extends TransactionalHibernateTest {
+public class DbBatchMasterTest extends TransactionalHibernateTest {
 
-  private BatchDbManagerImpl _dbManager;
+  private DbBatchMaster _batchMaster;
   private CommandLineBatchJob _batchJob;
   private CommandLineBatchJobRun _batchJobRun;
 
   @Factory(dataProvider = "databasesMoreVersions", dataProviderClass = DBTest.class)
-  public BatchDbManagerImplTest(String databaseType, final String databaseVersion) {
+  public DbBatchMasterTest(String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
   }
 
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return BatchDbManagerImpl.getHibernateMappingClasses();
+    return DbBatchMaster.getHibernateMappingClasses();
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
     super.setUp();
-    _dbManager = new BatchDbManagerImpl();
-    _dbManager.setDbSource(getDbSource());
+    _batchMaster = new DbBatchMaster(getDbSource());
     
     _batchJob = new CommandLineBatchJob();
     _batchJob.getParameters().initializeDefaults(_batchJob);
-    _batchJob.setBatchDbManager(_dbManager);
+    _batchJob.setBatchMaster(_batchMaster);
     _batchJob.getParameters().setViewName("test_view");
     
     _batchJobRun = new CommandLineBatchJobRun(_batchJob);
@@ -123,100 +121,100 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void getVersion() {
     // create
-    OpenGammaVersion version1 = _dbManager.getOpenGammaVersion(_batchJobRun);
+    OpenGammaVersion version1 = _batchMaster.getOpenGammaVersion(_batchJobRun);
     assertNotNull(version1);
     assertEquals(_batchJob.getOpenGammaVersion(), version1.getVersion());
     
     // get
-    OpenGammaVersion version2 = _dbManager.getOpenGammaVersion(_batchJobRun);
+    OpenGammaVersion version2 = _batchMaster.getOpenGammaVersion(_batchJobRun);
     assertEquals(version1, version2);
   }
 
   @Test
   public void getObservationTime() {
     // create
-    ObservationTime time1 = _dbManager.getObservationTime(_batchJobRun);
+    ObservationTime time1 = _batchMaster.getObservationTime(_batchJobRun);
     assertNotNull(time1);
     assertEquals(_batchJobRun.getObservationTime(), time1.getLabel());
     
     // get
-    ObservationTime time2 = _dbManager.getObservationTime(_batchJobRun);
+    ObservationTime time2 = _batchMaster.getObservationTime(_batchJobRun);
     assertEquals(time1, time2);
   }
 
   @Test
   public void getObservationDateTime() {
     // create
-    ObservationDateTime datetime1 = _dbManager.getObservationDateTime(_batchJobRun);
+    ObservationDateTime datetime1 = _batchMaster.getObservationDateTime(_batchJobRun);
     assertNotNull(datetime1);
     assertEquals(DbDateUtils.toSqlDate(_batchJobRun.getObservationDate()), datetime1.getDate());
     assertEquals(_batchJobRun.getObservationTime(), datetime1.getObservationTime().getLabel());
     
     // get
-    ObservationDateTime datetime2 = _dbManager.getObservationDateTime(_batchJobRun);
+    ObservationDateTime datetime2 = _batchMaster.getObservationDateTime(_batchJobRun);
     assertEquals(datetime1, datetime2);
   }
 
   @Test
   public void getLocalComputeHost() throws UnknownHostException {
     // create
-    ComputeHost host1 = _dbManager.getLocalComputeHost();
+    ComputeHost host1 = _batchMaster.getLocalComputeHost();
     assertNotNull(host1);
     assertEquals(InetAddress.getLocalHost().getHostName(), host1.getHostName());
     
     // get
-    ComputeHost host2 = _dbManager.getLocalComputeHost();
+    ComputeHost host2 = _batchMaster.getLocalComputeHost();
     assertEquals(host1, host2);
   }
 
   @Test
   public void getLocalComputeNode() throws UnknownHostException {
     // create
-    ComputeNode node1 = _dbManager.getLocalComputeNode();
+    ComputeNode node1 = _batchMaster.getLocalComputeNode();
     assertNotNull(node1);
-    assertEquals(_dbManager.getLocalComputeHost(), node1.getComputeHost());
+    assertEquals(_batchMaster.getLocalComputeHost(), node1.getComputeHost());
     assertEquals(InetAddress.getLocalHost().getHostName(), node1.getNodeName());
     
     // get
-    ComputeNode node2 = _dbManager.getLocalComputeNode();
+    ComputeNode node2 = _batchMaster.getLocalComputeNode();
     assertEquals(node1, node2);
   }
 
   @Test
   public void getNonExistentRiskRunFromDb() {
-    RiskRun run = _dbManager.getRiskRunFromDb(_batchJobRun);
+    RiskRun run = _batchMaster.getRiskRunFromDb(_batchJobRun);
     assertNull(run);
   }
   
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToGetNonExistentLiveDataSnapshot() {
-    _dbManager.getLiveDataSnapshot(_batchJobRun);
+    _batchMaster.getLiveDataSnapshot(_batchJobRun);
   }
 
   @Test 
   public void getLiveDataField() {
     // create
-    LiveDataField field1 = _dbManager.getLiveDataField("test_field");
+    LiveDataField field1 = _batchMaster.getLiveDataField("test_field");
     assertNotNull(field1);
     assertEquals("test_field", field1.getName());
     
     // get
-    LiveDataField field2 = _dbManager.getLiveDataField("test_field");
+    LiveDataField field2 = _batchMaster.getLiveDataField("test_field");
     assertEquals(field1, field2);
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
+    _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
   }
 
   @Test
   public void addValuesToIncompleteSnapshot() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
+    _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), Collections.<LiveDataValue>emptySet());
     
-    LiveDataSnapshot snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
+    LiveDataSnapshot snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);
     assertNotNull(snapshot);
     assertEquals(0, snapshot.getSnapshotEntries().size());
     
@@ -230,9 +228,9 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
       values.add(new LiveDataValue(spec, "field_name", 123.45));
     }
     
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
+    _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
     
-    snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
+    snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);
     assertEquals(specs.size(), snapshot.getSnapshotEntries().size());
     for (ComputationTargetSpecification spec : specs) {
       LiveDataSnapshotEntry entry = snapshot.getEntry(spec, "field_name");
@@ -244,8 +242,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     }
     
     // should not add anything extra
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
-    snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
+    _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
+    snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);
     assertEquals(3, snapshot.getSnapshotEntries().size());
     
     // should update 2, add 1
@@ -254,39 +252,39 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     values.add(new LiveDataValue(new ComputationTargetSpecification(UniqueIdentifier.of("BUID", "EQ12347", "2")), "field_name", 123.47));
     values.add(new LiveDataValue(new ComputationTargetSpecification(Identifier.of("BUID", "EQ12348")), "field_name", 123.45));
     
-    _dbManager.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
-    snapshot = _dbManager.getLiveDataSnapshot(_batchJobRun);
+    _batchMaster.addValuesToSnapshot(_batchJobRun.getSnapshotId(), values);
+    snapshot = _batchMaster.getLiveDataSnapshot(_batchJobRun);
     assertEquals(4, snapshot.getSnapshotEntries().size());
   }
 
   @Test
   public void fixLiveDataSnapshotTime() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.now());
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToFixNonexistentLiveDataSnapshotTime() {
-    _dbManager.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
+    _batchMaster.fixLiveDataSnapshotTime(_batchJobRun.getSnapshotId(),
         OffsetTime.now());
   }
 
   @Test
   public void createLiveDataSnapshotMultipleTimes() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
     
-    assertNotNull(_dbManager.getLiveDataSnapshot(_batchJobRun));
+    assertNotNull(_batchMaster.getLiveDataSnapshot(_batchJobRun));
   }
 
   @Test
   public void createThenGetRiskRun() {
     assertNull(_batchJobRun.getOriginalCreationTime());
     
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    RiskRun run = _dbManager.createRiskRun(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    RiskRun run = _batchMaster.createRiskRun(_batchJobRun);
     
     assertNotNull(run);
     assertNotNull(run.getCreateInstant());
@@ -294,8 +292,8 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertNull(run.getEndInstant());
     assertTrue(run.getCalculationConfigurations().isEmpty());
     assertNotNull(run.getLiveDataSnapshot());
-    assertEquals(_dbManager.getLocalComputeHost(), run.getMasterProcessHost());
-    assertEquals(_dbManager.getOpenGammaVersion(_batchJobRun), run.getOpenGammaVersion());
+    assertEquals(_batchMaster.getLocalComputeHost(), run.getMasterProcessHost());
+    assertEquals(_batchMaster.getOpenGammaVersion(_batchJobRun), run.getOpenGammaVersion());
     
     Map<String, String> props = run.getPropertiesMap();
     assertEquals(10, props.size());
@@ -316,32 +314,32 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
     
     // get
-    RiskRun run2 = _dbManager.getRiskRunFromDb(_batchJobRun);
+    RiskRun run2 = _batchMaster.getRiskRunFromDb(_batchJobRun);
     assertEquals(run, run2);
   }
 
   @Test(expectedExceptions=IllegalArgumentException.class)
   public void tryToStartBatchWithoutCreatingSnapshot() {
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.startBatch(_batchJobRun);
   }
 
   @Test
   public void startAndEndBatch() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
-    RiskRun run1 = _dbManager.getRiskRunFromDb(_batchJobRun);
+    RiskRun run1 = _batchMaster.getRiskRunFromDb(_batchJobRun);
     assertNotNull(run1);
     assertNotNull(run1.getStartInstant());
     assertNull(run1.getEndInstant());
     
-    RiskRun run2 = _dbManager.getRiskRunFromHandle(_batchJobRun);
+    RiskRun run2 = _batchMaster.getRiskRunFromHandle(_batchJobRun);
     assertEquals(run1, run2);
     
-    _dbManager.endBatch(_batchJobRun);
+    _batchMaster.endBatch(_batchJobRun);
     
-    run1 = _dbManager.getRiskRunFromDb(_batchJobRun);
-    run2 = _dbManager.getRiskRunFromHandle(_batchJobRun);
+    run1 = _batchMaster.getRiskRunFromDb(_batchJobRun);
+    run2 = _batchMaster.getRiskRunFromHandle(_batchJobRun);
     
     assertNotNull(run1);
     assertNotNull(run1.getStartInstant());
@@ -354,15 +352,15 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   public void startBatchTwice() {
     assertNull(_batchJobRun.getOriginalCreationTime());
     
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
     assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
     
-    RiskRun run = _dbManager.getRiskRunFromDb(_batchJobRun);
+    RiskRun run = _batchMaster.getRiskRunFromDb(_batchJobRun);
     assertEquals(0, run.getNumRestarts());
     
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.startBatch(_batchJobRun);
     assertEquals(1, run.getNumRestarts());
     assertEquals(_batchJob.getCreationTime().toInstant(), _batchJobRun.getOriginalCreationTime());
   }
@@ -371,7 +369,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   public void getComputationTargetBySpec() {
     UniqueIdentifier uid = UniqueIdentifier.of("foo", "bar");
     
-    ComputationTarget portfolio = _dbManager.getComputationTarget(
+    ComputationTarget portfolio = _batchMaster.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, uid));
     assertNotNull(portfolio);
     assertEquals(ComputationTargetType.PORTFOLIO_NODE.ordinal(), portfolio.getComputationTargetType());
@@ -379,15 +377,15 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     assertEquals(uid.getValue(), portfolio.getIdValue());
     assertEquals(uid.getVersion(), portfolio.getIdVersion());
     
-    ComputationTarget position = _dbManager.getComputationTarget(
+    ComputationTarget position = _batchMaster.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.POSITION, uid));
     assertEquals(ComputationTargetType.POSITION.ordinal(), position.getComputationTargetType());
     
-    ComputationTarget security = _dbManager.getComputationTarget(
+    ComputationTarget security = _batchMaster.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     
-    ComputationTarget primitive = _dbManager.getComputationTarget(
+    ComputationTarget primitive = _batchMaster.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uid));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
   }
@@ -400,12 +398,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
-    ComputationTarget security = _dbManager.getComputationTarget(
+    ComputationTarget security = _batchMaster.getComputationTarget(
         new com.opengamma.engine.ComputationTarget(mockSecurity));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     assertEquals("myOption", security.getName());
     
-    ComputationTarget primitive = _dbManager.getComputationTarget(
+    ComputationTarget primitive = _batchMaster.getComputationTarget(
         new com.opengamma.engine.ComputationTarget(uid));
     assertEquals(ComputationTargetType.PRIMITIVE.ordinal(), primitive.getComputationTargetType());
     assertNull(primitive.getName());
@@ -419,12 +417,12 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
     mockSecurity.setUniqueId(uid);
     mockSecurity.setName("myOption");
     
-    ComputationTarget security = _dbManager.getComputationTarget(
+    ComputationTarget security = _batchMaster.getComputationTarget(
         new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     assertNull(security.getName());
     
-    security = _dbManager.getComputationTarget(
+    security = _batchMaster.getComputationTarget(
         new com.opengamma.engine.ComputationTarget(mockSecurity));
     assertEquals(ComputationTargetType.SECURITY.ordinal(), security.getComputationTargetType());
     assertEquals("myOption", security.getName()); 
@@ -433,47 +431,49 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
   @Test
   public void getValueName() {
     // create
-    RiskValueName valueName1 = _dbManager.getRiskValueName("test_name");
+    RiskValueName valueName1 = _batchMaster.getRiskValueName("test_name");
     assertNotNull(valueName1);
     assertEquals("test_name", valueName1.getName());
     
     // get
-    RiskValueName valueName2 = _dbManager.getRiskValueName("test_name");
+    RiskValueName valueName2 = _batchMaster.getRiskValueName("test_name");
     assertEquals(valueName1, valueName2);
   }
 
   @Test
   public void getFunctionUniqueId() {
     // create
-    FunctionUniqueId id1 = _dbManager.getFunctionUniqueId("test_id");
+    FunctionUniqueId id1 = _batchMaster.getFunctionUniqueId("test_id");
     assertNotNull(id1);
     assertEquals("test_id", id1.getUniqueId());
     
     // get
-    FunctionUniqueId id2 = _dbManager.getFunctionUniqueId("test_id");
+    FunctionUniqueId id2 = _batchMaster.getFunctionUniqueId("test_id");
     assertEquals(id1, id2);
   }
 
   @Test
   public void searchAllBatches() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
     BatchSearchRequest request = new BatchSearchRequest();
     
-    BatchSearchResult result = _dbManager.search(request);
+    BatchSearchResult result = _batchMaster.search(request);
     assertNotNull(result);
     
-    assertEquals(1, result.getItems().size());
-    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(1, result.getDocuments().size());
+    BatchDocument item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
     
-    _dbManager.endBatch(_batchJobRun);
-    result = _dbManager.search(request);
-    assertEquals(1, result.getItems().size());
-    item = result.getItems().get(0);
+    _batchMaster.endBatch(_batchJobRun);
+    result = _batchMaster.search(request);
+    assertEquals(1, result.getDocuments().size());
+    item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.COMPLETE, item.getStatus());
@@ -481,91 +481,82 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
 
   @Test
   public void searchOneBatch() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
     BatchSearchRequest request = new BatchSearchRequest();
     request.setObservationDate(_batchJobRun.getObservationDate());
     request.setObservationTime(_batchJobRun.getObservationTime());
     
-    BatchSearchResult result = _dbManager.search(request);
+    BatchSearchResult result = _batchMaster.search(request);
     assertNotNull(result);
     
-    assertEquals(1, result.getItems().size());
-    BatchSearchResultItem item = result.getItems().get(0);
+    assertEquals(1, result.getDocuments().size());
+    BatchDocument item = result.getDocuments().get(0);
+    assertNotNull(item.getUniqueId());
     assertEquals(item.getObservationDate(), _batchJobRun.getObservationDate());
     assertEquals(item.getObservationTime(), _batchJobRun.getObservationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
   }
 
-  @Test(expectedExceptions=IllegalArgumentException.class)
-  public void getResultsNonexistentBatch() {
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(LocalDate.of(2000, 5, 5));
-    request.setObservationTime(_batchJobRun.getObservationTime());
+  @Test(expectedExceptions=DataNotFoundException.class)
+  public void get_dataNonexistentBatch() {
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", "2000-05-05-" + _batchJobRun.getObservationTime()));
     
-    _dbManager.getResults(request);
+    _batchMaster.get(request);
   }
 
   @Test
-  public void getResultsExistingBatch() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+  public void get_dataExistingBatch() {
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
-    BatchDataSearchRequest request = new BatchDataSearchRequest();
-    request.setObservationDate(_batchJobRun.getObservationDate());
-    request.setObservationTime(_batchJobRun.getObservationTime());
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     
     commit();
     startNewTransaction();
     
-    BatchDataSearchResult result = _dbManager.getResults(request);
+    BatchDocument result = _batchMaster.get(request);
     assertNotNull(result);
-    assertTrue(result.getItems().isEmpty());
-  }
-
-  @Test(expectedExceptions=IllegalArgumentException.class)
-  public void getErrorsNonexistentBatch() {
-    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
-    request.setObservationDate(LocalDate.of(2000, 5, 5));
-    request.setObservationTime(_batchJobRun.getObservationTime());
-    
-    _dbManager.getErrors(request);
+    assertTrue(result.getData().isEmpty());
   }
 
   @Test
-  public void getErrorsExistingBatch() {
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+  public void get_errorsExistingBatch() {
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
-    BatchErrorSearchRequest request = new BatchErrorSearchRequest();
-    request.setObservationDate(_batchJobRun.getObservationDate());
-    request.setObservationTime(_batchJobRun.getObservationTime());
+    BatchGetRequest request = new BatchGetRequest();
+    request.setUniqueId(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
+    request.setDataPagingRequest(PagingRequest.NONE);
+    request.setErrorPagingRequest(PagingRequest.ALL);
     
     commit();
     startNewTransaction();
     
-    BatchErrorSearchResult result = _dbManager.getErrors(request);
+    BatchDocument result = _batchMaster.get(request);
     assertNotNull(result);
-    assertTrue(result.getItems().isEmpty());
+    assertTrue(result.getErrors().isEmpty());
   }
 
   @Test(expectedExceptions=IllegalStateException.class)
   public void deleteNonExisting() {
-    _dbManager.deleteBatch(_batchJobRun);
+    _batchMaster.deleteBatch(_batchJobRun);
   }
 
   @Test
   public void delete() {
-    assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+    assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
     
-    _dbManager.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
-    _dbManager.startBatch(_batchJobRun);
+    _batchMaster.createLiveDataSnapshot(_batchJobRun.getSnapshotId());
+    _batchMaster.startBatch(_batchJobRun);
     
-    assertNotNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+    assertNotNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
     
-    _dbManager.deleteBatch(_batchJobRun);
-    assertNull(_dbManager.getRiskRunFromDb(_batchJobRun));
+    _batchMaster.deleteBatch(_batchJobRun);
+    assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
   }
 
   @Test
@@ -596,7 +587,7 @@ public class BatchDbManagerImplTest extends TransactionalHibernateTest {
             1.12));
     
     AdHocBatchResult adHocBatchResult = new AdHocBatchResult(batchId, result);
-    _dbManager.write(adHocBatchResult);    
+    _batchMaster.write(adHocBatchResult);    
   }
 
 }

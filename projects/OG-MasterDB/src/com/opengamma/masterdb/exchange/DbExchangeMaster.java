@@ -106,7 +106,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final ExchangeSearchResult result = new ExchangeSearchResult();
     if ((request.getExchangeIds() != null && request.getExchangeIds().size() == 0) ||
         (IdentifierSearch.canMatch(request.getExchangeKeys()) == false)) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

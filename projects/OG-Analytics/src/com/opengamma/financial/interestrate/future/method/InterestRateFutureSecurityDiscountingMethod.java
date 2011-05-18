@@ -23,7 +23,7 @@ public class InterestRateFutureSecurityDiscountingMethod {
    * @return The price.
    */
   public double price(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
-    Validate.notNull(future, "FRA");
+    Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();

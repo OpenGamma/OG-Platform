@@ -230,7 +230,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
       }
     }
     final ConfigSearchResult<T> result = new ConfigSearchResult<T>();
-    result.setPaging(Paging.of(list, request.getPagingRequest()));
+    result.setPaging(Paging.of(request.getPagingRequest(), list));
     
     List<ConfigDocument<T>> select = request.getPagingRequest().select(list);
     

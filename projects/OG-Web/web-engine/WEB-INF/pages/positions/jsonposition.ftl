@@ -2,6 +2,11 @@
 {
     "template_data": {
         "name": "${position.name}",
+        "objectId":"${position.uniqueId.objectId}",
+        "versionId":"${position.uniqueId.version}",
+<#if deleted>
+        "deleted":"${positionDoc.versionToInstant}",
+</#if>
         "quantity": "${position.quantity}"
     },
     "security": {
