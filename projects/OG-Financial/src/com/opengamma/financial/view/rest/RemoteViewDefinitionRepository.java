@@ -8,9 +8,12 @@ package com.opengamma.financial.view.rest;
 import java.net.URI;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.util.rest.FudgeRestClient;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Remote implementation of {@link ViewDefinitionRepository}.
@@ -34,7 +37,16 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     URI uri = DataViewDefinitionRepositoryResource.uriDefinition(_baseUri, definitionName);
-    return _client.access(uri).get(ViewDefinition.class);
+    try {
+      return _client.access(uri).get(ViewDefinition.class);
+    } catch (UniformInterfaceException e) {
+      // Translate 404s to a null return. Otherwise rethrow the underlying exception.
+      if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {
+        return null;
+      } else {
+        throw new OpenGammaRuntimeException("Underlying transport exception", e);
+      }
+    }
   }
   
   //-------------------------------------------------------------------------
