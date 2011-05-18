@@ -77,6 +77,7 @@ public class DupireLocalVolatilityTest {
 
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void debugTest() {
     DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
