@@ -5,9 +5,10 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
-import java.util.Random;
-
 import org.apache.commons.lang.Validate;
+
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -23,11 +24,16 @@ public class MarkovChain {
   private final double _vol2;
   private final double _lambda12;
   private final double _lambda21;
+  @SuppressWarnings("unused")
   private final double _pi1;
 
-  private final Random _rand = new Random();
+  private final MersenneTwister _rand;
 
   public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21) {
+    this(vol1, vol2, lambda12, lambda21, MersenneTwister64.DEFAULT_SEED);
+  }
+
+  public MarkovChain(final double vol1, final double vol2, final double lambda12, final double lambda21, int seed) {
     Validate.isTrue(vol1 >= 0);
     Validate.isTrue(vol2 >= 0);
     Validate.isTrue(lambda12 >= 0);
@@ -37,6 +43,7 @@ public class MarkovChain {
     _lambda12 = lambda12;
     _lambda21 = lambda21;
     _pi1 = lambda21 / (lambda12 + lambda21);
+    _rand = new MersenneTwister64(seed);
   }
 
   public double price(final double forward, final double df, final double strike, final double timeToExiry, double[] sigmas) {
