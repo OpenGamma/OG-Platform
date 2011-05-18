@@ -10,13 +10,20 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.InterestRateDerivative;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureSecurityDefinition {
+public class InterestRateFutureSecurityDefinition implements FixedIncomeInstrumentConverter<InterestRateDerivative> {
 
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
@@ -147,6 +154,52 @@ public class InterestRateFutureSecurityDefinition {
    */
   public String getName() {
     return _name;
+  }
+
+  /**
+   * The future currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _iborIndex.getCurrency();
+  }
+
+  @Override
+  public InterestRateFutureSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.notNull(date, "date");
+    Validate.notNull(yieldCurveNames, "yield curve names");
+    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    Validate.isTrue(!date.isAfter(getFixingPeriodStartDate()), "Date is after last payment date");
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final String discountingCurveName = yieldCurveNames[0];
+    final String forwardCurveName = yieldCurveNames[1];
+    final double lastTradingTime = actAct.getDayCountFraction(date, getLastTradingDate());
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
+    InterestRateFutureSecurity future = new InterestRateFutureSecurity(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _notional,
+        _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
+    return future;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitInterestRateFutureSecurityDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitInterestRateFutureSecurityDefinition(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "IRFuture Security: " + _name;
+    result += " Last trading date: " + _lastTradingDate.toString();
+    result += " Ibor Index: " + _iborIndex.getName();
+    result += " Start fixing date: " + _fixingPeriodStartDate.toString();
+    result += " End fixing date: " + _fixingPeriodEndDate.toString();
+    result += " Notional: " + _notional;
+    return result;
   }
 
   @Override

@@ -32,7 +32,7 @@ public class ThetaMethodFiniteDifferenceTest {
 
   @Test
   public void testBlackScholesEquation2() {
-    int timeSteps = 20; // with this few steps get massive oscillations in implied vol & gamma around ATM
+    int timeSteps = 20;
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;

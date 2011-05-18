@@ -162,4 +162,14 @@ public class PDEGrid1D {
     return _x2nd[i - 1];
   }
 
+  public PDEGrid1D withDoubleTimeSteps() {
+    double[] timeGrid = new double[_tNodes.length * 2 - 1];
+    for (int i = 0; i < _tNodes.length - 1; i++) {
+      timeGrid[2 * i] = _tNodes[i];
+      timeGrid[2 * i + 1] = (_tNodes[i] + _tNodes[i + 1]) / 2.0;
+    }
+    timeGrid[2 * (_tNodes.length - 1)] = _tNodes[_tNodes.length - 1];
+    return new PDEGrid1D(timeGrid, _xNodes);
+  }
+
 }
