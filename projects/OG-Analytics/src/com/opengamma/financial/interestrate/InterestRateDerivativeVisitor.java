@@ -14,6 +14,9 @@ import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.BondFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -78,7 +81,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
+  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future, S data);
+
   T visitInterestRateFutureTransaction(InterestRateFutureTransaction future, S data);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, S data);
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
 
@@ -136,7 +145,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future);
 
+  T visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
+
   T visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option);
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 
