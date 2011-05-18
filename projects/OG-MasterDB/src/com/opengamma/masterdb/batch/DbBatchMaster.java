@@ -990,7 +990,9 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
     doc.setObservationTime(riskRun.getRunTime().getObservationTime().getLabel());
     doc.setCreationInstant(DbDateUtils.fromSqlTimestamp(riskRun.getCreateInstant()));
     doc.setStartInstant(DbDateUtils.fromSqlTimestamp(riskRun.getStartInstant()));
-    doc.setEndInstant(DbDateUtils.fromSqlTimestamp(riskRun.getEndInstant()));
+    if (riskRun.getEndInstant() != null) {
+      doc.setEndInstant(DbDateUtils.fromSqlTimestamp(riskRun.getEndInstant()));
+    }
     doc.setMasterProcessHost(riskRun.getMasterProcessHost().getHostName());
     doc.setNumRestarts(riskRun.getNumRestarts());
   }
