@@ -95,7 +95,10 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     @Override
     public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
         ValueRequirement desiredValue) {
-      return _requirements;
+      if (canApplyTo(context, target)) {
+        return _requirements;
+      }
+      return null;
     }
 
     @Override
