@@ -38,14 +38,14 @@ public class ScalarFirstOrderDifferentiatorCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.derivative((Function1D<Double, Double>) null);
+    CENTRAL.differentiate((Function1D<Double, Double>) null);
   }
 
   @Test
   public void test() {
     final double x = 0.2245;
-    assertEquals(FORWARD.derivative(F).evaluate(x), DX_ANALYTIC.evaluate(x), 10 * EPS);
-    assertEquals(CENTRAL.derivative(F).evaluate(x), DX_ANALYTIC.evaluate(x), EPS * EPS); // This is why you use central difference
-    assertEquals(BACKWARD.derivative(F).evaluate(x), DX_ANALYTIC.evaluate(x), 10 * EPS);
+    assertEquals(FORWARD.differentiate(F).evaluate(x), DX_ANALYTIC.evaluate(x), 10 * EPS);
+    assertEquals(CENTRAL.differentiate(F).evaluate(x), DX_ANALYTIC.evaluate(x), EPS * EPS); // This is why you use central difference
+    assertEquals(BACKWARD.differentiate(F).evaluate(x), DX_ANALYTIC.evaluate(x), 10 * EPS);
   }
 }
