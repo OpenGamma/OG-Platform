@@ -34,8 +34,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
     return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
   }
 
@@ -45,7 +44,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     Validate.notNull(pdeData, "pde data");
 
     // simple test code - doesn't use a PDEGrid1D
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+    PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
 
     final double dt = tMax / (tSteps);
     final double dx = (upperBoundary.getLevel() - lowerBoundary.getLevel()) / (xSteps);
@@ -80,6 +79,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         c = pdeData.getC(t - dt, x[i]);
 
         double rho = a;
+        ;
         // double bdx = (b * dx / 2);
         // if (Math.abs(bdx) > 10 * Math.abs(a)) {
         // rho = Math.abs(bdx);
@@ -171,10 +171,10 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
 
-    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    final int tNodes = timeGrid.length;
-    final int xNodes = spaceGrid.length;
+    int tNodes = timeGrid.length;
+    int xNodes = spaceGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
     Validate.isTrue(xNodes > 2, "need at least 3 space nodes");
 
@@ -182,13 +182,13 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     Validate.isTrue(Math.abs(spaceGrid[0] - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
     Validate.isTrue(Math.abs(spaceGrid[xNodes - 1] - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
 
-    final double[] dt = new double[tNodes - 1];
+    double[] dt = new double[tNodes - 1];
     for (int n = 0; n < tNodes - 1; n++) {
       dt[n] = timeGrid[n + 1] - timeGrid[n];
       Validate.isTrue(dt[n] > 0, "time steps must be increasing");
     }
 
-    final double[] dx = new double[xNodes - 1];
+    double[] dx = new double[xNodes - 1];
     for (int i = 0; i < xNodes - 1; i++) {
       dx[i] = spaceGrid[i + 1] - spaceGrid[i];
       Validate.isTrue(dx[i] > 0, "space steps must be increasing");
@@ -212,7 +212,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         c = pdeData.getC(timeGrid[n - 1], spaceGrid[i]);
 
         aa = (1 - _theta) * dt[n - 1] * (-2 / dx[i - 1] / (dx[i - 1] + dx[i]) * a + dx[i] / dx[i - 1] / (dx[i - 1] + dx[i]) * b);
-        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c); // TODO check sign of c
+        bb = 1 + (1 - _theta) * dt[n - 1] * (2 / dx[i - 1] / dx[i] * a - (dx[i] - dx[i - 1]) / dx[i - 1] / dx[i] * b - c);
         cc = (1 - _theta) * dt[n - 1] * (-2 / dx[i] / (dx[i - 1] + dx[i]) * a - dx[i - 1] / dx[i] / (dx[i - 1] + dx[i]) * b);
         q[i] = aa * f[i - 1] + bb * f[i] + cc * f[i + 1];
 
@@ -286,13 +286,12 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
     throw new NotImplementedException();
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
     throw new NotImplementedException();
   }
 }

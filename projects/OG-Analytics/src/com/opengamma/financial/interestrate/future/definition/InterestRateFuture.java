@@ -185,8 +185,9 @@ public class InterestRateFuture implements InterestRateDerivative {
   }
 
   @Override
+  /// @export "accept-ir-future"
   public <T> T accept(final InterestRateDerivativeVisitor<?, T> visitor) {
     return visitor.visitInterestRateFuture(this);
   }
-
+  /// @end
 }
