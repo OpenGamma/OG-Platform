@@ -6,6 +6,7 @@
 package com.opengamma.master.marketdatasnapshot;
 
 import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.listener.NotifyingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -13,7 +14,7 @@ import com.opengamma.util.PublicSPI;
  * <p>
  */
 @PublicSPI
-public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument> {
+public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>,  NotifyingMaster {
 
   /**
    * Searches for snasphots matching the specified search criteria.
