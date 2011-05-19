@@ -34,6 +34,8 @@ public class ViewDeltaResultModelMerger {
     }
     _currentMergedResult.setValuationTime(newResult.getValuationTime());
     _currentMergedResult.setResultTimestamp(newResult.getResultTimestamp());
+    _currentMergedResult.setViewCycleId(newResult.getViewCycleId());
+    _currentMergedResult.setViewProcessId(newResult.getViewProcessId());
     _currentMergedResult.ensureCalculationConfigurationNames(newResult.getCalculationConfigurationNames());
     
     for (ComputationTargetSpecification targetSpec : newResult.getAllTargets()) {
