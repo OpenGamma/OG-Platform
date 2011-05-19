@@ -18,7 +18,6 @@ import java.util.Set;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
@@ -47,10 +46,75 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
   /**
    * 
    */
+  protected final class AttributeInfo {
+
+    /**
+     * The name of the attribute to use when constructing parameter names. 
+     */
+    private final String _name;
+    /**
+     * The display name of the attribute to use in descriptions.
+     */
+    private final String _label;
+    /**
+     * Whether the attribute *should* be readable. The attribute is exposed if this is set and there is an accessible getter.
+     */
+    private final boolean _readable;
+    /**
+     * Whether the attribute *should* be writeable. The attribute is exposed if this is set and there is an accessible setter.
+     */
+    private final boolean _writeable;
+    /**
+     * The preferred alias to use when constructing method names for the bound language.
+     */
+    private final String _alias;
+
+    public AttributeInfo(final String name, final String label) {
+      this(name, label, true, true, name);
+    }
+
+    public AttributeInfo(final String name, final String label, final boolean readable, final boolean writeable, final String alias) {
+      _name = name;
+      _label = label;
+      _readable = readable;
+      _writeable = writeable;
+      _alias = alias;
+    }
+
+    public String getName() {
+      return _name;
+    }
+
+    public String getLabel() {
+      return _label;
+    }
+
+    public boolean isReadable() {
+      return _readable;
+    }
+
+    public boolean isWriteable() {
+      return _writeable;
+    }
+
+    public String getAlias() {
+      return _alias;
+    }
+
+    public String getDescription() {
+      return PARAMETER_DESCRIPTION_PREFIX + getLabel();
+    }
+
+  }
+
+  /**
+   * 
+   */
   protected final class ObjectInfo {
 
     private final Class<?> _clazz;
-    private final Map<String, String> _attributeLabel = new HashMap<String, String>();
+    private final Map<String, AttributeInfo> _attributeInfo = new HashMap<String, AttributeInfo>();
+    private boolean _abstract;
     private String _name;
     private String _label;
     private String _constructorDescription;
@@ -59,10 +123,19 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
 
     private ObjectInfo(final Class<?> clazz) {
       _clazz = clazz;
+      _abstract = Modifier.isAbstract(clazz.getModifiers());
     }
 
     public Class<?> getObjectClass() {
       return _clazz;
+    }
+
+    public boolean isAbstract() {
+      return _abstract;
+    }
+
+    private void setAbstract(final boolean abztract) {
+      _abstract = abztract;
     }
 
     private void setName(final String name) {
@@ -78,19 +151,47 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     }
 
     private void setAttributeLabel(final String attribute, final String label) {
-      _attributeLabel.put(attribute, label);
+      final int bracket = attribute.indexOf('[');
+      if (bracket > 0) {
+        final String name = attribute.substring(0, bracket);
+        final String[] properties = attribute.substring(bracket + 1, attribute.length() - 1).split(",\\s*");
+        final String alias;
+        if (properties[0].length() > 0) {
+          alias = properties[0];
+        } else {
+          alias = name;
+        }
+        boolean readable = true;
+        boolean writeable = true;
+        if (properties.length > 1) {
+          if ("r/o".equals(properties[1])) {
+            writeable = false;
+          } else if ("w/o".equals(properties[1])) {
+            readable = false;
+          } else {
+            throw new OpenGammaRuntimeException("Bad attribute property '" + attribute + "'");
+          }
+        }
+        _attributeInfo.put(name, new AttributeInfo(attribute, label, readable, writeable, alias));
+      } else {
+        _attributeInfo.put(attribute, new AttributeInfo(attribute, label));
+      }
     }
 
-    public String getAttributeLabel(final String attribute) {
-      return _attributeLabel.get(attribute);
+    public AttributeInfo getDirectAttribute(final String attribute) {
+      return _attributeInfo.get(attribute);
     }
 
-    public String getParameterDescription(final String attribute) {
-      return PARAMETER_DESCRIPTION_PREFIX + getAttributeLabel(attribute);
+    public AttributeInfo getInheritedAttribute(final String attribute) {
+      final AttributeInfo info = getDirectAttribute(attribute);
+      if ((info == null) && (getSuperclass() != null)) {
+        return getSuperclass().getInheritedAttribute(attribute);
+      }
+      return info;
     }
 
     public Set<String> getAttributes() {
-      return _attributeLabel.keySet();
+      return _attributeInfo.keySet();
     }
 
     private void setLabel(final String label) {
@@ -133,6 +234,10 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       return _superclass;
     }
 
+    public String getParameterDescription(final String parameter) {
+      return getInheritedAttribute(parameter).getDescription();
+    }
+
   }
 
   protected ResourceBundle getResourceBundle() {
@@ -171,31 +276,20 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     target.setDescription(capitalize(object.getLabel()) + " to query");
     final Map<String, Method> readers = new HashMap<String, Method>();
     for (PropertyDescriptor prop : PropertyUtils.getPropertyDescriptors(clazz)) {
-      String label = object.getAttributeLabel(prop.getName());
-      if (label == null) {
-        ObjectInfo src = object.getSuperclass();
-        while (src != null) {
-          label = src.getAttributeLabel(prop.getName());
-          if (label != null) {
-            break;
-          }
-          src = src.getSuperclass();
-        }
-        if (label == null) {
-          continue;
-        }
+      AttributeInfo info = object.getInheritedAttribute(prop.getName());
+      if ((info == null) || !info.isReadable()) {
+        continue;
       }
       final Method read = PropertyUtils.getReadMethod(prop);
       if (read != null) {
-        readers.put(label, read);
+        readers.put(info.getLabel(), read);
       }
     }
     return new ObjectValuesFunction(name, description, readers, target).getMetaFunction();
   }
 
   protected void loadManageableSecurityDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
-    final Class<?> clazz = object.getObjectClass();
-    if (!Modifier.isAbstract(clazz.getModifiers()) && (object.getConstructorDescription() != null)) {
+    if (!object.isAbstract() && (object.getConstructorDescription() != null)) {
       definitions.add(getCreateSecurityInstance(object));
     }
     if (object.getLabel() != null) {
@@ -215,8 +309,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
   }
 
   protected void loadObjectDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
-    final Class<?> clazz = object.getObjectClass();
-    if (!Modifier.isAbstract(clazz.getModifiers()) && (object.getConstructorDescription() != null)) {
+    if (!object.isAbstract() && (object.getConstructorDescription() != null)) {
       definitions.add(getCreateObjectInstance(object));
     }
     if (object.getLabel() != null) {
@@ -225,52 +318,52 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     loadGetAndSet(object, definitions);
   }
 
-  protected MetaFunction getGetAttributeInstance(final ObjectInfo object, final String attribute, final Method read) {
+  protected MetaFunction getGetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method read) {
     // TODO: the string constants here should be at the top of the file
-    final String name = "Get" + object.getName() + capitalize(attribute);
-    final String description = "Returns the " + object.getAttributeLabel(attribute) + " from " + object.getLabel();
+    final String name = "Get" + object.getName() + capitalize(attribute.getAlias());
+    final String description = "Returns the " + attribute.getLabel() + " from " + object.getLabel();
     final MetaParameter target = new MetaParameter(uncapitalize(object.getName()), JavaTypeInfo.builder(object.getObjectClass()).get());
     target.setDescription(capitalize(object.getLabel()) + " to query");
     return new GetAttributeFunction(name, description, read, target).getMetaFunction();
   }
 
-  protected MetaFunction getSetAttributeInstance(final ObjectInfo object, final String attribute, final Method write) {
+  protected MetaFunction getSetAttributeInstance(final ObjectInfo object, final AttributeInfo attribute, final Method write) {
     // TODO: the string constants here should be at the top of the file
-    final String name = "Set" + object.getName() + capitalize(attribute);
-    final String description = "Updates the " + object.getAttributeLabel(attribute) + " of " + object.getLabel() +
+    final String name = "Set" + object.getName() + capitalize(attribute.getAlias());
+    final String description = "Updates the " + attribute.getLabel() + " of " + object.getLabel() +
         ". The original object is unchanged - a new object is returned with the updated value";
     final MetaParameter target = new MetaParameter(uncapitalize(object.getName()), JavaTypeInfo.builder(object.getObjectClass()).get());
     target.setDescription(capitalize(object.getLabel()) + " to update");
-    final MetaParameter value = new MetaParameter(attribute, JavaTypeInfo.builder(write.getParameterTypes()[0]).get());
-    value.setDescription(object.getParameterDescription(attribute));
+    final MetaParameter value = new MetaParameter(attribute.getName(), JavaTypeInfo.builder(write.getParameterTypes()[0]).get());
+    value.setDescription(attribute.getDescription());
     return new SetAttributeFunction(name, description, write, target, value).getMetaFunction();
   }
 
-  protected void loadObjectGetter(final ObjectInfo object, final String attribute, final Method read, final Collection<MetaFunction> definitions) {
+  protected void loadObjectGetter(final ObjectInfo object, final AttributeInfo attribute, final Method read, final Collection<MetaFunction> definitions) {
     definitions.add(getGetAttributeInstance(object, attribute, read));
   }
 
-  protected void loadObjectSetter(final ObjectInfo object, final String attribute, final Method write, final Collection<MetaFunction> definitions) {
+  protected void loadObjectSetter(final ObjectInfo object, final AttributeInfo attribute, final Method write, final Collection<MetaFunction> definitions) {
     definitions.add(getSetAttributeInstance(object, attribute, write));
   }
 
   protected void loadGetAndSet(final ObjectInfo object, final Collection<MetaFunction> definitions) {
     if (object.getLabel() != null) {
       final Class<?> clazz = object.getObjectClass();
-      final PropertyDescriptor[] superclassPropArray = PropertyUtils.getPropertyDescriptors(clazz.getSuperclass());
-      final Set<String> superclassPropSet = Sets.newHashSetWithExpectedSize(superclassPropArray.length);
-      for (PropertyDescriptor superclassProp : superclassPropArray) {
-        superclassPropSet.add(superclassProp.getName());
-      }
       for (PropertyDescriptor prop : PropertyUtils.getPropertyDescriptors(clazz)) {
-        if (object.getAttributeLabel(prop.getName()) != null) {
-          final Method read = PropertyUtils.getReadMethod(prop);
-          if (read != null) {
-            loadObjectGetter(object, prop.getName(), read, definitions);
+        final AttributeInfo attribute = object.getDirectAttribute(prop.getName());
+        if (attribute != null) {
+          if (attribute.isReadable()) {
+            final Method read = PropertyUtils.getReadMethod(prop);
+            if (read != null) {
+              loadObjectGetter(object, attribute, read, definitions);
+            }
           }
-          final Method write = PropertyUtils.getWriteMethod(prop);
-          if (write != null) {
-            loadObjectSetter(object, prop.getName(), write, definitions);
+          if (attribute.isWriteable()) {
+            final Method write = PropertyUtils.getWriteMethod(prop);
+            if (write != null) {
+              loadObjectSetter(object, attribute, write, definitions);
+            }
           }
         }
       }
@@ -311,7 +404,9 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         }
         functions.put(clazz, func);
       }
-      if ("_description".equals(attribute)) {
+      if ("_abstract".equals(attribute)) {
+        func.setAbstract("true".equalsIgnoreCase(value));
+      } else if ("_description".equals(attribute)) {
         func.setConstructorDescription(value);
       } else if ("_label".equals(attribute)) {
         func.setLabel(value);
@@ -320,7 +415,6 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       } else if ("_parameters".equals(attribute)) {
         func.setConstructorParameters(value.split(",\\s*"));
       } else {
-        //System.out.println(clazz + "; " + attribute + "; " + value);
         func.setAttributeLabel(attribute, value);
       }
     }
