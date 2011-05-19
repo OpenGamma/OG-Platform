@@ -326,10 +326,14 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     }
     final Collection<ObjectInfo> objects = functions.values();
     for (ObjectInfo object : objects) {
-      final Class<?> superClazz = object.getObjectClass().getSuperclass();
-      final ObjectInfo superclass = functions.get(superClazz.getName());
-      if (superclass != null) {
-        object.setSuperclass(superclass);
+      Class<?> superClazz = object.getObjectClass().getSuperclass();
+      while (!Object.class.equals(superClazz)) {
+        final ObjectInfo superclass = functions.get(superClazz.getName());
+        if (superclass != null) {
+          object.setSuperclass(superclass);
+          break;
+        }
+        superClazz = superClazz.getSuperclass();
       }
     }
     loadDefinitions(objects, definitions);
