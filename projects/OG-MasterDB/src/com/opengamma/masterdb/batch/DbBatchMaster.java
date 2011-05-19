@@ -392,7 +392,18 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
     }
     return functionUniqueId;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /*package*/ RiskRun getRiskRunFromDb(final UniqueIdentifier uniqueId) {
+    LocalDate date = LocalDate.parse(uniqueId.getValue().substring(0, 10));
+    String timeKey = uniqueId.getValue().substring(11);
+    return getRiskRunFromDb(date, timeKey);
+  }
+
+  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
+    return getRiskRunFromDb(job.getObservationDate(), job.getObservationTime());
+  }
+
   /*package*/ RiskRun getRiskRunFromDb(final LocalDate observationDate, final String observationTime) {
     RiskRun riskRun = getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
@@ -407,12 +418,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
     return riskRun;
   }
 
-  /*package*/ RiskRun getRiskRunFromDb(final BatchJobRun job) {
-    return getRiskRunFromDb(
-        job.getObservationDate(),
-        job.getObservationTime());
-  }
-  
+  //-------------------------------------------------------------------------
   /*package*/ RiskRun createRiskRun(final BatchJobRun job) {
     Instant now = job.getCreationTime();
     
@@ -689,25 +695,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
       throw e;
     }
   }
-  
-  @Override
-  public void deleteBatch(BatchJobRun batch) {
-    s_logger.info("Deleting batch {}", batch);
-    try {
-      getSessionFactory().getCurrentSession().beginTransaction();
-      
-      RiskRun run = getRiskRunFromDb(batch);
-      if (run == null) {
-        throw new IllegalStateException("Batch " + batch + " does not exist");
-      }
-      deleteRun(run);
-      
-      getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
-      getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
-    }
-  }
 
   @Override
   public void startBatch(BatchJobRun batch) {
@@ -915,18 +902,29 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
       for (RiskRun riskRun : runs) {
         BatchDocument doc = new BatchDocument();
         parseRiskRun(riskRun, doc);
-        doc.setUniqueId(UniqueIdentifier.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime()));
+        doc.setUniqueId(createUniqueIdentifier(doc));
         result.getDocuments().add(doc);
       }
       
       getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException ex) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
+      throw ex;
     }
     return result;
   }
 
+  /**
+   * Creates a unique identifier from the date and time key.
+   * 
+   * @param doc  the document, not null
+   * @return the unique identifier,not null
+   */
+  protected UniqueIdentifier createUniqueIdentifier(BatchDocument doc) {
+    return UniqueIdentifier.of(getIdentifierScheme(), doc.getObservationDate() + "-" + doc.getObservationTime());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public BatchDocument get(UniqueIdentifier uniqueId) {
     return get(new BatchGetRequest(uniqueId));
@@ -935,17 +933,15 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
   @Override
   public BatchDocument get(BatchGetRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getUniqueId(), "observationDate");
-    ArgumentChecker.isTrue(request.getUniqueId().getValue().length() >= 12, "Invalid unique id");
+    ArgumentChecker.notNull(request.getUniqueId(), "request.uniqueId");
+    ArgumentChecker.isTrue(request.getUniqueId().getValue().length() >= 12, "Invalid uniqueId");
     checkScheme(request.getUniqueId());
     
-    LocalDate date = LocalDate.parse(request.getUniqueId().getValue().substring(0, 10));
-    String timeKey = request.getUniqueId().getValue().substring(11);
     RiskRun riskRun;
     BatchDocument doc = new BatchDocument(request.getUniqueId());
     try {
       getSessionFactory().getCurrentSession().beginTransaction();
-      riskRun = getRiskRunFromDb(date, timeKey);
+      riskRun = getRiskRunFromDb(request.getUniqueId());
       if (riskRun != null) {
         parseRiskRun(riskRun, doc);
       }
@@ -955,7 +951,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
       throw ex;
     }
     if (riskRun == null) {
-      throw new DataNotFoundException("Batch " + request.getUniqueId() + " not found");
+      throw new DataNotFoundException("Batch not found: " + request.getUniqueId());
     }
     
     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -963,13 +959,11 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
     
     final int dataCount = getJdbcTemplate().queryForInt(ViewResultEntryMapper.sqlCount(), params);
     String dataSql = getDbHelper().sqlApplyPaging(ViewResultEntryMapper.sqlGet(), " ", request.getDataPagingRequest());
-    List<ViewResultEntry> data = getJdbcTemplate().query(
-        dataSql, ViewResultEntryMapper.ROW_MAPPER, params);
+    List<ViewResultEntry> data = getJdbcTemplate().query(dataSql, ViewResultEntryMapper.ROW_MAPPER, params);
     
     final int errorCount = getJdbcTemplate().queryForInt(BatchErrorMapper.sqlCount(), params);
     String errorSql = getDbHelper().sqlApplyPaging(BatchErrorMapper.sqlGet(), " ", request.getErrorPagingRequest());
-    List<BatchError> errors = getJdbcTemplate().query(
-        errorSql, BatchErrorMapper.ROW_MAPPER, params);
+    List<BatchError> errors = getJdbcTemplate().query(errorSql, BatchErrorMapper.ROW_MAPPER, params);
     
     doc.setDataPaging(Paging.of(request.getDataPagingRequest(), dataCount));
     doc.setData(data);
@@ -995,6 +989,26 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
     }
     doc.setMasterProcessHost(riskRun.getMasterProcessHost().getHostName());
     doc.setNumRestarts(riskRun.getNumRestarts());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void delete(UniqueIdentifier uniqueId) {
+    s_logger.info("Deleting batch {}", uniqueId);
+    try {
+      getSessionFactory().getCurrentSession().beginTransaction();
+      
+      RiskRun run = getRiskRunFromDb(uniqueId);
+      if (run == null) {
+        throw new DataNotFoundException("Batch not found: " + uniqueId);
+      }
+      deleteRun(run);
+      
+      getSessionFactory().getCurrentSession().getTransaction().commit();
+    } catch (RuntimeException ex) {
+      getSessionFactory().getCurrentSession().getTransaction().rollback();
+      throw ex;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -1030,9 +1044,9 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHo
       endBatchImpl(batch);
      
       getSessionFactory().getCurrentSession().getTransaction().commit();
-    } catch (RuntimeException e) {
+    } catch (RuntimeException ex) {
       getSessionFactory().getCurrentSession().getTransaction().rollback();
-      throw e;
+      throw ex;
     }
   }
 

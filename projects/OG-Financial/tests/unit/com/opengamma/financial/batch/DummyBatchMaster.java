@@ -82,7 +82,7 @@ public class DummyBatchMaster implements BatchMaster {
   }
 
   @Override
-  public void deleteBatch(BatchJobRun batch) {
+  public void delete(UniqueIdentifier uniqueId) {
   }
   
 }
