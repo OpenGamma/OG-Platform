@@ -34,6 +34,9 @@ public class ViewDeltaResultCalculator {
     InMemoryViewDeltaResultModel deltaModel = new InMemoryViewDeltaResultModel();
     deltaModel.setValuationTime(result.getValuationTime());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
+    deltaModel.setViewCycleId(result.getViewCycleId());
+    deltaModel.setViewProcessId(result.getViewProcessId());
+    
     if (previousResult != null) {
       deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
     }
