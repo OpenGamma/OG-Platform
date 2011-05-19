@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
@@ -125,24 +125,29 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
     //TODO none of this should be hard-coded
     _fundingCurveInstrumentSensitivities = new HashMap<StripInstrumentType, String[]>();
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName,
+        _forwardCurveDefinitionName});
     _fundingCurveInstrumentSensitivities.put(StripInstrumentType.CASH, new String[] {_fundingCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName,
+        _forwardCurveDefinitionName});
     _fundingCurveInstrumentSensitivities.put(StripInstrumentType.FUTURE, new String[] {_fundingCurveDefinitionName});
     _fundingCurveInstrumentSensitivities.put(StripInstrumentType.LIBOR, new String[] {_fundingCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName, _forwardCurveDefinitionName, _fundingCurveDefinitionName});
+    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName,
+        _forwardCurveDefinitionName, _fundingCurveDefinitionName});
     _forwardCurveInstrumentSensitivities = new HashMap<StripInstrumentType, String[]>();
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName,
+        _forwardCurveDefinitionName});
     _forwardCurveInstrumentSensitivities.put(StripInstrumentType.CASH, new String[] {_forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName,
+        _forwardCurveDefinitionName});
     _forwardCurveInstrumentSensitivities.put(StripInstrumentType.FUTURE, new String[] {_forwardCurveDefinitionName});
     _forwardCurveInstrumentSensitivities.put(StripInstrumentType.LIBOR, new String[] {_forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName, _fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName,
+        _fundingCurveDefinitionName, _forwardCurveDefinitionName});
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
-
     _fundingCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, _currencySpec,
         createValueProperties().with(ValuePropertyNames.CURVE, _fundingCurveDefinitionName).get());
     _forwardCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, _currencySpec,
@@ -263,7 +268,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
+              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -286,7 +292,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (forwardMarketValue == null) {
           throw new NullPointerException("Could not get funding market data for " + strip);
         }
-        double marketValue = forwardMarketValue; //TODO is this right
+        final double marketValue = forwardMarketValue; //TODO is this right
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
@@ -296,7 +302,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, _forwardCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
+              _forwardCurveInstrumentSensitivities.get(strip.getInstrumentType()));
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -398,7 +405,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       return ComputationTargetType.PRIMITIVE;
     }
 
-    private Set<ComputedValue> getSingleCurveResult(Map<Identifier, Double> marketDataMap, FixedIncomeStripIdentifierAndMaturityBuilder builder,
+    private Set<ComputedValue> getSingleCurveResult(Map<Identifier, Double> marketDataMap,
+        FixedIncomeStripIdentifierAndMaturityBuilder builder,
         FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> instrumentAdapter,
         FinancialSecurityVisitorAdapter<FixedIncomeFutureInstrumentDefinition<?>> futureAdapter,
         ZonedDateTime now) {
@@ -427,7 +435,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
+              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -505,19 +514,20 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper.compile(context, atInstant);
-    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper.compile(context, atInstant);
+    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> forwardCompile = _forwardHelper
+        .compile(context, atInstant);
+    Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> fundingCompile = _fundingHelper
+        .compile(context, atInstant);
     InstantProvider earliest = max(forwardCompile.getFirst(), fundingCompile.getFirst());
     InstantProvider latest = min(forwardCompile.getSecond(), fundingCompile.getSecond());
-
     return new CompiledImpl(earliest, latest, fundingCompile.getThird(), forwardCompile.getThird());
   }
 
-  private InstantProvider max(InstantProvider a, InstantProvider b) {
+  private InstantProvider max(final InstantProvider a, final InstantProvider b) {
     return a.toInstant().compareTo(b.toInstant()) > 0 ? a : b;
   }
 
-  private InstantProvider min(InstantProvider a, InstantProvider b) {
+  private InstantProvider min(final InstantProvider a, final InstantProvider b) {
     return a.toInstant().compareTo(b.toInstant()) > 0 ? b : a;
   }
 }

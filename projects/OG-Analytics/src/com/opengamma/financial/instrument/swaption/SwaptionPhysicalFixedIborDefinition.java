@@ -137,12 +137,12 @@ public final class SwaptionPhysicalFixedIborDefinition implements FixedIncomeIns
 
   @Override
   public <U, V> V accept(final FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    return null;
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
-    return null;
+    return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 
 }

@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -63,8 +62,8 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
    * The Ibor leg of the swap.
    * @return Ibor leg.
    */
-  public AnnuityCouponIborSpreadDefinition getIborLeg() {
-    return (AnnuityCouponIborSpreadDefinition) getSecondLeg();
+  public AnnuityDefinition<? extends PaymentDefinition> getIborLeg() {
+    return getSecondLeg();
   }
 
   /**
