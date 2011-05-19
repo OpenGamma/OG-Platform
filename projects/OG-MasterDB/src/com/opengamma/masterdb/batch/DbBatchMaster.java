@@ -59,6 +59,7 @@ import com.opengamma.financial.batch.BatchId;
 import com.opengamma.financial.batch.BatchJobRun;
 import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.financial.batch.BatchResultWriterExecutor;
+import com.opengamma.financial.batch.BatchRunMaster;
 import com.opengamma.financial.batch.BatchSearchRequest;
 import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.financial.batch.BatchStatus;
@@ -85,7 +86,7 @@ import com.opengamma.util.db.PagingRequest;
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
-public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, AdHocBatchDbManager {
+public class DbBatchMaster extends AbstractDbMaster implements BatchMaster, BatchRunMaster, AdHocBatchDbManager {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
