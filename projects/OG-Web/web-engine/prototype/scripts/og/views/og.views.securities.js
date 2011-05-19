@@ -221,18 +221,13 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(args, {filter: true}));
             },
-            load_delete: function (args) {
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
+            load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
             },
-            search: function (args) {
-                search.load($.extend(options.slickgrid, {url: args}));
-            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
             details: function (args) {details_page(args);},
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
