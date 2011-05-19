@@ -40,13 +40,13 @@ import com.opengamma.util.tuple.Triple;
  */
 public class YieldCurveFunctionHelper {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFunctionHelper.class);
-  
+
   private final Currency _currency;
   private final String _curveName;
   private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
   private YieldCurveDefinition _definition;
 
-  public YieldCurveFunctionHelper(Currency currency, String curveName) {
+  public YieldCurveFunctionHelper(final Currency currency, final String curveName) {
     Validate.notNull(currency, "curve currency");
     Validate.notNull(curveName, "curve name");
     _currency = currency;
@@ -58,10 +58,14 @@ public class YieldCurveFunctionHelper {
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
 
     _definition = getDefinition(context);
-    if (_definition.getUniqueId() != null) {
-      context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+    if (_definition == null) {
+      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
     } else {
-      s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
+      if (_definition.getUniqueId() != null) {
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId());
+      } else {
+        s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
+      }
     }
     return _definition;
   }
@@ -88,11 +92,7 @@ public class YieldCurveFunctionHelper {
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
     final InterpolatedYieldCurveDefinitionSource curveDefinitionSource = OpenGammaCompilationContext
         .getInterpolatedYieldCurveDefinitionSource(context);
-    final YieldCurveDefinition definition = curveDefinitionSource.getDefinition(_currency, _curveName);
-    if (definition == null) {
-      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
-    }
-    return definition;
+    return curveDefinitionSource.getDefinition(_currency, _curveName);
   }
 
   //ENG-252 This logic is wrong
@@ -123,27 +123,24 @@ public class YieldCurveFunctionHelper {
     }
     return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
   }
-  
-  
-  public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate) {
+
+  public InterpolatedYieldCurveSpecification buildCurve(final LocalDate curveDate) {
     return _curveSpecificationBuilder.buildCurve(curveDate, _definition);
   }
-  
+
   public YieldCurveKey getYieldCurveKey() {
     return new YieldCurveKey(_currency, _curveName);
   }
-  
+
   public ValueRequirement getMarketDataValueRequirement() {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, 
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA,
         new ComputationTargetSpecification(_currency),
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
-  
-  @SuppressWarnings("unchecked")
+
   public SnapshotDataBundle buildMarketDataMap(final FunctionInputs inputs) {
-    Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
+    final Object marketDataBundle = inputs.getValue(getMarketDataValueRequirement());
     return (SnapshotDataBundle) marketDataBundle;
   }
-
 
 }

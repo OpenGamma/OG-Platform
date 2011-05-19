@@ -33,6 +33,11 @@ public enum UserDataType {
   /**
    * Value from a ManageableViewDefinitionRepository.
    */
-  VIEW_DEFINITION
+  VIEW_DEFINITION,
+  
+  /**
+   * Value from a MarketDataSnapshotMaster.
+   */
+  MARKET_DATA_SNAPSHOT
 
 }

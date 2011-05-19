@@ -28,6 +28,7 @@ $.register_module({
             layout = og.views.common.layout,
             module = this,
             page_name = 'timeseries',
+            filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             timeseries,
@@ -150,22 +151,15 @@ $.register_module({
                 }});
             };
         module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
-            load_filter: {route: '/' + page_name +
-                    '/filter:/:id?/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_filter'
-            },
-            load_delete: {route: '/' + page_name +
-                    '/:id/deleted:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_delete'
-            },
-            load_timeseries: {route: '/' + page_name +
-                    '/:id/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_' + page_name},
-            load_new_timeseries: {route: '/' + page_name +
-                    '/:id/new:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_new_' + page_name
-            }
+            load: {route: '/' + page_name + '/:id?' + filter_rule_str, method: module.name + '.load'},
+            load_filter:
+                {route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'},
+            load_delete:
+                {route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'},
+            load_timeseries:
+                {route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name},
+            load_new_timeseries:
+                {route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name}
         };
         return timeseries = {
             load: function (args) {
@@ -221,6 +215,7 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            // TODO: add in deleted message. Need delete api working first
                             f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_timeseries_table('.OG-timeseries .og-js-table', {

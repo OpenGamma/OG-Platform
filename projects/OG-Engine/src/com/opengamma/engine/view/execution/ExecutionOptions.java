@@ -187,7 +187,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (_compileOnly != other._compileOnly) {
       return false;
     }
-    if (_marketDataSnapshotIdentifier != other._marketDataSnapshotIdentifier) {
+    if (_marketDataSnapshotIdentifier == null) {
+      if (other._marketDataSnapshotIdentifier != null) {
+        return false;
+      }
+    } else if (!_marketDataSnapshotIdentifier.equals(other._marketDataSnapshotIdentifier)) {
       return false;
     }
     return true;

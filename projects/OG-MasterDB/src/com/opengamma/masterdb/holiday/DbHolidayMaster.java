@@ -126,7 +126,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     if ((request.getHolidayIds() != null && request.getHolidayIds().size() == 0) ||
         IdentifierSearch.canMatch(regionKeys) == false ||
         IdentifierSearch.canMatch(exchangeKeys) == false) {
-      result.setPaging(new Paging(request.getPagingRequest(), 0));
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());

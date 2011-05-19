@@ -353,12 +353,12 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     final NamedParameterJdbcOperations namedJdbc = getDbSource().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (pagingRequest.equals(PagingRequest.ALL)) {
       result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
-      result.setPaging(Paging.of(result.getDocuments(), pagingRequest));
+      result.setPaging(Paging.of(pagingRequest, result.getDocuments()));
     } else {
       s_logger.debug("executing sql {}", sql[1]);
       final int count = namedJdbc.queryForInt(sql[1], args);
-      result.setPaging(new Paging(pagingRequest, count));
-      if (count > 0) {
+      result.setPaging(Paging.of(pagingRequest, count));
+      if (count > 0 && pagingRequest.equals(PagingRequest.NONE) == false) {
         s_logger.debug("executing sql {}", sql[0]);
         result.getDocuments().addAll(namedJdbc.query(sql[0], args, extractor));
       }

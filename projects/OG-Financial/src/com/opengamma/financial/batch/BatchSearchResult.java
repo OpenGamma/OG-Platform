@@ -38,10 +38,11 @@ public class BatchSearchResult extends DirectBean {
   @PropertyDefinition
   private Paging _paging;
   /**
-   * The list of matched batch items, not null.
+   * The list of matched batch documents, not null.
+   * The documents will not contain the detailed data or errors.
    */
   @PropertyDefinition
-  private final List<BatchSearchResultItem> _items = new ArrayList<BatchSearchResultItem>();
+  private final List<BatchDocument> _documents = new ArrayList<BatchDocument>();
 
   /**
    * Creates an instance.
@@ -69,8 +70,8 @@ public class BatchSearchResult extends DirectBean {
     switch (propertyName.hashCode()) {
       case -995747956:  // paging
         return getPaging();
-      case 100526016:  // items
-        return getItems();
+      case 943542968:  // documents
+        return getDocuments();
     }
     return super.propertyGet(propertyName);
   }
@@ -82,8 +83,8 @@ public class BatchSearchResult extends DirectBean {
       case -995747956:  // paging
         setPaging((Paging) newValue);
         return;
-      case 100526016:  // items
-        setItems((List<BatchSearchResultItem>) newValue);
+      case 943542968:  // documents
+        setDocuments((List<BatchDocument>) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -116,28 +117,31 @@ public class BatchSearchResult extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of matched batch items, not null.
+   * Gets the list of matched batch documents, not null.
+   * The documents will not contain the detailed data or errors.
    * @return the value of the property
    */
-  public List<BatchSearchResultItem> getItems() {
-    return _items;
+  public List<BatchDocument> getDocuments() {
+    return _documents;
   }
 
   /**
-   * Sets the list of matched batch items, not null.
-   * @param items  the new value of the property
+   * Sets the list of matched batch documents, not null.
+   * The documents will not contain the detailed data or errors.
+   * @param documents  the new value of the property
    */
-  public void setItems(List<BatchSearchResultItem> items) {
-    this._items.clear();
-    this._items.addAll(items);
+  public void setDocuments(List<BatchDocument> documents) {
+    this._documents.clear();
+    this._documents.addAll(documents);
   }
 
   /**
-   * Gets the the {@code items} property.
+   * Gets the the {@code documents} property.
+   * The documents will not contain the detailed data or errors.
    * @return the property, not null
    */
-  public final Property<List<BatchSearchResultItem>> items() {
-    return metaBean().items().createProperty(this);
+  public final Property<List<BatchDocument>> documents() {
+    return metaBean().documents().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -155,10 +159,10 @@ public class BatchSearchResult extends DirectBean {
      */
     private final MetaProperty<Paging> _paging = DirectMetaProperty.ofReadWrite(this, "paging", Paging.class);
     /**
-     * The meta-property for the {@code items} property.
+     * The meta-property for the {@code documents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<BatchSearchResultItem>> _items = DirectMetaProperty.ofReadWrite(this, "items", (Class) List.class);
+    private final MetaProperty<List<BatchDocument>> _documents = DirectMetaProperty.ofReadWrite(this, "documents", (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -168,7 +172,7 @@ public class BatchSearchResult extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("paging", _paging);
-      temp.put("items", _items);
+      temp.put("documents", _documents);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -197,11 +201,11 @@ public class BatchSearchResult extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code items} property.
+     * The meta-property for the {@code documents} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<BatchSearchResultItem>> items() {
-      return _items;
+    public final MetaProperty<List<BatchDocument>> documents() {
+      return _documents;
     }
 
   }

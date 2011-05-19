@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import com.google.common.collect.Lists;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 
@@ -52,7 +53,7 @@ public class DataCompiledViewDefinitionResource {
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS)
   public Response getCompiledCalculationConfigurations() {
-    return Response.ok(_compiledViewDefinition.getCompiledCalculationConfigurations()).build();
+    return Response.ok(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations())).build();
   }
   
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS + "/{calcConfigName}")

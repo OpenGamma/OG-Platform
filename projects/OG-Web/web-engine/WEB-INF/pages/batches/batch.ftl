@@ -1,18 +1,22 @@
 <#escape x as x?html>
 <@page title="Batches - ${batch.observationDate}/${batch.observationTime}">
 
-
-<#-- SECTION Time series output -->
+<#-- SECTION batch output -->
 <@section title="Batch">
   <p>
     <@rowout label="Observation date">${batch.observationDate}</@rowout>
     <@rowout label="Observation time">${batch.observationTime}</@rowout>
     <@rowout label="Status">${batch.status}</@rowout>
+    <@rowout label="Creation instant">${batch.creationInstant}</@rowout>
+    <@rowout label="Start instant">${batch.startInstant}</@rowout>
+    <@rowout label="End instant">${batch.endInstant}</@rowout>
+    <@rowout label="Main server">${batch.masterProcessHost}</@rowout>
+    <@rowout label="Number of restarts">${batch.numRestarts}</@rowout>
     <@rowout label="Total results">${resultPaging.totalItems}</@rowout>
     <@rowout label="Total errors">${errorPaging.totalItems}</@rowout>
   </p>
 <@subsection title="Results">
-<@table items=batchResult paging=resultPaging empty="No results" headers=
+<@table items=batch.data paging=resultPaging empty="No results" headers=
 	["Calculation configuration",
 	"Computation target",
 	"Value name",
@@ -27,7 +31,7 @@
 </@table>
 </@subsection>
 <@subsection title="Errors">
-<@table items=batchErrors paging=errorPaging empty="No errors" headers=
+<@table items=batch.errors paging=errorPaging empty="No errors" headers=
 	["Calculation configuration",
 	"Computation target",
 	"Value name",

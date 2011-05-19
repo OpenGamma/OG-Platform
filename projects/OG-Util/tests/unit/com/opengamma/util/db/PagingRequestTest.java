@@ -50,30 +50,6 @@ public final class PagingRequestTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_constructor() {
-    PagingRequest test = new PagingRequest();
-    assertEquals(1, test.getPage());
-    assertEquals(20, test.getPagingSize());
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_constructor_1int() {
-    PagingRequest test = new PagingRequest(2);
-    assertEquals(2, test.getPage());
-    assertEquals(20, test.getPagingSize());
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_1int_page0() {
-    new PagingRequest(0);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_1int_pageNegative() {
-    new PagingRequest(-1);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_constructor_2ints() {
     PagingRequest test = new PagingRequest(2, 40);
     assertEquals(2, test.getPage());
@@ -90,9 +66,10 @@ public final class PagingRequestTest {
     new PagingRequest(-1, 40);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_2ints_pagingSize0() {
-    new PagingRequest(1, 0);
+    PagingRequest test = new PagingRequest(1, 0);
+    assertEquals(1, test.getPage());
+    assertEquals(0, test.getPagingSize());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

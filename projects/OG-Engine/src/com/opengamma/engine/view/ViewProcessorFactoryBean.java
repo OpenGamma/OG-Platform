@@ -57,7 +57,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProviderFactory _permissionProviderFactory;
-  private MarketDataSnapshotSource _marketDataSnaphotSource;
+  private MarketDataSnapshotSource _marketDataSnapshotSource;
   
   //-------------------------------------------------------------------------
   public Long getId() {
@@ -188,12 +188,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _permissionProviderFactory = permissionProviderFactory;
   }
   
-  public MarketDataSnapshotSource getMarketDataSnaphotSource() {
-    return _marketDataSnaphotSource;
+  public MarketDataSnapshotSource getMarketDataSnapshotSource() {
+    return _marketDataSnapshotSource;
   }
 
-  public void setMarketDataSnaphotSource(MarketDataSnapshotSource marketDataSnaphotSource) {
-    _marketDataSnaphotSource = marketDataSnaphotSource;
+  public void setMarketDataSnapshotSource(MarketDataSnapshotSource marketDataSnapshotSource) {
+    _marketDataSnapshotSource = marketDataSnapshotSource;
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +216,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.notNullInjected(getComputationJobDispatcher(), "computationJobRequestSender");
     ArgumentChecker.notNullInjected(getViewPermissionProviderFactory(), "viewPermissionProviderFactory");
-    ArgumentChecker.notNullInjected(getMarketDataSnaphotSource(), "marketDataSnaphotSource");
+    ArgumentChecker.notNullInjected(getMarketDataSnapshotSource(), "marketDataSnapshotSource");
   }
 
   @Override
@@ -239,7 +239,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
         getViewPermissionProviderFactory(),
-        getMarketDataSnaphotSource());
+        getMarketDataSnapshotSource());
   }
 
 }
