@@ -16,7 +16,7 @@ import com.opengamma.financial.batch.BatchError;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
+ * Hibernate helper.
  */
 public class BatchErrorMapper {
   

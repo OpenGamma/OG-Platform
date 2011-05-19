@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.financial.batch.LiveDataValue;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class LiveDataSnapshotEntry {
   
