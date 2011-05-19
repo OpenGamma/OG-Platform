@@ -14,7 +14,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class ComputationTarget {
   

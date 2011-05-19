@@ -7,7 +7,7 @@ package com.opengamma.masterdb.batch;
 
 
 /**
- * 
+ * Hibernate bean.
  */
 public class RiskRunProperty {
   
