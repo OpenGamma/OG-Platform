@@ -10,7 +10,7 @@
     },
     "data": [
       <#if searchResult??>
-        <#list searchResult.items as item>
+        <#list searchResult.documents as item>
             "${item.observationDate}|${item.observationTime}|${item.status}"<#if item_has_next>,</#if>
         </#list>
       </#if>
