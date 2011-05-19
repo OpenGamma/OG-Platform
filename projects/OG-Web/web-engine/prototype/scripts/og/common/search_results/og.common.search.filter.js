@@ -14,16 +14,18 @@ $.register_module({
             var select = ['type'], // identify select form elements so we can handle these differently
                 calendar = ['ob_date'], // calendar fields
                 fields = ['name', 'type', 'quantity', 'data_source', 'identifier', 'data_provider', 'data_field',
-                    'ob_time', 'ob_date', 'status', 'observation_time'];
+                    'ob_time', 'ob_date', 'status', 'observation_time'],
+                routes = og.common.routes;
             fields.forEach(function (filter) {
                 var event_type = ~select.indexOf(filter) || ~calendar.indexOf(filter) ? 'change' : 'keyup',
                     $selector = $(obj.location + ' .og-js-' + filter + '-filter');
                 if (!$selector.length) return;
                 !!~calendar.indexOf(filter) && $selector.datepicker({firstDay: 1, dateFormat: 'yy-mm-dd'});
+                $selector.val(routes.current().args[filter]);
                 $selector.unbind(event_type).bind(event_type, function () {
-                    var routes = og.common.routes, view = og.views[routes.last().page.substring(1)], hash, obj;
+                    var last = routes.last(), view = og.views[last.page.substring(1)], hash, obj;
                     obj = {}, obj[filter] = $(this).val(), obj.filter = true;
-                    hash = routes.hash(view.rules.load_filter, $.extend(true, {}, routes.last().args, obj));
+                    hash = routes.hash(view.rules.load_filter, $.extend(true, {}, last.args, obj));
                     clearTimeout(module.t), module.t = setTimeout(function () {routes.go(hash), delete module.t;}, 200);
                 });
             });

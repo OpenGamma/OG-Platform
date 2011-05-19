@@ -28,6 +28,7 @@ $.register_module({
             layout = og.views.common.layout,
             module = this,
             page_name = 'timeseries',
+            filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             timeseries,
@@ -150,22 +151,15 @@ $.register_module({
                 }});
             };
         module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
-            load_filter: {route: '/' + page_name +
-                    '/filter:/:id?/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_filter'
-            },
-            load_delete: {route: '/' + page_name +
-                    '/:id/deleted:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_delete'
-            },
-            load_timeseries: {route: '/' + page_name +
-                    '/:id/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_' + page_name},
-            load_new_timeseries: {route: '/' + page_name +
-                    '/:id/new:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_new_' + page_name
-            }
+            load: {route: '/' + page_name + '/:id?' + filter_rule_str, method: module.name + '.load'},
+            load_filter:
+                {route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'},
+            load_delete:
+                {route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'},
+            load_timeseries:
+                {route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name},
+            load_new_timeseries:
+                {route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name}
         };
         return timeseries = {
             load: function (args) {
