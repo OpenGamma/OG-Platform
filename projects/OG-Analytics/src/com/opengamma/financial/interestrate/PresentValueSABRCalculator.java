@@ -7,8 +7,8 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionSABRMethod;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -97,15 +97,15 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
   }
 
   @Override
-  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
       SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      InterestRateFutureOptionPremiumTransactionSABRMethod method = new InterestRateFutureOptionPremiumTransactionSABRMethod();
+      InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
       return method.presentValue(option, sabrBundle);
     }
-    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a SABRInterestRateDataBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
   }
 
 }
