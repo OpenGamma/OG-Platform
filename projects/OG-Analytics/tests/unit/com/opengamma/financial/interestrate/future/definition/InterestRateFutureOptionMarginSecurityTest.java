@@ -22,7 +22,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -32,7 +31,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Tests on the construction of interest rate future option with up-front payment.
  */
-public class InterestRateFutureOptionPremiumSecurityTest {
+public class InterestRateFutureOptionMarginSecurityTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -60,7 +59,7 @@ public class InterestRateFutureOptionPremiumSecurityTest {
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final double STRIKE = 0.9850;
   private static final boolean IS_CALL = true;
-  private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionPremiumSecurity OPTION_EDU2 = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -82,15 +81,15 @@ public class InterestRateFutureOptionPremiumSecurityTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    InterestRateFutureOptionMarginSecurity newOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
+    InterestRateFutureOptionPremiumSecurity newOption = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertTrue(OPTION_EDU2.equals(newOption));
     assertEquals(OPTION_EDU2.hashCode(), newOption.hashCode());
-    InterestRateFutureOptionMarginSecurity modifiedOption;
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME - 0.01, STRIKE, IS_CALL);
+    InterestRateFutureOptionPremiumSecurity modifiedOption;
+    modifiedOption = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME - 0.01, STRIKE, IS_CALL);
     assertFalse(OPTION_EDU2.equals(modifiedOption));
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE + 0.01, IS_CALL);
+    modifiedOption = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME, STRIKE + 0.01, IS_CALL);
     assertFalse(OPTION_EDU2.equals(modifiedOption));
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, !IS_CALL);
+    modifiedOption = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME, STRIKE, !IS_CALL);
     assertFalse(OPTION_EDU2.equals(modifiedOption));
   }
 
