@@ -200,6 +200,7 @@ public class SABRInterestRateParameter implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(double[] data) {
+    Validate.isTrue(data.length == 4, "data should have for components");
     return getVolatility(data[0], data[1], data[2], data[3]);
   }
 
