@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -19,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling.
  */
-public class SABRInterestRateParameter {
+public class SABRInterestRateParameter implements VolatilityModel<double[]> {
 
   /**
    * The alpha (volatility level) surface.
@@ -177,7 +178,7 @@ public class SABRInterestRateParameter {
   }
 
   /**
-   * Return the volatility for a expiry/maturity pair, a strike and a forward rate.
+   * Return the volatility for a expiry, a maturity, a strike and a forward rate.
    * @param expiryTime Time to expiry.
    * @param maturity Tenor.
    * @param strike The strike.
@@ -190,6 +191,17 @@ public class SABRInterestRateParameter {
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option);
     return funcSabrLongPayer.evaluate(data);
+  }
+
+  @Override
+  /**
+   * Return the volatility for a expiry/maturity/strike/forward array.
+   * @param data An array of four doubles with [0] the expiry, [1] the maturity, [2] the strike, [3] the forward.
+   * @return The volatility.
+   */
+  public Double getVolatility(double[] data) {
+    Validate.isTrue(data.length == 4, "data should have for components");
+    return getVolatility(data[0], data[1], data[2], data[3]);
   }
 
   /**

@@ -156,11 +156,14 @@ $.register_module({
                             item: 'history.securities.recent',
                             value: routes.current().hash
                         });
-                        api.text({
-                            module: module.name + '.' + details_json.templateData.securityType,
-                            handler: function (template) {
-                            var html = [], id, json = details_json.identifiers;
+                        api.text({module: module.name + '.' + details_json.templateData.securityType,
+                                handler: function (template) {
+                            var $warning, warning_message = 'This security has been deleted',
+                                html = [], id, json = details_json.identifiers;
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (details_json.templateData.deleted) $warning.html(warning_message).show();
+                                else $warning.empty().hide();
                             for (id in json) if (json.hasOwnProperty(id))
                                     html.push('<div><strong>', json[id], '</strong></div>');
                             $('.OG-security .og-js-identifiers').html(html.join(''));
@@ -218,18 +221,13 @@ $.register_module({
                 delete args['filter'];
                 search.filter($.extend(args, {filter: true}));
             },
-            load_delete: function (args) {
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
+            load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
             load_new_securities: load_securities_without.partial('new'),
             load_securities: function (args) {
                 check_state({args: args, conditions: [{new_page: securities.load}]});
                 securities.details(args);
             },
-            search: function (args) {
-                search.load($.extend(options.slickgrid, {url: args}));
-            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
             details: function (args) {details_page(args);},
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

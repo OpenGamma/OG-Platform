@@ -11,7 +11,10 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.bond.definition.Bond;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverageRatePayment;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -84,6 +87,24 @@ public final class ParRateCalculator extends AbstractInterestRateDerivativeVisit
     final double pa = curve.getDiscountFactor(ta);
     final double pb = curve.getDiscountFactor(tb);
     return (pa / pb - 1) / future.getIndexYearFraction();
+  }
+
+  @Override
+  /**
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    return method.parRate(future, curves);
+  }
+
+  @Override
+  /**
+   * Compute the future rate (1-price) without convexity adjustment.
+   */
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+    InterestRateFutureSecurityDiscountingMethod method = new InterestRateFutureSecurityDiscountingMethod();
+    return method.parRate(future.getUnderlyingFuture(), curves);
   }
 
   /**

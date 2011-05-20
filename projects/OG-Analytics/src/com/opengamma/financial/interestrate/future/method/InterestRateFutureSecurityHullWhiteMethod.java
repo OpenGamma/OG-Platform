@@ -12,6 +12,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 
 /**
  * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White opne factor model.
@@ -22,7 +23,12 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   /**
    * The model used for the convexity adjustment computation.
    */
-  private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model;
+  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
+
+  /**
+   * The Hull-White model.
+   */
+  private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   /**
    * Constructor from the model details.
@@ -33,16 +39,16 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   public InterestRateFutureSecurityHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(meanReversion, volatility, volatilityTime);
+    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
   }
 
   /**
    * Constructor from the model.
-   * @param model The Hull-White one factor model.
+   * @param data The Hull-White one factor model parameters.
    */
-  public InterestRateFutureSecurityHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantInterestRateModel model) {
-    Validate.notNull(model, "model");
-    _model = model;
+  public InterestRateFutureSecurityHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+    Validate.notNull(data, "data");
+    _data = data;
   }
 
   /**
@@ -56,7 +62,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
-    double futureConvexityFactor = _model.futureConvexityFactor(future);
+    double futureConvexityFactor = _model.futureConvexityFactor(future, _data);
     double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
@@ -65,7 +71,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _model.hashCode();
+    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
     return result;
   }
 
@@ -81,7 +87,7 @@ public class InterestRateFutureSecurityHullWhiteMethod {
       return false;
     }
     InterestRateFutureSecurityHullWhiteMethod other = (InterestRateFutureSecurityHullWhiteMethod) obj;
-    if (!ObjectUtils.equals(_model, other._model)) {
+    if (!ObjectUtils.equals(_data, other._data)) {
       return false;
     }
     return true;

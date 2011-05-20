@@ -8,7 +8,7 @@ package com.opengamma.masterdb.batch;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class CalculationConfiguration {
   

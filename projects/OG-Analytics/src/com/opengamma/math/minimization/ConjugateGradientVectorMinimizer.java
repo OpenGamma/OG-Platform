@@ -70,7 +70,7 @@ public class ConjugateGradientVectorMinimizer implements MinimizerWithGradient<F
     Validate.notNull(function, "function");
     Validate.notNull(startPosition, "start position");
     final ScalarFieldFirstOrderDifferentiator diff = new ScalarFieldFirstOrderDifferentiator();
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.derivative(function);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> grad = diff.differentiate(function);
     return minimize(function, grad, startPosition);
   }
 

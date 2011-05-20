@@ -14,6 +14,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
@@ -89,6 +91,10 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, S data);
 
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
+
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
@@ -152,6 +158,10 @@ public interface InterestRateDerivativeVisitor<S, T> {
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
 
   T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option);
+
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
 
   T visitContinuouslyMonitoredAverageRatePayment(ContinuouslyMonitoredAverageRatePayment payment);
 

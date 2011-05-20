@@ -127,7 +127,7 @@ $.register_module({
                 configs.search(args);
                 routes.go(routes.hash(module.rules.load_configs, args));
             },
-            default_page = function () {
+            default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Configs',
@@ -137,60 +137,7 @@ $.register_module({
                     }).appendTo($('#OG-details .og-main').empty());
                 }});
             },
-            state = {};
-        module.rules = {
-            load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?',
-                    method: module.name + '.load_filter'},
-            load_delete: {route: '/' + page_name + '/deleted:/name:?/type:?',
-                    method: module.name + '.load_delete'},
-            load_configs: {
-                route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name
-            },
-            load_new_configs: {
-                route: '/' + page_name + '/:id/new:/name:?/type:?',
-                method: module.name + '.load_new_' + page_name
-            }
-        };
-        return configs = {
-            load: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function (args) {
-                        configs.search(args);
-                        masthead.menu.set_tab(page_name);
-                        layout('default');
-                    }}
-                ]});
-                if (args.id) return;
-                default_page();
-                ui.toolbar(options.toolbar['default']);
-            },
-            load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        configs.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_configs, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
-                ]});
-                search.filter(args);
-            },
-            load_delete: function (args) {
-                configs.search(args);
-                routes.go(routes.hash(module.rules.load, {name: args.name}));
-            },
-            load_new_configs: load_configs_without.partial('new'),
-            load_edit_configs: load_configs_without.partial('edit'),
-            load_configs: function (args) {
-                check_state({args: args, conditions: [{new_page: configs.load}]});
-                configs.details(args);
-            },
-            search: function (args) {
-                search.load($.extend(options.slickgrid, {url: args}));
-            },
-            details: function (args) {
+            details_page = function (args) {
                 ui.toolbar(options.toolbar.active);
                 api.rest.configs.get({
                     handler: function (result) {
@@ -202,9 +149,12 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var json = details_json.templateData;
+                            var json = details_json.templateData, $warning,
+                                warning_message = 'This configuration has been deleted';
                             if (json.configData) json.configData = JSON.stringify(json.configData, null, 4);
                             $.tmpl(template, json).appendTo($('#OG-details .og-main').empty());
+                            $warning = $('#OG-details .OG-warning-message');
+                            if (json.deleted) $warning.html(warning_message).show(); else $warning.empty().hide();
                             details.favorites();
                             ui.message({location: '#OG-details', destroy: true});
                             ui.content_editable({
@@ -223,6 +173,53 @@ $.register_module({
                     }
                 });
             },
+            state = {};
+        module.rules = {
+            load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
+            load_delete: {route: '/' + page_name + '/deleted:/name:?/type:?', method: module.name + '.load_delete'},
+            load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
+            load_new_configs:
+                {route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name}
+        };
+        return configs = {
+            load: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function (args) {
+                        configs.search(args);
+                        masthead.menu.set_tab(page_name);
+                        layout('default');
+                    }}
+                ]});
+                if (args.id) return;
+                default_details_page();
+                ui.toolbar(options.toolbar['default']);
+            },
+            load_filter: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        state = {filter: true};
+                        configs.load(args);
+                        args.id
+                            ? routes.go(routes.hash(module.rules.load_configs, args))
+                            : routes.go(routes.hash(module.rules.load, args));
+                    }}
+                ]});
+                delete args['filter'];
+                search.filter($.extend(args, {filter: true}));
+            },
+            load_delete: function (args) {
+                configs.search(args);
+                routes.go(routes.hash(module.rules.load, {name: args.name}));
+            },
+            load_new_configs: load_configs_without.partial('new'),
+            load_edit_configs: load_configs_without.partial('edit'),
+            load_configs: function (args) {
+                check_state({args: args, conditions: [{new_page: configs.load}]});
+                configs.details(args);
+            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            details: function (args) {details_page(args);},
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };

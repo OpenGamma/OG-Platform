@@ -18,7 +18,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * the Jacobian function <i><b>J</b>(<b>x</b>)</i>, i.e. a function that returns the Jacobian for each point <i><b>x</b></i>, where <i><b>J</b></i> is the 
  * m &times; n matrix {@latex.inline $\\frac{dy_i}{dx_j}$}
  */
-public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMatrix1D, DoubleMatrix1D, DoubleMatrix2D> {
+public class VectorFieldFirstOrderDifferentiator implements Differentiator<DoubleMatrix1D, DoubleMatrix1D, DoubleMatrix2D> {
   private static final double DEFAULT_EPS = 1e-5;
   private static final FiniteDifferenceType DIFF_TYPE = FiniteDifferenceType.CENTRAL;
 
@@ -56,7 +56,7 @@ public class VectorFieldFirstOrderDifferentiator implements Derivative<DoubleMat
   }
 
   @Override
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D> derivative(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+  public Function1D<DoubleMatrix1D, DoubleMatrix2D> differentiate(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     Validate.notNull(function);
     switch (_differenceType) {
       case FORWARD:
