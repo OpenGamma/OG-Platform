@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
  * system threshold should be used. If the service is shared by a number of clients, and a level of "fairness" is
  * required then a client threshold will prevent any one from saturating the system with requests.
  */
-/* package */final class ClientExecutor {
+public final class ClientExecutor {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ClientExecutor.class);
 
@@ -38,16 +38,16 @@ import com.opengamma.util.tuple.Pair;
 
   private int _activeThreads;
 
-  public ClientExecutor(final int maxThreadsPerClient, final int maxThreads) {
+  /* package */ClientExecutor(final int maxThreadsPerClient, final int maxThreads) {
     _maxThreadsPerClient = maxThreadsPerClient;
     _maxThreads = maxThreads;
   }
 
-  private int getMaxThreadsPerClient() {
+  public int getMaxThreadsPerClient() {
     return _maxThreadsPerClient;
   }
 
-  private int getMaxThreads() {
+  public int getMaxThreads() {
     return _maxThreads;
   }
 
@@ -217,7 +217,7 @@ import com.opengamma.util.tuple.Pair;
 
   }
 
-  public ExecutorService createClientExecutor() {
+  /* package */ExecutorService createClientExecutor() {
     return new PerClientExecutor();
   }
 

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
@@ -18,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Constructs a {@link ClientContext} instance
  */
-public final class ClientContextFactoryBean implements ClientContextFactory {
+public final class ClientContextFactoryBean implements ClientContextFactory, InitializingBean {
 
   /**
    * The Fudge context to use for encoding/decoding messages sent and received.
@@ -66,6 +67,14 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
    */
   private UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
 
+  /**
+   * The executor service provider. This is not set as part of the bean but constructed from the bean
+   * attributes after they have all been set. This is exposed so that a language specific client
+   * context can use the same executor so that the thread limits are enforced. If it were to create
+   * its own executor then it would have its own pool of threads which may not be the intention.
+   */
+  private ClientExecutor _clientExecutor;
+
   public ClientContextFactoryBean() {
   }
 
@@ -79,6 +88,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
     setMaxThreadsPerClient(copyFrom.getMaxThreadsPerClient());
     setMaxClientThreads(copyFrom.getMaxClientThreads());
     setMessageHandler(copyFrom.getMessageHandler());
+    setClientExecutor(copyFrom.getClientExecutor());
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
@@ -151,15 +161,32 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
     return _messageHandler;
   }
 
+  // Non spring-settable part of the bean - the internal ClientExecutor is created after properties have been set. This
+  // is provided so that an existing factory bean can be hijacked 
+
+  public void setClientExecutor(final ClientExecutor clientExecutor) {
+    ArgumentChecker.notNull(clientExecutor, "clientExecutor");
+    _clientExecutor = clientExecutor;
+    setMaxThreadsPerClient(clientExecutor.getMaxThreadsPerClient());
+    setMaxClientThreads(clientExecutor.getMaxThreads());
+  }
+
+  public ClientExecutor getClientExecutor() {
+    return _clientExecutor;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    // Only messageHandler could still be null - the others have defaults and won't let null be set
+    ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
+    _clientExecutor = new ClientExecutor(getMaxThreadsPerClient(), getMaxClientThreads());
+  }
+
   // ClientContextFactory
 
   @Override
   public ClientContext createClientContext() {
-    // Only messageHandler could still be null - the others have defaults and won't let null be set
-    ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
-    return new ClientContext(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
-        getMaxClientThreads()), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(),
-        getMessageHandler());
+    return new ClientContext(getFudgeContext(), getScheduler(), getClientExecutor(), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(), getMessageHandler());
   }
 
 }
