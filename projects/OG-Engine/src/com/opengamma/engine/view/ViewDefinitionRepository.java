@@ -15,8 +15,19 @@ import java.util.Set;
  */
 public interface ViewDefinitionRepository {
   
+  /**
+   * Returns the set of all currently defined views.
+   * 
+   * @return the definition names, not {@code null}
+   */
   Set<String> getDefinitionNames();
   
+  /**
+   * Returns the named definition.
+   * 
+   * @param definitionName the name of the view, not {@code null}
+   * @return the view definition, or {@code null} if the name does not exist
+   */
   ViewDefinition getDefinition(String definitionName);
 
 }

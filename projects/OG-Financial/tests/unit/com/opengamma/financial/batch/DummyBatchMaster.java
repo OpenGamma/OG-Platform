@@ -19,7 +19,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class DummyBatchMaster implements BatchMaster {
+public class DummyBatchMaster implements BatchMaster, BatchRunMaster {
   
   private Map<SnapshotId, Set<LiveDataValue>> _snapshot2LiveData = new HashMap<SnapshotId, Set<LiveDataValue>>();
   
@@ -82,7 +82,7 @@ public class DummyBatchMaster implements BatchMaster {
   }
 
   @Override
-  public void deleteBatch(BatchJobRun batch) {
+  public void delete(UniqueIdentifier uniqueId) {
   }
   
 }

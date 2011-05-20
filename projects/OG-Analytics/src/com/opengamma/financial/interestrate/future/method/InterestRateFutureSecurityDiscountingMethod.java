@@ -16,6 +16,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * No convexity adjustment is done. 
  */
 public class InterestRateFutureSecurityDiscountingMethod {
+
   /**
    * Computes the price of a future from the curves using an estimation of the future rate without convexity adjustment.
    * @param future The future.
@@ -29,6 +30,21 @@ public class InterestRateFutureSecurityDiscountingMethod {
     double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
     double price = 1.0 - forward;
     return price;
+  }
+
+  /**
+   * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
+   * @param future The future.
+   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @return The rate.
+   */
+  public double parRate(final InterestRateFutureSecurity future, final YieldCurveBundle curves) {
+    Validate.notNull(future, "Future");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
+    double forward = (forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime()) - 1) / future.getFixingPeriodAccrualFactor();
+    return forward;
+
   }
 
 }

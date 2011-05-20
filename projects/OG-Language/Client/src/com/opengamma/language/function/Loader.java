@@ -19,6 +19,8 @@ public class Loader extends ContextInitializationBean {
 
   private FunctionProvider _functions;
 
+  // TODO: need to be able to pass a list of function providers; perhaps a bean form of AggregatingFunctionProvider that can take a list
+
   public void setFunctions(final FunctionProvider functions) {
     ArgumentChecker.notNull(functions, "functions");
     _functions = functions;

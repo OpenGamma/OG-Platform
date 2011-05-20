@@ -7,9 +7,8 @@ $.register_module({
     dependencies: ['og.common.routes', 'og.common.slickgrid.manager'],
     obj: function () {
         return function () {
-            var routes = og.common.routes, slick_manager, options, timer, grid, filters_obj = {},
+            var routes = og.common.routes, slick_manager, options, timer, grid, filters_obj = {}, update_header_rows,
                 load = function (obj) {
-                    // Setup
                     slick_manager = og.common.slickgrid.manager($.extend({}, obj.url, {
                         page_type: obj.page_type, selector: obj.selector
                     }));
@@ -21,8 +20,9 @@ $.register_module({
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
                     filters_obj = obj.url;
+
                     // Setup filter inputs
-                    (function () {
+                    update_header_rows = function () {
                         var i, id, header, filter_class, col = obj.columns, len = obj.columns.length, init_value,
                             filter_type, filter_type_options, input_html, select_html;
                         for (i = 0; i < len; i++) {
@@ -51,37 +51,55 @@ $.register_module({
                             if (filter_type === 'select' && routes.current().args.filter_type)
                                     $('.' + filter_class).val(routes.current().args.filter_type.toLowerCase());
                         }
-                    })();
+                        og.common.search.filter({location: obj.selector});
+                    };
+                    update_header_rows();
+
                     // Handle click
                     $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {
                         var last = routes.last(), obj_url = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
-                                id_time: slick_manager.data[$(e.currentTarget).attr('row')].id_time,
                                 type: slick_manager.data[$(e.currentTarget).attr('row')].type,
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 filter_type: (last && last.args.filter_type) || '',
                                 filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
-                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time
+                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time,
+                                observation_date: slick_manager.data[$(e.currentTarget).attr('row')].observation_date
                             };
                         delete obj_url.node;
                         routes.go(routes.hash(
                             og.views[obj.page_type].rules['load_' + obj.page_type], $.extend({}, obj.url, params)));
                     });
+
                     grid.onViewportChanged.subscribe(function () {
                         clearTimeout(timer);
                         timer = setTimeout(function () {filter($.extend(true, filters_obj, {filter: false}))}, 150);
                     });
+
+                    grid.onColumnsReordered.subscribe(function() {
+                        update_header_rows();
+                    });
+
+                    grid.onColumnsResized.subscribe(function() {
+                        update_header_rows();
+                    });
+
                     // Prepare grid for new data
                     slick_manager.on_data_loaded.subscribe(function (e, args) {
                         for (var i = args.from; i <= args.to; i++) grid.invalidateRow(i);
                         grid.updateRowCount();
                         grid.render();
                     });
+
+                    $(grid.getHeaderRow()).delegate(":input", "change keyup", function(e) {
+                        obj.url[$(this).data("columnId")] = e.currentTarget.value;
+                    });
+
                     // load the first page
                     grid.onViewportChanged.notify();
-                    og.common.search.filter({location: obj.selector});
+
                 },
                 filter = function (obj) {
                     var vp = grid.getViewport();

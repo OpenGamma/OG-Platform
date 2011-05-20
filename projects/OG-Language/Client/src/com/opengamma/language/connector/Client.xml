@@ -121,14 +121,7 @@
   <bean id="defaultFunctionsLoader" class="com.opengamma.language.function.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="functions">
-      <bean class="com.opengamma.language.function.FunctionProviderBean">
-        <property name="functions">
-          <list>
-            <!-- TODO: temporary debug value so that the release build doesn't error in the tests; take this out when there are proper defaults --> 
-            <bean class="com.opengamma.language.debug.DebugFunctionMessage" />
-          </list>
-        </property>
-      </bean>
+      <bean class="com.opengamma.language.function.ObjectFunctionProvider" />
     </property>
   </bean>
   <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">

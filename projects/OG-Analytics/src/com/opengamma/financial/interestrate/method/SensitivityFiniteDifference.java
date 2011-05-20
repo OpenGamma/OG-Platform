@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.interestrate.method;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -27,11 +30,16 @@ public class SensitivityFiniteDifference {
    * @param nodeTimes The node times to be bumped.
    * @param deltaShift The bump size.
    * @param method The method to compute the present value sensitivity.
-   * @param isCentered Flag indicating if the computation should be symmetrical (centered, shift above and below the initial value) or non-symmetrical (shift on one side).
+   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. 
+   * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
   public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
-      double deltaShift, PricingMethod method, final boolean isCentered) {
+      double deltaShift, PricingMethod method, final FiniteDifferenceType differenceType) {
+    Validate.notNull(instrument, "Instrument");
+    Validate.notNull(curves, "Curves");
+    Validate.notNull(method, "Method");
+    Validate.notNull(differenceType, "Difference type");
     int nbNode = nodeTimes.length;
     double[] result = new double[nbNode];
     final YieldAndDiscountCurve curveToBump = curves.getCurve(curveToBumpName);
@@ -43,35 +51,49 @@ public class SensitivityFiniteDifference {
       yields[loopnode + 1] = curveToBump.getInterestRate(nodeTimesExtended[loopnode + 1]);
     }
     final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
-    if (!isCentered) {
-      for (int loopnode = 0; loopnode < nbNode; loopnode++) {
-        final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
-        final YieldCurveBundle curvesBumped = new YieldCurveBundle();
-        curvesBumped.addAll(curves);
-        curvesBumped.setCurve(curveBumpedName, curveBumped);
-        final double bumpedpv = method.presentValue(instrument, curvesBumped);
-        result[loopnode] = (bumpedpv - pv) / deltaShift;
-      }
-    } else {
-      for (int loopnode = 0; loopnode < nbNode; loopnode++) {
-        final YieldAndDiscountCurve curveBumpedPlus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
-        final YieldAndDiscountCurve curveBumpedMinus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], -deltaShift);
-        final YieldCurveBundle curvesBumpedPlus = new YieldCurveBundle();
-        curvesBumpedPlus.addAll(curves);
-        curvesBumpedPlus.setCurve(curveBumpedName, curveBumpedPlus);
-        final YieldCurveBundle curvesBumpedMinus = new YieldCurveBundle();
-        curvesBumpedMinus.addAll(curves);
-        curvesBumpedMinus.setCurve(curveBumpedName, curveBumpedMinus);
-        final double bumpedpvPlus = method.presentValue(instrument, curvesBumpedPlus);
-        final double bumpedpvMinus = method.presentValue(instrument, curvesBumpedMinus);
-        result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
-      }
+    switch (differenceType) {
+      case FORWARD:
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+          final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
+          final YieldCurveBundle curvesBumped = new YieldCurveBundle();
+          curvesBumped.addAll(curves);
+          curvesBumped.setCurve(curveBumpedName, curveBumped);
+          final double bumpedpv = method.presentValue(instrument, curvesBumped);
+          result[loopnode] = (bumpedpv - pv) / deltaShift;
+        }
+        return result;
+      case CENTRAL:
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+          final YieldAndDiscountCurve curveBumpedPlus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
+          final YieldAndDiscountCurve curveBumpedMinus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], -deltaShift);
+          final YieldCurveBundle curvesBumpedPlus = new YieldCurveBundle();
+          curvesBumpedPlus.addAll(curves);
+          curvesBumpedPlus.setCurve(curveBumpedName, curveBumpedPlus);
+          final YieldCurveBundle curvesBumpedMinus = new YieldCurveBundle();
+          curvesBumpedMinus.addAll(curves);
+          curvesBumpedMinus.setCurve(curveBumpedName, curveBumpedMinus);
+          final double bumpedpvPlus = method.presentValue(instrument, curvesBumpedPlus);
+          final double bumpedpvMinus = method.presentValue(instrument, curvesBumpedMinus);
+          result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
+        }
+        return result;
+      case BACKWARD:
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+          final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], -deltaShift);
+          final YieldCurveBundle curvesBumped = new YieldCurveBundle();
+          curvesBumped.addAll(curves);
+          curvesBumped.setCurve(curveBumpedName, curveBumped);
+          final double bumpedpv = method.presentValue(instrument, curvesBumped);
+          result[loopnode] = (pv - bumpedpv) / deltaShift;
+        }
+        return result;
     }
-    return result;
+    throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
+
   }
 
   /**
-   * Compute the present value rate sensitivity for a set of node time by finite difference. The computation is done in an non-symmetrical way (non-centered).
+   * Compute the present value rate sensitivity for a set of node time by finite difference. The computation is done in an non-symmetrical forward way.
    * @param instrument The instrument.
    * @param curves The yield curve bundle.
    * @param pv The initial instrument present value.
@@ -84,7 +106,7 @@ public class SensitivityFiniteDifference {
    */
   public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method) {
-    return curveSensitivity(instrument, curves, pv, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, false);
+    return curveSensitivity(instrument, curves, pv, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.FORWARD);
   }
 
   /**
@@ -100,7 +122,7 @@ public class SensitivityFiniteDifference {
    */
   public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method) {
-    return curveSensitivity(instrument, curves, 0.0, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, true);
+    return curveSensitivity(instrument, curves, 0.0, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 
 }

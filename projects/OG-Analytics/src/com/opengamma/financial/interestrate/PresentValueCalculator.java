@@ -110,7 +110,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
 
   @Override
   /**
-   * Future pricing without convexity adjustment.
+   * Future transaction pricing without convexity adjustment.
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();

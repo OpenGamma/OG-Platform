@@ -541,9 +541,11 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     assertTrue(result.getErrors().isEmpty());
   }
 
-  @Test(expectedExceptions=IllegalStateException.class)
+  @Test(expectedExceptions=DataNotFoundException.class)
   public void deleteNonExisting() {
-    _batchMaster.deleteBatch(_batchJobRun);
+    assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
+    
+    _batchMaster.delete(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
   }
 
   @Test
@@ -555,7 +557,7 @@ public class DbBatchMasterTest extends TransactionalHibernateTest {
     
     assertNotNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
     
-    _batchMaster.deleteBatch(_batchJobRun);
+    _batchMaster.delete(UniqueIdentifier.of("DbBat", _batchJobRun.getObservationDate() + "-" + _batchJobRun.getObservationTime()));
     assertNull(_batchMaster.getRiskRunFromDb(_batchJobRun));
   }
 

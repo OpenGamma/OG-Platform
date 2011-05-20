@@ -110,9 +110,9 @@ public class CommandLineBatchJob {
   private PositionSource _positionSource;
 
   /**
-   * Used to write stuff to the batch database
+   * Used to write stuff to the batch database.
    */
-  private BatchMaster _batchMaster;
+  private BatchRunMaster _batchMaster;
 
   /**
    * Stores instances of all the various interfaces required by functions during execution
@@ -271,11 +271,11 @@ public class CommandLineBatchJob {
     _positionSource = positionSource;
   }
 
-  public BatchMaster getBatchMaster() {
+  public BatchRunMaster getBatchMaster() {
     return _batchMaster;
   }
 
-  public void setBatchMaster(BatchMaster batchMaster) {
+  public void setBatchMaster(BatchRunMaster batchMaster) {
     _batchMaster = batchMaster;
   }
 
