@@ -24,13 +24,12 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
   /**
    * The Fudge context to use for encoding/decoding messages sent and received.
    */
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  private FudgeContext _fudgeContext;
 
   /**
    * A scheduler to use for housekeeping tasks such as watchdogs.
    */
-  private ScheduledExecutorService _scheduler = Executors
-      .newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-"));
+  private ScheduledExecutorService _scheduler;
 
   /**
    * Message timeout. This should match the value used by the clients for consistent behavior. This is
@@ -38,29 +37,29 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
    * the operation is known to take an unusually long or short time. Messaging timeouts are typically
    * shorter than the heartbeat timeouts.
    */
-  private int _messageTimeout = 3000;
+  private int _messageTimeout;
 
   /**
    * Heartbeat timeout. This should match (or ideally be a touch less than) the value used by the clients.
    * If this is much lower the JVM process terminate prematurely. If this is much higher, the client
    * threads may run for longer than they need to after failure of the C++ process.
    */
-  private int _heartbeatTimeout = 4000;
+  private int _heartbeatTimeout;
 
   /**
    * Termination timeout. This the time to wait for any threads spawned by a client to terminate.
    */
-  private int _terminationTimeout = 30000;
+  private int _terminationTimeout;
 
   /**
    * Maximum number of threads per client.
    */
-  private int _maxThreadsPerClient = Math.max(2, Runtime.getRuntime().availableProcessors());
+  private int _maxThreadsPerClient;
 
   /**
    * Maximum number of client threads in total.
    */
-  private int _maxClientThreads = Integer.MAX_VALUE;
+  private int _maxClientThreads;
 
   /**
    * Message handler.
@@ -76,6 +75,18 @@ public final class ClientContextFactoryBean implements ClientContextFactory, Ini
   private ClientExecutor _clientExecutor;
 
   public ClientContextFactoryBean() {
+    setDefaults();
+  }
+
+  private void setDefaults() {
+    setFudgeContext(FudgeContext.GLOBAL_DEFAULT);
+    setScheduler(Executors.newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-")));
+    setMessageTimeout(3000);
+    setHeartbeatTimeout(4000);
+    setTerminationTimeout(30000);
+    setMaxThreadsPerClient(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    setMaxClientThreads(Integer.MAX_VALUE);
+    // messageHandler defaults to null and must be set
   }
 
   public ClientContextFactoryBean(final ClientContextFactoryBean copyFrom) {
