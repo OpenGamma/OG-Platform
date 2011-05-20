@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
@@ -18,18 +19,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Constructs a {@link ClientContext} instance
  */
-public final class ClientContextFactoryBean implements ClientContextFactory {
+public final class ClientContextFactoryBean implements ClientContextFactory, InitializingBean {
 
   /**
    * The Fudge context to use for encoding/decoding messages sent and received.
    */
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  private FudgeContext _fudgeContext;
 
   /**
    * A scheduler to use for housekeeping tasks such as watchdogs.
    */
-  private ScheduledExecutorService _scheduler = Executors
-      .newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-"));
+  private ScheduledExecutorService _scheduler;
 
   /**
    * Message timeout. This should match the value used by the clients for consistent behavior. This is
@@ -37,36 +37,56 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
    * the operation is known to take an unusually long or short time. Messaging timeouts are typically
    * shorter than the heartbeat timeouts.
    */
-  private int _messageTimeout = 3000;
+  private int _messageTimeout;
 
   /**
    * Heartbeat timeout. This should match (or ideally be a touch less than) the value used by the clients.
    * If this is much lower the JVM process terminate prematurely. If this is much higher, the client
    * threads may run for longer than they need to after failure of the C++ process.
    */
-  private int _heartbeatTimeout = 4000;
+  private int _heartbeatTimeout;
 
   /**
    * Termination timeout. This the time to wait for any threads spawned by a client to terminate.
    */
-  private int _terminationTimeout = 30000;
+  private int _terminationTimeout;
 
   /**
    * Maximum number of threads per client.
    */
-  private int _maxThreadsPerClient = Math.max(2, Runtime.getRuntime().availableProcessors());
+  private int _maxThreadsPerClient;
 
   /**
    * Maximum number of client threads in total.
    */
-  private int _maxClientThreads = Integer.MAX_VALUE;
+  private int _maxClientThreads;
 
   /**
    * Message handler.
    */
   private UserMessagePayloadVisitor<UserMessagePayload, SessionContext> _messageHandler;
 
+  /**
+   * The executor service provider. This is not set as part of the bean but constructed from the bean
+   * attributes after they have all been set. This is exposed so that a language specific client
+   * context can use the same executor so that the thread limits are enforced. If it were to create
+   * its own executor then it would have its own pool of threads which may not be the intention.
+   */
+  private ClientExecutor _clientExecutor;
+
   public ClientContextFactoryBean() {
+    setDefaults();
+  }
+
+  private void setDefaults() {
+    setFudgeContext(FudgeContext.GLOBAL_DEFAULT);
+    setScheduler(Executors.newSingleThreadScheduledExecutor(new CustomizableThreadFactory("Scheduler-")));
+    setMessageTimeout(3000);
+    setHeartbeatTimeout(4000);
+    setTerminationTimeout(30000);
+    setMaxThreadsPerClient(Math.max(2, Runtime.getRuntime().availableProcessors()));
+    setMaxClientThreads(Integer.MAX_VALUE);
+    // messageHandler defaults to null and must be set
   }
 
   public ClientContextFactoryBean(final ClientContextFactoryBean copyFrom) {
@@ -79,6 +99,7 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
     setMaxThreadsPerClient(copyFrom.getMaxThreadsPerClient());
     setMaxClientThreads(copyFrom.getMaxClientThreads());
     setMessageHandler(copyFrom.getMessageHandler());
+    setClientExecutor(copyFrom.getClientExecutor());
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
@@ -151,15 +172,32 @@ public final class ClientContextFactoryBean implements ClientContextFactory {
     return _messageHandler;
   }
 
+  // Non spring-settable part of the bean - the internal ClientExecutor is created after properties have been set. This
+  // is provided so that an existing factory bean can be hijacked 
+
+  public void setClientExecutor(final ClientExecutor clientExecutor) {
+    ArgumentChecker.notNull(clientExecutor, "clientExecutor");
+    _clientExecutor = clientExecutor;
+    setMaxThreadsPerClient(clientExecutor.getMaxThreadsPerClient());
+    setMaxClientThreads(clientExecutor.getMaxThreads());
+  }
+
+  public ClientExecutor getClientExecutor() {
+    return _clientExecutor;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    // Only messageHandler could still be null - the others have defaults and won't let null be set
+    ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
+    _clientExecutor = new ClientExecutor(getMaxThreadsPerClient(), getMaxClientThreads());
+  }
+
   // ClientContextFactory
 
   @Override
   public ClientContext createClientContext() {
-    // Only messageHandler could still be null - the others have defaults and won't let null be set
-    ArgumentChecker.notNull(getMessageHandler(), "messageHandler");
-    return new ClientContext(getFudgeContext(), getScheduler(), new ClientExecutor(getMaxThreadsPerClient(),
-        getMaxClientThreads()), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(),
-        getMessageHandler());
+    return new ClientContext(getFudgeContext(), getScheduler(), getClientExecutor(), getMessageTimeout(), getHeartbeatTimeout(), getTerminationTimeout(), getMessageHandler());
   }
 
 }
