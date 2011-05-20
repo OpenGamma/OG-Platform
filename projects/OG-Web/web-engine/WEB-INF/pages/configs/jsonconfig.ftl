@@ -10,5 +10,5 @@
 </#if>
       "type":"${configDoc.value.class.simpleName}",
       "configData" : ${configData}
-   	}
+    }
 }

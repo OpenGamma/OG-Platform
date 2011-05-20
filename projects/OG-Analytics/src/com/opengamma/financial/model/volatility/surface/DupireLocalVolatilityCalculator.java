@@ -1,8 +1,9 @@
 /**
- * Copyright (C) 2009 - 2011 by OpenGamma Inc.
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
+
 package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
@@ -21,7 +22,7 @@ public class DupireLocalVolatilityCalculator {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * @deprecated As its name suggests this is purely for debugging and will be removed 
+   * @deprecated As its name suggests this is purely for debugging and will be removed
    */
   @Deprecated
   public void debug(final PriceSurface price, final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate, final double t, final double k) {

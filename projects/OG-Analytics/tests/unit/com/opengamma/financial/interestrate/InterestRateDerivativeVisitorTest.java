@@ -18,6 +18,8 @@ import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
@@ -384,6 +386,26 @@ public class InterestRateDerivativeVisitorTest {
 
     @Override
     public Class<?> visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option) {
+      return visit(option);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, Object data) {
+      return visit(option, data);
+    }
+
+    @Override
+    public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
       return visit(option);
     }
   };

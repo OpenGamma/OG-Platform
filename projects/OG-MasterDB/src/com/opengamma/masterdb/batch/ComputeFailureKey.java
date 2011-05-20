@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class ComputeFailureKey {
   

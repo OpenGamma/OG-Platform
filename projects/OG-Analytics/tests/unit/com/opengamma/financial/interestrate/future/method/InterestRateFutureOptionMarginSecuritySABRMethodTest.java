@@ -22,7 +22,7 @@ import com.opengamma.financial.instrument.future.InterestRateFutureSecurityDefin
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
@@ -36,7 +36,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
  */
-public class InterestRateFutureOptionPremiumSecuritySABRMethodTest {
+public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -64,8 +64,8 @@ public class InterestRateFutureOptionPremiumSecuritySABRMethodTest {
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final double STRIKE = 0.9850;
   private static final boolean IS_CALL = true;
-  private static final InterestRateFutureOptionPremiumSecurity OPTION_EDU2 = new InterestRateFutureOptionPremiumSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
-  private static final InterestRateFutureOptionPremiumSecuritySABRMethod METHOD = new InterestRateFutureOptionPremiumSecuritySABRMethod();
+  private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
   final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
   final SABRInterestRateParameter SABR_PARAMETER = TestsDataSets.createSABR1();
@@ -93,7 +93,7 @@ public class InterestRateFutureOptionPremiumSecuritySABRMethodTest {
    */
   public void priceFromFuturePriceStandard() {
     final double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_TRADING_DATE);
-    InterestRateFutureOptionPremiumSecurity optionEDU2Standard = new InterestRateFutureOptionPremiumSecurity(EDU2, expirationTime, STRIKE, IS_CALL);
+    InterestRateFutureOptionMarginSecurity optionEDU2Standard = new InterestRateFutureOptionMarginSecurity(EDU2, expirationTime, STRIKE, IS_CALL);
     double priceFuture = 0.9905;
     double priceOption = METHOD.optionPriceFromFuturePrice(optionEDU2Standard, SABR_BUNDLE, priceFuture);
     double delay = 0.0;
@@ -111,7 +111,7 @@ public class InterestRateFutureOptionPremiumSecuritySABRMethodTest {
    */
   public void priceStandard() {
     final double expirationTime = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_TRADING_DATE);
-    InterestRateFutureOptionPremiumSecurity optionEDU2Standard = new InterestRateFutureOptionPremiumSecurity(EDU2, expirationTime, STRIKE, IS_CALL);
+    InterestRateFutureOptionMarginSecurity optionEDU2Standard = new InterestRateFutureOptionMarginSecurity(EDU2, expirationTime, STRIKE, IS_CALL);
     double priceOption = METHOD.optionPrice(optionEDU2Standard, SABR_BUNDLE);
     InterestRateFutureSecurityDiscountingMethod methodFuture = new InterestRateFutureSecurityDiscountingMethod();
     double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
