@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
@@ -366,6 +367,14 @@ public class CommandLineBatchJobRun extends BatchJobRun {
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
         return null;
+      }
+
+      @Override
+      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+      }
+
+      @Override
+      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
       }
     };
     
