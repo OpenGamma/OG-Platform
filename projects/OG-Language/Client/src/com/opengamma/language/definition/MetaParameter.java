@@ -36,8 +36,18 @@ public class MetaParameter extends Parameter {
     _javaTypeInfo = javaTypeInfo;
   }
 
+  protected MetaParameter(final MetaParameter copyFrom) {
+    super(copyFrom);
+    _javaTypeInfo = copyFrom.getJavaTypeInfo();
+  }
+
   public JavaTypeInfo<?> getJavaTypeInfo() {
     return _javaTypeInfo;
+  }
+
+  @Override
+  public MetaParameter clone() {
+    return new MetaParameter(this);
   }
 
 }

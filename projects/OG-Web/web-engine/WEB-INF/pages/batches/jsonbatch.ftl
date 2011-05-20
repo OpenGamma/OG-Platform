@@ -21,15 +21,9 @@
             "${item.calculationConfiguration}|${item.computedValue.specification.targetSpecification.uniqueId}|${item.computedValue.specification.valueName}|${item.computedValue.specification.functionUniqueId}|${item.computedValue.value}"<#if item_has_next>,</#if>
 </#list>
         ],
-        "batch_errors": [
-<#list batch.errors as item>"
-            ${item.calculationConfiguration}|
-            ${item.computationTarget}|
-            ${item.valueName}|
-            ${item.functionUniqueId}|
-            ${item.exceptionClass}|
-            ${item.exceptionMsg}|
-            ${item.stackTrace}"<#if item_has_next>,</#if>
+        "batch_errors": [<#list batch.errors as item>
+            "${item.calculationConfiguration}|${item.computationTarget}|${item.valueName}|${item.functionUniqueId}|${item.exceptionClass}|${item.exceptionMsg}|${item.stackTrace}"
+        <#if item_has_next>,</#if>
 </#list>
         ]
     }
