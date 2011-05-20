@@ -18,6 +18,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
+import org.springframework.util.StringUtils;
 
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextFactory;
@@ -85,16 +86,14 @@ public class Main {
       s_logger.info("Application context started");
       s_clientFactories = ClientFactory.getFactory();
       // TODO: allow the client factory factory to be selected/overridden from command line, or property for e.g. the remote debugging version
-      final ClientContextFactory clientContextFactory = getBean(Character.toLowerCase(CLIENT_CONTEXT_FACTORY.charAt(0))
-          + CLIENT_CONTEXT_FACTORY.substring(1), ClientContextFactory.class);
+      final ClientContextFactory clientContextFactory = getBean(StringUtils.uncapitalize(CLIENT_CONTEXT_FACTORY), ClientContextFactory.class);
       if (clientContextFactory != null) {
         s_defaultClientFactory = s_clientFactories.createClientFactory(clientContextFactory.createClientContext());
       } else {
         s_logger.info("No default client context factory");
         s_defaultClientFactory = null;
       }
-      s_defaultSessionContextFactory = getBean(Character.toLowerCase(SESSION_CONTEXT_FACTORY.charAt(0))
-          + SESSION_CONTEXT_FACTORY.substring(1), SessionContextFactory.class);
+      s_defaultSessionContextFactory = getBean(StringUtils.uncapitalize(SESSION_CONTEXT_FACTORY), SessionContextFactory.class);
       if (s_defaultSessionContextFactory == null) {
         s_logger.info("No default session context factory");
       }
