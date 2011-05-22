@@ -16,10 +16,10 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMapIntObjectTimeSer
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the data
  */
 public class MapSQLDateObjectTimeSeries<T> extends MutableSQLDateObjectTimeSeries.Integer<T> {
+  /** An empty time series */
   public static final MapSQLDateObjectTimeSeries<?> EMPTY_SERIES = new MapSQLDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<Date> s_converter = new SQLDateEpochDaysConverter();
 
@@ -28,30 +28,35 @@ public class MapSQLDateObjectTimeSeries<T> extends MutableSQLDateObjectTimeSerie
   }
 
   public MapSQLDateObjectTimeSeries(final Date[] dates, final T[] values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public MapSQLDateObjectTimeSeries(final TimeZone timeZone, final Date[] dates, final T[] values) {
-    super(new SQLDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new SQLDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   public MapSQLDateObjectTimeSeries(final List<Date> dates, final List<T> values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public MapSQLDateObjectTimeSeries(final TimeZone timeZone, final List<Date> dates, final List<T> values) {
-    super(new SQLDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new SQLDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new SQLDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   public MapSQLDateObjectTimeSeries(final ObjectTimeSeries<Date, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
   public MapSQLDateObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<Date, T> dts) {
-    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(timeZone).convertToInt(new FastMapIntObjectTimeSeries<T>(
-        DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
+    super(new SQLDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new SQLDateEpochDaysConverter(
+        timeZone).convertToInt(new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
   public MapSQLDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

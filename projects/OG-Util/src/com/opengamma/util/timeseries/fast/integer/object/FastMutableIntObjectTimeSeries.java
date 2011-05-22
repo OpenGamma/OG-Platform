@@ -5,10 +5,14 @@
  */
 package com.opengamma.util.timeseries.fast.integer.object;
 
+/**
+ * 
+ * @param <T> The type of the data
+ */
 public interface FastMutableIntObjectTimeSeries<T> extends FastIntObjectTimeSeries<T> {
-  public void primitivePutDataPoint(int time, T value);
+  void primitivePutDataPoint(int time, T value);
 
-  public void primitiveRemoveDataPoint(int time);
+  void primitiveRemoveDataPoint(int time);
 
-  public void clear();
+  void clear();
 }

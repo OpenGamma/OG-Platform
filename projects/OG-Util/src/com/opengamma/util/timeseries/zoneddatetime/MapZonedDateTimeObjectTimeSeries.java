@@ -17,7 +17,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMapLongObjectTimeSe
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * 
+ * @param <T> The type of the data
  */
 public class MapZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeObjectTimeSeries.Long<T> {
   private static final DateTimeConverter<ZonedDateTime> s_converter = new ZonedDateTimeEpochMillisConverter();
@@ -52,7 +52,7 @@ public class MapZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeObj
     super(s_converter, (FastMutableLongObjectTimeSeries<T>) s_converter.convertToLong(new FastMapLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public MapZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<ZonedDateTime, T> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongObjectTimeSeries<T>) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastMapLongObjectTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));

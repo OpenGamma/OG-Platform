@@ -23,20 +23,17 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.tuple.IntDoublePair;
 
 /**
- * @author jim
  * 
  */
 public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTimeSeries {
-  final IntArrayList _times;
-  final DoubleArrayList _values;
+  private final IntArrayList _times;
+  private final DoubleArrayList _values;
 
   public FastListIntDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -51,7 +48,8 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     ensureTimesSorted();
   }
 
-  public FastListIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<Double> values) {
+  public FastListIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times,
+      final List<Double> values) {
     super(encoding);
     _times = new IntArrayList(times);
     _values = new DoubleArrayList(values);
@@ -199,7 +197,8 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     if (startIndex == -1 || endIndex == -1) {
       throw new NoSuchElementException();
     }
-    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
+    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(
+        startIndex, endIndex));
   }
 
   @Override
@@ -233,8 +232,8 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   }
 
   private class PrimitiveListIntDoubleTimeSeriesIterator implements ObjectIterator<Int2DoubleMap.Entry> {
-    IntIterator _intIter;
-    DoubleIterator _doubleIter;
+    private IntIterator _intIter;
+    private DoubleIterator _doubleIter;
 
     public PrimitiveListIntDoubleTimeSeriesIterator() {
       _intIter = _times.iterator();
@@ -280,7 +279,8 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   public FastIntDoubleTimeSeries tailFast(final int numItems) {
     // note I used _times.size for the second part so it we didn't need two
     // method calls as the optimizer is unlikely to spot it.
-    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
+    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(_times.size() - numItems, _times.size()),
+        _values.subList(_times.size() - numItems, _times.size()));
   }
 
   @Override
@@ -322,6 +322,7 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   }
 
   /**
+   * {@inheritDoc}
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */

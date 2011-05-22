@@ -34,13 +34,14 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.tuple.Pair;
 
 /**
- * @author jim
  * 
  */
 public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double> {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(YearOffsetEpochMillisConverter.class);
+  /** Number of milliseconds in a day */
   public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
+  /** Number of milliseconds in a year (assuming 365.25 days per year) */
   public static final long MILLIS_PER_YEAR = (long) (MILLIS_PER_DAY * 365.25);
 
   private final TimeZone _timeZone;
@@ -151,6 +152,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   /** 
+   * {@inheritDoc}
    * IMPORTANT: this conversion may result in a loss of accuracy
    */
   @Override
@@ -159,6 +161,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   /** 
+   * {@inheritDoc}
    * IMPORTANT: this conversion may result in a loss of accuracy
    */
   @Override
@@ -171,6 +174,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   /** 
+   * {@inheritDoc}
    * IMPORTANT: this conversion may result in a loss of accuracy
    */
   @Override
@@ -223,6 +227,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   /**
+   * {@inheritDoc}
    * IMPORTANT: this may result in a loss of accuracy.
    */
   @Override
