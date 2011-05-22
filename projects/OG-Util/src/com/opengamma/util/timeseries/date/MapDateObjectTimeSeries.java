@@ -17,6 +17,7 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 
 /**
  * 
+ * @param <T> The type of the data
  */
 public class MapDateObjectTimeSeries<T> extends MutableDateObjectTimeSeries.Integer<T> {
   @SuppressWarnings("unused")
