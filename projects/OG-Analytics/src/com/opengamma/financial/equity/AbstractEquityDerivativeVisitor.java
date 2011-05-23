@@ -8,7 +8,7 @@ package com.opengamma.financial.equity;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.equity.future.EquityIndexDividendFuture;
-import com.opengamma.financial.equity.EquityDerivative;
+
 
 /**
  * 
