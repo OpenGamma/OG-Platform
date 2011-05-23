@@ -2,12 +2,12 @@
  * a hash table that automatically discards old items like a queue
  */
 $.register_module({
-    name: 'og.common.util.hashqueue',
+    name: 'og.common.util.HashQueue',
     dependencies: ['og.dev'],
     obj: function () {
         var warn = og.dev.warn;
         return function (instance) {
-            var hashqueue = this, self = 'hashqueue', data, keys = [], size = instance, type = typeof instance,
+            var hashqueue = this, self = 'HashQueue', data, keys = [], size = instance, type = typeof instance,
                 has = 'hasOwnProperty', corrupted = self + ': corrupted data, key or size mismatch',
                 parsed = type === 'string' ? JSON.parse(instance) : type === 'object' ? instance : null;
             if (parsed) size = parsed.size, data = parsed.data || data, keys = parsed.keys || keys, parsed = (void 0);

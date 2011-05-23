@@ -8,14 +8,21 @@ package com.opengamma.util.timeseries;
 /**
  * 
  *
- * @author jim
  */
 public class ObjectTimeSeriesOperators {
+  /**
+   * 
+   * @param <T>
+   */
   public interface BinaryOperator<T> {
-    public T operate(T a, T b);
+    T operate(T a, T b);
   }
+  /**
+   * 
+   * @param <T>
+   */
   public interface UnaryOperator<T> {
-    public T operate(T a);
+    T operate(T a);
   }
   
   private static class FirstOperator<E> implements BinaryOperator<E> {

@@ -27,6 +27,7 @@ import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -141,17 +142,21 @@ public class SensitivityFiniteDifferenceTest {
     double[] nodeTimesForwardMethod = new double[] {FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime()};
     double[] sensiForward = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
     double[] sensiForwardCentered = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD,
-        true);
+        FiniteDifferenceType.CENTRAL);
     double[] sensiForwardCentered2 = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
-    double[] sensiForwardNonCentered = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD,
-        false);
+    double[] sensiForwardForward = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD,
+        FiniteDifferenceType.FORWARD);
+    double[] sensiForwardBackward = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD,
+        FiniteDifferenceType.BACKWARD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForward.length);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardCentered.length);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardCentered2.length);
-    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardNonCentered.length);
+    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardForward.length);
+    assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardBackward.length);
     for (int loopnode = 0; loopnode < sensiForward.length; loopnode++) {
-      assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForward[loopnode], sensiForwardNonCentered[loopnode], 1.0E-10);
-      assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForwardNonCentered[loopnode], sensiForwardCentered[loopnode], 1.0E-1);
+      assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForward[loopnode], sensiForwardForward[loopnode], 1.0E-10);
+      assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForwardForward[loopnode], sensiForwardCentered[loopnode], 1.0E-1);
+      assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForwardBackward[loopnode], sensiForwardCentered[loopnode], 1.0E-1);
       assertEquals("Sensitivity finite difference method: centered vs non-centered", sensiForwardCentered[loopnode], sensiForwardCentered2[loopnode], 1.0E-10);
     }
   }

@@ -18,7 +18,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- *  
+ * Hibernate helper.
  */
 public class ViewResultEntryMapper {
   

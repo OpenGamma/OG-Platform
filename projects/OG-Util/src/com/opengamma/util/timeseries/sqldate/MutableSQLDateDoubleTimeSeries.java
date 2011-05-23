@@ -18,12 +18,13 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface MutableSQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries, MutableDoubleTimeSeries<Date> {
 
-  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<Date> implements MutableSQLDateDoubleTimeSeries {
+  /** */
+  public abstract static class Integer extends AbstractMutableIntDoubleTimeSeries<Date> implements
+      MutableSQLDateDoubleTimeSeries {
     public Integer(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -36,7 +37,9 @@ public interface MutableSQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries,
     public abstract SQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 
-  public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<Date> implements MutableSQLDateDoubleTimeSeries {
+  /** */
+  public abstract static class Long extends AbstractMutableLongDoubleTimeSeries<Date> implements
+      MutableSQLDateDoubleTimeSeries {
     public Long(final DateTimeConverter<Date> converter, final FastMutableLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
@@ -47,6 +50,6 @@ public interface MutableSQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries,
     }
 
     public abstract SQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
-    
+
   }
 }

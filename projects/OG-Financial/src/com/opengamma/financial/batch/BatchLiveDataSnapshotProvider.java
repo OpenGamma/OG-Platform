@@ -37,7 +37,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
   /**
    * The batch master.
    */
-  private final BatchMaster _batchMaster;
+  private final BatchRunMaster _batchRunMaster;
   /**
    * The provider of historical data.
    * In practice, this is the time series database.
@@ -48,18 +48,18 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
    * Creates an instance.
    * 
    * @param run  the run data, not null
-   * @param batchMaster  the batch master, not null
+   * @param batchRunMaster  the batch master, not null
    * @param historicalDataProvider  the historical data provider, not null
    */
   public BatchLiveDataSnapshotProvider(
       BatchJobRun run,
-      BatchMaster batchMaster,
+      BatchRunMaster batchRunMaster,
       HistoricalLiveDataSnapshotProvider historicalDataProvider) {
     ArgumentChecker.notNull(run, "run");
-    ArgumentChecker.notNull(batchMaster, "batchMaster");
+    ArgumentChecker.notNull(batchRunMaster, "batchMaster");
     ArgumentChecker.notNull(historicalDataProvider, "historicalDataProvider");
     _run = run;
-    _batchMaster = batchMaster;
+    _batchRunMaster = batchRunMaster;
     _historicalDataProvider = historicalDataProvider;
   }
 
@@ -86,7 +86,7 @@ public class BatchLiveDataSnapshotProvider extends InMemoryLKVSnapshotProvider {
     Double value = (Double) valueInTimeSeriesDb;
     LiveDataValue liveDataValue = new LiveDataValue(requirement, value);
     Set<LiveDataValue> liveDataValues = Collections.singleton(liveDataValue);
-    _batchMaster.addValuesToSnapshot(_run.getSnapshotId(), liveDataValues);
+    _batchRunMaster.addValuesToSnapshot(_run.getSnapshotId(), liveDataValues);
     
     addValue(requirement, valueInTimeSeriesDb);
     

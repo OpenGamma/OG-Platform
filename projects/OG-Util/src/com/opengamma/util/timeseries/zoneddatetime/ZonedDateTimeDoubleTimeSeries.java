@@ -22,7 +22,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDateTime>, FastBackedDoubleTimeSeries<ZonedDateTime> {
-
+  /** */
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<ZonedDateTime> implements ZonedDateTimeDoubleTimeSeries {
     public Integer(final DateTimeConverter<ZonedDateTime> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
@@ -35,7 +35,7 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
 
     public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
   }
-
+  /** */
   public abstract static class Long extends AbstractLongDoubleTimeSeries<ZonedDateTime> implements ZonedDateTimeDoubleTimeSeries {
     public Long(final DateTimeConverter<ZonedDateTime> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);

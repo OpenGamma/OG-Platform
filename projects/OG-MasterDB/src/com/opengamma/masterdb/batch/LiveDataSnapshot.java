@@ -17,7 +17,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.engine.ComputationTargetSpecification;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class LiveDataSnapshot {
   

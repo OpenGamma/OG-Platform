@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * 
+ * @param <DATE_TYPE> The type of the dates
+ * @param <VALUE_TYPE> The type of the data
+ */
 public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DATE_TYPE, VALUE_TYPE>>, Serializable {
   /**
    * Get the size of the time series, the number of data points.
@@ -49,8 +54,10 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
   /**
    * Get the time at the (zero-based) index provided. If no entry is present
    * an IndexOutOfBoundsException is thrown. It should be noted that in some
-   * implementations, this call will not be O(1), so it's use should be
+   * implementations, this call will not be O(1), so its use should be
    * avoided inside loops.
+   * @param index The index (zero-based)
+   * @return the time at the requested index
    */
   DATE_TYPE getTime(int index);
 
@@ -116,9 +123,9 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
    * If the start or end time are not present in the series then the nearest element is
    * found instead.
    * 
-   * @param startTime
+   * @param startTime The start time
    * @param inclusiveStart whether or not the startTime is included in the result.
-   * @param endTime
+   * @param endTime The end time
    * @param exclusiveEnd whether or not the endTime is included in the result.
    * @return subset of TimeSeries
    */
@@ -130,8 +137,8 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
    * found instead.  This version follows the standard Collections pattern of being 
    * start INCLUSIVE and end EXCLUSIVE.
    * 
-   * @param startTime
-   * @param endTime
+   * @param startTime The start time
+   * @param endTime The end time
    * @return subset of TimeSeries
    */
   TimeSeries<DATE_TYPE, VALUE_TYPE> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);

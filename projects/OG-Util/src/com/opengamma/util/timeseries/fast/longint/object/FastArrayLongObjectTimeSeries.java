@@ -17,22 +17,24 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.tuple.LongObjectPair;
 
+/**
+ * 
+ * @param <T> The type of the data
+ */
 public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> {
-  protected final long[] _times;
-  protected final T[] _values;
+  private final long[] _times;
+  private final T[] _values;
 
   @SuppressWarnings("unchecked")
   public FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
@@ -74,7 +76,8 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   }
 
   @SuppressWarnings("unchecked")
-  public FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<T> values) {
+  public FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<T> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
@@ -102,7 +105,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     _times = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastLongObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -112,7 +115,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     }
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayLongObjectTimeSeries(final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding encoding = dts.getEncoding();
@@ -123,7 +126,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
       _times[i] = encoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
-  
+
   public FastArrayLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastIntObjectTimeSeries<T> dts) {
     super(encoding);
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -504,7 +507,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   public ObjectList<T> valuesFast() {
     return new ObjectArrayList<T>(_values);
   }
-  
+
   @Override
   public int hashCode() {
     return Arrays.hashCode(_values);

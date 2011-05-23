@@ -10,11 +10,11 @@ import java.util.Calendar;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * @author jim
  * 
  */
 public enum DateTimeNumericEncoding {
 
+  /** Encoding for dates in nanoseconds */
   TIME_EPOCH_NANOS {
     private static final long SECONDS_PER_DAY = 3600 * 24;
     private static final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
@@ -61,6 +61,7 @@ public enum DateTimeNumericEncoding {
     }
 
   },
+  /** Encoding for dates in millisecond */
   TIME_EPOCH_MILLIS {
     private static final long MILLIS_PER_DAY = 3600 * 24 * 1000;
     private static final long MILLIS_PER_SECOND = 1000;
@@ -104,6 +105,7 @@ public enum DateTimeNumericEncoding {
       throw new OpenGammaRuntimeException("Impossible");
     }
   },
+  /** Encoding for dates in seconds */
   TIME_EPOCH_SECONDS {
     private static final long SECONDS_PER_DAY = 3600 * 24;
     private static final long MILLIS_PER_SECOND = 1000;
@@ -147,6 +149,7 @@ public enum DateTimeNumericEncoding {
       throw new OpenGammaRuntimeException("Impossible");
     }
   },
+  /** Encoding for dates in date form */
   DATE_EPOCH_DAYS {
     private static final long SECONDS_PER_DAY = 3600 * 24;
     private static final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
@@ -190,6 +193,7 @@ public enum DateTimeNumericEncoding {
       throw new OpenGammaRuntimeException("Impossible");
     }
   },
+  /** Encoding for dates in DD-MM-YYYY form*/
   DATE_DDMMYYYY {
     private static final long MILLIS_PER_DAY = 3600 * 24 * 1000;
     private static final long MILLIS_PER_SECOND = 1000;

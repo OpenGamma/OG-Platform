@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class StatusEntry {
   

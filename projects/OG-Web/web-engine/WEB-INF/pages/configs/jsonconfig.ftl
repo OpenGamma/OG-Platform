@@ -10,5 +10,5 @@
 </#if>
       "type":"${type}",
       "configData" : ${configData}
-   	}
+    }
 }

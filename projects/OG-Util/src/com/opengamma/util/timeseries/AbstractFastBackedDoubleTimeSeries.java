@@ -62,8 +62,8 @@ import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTim
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * @author jim
  * 
+ * @param <DATE_TYPE> Type of the dates
  */
 public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements DoubleTimeSeries<DATE_TYPE>, FastBackedDoubleTimeSeries<DATE_TYPE> {
   public abstract DateTimeConverter<DATE_TYPE> getConverter();

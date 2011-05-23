@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 
 /**
@@ -17,12 +17,12 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date, 
  * i.e. 0 for normal options and x for x-year mid-curve options.
  */
-public class InterestRateFutureOptionPremiumTransactionSABRMethod extends InterestRateFutureOptionPremiumTransactionMethod {
+public class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionMethod {
 
   /**
    * The method used to compute the underlying security price.
    */
-  private static final InterestRateFutureOptionPremiumSecuritySABRMethod METHOD_SECURITY = new InterestRateFutureOptionPremiumSecuritySABRMethod();
+  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
   /**
    * Computes the present value of a transaction from the future price and SABR data.
@@ -31,9 +31,9 @@ public class InterestRateFutureOptionPremiumTransactionSABRMethod extends Intere
    * @param priceFuture The price of the underlying future.
    * @return The present value.
    */
-  public double presentValueFromFuturePrice(final InterestRateFutureOptionPremiumTransaction transaction, final SABRInterestRateDataBundle sabrData, final double priceFuture) {
+  public double presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData, final double priceFuture) {
     double priceSecurity = METHOD_SECURITY.optionPriceFromFuturePrice(transaction.getUnderlyingOption(), sabrData, priceFuture);
-    double priceTransaction = presentValueFromPrice(transaction, sabrData, priceSecurity);
+    double priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
@@ -43,17 +43,17 @@ public class InterestRateFutureOptionPremiumTransactionSABRMethod extends Intere
    * @param sabrData The SABR data bundle. 
    * @return The present value.
    */
-  public double presentValue(final InterestRateFutureOptionPremiumTransaction transaction, final SABRInterestRateDataBundle sabrData) {
+  public double presentValue(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
     double priceSecurity = METHOD_SECURITY.optionPrice(transaction.getUnderlyingOption(), sabrData);
-    double priceTransaction = presentValueFromPrice(transaction, sabrData, priceSecurity);
+    double priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
   @Override
   public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof InterestRateFutureOptionPremiumTransaction, "Interest rate future option transaction");
+    Validate.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "Interest rate future option transaction");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Interest rate future option transaction");
-    return presentValue((InterestRateFutureOptionPremiumTransaction) instrument, (SABRInterestRateDataBundle) curves);
+    return presentValue((InterestRateFutureOptionMarginTransaction) instrument, (SABRInterestRateDataBundle) curves);
   }
 
 }

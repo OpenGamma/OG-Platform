@@ -19,16 +19,16 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface SQLDateDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBackedDoubleTimeSeries<Date> {
 
+  /** */
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<Date> implements SQLDateDoubleTimeSeries {
     public Integer(final DateTimeConverter<Date> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
     }
-    
+
     @Override
     public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
       return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
@@ -37,6 +37,7 @@ public interface SQLDateDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBac
     public abstract SQLDateDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
   }
 
+  /** */
   public abstract static class Long extends AbstractLongDoubleTimeSeries<Date> implements SQLDateDoubleTimeSeries {
     public Long(final DateTimeConverter<Date> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);

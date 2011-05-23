@@ -13,10 +13,11 @@ import java.util.Map.Entry;
  */
 public class ToStringHelper {
   
-  public static String toString(TimeSeries ts) {
+  public static String toString(@SuppressWarnings("rawtypes") TimeSeries ts) {
     StringBuilder sb = new StringBuilder();
     sb.append(ts.getClass().getSimpleName());
     sb.append("["); 
+    @SuppressWarnings("unchecked")
     Iterator<Entry<?, ?>> iterator = ts.iterator();
     while (iterator.hasNext()) {
       Entry<?, ?> next = iterator.next();

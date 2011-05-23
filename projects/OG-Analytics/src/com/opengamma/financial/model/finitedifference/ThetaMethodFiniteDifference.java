@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.surface.Surface;
@@ -16,21 +18,24 @@ import com.opengamma.math.surface.Surface;
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
 
   private final double _theta;
+  private final boolean _showFullResults;
 
   /**
    * Sets up a standard Crank-Nicolson scheme 
    */
   public ThetaMethodFiniteDifference() {
     _theta = 0.5;
+    _showFullResults = false;
   }
 
   /**
    * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
    * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit 
    */
-  public ThetaMethodFiniteDifference(final double theta) {
+  public ThetaMethodFiniteDifference(final double theta, final boolean showFullResults) {
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
     _theta = theta;
+    _showFullResults = showFullResults;
   }
 
   @Override
@@ -44,6 +49,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     final int xNodes = grid.getNumSpaceNodes();
 
     final double[] f = new double[xNodes];
+    double[][] full = null;
+    if (_showFullResults) {
+      full = new double[tNodes][xNodes];
+    }
     final double[] q = new double[xNodes];
     final double[][] m = new double[xNodes][xNodes];
 
@@ -61,6 +70,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     for (int i = 0; i < xNodes; i++) {
       f[i] = pdeData.getInitialValue(grid.getSpaceNode(i));
+    }
+    if (_showFullResults) {
+      full[0] = Arrays.copyOf(f, f.length);
     }
 
     for (int i = 0; i < xNodes - 2; i++) {
@@ -122,6 +134,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, t2);
 
       sor(grid, freeBoundary, xNodes, f, q, m, t2);
+      if (_showFullResults) {
+        full[n] = Arrays.copyOf(f, f.length);
+      }
 
       a1 = a2;
       b1 = b2;
@@ -129,7 +144,13 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       rho1 = rho2;
     }
 
-    return new PDETerminalResults1D(grid, f);
+    PDEResults1D res;
+    if (_showFullResults) {
+      res = new PDEFullResults1D(grid, full);
+    } else {
+      res = new PDETerminalResults1D(grid, f);
+    }
+    return res;
 
   }
 
