@@ -77,6 +77,7 @@ public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<Y
     ArgumentChecker.notNull(object, "yield curve definition");
     JSONObject jsonObject = new JSONObject();
     try {
+      jsonObject.put(String.valueOf(0), YieldCurveDefinition.class.getName());
       jsonObject.put(NAME_FIELD, object.getName());
       jsonObject.put(INTERPOLATOR_NAME_FIELD, object.getInterpolatorName());
       jsonObject.put(CURRENCY_FIELD, object.getCurrency().getCode());
