@@ -27,6 +27,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.impl.MockPositionSource;
@@ -156,6 +157,14 @@ public class CancelExecutionTest {
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
         return null;
+      }
+
+      @Override
+      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+      }
+
+      @Override
+      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
       }
     };
     

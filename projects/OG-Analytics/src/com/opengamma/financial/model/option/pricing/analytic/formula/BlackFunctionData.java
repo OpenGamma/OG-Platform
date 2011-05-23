@@ -26,7 +26,6 @@ public class BlackFunctionData {
    * @param sigma The Black volatility 
    */
   public BlackFunctionData(final double forward, final double numeraire, final double sigma) {
-   // Validate.isTrue(numeraire <= 1 && numeraire > 0, "discount factor must be <= 1 and > 0");
     _f = forward;
     _numeraire = numeraire;
     _sigma = sigma;

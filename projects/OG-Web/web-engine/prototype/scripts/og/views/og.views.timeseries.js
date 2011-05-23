@@ -1,5 +1,5 @@
 /**
- * view for securities section
+ * view for timeseries section
  */
 $.register_module({
     name: 'og.views.timeseries',
@@ -28,6 +28,7 @@ $.register_module({
             layout = og.views.common.layout,
             module = this,
             page_name = 'timeseries',
+            filter_rule_str = '/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
             check_state = og.views.common.state.check.partial('/' + page_name),
             details_json = {},
             timeseries,
@@ -139,7 +140,7 @@ $.register_module({
                 timeseries.search(args);
                 routes.go(routes.hash(module.rules.load_timeseries, args));
             },
-            default_page = function () {
+            default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Timeseries',
@@ -148,66 +149,9 @@ $.register_module({
                         new_list: history.get_html('history.timeseries.new') || 'no new timeseries'
                     }).appendTo($('#OG-details .og-main').empty());
                 }});
-            };
-        module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
-            load_filter: {route: '/' + page_name +
-                    '/filter:/:id?/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_filter'
             },
-            load_delete: {route: '/' + page_name +
-                    '/:id/deleted:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_delete'
-            },
-            load_timeseries: {route: '/' + page_name +
-                    '/:id/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_' + page_name},
-            load_new_timeseries: {route: '/' + page_name +
-                    '/:id/new:/identifier:?/data_source:?/data_provider:?/data_field:?/observation_time:?',
-                    method: module.name + '.load_new_' + page_name
-            }
-        };
-        return timeseries = {
-            load: function (args) {
-                masthead.menu.set_tab(page_name);
-                layout('default');
-                ui.toolbar(options.toolbar['default']);
-                search.load($.extend(options.slickgrid, {url: args}));
-                default_page();
-            },
-            load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        timeseries.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_timeseries, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
-                ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
-            },
-            load_delete: function (args) {
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load, {}));
-            },
-            load_new_timeseries: load_timeseries_without.partial('new'),
-            load_timeseries: function (args) {
-                // Load search if changed
-                if (routes.last()) {
-                    if (routes.last().page !== module.rules.load.route) {
-                        masthead.menu.set_tab(page_name);
-                        ui.toolbar(options.toolbar.active);
-                        search.load($.extend(search_options, {url: args}));
-                    } else ui.toolbar(options.toolbar.active);
-                } else {
-                    masthead.menu.set_tab(page_name);
-                    ui.toolbar(options.toolbar.active);
-                    search.load($.extend(options.slickgrid, {url: args}));
-                }
-                // Setup details page
-                layout('default');
+            details_page = function (args) {
+                ui.toolbar(options.toolbar.active);
                 api.rest.timeseries.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -242,7 +186,55 @@ $.register_module({
                         ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
+            };
+        module.rules = {
+            load: {route: '/' + page_name + '/:id?' + filter_rule_str, method: module.name + '.load'},
+            load_filter:
+                {route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'},
+            load_delete:
+                {route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'},
+            load_timeseries:
+                {route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name},
+            load_new_timeseries:
+                {route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name}
+        };
+        return timeseries = {
+            load: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        timeseries.search(args);
+                        masthead.menu.set_tab(page_name);
+                        layout('default');
+                    }}
+                ]});
+                if (args.id) return;
+                default_details_page();
+                ui.toolbar(options.toolbar['default']);
             },
+            load_filter: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        state = {filter: true};
+                        timeseries.load(args);
+                        args.id
+                            ? routes.go(routes.hash(module.rules.load_timeseries, args))
+                            : routes.go(routes.hash(module.rules.load, args));
+                    }}
+                ]});
+                delete args['filter'];
+                search.filter($.extend(args, {filter: true}));
+            },
+            load_delete: function (args) {
+                timeseries.search(args);
+                routes.go(routes.hash(module.rules.load, {}));
+            },
+            load_new_timeseries: load_timeseries_without.partial('new'),
+            load_timeseries: function (args) {
+                check_state({args: args, conditions: [{new_page: timeseries.load}]});
+                timeseries.details(args);
+            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            details: function (args) {details_page(args);},
             init: function () {
                 for (var rule in module.rules) routes.add(module.rules[rule]);
             },

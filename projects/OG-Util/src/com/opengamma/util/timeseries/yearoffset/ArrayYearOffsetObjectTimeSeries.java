@@ -16,8 +16,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastListLongObjectTimeS
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the data 
  */
 public class ArrayYearOffsetObjectTimeSeries<T> extends YearOffsetObjectTimeSeries.Long<T> {
   private static final FastListLongObjectTimeSeries<?> DEFAULT_SERIES_TEMPLATE = new FastListLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);

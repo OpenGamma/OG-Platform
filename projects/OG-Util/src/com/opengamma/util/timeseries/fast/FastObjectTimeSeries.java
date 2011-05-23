@@ -13,222 +13,223 @@ import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @param <FAST_DATE_T, T>
+ * @param <FAST_DATE_T> The type of the dates (a "fast" type - e.g., int)
+ * @param <T> The type of the data
  * 
- * @author jim
  */
 public interface FastObjectTimeSeries<FAST_DATE_T, T> extends ObjectTimeSeries<FAST_DATE_T, T> {
 
-  public abstract DateTimeNumericEncoding getEncoding();
+  DateTimeNumericEncoding getEncoding();
 
-  public abstract DateTimeResolution getDateTimeResolution();
+  DateTimeResolution getDateTimeResolution();
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> operate(final UnaryOperator<T> operator);
+  FastObjectTimeSeries<FAST_DATE_T, T> operate(final UnaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> operate(final T other,
+  FastObjectTimeSeries<FAST_DATE_T, T> operate(final T other, final BinaryOperator<T> operator);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastLongObjectTimeSeries<T> other,
       final BinaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+  FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastIntObjectTimeSeries<T> other,
+      final BinaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+  FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastBackedObjectTimeSeries<?, T> other,
+      final BinaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator);
+  FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(final FastLongObjectTimeSeries<T> other,
+      final BinaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(
-      final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(
+  FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(
       final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(
+  FastObjectTimeSeries<FAST_DATE_T, T> unionOperate(
       final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator);
 
-  
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
-  
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other);
- 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
- 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other);
- 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other);
- 
-  public abstract FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other);
-  // public abstract FastObjectTimeSeries<T> add(FastBackedDoubleTimeSeries<?>
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other);
+
+  FastObjectTimeSeries<FAST_DATE_T, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other);
+  // FastObjectTimeSeries<T> add(FastBackedDoubleTimeSeries<?>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> add(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> add(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> add(FastIntDoubleTimeSeries other);
+  // FastObjectTimeSeries<T> add(FastIntDoubleTimeSeries other);
   //
-  // public abstract FastObjectTimeSeries<T> add(double other);
+  // FastObjectTimeSeries<T> add(double other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionAdd(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> unionAdd(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> unionAdd(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> unionAdd(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> unionAdd(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // subtract(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> subtract(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> subtract(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> subtract(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> subtract(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> subtract(double other);
+  // FastObjectTimeSeries<T> subtract(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionSubtract(
+  // FastObjectTimeSeries<T> unionSubtract(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionSubtract(FastIntDoubleTimeSeries other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionSubtract(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // multiply(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> multiply(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> multiply(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> multiply(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> multiply(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> multiply(double other);
+  // FastObjectTimeSeries<T> multiply(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionMultiply(
+  // FastObjectTimeSeries<T> unionMultiply(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMultiply(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMultiply(FastIntDoubleTimeSeries other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // divide(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> divide(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> divide(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> divide(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> divide(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> divide(double other);
+  // FastObjectTimeSeries<T> divide(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionDivide(
+  // FastObjectTimeSeries<T> unionDivide(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionDivide(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T> unionDivide(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> unionDivide(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> power(FastBackedDoubleTimeSeries<?>
+  // FastObjectTimeSeries<T> power(FastBackedDoubleTimeSeries<?>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> power(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> power(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> power(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> power(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> power(double other);
+  // FastObjectTimeSeries<T> power(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionPower(
+  // FastObjectTimeSeries<T> unionPower(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> unionPower(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> unionPower(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> unionPower(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> unionPower(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // minimum(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> minimum(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> minimum(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> minimum(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> minimum(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> minimum(double other);
+  // FastObjectTimeSeries<T> minimum(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionMinimum(
+  // FastObjectTimeSeries<T> unionMinimum(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMinimum(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMinimum(FastIntDoubleTimeSeries other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // maximum(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> maximum(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> maximum(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> maximum(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> maximum(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> maximum(double other);
+  // FastObjectTimeSeries<T> maximum(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionMaximum(
+  // FastObjectTimeSeries<T> unionMaximum(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMaximum(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionMaximum(FastIntDoubleTimeSeries other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // average(FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T> average(FastIntDoubleTimeSeries
+  // FastObjectTimeSeries<T> average(FastIntDoubleTimeSeries
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> average(FastObjectDoubleTimeSeries<T>
+  // FastObjectTimeSeries<T> average(FastObjectDoubleTimeSeries<T>
   // other);
   //
-  // public abstract FastObjectTimeSeries<T> average(double other);
+  // FastObjectTimeSeries<T> average(double other);
   //
-  // public abstract FastObjectTimeSeries<T> unionAverage(
+  // FastObjectTimeSeries<T> unionAverage(
   // FastBackedDoubleTimeSeries<?> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionAverage(FastObjectDoubleTimeSeries<T> other);
   //
-  // public abstract FastObjectTimeSeries<T>
+  // FastObjectTimeSeries<T>
   // unionAverage(FastIntDoubleTimeSeries other);
   //
 
   //
-  // public abstract FastObjectTimeSeries<T> negate();
+  // FastObjectTimeSeries<T> negate();
   //
-  // public abstract FastObjectTimeSeries<T> reciprocal();
+  // FastObjectTimeSeries<T> reciprocal();
   //
-  // public abstract FastObjectTimeSeries<T> log();
+  // FastObjectTimeSeries<T> log();
   //
-  // public abstract FastObjectTimeSeries<T> log10();
+  // FastObjectTimeSeries<T> log10();
   //
-  // public abstract FastObjectTimeSeries<T> abs();
+  // FastObjectTimeSeries<T> abs();
 
-  // public abstract double[] valuesArrayFast();
+  // double[] valuesArrayFast();
 
-  // public abstract double maxValue();
+  // double maxValue();
   //
-  // public abstract double minValue();
+  // double minValue();
 }

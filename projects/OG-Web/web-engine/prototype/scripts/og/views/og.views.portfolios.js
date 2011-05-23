@@ -280,23 +280,18 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter_node: {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
+            load_filter_node:
+                {route: '/' + page_name + '/filter:/:id/:node?/name:?', method: module.name + '.load_filter'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_delete_node: {
-                route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'
-            },
-            load_delete: {
-                route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'
-            },
-            load_portfolios: {
-                route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name
-            },
-            load_new_portfolios: {
-                route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name
-            },
-            load_edit_portfolios: {
-                route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name
-            }
+            load_delete_node:
+                {route: '/' + page_name + '/deleted:/:id/:node?/name:?', method: module.name + '.load_delete'},
+            load_delete:
+                {route: '/' + page_name + '/deleted:/:id?/name:?', method: module.name + '.load_delete'},
+            load_portfolios: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name},
+            load_new_portfolios:
+                {route: '/' + page_name + '/:id/:node?/new:/name:?', method: module.name + '.load_new_' + page_name},
+            load_edit_portfolios:
+                {route: '/' + page_name + '/:id/:node?/edit:/name:?', method: module.name + '.load_edit_' + page_name}
         };
         return portfolios = {
             load: function (args) {

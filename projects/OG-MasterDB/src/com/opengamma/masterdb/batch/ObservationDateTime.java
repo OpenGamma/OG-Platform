@@ -13,7 +13,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * 
+ * Hibernate bean.
  */
 public class ObservationDateTime {
   

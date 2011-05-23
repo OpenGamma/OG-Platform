@@ -153,13 +153,13 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response postJSON(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configJSON") String json) {
     name = StringUtils.trimToNull(name);
-    xml = StringUtils.trimToNull(xml);
-    if (name == null || xml == null) {
+    json = StringUtils.trimToNull(json);
+    if (name == null || json == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    final Pair<Object, Class<?>> typedValue = parseXML(xml);
+    final Pair<Object, Class<?>> typedValue = parseJSON(json);
     ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
     doc.setName(name);
     doc.setValue(typedValue.getFirst());

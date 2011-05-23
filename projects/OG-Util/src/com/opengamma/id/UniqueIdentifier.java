@@ -188,7 +188,7 @@ public final class UniqueIdentifier
    * Returns a copy of this identifier with the specified scheme.
    * 
    * @param scheme  the new scheme of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, never null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, not null
    */
   public UniqueIdentifier withScheme(final String scheme) {
     return UniqueIdentifier.of(scheme, _value, _version);
@@ -198,7 +198,7 @@ public final class UniqueIdentifier
    * Returns a copy of this identifier with the specified value.
    * 
    * @param value  the new value of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, never null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, not null
    */
   public UniqueIdentifier withValue(final String value) {
     return UniqueIdentifier.of(_scheme, value, _version);
@@ -208,7 +208,7 @@ public final class UniqueIdentifier
    * Returns a copy of this identifier with the specified version.
    * 
    * @param version  the new version of the identifier, empty treated as null, null treated as latest version
-   * @return the created identifier with the specified version, never null
+   * @return the created identifier with the specified version, not null
    */
   public UniqueIdentifier withVersion(final String version) {
     if (ObjectUtils.equals(version, _version)) {

@@ -140,7 +140,7 @@ public final class ObjectIdentifier
    * Returns a copy of this identifier with the specified scheme.
    * 
    * @param scheme  the new scheme of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, never null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified scheme, not null
    */
   public ObjectIdentifier withScheme(final String scheme) {
     return ObjectIdentifier.of(scheme, _value);
@@ -150,7 +150,7 @@ public final class ObjectIdentifier
    * Returns a copy of this identifier with the specified value.
    * 
    * @param value  the new value of the identifier, not empty, not null
-   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, never null
+   * @return an {@link ObjectIdentifier} based on this identifier with the specified value, not null
    */
   public ObjectIdentifier withValue(final String value) {
     return ObjectIdentifier.of(_scheme, value);
@@ -163,7 +163,7 @@ public final class ObjectIdentifier
    * This creates a new unique identifier based on this object identifier marked
    * to retrieve the latest version.
    * 
-   * @return a {@link UniqueIdentifier} based on this identifier at the latest version, never null
+   * @return a {@link UniqueIdentifier} based on this identifier at the latest version, not null
    */
   public UniqueIdentifier atLatestVersion() {
     return UniqueIdentifier.of(_scheme, _value, null);
@@ -176,7 +176,7 @@ public final class ObjectIdentifier
    * the specified version.
    * 
    * @param version  the new version of the identifier, empty treated as null, null treated as latest version
-   * @return a {@link UniqueIdentifier} based on this identifier at the specified version, never null
+   * @return a {@link UniqueIdentifier} based on this identifier at the specified version, not null
    */
   public UniqueIdentifier atVersion(final String version) {
     return UniqueIdentifier.of(_scheme, _value, version);

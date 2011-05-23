@@ -92,13 +92,12 @@ public class DoubleTimeSeriesOperators {
   }
 
   /**
-   * @author jim
    *         Interface to be implemented by any unary operation on time series.
    *         Public so
    *         that custom implementations can be passed to @method operate.
    */
   public interface UnaryOperator {
-    public double operate(double a);
+    double operate(double a);
   }
 
   private static class ReciprocalOperator implements UnaryOperator {

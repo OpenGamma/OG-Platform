@@ -20,25 +20,22 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.tuple.LongDoublePair;
 
 /**
- * @author jim
  * 
  */
 public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
-  final LongArrayList _times;
-  final DoubleArrayList _values;
+  private final LongArrayList _times;
+  private final DoubleArrayList _values;
 
   public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -53,7 +50,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     ensureTimesSorted();
   }
 
-  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<Double> values) {
+  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<Double> values) {
     super(encoding);
     _times = new LongArrayList(times);
     _values = new DoubleArrayList(values);
@@ -66,7 +64,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     _values = new DoubleArrayList(dts.valuesArrayFast());
     // don't need to check here
   }
-  
+
   public FastListLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastLongDoubleTimeSeries dts) {
     super(encoding);
     long[] timesArrayFast = dts.timesArrayFast(); // NOTE: we can't do it this way if we change to returning the backing array.
@@ -77,7 +75,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     _times = new LongArrayList(timesArrayFast);
     _values = new DoubleArrayList(dts.valuesArrayFast());
   }
-  
+
   public FastListLongDoubleTimeSeries(final FastIntDoubleTimeSeries dts) {
     super(dts.getEncoding());
     int[] timesArrayFast = dts.timesArrayFast();
@@ -88,7 +86,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     _values = new DoubleArrayList(dts.valuesArrayFast());
     // don't need to check here
   }
-  
+
   public FastListLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastIntDoubleTimeSeries dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
@@ -205,7 +203,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     if (startIndex == -1 || endIndex == -1) {
       throw new NoSuchElementException();
     }
-    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
+    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(
+        startIndex, endIndex));
   }
 
   @Override
@@ -239,8 +238,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   private class PrimitiveListLongDoubleTimeSeriesIterator implements ObjectIterator<Long2DoubleMap.Entry> {
-    LongIterator _longIter;
-    DoubleIterator _doubleIter;
+    private LongIterator _longIter;
+    private DoubleIterator _doubleIter;
 
     public PrimitiveListLongDoubleTimeSeriesIterator() {
       _longIter = _times.iterator();
@@ -331,10 +330,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   public FastLongDoubleTimeSeries tailFast(final int numItems) {
     // note I used _times.size for the second part so it we didn't need two
     // method calls as the optimizer is unlikely to spot it.
-    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
+    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(_times.size() - numItems, _times.size()),
+        _values.subList(_times.size() - numItems, _times.size()));
   }
 
   /**
+   * {@inheritDoc}
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */

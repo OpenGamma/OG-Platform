@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate.future.method;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -24,8 +25,10 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
+import com.opengamma.financial.interestrate.PresentValueSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
@@ -72,6 +75,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final InterestRateFutureTransaction FUTURE_TRANSACTION = new InterestRateFutureTransaction(ERU2, QUANTITY, TRADE_PRICE);
   // Method
   private static final InterestRateFutureTransactionDiscountingMethod METHOD = new InterestRateFutureTransactionDiscountingMethod();
+  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
 
   @Test
   public void presentValueFromPrice() {
@@ -86,9 +90,8 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
    * Test the present value computed from the curves
    */
   public void presentValue() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    double pv = METHOD.presentValue(FUTURE_TRANSACTION, curves);
-    YieldAndDiscountCurve forwardCurve = curves.getCurve(FORWARD_CURVE_NAME);
+    double pv = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
+    YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
     double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
     double expectedPv = (1 - forward - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
     assertEquals("Present value from quoted price", expectedPv, pv);
@@ -99,19 +102,18 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
    * Comparison of value from the method and value from the present value calculator.
    */
   public void methodVsCalculator() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    double pvMethod = METHOD.presentValue(FUTURE_TRANSACTION, curves);
+    double pvMethod = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
     PresentValueCalculator pvc = PresentValueCalculator.getInstance();
-    double pvCalculator = pvc.visit(FUTURE_TRANSACTION, curves);
+    double pvCalculator = pvc.visit(FUTURE_TRANSACTION, CURVES);
     assertEquals("Future discounting: method comparison with present value calculator", pvMethod, pvCalculator);
   }
 
+  @Test
   /**
    * Test the present value curves sensitivity computed from the curves
    */
   public void presentValueCurveSensitivity() {
-    YieldCurveBundle curves = TestsDataSets.createCurves1();
-    PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(FUTURE_TRANSACTION, curves);
+    PresentValueSensitivity pvsFuture = METHOD.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
     pvsFuture.clean();
     double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
@@ -122,7 +124,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
         NAME, DISCOUNTING_CURVE_NAME, bumpedCurveName);
     InterestRateFutureTransaction futureTransactionBumpedForward = new InterestRateFutureTransaction(futureSecutiryBumpedForward, QUANTITY, TRADE_PRICE);
     double[] nodeTimesForward = new double[] {ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumpedForward, curves, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(futureTransactionBumpedForward, CURVES, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
     List<DoublesPair> sensiPvForward = pvsFuture.getSensitivity().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
@@ -130,6 +132,29 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
       assertEquals("Sensitivity future pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
     }
+  }
+
+  @Test
+  /**
+   * Tests that the method return the same result as the calculator.
+   */
+  public void presentValueCurveSensitivityMethodVsCalculator() {
+    PresentValueSensitivityCalculator calculator = PresentValueSensitivityCalculator.getInstance();
+    Map<String, List<DoublesPair>> sensiCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
+    PresentValueSensitivity sensiMethod = METHOD.presentValueCurveSensitivity(FUTURE_TRANSACTION, CURVES);
+    assertEquals("Future discounting curve sensitivity: method comparison with present value calculator", sensiCalculator, sensiMethod.getSensitivity());
+  }
+
+  @Test
+  /**
+   * Test the rate computed from the method and from the calculator.
+   */
+  public void parRateMethodVsCalculator() {
+    InterestRateFutureSecurityDiscountingMethod methodSecurity = new InterestRateFutureSecurityDiscountingMethod();
+    double rateMethod = methodSecurity.parRate(FUTURE_TRANSACTION.getUnderlyingFuture(), CURVES);
+    ParRateCalculator calculator = ParRateCalculator.getInstance();
+    double rateCalculator = calculator.visit(FUTURE_TRANSACTION, CURVES);
+    assertEquals("Future rate from curves", rateMethod, rateCalculator, 1.0E-10);
   }
 
 }

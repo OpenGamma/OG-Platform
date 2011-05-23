@@ -8,7 +8,7 @@
 <#if deleted>
       "deleted":"${configDoc.versionToInstant}",
 </#if>
-      "type":"${configDoc.value.class.simpleName}",
+      "type":"${type}",
       "configData" : ${configData}
     }
 }

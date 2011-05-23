@@ -168,25 +168,8 @@ $.register_module({
             },
             batches: { // all requests that begin with /batches
                 root: 'batches',
-                get: function (config) {
-                    var root = this.root, method = [root], data = {}, meta,
-                        page_size = str(config.page_size) || PAGE_SIZE, page = str(config.page) || PAGE,
-                        observation_date = str(config.observation_date),
-                        observation_time = str(config.observation_time),
-                        is_id = !config.search && !!observation_date && !!observation_time;
-                    meta = check({
-                        bundle: {method: root + '#get', config: config},
-                        empties: [{condition: is_id, label: 'unique batch requested', fields: ['page', 'page_size']}]
-                    });
-                    if (is_id) {
-                        method.push(observation_date, observation_time);
-                    } else {
-                        data = {pageSize: page_size, page: page};
-                        if (observation_date) data.observationDate = observation_date;
-                        if (observation_time) data.observationTime = observation_time;
-                    }
-                    return request(method, {data: data, meta: meta});
-                },
+                get: default_get.partial(['observation_date', 'observation_time'],
+                        ['observationDate', 'observationTime']),
                 put: not_available.partial('put'),
                 del: not_available.partial('del')
             },

@@ -81,13 +81,13 @@
   </bean>
   
   <!-- Region source -->
-  <!-- TODO [FIN-202] -->
+  <!-- TODO [PLAT-674] -->
   <bean id="regionFileReader" class="com.opengamma.master.region.impl.RegionFileReader" factory-method="createPopulated" />
   <bean id="regionMaster" factory-bean="regionFileReader" factory-method="getRegionMaster" />
   <bean id="regionSource" factory-bean="regionFileReader" factory-method="getRegionSource" />
   
   <!-- Conventions -->
-  <!-- TODO [FIN-203] -->
+  <!-- TODO [PLAT-637] -->
   <bean id="conventionBundleSource" class="com.opengamma.financial.convention.DefaultConventionBundleSource">
     <constructor-arg>
       <bean class="com.opengamma.financial.convention.InMemoryConventionBundleMaster"/>
@@ -95,7 +95,7 @@
   </bean>
   
   <!-- Config Source -->
-  <!-- TODO [ENG-273] -->
+  <!-- TODO [PLAT-432] -->
   <bean id="configSource" class="com.opengamma.master.config.impl.MasterConfigSource">
     <constructor-arg>
 		  <bean class="com.opengamma.masterdb.config.DbConfigMaster">
@@ -145,7 +145,7 @@
   </bean>
   
   <!-- Exchange Source -->
-  <!-- TODO [FIN-204] -->
+  <!-- TODO [PLAT-670] -->
   <bean id="exchangeSource" class="com.opengamma.master.exchange.impl.MasterExchangeSource">
     <constructor-arg>
 		  <bean class="com.opengamma.masterdb.exchange.DbExchangeMaster">
@@ -195,7 +195,7 @@
   </bean>
   
   <!-- Holiday Source -->
-  <!-- TODO [FIN-205] -->
+  <!-- TODO [PLAT-667] -->
   <bean id="holidaySource" class="com.opengamma.master.holiday.impl.EHCachingMasterHolidaySource">
     <constructor-arg>
 		  <bean class="com.opengamma.masterdb.holiday.DbHolidayMaster">

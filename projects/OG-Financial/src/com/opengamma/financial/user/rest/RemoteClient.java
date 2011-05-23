@@ -5,8 +5,11 @@
  */
 package com.opengamma.financial.user.rest;
 
+import java.net.URI;
+
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
@@ -19,26 +22,177 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 
 /**
- * Provides access to a remote representation of a client
+ * Provides access to a remote representation of a "client". A client is defined as a set of coherent
+ * and related masters. These might be the set of masters corresponding to the "shared" data used by
+ * all users of an OpenGamma instance, or the masters containing data specific to a single user or
+ * perhaps a group of users.
  */
 public class RemoteClient {
 
+  /**
+   * Source of targets for the entities this client will connect to.
+   */
+  public abstract static class TargetProvider {
+
+    protected <T> T notImplemented(final String what) {
+      throw new OpenGammaRuntimeException("The '" + what + "' is not available for this client");
+    }
+
+    public URI getPortfolioMaster() {
+      return notImplemented("portfolioMaster");
+    }
+
+    public URI getPositionMaster() {
+      return notImplemented("positionMaster");
+    }
+
+    public RestTarget getSecurityMaster() {
+      return notImplemented("securityMaster");
+    }
+
+    public URI getViewDefinitionRepository() {
+      return notImplemented("viewDefinitionRepository");
+    }
+
+    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
+      return notImplemented("interpolatedYieldCurveDefinitionMaster");
+    }
+
+    public RestTarget getHeartbeat() {
+      return notImplemented("heartbeat");
+    }
+
+  }
+
+  /**
+   * Source of targets externally specified.
+   */
+  public static final class TargetProviderBean extends TargetProvider {
+
+    private URI _portfolioMaster;
+    private URI _positionMaster;
+    private RestTarget _securityMaster;
+    private URI _viewDefinitionRepository;
+    private RestTarget _interpolatedYieldCurveDefinitionMaster;
+    private RestTarget _heartbeat;
+
+    public void setPortfolioMaster(final URI portfolioMaster) {
+      _portfolioMaster = portfolioMaster;
+    }
+
+    @Override
+    public URI getPortfolioMaster() {
+      return (_portfolioMaster != null) ? _portfolioMaster : super.getPortfolioMaster();
+    }
+
+    public void setPositionMaster(final URI positionMaster) {
+      _positionMaster = positionMaster;
+    }
+
+    @Override
+    public URI getPositionMaster() {
+      return (_positionMaster != null) ? _positionMaster : super.getPositionMaster();
+    }
+
+    public void setSecurityMaster(final RestTarget securityMaster) {
+      _securityMaster = securityMaster;
+    }
+
+    @Override
+    public RestTarget getSecurityMaster() {
+      return (_securityMaster != null) ? _securityMaster : super.getSecurityMaster();
+    }
+
+    public void setViewDefinitionRepositoryUri(final URI viewDefinitionRepository) {
+      _viewDefinitionRepository = viewDefinitionRepository;
+    }
+
+    @Override
+    public URI getViewDefinitionRepository() {
+      return (_viewDefinitionRepository != null) ? _viewDefinitionRepository : super.getViewDefinitionRepository();
+    }
+
+    public void setInterpolatedYieldCurveDefinitionMaster(final RestTarget interpolatedYieldCurveDefinitionMaster) {
+      _interpolatedYieldCurveDefinitionMaster = interpolatedYieldCurveDefinitionMaster;
+    }
+
+    @Override
+    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
+      return (_interpolatedYieldCurveDefinitionMaster != null) ? _interpolatedYieldCurveDefinitionMaster : super.getInterpolatedYieldCurveDefinitionMaster();
+    }
+
+    public void setHeartbeat(final RestTarget heartbeat) {
+      _heartbeat = heartbeat;
+    }
+
+    @Override
+    public RestTarget getHeartbeat() {
+      return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
+    }
+
+  }
+
+  /**
+   * Source of targets built from a single "base" URI.
+   */
+  public static final class BaseUriTargetProvider extends TargetProvider {
+
+    private final RestTarget _baseTarget;
+
+    public BaseUriTargetProvider(final RestTarget baseTarget) {
+      ArgumentChecker.notNull(baseTarget, "baseTarget");
+      _baseTarget = baseTarget;
+    }
+
+    @Override
+    public URI getPortfolioMaster() {
+      return _baseTarget.getURI();
+    }
+
+    @Override
+    public URI getPositionMaster() {
+      return _baseTarget.getURI();
+    }
+
+    @Override
+    public RestTarget getSecurityMaster() {
+      return _baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
+    }
+
+    @Override
+    public URI getViewDefinitionRepository() {
+      return _baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH).getURI();
+    }
+
+    @Override
+    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
+      return _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH);
+    }
+
+    @Override
+    public RestTarget getHeartbeat() {
+      return _baseTarget.resolve(ClientResource.HEARTBEAT_PATH);
+    }
+
+  }
+
   private final String _clientId;
   private final FudgeContext _fudgeContext;
-  private final RestTarget _baseTarget;
+  private final TargetProvider _targetProvider;
   private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
   private SecurityMaster _securityMaster;
   private ManageableViewDefinitionRepository _viewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
 
-  public RemoteClient(String clientId, FudgeContext fudgeContext, RestTarget baseTarget) {
+  public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
     _clientId = clientId;
     _fudgeContext = fudgeContext;
-    _baseTarget = baseTarget;
+    _targetProvider = uriProvider;
   }
 
   public String getClientId() {
@@ -47,35 +201,35 @@ public class RemoteClient {
 
   public PortfolioMaster getPortfolioMaster() {
     if (_portfolioMaster == null) {
-      _portfolioMaster = new RemotePortfolioMaster(_baseTarget.getURI());
+      _portfolioMaster = new RemotePortfolioMaster(_targetProvider.getPortfolioMaster());
     }
     return _portfolioMaster;
   }
 
   public PositionMaster getPositionMaster() {
     if (_positionMaster == null) {
-      _positionMaster = new RemotePositionMaster(_baseTarget.getURI());
+      _positionMaster = new RemotePositionMaster(_targetProvider.getPositionMaster());
     }
     return _positionMaster;
   }
 
   public SecurityMaster getSecurityMaster() {
     if (_securityMaster == null) {
-      _securityMaster = new RemoteSecurityMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.SECURITIES_PATH));
+      _securityMaster = new RemoteSecurityMaster(_fudgeContext, _targetProvider.getSecurityMaster());
     }
     return _securityMaster;
   }
 
   public ManageableViewDefinitionRepository getViewDefinitionRepository() {
     if (_viewDefinitionRepository == null) {
-      _viewDefinitionRepository = new RemoteManageableViewDefinitionRepository(_baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH).getURI());
+      _viewDefinitionRepository = new RemoteManageableViewDefinitionRepository(_targetProvider.getViewDefinitionRepository());
     }
     return _viewDefinitionRepository;
   }
 
   public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
     if (_interpolatedYieldCurveDefinitionMaster == null) {
-      _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH));
+      _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _targetProvider.getInterpolatedYieldCurveDefinitionMaster());
     }
     return _interpolatedYieldCurveDefinitionMaster;
   }
@@ -88,7 +242,7 @@ public class RemoteClient {
    */
   public Runnable createHeartbeatSender() {
     final RestClient client = RestClient.getInstance(_fudgeContext, null);
-    final RestTarget target = _baseTarget.resolve(ClientResource.HEARTBEAT_PATH);
+    final RestTarget target = _targetProvider.getHeartbeat();
     return new Runnable() {
       @Override
       public void run() {
@@ -113,7 +267,7 @@ public class RemoteClient {
 
   public static RemoteClient forClient(FudgeContext fudgeContext, RestTarget usersUri, String username, String clientId) {
     RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientId);
-    return new RemoteClient(clientId, fudgeContext, uri);
+    return new RemoteClient(clientId, fudgeContext, new BaseUriTargetProvider(uri));
   }
 
 }

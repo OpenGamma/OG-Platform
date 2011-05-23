@@ -5,6 +5,10 @@
  */
 package com.opengamma.util.timeseries.fast.longint.object;
 
+/**
+ * 
+ * @param <T> The type of the data
+ */
 public interface FastMutableLongObjectTimeSeries<T> extends FastLongObjectTimeSeries<T> {
   void primitivePutDataPoint(long time, T value);
 

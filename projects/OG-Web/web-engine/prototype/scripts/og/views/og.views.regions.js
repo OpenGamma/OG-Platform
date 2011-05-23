@@ -62,7 +62,7 @@ $.register_module({
                 regions.search(args);
             };
         module.rules = {
-            load: {route: '/' + page_name, method: module.name + '.load'},
+            load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
             load_regions: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name}
         };

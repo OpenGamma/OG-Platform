@@ -12,43 +12,46 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 
-
-
+/**
+ * 
+ * @param <DATE_TYPE> The type of the dates
+ * @param <T> The type of the data
+ */
 public interface ObjectTimeSeries<DATE_TYPE, T> extends TimeSeries<DATE_TYPE, T> {
 
-  // CSOFF: Self-explainatory
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(ObjectTimeSeries<?, T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(ObjectTimeSeries<?, T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other);
-  public ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other);
+  // Self-explanatory
+  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(ObjectTimeSeries<?, T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastLongObjectTimeSeries<T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(ObjectTimeSeries<?, T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastBackedObjectTimeSeries<?, T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastIntObjectTimeSeries<T> other);
+  ObjectTimeSeries<DATE_TYPE, T> intersectionSecondValue(FastLongObjectTimeSeries<T> other);
 
-  public ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, boolean inclusiveStart, DATE_TYPE endTime, boolean exclusiveEnd);
-  public ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);
-  public ObjectTimeSeries<DATE_TYPE, T> head(int numItems);
-  public ObjectTimeSeries<DATE_TYPE, T> tail(int numItems);
+  ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, boolean inclusiveStart, DATE_TYPE endTime, boolean exclusiveEnd);
+  ObjectTimeSeries<DATE_TYPE, T> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);
+  ObjectTimeSeries<DATE_TYPE, T> head(int numItems);
+  ObjectTimeSeries<DATE_TYPE, T> tail(int numItems);
  
-  public ObjectTimeSeries<DATE_TYPE, T> lag(final int days);
+  ObjectTimeSeries<DATE_TYPE, T> lag(final int days);
   
   // conversions
-  public abstract FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries();
+  FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries();
   
-  public abstract FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries();
+  FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries();
   
-  public abstract FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries();
+  FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries();
   
-  public abstract FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries();
+  FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries();
 
-  public abstract FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding);
+  FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding);
   
-  public abstract FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding);
+  FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding);
   
-  public abstract FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding);
+  FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding);
   
-  public abstract FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding);
+  FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding);
   
 //  public abstract MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries();
 //  
