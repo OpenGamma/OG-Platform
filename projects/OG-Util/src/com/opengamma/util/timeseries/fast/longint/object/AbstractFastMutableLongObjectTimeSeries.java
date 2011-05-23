@@ -7,13 +7,13 @@ package com.opengamma.util.timeseries.fast.longint.object;
 
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 
-
 /**
- * @author jim
  *         Contains methods to make Primitive time series work with the normal
  *         non-primitive time series interface (where possible)
+ *         @param <T> The type of the data
  */
-public abstract class AbstractFastMutableLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> implements FastMutableLongObjectTimeSeries<T> {
+public abstract class AbstractFastMutableLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> implements
+    FastMutableLongObjectTimeSeries<T> {
 
   protected AbstractFastMutableLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);

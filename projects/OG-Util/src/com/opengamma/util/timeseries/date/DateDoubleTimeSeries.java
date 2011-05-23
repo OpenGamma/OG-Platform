@@ -23,6 +23,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public interface DateDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBackedDoubleTimeSeries<Date> {
 
+  /** */
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<Date> implements DateDoubleTimeSeries {
     public Integer(final DateTimeConverter<Date> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
@@ -37,6 +38,7 @@ public interface DateDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBacked
    
   }
 
+  /** */
   public abstract static class Long extends AbstractLongDoubleTimeSeries<Date> implements DateDoubleTimeSeries {
     public Long(final DateTimeConverter<Date> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);

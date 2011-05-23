@@ -20,22 +20,20 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 
 /**
- * @author jim
  * 
+ * @param <T> The type of the data
  */
 public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
 
@@ -56,7 +54,8 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
     }
   }
 
-  public FastMapLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<T> values) {
+  public FastMapLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<T> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new OpenGammaRuntimeException("times and values lists must be the same length");
@@ -137,7 +136,7 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
     if (value == _defaultReturnValue) {
       throw new NoSuchElementException();
     }
-    return value; 
+    return value;
   }
 
   @Override
@@ -191,7 +190,7 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
     return _map.entrySet().iterator();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public ObjectIterator<Long2ObjectMap.Entry<T>> iteratorFast() {
     return (ObjectIterator<Long2ObjectMap.Entry<T>>) (ObjectIterator<? extends Map.Entry>) _map.entrySet().iterator();
@@ -200,7 +199,8 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
   @Override
   public FastLongObjectTimeSeries<T> headFast(final int numItems) {
     if (_map.size() < numItems) {
-      throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
+      throw new OpenGammaRuntimeException("cannot get head " + numItems +
+          " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(numItems);
@@ -216,7 +216,8 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
   @Override
   public FastLongObjectTimeSeries<T> tailFast(final int numItems) {
     if (_map.size() < numItems) {
-      throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
+      throw new OpenGammaRuntimeException("cannot get head " + numItems +
+          " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(_map.size() - numItems);

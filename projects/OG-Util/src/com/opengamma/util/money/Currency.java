@@ -21,6 +21,8 @@ import com.opengamma.util.PublicAPI;
  * A unit of currency.
  * <p>
  * This class represents a unit of currency such as the British Pound, Euro or US Dollar.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 @PublicAPI
 public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, Comparable<Currency>, Serializable {
@@ -65,56 +67,48 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    */
   public static final Currency CAD = of("CAD");
 
+  // a selection of other currencies
   /**
-   * The currency 'DKK' - Dutch Krone
+   * The currency 'DKK' - Danish Krone
    */
   public static final Currency DKK = of("DKK");
-  
   /**
    * The currency 'DEM' - Deutsche Mark
    */
   public static final Currency DEM = of("DEM");
-  
   /**
    * The currency 'CZK' - Czeck Krona
    */
   public static final Currency CZK = of("CZK");
-  
   /**
    * The currency 'SEK' - Swedish Krona
    */
   public static final Currency SEK = of("SEK");
-  
   /**
    * The currency 'SKK' - Slovak Korona
    */
   public static final Currency SKK = of("SKK"); 
-  
   /**
    * The currency 'ITL' - Italian Lira
    */
   public static final Currency ITL = of("ITL");
-  
   /**
    * The currency 'HUF' = Hugarian Forint
    */
   public static final Currency HUF = of("HUF");
-  
-  /**
-   * The currency 'HKD' - Hong Kong Dollar
-   */
-  public static final Currency HKD = of("HKD");
-  
   /**
    * The currency 'FRF' - French Franc
    */
   public static final Currency FRF = of("FRF");
-  
   /**
    * The currency 'NOK' - Norwegian Krone 
    */
   public static final Currency NOK = of("NOK");
-  
+  /**
+   * The currency 'HKD' - Hong Kong Dollar
+   */
+  public static final Currency HKD = of("HKD");
+
   /**
    * The currency code, not null.
    */
@@ -127,7 +121,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * This converts the JDK currency instance to a currency unit using the code.
    *
    * @param currency  the currency, not null
-   * @return the singleton instance, never null
+   * @return the singleton instance, not null
    */
   public static Currency of(java.util.Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
@@ -142,7 +136,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * This method creates the currency if it is not known.
    *
    * @param currencyCode  the three letter currency code, ASCII and upper case, not null
-   * @return the singleton instance, never null
+   * @return the singleton instance, not null
    * @throws IllegalArgumentException if the currency code is not three letters
    */
   public static Currency of(String currencyCode) {
@@ -161,7 +155,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * letters to upper case first.
    *
    * @param currencyCode  the three letter currency code, ASCII, not null
-   * @return the singleton instance, never null
+   * @return the singleton instance, not null
    * @throws IllegalArgumentException if the currency code is not three letters
    */
   public static Currency parse(String currencyCode) {
@@ -184,7 +178,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * 
    * @return the singleton, not null
    */
-  public Object readResolve() {
+  private Object readResolve() {
     return of(_code);
   }
 
@@ -229,7 +223,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * <p>
    * This attempts to convert a {@code CurrencyUnit} to a JDK {@code Currency}.
    * 
-   * @return the JDK currency instance, never null
+   * @return the JDK currency instance, not null
    * @throws IllegalArgumentException if no matching currency exists in the JDK
    */
   public java.util.Currency toCurrency() {
@@ -281,7 +275,7 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
   /**
    * Gets the three letter currency code as a string.
    * 
-   * @return the three letter currency code, never null
+   * @return the three letter currency code, not null
    */
   @Override
   public String toString() {

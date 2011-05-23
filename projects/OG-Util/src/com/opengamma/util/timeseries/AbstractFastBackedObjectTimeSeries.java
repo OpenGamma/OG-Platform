@@ -18,6 +18,8 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
 
 /**
  * 
+ * @param <DATE_TYPE> Type of the dates
+ * @param <T> Type of the data
  */
 public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implements ObjectTimeSeries<DATE_TYPE, T>, FastBackedObjectTimeSeries<DATE_TYPE, T> {
   public abstract DateTimeConverter<DATE_TYPE> getConverter();

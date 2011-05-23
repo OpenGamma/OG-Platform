@@ -18,6 +18,7 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 
 /**
  * 
+ * @param <T> The type of the data
  */
 public class ListDateObjectTimeSeries<T> extends MutableDateObjectTimeSeries.Integer<T> {
   private static final FastIntObjectTimeSeries<Object> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(DateTimeNumericEncoding.DATE_EPOCH_DAYS);

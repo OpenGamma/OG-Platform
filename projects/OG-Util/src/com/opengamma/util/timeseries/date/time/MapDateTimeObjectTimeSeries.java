@@ -16,10 +16,11 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMapLongObjectTimeSe
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
+ * @param <T> The type of the data
  */
 public class MapDateTimeObjectTimeSeries<T> extends MutableDateTimeObjectTimeSeries.Long<T> {
+  /** An empty date-time series for data of type Object */
   public static final MapDateTimeObjectTimeSeries<?> EMPTY_SERIES = new MapDateTimeObjectTimeSeries<Object>();
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 
@@ -49,7 +50,7 @@ public class MapDateTimeObjectTimeSeries<T> extends MutableDateTimeObjectTimeSer
     super(s_converter, (FastMutableLongObjectTimeSeries<T>) s_converter.convertToLong(new FastMapLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public MapDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<Date, T> dts) {
     super(new DateEpochMillisConverter(timeZone), (FastMutableLongObjectTimeSeries<T>) new DateEpochMillisConverter(timeZone).convertToLong(new FastMapLongObjectTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));

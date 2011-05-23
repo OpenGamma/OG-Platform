@@ -18,9 +18,11 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 
 /**
  * 
+ * @param <T> The type of the data
  */
 public interface DateObjectTimeSeries<T> extends ObjectTimeSeries<Date, T>, FastBackedObjectTimeSeries<Date, T> {
 
+  /** */
   public abstract static class Integer<T> extends AbstractIntObjectTimeSeries<Date, T> implements DateObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<Date> converter, final FastIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
@@ -35,6 +37,7 @@ public interface DateObjectTimeSeries<T> extends ObjectTimeSeries<Date, T>, Fast
    
   }
 
+  /** */
   public abstract static class Long<T> extends AbstractLongObjectTimeSeries<Date, T> implements DateObjectTimeSeries<T> {
     public Long(final DateTimeConverter<Date> converter, final FastLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);

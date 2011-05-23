@@ -17,11 +17,10 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface YearOffsetDoubleTimeSeries extends DoubleTimeSeries<Double>, FastBackedDoubleTimeSeries<Double> {
-
+  /** */
   public abstract static class Integer extends AbstractIntDoubleTimeSeries<Double> implements YearOffsetDoubleTimeSeries {
     public Integer(final DateTimeConverter<Double> converter, final FastIntDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);
@@ -34,7 +33,7 @@ public interface YearOffsetDoubleTimeSeries extends DoubleTimeSeries<Double>, Fa
 
     public abstract YearOffsetDoubleTimeSeries newInstanceFast(Double[] dateTimes, double[] values);
   }
-
+  /** */
   public abstract static class Long extends AbstractLongDoubleTimeSeries<Double> implements YearOffsetDoubleTimeSeries {
     public Long(final DateTimeConverter<Double> converter, final FastLongDoubleTimeSeries timeSeries) {
       super(converter, timeSeries);

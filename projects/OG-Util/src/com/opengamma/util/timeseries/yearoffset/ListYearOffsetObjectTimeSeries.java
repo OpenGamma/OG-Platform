@@ -15,8 +15,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastListLongObjectTimeS
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the data 
  */
 public class ListYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTimeSeries.Long<T> {
 
@@ -45,22 +44,23 @@ public class ListYearOffsetObjectTimeSeries<T> extends MutableYearOffsetObjectTi
   }
 
   // REVIEW jim 8-Mar-2010 -- we could probably just resuse the converter from dts - should be immutable...
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ListYearOffsetObjectTimeSeries(final YearOffsetObjectTimeSeries<T> dts) {
     super(new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()), 
-        (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset()).convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
+        (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(((YearOffsetEpochMillisConverter) dts.getConverter()).getZonedOffset())
+          .convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
   
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ListYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final YearOffsetObjectTimeSeries<T> dts) {
     super(new YearOffsetEpochMillisConverter(zeroDate), (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(zeroDate).convertToLong(new FastListLongObjectTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ListYearOffsetObjectTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final YearOffsetObjectTimeSeries dts) {
-    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong(new FastListLongObjectTimeSeries(
-        DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
+    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), (FastMutableLongObjectTimeSeries<T>) new YearOffsetEpochMillisConverter(timeZone, zeroDate)
+        .convertToLong(new FastListLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
   public ListYearOffsetObjectTimeSeries(final ZonedDateTime zeroDate, final FastMutableLongObjectTimeSeries<T> pmidts) {
