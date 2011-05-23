@@ -96,12 +96,11 @@ public class CashDefinition implements FixedIncomeInstrumentConverter<Cash> {
       s_logger.warn("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
     }
     final LocalDate settlementDate = getSettlementDate(date.toLocalDate(), _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(date), TimeZone.UTC); //TODO shouldn't need this
     final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
     final DayCount dayCount = _convention.getDayCount();
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double tradeTime = actAct.getDayCountFraction(zonedDate, zonedStartDate);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, _maturityDate);
+    final double tradeTime = actAct.getDayCountFraction(date, zonedStartDate);
+    final double paymentTime = actAct.getDayCountFraction(date, _maturityDate);
     final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
     return new Cash(paymentTime, _rate, tradeTime, yearFraction, yieldCurveNames[0]);
   }

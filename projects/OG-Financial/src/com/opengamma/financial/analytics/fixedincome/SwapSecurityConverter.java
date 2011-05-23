@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.analytics.fixedincome.SwapUtils.SwapType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -65,13 +64,12 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
   @Override
   public FixedIncomeInstrumentConverter<?> visitSwapSecurity(final SwapSecurity security) {
     Validate.notNull(security, "swap security");
-    SwapType swapType = SwapUtils.getSwapType(security);
+    InterestRateInstrumentType swapType = SwapSecurityUtils.getSwapType(security);
     switch (swapType) {
-      case FIXED_IBOR_PAY_FIXED:
-        return getFixedFloatSwapDefinition(security, true);
-      case FIXED_IBOR_RECEIVE_FIXED:
-        return getFixedFloatSwapDefinition(security, false);
-      case IBOR_IBOR:
+      case SWAP_FIXED_IBOR:
+        return SwapSecurityUtils.payFixed(security) ? getFixedFloatSwapDefinition(security, true)
+            : getFixedFloatSwapDefinition(security, false);
+      case SWAP_IBOR_IBOR:
         return getTenorSwapDefinition(security);
       default:
         throw new OpenGammaRuntimeException("Can only handle fixed-floating swaps and floating-floating swaps");

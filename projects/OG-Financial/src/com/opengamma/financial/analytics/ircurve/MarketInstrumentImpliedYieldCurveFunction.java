@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
+import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.FutureSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.SwapSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -98,8 +99,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _forwardCurveDefinition;
   private YieldCurveDefinition _fundingCurveDefinition;
 
-  private final Map<StripInstrumentType, String[]> _fundingCurveInstrumentSensitivities;
-  private final Map<StripInstrumentType, String[]> _forwardCurveInstrumentSensitivities;
+  private final FixedIncomeInstrumentCurveExposureHelper _instrumentCurveExposures;
 
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName) {
     this(currency, curveDefinitionName, curveDefinitionName);
@@ -118,32 +118,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
       final String forwardCurveDefinitionName) {
     _fundingHelper = new YieldCurveFunctionHelper(currency, fundingCurveDefinitionName);
     _forwardHelper = new YieldCurveFunctionHelper(currency, forwardCurveDefinitionName);
-
     _fundingCurveDefinitionName = fundingCurveDefinitionName;
     _forwardCurveDefinitionName = forwardCurveDefinitionName;
     _currencySpec = new ComputationTargetSpecification(currency);
-
-    //TODO none of this should be hard-coded
-    _fundingCurveInstrumentSensitivities = new HashMap<StripInstrumentType, String[]>();
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName,
-        _forwardCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.CASH, new String[] {_fundingCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName,
-        _forwardCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.FUTURE, new String[] {_fundingCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.LIBOR, new String[] {_fundingCurveDefinitionName});
-    _fundingCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName,
-        _forwardCurveDefinitionName, _fundingCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities = new HashMap<StripInstrumentType, String[]>();
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.SWAP, new String[] {_fundingCurveDefinitionName,
-        _forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.CASH, new String[] {_forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.FRA, new String[] {_fundingCurveDefinitionName,
-        _forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.FUTURE, new String[] {_forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.LIBOR, new String[] {_forwardCurveDefinitionName});
-    _forwardCurveInstrumentSensitivities.put(StripInstrumentType.TENOR_SWAP, new String[] {_fundingCurveDefinitionName,
-        _fundingCurveDefinitionName, _forwardCurveDefinitionName});
+    _instrumentCurveExposures = new FixedIncomeInstrumentCurveExposureHelper(fundingCurveDefinitionName,
+        forwardCurveDefinitionName);
   }
 
   @Override
@@ -262,14 +241,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
+        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForFundingCurveInstrument(strip
+            .getInstrumentType());
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue,
-              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
-              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, instrumentExposures);
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -296,14 +275,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
+        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForForwardCurveInstrument(strip
+            .getInstrumentType());
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue,
-              _forwardCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
-              _forwardCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, instrumentExposures);
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
@@ -429,14 +408,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         InterestRateDerivative derivative;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
+        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForFundingCurveInstrument(strip
+            .getInstrumentType());
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue,
-              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now,
-              _fundingCurveInstrumentSensitivities.get(strip.getInstrumentType()));
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, instrumentExposures);
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
