@@ -71,7 +71,7 @@ public abstract class Territory {
     /**
      * Gets the territory id.
      *
-     * @return the territory id, never null
+     * @return the territory id, not null
      */
     public abstract String getID();
 
@@ -79,7 +79,7 @@ public abstract class Territory {
     /**
      * Gets the time zones applicable for the territory.
      *
-     * @return the array of zones, never null
+     * @return the array of zones, not null
      */
     public abstract TimeZone[] getZones();
 

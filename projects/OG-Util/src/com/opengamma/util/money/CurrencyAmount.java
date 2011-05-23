@@ -5,98 +5,173 @@
  */
 package com.opengamma.util.money;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing an amount of a currency.
- */
-public class CurrencyAmount {
+ * An amount of a currency.
+ * <p>
+ * This class effectively represents a monetary amount, however it uses a
+ * {@code double}. This is required for performance reasons.
+ * This design is acceptable because this is a system designed for the calculation
+ * of risk (which is an estimate), rather than a system for accurate accounting of money.
+ * <p>
+ * This class is immutable and thread-safe.
+O */
+public final class CurrencyAmount {
 
   /**
-   * @param currency The currency, not null
-   * @param amount The amount
-   * @return The currency amount
+   * The currency.
+   */
+  private final Currency _currency;
+  /**
+   * The amount.
+   */
+  private final double _amount;
+
+  /**
+   * Obtains an instance of {@code CurrencyAmount} for the specified ISO-4217
+   * three letter currency code dynamically creating a currency if necessary.
+   * <p>
+   * A currency is uniquely identified by ISO-4217 three letter code.
+   * This method creates the currency if it is not known.
+   *
+   * @param currency  the currency the amount is in, not null
+   * @param amount  the amount of the currency to represent
+   * @return the currency amount, not null
    */
   public static CurrencyAmount of(final Currency currency, final double amount) {
     return new CurrencyAmount(currency, amount);
   }
 
-  private final Currency _currency;
-  private final double _amount;
+  /**
+   * Obtains an instance of {@code CurrencyAmount} for the specified ISO-4217
+   * three letter currency code and amount.
+   * <p>
+   * A currency is uniquely identified by ISO-4217 three letter code.
+   * This method creates the currency if it is not known.
+   *
+   * @param currencyCode  the three letter currency code, ASCII and upper case, not null
+   * @param amount  the amount of the currency to represent
+   * @return the currency amount, not null
+   * @throws IllegalArgumentException if the currency code is invalid
+   */
+  public static CurrencyAmount of(final String currencyCode, final double amount) {
+    return of(Currency.of(currencyCode), amount);
+  }
 
   /**
-   * @param currency The currency, not null
-   * @param amount The amount
+   * Creates an instance.
+   * 
+   * @param currency  the currency, not null
+   * @param amount  the amount
    */
-  public CurrencyAmount(final Currency currency, final double amount) {
-    Validate.notNull(currency, "currency");
+  private CurrencyAmount(final Currency currency, final double amount) {
+    ArgumentChecker.notNull(currency, "currency");
     _currency = currency;
     _amount = amount;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return The currency
+   * Gets the currency.
+   * 
+   * @return the currency, not null
    */
   public Currency getCurrency() {
     return _currency;
   }
 
   /**
-   * @return The amount
+   * Gets the amount of the currency.
+   * 
+   * @return the amount
    */
   public double getAmount() {
     return _amount;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Adds another CurrencyAmount to this one. Only allowed for CurrencyAmounts with the same currency.
-   * @param other The CurrencyAmount to add, not null
-   * @return A CurrencyAmount 
-   * @throws IllegalArgumentException If the currencies are not equal
+   * Returns a copy of this {@code CurrencyAmount} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * The addition simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param amountToAdd  the amount to add, in the same currency, not null
+   * @return an amount based on this with the specified amount added, not null
+   * @throws IllegalArgumentException if the currencies are not equal
    */
-  public CurrencyAmount add(final CurrencyAmount other) {
-    Validate.notNull(other, "other CurrencyAmount was null");
-    Validate.isTrue(other.getCurrency().equals(_currency), "Can only add two CurrencyAmounts with the same currency");
-    return new CurrencyAmount(_currency, other.getAmount() + _amount);
+  public CurrencyAmount plus(final CurrencyAmount amountToAdd) {
+    ArgumentChecker.notNull(amountToAdd, "amountToAdd");
+    ArgumentChecker.isTrue(amountToAdd.getCurrency().equals(_currency), "Unable to add amounts in different currencies");
+    return new CurrencyAmount(_currency, amountToAdd._amount + _amount);
   }
 
   /**
-   * Scales the currency amount
-   * @param scale The scale
-   * @return A CurrencyAmount
+   * Returns a copy of this {@code CurrencyAmount} with the amount multiplied.
+   * <p>
+   * This takes this amount and multiplies it by the specified value.
+   * The multiplication simply uses standard {@code double} arithmetic.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param valueToMultiplyBy  the scalar amount to multiply by
+   * @return an amount based on this with the amount multiplied, not null
    */
-  public CurrencyAmount scale(final double scale) {
-    return new CurrencyAmount(_currency, _amount * scale);
+  public CurrencyAmount multipliedBy(final double valueToMultiplyBy) {
+    return new CurrencyAmount(_currency, _amount * valueToMultiplyBy);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this amount equals another amount.
+   * <p>
+   * The comparison checks the currency and amount.
+   * 
+   * @param obj  the other amount, null returns false
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof CurrencyAmount) {
+      CurrencyAmount other = (CurrencyAmount) obj;
+      return _currency.equals(other._currency) &&
+        Double.doubleToLongBits(_amount) == Double.doubleToLongBits(other._amount);
+    }
+    return false;
+  }
+
+  /**
+   * Returns a suitable hash code for the amount.
+   * 
+   * @return the hash code
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_amount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    long amountBits = Double.doubleToLongBits(_amount);
+    result = prime * result + (int) (amountBits ^ (amountBits >>> 32));
     result = prime * result + _currency.hashCode();
     return result;
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the amount as a string.
+   * <p>
+   * The format is the currency code, followed by a space, followed by the amount.
+   * 
+   * @return the currency amount, not null
+   */
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final CurrencyAmount other = (CurrencyAmount) obj;
-    if (Double.doubleToLongBits(_amount) != Double.doubleToLongBits(other._amount)) {
-      return false;
-    }
-    return ObjectUtils.equals(_currency, other._currency);
+  public String toString() {
+    return _currency + " " + _amount;
   }
 
 }
