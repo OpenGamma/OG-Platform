@@ -80,13 +80,17 @@ public class RemoteClient {
     private RestTarget _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
 
+    public void setPortfolioMaster(final URI portfolioMaster) {
+      _portfolioMaster = portfolioMaster;
+    }
+
     @Override
     public URI getPortfolioMaster() {
       return (_portfolioMaster != null) ? _portfolioMaster : super.getPortfolioMaster();
     }
 
-    public void setPortfolioMaster(final URI portfolioMaster) {
-      _portfolioMaster = portfolioMaster;
+    public void setPositionMaster(final URI positionMaster) {
+      _positionMaster = positionMaster;
     }
 
     @Override
@@ -125,6 +129,7 @@ public class RemoteClient {
       _heartbeat = heartbeat;
     }
 
+    @Override
     public RestTarget getHeartbeat() {
       return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
     }
