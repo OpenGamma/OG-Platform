@@ -14,6 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesLoader;
+import com.opengamma.master.timeseries.TimeSeriesMaster;
 
 /**
  * Mock timeseries loader to get the example engine server running
@@ -36,6 +37,11 @@ public class MockTimeSeriesLoader implements TimeSeriesLoader {
   public boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
+  }
+
+  @Override
+  public TimeSeriesMaster<?> getTimeSeriesMaster() {
+    return null;
   }
 
 }
