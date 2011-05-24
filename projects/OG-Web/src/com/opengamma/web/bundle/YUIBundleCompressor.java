@@ -25,15 +25,11 @@ import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 /**
  * Compressor implementation using YUI compressor.
  */
-public class YUIBundleCompressor implements CompressedBundleSource {
+public class YUIBundleCompressor implements BundleCompressor {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressor.class);
 
-  /**
-   * The bundle manager.
-   */
-  private final BundleManager _bundleManager;
   /**
    * The compressor options.
    */
@@ -42,22 +38,19 @@ public class YUIBundleCompressor implements CompressedBundleSource {
   /**
    * Create a compressor.
    * 
-   * @param bundleManager       the bundle manager, not null
-   * @param compressorOptions   the YUICompressor options, not null
+   * @param compressorOptions  the YUICompressor options, not null
    */
-  public YUIBundleCompressor(BundleManager bundleManager, YUICompressorOptions compressorOptions) {
-    ArgumentChecker.notNull(bundleManager, "bundleManager");
+  public YUIBundleCompressor(YUICompressorOptions compressorOptions) {
     ArgumentChecker.notNull(compressorOptions, "compressorOptions");
     
-    _bundleManager = bundleManager;
     _compressorOptions = compressorOptions;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public String getBundle(String bundleId) {
-    Bundle bundle = _bundleManager.getBundle(bundleId);
+  public String compressBundle(Bundle bundle) {
     String source = readBundleSource(bundle);
-    return compress(source, bundleId);
+    return compress(source, bundle.getId());
   }
 
   private String readBundleSource(Bundle bundle) {

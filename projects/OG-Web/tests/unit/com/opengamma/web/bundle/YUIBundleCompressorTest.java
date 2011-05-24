@@ -27,11 +27,11 @@ public class YUIBundleCompressorTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressorTest.class);
   private static final String SCRIPTS_JS = "scripts.js";
   private YUIBundleCompressor _compressor;
-  private BundleManager _bundleManager;
+  private Bundle _bundle;
 
   @BeforeMethod
   public void setUp() throws Exception {
-    _bundleManager = createBundleManager();
+    _bundle = createBundle();
     _compressor = createCompressor();
   }
 
@@ -42,34 +42,31 @@ public class YUIBundleCompressorTest {
     compressorOptions.setPreserveAllSemiColons(true);
     compressorOptions.setOptimize(true);
     compressorOptions.setWarn(false);
-    return new YUIBundleCompressor(_bundleManager, compressorOptions);
+    return new YUIBundleCompressor(compressorOptions);
   }
 
-  private BundleManager createBundleManager() {
+  private Bundle createBundle() {
     String path = getClass().getResource(SCRIPTS_JS).getPath();
-    BundleManager bundleManager = new BundleManager();
     Bundle bundle = new Bundle(SCRIPTS_JS);
     bundle.addChildNode(new Fragment(new File(path)));
-    bundleManager.addBundle(bundle);
-    return bundleManager;
+    return bundle;
   }
 
   public void test() throws Exception {
-    Bundle bundle = _bundleManager.getBundle(SCRIPTS_JS);
-    List<Fragment> allFragment = bundle.getAllFragments();
+    List<Fragment> allFragment = _bundle.getAllFragments();
     assertNotNull(allFragment);
     assertEquals(1, allFragment.size());
-    
+
     Fragment fragment = allFragment.get(0);
     fragment.getFile();
     String uncompressed = FileUtils.readFileToString(fragment.getFile());
     assertNotNull(uncompressed);
     s_logger.debug("uncompressed length {}", uncompressed.length());
-    
-    String compressed = _compressor.getBundle(SCRIPTS_JS);
+
+    String compressed = _compressor.compressBundle(_bundle);
     assertNotNull(compressed);
     s_logger.debug("compressed length {}", compressed.length());
-    
+
     assertTrue(uncompressed.length() > compressed.length());
   }
 
