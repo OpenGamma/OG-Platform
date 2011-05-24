@@ -25,29 +25,29 @@ public class BundleParserTest {
     File xmlFile = new File(getClass().getResource("uiResourceConfig.xml").getPath());
     
     BundleParser bundleParser = new BundleParser(xmlFile);
-    BundleManager bundleManager = bundleParser.getBundleManager();
+    BundleManager bundleManager = bundleParser.parse();
     assertNotNull(bundleManager);
     
-    List<Fragment> cssBundleCommon = bundleManager.getBundle("cssBundleCommon.css").getAllFragment();
+    List<Fragment> cssBundleCommon = bundleManager.getBundle("cssBundleCommon.css").getAllFragments();
     assertNotNull(cssBundleCommon);
     assertEquals(2, cssBundleCommon.size());
     assertEquals(new Fragment(new File("styles/common/og.common.buttons.css")), cssBundleCommon.get(0));
     assertEquals(new Fragment(new File("styles/common/og.common.core.css")), cssBundleCommon.get(1));
     
-    List<Fragment> cssUtil = bundleManager.getBundle("cssUtil.css").getAllFragment();
+    List<Fragment> cssUtil = bundleManager.getBundle("cssUtil.css").getAllFragments();
     assertNotNull(cssUtil);
     assertEquals(2, cssUtil.size());
     assertEquals(new Fragment(new File("styles/common/util/og.common.reset.css")), cssUtil.get(0));
     assertEquals(new Fragment(new File("styles/common/util/og.common.links.css")), cssUtil.get(1));
     
-    List<Fragment> jsBundleCommon = bundleManager.getBundle("jsBundleCommon.js").getAllFragment();
+    List<Fragment> jsBundleCommon = bundleManager.getBundle("jsBundleCommon.js").getAllFragments();
     assertNotNull(jsBundleCommon);
     assertEquals(3, jsBundleCommon.size());
     assertEquals(new Fragment(new File("scripts/og/common/og.common.core.js")), jsBundleCommon.get(0));
     assertEquals(new Fragment(new File("scripts/og/common/og.common.init.js")), jsBundleCommon.get(1));
     assertEquals(new Fragment(new File("scripts/og/common/og.common.jquery.rest.js")), jsBundleCommon.get(2));
     
-    List<Fragment> cssOgCommon = bundleManager.getBundle("ogCommon.css").getAllFragment();
+    List<Fragment> cssOgCommon = bundleManager.getBundle("ogCommon.css").getAllFragments();
     assertNotNull(cssOgCommon);
     assertEquals(cssBundleCommon.size() + cssUtil.size(), cssOgCommon.size());
     int i = 0;
@@ -58,7 +58,7 @@ public class BundleParserTest {
       assertEquals(fragment, cssOgCommon.get(i++));
     }
     
-    List<Fragment> jsOgCommon = bundleManager.getBundle("ogCommon.js").getAllFragment();
+    List<Fragment> jsOgCommon = bundleManager.getBundle("ogCommon.js").getAllFragments();
     assertNotNull(jsOgCommon);
     assertEquals(jsBundleCommon.size(), jsOgCommon.size());
     int j = 0;

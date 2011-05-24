@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 
 /**
  * Visitor of Forex instrument.
@@ -21,5 +22,9 @@ public interface ForexDefinitionVisitor<T, U> {
   U visitForexDefinition(ForexDefinition fx, T data);
 
   U visitForexDefinition(ForexDefinition fx);
+
+  U visitForexSwapDefinition(ForexSwapDefinition fx, T data);
+
+  U visitForexSwapDefinition(ForexSwapDefinition fx);
 
 }
