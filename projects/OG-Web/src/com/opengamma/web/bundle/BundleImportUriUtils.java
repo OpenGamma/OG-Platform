@@ -13,6 +13,12 @@ import com.opengamma.util.ArgumentChecker;
  * Imports URI builder
  */
 public final class BundleImportUriUtils {
+  
+  /**
+   * Restricted constructor
+   */
+  private BundleImportUriUtils() {
+  }
  
   public static String buildImports(Bundle bundle, WebBundlesUris webBundleUris, String basePath) {
     ArgumentChecker.notNull(bundle, "bundle");
