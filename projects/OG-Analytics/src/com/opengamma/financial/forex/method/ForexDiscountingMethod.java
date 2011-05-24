@@ -24,6 +24,9 @@ public class ForexDiscountingMethod implements ForexPricingMethod {
    * Interest rate present value calculator by discounting.
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  /**
+   * Interest rate present value rate sensitivity by discounting.
+   */
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
 
   /**
