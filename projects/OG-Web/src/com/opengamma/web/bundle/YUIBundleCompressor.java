@@ -42,8 +42,8 @@ public class YUIBundleCompressor implements CompressedBundleSource {
   /**
    * Create a compressor.
    * 
-   * @param bundleManager       the bundle manager, not null
-   * @param compressorOptions   the YUICompressor options, not null
+   * @param bundleManager  the bundle manager, not null
+   * @param compressorOptions  the YUICompressor options, not null
    */
   public YUIBundleCompressor(BundleManager bundleManager, YUICompressorOptions compressorOptions) {
     ArgumentChecker.notNull(bundleManager, "bundleManager");
@@ -53,6 +53,7 @@ public class YUIBundleCompressor implements CompressedBundleSource {
     _compressorOptions = compressorOptions;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getBundle(String bundleId) {
     Bundle bundle = _bundleManager.getBundle(bundleId);

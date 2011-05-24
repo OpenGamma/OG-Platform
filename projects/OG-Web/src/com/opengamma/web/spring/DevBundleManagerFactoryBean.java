@@ -10,7 +10,7 @@ import com.opengamma.web.bundle.BundleParser;
 import com.opengamma.web.bundle.DevBundleBuilder;
 
 /**
- * Creates a BundleManager for Production from the Bundle XML configuration file.
+ * Creates a BundleManager for development from the Bundle XML configuration file.
  */
 public class DevBundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
 
