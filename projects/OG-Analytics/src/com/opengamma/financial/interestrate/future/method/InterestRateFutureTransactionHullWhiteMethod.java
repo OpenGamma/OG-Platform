@@ -21,10 +21,6 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
    * The model used for the convexity adjustment computation.
    */
   private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
-  //  /**
-  //   * The Hull-White model.
-  //   */
-  //  private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   /**
    * The method used to compute the future price.
    */

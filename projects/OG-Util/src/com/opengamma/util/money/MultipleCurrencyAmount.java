@@ -164,6 +164,12 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     return CurrencyAmount.of(ccy, amount);
   }
 
+
+  /**
+   * Add a given currency amount. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added
+   * to the list with the given amount.
+   * @param amount The currency amount.
+   */
   public void add(final CurrencyAmount amount) {
     Validate.notNull(amount, "currency amount");
     final Currency ccy = amount.getCurrency();
@@ -175,6 +181,12 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     }
   }
 
+  /**
+   * Add an amount in a given currency. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added
+   * to the list with the given amount.
+   * @param currency The currency.
+   * @param amount The amount.
+   */
   public void add(final Currency currency, final double amount) {
     Validate.notNull(currency, "currency");
     if (_backingMap.containsKey(currency)) {

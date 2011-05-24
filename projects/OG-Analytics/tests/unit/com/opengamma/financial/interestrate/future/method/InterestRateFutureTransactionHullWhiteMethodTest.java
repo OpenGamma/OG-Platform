@@ -26,7 +26,6 @@ import com.opengamma.financial.interestrate.TestsDataSets;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
-import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -74,7 +73,6 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final InterestRateFutureTransactionHullWhiteMethod METHOD = new InterestRateFutureTransactionHullWhiteMethod(MODEL_PARAMETERS);
-  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_SECURITY = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
 
   @Test
