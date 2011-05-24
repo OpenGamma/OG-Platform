@@ -27,7 +27,13 @@ public class MockTimeSeriesLoader implements TimeSeriesLoader {
       "\nPlease contact sales@opengamma.com.";
   
   @Override
-  public Map<Identifier, UniqueIdentifier> loadTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+  public Map<Identifier, UniqueIdentifier> addTimeSeries(Set<Identifier> identifiers, String dataProvider, String dataField, LocalDate startDate, LocalDate endDate) {
+    System.out.println(MESSAGE);
+    throw new OpenGammaRuntimeException(MESSAGE);
+  }
+
+  @Override
+  public boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier) {
     System.out.println(MESSAGE);
     throw new OpenGammaRuntimeException(MESSAGE);
   }

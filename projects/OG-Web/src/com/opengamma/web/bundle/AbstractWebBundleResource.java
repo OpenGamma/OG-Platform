@@ -17,13 +17,21 @@ import com.opengamma.web.AbstractWebResource;
  * Abstract base class for RESTful bundle resources.
  */
 public class AbstractWebBundleResource extends AbstractWebResource {
-  
+
   /**
    * The backing bean.
    */
   private final WebBundlesData _data;
-  
-  protected AbstractWebBundleResource(final BundleManager bundleManager, final CompressedBundleSource compressedBundleSource, final DeployMode mode) {
+
+  /**
+   * Creates the resource.
+   * 
+   * @param bundleManager  the bundle manager, not null
+   * @param compressedBundleSource  the bundle source
+   * @param mode  the deploy mode, not null
+   */
+  protected AbstractWebBundleResource(
+      final BundleManager bundleManager, final CompressedBundleSource compressedBundleSource, final DeployMode mode) {
     ArgumentChecker.notNull(bundleManager, "bundleManager");
     ArgumentChecker.notNull(compressedBundleSource, "compressedBundleSource");
     ArgumentChecker.notNull(mode, "mode");
@@ -32,7 +40,17 @@ public class AbstractWebBundleResource extends AbstractWebResource {
     data().setCompressedBundleSource(compressedBundleSource);
     data().setMode(mode);
   }
-  
+
+  /**
+   * Creates the resource.
+   * 
+   * @param parent  the parent resource, not null
+   */
+  protected AbstractWebBundleResource(final AbstractWebBundleResource parent) {
+    super(parent);
+    _data = parent._data;
+  }
+
   /**
    * Setter used to inject the URIInfo.
    * This is a roundabout approach, because Spring and JSR-311 injection clash.
@@ -43,38 +61,30 @@ public class AbstractWebBundleResource extends AbstractWebResource {
   public void setUriInfo(final UriInfo uriInfo) {
     data().setUriInfo(uriInfo);
   }
-  
-  /**
-   * Creates the resource.
-   * @param parent  the parent resource, not null
-   */
-  protected AbstractWebBundleResource(final AbstractWebBundleResource parent) {
-    super(parent);
-    _data = parent._data;
-  }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
    * @return the output root data, not null
    */
   protected FlexiBean createRootData() {
     FlexiBean out = getFreemarker().createRootData();
-    
     BundleManager bundleManager = data().getBundleManager();
     DeployMode mode = data().getMode();
-    
     WebBundlesUris webBundlesUris = new WebBundlesUris(data());
-        
-    ScriptTag scriptTag = new ScriptTag(bundleManager, mode, webBundlesUris);
-    StyleTag styleTag = new StyleTag(bundleManager, mode, webBundlesUris);
+    ScriptTag scriptTag = new ScriptTag(bundleManager, webBundlesUris, mode);
+    StyleTag styleTag = new StyleTag(bundleManager, webBundlesUris, mode);
     out.put("ogStyle", styleTag);
     out.put("ogScript", scriptTag);
     return out;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the backing bean.
-   * @return the beacking bean, not null
+   * 
+   * @return the backing bean, not null
    */
   protected WebBundlesData data() {
     return _data;

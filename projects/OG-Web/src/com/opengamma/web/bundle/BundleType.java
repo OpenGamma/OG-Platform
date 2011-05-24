@@ -8,33 +8,58 @@ package com.opengamma.web.bundle;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * BundleType representation
+ * The type of a bundle, either CSS or Javascript.
  */
 public enum BundleType {
+
   /**
-   * Javascript Type
+   * The Javascript type.
    */
   JS("js"),
   /**
-   * CSS Type
+   * The CSS type.
    */
   CSS("css");
 
+  /**
+   * The file suffix.
+   */
   private final String _suffix;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param suffix  the file suffix, not null
+   */
   BundleType(String suffix) {
     _suffix = suffix;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the file suffix used by the type of file.
+   * 
+   * @return the file suffix, not null
+   */
   public String getSuffix() {
     return _suffix;
   }
 
+  /**
+   * Lookup the type using the file suffix.
+   * 
+   * @param fileName  the file name including the suffix, null returns null
+   * @return the bundle type, null if unable to determine
+   */
   public static BundleType getType(String fileName) {
-    if (!StringUtils.isBlank(fileName)) {
-      return (fileName.endsWith("." + JS.getSuffix())) ? JS : (fileName.endsWith("." + CSS.getSuffix())) ? CSS : null;
+    if (StringUtils.isNotBlank(fileName)) {
+      if (fileName.endsWith("." + JS.getSuffix())) {
+        return JS;
+      } else if (fileName.endsWith("." + CSS.getSuffix())) {
+        return CSS;
+      }
     }
     return null;
   }
-}
 
+}

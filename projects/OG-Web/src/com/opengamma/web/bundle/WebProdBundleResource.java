@@ -13,21 +13,22 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-
 /**
- * RESTful resource for a bundle
+ * RESTful resource for a CSS/Javascript bundle in production mode.
  */
 @Path("/bundles/prod/{bundleId}")
 public class WebProdBundleResource extends AbstractWebBundleResource {
-     
+
   /**
    * Creates the resource.
+   * 
    * @param parent  the parent resource, not null
    */
   public WebProdBundleResource(final AbstractWebBundleResource parent) {
     super(parent);
   }
-    
+
+  //-------------------------------------------------------------------------
   @GET
   public Response get(@PathParam("bundleId") String idStr) {
     CompressedBundleSource compressedBundleSource = data().getCompressedBundleSource();
@@ -48,8 +49,10 @@ public class WebProdBundleResource extends AbstractWebBundleResource {
     return Response.ok(compressedContent).header("Content-type", mimeType).build();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.
+   * 
    * @param data  the data, not null
    * @param bundleId the bundleId, not null
    * @return the URI, not null
@@ -57,5 +60,5 @@ public class WebProdBundleResource extends AbstractWebBundleResource {
   public static URI uri(final WebBundlesData data, String bundleId) {
     return data.getUriInfo().getBaseUriBuilder().path(WebProdBundleResource.class).build(bundleId);
   }
-  
+
 }

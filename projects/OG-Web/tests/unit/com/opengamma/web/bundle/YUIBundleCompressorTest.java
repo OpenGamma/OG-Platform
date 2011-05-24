@@ -56,7 +56,7 @@ public class YUIBundleCompressorTest {
 
   public void test() throws Exception {
     Bundle bundle = _bundleManager.getBundle(SCRIPTS_JS);
-    List<Fragment> allFragment = bundle.getAllFragment();
+    List<Fragment> allFragment = bundle.getAllFragments();
     assertNotNull(allFragment);
     assertEquals(1, allFragment.size());
     

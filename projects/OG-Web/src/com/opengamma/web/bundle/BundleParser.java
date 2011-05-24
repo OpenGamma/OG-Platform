@@ -27,48 +27,51 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Parses a given bundle xml file.
+ * Parses a bundle XML file into a bundle manager.
  */
 public class BundleParser {
-  
-  private static final String FRAGMENT_ELEMENT = "fragment";
-  private static final String ID_ATTR = "id";
-  private static final String BUNDLE_ELEMENT = "bundle";
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BundleParser.class);
-  
+
+  /** The bundle element tag name. */
+  private static final String BUNDLE_ELEMENT = "bundle";
+  /** The fragment element tag name. */
+  private static final String FRAGMENT_ELEMENT = "fragment";
+  /** The ID attribute name. */
+  private static final String ID_ATTR = "id";
+
   /**
-   * The bundle xml file to parse
+   * The bundle XML file to parse.
    */
   private final File _xmlFile;
   /**
-   * The base directory for web resource
+   * The base directory for the fragments.
    */
   private final File _baseDir;
-  
   /**
-   * Empty bundleManager
+   * The bundle manager to populate.
    */
   private final BundleManager _bundleManager = new BundleManager();
   /**
-   * Elements map
+   * The cache of elements.
    */
   private final Map<String, Element> _elementsByIdMap = new HashMap<String, Element>(); 
-  
+
   /**
-   * Creates a BundleParser with xml file
+   * Creates a parser based on an XML file.
    * 
-   * @param xmlFile   the xml file to parse, not null
+   * @param xmlFile  the XML file to parse, not null
    */
   public BundleParser(File xmlFile) {
     this(xmlFile, null);
   }
-  
+
   /**
-   * Creates a BundleParser with xml file and base dir
+   * Creates a parser based on an XML file and base directory.
    * 
-   * @param xmlFile   the xml file to parse, not null
-   * @param baseDir   the base directory for web resource, not null
+   * @param xmlFile  the XML file to parse, not null
+   * @param baseDir  the base directory for fragments, may be null
    */
   public BundleParser(File xmlFile, File baseDir) {
     validate(xmlFile, baseDir);
@@ -76,17 +79,22 @@ public class BundleParser {
     _xmlFile = xmlFile;
     _baseDir = baseDir;
   }
- 
+
   private void validate(File xmlFile, File baseDir) {
     ArgumentChecker.notNull(xmlFile, "xmlFile");
     ArgumentChecker.isTrue(xmlFile.exists(), xmlFile + "does not exists");
-    
     if (baseDir != null) {
       ArgumentChecker.isTrue(baseDir.exists(), baseDir + " does not exists");
     }
   }
 
-  public BundleManager getBundleManager() {
+  //-------------------------------------------------------------------------
+  /**
+   * Parses the XML file, returning the bundle manager.
+   * 
+   * @return the parsed bundle manager, not null
+   */
+  public BundleManager parse() {
     DocumentBuilder builder = getDocumentBuilder();
     if (builder != null) {
       try {
@@ -100,7 +108,7 @@ public class BundleParser {
     }
     return _bundleManager;
   }
-  
+
   private void processXMLDocument(Document document) {
     buildAllElements(document);
     for (Element element : _elementsByIdMap.values()) {
@@ -135,7 +143,7 @@ public class BundleParser {
   }
 
   private boolean isValidFragment(String fragment) {
-    if (!StringUtils.isBlank(fragment)) {
+    if (StringUtils.isNotBlank(fragment)) {
       return true;
     }
     throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + " invalid fragment value");
@@ -144,14 +152,14 @@ public class BundleParser {
   private BundleNode createBundleFragment(String fragment) {
     return new Fragment(new File(_baseDir, fragment));
   }
-  
+
   private void processRefBundle(Bundle bundle, Element element) {
     String idRef = element.getAttribute("idref");
     if (isValidIdRef(idRef)) {
       Bundle refBundle = _bundleManager.getBundle(idRef);
       if (refBundle == null) {
         Element refElement = _elementsByIdMap.get(idRef);
-        //This can cause infinite loop if we have circular reference
+        // this can cause infinite loop if we have circular reference
         addToManager(refElement);
         refBundle = _bundleManager.getBundle(idRef);
       }
@@ -160,7 +168,7 @@ public class BundleParser {
   }
 
   private boolean isValidIdRef(String idRef) {
-    if (!StringUtils.isBlank(idRef) && idRefExists(idRef)) {
+    if (StringUtils.isNotBlank(idRef) && idRefExists(idRef)) {
       return true;
     }
     throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + " invalid idref ["  + idRef + "]");
@@ -204,7 +212,7 @@ public class BundleParser {
   }
 
   private boolean hasValidId(Element element) {
-    if (element.hasAttribute(ID_ATTR) && !StringUtils.isBlank(element.getAttribute(ID_ATTR))) {
+    if (element.hasAttribute(ID_ATTR) && StringUtils.isNotBlank(element.getAttribute(ID_ATTR))) {
       return true;
     } 
     throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": bundle element needs id attribute");
@@ -223,7 +231,7 @@ public class BundleParser {
     } 
     throw new OpenGammaRuntimeException(_xmlFile.getAbsolutePath() + ": element not a bundle");
   }
-  
+
   private DocumentBuilder getDocumentBuilder() {
     DocumentBuilder builder = null;
     DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -234,5 +242,5 @@ public class BundleParser {
     }
     return builder;
   }
-  
+
 }

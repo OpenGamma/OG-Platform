@@ -5,12 +5,17 @@
  */
 package com.opengamma.web.bundle;
 
-
-
 /**
- * BundleCompressor compresses the given bundleId
+ * Compresses the source of a bundle of CSS/Javascript files.
  */
 public interface CompressedBundleSource {
-  
+
+  /**
+   * Gets the compressed bundle source by ID.
+   * 
+   * @param bundleId  the bundle ID, not null
+   * @return the bundle source, not null
+   */
   String getBundle(String bundleId);
+
 }
