@@ -9,6 +9,7 @@ import java.net.URI;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -61,6 +62,13 @@ public class DataPositionsResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @HEAD
+  public Response status() {
+    // The root GET handler tries to return the entire content of the position master. Something faster
+    // to respond is needed for head requests that are used to check whether the master is available. 
+    return Response.ok().build();
+  }
+
   @GET
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
