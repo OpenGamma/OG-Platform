@@ -10,10 +10,18 @@ import java.util.List;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Imports URI builder
+ * Utility to assist in the creation of {@code @import} statements in HTML.
  */
 public final class BundleImportUriUtils {
- 
+
+  /**
+   * Builds the imports for a bundle.
+   * 
+   * @param bundle  the bundle, not null
+   * @param webBundleUris  the URI helper, not null
+   * @param basePath  the base path, not null
+   * @return the bundle HTML import text, not null
+   */
   public static String buildImports(Bundle bundle, WebBundlesUris webBundleUris, String basePath) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(webBundleUris, "webBundleUris");
@@ -24,7 +32,8 @@ public final class BundleImportUriUtils {
     for (BundleNode node : childNodes) {
       if (node instanceof Bundle) {
         Bundle nodeBundle = (Bundle) node;
-        buf.append("@import url('").append(webBundleUris.bundles(DeployMode.DEV, nodeBundle.getId()));
+        buf.append("@import url('");
+        buf.append(webBundleUris.bundle(DeployMode.DEV, nodeBundle.getId()));
         buf.append("');\n");
       }
       if (node instanceof Fragment) {
@@ -36,5 +45,5 @@ public final class BundleImportUriUtils {
     }
     return buf.toString();
   }
-  
+
 }

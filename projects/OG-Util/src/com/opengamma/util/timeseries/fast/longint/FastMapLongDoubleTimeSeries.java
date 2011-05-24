@@ -21,26 +21,23 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
-import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
 
-  Long2DoubleSortedMap _map = new Long2DoubleAVLTreeMap();
-  final double DEFAULT_RETURN_VALUE = _map.defaultReturnValue();
+  private Long2DoubleSortedMap _map = new Long2DoubleAVLTreeMap();
+  private final double _defaultReturnValue = _map.defaultReturnValue();
 
   public FastMapLongDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -56,7 +53,8 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
     }
   }
 
-  public FastMapLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<Double> values) {
+  public FastMapLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<Double> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new OpenGammaRuntimeException("times and values lists must be the same length");
@@ -134,10 +132,10 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   @Override
   public double getValueFast(final long time) {
     double value = _map.get(time);
-    if (value == DEFAULT_RETURN_VALUE) {
+    if (value == _defaultReturnValue) {
       throw new NoSuchElementException();
     }
-    return value; 
+    return value;
   }
 
   @Override
@@ -190,7 +188,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
     return _map.entrySet().iterator();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public ObjectIterator<Long2DoubleMap.Entry> iteratorFast() {
     return (ObjectIterator<Long2DoubleMap.Entry>) (ObjectIterator<? extends Map.Entry>) _map.entrySet().iterator();
@@ -199,7 +197,8 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   @Override
   public FastLongDoubleTimeSeries headFast(final int numItems) {
     if (_map.size() < numItems) {
-      throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
+      throw new OpenGammaRuntimeException("cannot get head " + numItems +
+          " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(numItems);
@@ -215,7 +214,8 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   @Override
   public FastLongDoubleTimeSeries tailFast(final int numItems) {
     if (_map.size() < numItems) {
-      throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
+      throw new OpenGammaRuntimeException("cannot get head " + numItems +
+          " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(_map.size() - numItems);

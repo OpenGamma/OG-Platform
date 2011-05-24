@@ -62,7 +62,7 @@ $.register_module({
                     }
                 }
             },
-            default_page = function () {
+            default_details_page = function () {
                 api.text({module: 'og.views.default', handler: function (template) {
                     $.tmpl(template, {
                         name: 'Exchanges',
@@ -70,48 +70,9 @@ $.register_module({
                         recent_list: history.get_html('history.exchanges.recent') || 'no recently viewed exchanges'
                     }).appendTo($('#OG-details .og-main').empty());
                 }});
-            };
-        module.rules = {
-            load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_exchanges: {route: '/' + page_name + '/:id/name:?', method: module.name + '.load_' + page_name}
-        };
-        return exchanges = {
-            load: function (args) {
-                masthead.menu.set_tab(page_name);
-                layout('default');
-                ui.toolbar(options.toolbar['default']);
-                search.load($.extend(options.slickgrid, {url: args}));
-                default_page();
             },
-            load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        exchanges.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_exchanges, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
-                ]});
-                delete args['filter'];
-                search.filter($.extend(args, {filter: true}));
-            },
-            load_exchanges: function (args) {
-                // Load search if changed
-                if (routes.last()) {
-                    if (routes.last().page !== module.rules.load.route) {
-                        masthead.menu.set_tab(page_name);
-                        ui.toolbar(options.toolbar.active);
-                        search.load($.extend(options.slickgrid, {url: args}));
-                    } else ui.toolbar(options.toolbar.active);
-                } else {
-                    masthead.menu.set_tab(page_name);
-                    ui.toolbar(options.toolbar.active);
-                    search.load($.extend(options.slickgrid, {url: args}));
-                }
-                // Setup details page
-                layout('default');
+            details_page = function(args) {
+                ui.toolbar(options.toolbar.active);
                 api.rest.exchanges.get({
                     handler: function (result) {
                         if (result.error) return alert(result.message);
@@ -134,10 +95,45 @@ $.register_module({
                         ui.message({location: '#OG-details', message: {0: 'loading...', 3000: 'still loading...'}});
                     }
                 });
+            };
+        module.rules = {
+            load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
+            load_exchanges: {route: '/' + page_name + '/:id/name:?', method: module.name + '.load_' + page_name}
+        };
+        return exchanges = {
+            load: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        exchanges.search(args);
+                        masthead.menu.set_tab(page_name);
+                        layout('default');
+                    }}
+                ]});
+                if (args.id) return;
+                default_details_page();
+                ui.toolbar(options.toolbar['default']);
             },
-            init: function () {
-                for (var rule in module.rules) routes.add(module.rules[rule]);
+            load_filter: function (args) {
+                check_state({args: args, conditions: [
+                    {new_page: function () {
+                        state = {filter: true};
+                        exchanges.load(args);
+                        args.id
+                            ? routes.go(routes.hash(module.rules.load_exchanges, args))
+                            : routes.go(routes.hash(module.rules.load, args));
+                    }}
+                ]});
+                delete args['filter'];
+                search.filter($.extend(args, {filter: true}));
             },
+            load_exchanges: function (args) {
+                check_state({args: args, conditions: [{new_page: exchanges.load}]});
+                exchanges.details(args);
+            },
+            search: function (args) {search.load($.extend(options.slickgrid, {url: args}));},
+            details: function (args) {details_page(args);},
+            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
         };
     }

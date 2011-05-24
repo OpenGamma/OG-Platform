@@ -16,61 +16,65 @@ import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.FastObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
+/**
+ * 
+ * @param <T> The type of the data
+ */
 public interface FastIntObjectTimeSeries<T> extends FastObjectTimeSeries<Integer, T> {
-  public abstract int size();
+  int size();
 
-  public abstract boolean isEmpty();
+  boolean isEmpty();
 
-  public abstract T getValueFast(int time);
+  T getValueFast(int time);
 
-  public abstract T getValueAtFast(int index);
+  T getValueAtFast(int index);
 
-  public abstract int getTimeFast(int index);
+  int getTimeFast(int index);
 
-  public abstract int getLatestTimeFast();
+  int getLatestTimeFast();
 
-  public abstract T getLatestValueFast();
+  T getLatestValueFast();
 
-  public abstract int getEarliestTimeFast();
+  int getEarliestTimeFast();
 
-  public abstract T getEarliestValueFast();
+  T getEarliestValueFast();
 
-  public abstract ObjectIterator<T> valuesIteratorFast();
+  ObjectIterator<T> valuesIteratorFast();
 
-  public abstract ObjectList<T> valuesFast();
+  ObjectList<T> valuesFast();
 
-  public abstract IntIterator timesIteratorFast();
+  IntIterator timesIteratorFast();
 
-  public abstract ObjectIterator<Int2ObjectMap.Entry<T>> iteratorFast();
+  ObjectIterator<Int2ObjectMap.Entry<T>> iteratorFast();
 
-  public abstract IntList timesFast();
+  IntList timesFast();
 
-  public abstract FastIntObjectTimeSeries<T> subSeriesFast(int startTime, int endTime);
-  
-  public abstract FastIntObjectTimeSeries<T> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
+  FastIntObjectTimeSeries<T> subSeriesFast(int startTime, int endTime);
 
-  public abstract FastIntObjectTimeSeries<T> headFast(int items);
+  FastIntObjectTimeSeries<T> subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
-  public abstract FastIntObjectTimeSeries<T> tailFast(int items);
+  FastIntObjectTimeSeries<T> headFast(int items);
 
-  public abstract T[] valuesArrayFast();
+  FastIntObjectTimeSeries<T> tailFast(int items);
 
-  public abstract int[] timesArrayFast();
+  T[] valuesArrayFast();
 
-  public abstract FastIntObjectTimeSeries<T> newInstanceFast(int[] times, T[] values);
+  int[] timesArrayFast();
 
-  public abstract FastIntObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> operate(final T other, final BinaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> operate(final UnaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> unionOperate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> unionOperate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
-  public abstract FastIntObjectTimeSeries<T> lag(final int days);
+  FastIntObjectTimeSeries<T> newInstanceFast(int[] times, T[] values);
+
+  FastIntObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> operate(final T other, final BinaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> operate(final UnaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> unionOperate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> unionOperate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
+
+  FastIntObjectTimeSeries<T> lag(final int days);
 
 }

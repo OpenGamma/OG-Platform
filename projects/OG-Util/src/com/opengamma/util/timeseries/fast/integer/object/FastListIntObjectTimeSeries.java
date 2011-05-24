@@ -22,20 +22,18 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.IntObjectPair;
 
 /**
- * @author jim
  * 
+ * @param <T> The type of the data
  */
 public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectTimeSeries<T> {
-  final IntArrayList _times;
-  final ObjectArrayList<T> _values;
+  private final IntArrayList _times;
+  private final ObjectArrayList<T> _values;
 
   public FastListIntObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -50,7 +48,8 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     ensureTimesSorted();
   }
 
-  public FastListIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<T> values) {
+  public FastListIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times,
+      final List<T> values) {
     super(encoding);
     _times = new IntArrayList(times);
     _values = new ObjectArrayList<T>(values);
@@ -198,7 +197,8 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     if (startIndex == -1 || endIndex == -1) {
       throw new NoSuchElementException();
     }
-    return new FastListIntObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
+    return new FastListIntObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(
+        startIndex, endIndex));
   }
 
   @Override
@@ -233,12 +233,12 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
   }
 
   private class PrimitiveListIntObjectTimeSeriesIterator implements ObjectIterator<Int2ObjectMap.Entry<T>> {
-    IntIterator _intIter;
-    ObjectIterator<T> _TIter;
+    private IntIterator _intIter;
+    private ObjectIterator<T> _typeTIter;
 
     public PrimitiveListIntObjectTimeSeriesIterator() {
       _intIter = _times.iterator();
-      _TIter = _values.iterator();
+      _typeTIter = _values.iterator();
     }
 
     @Override
@@ -249,20 +249,20 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     @Override
     public Int2ObjectMap.Entry<T> next() {
       final int time = _intIter.nextInt();
-      final T value = _TIter.next();
+      final T value = _typeTIter.next();
       return new IntObjectPair<T>(time, value);
     }
 
     @Override
     public void remove() {
       _intIter.remove();
-      _TIter.remove();
+      _typeTIter.remove();
     }
 
     @Override
     public int skip(final int n) {
       _intIter.skip(n);
-      return _TIter.skip(n);
+      return _typeTIter.skip(n);
     }
 
   }
@@ -280,7 +280,8 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
   public FastIntObjectTimeSeries<T> tailFast(final int numItems) {
     // note I used _times.size for the second part so it we didn't need two
     // method calls as the optimizer is unlikely to spot it.
-    return new FastListIntObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
+    return new FastListIntObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()),
+        _values.subList(_times.size() - numItems, _times.size()));
   }
 
   @Override
@@ -377,6 +378,7 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
         return false;
       }
     } else {
+      @SuppressWarnings("rawtypes")
       final FastListIntObjectTimeSeries other = (FastListIntObjectTimeSeries) obj;
       // invariant: none of these can be null.
       if (size() != other.size()) {

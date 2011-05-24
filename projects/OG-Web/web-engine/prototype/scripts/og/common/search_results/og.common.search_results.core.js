@@ -60,13 +60,13 @@ $.register_module({
                         var last = routes.last(), obj_url = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
-                                id_time: slick_manager.data[$(e.currentTarget).attr('row')].id_time,
                                 type: slick_manager.data[$(e.currentTarget).attr('row')].type,
                                 name: (last && last.args.name) || '',
                                 quantity: (last && last.args.quantity) || '',
                                 filter_type: (last && last.args.filter_type) || '',
                                 filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
-                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time
+                                observation_time: slick_manager.data[$(e.currentTarget).attr('row')].observation_time,
+                                observation_date: slick_manager.data[$(e.currentTarget).attr('row')].observation_date
                             };
                         delete obj_url.node;
                         routes.go(routes.hash(

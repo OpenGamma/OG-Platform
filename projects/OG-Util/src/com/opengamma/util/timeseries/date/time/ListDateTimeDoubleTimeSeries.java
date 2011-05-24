@@ -17,7 +17,6 @@ import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries.Long {

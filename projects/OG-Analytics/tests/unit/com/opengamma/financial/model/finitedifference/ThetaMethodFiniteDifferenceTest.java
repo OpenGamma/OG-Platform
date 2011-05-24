@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class ThetaMethodFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5);
+  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5, false);
 
   @Test
   public void testBlackScholesEquation1() {

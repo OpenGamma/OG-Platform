@@ -190,4 +190,9 @@ public class InMemorySnapshotMaster implements MarketDataSnapshotMaster {
     return result;
   }
 
+  @Override
+  public MasterChangeManager changeManager() {
+    return _changeManager;
+  }
+
 }

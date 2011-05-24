@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import static org.testng.Assert.assertTrue;
 import java.util.Arrays;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;

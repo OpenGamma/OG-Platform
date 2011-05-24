@@ -27,7 +27,6 @@ import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfig
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.ViewDefinitionJSONBuilder;
 import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
@@ -69,6 +68,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     } else {
       out.put("configData", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     }
+    out.put("type", data().getTypeMap().inverse().get(doc.getType()));
     return getFreemarker().build("configs/jsonconfig.ftl", out);
   }
 
@@ -110,7 +110,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
     
-    URI uri = updateConfig(name, parseXML(xml));
+    URI uri = updateConfig(name, parseXML(xml).getFirst());
     return Response.seeOther(uri).build();
   }
 
@@ -119,29 +119,29 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml) {
+      @FormParam("configJSON") String json) {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
-    xml = StringUtils.trimToNull(xml);
+    json = StringUtils.trimToNull(json);
     // JSON allows a null config to just change the name
     if (name == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    updateConfig(name, xml != null ? parseXML(xml) : null);
+    updateConfig(name, json != null ? parseJSON(json).getFirst() : null);
     return Response.ok().build();
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private URI updateConfig(String name, Pair<Object, Class<?>> newConfigValue) {
+  private URI updateConfig(String name, Object newConfigValue) {
     ConfigDocument<?> oldDoc = data().getConfig();
     ConfigDocument doc = new ConfigDocument(oldDoc.getType());
     doc.setUniqueId(oldDoc.getUniqueId());
     doc.setName(name);
     if (newConfigValue != null) {  // null means only update the name
-      doc.setValue(newConfigValue.getFirst());
+      doc.setValue(newConfigValue);
     }
     doc = data().getConfigMaster().update(doc);
     data().setConfig(doc);

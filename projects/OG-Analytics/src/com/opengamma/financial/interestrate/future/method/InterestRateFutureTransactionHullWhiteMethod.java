@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
-import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 
 /**
  * Method to compute the present value and its sensitivities for an interest rate future with Hull-White model convexity adjustment.
@@ -20,7 +20,7 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
   /**
    * The model used for the convexity adjustment computation.
    */
-  private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model;
+  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
   /**
    * The method used to compute the future price.
    */
@@ -35,18 +35,18 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
   public InterestRateFutureTransactionHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(meanReversion, volatility, volatilityTime);
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_model);
+    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
   }
 
   /**
    * Constructor from the model.
-   * @param model The Hull-White one factor model.
+   * @param data The Hull-White one factor model parameters.
    */
-  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantInterestRateModel model) {
-    Validate.notNull(model, "Model");
-    _model = model;
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_model);
+  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+    Validate.notNull(data, "Data");
+    _data = data;
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
   }
 
   @Override

@@ -6,9 +6,11 @@
 package com.opengamma.util.timeseries.fast;
 
 /**
- * @author jim
  * 
  */
 public enum DateTimeResolution {
-  DATETIME, DATE
+  /** A date-time */
+  DATETIME,
+  /** A date */
+  DATE
 }

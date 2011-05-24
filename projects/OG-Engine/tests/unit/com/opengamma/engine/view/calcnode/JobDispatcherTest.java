@@ -5,12 +5,11 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,6 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.id.UniqueIdentifier;

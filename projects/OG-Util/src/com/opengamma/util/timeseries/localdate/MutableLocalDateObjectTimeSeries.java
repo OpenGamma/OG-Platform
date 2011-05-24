@@ -16,16 +16,18 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTim
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the data
  */
-public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTimeSeries<T>, MutableObjectTimeSeries<LocalDate, T> {
+public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTimeSeries<T>,
+    MutableObjectTimeSeries<LocalDate, T> {
 
-  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<LocalDate, T> implements MutableLocalDateObjectTimeSeries<T> {
+  /** */
+  public abstract static class Integer<T> extends AbstractMutableIntObjectTimeSeries<LocalDate, T> implements
+      MutableLocalDateObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<LocalDate> converter, final FastMutableIntObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
-    
+
     @Override
     public TimeSeries<LocalDate, T> newInstance(final LocalDate[] dateTimes, final T[] values) {
       return newInstanceFast(dateTimes, values);
@@ -34,7 +36,9 @@ public interface MutableLocalDateObjectTimeSeries<T> extends LocalDateObjectTime
     public abstract LocalDateObjectTimeSeries<T> newInstanceFast(LocalDate[] dateTimes, T[] values);
   }
 
-  public abstract static class Long<T> extends AbstractMutableLongObjectTimeSeries<LocalDate, T> implements MutableLocalDateObjectTimeSeries<T> {
+  /** */
+  public abstract static class Long<T> extends AbstractMutableLongObjectTimeSeries<LocalDate, T> implements
+      MutableLocalDateObjectTimeSeries<T> {
     public Long(final DateTimeConverter<LocalDate> converter, final FastMutableLongObjectTimeSeries<T> timeSeries) {
       super(converter, timeSeries);
     }
