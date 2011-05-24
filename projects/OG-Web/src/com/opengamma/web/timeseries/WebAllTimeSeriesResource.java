@@ -241,7 +241,7 @@ public class WebAllTimeSeriesResource extends AbstractWebTimeSeriesResource {
     TimeSeriesLoader timeSeriesLoader = data().getTimeSeriesLoader();
     Map<Identifier, UniqueIdentifier> added = Maps.newHashMap();
     if (!identifiers.isEmpty()) {
-      added = timeSeriesLoader.loadTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
+      added = timeSeriesLoader.addTimeSeries(identifiers, dataProvider, dataField, startDate, endDate);
     }
     
     URI result = null;
