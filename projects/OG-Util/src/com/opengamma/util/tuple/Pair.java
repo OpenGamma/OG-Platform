@@ -173,7 +173,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * a more specific type.
    * 
    * @param <T> an auto-cast list type
-   * @return the elements as a list, never null
+   * @return the elements as a list, not null
    */
   @SuppressWarnings("unchecked")
   public <T> List<T> toList() {

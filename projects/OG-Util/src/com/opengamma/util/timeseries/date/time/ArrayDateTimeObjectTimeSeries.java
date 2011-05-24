@@ -16,11 +16,12 @@ import com.opengamma.util.timeseries.fast.longint.object.FastListLongObjectTimeS
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
+ * @param <T> The type of the data
  */
 public class ArrayDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSeries.Long<T> {
   private static final FastListLongObjectTimeSeries<?> DEFAULT_SERIES_TEMPLATE = new FastListLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  /** An empty date-time series with data of type Object */
   public static final ArrayDateTimeObjectTimeSeries<?> EMPTY_SERIES = new ArrayDateTimeObjectTimeSeries<Object>();
   private static final FastArrayLongObjectTimeSeries<?> EMPTY_FAST_SERIES = new FastArrayLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   private static final DateEpochMillisConverter s_converter = new DateEpochMillisConverter();
@@ -30,7 +31,7 @@ public class ArrayDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSeries.L
     super(new DateEpochMillisConverter(), (FastLongObjectTimeSeries<T>) EMPTY_FAST_SERIES);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public ArrayDateTimeObjectTimeSeries(final Date[] dates, final T[] values) {
     super(s_converter, new FastArrayLongObjectTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }

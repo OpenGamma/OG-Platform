@@ -16,10 +16,10 @@ import com.opengamma.util.timeseries.fast.longint.FastMapLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class MapDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries.Long {
+  @SuppressWarnings("unused")
   private static final MapDateTimeDoubleTimeSeries EMPTY_SERIES = new MapDateTimeDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 

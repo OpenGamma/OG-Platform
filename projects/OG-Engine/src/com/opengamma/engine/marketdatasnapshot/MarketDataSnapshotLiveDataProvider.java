@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
@@ -23,6 +26,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.livedata.AbstractLiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotListener;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
@@ -34,15 +38,29 @@ import com.opengamma.livedata.normalization.MarketDataRequirementNames;
  */
 public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshotProvider {
 
-  private final ConcurrentHashMap<Long, StructuredMarketDataSnapshot> _snapshots = new ConcurrentHashMap<Long, StructuredMarketDataSnapshot>();
+  private final ConcurrentMap<Long, StructuredMarketDataSnapshot> _snapshots = 
+    new ConcurrentHashMap<Long, StructuredMarketDataSnapshot>();
+  private final CopyOnWriteArraySet<ValueRequirement> _listeningValueRequirements = new CopyOnWriteArraySet<ValueRequirement>();
+  
   
   private final MarketDataSnapshotSource _marketDataSnapshotSource;
   private final UniqueIdentifier _marketDataSnapshotIdentifier;
+  private final Object _listenerLock = new Object();
+  private MarketDataSnapshotChangeListener _listener;
 
+  
+  
   public MarketDataSnapshotLiveDataProvider(MarketDataSnapshotSource marketDataSnapshotSource,
       UniqueIdentifier marketDataSnapshotIdentifier) {
     _marketDataSnapshotSource = marketDataSnapshotSource;
     _marketDataSnapshotIdentifier = marketDataSnapshotIdentifier;
+    
+    _listener = new MarketDataSnapshotChangeListener() {
+      @Override
+      public void snapshotChanged(UniqueIdentifier uid) {
+        valueChanged(_listeningValueRequirements); // TODO: this is over kill, but since we're going to trigger a calculation anyway...
+      }
+    };
   }
 
   @Override
@@ -52,8 +70,28 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
 
   @Override
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
-    //No actual subscription to make, but we still need to acknowledge it.
+    _listeningValueRequirements.addAll(valueRequirements); // TODO PLAT-485 this is a leak, but we get thrown away eventually
     subscriptionSucceeded(valueRequirements);
+  }
+  
+  @Override
+  public void addListener(LiveDataSnapshotListener listener) {
+    synchronized (_listenerLock) {
+      if (getListeners().size() == 0) {
+        _marketDataSnapshotSource.addChangeListener(_marketDataSnapshotIdentifier, _listener);
+      }
+      super.addListener(listener);
+    }
+  }
+
+  @Override
+  public void removeListener(LiveDataSnapshotListener listener) {
+    synchronized (_listenerLock) {
+      super.removeListener(listener);
+      if (getListeners().size() == 0) {
+        _marketDataSnapshotSource.removeChangeListener(_marketDataSnapshotIdentifier, _listener);
+      }
+    }
   }
 
   @Override
@@ -132,7 +170,6 @@ public class MarketDataSnapshotLiveDataProvider extends AbstractLiveDataSnapshot
 
   @Override
   public void releaseSnapshot(long snapshot) {
-    _snapshots.remove(snapshot);
   }
 
   private MarketDataValueType getTargetType(ValueRequirement liveDataRequirement) {

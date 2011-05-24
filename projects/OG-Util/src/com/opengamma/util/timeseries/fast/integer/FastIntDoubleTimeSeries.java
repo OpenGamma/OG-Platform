@@ -17,61 +17,64 @@ import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
+/**
+ * 
+ */
 public interface FastIntDoubleTimeSeries extends FastTimeSeries<Integer> {
-  public abstract int size();
+  int size();
 
-  public abstract boolean isEmpty();
+  boolean isEmpty();
 
-  public abstract double getValueFast(int time);
+  double getValueFast(int time);
 
-  public abstract double getValueAtFast(int index);
+  double getValueAtFast(int index);
 
-  public abstract int getTimeFast(int index);
+  int getTimeFast(int index);
 
-  public abstract int getLatestTimeFast();
+  int getLatestTimeFast();
 
-  public abstract double getLatestValueFast();
+  double getLatestValueFast();
 
-  public abstract int getEarliestTimeFast();
+  int getEarliestTimeFast();
 
-  public abstract double getEarliestValueFast();
+  double getEarliestValueFast();
 
-  public abstract DoubleIterator valuesIteratorFast();
+  DoubleIterator valuesIteratorFast();
 
-  public abstract DoubleList valuesFast();
+  DoubleList valuesFast();
 
-  public abstract IntIterator timesIteratorFast();
+  IntIterator timesIteratorFast();
 
-  public abstract ObjectIterator<Int2DoubleMap.Entry> iteratorFast();
+  ObjectIterator<Int2DoubleMap.Entry> iteratorFast();
 
-  public abstract IntList timesFast();
+  IntList timesFast();
 
-  public abstract FastIntDoubleTimeSeries subSeriesFast(int startTime, int endTime);
-  
-  public abstract FastIntDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
+  FastIntDoubleTimeSeries subSeriesFast(int startTime, int endTime);
 
-  public abstract FastIntDoubleTimeSeries headFast(int items);
+  FastIntDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
-  public abstract FastIntDoubleTimeSeries tailFast(int items);
+  FastIntDoubleTimeSeries headFast(int items);
 
-  public abstract double[] valuesArrayFast();
+  FastIntDoubleTimeSeries tailFast(int items);
 
-  public abstract int[] timesArrayFast();
+  double[] valuesArrayFast();
 
-  public abstract FastIntDoubleTimeSeries newInstanceFast(int[] times, double[] values);
+  int[] timesArrayFast();
 
-  public abstract FastIntDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries operate(final double other, final BinaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries operate(final UnaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries unionOperate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
-  
-  public abstract FastIntDoubleTimeSeries lag(final int days);
+  FastIntDoubleTimeSeries newInstanceFast(int[] times, double[] values);
+
+  FastIntDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
+
+  FastIntDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+
+  FastIntDoubleTimeSeries operate(final double other, final BinaryOperator operator);
+
+  FastIntDoubleTimeSeries operate(final UnaryOperator operator);
+
+  FastIntDoubleTimeSeries unionOperate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
+
+  FastIntDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+
+  FastIntDoubleTimeSeries lag(final int days);
 
 }

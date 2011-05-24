@@ -29,11 +29,16 @@ import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.tuple.LongDoublePair;
 
+/**
+ * 
+ */
 public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeries {
-  public static final FastLongDoubleTimeSeries EMPTY_SERIES = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  /** An empty double time series backed using milliseconds as the date encoding */
+  public static final FastLongDoubleTimeSeries EMPTY_SERIES = new FastArrayLongDoubleTimeSeries(
+      DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
 
-  protected final long[] _times;
-  protected final double[] _values;
+  private final long[] _times;
+  private final double[] _values;
 
   private FastArrayLongDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -71,7 +76,8 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     }
   }
 
-  public FastArrayLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<Double> values) {
+  public FastArrayLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times,
+      final List<Double> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
@@ -99,7 +105,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     _times = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastLongDoubleTimeSeries dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -109,7 +115,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     }
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayLongDoubleTimeSeries(final FastIntDoubleTimeSeries dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding encoding = dts.getEncoding();
@@ -120,7 +126,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
       _times[i] = encoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
-  
+
   public FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastIntDoubleTimeSeries dts) {
     super(encoding);
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -404,6 +410,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   /**
+   * {@inheritDoc}
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */
@@ -542,5 +549,5 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   public FastLongDoubleTimeSeries newInstanceFast(final long[] times, final double[] values) {
     return new FastArrayLongDoubleTimeSeries(getEncoding(), times, values);
   }
-  
+
 }

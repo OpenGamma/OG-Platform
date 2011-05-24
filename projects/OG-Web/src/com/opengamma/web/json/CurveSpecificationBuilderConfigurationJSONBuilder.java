@@ -81,7 +81,7 @@ public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJ
     ArgumentChecker.notNull(object, "curveSpecificationBuilderConfiguration");
     JSONObject message = new JSONObject();
     try {
-      
+      message.put(String.valueOf(0), CurveSpecificationBuilderConfiguration.class.getName());
       List<JSONObject> cashInstrumentProviders = Lists.newArrayList();
       for (Entry<Tenor, CurveInstrumentProvider> entry : object.getCashInstrumentProviders().entrySet()) {
         if (entry.getKey().getPeriod().toString() == null) {

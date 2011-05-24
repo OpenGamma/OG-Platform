@@ -34,12 +34,13 @@ import com.opengamma.util.tuple.IntObjectPair;
  */
 public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSeries<T> {
   /** Empty time series. */
-  public static final FastIntObjectTimeSeries<Object> EMPTY_SERIES = new FastArrayIntObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  public static final FastIntObjectTimeSeries<Object> EMPTY_SERIES = new FastArrayIntObjectTimeSeries<Object>(
+      DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
 
   /** The times. */
-  protected final int[] _times;
+  private final int[] _times;
   /** The values. */
-  protected final T[] _values;
+  private final T[] _values;
 
   @SuppressWarnings("unchecked")
   public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding) {
@@ -79,9 +80,10 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
       maxTime = time;
     }
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<T> values) {
+  public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times,
+      final List<T> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
@@ -109,7 +111,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     _times = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final FastIntObjectTimeSeries<T> dts) {
     super(encoding);
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
@@ -119,11 +121,11 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     }
     _values = dts.valuesArrayFast();
   }
-  
+
   public FastArrayIntObjectTimeSeries(final FastLongObjectTimeSeries<T> dts) {
     this(dts.getEncoding(), dts);
   }
-  
+
   public FastArrayIntObjectTimeSeries(final DateTimeNumericEncoding encoding, final FastLongObjectTimeSeries<T> dts) {
     super(encoding);
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
@@ -151,7 +153,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public FastIntObjectTimeSeries<T> subSeriesFast(final int startTime, final int endTime) {
     if (isEmpty()) {
@@ -233,7 +235,8 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     @Override
     public Int2ObjectMap.Entry<T> next() {
       if (hasNext()) {
-        final Int2ObjectMap.Entry<T> keyValuePair = (Int2ObjectMap.Entry<T>) new IntObjectPair<Object>(_times[_current], _values[_current]);
+        final Int2ObjectMap.Entry<T> keyValuePair = (Int2ObjectMap.Entry<T>) new IntObjectPair<Object>(
+            _times[_current], _values[_current]);
         _current++;
         return keyValuePair;
       } else {
@@ -368,7 +371,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     return _times[index];
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public FastIntObjectTimeSeries<T> tailFast(final int numItems) {
     if (numItems <= _times.length) {
       final int[] times = new int[numItems];
@@ -400,7 +403,6 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
    * @param obj  the objec to check
    * @return true if equal
    */
-  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -411,6 +413,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
     }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntObjectTimeSeries) {
+        @SuppressWarnings("rawtypes")
         final FastIntObjectTimeSeries other = (FastIntObjectTimeSeries) obj;
         if (!Arrays.equals(other.valuesArrayFast(), _values)) {
           return false;
@@ -432,6 +435,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
           }
         }
       } else if (obj instanceof FastLongObjectTimeSeries) {
+        @SuppressWarnings("rawtypes")
         final FastLongObjectTimeSeries other = (FastLongObjectTimeSeries) obj;
         if (!Arrays.equals(other.valuesArrayFast(), _values)) {
           return false;
@@ -452,6 +456,7 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
         return false;
       }
     } else {
+      @SuppressWarnings("rawtypes")
       final FastArrayIntObjectTimeSeries other = (FastArrayIntObjectTimeSeries) obj;
       // invariant: none of these can be null.
       if (size() != other.size()) { // should always be O(1)
@@ -540,9 +545,5 @@ public class FastArrayIntObjectTimeSeries<T> extends AbstractFastIntObjectTimeSe
   public FastIntObjectTimeSeries<T> newInstanceFast(final int[] times, final T[] values) {
     return new FastArrayIntObjectTimeSeries<T>(getEncoding(), times, values);
   }
-
-
-
-
 
 }

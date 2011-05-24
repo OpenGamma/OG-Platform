@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.timeseries.localdate;
 
-
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -18,10 +17,10 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMapIntObjectTimeSer
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> The type of the time series
  */
 public class MapLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTimeSeries.Integer<T> {
+  /** An empty time series */
   public static final MapLocalDateObjectTimeSeries<?> EMPTY_SERIES = new MapLocalDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
 
@@ -30,30 +29,37 @@ public class MapLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTimeS
   }
 
   public MapLocalDateObjectTimeSeries(final LocalDate[] dates, final T[] values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public MapLocalDateObjectTimeSeries(final TimeZone timeZone, final LocalDate[] dates, final T[] values) {
-    super(new LocalDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new LocalDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   public MapLocalDateObjectTimeSeries(final List<LocalDate> dates, final List<T> values) {
-    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, s_converter.convertToInt(dates), values));
+    super(s_converter, new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        s_converter.convertToInt(dates), values));
   }
 
   public MapLocalDateObjectTimeSeries(final TimeZone timeZone, final List<LocalDate> dates, final List<T> values) {
-    super(new LocalDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
+    super(new LocalDateEpochDaysConverter(timeZone), new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
   }
 
   public MapLocalDateObjectTimeSeries(final ObjectTimeSeries<LocalDate, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(new FastMapIntObjectTimeSeries<T>(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt(new FastMapIntObjectTimeSeries<T>(
+        DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
   public MapLocalDateObjectTimeSeries(final TimeZone timeZone, final LocalDateObjectTimeSeries<T> dts) {
-    super(new LocalDateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new LocalDateEpochDaysConverter(timeZone).convertToInt(new FastMapIntObjectTimeSeries<T>(
-        DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
+    super(new LocalDateEpochDaysConverter(timeZone),
+        (FastMutableIntObjectTimeSeries<T>) new LocalDateEpochDaysConverter(timeZone).convertToInt(
+            new FastMapIntObjectTimeSeries<T>(
+                DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 
   public MapLocalDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

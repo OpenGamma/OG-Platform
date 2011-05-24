@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
@@ -159,6 +160,14 @@ public class ViewProcessorTestEnvironment {
       @Override
       public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
         return null;
+      }
+
+      @Override
+      public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+      }
+
+      @Override
+      public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
       }
     });
     

@@ -7,6 +7,7 @@ package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.Map;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueIdentifier;
@@ -42,6 +43,16 @@ public class DelegatingSnapshotSource extends UniqueIdentifierSchemeDelegator<Ma
   @Override
   public StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid) {
     return chooseDelegate(uid).getSnapshot(uid);
+  }
+
+  @Override
+  public void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+    chooseDelegate(uid).addChangeListener(uid, listener);
+  }
+
+  @Override
+  public void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener) {
+    chooseDelegate(uid).removeChangeListener(uid, listener);
   }
 
 }
