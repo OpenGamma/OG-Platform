@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -22,6 +23,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.timeseries.TimeSeriesDocument;
+import com.opengamma.master.timeseries.TimeSeriesLoader;
 
 /**
  * RESTful resource for a time series.
@@ -62,6 +64,24 @@ public class WebOneTimeSeriesResource extends AbstractWebTimeSeriesResource {
       csvWriter.writeNext(new String[] {entry.getKey().toString(), entry.getValue().toString()});
     }
     return stringWriter.toString();
+  }
+  
+  @PUT
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response putJSON() {
+    TimeSeriesDocument<?> tsDoc = data().getTimeSeries();
+    Response result = null;
+    if (updateTimeseries(tsDoc.getUniqueId())) {
+      result =  Response.ok().build();
+    } else {
+      result = Response.notModified().build();
+    }
+    return result;
+  }
+
+  private boolean updateTimeseries(final UniqueIdentifier uniqueId) {
+    TimeSeriesLoader timeSeriesLoader = data().getTimeSeriesLoader();
+    return timeSeriesLoader.updateTimeSeries(uniqueId);
   }
 
   //-------------------------------------------------------------------------

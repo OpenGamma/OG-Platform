@@ -52,7 +52,7 @@ public class PresentValueSensitivity {
   }
 
   /**
-   * Add a given sensitivity to the existing one.
+   * Create a copy of the sensitivity and add a given sensitivity to it.
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
