@@ -9,15 +9,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
@@ -49,22 +46,8 @@ public class YUIBundleCompressor implements BundleCompressor {
   //-------------------------------------------------------------------------
   @Override
   public String compressBundle(Bundle bundle) {
-    String source = readBundleSource(bundle);
+    String source = BundleUtils.readBundleSource(bundle);
     return compress(source, bundle.getId());
-  }
-
-  private String readBundleSource(Bundle bundle) {
-    List<Fragment> allFragments = bundle.getAllFragments();
-    StringBuilder buf = new StringBuilder(1024);
-    for (Fragment fragment : allFragments) {
-      try {
-        buf.append(FileUtils.readFileToString(fragment.getFile()));
-        buf.append("\n");
-      } catch (IOException ex) {
-        throw new DataNotFoundException("IOException reading " + fragment.getFile());
-      }
-    }
-    return buf.toString();
   }
 
   private String compress(String content, String bundleId) {

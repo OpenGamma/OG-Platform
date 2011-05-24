@@ -8,7 +8,7 @@
 <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
 <title>OpenGamma</title>
 <!--[if lt IE 9]><script type="text/javascript" src="/prototype/scripts/lib/html5.js"></script><![endif]-->
-${ogStyle.print('og_all.css', 'all')}
+${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
 <div id="container" class="OG-clearFix">
@@ -17,7 +17,7 @@ ${ogStyle.print('og_all.css', 'all')}
   <#include "modules/common/og.common.details.ftl">
   <#include "modules/common/og.common.analytics.ftl">
 </div>
-<!--[if IE]>${ogScript.print('ie.js')}<![endif]-->
-${ogScript.print('og_all.js')}
+<!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
+${ogScript.print('og_all.js',false)}
 </body>
 </html>

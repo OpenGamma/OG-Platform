@@ -39,7 +39,7 @@ public class WebDevBundleResource extends AbstractWebBundleResource {
     BundleManager bundleManager = data().getDevBundleManager();
     Bundle bundle = bundleManager.getBundle(bundleId);
     String basePath = bundleManager.getBaseDir().getName();
-    return BundleImportUriUtils.buildImports(bundle, new WebBundlesUris(data()), basePath);
+    return BundleUtils.buildImports(bundle, new WebBundlesUris(data()), basePath);
   }
 
   //-------------------------------------------------------------------------

@@ -39,52 +39,69 @@ public class StyleTag {
    * 
    * @param bundleId  the bundle ID, not null
    * @param media  the media type, not null
+   * @param inline  whether to inline the script
    * @return the HTML for the bundle, may be null
    */
-  public String print(String bundleId, String media) {
+  public String print(String bundleId, String media, boolean inline) {
     ArgumentChecker.notNull(bundleId, "bundleId");
     ArgumentChecker.notNull(media, "media");
+    Bundle bundle = _data.getBundleManager().getBundle(bundleId);
+    if (bundle == null) {
+      s_logger.warn("{} not available ", bundleId);
+      return "";
+    }
     DeployMode mode = _data.getMode();
     switch (mode) {
       case DEV:
-        return printDev(bundleId, media);
+        return inline ? printDevInline(bundle, media) : printDevLinked(bundle, media);
       case PROD:
-        return printProd(bundleId, media);
+        return inline ? printProdInline(bundle, media) : printProdLinked(bundle, media);
       default:
         s_logger.warn("Unknown deployment mode type: " + mode);
         return null;
     }
   }
 
-  private String printProd(String bundleId, String media) {
+  private String printProdInline(Bundle bundle, String media) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("<style type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\">\n");
+    buf.append(_data.getCompressor().compressBundle(bundle));
+    buf.append("\n</style>");
+    return buf.toString();
+  }
+
+  private String printProdLinked(Bundle bundle, String media) {
     WebBundlesUris uris = new WebBundlesUris(_data);
     StringBuilder buf = new StringBuilder();
-    buf.append("<link");
-    buf.append(" ");
-    buf.append("rel=\"stylesheet\"");
-    buf.append(" ");
-    buf.append("type=\"text/css\"");
-    buf.append(" ");
-    buf.append("media=\"").append(media).append("\"");
-    buf.append(" ");
-    buf.append("href=\"").append(uris.bundle(DeployMode.PROD, bundleId));
+    buf.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\" href=\"");
+    buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
     buf.append("\">");
     return buf.toString();
   }
 
-  private String printDev(String bundleId, String media) {
+  private String printDevInline(Bundle bundle, String media) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("<style type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\">\n");
+    buf.append(BundleUtils.readBundleSource(bundle));
+    buf.append("</style>");
+    return buf.toString();
+  }
+
+  private String printDevLinked(Bundle bundle, String media) {
+    bundle = _data.getDevBundleManager().getBundle(bundle.getId());  // reload from dev manager
     WebBundlesUris uris = new WebBundlesUris(_data);
     StringBuilder buf = new StringBuilder();
-    Bundle bundle = _data.getDevBundleManager().getBundle(bundleId);
-    if (bundle != null) {
-      String basePath = _data.getDevBundleManager().getBaseDir().getName();
-      buf.append("<style type=\"text/css\" media=\"all\">\n");
-      String imports = BundleImportUriUtils.buildImports(bundle, uris, basePath);
-      buf.append(imports);
-      buf.append("</style>");
-    } else {
-      s_logger.warn("{} not available ", bundleId);
-    }
+    String basePath = _data.getDevBundleManager().getBaseDir().getName();
+    buf.append("<style type=\"text/css\" media=\"all\">\n");
+    String imports = BundleUtils.buildImports(bundle, uris, basePath);
+    buf.append(imports);
+    buf.append("</style>");
     return buf.toString();
   }
 

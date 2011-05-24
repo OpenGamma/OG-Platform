@@ -40,46 +40,61 @@ public class ScriptTag {
    * Outputs the HTML for the bundle.
    * 
    * @param bundleId  the bundle ID, not null
+   * @param inline  whether to inline the script
    * @return the HTML for the bundle, may be null
    */
-  public String print(String bundleId) {
+  public String print(String bundleId, boolean inline) {
     ArgumentChecker.notNull(bundleId, "bundleId");
+    Bundle bundle = _data.getBundleManager().getBundle(bundleId);
+    if (bundle == null) {
+      s_logger.warn("{} not available ", bundleId);
+      return "";
+    }
     DeployMode mode = _data.getMode();
     switch (mode) {
       case DEV:
-        return printDev(bundleId);
+        return inline ? printDevInline(bundle) : printDevLinked(bundle);
       case PROD:
-        return printProd(bundleId);
+        return inline ? printProdInline(bundle) : printProdLinked(bundle);
       default:
         s_logger.warn("Unknown deployment mode type: " + mode);
         return null;
     }
   }
 
-  private String printProd(String bundleId) {
-    WebBundlesUris uris = new WebBundlesUris(_data);
+  private String printProdInline(Bundle bundle) {
     StringBuilder buf = new StringBuilder();
-    buf.append("<script");
-    buf.append(" ");
-    buf.append("src=\"");
-    buf.append(uris.bundle(DeployMode.PROD, bundleId));
-    buf.append("\">");
-    buf.append("</script>");
+    buf.append("<script src=\"text/javascript\"><!--//--><![CDATA[//><!--\n");
+    buf.append(_data.getCompressor().compressBundle(bundle));
+    buf.append("//--><!]]>\n</script>");
     return buf.toString();
   }
 
-  private String printDev(String bundleId) {
+  private String printProdLinked(Bundle bundle) {
     StringBuilder buf = new StringBuilder();
-    Bundle bundle = _data.getDevBundleManager().getBundle(bundleId);
-    if (bundle != null) {
-      List<Fragment> allFragment = bundle.getAllFragments();
-      for (Fragment fragment : allFragment) {
-        buf.append("<script src=\"/");
-        buf.append(buildFragmentUrl(fragment));
-        buf.append("\"></script>\n");
-      }
-    } else {
-      s_logger.warn("{} not available ", bundleId);
+    buf.append("<script src=\"");
+    WebBundlesUris uris = new WebBundlesUris(_data);
+    buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
+    buf.append("\"></script>");
+    return buf.toString();
+  }
+
+  private String printDevInline(Bundle bundle) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("<script src=\"text/javascript\"><!--//--><![CDATA[//><!--\n");
+    buf.append(BundleUtils.readBundleSource(bundle));
+    buf.append("//--><!]]>\n</script>");
+    return buf.toString();
+  }
+
+  private String printDevLinked(Bundle bundle) {
+    bundle = _data.getDevBundleManager().getBundle(bundle.getId());  // reload from dev manager
+    StringBuilder buf = new StringBuilder();
+    List<Fragment> allFragment = bundle.getAllFragments();
+    for (Fragment fragment : allFragment) {
+      buf.append("<script src=\"/");
+      buf.append(buildFragmentUrl(fragment));
+      buf.append("\"></script>\n");
     }
     return buf.toString();
   }
