@@ -9,15 +9,16 @@ import com.opengamma.web.bundle.BundleManager;
 import com.opengamma.web.bundle.BundleParser;
 import com.opengamma.web.bundle.DevBundleBuilder;
 
-
 /**
- * Creates a BundleManager for Production from the Bundle XML configuration file
+ * Creates a BundleManager for Production from the Bundle XML configuration file.
  */
 public class DevBundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
-  
+
   @Override
   protected BundleManager createObject() {
-    DevBundleBuilder builder = new DevBundleBuilder(new BundleParser(resolveConfigurationFile(), resolveBaseDir()).getBundleManager());
+    BundleParser parser = new BundleParser(resolveConfigurationFile(), resolveBaseDir());
+    BundleManager bm = parser.parse();
+    DevBundleBuilder builder = new DevBundleBuilder(bm);
     return builder.getDevBundleManager();
   }
 

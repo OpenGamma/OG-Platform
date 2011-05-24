@@ -11,41 +11,73 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Style tag
+ * Tag used to generate the HTML output for CSS.
  */
 public class StyleTag {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(StyleTag.class);
 
+  /**
+   * The bundle manager.
+   */
   private final BundleManager _bundleManager;
-
+  /**
+   * The bundle URI helper.
+   */
+  private final WebBundlesUris _webBundleUris; 
+  /**
+   * The deploy mode.
+   */
   private final DeployMode _mode;
-  
+  /**
+   * The media.
+   */
   private String _media;
-  
+  /**
+   * The bundle ID.
+   */
   private String _bundleId;
-  
-  private final WebBundlesUris _webBundleUris;
 
   /**
-   * Create style tag
+   * Creates an instance.
    * 
-   * @param bundleManager   the development bundle manager, not null.
-   * @param mode            the deployment mode.
-   * @param webBundleUris   the base webBundleUris.
+   * @param bundleManager  the development bundle manager, not null
+   * @param webBundleUris  the URI helper, not null.
+   * @param mode  the deployment mode, not null
    */
-  public StyleTag(BundleManager bundleManager, DeployMode mode, WebBundlesUris webBundleUris) {
+  public StyleTag(BundleManager bundleManager, WebBundlesUris webBundleUris, DeployMode mode) {
     ArgumentChecker.notNull(bundleManager, "bundleManager");
-    ArgumentChecker.notNull(mode, "mode");
     ArgumentChecker.notNull(webBundleUris, "webBundleUris");
+    ArgumentChecker.notNull(mode, "mode");
     
     _bundleManager = bundleManager;
-    _mode = mode;
     _webBundleUris = webBundleUris;
+    _mode = mode;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the bundle ID.
+   * 
+   * @return the bundle ID, may be null
+   */
+  public String getBundleId() {
+    return _bundleId;
   }
 
   /**
-   * Gets the media field.
+   * Sets the bundle ID.
+   * 
+   * @param bundleId  the bundle ID, may be null
+   */
+  public void setBundleId(String bundleId) {
+    _bundleId = bundleId;
+  }
+
+  /**
+   * Gets the media.
+   * 
    * @return the media
    */
   public String getMedia() {
@@ -53,29 +85,20 @@ public class StyleTag {
   }
 
   /**
-   * Sets the media field.
+   * Sets the media.
+   * 
    * @param media  the media
    */
   public void setMedia(String media) {
     _media = media;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the bundleId field.
-   * @return the bundleId
+   * Outputs the HTML for the bundle.
+   * 
+   * @return the HTML for the bundle, may be null
    */
-  public String getBundleId() {
-    return _bundleId;
-  }
-
-  /**
-   * Sets the bundleId field.
-   * @param bundleId  the bundleId
-   */
-  public void setBundleId(String bundleId) {
-    _bundleId = bundleId;
-  }
-
   public String print() {
     switch (_mode) {
       case DEV:
@@ -83,7 +106,7 @@ public class StyleTag {
       case PROD:
         return printProd();
       default:
-        s_logger.warn("unknown deployment mode type");
+        s_logger.warn("Unknown deployment mode type: " + _mode);
         return null;
     }
   }
@@ -98,7 +121,7 @@ public class StyleTag {
     buf.append(" ");
     buf.append("media=\"").append(getMedia()).append("\"");
     buf.append(" ");
-    buf.append("href=\"").append(_webBundleUris.bundles(DeployMode.PROD, getBundleId()));
+    buf.append("href=\"").append(_webBundleUris.bundle(DeployMode.PROD, getBundleId()));
     buf.append("\">");
     return buf.toString();
   }
@@ -119,11 +142,11 @@ public class StyleTag {
   }
 
   /**
-   * Print the tag output
+   * Outputs the HTML for the bundle.
    * 
-   * @param bundleId     the bundle id, not null
-   * @param media   the media type, not null
-   * @return the tag out
+   * @param bundleId  the bundle ID, not null
+   * @param media  the media type, not null
+   * @return the HTML for the bundle, may be null
    */
   public String print(String bundleId, String media) {
     ArgumentChecker.notNull(bundleId, "bundleId");
@@ -133,5 +156,5 @@ public class StyleTag {
     setMedia(media);
     return print();    
   }
-  
+
 }

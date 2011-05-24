@@ -13,33 +13,30 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * A cache decorating a {@code CompressedBundleSource}.
- * 
+ * Cache decorating the compressor of bundle source code.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingCompressedBundleSource implements CompressedBundleSource {
-  
+
   /**
-   * Cache key for bundles
+   * The cache key for bundles.
    */
   private static final String BUNDLE_CACHE = "bundle";
-  
+
   /**
    * The underlying compressed bundle source
    */
   private final CompressedBundleSource _underlying;
-  
   /**
    * The cache manager.
    */
   private final CacheManager _cacheManager;
-  
   /**
-   * The portfolio cache.
+   * The cache.
    */
   private final Cache _bundleCache;
-  
+
   /**
    * Creates the cache around an underlying compressed bundle source.
    * 
@@ -54,11 +51,12 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
     EHCacheUtils.addCache(cacheManager, BUNDLE_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_CACHE);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Gets the underlying source of bundles
+   * Gets the underlying compressor.
    * 
-   * @return the underlying source of bundles, not null
+   * @return the underlying compressor, not null
    */
   protected CompressedBundleSource getUnderlying() {
     return _underlying;
@@ -73,6 +71,7 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
     return _cacheManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String getBundle(String bundleId) {
     Element e = _bundleCache.get(bundleId);
