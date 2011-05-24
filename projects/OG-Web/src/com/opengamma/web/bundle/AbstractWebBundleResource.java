@@ -27,17 +27,18 @@ public class AbstractWebBundleResource extends AbstractWebResource {
    * Creates the resource.
    * 
    * @param bundleManager  the bundle manager, not null
-   * @param compressedBundleSource  the bundle source
+   * @param compressor  the bundle compressor, not null
    * @param mode  the deploy mode, not null
    */
   protected AbstractWebBundleResource(
-      final BundleManager bundleManager, final CompressedBundleSource compressedBundleSource, final DeployMode mode) {
+      final BundleManager bundleManager, final BundleCompressor compressor, final DeployMode mode) {
     ArgumentChecker.notNull(bundleManager, "bundleManager");
-    ArgumentChecker.notNull(compressedBundleSource, "compressedBundleSource");
+    ArgumentChecker.notNull(compressor, "compressedBundleSource");
     ArgumentChecker.notNull(mode, "mode");
     _data = new WebBundlesData();
     data().setBundleManager(bundleManager);
-    data().setCompressedBundleSource(compressedBundleSource);
+    data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
+    data().setCompressor(compressor);
     data().setMode(mode);
   }
 
@@ -70,13 +71,8 @@ public class AbstractWebBundleResource extends AbstractWebResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = getFreemarker().createRootData();
-    BundleManager bundleManager = data().getBundleManager();
-    DeployMode mode = data().getMode();
-    WebBundlesUris webBundlesUris = new WebBundlesUris(data());
-    ScriptTag scriptTag = new ScriptTag(bundleManager, webBundlesUris, mode);
-    StyleTag styleTag = new StyleTag(bundleManager, webBundlesUris, mode);
-    out.put("ogStyle", styleTag);
-    out.put("ogScript", scriptTag);
+    out.put("ogStyle", new StyleTag(data()));
+    out.put("ogScript", new ScriptTag(data()));
     return out;
   }
 

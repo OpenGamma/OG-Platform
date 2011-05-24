@@ -31,8 +31,11 @@ public class WebProdBundleResource extends AbstractWebBundleResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@PathParam("bundleId") String idStr) {
-    CompressedBundleSource compressedBundleSource = data().getCompressedBundleSource();
-    String compressedContent = compressedBundleSource.getBundle(idStr);
+    Bundle bundle = data().getBundleManager().getBundle(idStr);
+    if (bundle == null) {
+      return null;
+    }
+    String compressedContent = data().getCompressor().compressBundle(bundle);
     BundleType type = BundleType.getType(idStr);
     String mimeType = null;
     switch (type) {

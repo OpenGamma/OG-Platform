@@ -22,7 +22,7 @@ public class WebBundlesResource extends AbstractWebBundleResource {
    * @param compressedBundleSource  the compressed bundle source, not null
    * @param mode  the deployment mode, DEV or PROD
    */
-  public WebBundlesResource(BundleManager bundleManager, CompressedBundleSource compressedBundleSource, DeployMode mode) {
+  public WebBundlesResource(BundleManager bundleManager, BundleCompressor compressedBundleSource, DeployMode mode) {
     super(bundleManager, compressedBundleSource, mode);
   }
 
