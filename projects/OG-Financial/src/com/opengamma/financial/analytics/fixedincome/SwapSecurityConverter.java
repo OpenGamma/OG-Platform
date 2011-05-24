@@ -155,16 +155,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       AnnuityCouponIborSpreadDefinition annuityIbor = AnnuityCouponIborSpreadDefinition.from(_effectiveDate, _maturityDate, notional, iborIndex, spread, false);
       // TODO: Initial rate fixed or not?
       return annuityIbor;
-      //      final ZonedDateTime[] nominalDates = ScheduleCalculator.getUnadjustedDateSchedule(_effectiveDate, _maturityDate, floatLeg.getFrequency());
-      //      //TODO are settlement days really 0 for swaps?    
-      //      final ZonedDateTime[] settlementDates = ScheduleCalculator.getAdjustedDateSchedule(nominalDates, floatLeg.getBusinessDayConvention(), _calendar, 0);
-      //      final ZonedDateTime[] resetDates = ScheduleCalculator.getAdjustedResetDateSchedule(_effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), _calendar,
-      //          _conventions.getSwapFloatingLegSettlementDays());
-      //      final ZonedDateTime[] maturityDates = ScheduleCalculator.getAdjustedMaturityDateSchedule(_effectiveDate, nominalDates, floatLeg.getBusinessDayConvention(), 
-      //_calendar, floatLeg.getFrequency());
-      //      final double initialRate = floatLeg.getInitialFloatingRate();
-      //      final SwapConvention convention = new SwapConvention(0, floatLeg.getDayCount(), floatLeg.getBusinessDayConvention(), _calendar, false, _currencyCode + "_FLOATING_LEG_SWAP_CONVENTION");
-      //      return new FloatingSwapLegDefinition(_effectiveDate, nominalDates, settlementDates, resetDates, maturityDates, notional, initialRate, spread, convention);
     }
   }
 }

@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceData;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -36,6 +37,7 @@ public class ResultConverterCache {
     registerConverter(Boolean.class, primitiveConverter);
     registerConverter(String.class, primitiveConverter);
     registerConverter(Double.class, _doubleConverter);
+    registerConverter(CurrencyAmount.class, _doubleConverter);
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
