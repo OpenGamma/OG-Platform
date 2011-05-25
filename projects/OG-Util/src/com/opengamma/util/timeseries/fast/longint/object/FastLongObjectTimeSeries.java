@@ -18,6 +18,10 @@ import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.fast.FastObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 
+/**
+ * 
+ * @param <T> The type of the data
+ */
 public interface FastLongObjectTimeSeries<T> extends FastObjectTimeSeries<Long, T>, Iterable<Entry<Long, T>> {
   int size();
 
@@ -48,7 +52,7 @@ public interface FastLongObjectTimeSeries<T> extends FastObjectTimeSeries<Long, 
   ObjectIterator<Long2ObjectMap.Entry<T>> iteratorFast();
 
   FastLongObjectTimeSeries<T> subSeriesFast(long startTime, long endTime);
-  
+
   FastLongObjectTimeSeries<T> subSeriesFast(long startTime, boolean includeStart, long endTime, boolean includeEnd);
 
   FastLongObjectTimeSeries<T> headFast(int items);
@@ -60,18 +64,18 @@ public interface FastLongObjectTimeSeries<T> extends FastObjectTimeSeries<Long, 
   long[] timesArrayFast();
 
   FastLongObjectTimeSeries<T> newInstanceFast(long[] times, T[] values);
-  
+
   FastLongObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> operate(final T other, final BinaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> unionOperate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> unionOperate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> operate(final UnaryOperator<T> operator);
-  
+
   FastLongObjectTimeSeries<T> lag(final int days);
 }

@@ -343,15 +343,25 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     long startTime, endTime;
     final int nbTest = 1000;
+    double[] pv = new double[nbTest];
+    PresentValueSensitivity[] pvcs = new PresentValueSensitivity[nbTest];
+    PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
-      METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-      METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle) + looptest;
+      pvcs[looptest] = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+      pvss[looptest] = METHOD.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 04-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 150 ms for 1000 swaptions.
+    // Performance note: price+delta+vega: 19-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 1000 swaptions.
+
+    //    double sum = 0.0;
+    //    for (int looptest = 0; looptest < nbTest; looptest++) {
+    //      sum += pv[looptest];
+    //      sum += pvcs[looptest].getSensitivity().size();
+    //      sum += pvss[looptest].getAlpha().hashCode();
+    //    }
   }
 
   @Test(enabled = false)

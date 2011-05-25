@@ -199,7 +199,7 @@
     </property>
   </bean>
   <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <property name="dbSource" ref="batchDbSource"/>  	
+    <constructor-arg ref="batchDbSource"/>  	
   </bean>
 
   <!-- Function configuration -->

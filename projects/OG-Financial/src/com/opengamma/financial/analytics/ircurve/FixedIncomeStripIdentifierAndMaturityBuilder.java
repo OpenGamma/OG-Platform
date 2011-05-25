@@ -176,6 +176,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("Could not get initial rate");
     }
     double spread = 0;
+    if (rate == null) {
+      throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
+    }
     double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     SwapSecurity swap =  new SwapSecurity(tradeDate, 

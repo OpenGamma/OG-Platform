@@ -69,12 +69,20 @@ public class InterestRateFutureTransaction implements InterestRateDerivative {
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitInterestRateFutureTransaction(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitInterestRateFutureTransaction(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "IRFuture Transaction: ";
+    result += " Underlying: " + _underlyingFuture.toString();
+    result += " Reference price: " + _referencePrice;
+    return result;
   }
 
   @Override

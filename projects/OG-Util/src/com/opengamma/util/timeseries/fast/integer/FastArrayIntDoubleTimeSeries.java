@@ -29,11 +29,16 @@ import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.tuple.IntDoublePair;
 
+/**
+ * 
+ */
 public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSeries {
-  public static final FastIntDoubleTimeSeries EMPTY_SERIES = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  /** An empty double time series with the time expressed as int and the millisecond-from-epoch date encoding */
+  public static final FastIntDoubleTimeSeries EMPTY_SERIES = new FastArrayIntDoubleTimeSeries(
+      DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
 
-  protected final int[] _times;
-  protected final double[] _values;
+  private final int[] _times;
+  private final double[] _values;
 
   public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -41,7 +46,8 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     _values = new double[0];
   }
 
-  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final Integer[] times, final Double[] values) {
+  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final Integer[] times,
+      final Double[] values) {
     super(encoding);
     _times = new int[times.length];
     _values = new double[values.length];
@@ -71,7 +77,8 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     }
   }
 
-  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times, final List<Double> values) {
+  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times,
+      final List<Double> values) {
     super(encoding);
     if (times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
@@ -125,7 +132,8 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     _values = dts.valuesArrayFast();
   }
 
-  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final SortedMap<Integer, Double> initialMap) {
+  public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding,
+      final SortedMap<Integer, Double> initialMap) {
     super(encoding);
     final int size = initialMap.size();
     _times = new int[size];
@@ -255,7 +263,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   /* package */class PrimitiveArrayIntDoubleTimeSeriesTimesIterator implements IntIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -388,6 +396,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   /**
+   * {@inheritDoc}
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */

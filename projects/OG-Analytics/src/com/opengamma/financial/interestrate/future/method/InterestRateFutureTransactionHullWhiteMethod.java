@@ -10,18 +10,17 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
-import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 
 /**
  * Method to compute the present value and its sensitivities for an interest rate future with Hull-White model convexity adjustment.
  */
-public class InterestRateFutureTransactionHullWhiteMethod implements PricingMethod {
+public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFutureTransactionMethod {
 
   /**
    * The model used for the convexity adjustment computation.
    */
-  private final HullWhiteOneFactorPiecewiseConstantInterestRateModel _model;
+  private final HullWhiteOneFactorPiecewiseConstantDataBundle _data;
   /**
    * The method used to compute the future price.
    */
@@ -36,30 +35,24 @@ public class InterestRateFutureTransactionHullWhiteMethod implements PricingMeth
   public InterestRateFutureTransactionHullWhiteMethod(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     Validate.notNull(volatility, "volatility time");
     Validate.notNull(volatilityTime, "volatility time");
-    _model = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(meanReversion, volatility, volatilityTime);
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_model);
+    _data = new HullWhiteOneFactorPiecewiseConstantDataBundle(meanReversion, volatility, volatilityTime);
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
   }
 
   /**
    * Constructor from the model.
-   * @param model The Hull-White one factor model.
+   * @param data The Hull-White one factor model parameters.
    */
-  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantInterestRateModel model) {
-    Validate.notNull(model, "Model");
-    _model = model;
-    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_model);
+  public InterestRateFutureTransactionHullWhiteMethod(final HullWhiteOneFactorPiecewiseConstantDataBundle data) {
+    Validate.notNull(data, "Data");
+    _data = data;
+    _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
   }
 
-  /**
-   * Compute the present value of a future transaction from a quoted price.
-   * @param future The future.
-   * @param price The quoted price.
-   * @return The present value.
-   */
-  public double presentValueFromPrice(final InterestRateFutureTransaction future, final double price) {
-    Validate.notNull(future, "Future");
-    double pv = (price - future.getReferencePrice()) * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity();
-    return pv;
+  @Override
+  public double presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
+    return presentValue((InterestRateFutureTransaction) instrument, curves);
   }
 
   /**
@@ -74,12 +67,6 @@ public class InterestRateFutureTransactionHullWhiteMethod implements PricingMeth
     double futurePrice = _securityMethod.price(future.getUnderlyingFuture(), curves);
     double pv = presentValueFromPrice(future, futurePrice);
     return pv;
-  }
-
-  @Override
-  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
-    return presentValue(instrument, curves);
   }
 
 }

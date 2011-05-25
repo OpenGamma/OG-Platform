@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 public class ThetaMethodFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5);
+  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(0.5, false);
 
   @Test
   public void testBlackScholesEquation1() {
@@ -32,7 +32,7 @@ public class ThetaMethodFiniteDifferenceTest {
 
   @Test
   public void testBlackScholesEquation2() {
-    int timeSteps = 20; // with this few steps get massive oscillations in implied vol & gamma around ATM
+    int timeSteps = 20;
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;

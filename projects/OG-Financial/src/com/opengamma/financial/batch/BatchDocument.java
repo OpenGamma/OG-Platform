@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
 import org.joda.beans.BeanDefinition;
@@ -56,6 +57,31 @@ public class BatchDocument extends DirectBean {
    */
   @PropertyDefinition
   private BatchStatus _status;
+  /**
+   * The master process host, not null.
+   */
+  @PropertyDefinition
+  private String _masterProcessHost;
+  /**
+   * The instant that the batch run was first created, not null.
+   */
+  @PropertyDefinition
+  private Instant _creationInstant;
+  /**
+   * The instant that the batch run started, not null.
+   */
+  @PropertyDefinition
+  private Instant _startInstant;
+  /**
+   * The instant that the batch run ended, not null.
+   */
+  @PropertyDefinition
+  private Instant _endInstant;
+  /**
+   * The number of restarts.
+   */
+  @PropertyDefinition
+  private int _numRestarts;
   /**
    * The paging information for the main batch data, not null if correctly created.
    */
@@ -143,6 +169,16 @@ public class BatchDocument extends DirectBean {
         return getObservationTime();
       case -892481550:  // status
         return getStatus();
+      case 2095858933:  // masterProcessHost
+        return getMasterProcessHost();
+      case -961305086:  // creationInstant
+        return getCreationInstant();
+      case 1823123231:  // startInstant
+        return getStartInstant();
+      case -2109892474:  // endInstant
+        return getEndInstant();
+      case -1329836566:  // numRestarts
+        return getNumRestarts();
       case 1173228502:  // dataPaging
         return getDataPaging();
       case 3076010:  // data
@@ -170,6 +206,21 @@ public class BatchDocument extends DirectBean {
         return;
       case -892481550:  // status
         setStatus((BatchStatus) newValue);
+        return;
+      case 2095858933:  // masterProcessHost
+        setMasterProcessHost((String) newValue);
+        return;
+      case -961305086:  // creationInstant
+        setCreationInstant((Instant) newValue);
+        return;
+      case 1823123231:  // startInstant
+        setStartInstant((Instant) newValue);
+        return;
+      case -2109892474:  // endInstant
+        setEndInstant((Instant) newValue);
+        return;
+      case -1329836566:  // numRestarts
+        setNumRestarts((Integer) newValue);
         return;
       case 1173228502:  // dataPaging
         setDataPaging((Paging) newValue);
@@ -288,6 +339,131 @@ public class BatchDocument extends DirectBean {
    */
   public final Property<BatchStatus> status() {
     return metaBean().status().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the master process host, not null.
+   * @return the value of the property
+   */
+  public String getMasterProcessHost() {
+    return _masterProcessHost;
+  }
+
+  /**
+   * Sets the master process host, not null.
+   * @param masterProcessHost  the new value of the property
+   */
+  public void setMasterProcessHost(String masterProcessHost) {
+    this._masterProcessHost = masterProcessHost;
+  }
+
+  /**
+   * Gets the the {@code masterProcessHost} property.
+   * @return the property, not null
+   */
+  public final Property<String> masterProcessHost() {
+    return metaBean().masterProcessHost().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant that the batch run was first created, not null.
+   * @return the value of the property
+   */
+  public Instant getCreationInstant() {
+    return _creationInstant;
+  }
+
+  /**
+   * Sets the instant that the batch run was first created, not null.
+   * @param creationInstant  the new value of the property
+   */
+  public void setCreationInstant(Instant creationInstant) {
+    this._creationInstant = creationInstant;
+  }
+
+  /**
+   * Gets the the {@code creationInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> creationInstant() {
+    return metaBean().creationInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant that the batch run started, not null.
+   * @return the value of the property
+   */
+  public Instant getStartInstant() {
+    return _startInstant;
+  }
+
+  /**
+   * Sets the instant that the batch run started, not null.
+   * @param startInstant  the new value of the property
+   */
+  public void setStartInstant(Instant startInstant) {
+    this._startInstant = startInstant;
+  }
+
+  /**
+   * Gets the the {@code startInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> startInstant() {
+    return metaBean().startInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instant that the batch run ended, not null.
+   * @return the value of the property
+   */
+  public Instant getEndInstant() {
+    return _endInstant;
+  }
+
+  /**
+   * Sets the instant that the batch run ended, not null.
+   * @param endInstant  the new value of the property
+   */
+  public void setEndInstant(Instant endInstant) {
+    this._endInstant = endInstant;
+  }
+
+  /**
+   * Gets the the {@code endInstant} property.
+   * @return the property, not null
+   */
+  public final Property<Instant> endInstant() {
+    return metaBean().endInstant().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of restarts.
+   * @return the value of the property
+   */
+  public int getNumRestarts() {
+    return _numRestarts;
+  }
+
+  /**
+   * Sets the number of restarts.
+   * @param numRestarts  the new value of the property
+   */
+  public void setNumRestarts(int numRestarts) {
+    this._numRestarts = numRestarts;
+  }
+
+  /**
+   * Gets the the {@code numRestarts} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> numRestarts() {
+    return metaBean().numRestarts().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -419,6 +595,26 @@ public class BatchDocument extends DirectBean {
      */
     private final MetaProperty<BatchStatus> _status = DirectMetaProperty.ofReadWrite(this, "status", BatchStatus.class);
     /**
+     * The meta-property for the {@code masterProcessHost} property.
+     */
+    private final MetaProperty<String> _masterProcessHost = DirectMetaProperty.ofReadWrite(this, "masterProcessHost", String.class);
+    /**
+     * The meta-property for the {@code creationInstant} property.
+     */
+    private final MetaProperty<Instant> _creationInstant = DirectMetaProperty.ofReadWrite(this, "creationInstant", Instant.class);
+    /**
+     * The meta-property for the {@code startInstant} property.
+     */
+    private final MetaProperty<Instant> _startInstant = DirectMetaProperty.ofReadWrite(this, "startInstant", Instant.class);
+    /**
+     * The meta-property for the {@code endInstant} property.
+     */
+    private final MetaProperty<Instant> _endInstant = DirectMetaProperty.ofReadWrite(this, "endInstant", Instant.class);
+    /**
+     * The meta-property for the {@code numRestarts} property.
+     */
+    private final MetaProperty<Integer> _numRestarts = DirectMetaProperty.ofReadWrite(this, "numRestarts", Integer.TYPE);
+    /**
      * The meta-property for the {@code dataPaging} property.
      */
     private final MetaProperty<Paging> _dataPaging = DirectMetaProperty.ofReadWrite(this, "dataPaging", Paging.class);
@@ -448,6 +644,11 @@ public class BatchDocument extends DirectBean {
       temp.put("observationDate", _observationDate);
       temp.put("observationTime", _observationTime);
       temp.put("status", _status);
+      temp.put("masterProcessHost", _masterProcessHost);
+      temp.put("creationInstant", _creationInstant);
+      temp.put("startInstant", _startInstant);
+      temp.put("endInstant", _endInstant);
+      temp.put("numRestarts", _numRestarts);
       temp.put("dataPaging", _dataPaging);
       temp.put("data", _data);
       temp.put("errorsPaging", _errorsPaging);
@@ -501,6 +702,46 @@ public class BatchDocument extends DirectBean {
      */
     public final MetaProperty<BatchStatus> status() {
       return _status;
+    }
+
+    /**
+     * The meta-property for the {@code masterProcessHost} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> masterProcessHost() {
+      return _masterProcessHost;
+    }
+
+    /**
+     * The meta-property for the {@code creationInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> creationInstant() {
+      return _creationInstant;
+    }
+
+    /**
+     * The meta-property for the {@code startInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> startInstant() {
+      return _startInstant;
+    }
+
+    /**
+     * The meta-property for the {@code endInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Instant> endInstant() {
+      return _endInstant;
+    }
+
+    /**
+     * The meta-property for the {@code numRestarts} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> numRestarts() {
+      return _numRestarts;
     }
 
     /**

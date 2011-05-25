@@ -87,16 +87,16 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFunction() {
-    CENTRAL.derivative((Function1D<DoubleMatrix1D, DoubleMatrix1D>) null);
+    CENTRAL.differentiate((Function1D<DoubleMatrix1D, DoubleMatrix1D>) null);
   }
 
   @Test
   public void test() {
     final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {.2245, -1.2344});
     DoubleMatrix2D anJac = G.evaluate(x);
-    DoubleMatrix2D fdFwdJac = FORWARD.derivative(F).evaluate(x);
-    DoubleMatrix2D fdCentGrad = CENTRAL.derivative(F).evaluate(x);
-    DoubleMatrix2D fdBackGrad = BACKWARD.derivative(F).evaluate(x);
+    DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F).evaluate(x);
+    DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
+    DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
@@ -111,9 +111,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   public void test2() {
     final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {1.3423, 0.235});
     DoubleMatrix2D anJac = G2.evaluate(x);
-    DoubleMatrix2D fdFwdJac = FORWARD.derivative(F2).evaluate(x);
-    DoubleMatrix2D fdCentGrad = CENTRAL.derivative(F2).evaluate(x);
-    DoubleMatrix2D fdBackGrad = BACKWARD.derivative(F2).evaluate(x);
+    DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
+    DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
+    DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F2).evaluate(x);
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {

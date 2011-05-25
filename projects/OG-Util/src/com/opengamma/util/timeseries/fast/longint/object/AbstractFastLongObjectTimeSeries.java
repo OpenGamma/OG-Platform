@@ -25,11 +25,12 @@ import com.opengamma.util.timeseries.fast.integer.object.FastListIntObjectTimeSe
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
  *         Contains methods to make Primitive time series work with the normal
  *         non-primitive time series interface (where possible)
+ *         @param <T> The type of the data
  */
-public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastObjectTimeSeries<Long, T> implements FastLongObjectTimeSeries<T> {
+public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastObjectTimeSeries<Long, T> implements
+    FastLongObjectTimeSeries<T> {
 
   private final DateTimeNumericEncoding _encoding;
 
@@ -82,9 +83,10 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   public ObjectTimeSeries<Long, T> subSeries(final Long startTime, final Long endTime) {
     return (ObjectTimeSeries<Long, T>) subSeriesFast(startTime, endTime);
   }
-  
+
   @Override
-  public ObjectTimeSeries<Long, T> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
+  public ObjectTimeSeries<Long, T> subSeries(final Long startTime, final boolean includeStart, final Long endTime,
+      final boolean includeEnd) {
     return (ObjectTimeSeries<Long, T>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
@@ -132,7 +134,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   public ObjectTimeSeries<Long, T> newInstance(final Long[] times, final T[] values) {
     return (ObjectTimeSeries<Long, T>) newInstanceFast(ArrayUtils.toPrimitive(times), values);
   }
-  
+
   @SuppressWarnings("unchecked")
   public FastLongObjectTimeSeries<T> operate(final UnaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
@@ -142,8 +144,8 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       results[i] = operator.operate(aValues[i]);
     }
     return newInstanceFast(aTimes, results);
-  }  
-  
+  }
+
   @SuppressWarnings("unchecked")
   public FastLongObjectTimeSeries<T> operate(final T other, final BinaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
@@ -154,9 +156,10 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     }
     return newInstanceFast(aTimes, results);
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {
+  public FastLongObjectTimeSeries<T> operate(final FastBackedObjectTimeSeries<?, T> other,
+      final BinaryOperator<T> operator) {
     FastObjectTimeSeries<?, T> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
       return operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
@@ -164,9 +167,9 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       return operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator) { 
+  public FastLongObjectTimeSeries<T> operate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     int aCount = 0;
@@ -202,9 +205,9 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator) { 
+  public FastLongObjectTimeSeries<T> operate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     int aCount = 0;
@@ -219,7 +222,7 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     } else {
       for (int i = 0; i < bTimesInt.length; i++) {
         bTimes[i] = bTimesInt[i];
-      }      
+      }
     }
     final T[] bValues = other.valuesArrayFast();
     int bCount = 0;
@@ -245,9 +248,10 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> unionOperate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {
+  public FastLongObjectTimeSeries<T> unionOperate(final FastBackedObjectTimeSeries<?, T> other,
+      final BinaryOperator<T> operator) {
     FastObjectTimeSeries<?, T> fastSeries = other.getFastSeries();
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
       return unionOperate((FastIntObjectTimeSeries<T>) fastSeries, operator);
@@ -255,9 +259,10 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       return unionOperate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
   }
-  
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> unionOperate(final FastIntObjectTimeSeries<T> other, final BinaryOperator<T> operator) { 
+  public FastLongObjectTimeSeries<T> unionOperate(final FastIntObjectTimeSeries<T> other,
+      final BinaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     int aCount = 0;
@@ -315,10 +320,11 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
-  }  
-  
+  }
+
   @SuppressWarnings("unchecked")
-  public FastLongObjectTimeSeries<T> unionOperate(final FastLongObjectTimeSeries<T> other, final BinaryOperator<T> operator) { 
+  public FastLongObjectTimeSeries<T> unionOperate(final FastLongObjectTimeSeries<T> other,
+      final BinaryOperator<T> operator) {
     final long[] aTimes = timesArrayFast();
     final T[] aValues = valuesArrayFast();
     int aCount = 0;
@@ -371,8 +377,8 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
-  }  
-  
+  }
+
   @SuppressWarnings("unchecked")
   public FastLongObjectTimeSeries<T> lag(final int days) {
     long[] times = timesArrayFast();
@@ -393,23 +399,24 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
       return newInstanceFast(times, values);
     }
   }
-  
-  public FastLongObjectTimeSeries<T> subSeriesFast(final long startTime, final boolean includeStart, final long endTime, final boolean includeEnd) {
+
+  public FastLongObjectTimeSeries<T> subSeriesFast(final long startTime, final boolean includeStart,
+      final long endTime, final boolean includeEnd) {
     return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
   }
 
   public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries() {
     return new FastListIntObjectTimeSeries<T>(this);
   }
-  
+
   public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries() {
     return new FastArrayIntObjectTimeSeries<T>(this);
   }
-  
+
   public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries() {
     return new FastListLongObjectTimeSeries<T>(this);
   }
-  
+
   public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries() {
     return this;
   }
@@ -417,15 +424,15 @@ public abstract class AbstractFastLongObjectTimeSeries<T> extends AbstractFastOb
   public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastListIntObjectTimeSeries<T>(encoding, this);
   }
-  
+
   public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastArrayIntObjectTimeSeries<T>(encoding, this);
   }
-  
+
   public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastListLongObjectTimeSeries<T>(encoding, this);
   }
-  
+
   public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(DateTimeNumericEncoding encoding) {
     return new FastArrayLongObjectTimeSeries<T>(encoding, this);
   }

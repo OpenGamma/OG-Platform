@@ -28,6 +28,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -60,14 +61,16 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+  private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
-      FORWARD_CURVE_NAME, NAME);
+      NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
-  private static final InterestRateFutureSecurityHullWhiteMethod METHOD = new InterestRateFutureSecurityHullWhiteMethod(MODEL);
+  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final InterestRateFutureSecurityHullWhiteMethod METHOD = new InterestRateFutureSecurityHullWhiteMethod(MODEL_PARAMETERS);
+  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   @Test
   /**
@@ -87,7 +90,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     double price = METHOD.price(ERU2, curves);
     YieldAndDiscountCurve forwardCurve = curves.getCurve(FORWARD_CURVE_NAME);
     double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
-    double factor = MODEL.futureConvexityFactor(ERU2);
+    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
     double expectedPrice = 1.0 - factor * forward + (1 - factor) / FIXING_ACCRUAL;
     assertEquals("Future price from curves in Hull-White one factor model", expectedPrice, price);
   }

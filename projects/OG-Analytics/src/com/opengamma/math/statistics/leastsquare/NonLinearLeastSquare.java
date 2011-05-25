@@ -221,7 +221,7 @@ public class NonLinearLeastSquare {
     final double[] sigma = new double[n];
     Arrays.fill(sigma, 1); //emcleod 31-1-2011 arbitrary value for now 
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
-    return solve(observedValues, new DoubleMatrix1D(sigma), func, jac.derivative(func), startPos);
+    return solve(observedValues, new DoubleMatrix1D(sigma), func, jac.differentiate(func), startPos);
   }
 
   /**
@@ -235,7 +235,7 @@ public class NonLinearLeastSquare {
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
-    return solve(observedValues, sigma, func, jac.derivative(func), startPos);
+    return solve(observedValues, sigma, func, jac.differentiate(func), startPos);
   }
 
   /**

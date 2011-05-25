@@ -13,7 +13,8 @@ import org.testng.annotations.Test;
 public class RichardsonExtrapolationFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference(1.0);
+  private static final ConvectionDiffusionPDESolver BASE_SOLVER = new ThetaMethodFiniteDifference(1.0, false);
+  private static final ConvectionDiffusionPDESolver SOLVER = new RichardsonExtrapolationFiniteDifference(BASE_SOLVER);
 
   @Test
   public void testBlackScholesEquation() {
@@ -21,10 +22,10 @@ public class RichardsonExtrapolationFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
-    double volTol = 5e-2;
+    double volTol = 1e-2; // These tolerances are not as good as running Crank-Nicolson with 20 time steps
     double priceTol = 5e-2;
-    double deltaTol = 5e-2;
-    double gammaTol = 1.0;
+    double deltaTol = 1e-2;
+    double gammaTol = 5e-2;
     boolean print = false; // set to false before pushing
 
     TESTER.testTimeExtrapolation(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);

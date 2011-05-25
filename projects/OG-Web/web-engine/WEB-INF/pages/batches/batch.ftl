@@ -7,6 +7,11 @@
     <@rowout label="Observation date">${batch.observationDate}</@rowout>
     <@rowout label="Observation time">${batch.observationTime}</@rowout>
     <@rowout label="Status">${batch.status}</@rowout>
+    <@rowout label="Creation instant">${batch.creationInstant}</@rowout>
+    <@rowout label="Start instant">${batch.startInstant}</@rowout>
+    <@rowout label="End instant">${batch.endInstant}</@rowout>
+    <@rowout label="Main server">${batch.masterProcessHost}</@rowout>
+    <@rowout label="Number of restarts">${batch.numRestarts}</@rowout>
     <@rowout label="Total results">${resultPaging.totalItems}</@rowout>
     <@rowout label="Total errors">${errorPaging.totalItems}</@rowout>
   </p>

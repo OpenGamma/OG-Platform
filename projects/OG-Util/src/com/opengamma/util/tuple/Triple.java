@@ -103,7 +103,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
    * a more specific type.
    * 
    * @param <T> an auto-cast list type
-   * @return the elements as a list, never null
+   * @return the elements as a list, not null
    */
   @SuppressWarnings("unchecked")
   public <T> List<T> toList() {
@@ -117,7 +117,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   /**
    * Gets the first and second elements from this triple as a pair.
    * 
-   * @return the first and second elements, never null
+   * @return the first and second elements, not null
    */
   public Pair<A, B> toFirstPair() {
     return Pair.of(getFirst(), getSecond());
@@ -126,7 +126,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
   /**
    * Gets the first and second elements from this triple as a pair.
    * 
-   * @return the second and third elements, never null
+   * @return the second and third elements, not null
    */
   public Pair<B, C> toSecondPair() {
     return Pair.of(getSecond(), getThird());

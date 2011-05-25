@@ -132,7 +132,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param masterName  a name describing the contents of the master for an error message, not null
    * @return the document, null if not found
    */
-  public D doGet(final UniqueIdentifier uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
+  protected D doGet(final UniqueIdentifier uniqueId, final ResultSetExtractor<List<D>> extractor, final String masterName) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     

@@ -67,4 +67,31 @@
 		</sequential>
 	</macrodef>
 
+	<macrodef name="git-checkout">
+		<attribute name="dest" />
+		<attribute name="branch" />
+		<attribute name="displayname" />
+		<sequential>
+			<echo message="Checking out @{branch} for @{displayname} --------------------------" />
+			<git command="checkout" dir="@{dest}">
+				<args>
+					<arg value="@{branch}"/>
+				</args>
+			</git>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="git-branch-and-checkout">
+		<attribute name="dest" />
+		<attribute name="branch" />
+		<attribute name="displayname" />
+		<sequential>
+			<echo message="Checking out @{branch} for @{displayname} --------------------------" />
+			<git command="checkout" dir="@{dest}">
+				<args>
+					<arg value="-b @{branch}"/>
+				</args>
+			</git>
+		</sequential>
+	</macrodef>
 </project>

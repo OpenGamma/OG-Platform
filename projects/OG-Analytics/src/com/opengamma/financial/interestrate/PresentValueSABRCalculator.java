@@ -7,11 +7,13 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.interestrate.payments.CapFloorIborSABRMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorIborSABRMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
@@ -92,6 +94,18 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
       return replication.presentValue(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(option);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      InterestRateFutureOptionMarginTransactionSABRMethod method = new InterestRateFutureOptionMarginTransactionSABRMethod();
+      return method.presentValue(option, sabrBundle);
+    }
+    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
   }
 
 }

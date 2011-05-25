@@ -45,7 +45,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   @Override
   public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
-    return getRoot(function, jac.derivative(function), startPosition);
+    return getRoot(function, jac.differentiate(function), startPosition);
   }
 
   /**

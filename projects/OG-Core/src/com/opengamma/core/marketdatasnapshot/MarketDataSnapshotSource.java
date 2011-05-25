@@ -27,5 +27,28 @@ public interface MarketDataSnapshotSource {
    * @throws IllegalArgumentException if the identifier is invalid
    */
   StructuredMarketDataSnapshot getSnapshot(UniqueIdentifier uid);
-
+  
+  /**
+  * Adds a listener to the source.
+  * <p>
+  * The listener will receive events for the source which change the result of:
+  * 
+  * <code>
+  * getSnapshot({@link uid});
+  * </code>
+  * 
+  * @param listener  the listener to add, not null
+  * @param uid the identifier to register interest in
+  * */
+  void addChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener);
+  
+  /**
+   * Removes a listener from the source.
+   * <p>
+   * The listener will cease receiving events for this {@link UniqueIdentifier} on the source
+   * 
+   * @param listener  the listener to remove, not null
+   * @param uid the identifier to unregister interest in
+   * */
+  void removeChangeListener(UniqueIdentifier uid, MarketDataSnapshotChangeListener listener);
 }

@@ -17,7 +17,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastListLongObjectTimeS
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * 
+ * @param <T> The type of the data
  */
 public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeObjectTimeSeries.Long<T> {
   private static final DateTimeConverter<ZonedDateTime> s_converter = new ZonedDateTimeEpochMillisConverter();

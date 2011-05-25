@@ -70,34 +70,26 @@ public class ExecutionOptions implements ViewExecutionOptions {
         null,
         false);
   }
-  
+
   public static ViewExecutionOptions singleCycle() {
-    return snapshot(null);
+    return singleCycle(Instant.now());
   }
-
+  
   public static ViewExecutionOptions singleCycle(long valuationTimeMillis) {
-    return snapshot(null, valuationTimeMillis);
+    return singleCycle(Instant.ofEpochMillis(valuationTimeMillis));
   }
-
+  
   public static ViewExecutionOptions singleCycle(Instant valuationTime) {
-    return snapshot(null, valuationTime);
-  }
-  
-  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
-    return snapshot(snapshotIdentifier, Instant.now());
-  }
-  
-  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, long valuationTimeMillis) {
-    return snapshot(snapshotIdentifier, Instant.ofEpochMillis(valuationTimeMillis));
-  }
-  
-  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier, Instant valuationTime) {
     return new ExecutionOptions(
         ArbitraryViewCycleExecutionSequence.of(valuationTime),
         true,
         false,
         null,
-        false, snapshotIdentifier);
+        false);
+  }
+  
+  public static ViewExecutionOptions snapshot(UniqueIdentifier snapshotIdentifier) {
+    return new ExecutionOptions(new RealTimeViewCycleExecutionSequence(), false, true, null, false, snapshotIdentifier);
   }
   
   public static ViewExecutionOptions compileOnly() {
@@ -187,7 +179,11 @@ public class ExecutionOptions implements ViewExecutionOptions {
     if (_compileOnly != other._compileOnly) {
       return false;
     }
-    if (_marketDataSnapshotIdentifier != other._marketDataSnapshotIdentifier) {
+    if (_marketDataSnapshotIdentifier == null) {
+      if (other._marketDataSnapshotIdentifier != null) {
+        return false;
+      }
+    } else if (!_marketDataSnapshotIdentifier.equals(other._marketDataSnapshotIdentifier)) {
       return false;
     }
     return true;

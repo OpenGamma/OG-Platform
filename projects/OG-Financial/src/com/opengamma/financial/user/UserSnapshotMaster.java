@@ -8,6 +8,7 @@ package com.opengamma.financial.user;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
@@ -78,6 +79,11 @@ public class UserSnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
     return _underlying.search(request);
+  }
+
+  @Override
+  public MasterChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

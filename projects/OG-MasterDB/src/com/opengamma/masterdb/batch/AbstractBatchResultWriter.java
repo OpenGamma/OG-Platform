@@ -256,8 +256,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster();
-    dbManager.setDbSource(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;
@@ -285,8 +284,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster();
-    dbManager.setDbSource(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;
@@ -314,8 +312,7 @@ public abstract class AbstractBatchResultWriter {
       return dbId;
     }
 
-    DbBatchMaster dbManager = new DbBatchMaster();
-    dbManager.setDbSource(_dbSource);
+    DbBatchMaster dbManager = new DbBatchMaster(_dbSource);
     
     // try twice to handle situation where two threads contend to insert
     RuntimeException lastException = null;

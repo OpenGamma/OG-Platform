@@ -69,7 +69,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
       jacFunc = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
     } else if (data.getTestType() == TestType.FD_JACOBIAN) {
       final VectorFieldFirstOrderDifferentiator fdJacCalculator = new VectorFieldFirstOrderDifferentiator();
-      jacFunc = fdJacCalculator.derivative(func);
+      jacFunc = fdJacCalculator.differentiate(func);
     } else {
       throw new IllegalArgumentException("unknown TestType " + data.getTestType());
 
@@ -118,7 +118,7 @@ public class InstrumentSensitivityCalculatorTest extends YieldCurveFittingSetup 
       jacFunc = new MultipleYieldCurveFinderJacobian(data, data.getMarketValueSensitivityCalculator());
     } else if (data.getTestType() == TestType.FD_JACOBIAN) {
       final VectorFieldFirstOrderDifferentiator fdJacCalculator = new VectorFieldFirstOrderDifferentiator();
-      jacFunc = fdJacCalculator.derivative(func);
+      jacFunc = fdJacCalculator.differentiate(func);
     } else {
       throw new IllegalArgumentException("unknown TestType " + data.getTestType());
 

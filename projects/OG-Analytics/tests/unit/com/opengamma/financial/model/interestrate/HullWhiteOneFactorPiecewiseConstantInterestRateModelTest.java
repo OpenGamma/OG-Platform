@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.future.InterestRateFutureSecurity;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtil;
@@ -37,16 +38,17 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
-  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantDataBundle MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+  private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   @Test
   /**
    * Tests the class getters.
    */
   public void getter() {
-    assertEquals(MEAN_REVERSION, MODEL.getMeanReversion());
-    assertEquals(VOLATILITY, MODEL.getVolatility());
-    double[] volTime = MODEL.getVolatilityTime();
+    assertEquals(MEAN_REVERSION, MODEL_PARAMETERS.getMeanReversion());
+    assertEquals(VOLATILITY, MODEL_PARAMETERS.getVolatility());
+    double[] volTime = MODEL_PARAMETERS.getVolatilityTime();
     for (int loopperiod = 0; loopperiod < VOLATILITY_TIME.length; loopperiod++) {
       assertEquals(VOLATILITY_TIME[loopperiod], volTime[loopperiod + 1]);
     }
@@ -57,11 +59,11 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    HullWhiteOneFactorPiecewiseConstantInterestRateModel newModel = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
-    assertTrue("Hull-White model equals", MODEL.equals(newModel));
-    assertTrue("Hull-White model hash code", MODEL.hashCode() == newModel.hashCode());
-    HullWhiteOneFactorPiecewiseConstantInterestRateModel modifiedModel = new HullWhiteOneFactorPiecewiseConstantInterestRateModel(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
-    assertFalse("Hull-White model equals", MODEL.equals(modifiedModel));
+    HullWhiteOneFactorPiecewiseConstantDataBundle newParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
+    assertTrue("Hull-White model equals", MODEL_PARAMETERS.equals(newParameter));
+    assertTrue("Hull-White model hash code", MODEL_PARAMETERS.hashCode() == newParameter.hashCode());
+    HullWhiteOneFactorPiecewiseConstantDataBundle modifiedParameter = new HullWhiteOneFactorPiecewiseConstantDataBundle(MEAN_REVERSION + 0.01, VOLATILITY, VOLATILITY_TIME);
+    assertFalse("Hull-White model equals", MODEL_PARAMETERS.equals(modifiedParameter));
   }
 
   @Test
@@ -92,12 +94,12 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
     double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
     double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    String FORWARD_CURVE_NAME = "Forward";
-    InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, FORWARD_CURVE_NAME,
-        NAME);
-    double factor = MODEL.futureConvexityFactor(ERU2);
+    final String DISCOUNTING_CURVE_NAME = "Funding";
+    final String FORWARD_CURVE_NAME = "Forward";
+    InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
+        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    double factor = MODEL.futureConvexityFactor(ERU2, MODEL_PARAMETERS);
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }
-
 }
