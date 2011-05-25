@@ -135,6 +135,7 @@ public class DependencyGraphBuilder {
       try {
         addTargetImpl(requirement);
       } catch (UnsatisfiableDependencyGraphException udge) {
+        s_logger.warn("Couldn't satisfy {}", requirement);
         s_logger.debug("Problem building dep-graph", udge);
       }
     }

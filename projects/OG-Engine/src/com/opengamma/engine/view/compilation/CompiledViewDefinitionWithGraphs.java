@@ -5,11 +5,19 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+
 /**
  * A {@link CompiledViewDefinition} with dependency graphs.
  */
 public interface CompiledViewDefinitionWithGraphs extends CompiledViewDefinition {
 
-  // TODO [PLAT-883] Currently no dependency graph browsing is possible through the interface, and therefore remotely.
+  /**
+   * Gets a dependency graph explorer for a calculation configuration.
+   * 
+   * @param calcConfig  the calculation configuration, not {@code null}
+   * @return the dependency graph explorer, not {@code null}
+   */
+  DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig);
   
 }
