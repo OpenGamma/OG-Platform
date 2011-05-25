@@ -11,7 +11,7 @@ import com.opengamma.web.bundle.BundleParser;
 /**
  * Creates a BundleManager for Production from the Bundle XML configuration file.
  */
-public class ProdBundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
+public class BundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
 
   @Override
   protected BundleManager createObject() {

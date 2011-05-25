@@ -9,15 +9,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
@@ -25,15 +22,11 @@ import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 /**
  * Compressor implementation using YUI compressor.
  */
-public class YUIBundleCompressor implements CompressedBundleSource {
+public class YUIBundleCompressor implements BundleCompressor {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(YUIBundleCompressor.class);
 
-  /**
-   * The bundle manager.
-   */
-  private final BundleManager _bundleManager;
   /**
    * The compressor options.
    */
@@ -42,36 +35,19 @@ public class YUIBundleCompressor implements CompressedBundleSource {
   /**
    * Create a compressor.
    * 
-   * @param bundleManager       the bundle manager, not null
-   * @param compressorOptions   the YUICompressor options, not null
+   * @param compressorOptions  the YUICompressor options, not null
    */
-  public YUIBundleCompressor(BundleManager bundleManager, YUICompressorOptions compressorOptions) {
-    ArgumentChecker.notNull(bundleManager, "bundleManager");
+  public YUIBundleCompressor(YUICompressorOptions compressorOptions) {
     ArgumentChecker.notNull(compressorOptions, "compressorOptions");
     
-    _bundleManager = bundleManager;
     _compressorOptions = compressorOptions;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public String getBundle(String bundleId) {
-    Bundle bundle = _bundleManager.getBundle(bundleId);
-    String source = readBundleSource(bundle);
-    return compress(source, bundleId);
-  }
-
-  private String readBundleSource(Bundle bundle) {
-    List<Fragment> allFragments = bundle.getAllFragments();
-    StringBuilder buf = new StringBuilder(1024);
-    for (Fragment fragment : allFragments) {
-      try {
-        buf.append(FileUtils.readFileToString(fragment.getFile()));
-        buf.append("\n");
-      } catch (IOException ex) {
-        throw new DataNotFoundException("IOException reading " + fragment.getFile());
-      }
-    }
-    return buf.toString();
+  public String compressBundle(Bundle bundle) {
+    String source = BundleUtils.readBundleSource(bundle);
+    return compress(source, bundle.getId());
   }
 
   private String compress(String content, String bundleId) {

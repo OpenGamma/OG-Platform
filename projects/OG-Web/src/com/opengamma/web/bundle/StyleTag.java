@@ -19,142 +19,90 @@ public class StyleTag {
   private static final Logger s_logger = LoggerFactory.getLogger(StyleTag.class);
 
   /**
-   * The bundle manager.
+   * The request data.
    */
-  private final BundleManager _bundleManager;
-  /**
-   * The bundle URI helper.
-   */
-  private final WebBundlesUris _webBundleUris; 
-  /**
-   * The deploy mode.
-   */
-  private final DeployMode _mode;
-  /**
-   * The media.
-   */
-  private String _media;
-  /**
-   * The bundle ID.
-   */
-  private String _bundleId;
+  private final WebBundlesData _data;
 
   /**
    * Creates an instance.
    * 
-   * @param bundleManager  the development bundle manager, not null
-   * @param webBundleUris  the URI helper, not null.
-   * @param mode  the deployment mode, not null
+   * @param data  the request data, not null
    */
-  public StyleTag(BundleManager bundleManager, WebBundlesUris webBundleUris, DeployMode mode) {
-    ArgumentChecker.notNull(bundleManager, "bundleManager");
-    ArgumentChecker.notNull(webBundleUris, "webBundleUris");
-    ArgumentChecker.notNull(mode, "mode");
-    
-    _bundleManager = bundleManager;
-    _webBundleUris = webBundleUris;
-    _mode = mode;
+  public StyleTag(WebBundlesData data) {
+    ArgumentChecker.notNull(data, "data");
+    _data = data;
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the bundle ID.
-   * 
-   * @return the bundle ID, may be null
-   */
-  public String getBundleId() {
-    return _bundleId;
-  }
-
-  /**
-   * Sets the bundle ID.
-   * 
-   * @param bundleId  the bundle ID, may be null
-   */
-  public void setBundleId(String bundleId) {
-    _bundleId = bundleId;
-  }
-
-  /**
-   * Gets the media.
-   * 
-   * @return the media
-   */
-  public String getMedia() {
-    return _media;
-  }
-
-  /**
-   * Sets the media.
-   * 
-   * @param media  the media
-   */
-  public void setMedia(String media) {
-    _media = media;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Outputs the HTML for the bundle.
-   * 
-   * @return the HTML for the bundle, may be null
-   */
-  public String print() {
-    switch (_mode) {
-      case DEV:
-        return printDev();
-      case PROD:
-        return printProd();
-      default:
-        s_logger.warn("Unknown deployment mode type: " + _mode);
-        return null;
-    }
-  }
-
-  private String printProd() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("<link");
-    buf.append(" ");
-    buf.append("rel=\"stylesheet\"");
-    buf.append(" ");
-    buf.append("type=\"text/css\"");
-    buf.append(" ");
-    buf.append("media=\"").append(getMedia()).append("\"");
-    buf.append(" ");
-    buf.append("href=\"").append(_webBundleUris.bundle(DeployMode.PROD, getBundleId()));
-    buf.append("\">");
-    return buf.toString();
-  }
-
-  private String printDev() {
-    StringBuilder buf = new StringBuilder();
-    Bundle bundle = _bundleManager.getBundle(_bundleId);
-    if (bundle != null) {
-      String basePath = _bundleManager.getBaseDir().getName();
-      buf.append("<style type=\"text/css\" media=\"all\">\n");
-      String imports = BundleImportUriUtils.buildImports(bundle, _webBundleUris, basePath);
-      buf.append(imports);
-      buf.append("</style>");
-    } else {
-      s_logger.warn("{} not available ", _bundleId);
-    }
-    return buf.toString();
-  }
-
   /**
    * Outputs the HTML for the bundle.
    * 
    * @param bundleId  the bundle ID, not null
    * @param media  the media type, not null
+   * @param inline  whether to inline the script
    * @return the HTML for the bundle, may be null
    */
-  public String print(String bundleId, String media) {
+  public String print(String bundleId, String media, boolean inline) {
     ArgumentChecker.notNull(bundleId, "bundleId");
     ArgumentChecker.notNull(media, "media");
-    
-    setBundleId(bundleId);
-    setMedia(media);
-    return print();    
+    Bundle bundle = _data.getBundleManager().getBundle(bundleId);
+    if (bundle == null) {
+      s_logger.warn("{} not available ", bundleId);
+      return "";
+    }
+    DeployMode mode = _data.getMode();
+    switch (mode) {
+      case DEV:
+        return inline ? printDevInline(bundle, media) : printDevLinked(bundle, media);
+      case PROD:
+        return inline ? printProdInline(bundle, media) : printProdLinked(bundle, media);
+      default:
+        s_logger.warn("Unknown deployment mode type: " + mode);
+        return null;
+    }
+  }
+
+  private String printProdInline(Bundle bundle, String media) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("<style type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\">\n");
+    buf.append(_data.getCompressor().compressBundle(bundle));
+    buf.append("\n</style>");
+    return buf.toString();
+  }
+
+  private String printProdLinked(Bundle bundle, String media) {
+    WebBundlesUris uris = new WebBundlesUris(_data);
+    StringBuilder buf = new StringBuilder();
+    buf.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\" href=\"");
+    buf.append(uris.bundle(DeployMode.PROD, bundle.getId()));
+    buf.append("\">");
+    return buf.toString();
+  }
+
+  private String printDevInline(Bundle bundle, String media) {
+    StringBuilder buf = new StringBuilder();
+    buf.append("<style type=\"text/css\" media=\"");
+    buf.append(media);
+    buf.append("\">\n");
+    buf.append(BundleUtils.readBundleSource(bundle));
+    buf.append("</style>");
+    return buf.toString();
+  }
+
+  private String printDevLinked(Bundle bundle, String media) {
+    bundle = _data.getDevBundleManager().getBundle(bundle.getId());  // reload from dev manager
+    WebBundlesUris uris = new WebBundlesUris(_data);
+    StringBuilder buf = new StringBuilder();
+    String basePath = _data.getDevBundleManager().getBaseDir().getName();
+    buf.append("<style type=\"text/css\" media=\"all\">\n");
+    String imports = BundleUtils.buildImports(bundle, uris, basePath);
+    buf.append(imports);
+    buf.append("</style>");
+    return buf.toString();
   }
 
 }

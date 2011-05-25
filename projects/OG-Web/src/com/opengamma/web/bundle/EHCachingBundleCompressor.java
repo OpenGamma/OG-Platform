@@ -17,7 +17,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingCompressedBundleSource implements CompressedBundleSource {
+public class EHCachingBundleCompressor implements BundleCompressor {
 
   /**
    * The cache key for bundles.
@@ -27,7 +27,7 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
   /**
    * The underlying compressed bundle source
    */
-  private final CompressedBundleSource _underlying;
+  private final BundleCompressor _underlying;
   /**
    * The cache manager.
    */
@@ -43,7 +43,7 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingCompressedBundleSource(final CompressedBundleSource underlying, final CacheManager cacheManager) {
+  public EHCachingBundleCompressor(final BundleCompressor underlying, final CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
@@ -58,7 +58,7 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
    * 
    * @return the underlying compressor, not null
    */
-  protected CompressedBundleSource getUnderlying() {
+  protected BundleCompressor getUnderlying() {
     return _underlying;
   }
 
@@ -73,14 +73,14 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
 
   //-------------------------------------------------------------------------
   @Override
-  public String getBundle(String bundleId) {
-    Element e = _bundleCache.get(bundleId);
+  public String compressBundle(Bundle bundle) {
+    Element e = _bundleCache.get(bundle.getId());
     if (e != null) {
       return (String) e.getValue();
     } else {
-      String compressed = getUnderlying().getBundle(bundleId);
+      String compressed = getUnderlying().compressBundle(bundle);
       if (compressed != null) {
-        _bundleCache.put(new Element(bundleId, compressed));
+        _bundleCache.put(new Element(bundle.getId(), compressed));
       }
       return compressed;
     }

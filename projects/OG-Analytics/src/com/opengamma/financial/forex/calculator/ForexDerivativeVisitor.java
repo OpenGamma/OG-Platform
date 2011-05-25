@@ -6,6 +6,7 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.derivative.ForexSwap;
 
 /**
  * Interface to Forex derivative visitor.
@@ -25,5 +26,9 @@ public interface ForexDerivativeVisitor<S, T> {
   T visitForex(Forex derivative, S data);
 
   T visitForex(Forex derivative);
+
+  T visitForexSwap(ForexSwap derivative, S data);
+
+  T visitForexSwap(ForexSwap derivative);
 
 }

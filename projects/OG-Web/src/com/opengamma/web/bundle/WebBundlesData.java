@@ -31,10 +31,16 @@ public class WebBundlesData extends DirectBean {
   @PropertyDefinition
   private BundleManager _bundleManager;
   /**
-   * The compressed bundle source.
+   * The development bundle manager.
+   * This manager contains bundles that have been adjusted for development.
    */
   @PropertyDefinition
-  private CompressedBundleSource _compressedBundleSource;
+  private BundleManager _devBundleManager;
+  /**
+   * The bundle compressor.
+   */
+  @PropertyDefinition
+  private BundleCompressor _compressor;
   /**
    * The deployment mode.
    */
@@ -82,8 +88,10 @@ public class WebBundlesData extends DirectBean {
     switch (propertyName.hashCode()) {
       case 1459962059:  // bundleManager
         return getBundleManager();
-      case -1666949794:  // compressedBundleSource
-        return getCompressedBundleSource();
+      case 862647990:  // devBundleManager
+        return getDevBundleManager();
+      case -369448763:  // compressor
+        return getCompressor();
       case 3357091:  // mode
         return getMode();
       case 1997897769:  // styleTag
@@ -102,8 +110,11 @@ public class WebBundlesData extends DirectBean {
       case 1459962059:  // bundleManager
         setBundleManager((BundleManager) newValue);
         return;
-      case -1666949794:  // compressedBundleSource
-        setCompressedBundleSource((CompressedBundleSource) newValue);
+      case 862647990:  // devBundleManager
+        setDevBundleManager((BundleManager) newValue);
+        return;
+      case -369448763:  // compressor
+        setCompressor((BundleCompressor) newValue);
         return;
       case 3357091:  // mode
         setMode((DeployMode) newValue);
@@ -148,27 +159,55 @@ public class WebBundlesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the compressed bundle source.
+   * Gets the development bundle manager.
+   * This manager contains bundles that have been adjusted for development.
    * @return the value of the property
    */
-  public CompressedBundleSource getCompressedBundleSource() {
-    return _compressedBundleSource;
+  public BundleManager getDevBundleManager() {
+    return _devBundleManager;
   }
 
   /**
-   * Sets the compressed bundle source.
-   * @param compressedBundleSource  the new value of the property
+   * Sets the development bundle manager.
+   * This manager contains bundles that have been adjusted for development.
+   * @param devBundleManager  the new value of the property
    */
-  public void setCompressedBundleSource(CompressedBundleSource compressedBundleSource) {
-    this._compressedBundleSource = compressedBundleSource;
+  public void setDevBundleManager(BundleManager devBundleManager) {
+    this._devBundleManager = devBundleManager;
   }
 
   /**
-   * Gets the the {@code compressedBundleSource} property.
+   * Gets the the {@code devBundleManager} property.
+   * This manager contains bundles that have been adjusted for development.
    * @return the property, not null
    */
-  public final Property<CompressedBundleSource> compressedBundleSource() {
-    return metaBean().compressedBundleSource().createProperty(this);
+  public final Property<BundleManager> devBundleManager() {
+    return metaBean().devBundleManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bundle compressor.
+   * @return the value of the property
+   */
+  public BundleCompressor getCompressor() {
+    return _compressor;
+  }
+
+  /**
+   * Sets the bundle compressor.
+   * @param compressor  the new value of the property
+   */
+  public void setCompressor(BundleCompressor compressor) {
+    this._compressor = compressor;
+  }
+
+  /**
+   * Gets the the {@code compressor} property.
+   * @return the property, not null
+   */
+  public final Property<BundleCompressor> compressor() {
+    return metaBean().compressor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -286,9 +325,13 @@ public class WebBundlesData extends DirectBean {
      */
     private final MetaProperty<BundleManager> _bundleManager = DirectMetaProperty.ofReadWrite(this, "bundleManager", BundleManager.class);
     /**
-     * The meta-property for the {@code compressedBundleSource} property.
+     * The meta-property for the {@code devBundleManager} property.
      */
-    private final MetaProperty<CompressedBundleSource> _compressedBundleSource = DirectMetaProperty.ofReadWrite(this, "compressedBundleSource", CompressedBundleSource.class);
+    private final MetaProperty<BundleManager> _devBundleManager = DirectMetaProperty.ofReadWrite(this, "devBundleManager", BundleManager.class);
+    /**
+     * The meta-property for the {@code compressor} property.
+     */
+    private final MetaProperty<BundleCompressor> _compressor = DirectMetaProperty.ofReadWrite(this, "compressor", BundleCompressor.class);
     /**
      * The meta-property for the {@code mode} property.
      */
@@ -314,7 +357,8 @@ public class WebBundlesData extends DirectBean {
     protected Meta() {
       LinkedHashMap temp = new LinkedHashMap();
       temp.put("bundleManager", _bundleManager);
-      temp.put("compressedBundleSource", _compressedBundleSource);
+      temp.put("devBundleManager", _devBundleManager);
+      temp.put("compressor", _compressor);
       temp.put("mode", _mode);
       temp.put("styleTag", _styleTag);
       temp.put("scriptTag", _scriptTag);
@@ -347,11 +391,19 @@ public class WebBundlesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code compressedBundleSource} property.
+     * The meta-property for the {@code devBundleManager} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CompressedBundleSource> compressedBundleSource() {
-      return _compressedBundleSource;
+    public final MetaProperty<BundleManager> devBundleManager() {
+      return _devBundleManager;
+    }
+
+    /**
+     * The meta-property for the {@code compressor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BundleCompressor> compressor() {
+      return _compressor;
     }
 
     /**
