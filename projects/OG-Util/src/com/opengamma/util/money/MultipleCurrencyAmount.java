@@ -132,6 +132,7 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     }
   }
 
+  //TODO this iterator needs to be over CurrencyAmount
   @Override
   public Iterator<Map.Entry<Currency, Double>> iterator() {
     return _backingMap.entrySet().iterator();
