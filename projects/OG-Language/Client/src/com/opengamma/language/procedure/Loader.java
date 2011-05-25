@@ -6,6 +6,11 @@
 
 package com.opengamma.language.procedure;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.MutableSessionContext;
@@ -17,37 +22,57 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Loader extends ContextInitializationBean {
 
-  private ProcedureProvider _procedures;
+  private List<ProcedureProvider> _procedureProviders;
 
-  public void setProcedures(final ProcedureProvider procedures) {
-    ArgumentChecker.notNull(procedures, "procedures");
-    _procedures = procedures;
+  public void setProcedureProvider(final ProcedureProvider procedureProvider) {
+    ArgumentChecker.notNull(procedureProvider, "procedureProvider");
+    _procedureProviders = Collections.singletonList(procedureProvider);
   }
 
-  public ProcedureProvider getProcedures() {
-    return _procedures;
+  public ProcedureProvider getProcedureProvider() {
+    if ((_procedureProviders == null) || _procedureProviders.isEmpty()) {
+      return null;
+    } else {
+      return _procedureProviders.get(0);
+    }
+  }
+
+  public void setProcedureProviders(final Collection<ProcedureProvider> procedureProviders) {
+    ArgumentChecker.noNulls(procedureProviders, "procedureProviders");
+    ArgumentChecker.isFalse(procedureProviders.isEmpty(), "procedureProviders");
+    _procedureProviders = new ArrayList<ProcedureProvider>(procedureProviders);
+  }
+
+  public Collection<ProcedureProvider> getProcedureProviders() {
+    return _procedureProviders;
+  }
+
+  protected void addProviders(final AggregatingProcedureProvider aggregator) {
+    for (ProcedureProvider provider : getProcedureProviders()) {
+      aggregator.addProvider(provider);
+    }
   }
 
   // ContextInitializationBean
 
   @Override
   protected void assertPropertiesSet() {
-    ArgumentChecker.notNull(getProcedures(), "procedures");
+    ArgumentChecker.notNull(getProcedureProviders(), "procedureProviders");
   }
 
   @Override
   protected void initContext(final MutableSessionContext sessionContext) {
-    sessionContext.getProcedureProvider().addProvider(getProcedures());
+    addProviders(sessionContext.getProcedureProvider());
   }
 
   @Override
   protected void initContext(final MutableUserContext userContext) {
-    userContext.getProcedureProvider().addProvider(getProcedures());
+    addProviders(userContext.getProcedureProvider());
   }
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    globalContext.getProcedureProvider().addProvider(getProcedures());
+    addProviders(globalContext.getProcedureProvider());
   }
 
 }
