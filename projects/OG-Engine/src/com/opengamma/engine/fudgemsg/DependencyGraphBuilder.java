@@ -22,6 +22,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.util.tuple.IntObjectPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -40,21 +41,22 @@ public class DependencyGraphBuilder implements FudgeBuilder<DependencyGraph> {
     msg.add(CALCULATION_CONFIGURATION_NAME_FIELD, null, depGraph.getCalculationConfigurationName());
     
     Map<DependencyNode, Integer> nodeToId = new HashMap<DependencyNode, Integer>();
-    Set<Pair<Integer, Integer>> edges = new HashSet<Pair<Integer, Integer>>();
+    Set<IntObjectPair<Integer>> edges = new HashSet<IntObjectPair<Integer>>();
     for (DependencyNode node : depGraph.getDependencyNodes()) {
       processEdges(node, edges, nodeToId, context, msg);
     }
     for (Pair<Integer, Integer> edge : edges) {
-      context.addToMessage(msg, EDGE_FIELD, null, edge);
+      msg.add(EDGE_FIELD, edge.getFirst());
+      msg.add(EDGE_FIELD, edge.getSecond());
     }
     return msg;
   }
 
-  private void processEdges(DependencyNode node, Set<Pair<Integer, Integer>> edges, Map<DependencyNode, Integer> nodeToId, FudgeSerializationContext context, MutableFudgeMsg msg) {
+  private void processEdges(DependencyNode node, Set<IntObjectPair<Integer>> edges, Map<DependencyNode, Integer> nodeToId, FudgeSerializationContext context, MutableFudgeMsg msg) {
     int nodeId = getNodeId(node, nodeToId, context, msg);
     for (DependencyNode inputNode : node.getInputNodes()) {
       int inputNodeId = getNodeId(inputNode, nodeToId, context, msg);
-      edges.add(Pair.<Integer, Integer>of(inputNodeId, nodeId));
+      edges.add(IntObjectPair.<Integer>of(inputNodeId, nodeId));
     }
   }
 
@@ -68,7 +70,6 @@ public class DependencyGraphBuilder implements FudgeBuilder<DependencyGraph> {
     return id;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
   public DependencyGraph buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_NAME_FIELD);
@@ -77,10 +78,12 @@ public class DependencyGraphBuilder implements FudgeBuilder<DependencyGraph> {
       DependencyNode node = context.fieldValueToObject(DependencyNode.class, nodeField);
       nodes.add(node);
     }
-    for (FudgeField edgeField : msg.getAllByName(EDGE_FIELD)) {
-      Pair<Integer, Integer> edge = context.fieldValueToObject(Pair.class, edgeField);
-      DependencyNode inputNode = nodes.get(edge.getFirst());
-      DependencyNode dependentNode = nodes.get(edge.getSecond());
+    List<FudgeField> edgeConnections = msg.getAllByName(EDGE_FIELD);
+    for (int i = 0; i < edgeConnections.size(); i += 2) {
+      int from = context.fieldValueToObject(Integer.class, edgeConnections.get(i));
+      int to = context.fieldValueToObject(Integer.class, edgeConnections.get(i + 1));
+      DependencyNode inputNode = nodes.get(from);
+      DependencyNode dependentNode = nodes.get(to);
       dependentNode.addInputNode(inputNode);
     }
     
