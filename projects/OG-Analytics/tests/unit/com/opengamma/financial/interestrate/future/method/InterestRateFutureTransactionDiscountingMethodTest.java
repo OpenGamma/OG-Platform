@@ -37,6 +37,7 @@ import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -90,11 +91,11 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
    * Test the present value computed from the curves
    */
   public void presentValue() {
-    double pv = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
+    final CurrencyAmount pv = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
     YieldAndDiscountCurve forwardCurve = CURVES.getCurve(FORWARD_CURVE_NAME);
     double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
     double expectedPv = (1 - forward - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
-    assertEquals("Present value from quoted price", expectedPv, pv);
+    assertEquals("Present value from quoted price", expectedPv, pv.getAmount());
   }
 
   @Test
@@ -102,10 +103,10 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
    * Comparison of value from the method and value from the present value calculator.
    */
   public void methodVsCalculator() {
-    double pvMethod = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
+    final CurrencyAmount pvMethod = METHOD.presentValue(FUTURE_TRANSACTION, CURVES);
     PresentValueCalculator pvc = PresentValueCalculator.getInstance();
     double pvCalculator = pvc.visit(FUTURE_TRANSACTION, CURVES);
-    assertEquals("Future discounting: method comparison with present value calculator", pvMethod, pvCalculator);
+    assertEquals("Future discounting: method comparison with present value calculator", pvMethod.getAmount(), pvCalculator);
   }
 
   @Test

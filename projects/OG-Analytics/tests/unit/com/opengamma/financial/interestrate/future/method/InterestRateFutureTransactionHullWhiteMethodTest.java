@@ -29,6 +29,7 @@ import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -92,9 +93,9 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
    */
   public void presentValue() {
     YieldCurveBundle curves = TestsDataSets.createCurves1();
-    double pv = METHOD.presentValue(FUTURE_TRANSACTION, curves);
+    final CurrencyAmount pv = METHOD.presentValue(FUTURE_TRANSACTION, curves);
     double price = METHOD_SECURITY.price(ERU2, curves);
     double expectedPv = (price - TRADE_PRICE) * FUTURE_FACTOR * NOTIONAL * QUANTITY;
-    assertEquals("Future Hull-White method: present value from curves", expectedPv, pv);
+    assertEquals("Future Hull-White method: present value from curves", expectedPv, pv.getAmount());
   }
 }
