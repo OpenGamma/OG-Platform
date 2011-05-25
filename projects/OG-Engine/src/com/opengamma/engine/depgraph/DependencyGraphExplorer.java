@@ -16,6 +16,13 @@ import com.opengamma.util.PublicAPI;
 public interface DependencyGraphExplorer {
 
   /**
+   * Gets the graph used in the valuation
+   * 
+   * @return  the dependency graph
+   */
+  DependencyGraph getWholeGraph();
+  
+  /**
    * Gets a subgraph producing a given value.
    * <p>
    * Note that if the {@link ValueSpecification} originated from the results of executing the dependency graph then its
@@ -25,6 +32,5 @@ public interface DependencyGraphExplorer {
    * @param output  the output, not {@code null}
    * @return  a subgraph producing the output, or {@code null} if no such subgraph exists
    */
-  DependencyGraph getSubgraphProducing(ValueSpecification output);
-  
+  DependencyGraph getSubgraphProducing(ValueSpecification output);  
 }
