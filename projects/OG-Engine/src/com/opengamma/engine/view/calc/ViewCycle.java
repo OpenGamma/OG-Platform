@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicAPI;
@@ -50,7 +50,7 @@ public interface ViewCycle extends UniqueIdentifiable {
    * 
    * @return the compiled view definition, not null
    */
-  CompiledViewDefinition getCompiledViewDefinition();
+  CompiledViewDefinitionWithGraphs getCompiledViewDefinition();
   
   /**
    * Gets the output of the view cycle.

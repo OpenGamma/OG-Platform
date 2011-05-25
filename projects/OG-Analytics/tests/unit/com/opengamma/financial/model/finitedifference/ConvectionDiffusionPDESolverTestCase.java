@@ -272,7 +272,7 @@ public class ConvectionDiffusionPDESolverTestCase {
       final double volTol, final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
 
     MeshingFunction timeMesh = new ExponentalMeshing(0, T, timeSteps + 1, 0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), 0.1, spotSteps + 1);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spotSteps + 1, 0.1);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spotSteps + 1, 0.0);
 
     double[] timeGrid = new double[timeSteps + 1];

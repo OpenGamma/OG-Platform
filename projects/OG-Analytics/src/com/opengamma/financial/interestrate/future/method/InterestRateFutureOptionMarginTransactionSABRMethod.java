@@ -11,6 +11,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method for the pricing of interest rate future options with up-front premium. The pricing is done with a SABR approach on the future rate (1.0-price).
@@ -31,9 +32,9 @@ public class InterestRateFutureOptionMarginTransactionSABRMethod extends Interes
    * @param priceFuture The price of the underlying future.
    * @return The present value.
    */
-  public double presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData, final double priceFuture) {
+  public CurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData, final double priceFuture) {
     double priceSecurity = METHOD_SECURITY.optionPriceFromFuturePrice(transaction.getUnderlyingOption(), sabrData, priceFuture);
-    double priceTransaction = presentValueFromPrice(transaction, priceSecurity);
+    CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
@@ -43,14 +44,14 @@ public class InterestRateFutureOptionMarginTransactionSABRMethod extends Interes
    * @param sabrData The SABR data bundle. 
    * @return The present value.
    */
-  public double presentValue(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final InterestRateFutureOptionMarginTransaction transaction, final SABRInterestRateDataBundle sabrData) {
     double priceSecurity = METHOD_SECURITY.optionPrice(transaction.getUnderlyingOption(), sabrData);
-    double priceTransaction = presentValueFromPrice(transaction, priceSecurity);
+    CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
   @Override
-  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "Interest rate future option transaction");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Interest rate future option transaction");
     return presentValue((InterestRateFutureOptionMarginTransaction) instrument, (SABRInterestRateDataBundle) curves);
