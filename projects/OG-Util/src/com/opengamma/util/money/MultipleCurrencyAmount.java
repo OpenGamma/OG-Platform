@@ -137,6 +137,10 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     return _backingMap.entrySet().iterator();
   }
 
+  public int size() {
+    return _backingMap.size();
+  }
+
   public CurrencyAmount[] getCurrencyAmounts() {
     final CurrencyAmount[] amounts = new CurrencyAmount[_backingMap.size()];
     int i = 0;
@@ -163,7 +167,6 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     }
     return CurrencyAmount.of(ccy, amount);
   }
-
 
   /**
    * Add a given currency amount. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added

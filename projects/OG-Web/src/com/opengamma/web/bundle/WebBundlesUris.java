@@ -11,7 +11,7 @@ import java.net.URI;
  * URIs for web-based bundles.
  */
 public class WebBundlesUris {
-  
+
   /**
    * The data.
    */
@@ -19,6 +19,7 @@ public class WebBundlesUris {
 
   /**
    * Creates an instance.
+   * 
    * @param data  the web data, not null
    */
   public WebBundlesUris(WebBundlesData data) {
@@ -33,8 +34,15 @@ public class WebBundlesUris {
   public URI bundles() {
     return WebBundlesResource.uri(_data);
   }
-  
-  public URI bundles(DeployMode mode, String bundleId) {
+
+  /**
+   * Gets the URI for a bundle.
+   * 
+   * @param mode  the deployment mode, not null
+   * @param bundleId  the bundle ID, not null
+   * @return the URI, not null
+   */
+  public URI bundle(DeployMode mode, String bundleId) {
     switch (mode) {
       case PROD:
         return WebProdBundleResource.uri(_data, bundleId);

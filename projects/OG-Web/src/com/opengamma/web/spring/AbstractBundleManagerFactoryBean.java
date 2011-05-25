@@ -17,48 +17,83 @@ import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.web.bundle.BundleManager;
 
 /**
- * Abstract class for creating BundleManager for Development or Production bundles from the Bundle XML configuration file
+ * Abstract class for creating BundleManager for Development or Production bundles
+ * from the Bundle XML configuration file.
  */
-public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryBean<BundleManager>  implements ServletContextAware {
-  
-  private Resource _configFile;
-  
-  private String _baseDir;
-  
-  private ServletContext _servletContext;
-  
+public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryBean<BundleManager> implements ServletContextAware {
+
   /**
-   * Gets the configFile field.
-   * @return the configFile
+   * The config file.
+   */
+  private Resource _configFile;
+  /**
+   * The base directory.
+   */
+  private String _baseDir;
+  /**
+   * The servlet context.
+   */
+  private ServletContext _servletContext;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the config file.
+   * 
+   * @return the config file
    */
   public Resource getConfigFile() {
     return _configFile;
   }
 
   /**
-   * Sets the configFile field.
-   * @param configFile  the configFile
+   * Sets the config file.
+   * @param configFile  the config file
    */
   public void setConfigFile(Resource configFile) {
     _configFile = configFile;
   }
-  
+
   /**
-   * Gets the baseDir field.
-   * @return the baseDir
+   * Gets the base directory.
+   * @return the base directory
    */
   public String getBaseDir() {
     return _baseDir;
   }
 
   /**
-   * Sets the baseDir field.
-   * @param baseDir  the baseDir
+   * Sets the base directory.
+   * 
+   * @param baseDir  the base directory
    */
   public void setBaseDir(String baseDir) {
     _baseDir = baseDir;
   }
 
+  /**
+   * Gets the servlet context.
+   * @return the servlet context
+   */
+  public ServletContext getServletContext() {
+    return _servletContext;
+  }
+
+  /**
+   * Sets the servlet context.
+   * 
+   * @param servletContext  the context, not null
+   */
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    _servletContext = servletContext;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves the config file.
+   * 
+   * @return the resolved file
+   */
   protected File resolveConfigurationFile() {
     File configFile = null;
     try {
@@ -68,28 +103,20 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
     }
     return configFile;
   }
-  
+
+  /**
+   * Resolves the base directory.
+   * 
+   * @return the base directory
+   */
   protected File resolveBaseDir() {
     ServletContext servletContext = getServletContext();
     if (servletContext != null) {
       String baseDir = getBaseDir().startsWith("/") ? getBaseDir() : "/" + getBaseDir();
       baseDir = servletContext.getRealPath(baseDir);
       return new File(baseDir);
-    } 
+    }
     throw new IllegalStateException("Bundle Manager needs web application context to work out absolute path for bundle base directory");
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    _servletContext = servletContext;
-  }
-  
-  /**
-   * Gets the servletContext field.
-   * @return the servletContext
-   */
-  public ServletContext getServletContext() {
-    return _servletContext;
   }
 
 }

@@ -40,4 +40,11 @@ public interface TimeSeriesLoader {
    * @return true if the operation is successful otherwise false 
    */
   boolean updateTimeSeries(UniqueIdentifier uniqueIdentifier);
+  
+  /**
+   * Gets the associated timeseries master.
+   * 
+   * @return the master that is being populated, not null
+   */
+  TimeSeriesMaster<?> getTimeSeriesMaster();
 }
