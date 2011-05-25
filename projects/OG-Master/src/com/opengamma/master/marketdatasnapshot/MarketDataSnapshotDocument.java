@@ -29,7 +29,7 @@ import com.opengamma.util.PublicSPI;
 public class MarketDataSnapshotDocument extends AbstractDocument {
 
   /**
-   * The configuration document unique identifier.
+   * The snapshot document's unique identifier.
    * This field is managed by the master but must be set for updates.
    */
   @PropertyDefinition
@@ -41,7 +41,7 @@ public class MarketDataSnapshotDocument extends AbstractDocument {
   @PropertyDefinition
   private ManageableMarketDataSnapshot _snapshot;
   
-
+s
   /**
    * Creates an instance.
    */
