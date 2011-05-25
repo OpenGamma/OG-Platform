@@ -8,16 +8,15 @@ package com.opengamma.web.spring;
 import com.opengamma.web.bundle.BundleManager;
 import com.opengamma.web.bundle.BundleParser;
 
-
 /**
- * Creates a BundleManager for Production from the Bundle XML configuration file
+ * Creates a BundleManager for Production from the Bundle XML configuration file.
  */
-public class ProdBundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
-    
+public class BundleManagerFactoryBean extends AbstractBundleManagerFactoryBean {
+
   @Override
   protected BundleManager createObject() {
-    BundleParser bundleParser = new BundleParser(resolveConfigurationFile(), resolveBaseDir());
-    return bundleParser.getBundleManager();
+    BundleParser parser = new BundleParser(resolveConfigurationFile(), resolveBaseDir());
+    return parser.parse();
   }
 
 }

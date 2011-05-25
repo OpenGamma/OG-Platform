@@ -49,15 +49,15 @@ public class BundleManagerTest {
       
     Bundle bundle = _manager.getBundle(OG_COMMON_CSS);
     assertNotNull(bundle);
-    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, bundle.getAllFragment());
+    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, bundle.getAllFragments());
     
     bundle = _manager.getBundle(CSS_UTIL_CSS);
     assertNotNull(bundle);
-    assertEquals(EXPECTED_CSS_UTIL, bundle.getAllFragment());
+    assertEquals(EXPECTED_CSS_UTIL, bundle.getAllFragments());
     
     bundle = _manager.getBundle(JS_BUNDLE_COMMON_JS);
     assertNotNull(bundle);
-    assertEquals(EXPECTED_JS_BUNDLE_COMMON, bundle.getAllFragment());
+    assertEquals(EXPECTED_JS_BUNDLE_COMMON, bundle.getAllFragments());
   }
   
   public void test_addBundle_with_bundles() {
@@ -69,17 +69,17 @@ public class BundleManagerTest {
     
     Bundle cssBundleCommon = _manager.getBundle(OG_COMMON_CSS);
     assertNotNull(cssBundleCommon);
-    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, cssBundleCommon.getAllFragment());
+    assertEquals(EXPECTED_CSS_BUNDLE_COMMON, cssBundleCommon.getAllFragments());
     
     Bundle cssUtil = _manager.getBundle(CSS_UTIL_CSS);
     assertNotNull(cssUtil);
-    assertEquals(EXPECTED_CSS_UTIL, cssUtil.getAllFragment());
+    assertEquals(EXPECTED_CSS_UTIL, cssUtil.getAllFragments());
     
     Bundle composite = _manager.getBundle("Composite");
     assertNotNull(cssBundleCommon);
     List<Fragment> expectedComposite = new ArrayList<Fragment>(EXPECTED_CSS_BUNDLE_COMMON);
     expectedComposite.addAll(EXPECTED_CSS_UTIL);
-    assertEquals(expectedComposite, composite.getAllFragment());
+    assertEquals(expectedComposite, composite.getAllFragments());
   }
 
 }

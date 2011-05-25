@@ -355,6 +355,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta+vega: 19-May-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 200 ms for 1000 swaptions.
+
     //    double sum = 0.0;
     //    for (int looptest = 0; looptest < nbTest; looptest++) {
     //      sum += pv[looptest];

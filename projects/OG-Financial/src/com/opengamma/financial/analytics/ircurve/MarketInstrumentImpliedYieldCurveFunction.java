@@ -99,8 +99,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
   private YieldCurveDefinition _forwardCurveDefinition;
   private YieldCurveDefinition _fundingCurveDefinition;
 
-  private final FixedIncomeInstrumentCurveExposureHelper _instrumentCurveExposures;
-
   public MarketInstrumentImpliedYieldCurveFunction(final String currency, final String curveDefinitionName) {
     this(currency, curveDefinitionName, curveDefinitionName);
   }
@@ -121,8 +119,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
     _fundingCurveDefinitionName = fundingCurveDefinitionName;
     _forwardCurveDefinitionName = forwardCurveDefinitionName;
     _currencySpec = new ComputationTargetSpecification(currency);
-    _instrumentCurveExposures = new FixedIncomeInstrumentCurveExposureHelper(fundingCurveDefinitionName,
-        forwardCurveDefinitionName);
   }
 
   @Override
@@ -241,8 +237,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
-        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForFundingCurveInstrument(strip
-            .getInstrumentType());
+        String[] instrumentExposures = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
+            .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
         } else {
@@ -275,8 +271,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
 
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
         InterestRateDerivative derivative;
-        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForForwardCurveInstrument(strip
-            .getInstrumentType());
+        String[] instrumentExposures = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip
+            .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
         } else {
@@ -408,14 +404,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         InterestRateDerivative derivative;
         final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
-        String[] instrumentExposures = _instrumentCurveExposures.getExposuresForFundingCurveInstrument(strip
-            .getInstrumentType());
+        String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip
+            .getInstrumentType(), _fundingCurveDefinitionName, _forwardCurveDefinitionName);
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
-          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, instrumentExposures);
+          derivative = financialSecurity.accept(futureAdapter).toDerivative(now, marketValue, curveNames);
         } else {
           //TODO have to get the fixing data for swaps and tenor swaps
           //TODO remember to divide by 100 for swap and 10000 for tenor swap
-          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, instrumentExposures);
+          derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, curveNames);
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);

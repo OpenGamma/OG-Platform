@@ -8,15 +8,21 @@ package com.opengamma.web.bundle;
 import java.util.List;
 
 /**
- * Node in a bundle
+ * A node in the bundle of CSS/Javascript files.
  */
 public interface BundleNode {
 
   /**
+   * Get all the bundles in the bundle.
+   * 
+   * @return the ordered list of all bundles, may be unmodifiable, not null
+   */
+  List<Bundle> getAllBundles();
+  /**
    * Get all the fragments in the bundle.
    * 
-   * @return the list of all ordered fragments
+   * @return the ordered list of all fragments, may be unmodifiable, not null
    */
-  List<Fragment> getAllFragment();
+  List<Fragment> getAllFragments();
 
 }

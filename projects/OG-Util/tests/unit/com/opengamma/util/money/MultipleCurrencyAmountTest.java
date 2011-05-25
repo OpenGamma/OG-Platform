@@ -208,6 +208,7 @@ public class MultipleCurrencyAmountTest {
 
   @Test
   public void testObject() {
+    assertEquals(MULTIPLE.size(), CA_LIST.size());
     final CurrencyAmount[] ca = MULTIPLE.getCurrencyAmounts();
     assertEquals(ca.length, CA_SET.size());
     for (final CurrencyAmount element : ca) {

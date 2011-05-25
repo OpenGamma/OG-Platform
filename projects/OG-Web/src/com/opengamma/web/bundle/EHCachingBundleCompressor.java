@@ -13,40 +13,37 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * A cache decorating a {@code CompressedBundleSource}.
- * 
+ * Cache decorating the compressor of bundle source code.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
-public class EHCachingCompressedBundleSource implements CompressedBundleSource {
-  
+public class EHCachingBundleCompressor implements BundleCompressor {
+
   /**
-   * Cache key for bundles
+   * The cache key for bundles.
    */
   private static final String BUNDLE_CACHE = "bundle";
-  
+
   /**
    * The underlying compressed bundle source
    */
-  private final CompressedBundleSource _underlying;
-  
+  private final BundleCompressor _underlying;
   /**
    * The cache manager.
    */
   private final CacheManager _cacheManager;
-  
   /**
-   * The portfolio cache.
+   * The cache.
    */
   private final Cache _bundleCache;
-  
+
   /**
    * Creates the cache around an underlying compressed bundle source.
    * 
    * @param underlying  the underlying data, not null
    * @param cacheManager  the cache manager, not null
    */
-  public EHCachingCompressedBundleSource(final CompressedBundleSource underlying, final CacheManager cacheManager) {
+  public EHCachingBundleCompressor(final BundleCompressor underlying, final CacheManager cacheManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _underlying = underlying;
@@ -54,13 +51,14 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
     EHCacheUtils.addCache(cacheManager, BUNDLE_CACHE);
     _bundleCache = EHCacheUtils.getCacheFromManager(cacheManager, BUNDLE_CACHE);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Gets the underlying source of bundles
+   * Gets the underlying compressor.
    * 
-   * @return the underlying source of bundles, not null
+   * @return the underlying compressor, not null
    */
-  protected CompressedBundleSource getUnderlying() {
+  protected BundleCompressor getUnderlying() {
     return _underlying;
   }
 
@@ -73,15 +71,16 @@ public class EHCachingCompressedBundleSource implements CompressedBundleSource {
     return _cacheManager;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public String getBundle(String bundleId) {
-    Element e = _bundleCache.get(bundleId);
+  public String compressBundle(Bundle bundle) {
+    Element e = _bundleCache.get(bundle.getId());
     if (e != null) {
       return (String) e.getValue();
     } else {
-      String compressed = getUnderlying().getBundle(bundleId);
+      String compressed = getUnderlying().compressBundle(bundle);
       if (compressed != null) {
-        _bundleCache.put(new Element(bundleId, compressed));
+        _bundleCache.put(new Element(bundle.getId(), compressed));
       }
       return compressed;
     }

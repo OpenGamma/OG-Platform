@@ -15,40 +15,51 @@ import java.util.TreeMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Builds the Bundle Manager for development bundles
+ * Utility to build a decorated bundle manager for development bundles
  */
 public class DevBundleBuilder {
 
   /**
-   * Maximum number of {@code @imports}  allowed in IE
+   * Maximum number of {@code @imports}  allowed in IE.
    */
   public static final int MAX_IMPORTS = 31;
+  /** The maximum level 1 size for IE. */
   private static final int LEVEL1_SIZE = MAX_IMPORTS * MAX_IMPORTS;
+  /** The maximum level 2 size for IE. */
   private static final int LEVEL2_SIZE = MAX_IMPORTS * MAX_IMPORTS * MAX_IMPORTS;
 
+  /**
+   * The bundle manager.
+   */
   private final BundleManager _bundleManager;
 
   /**
-   * Creates the builder
+   * Creates an instance.
    * 
-   * @param bundleManager the bundle manger not null
+   * @param bundleManager  the bundle manger not null
    */
   public DevBundleBuilder(BundleManager bundleManager) {
     ArgumentChecker.notNull(bundleManager, "bundleManager");
     _bundleManager = bundleManager;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Decorates the original bundle manager with a version for development.
+   * 
+   * @return a new bundle manager for development, not null
+   */
   public BundleManager getDevBundleManager() {
     BundleManager devBundleManager = new BundleManager();
     devBundleManager.setBaseDir(_bundleManager.getBaseDir());
     Set<String> bundleNames = _bundleManager.getBundleIds();
     for (String bundleId : bundleNames) {
       Bundle bundle = _bundleManager.getBundle(bundleId);
-      List<Fragment> allFragment = bundle.getAllFragment();
-      if (allFragment.size() > LEVEL2_SIZE) {
+      List<Fragment> allFragments = bundle.getAllFragments();
+      if (allFragments.size() > LEVEL2_SIZE) {
         throw new IllegalStateException("DevBundleBuilder can only support " + LEVEL2_SIZE + " maximum fragments");
       }
-      buildVirtualBundles(devBundleManager, bundleId, allFragment);
+      buildVirtualBundles(devBundleManager, bundleId, allFragments);
     }
     return devBundleManager;
   }
@@ -103,7 +114,7 @@ public class DevBundleBuilder {
     }
     bundleManager.addBundle(rootNode);
   }
- 
+
   private String buildBundleName(String bundleId, String parent, String  child) {
     BundleType type = BundleType.getType(bundleId);
     StringBuilder buf = new StringBuilder(bundleId.substring(0, (bundleId.indexOf(type.getSuffix()) - 1)));

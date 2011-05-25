@@ -39,7 +39,7 @@ public class DevBundleBuilderTest {
     for (BundleNode bundleNode : childNodes) {
       assertBundleNode(bundleNode);
     }
-    assertEquals(testBundle.getAllFragment(), bundle.getAllFragment());
+    assertEquals(testBundle.getAllFragments(), bundle.getAllFragments());
   }
 
   private void assertBundleNode(BundleNode bundleNode) {

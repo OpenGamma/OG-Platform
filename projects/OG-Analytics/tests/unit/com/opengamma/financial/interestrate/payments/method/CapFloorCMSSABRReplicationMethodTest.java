@@ -32,7 +32,6 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameter;
 import com.opengamma.util.money.Currency;
@@ -126,7 +125,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod();
     long startTime, endTime;
-    final int nbTest = 1000;
+    final int nbTest = 10000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       replication.presentValue(CMS_CAP, sabrBundle);
