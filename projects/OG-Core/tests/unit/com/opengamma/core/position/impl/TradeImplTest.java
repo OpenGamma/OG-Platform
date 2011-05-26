@@ -6,19 +6,25 @@
 package com.opengamma.core.position.impl;
 
 
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.time.calendar.OffsetDateTime;
 
+import org.testng.annotations.Test;
+
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.test.MockSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test TradeImpl.
@@ -83,6 +89,29 @@ public class TradeImplTest {
     assertEquals(POSITION_UID, test.getParentPositionId());
     assertEquals(COUNTERPARTY, test.getCounterparty());
     assertEquals(security, test.getSecurity());
+  }
+  
+  public void test_equals() {
+    List<TradeImpl> trades = Lists.newArrayList();
+    
+    TradeImpl trade1 = new TradeImpl(POSITION_UID, Identifier.of("A", "B"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    trades.add(trade1);
+    
+    TradeImpl trade2 = new TradeImpl(POSITION_UID, Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    trade2.setPremuim(100.00);
+    trade2.setPremiumCurrency(Currency.USD);
+    trade2.setPremiumDate(TRADE_OFFSET_DATETIME.toLocalDate().plusDays(1));
+    trade2.setPremiumTime(TRADE_OFFSET_DATETIME.toOffsetTime().plusHours(1));
+    trades.add(trade2);
+    
+    TradeImpl trade3 = new TradeImpl(POSITION_UID, Identifier.of("E", "F"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
+    trades.add(trade3);
+    
+    assertEquals(3, trades.size());
+    assertTrue(trades.contains(trade1));
+    assertTrue(trades.contains(trade2));
+    assertTrue(trades.contains(trade3));
+    
   }
   
 }
