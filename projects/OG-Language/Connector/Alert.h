@@ -16,7 +16,11 @@ private:
 public:
 	static void Bad (const TCHAR *pszMessage);
 	static void Good (const TCHAR *pszMessage);
+#ifdef _WIN32
+	static bool Enable (HWND hwnd);
+#else /* ifdef _WIN32 */
 	static bool Enable ();
+#endif /* ifdef _WIN32 */
 	static bool Disable ();
 };
 

@@ -1,4 +1,4 @@
-input {
+input[type="text"] {
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
     border-top: 1px solid #abadb3;

@@ -15,6 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -86,6 +87,12 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
   public Instant getValidTo() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_VALID_TO).build();
     return _client.access(uri).get(Instant.class);
+  }
+
+  @Override
+  public DependencyGraphExplorer getDependencyGraphExplorer(String calcConfig) {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_GRAPHS).path(calcConfig).build();
+    return new RemoteDependencyGraphExplorer(uri);
   }
   
 }
