@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.ZonedDateTime;
 
@@ -22,6 +23,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
@@ -81,8 +83,12 @@ public class DefinitionConverterDataProvider {
       if (tsPair == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
-      LocalDateDoubleTimeSeries localDateTS = tsPair.getSecond();
-      //TODO divide by 100 / 10000 depending on swap type
+      FastBackedDoubleTimeSeries<LocalDate> localDateTS = tsPair.getSecond();
+      if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR) {
+        localDateTS = localDateTS.divide(100);
+      } else if (type == InterestRateInstrumentType.SWAP_IBOR_IBOR) { //TODO not really - valid for tenor swaps but we really need to normalize the time series rather than doing it here
+        localDateTS = localDateTS.divide(10000);
+      }
       LocalTime fixingTime = LocalTime.of(11, 0);
       return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime),
           localDateTS.toFastLongDoubleTimeSeries());

@@ -250,8 +250,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
         } else {
-          //TODO have to get the fixing data for swaps and tenor swaps
-          //TODO remember to divide by 100 for swap and 10000 for tenor swap
           FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
           derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
         }
@@ -285,8 +283,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
         } else {
-          //TODO have to get the fixing data for swaps and tenor swaps
-          //TODO remember to divide by 100 for swap and 10000 for tenor swap
           FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
           derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
         }
@@ -417,8 +413,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           derivative = financialSecurity.accept(_futureAdapter).toDerivative(now, marketValue, curveNames);
         } else {
-          //TODO have to get the fixing data for swaps and tenor swaps
-          //TODO remember to divide by 100 for swap and 10000 for tenor swap
           FixedIncomeInstrumentConverter<?> definition = financialSecurity.accept(_instrumentAdapter);
           derivative = DEFINITION_CONVERTER.convert(financialSecurity, definition, now, curveNames, dataSource);
         }
