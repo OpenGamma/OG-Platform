@@ -41,11 +41,23 @@ public class RichardsonExtrapolationFiniteDifference implements ConvectionDiffus
     PDEResults1D res1 = _baseSolver.solve(pdeData, grid, lowerBoundary, upperBoundary);
     PDEResults1D res2 = _baseSolver.solve(pdeData, grid2, lowerBoundary, upperBoundary);
     int n = res1.getNumberSpaceNodes();
-    double[] f = new double[n];
-    for (int i = 0; i < n; i++) {
-      f[i] = 2 * res2.getFunctionValue(i) - res1.getFunctionValue(i);
+    if (res1 instanceof PDEFullResults1D) {
+      PDEFullResults1D full1 = (PDEFullResults1D) res1;
+      PDEFullResults1D full2 = (PDEFullResults1D) res2;
+      double[][] data = new double[grid.getNumTimeNodes()][grid.getNumSpaceNodes()];
+      for (int j = 0; j < grid.getNumTimeNodes(); j++) {
+        for (int i = 0; i < n; i++) {
+          data[j][i] = 2 * full2.getFunctionValue(i, 2 * j) - full1.getFunctionValue(i, j);
+        }
+      }
+      return new PDEFullResults1D(grid, data);
+    } else {
+      double[] f = new double[n];
+      for (int i = 0; i < n; i++) {
+        f[i] = 2 * res2.getFunctionValue(i) - res1.getFunctionValue(i);
+      }
+      return new PDETerminalResults1D(grid, f);
     }
-    return new PDETerminalResults1D(grid, f);
   }
 
   @Override

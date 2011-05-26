@@ -58,7 +58,7 @@ public class SensitivityFiniteDifference {
           final YieldCurveBundle curvesBumped = new YieldCurveBundle();
           curvesBumped.addAll(curves);
           curvesBumped.setCurve(curveBumpedName, curveBumped);
-          final double bumpedpv = method.presentValue(instrument, curvesBumped);
+          final double bumpedpv = method.presentValue(instrument, curvesBumped).getAmount();
           result[loopnode] = (bumpedpv - pv) / deltaShift;
         }
         return result;
@@ -72,8 +72,8 @@ public class SensitivityFiniteDifference {
           final YieldCurveBundle curvesBumpedMinus = new YieldCurveBundle();
           curvesBumpedMinus.addAll(curves);
           curvesBumpedMinus.setCurve(curveBumpedName, curveBumpedMinus);
-          final double bumpedpvPlus = method.presentValue(instrument, curvesBumpedPlus);
-          final double bumpedpvMinus = method.presentValue(instrument, curvesBumpedMinus);
+          final double bumpedpvPlus = method.presentValue(instrument, curvesBumpedPlus).getAmount();
+          final double bumpedpvMinus = method.presentValue(instrument, curvesBumpedMinus).getAmount();
           result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
         }
         return result;
@@ -83,7 +83,7 @@ public class SensitivityFiniteDifference {
           final YieldCurveBundle curvesBumped = new YieldCurveBundle();
           curvesBumped.addAll(curves);
           curvesBumped.setCurve(curveBumpedName, curveBumped);
-          final double bumpedpv = method.presentValue(instrument, curvesBumped);
+          final double bumpedpv = method.presentValue(instrument, curvesBumped).getAmount();
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;

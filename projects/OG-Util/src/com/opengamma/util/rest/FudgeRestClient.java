@@ -96,14 +96,24 @@ public class FudgeRestClient {
    * @param bean  the bean to encode, not null
    * @return the encoded version of the bean, not null
    */
-  @SuppressWarnings({"unchecked", "rawtypes" })
   public String encodeBean(final Bean bean) {
-    Class cls = bean.getClass();
+    return encode(bean);
+  }
+  
+  /**
+   * Encodes a Fudge-serializable object in base-64 suitable for passing in the URI.
+   * 
+   * @param object  the object to encode, not null
+   * @return  the encoded version of the object, not null
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public String encode(final Object object) {
+    Class cls = object.getClass();
     Providers providers = getClient().getProviders();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     MessageBodyWriter mbw = providers.getMessageBodyWriter(cls, cls, null, FudgeRest.MEDIA_TYPE);
     try {
-      mbw.writeTo(bean, cls, cls, null, FudgeRest.MEDIA_TYPE, null, out);
+      mbw.writeTo(object, cls, cls, null, FudgeRest.MEDIA_TYPE, null, out);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

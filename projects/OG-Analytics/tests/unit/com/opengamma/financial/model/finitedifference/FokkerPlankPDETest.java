@@ -128,7 +128,7 @@ public class FokkerPlankPDETest {
     int xNodes = 101;
     MeshingFunction timeMesh = new ExponentalMeshing(0, T - 0.01, tNodes, 0.0);
     //MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, 0.1, xNodes);
+    MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.1);
 
     double[] timeGrid = new double[tNodes];
     for (int n = 0; n < tNodes; n++) {
