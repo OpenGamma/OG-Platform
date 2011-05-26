@@ -5,14 +5,15 @@
  */
 package com.opengamma.financial.equity;
 
-import com.opengamma.financial.equity.future.EquityIndexDividendFuture;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.equity.future.derivative.*;
+import com.opengamma.financial.equity.future.method.EquityFutureMarkToMarket;
+
 import org.apache.commons.lang.Validate;
 
 /**
  * TODO: Change YieldCurveBundle to something further fit to Equity
  */
-public final class PresentValueCalculator extends AbstractEquityDerivativeVisitor<YieldCurveBundle, Double>  {
+public final class PresentValueCalculator extends AbstractEquityDerivativeVisitor<Double, Double>  {
   
   private static final PresentValueCalculator s_instance = new PresentValueCalculator();
 
@@ -24,28 +25,38 @@ public final class PresentValueCalculator extends AbstractEquityDerivativeVisito
   }
 
   @Override
-  public Double visit(final EquityDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
+  public Double visit(final EquityDerivative derivative, final Double mktPrice) {
+    Validate.notNull(mktPrice);
     Validate.notNull(derivative);
-    return derivative.accept(this, curves);
+    return derivative.accept(this, mktPrice);
   }
-
   @Override
-  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final YieldCurveBundle curves) {
-    Validate.notNull(curves); // shall we put the current market price in curves?
+  public Double visit(final EquityDerivative derivative) {
+    Validate.notNull(derivative);
+    return derivative.accept(this);
+  }
+  
+  @Override
+  public Double visitEquityFuture(final EquityFuture future, final Double mktPrice) {
+    Validate.notNull(mktPrice);
     Validate.notNull(future);
-    //final double ta = future.getFixingDate();
-    //final double tb = future.getDeliveryDate();
-    
-    final double current = 100.0; // !!! this is garbage? how does this get passed in ? 
-    return (current - future.getStrike()) * future.getPointValue();
-    
-    // !!! or... SpotIndex / Z(0,T) - pV(EquityIndexFuture)
+    return EquityFutureMarkToMarket.presentValue(future, mktPrice);
+  }
+  @Override
+  public Double visitEquityFuture(final EquityFuture future) {
+    Validate.notNull(future);
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support Futures without a mktPrice");
+  }
+  
+  @Override
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final Double mktPrice) {
+    return visitEquityFuture(future, mktPrice);
+  }
+  @Override
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
+    return visitEquityFuture(future);
   }
 
-  @Override
-  public Double visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture) {
-    return null;
-  }
+
 
 }
