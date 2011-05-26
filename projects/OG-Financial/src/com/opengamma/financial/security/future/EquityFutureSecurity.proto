@@ -1,0 +1,38 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.future {
+
+  /**
+   * An Equity future.
+   */
+  message EquityFutureSecurity extends FutureSecurity {
+  
+    required util.time.Expiry lastTradeDate;   
+    required DateTimeWithZone settlementDate;  
+    
+    required id.Identifier assetIdentifier; 
+    optional id.Identifier underlyingIdentifier; 
+    optional string underlyingType; // e.g. 'Index','SingleStock'
+    optional double pointValue;
+    
+   
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityFutureSecurity (this); }";
+    }
+     
+  }
+  
+  message EquityIndexDividendFuture extends EquityFutureSecurity {
+
+    // No additional fields
+    
+    binding Java {
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFuture (this); }";
+    }
+  }
+  
+}
