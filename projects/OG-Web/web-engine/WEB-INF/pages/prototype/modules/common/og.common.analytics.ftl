@@ -3,7 +3,7 @@
     <div class="og-title">
       <h1 title="Swap Test View">Swap Test View</h1>
     </div>
-    <span class="og-tabs">
+    <span class="OG-tabs">
       <a href="#" class="og-tab og-active"><span>Portfolios</span></a>
       <a href="#" class="og-tab"><span>Primitives</span></a>
       <a href="#" class="og-tab"><span>Something else</span></a>
