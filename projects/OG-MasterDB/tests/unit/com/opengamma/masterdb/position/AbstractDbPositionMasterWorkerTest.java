@@ -114,31 +114,40 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DBTest {
     template.update("INSERT INTO pos_position2idkey VALUES (?,?)", 222, 507);
     
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(400);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         400, 400, 120, 120, BigDecimal.valueOf(120.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C100", "B", "400");
     tradeTime = _now.toOffsetTime().minusSeconds(401);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         401, 401, 121, 121, BigDecimal.valueOf(121.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C101", "B", "401");
     tradeTime = _now.toOffsetTime().minusSeconds(402);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         402, 402, 122, 122, BigDecimal.valueOf(100.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "JMP", "B", "402");
     tradeTime = _now.toOffsetTime().minusSeconds(403);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         403, 403, 122, 122, BigDecimal.valueOf(22.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "CISC", "B", "403");
     tradeTime = _now.toOffsetTime().minusSeconds(404);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         404, 404, 123, 123, BigDecimal.valueOf(100.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C104", "B", "404");
     tradeTime = _now.toOffsetTime().minusSeconds(405);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         405, 405, 123, 123, BigDecimal.valueOf(200.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C105", "B", "405");
     tradeTime = _now.toOffsetTime().minusSeconds(406);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         406, 406, 123, 123, BigDecimal.valueOf(300.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C106", "B", "406");
     tradeTime = _now.toOffsetTime().minusSeconds(407);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         407, 407, 221, 221, BigDecimal.valueOf(221.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C221", "B", "407");
     tradeTime = _now.toOffsetTime().minusSeconds(408);
-    template.update("INSERT INTO pos_trade VALUES(?,?,?,?,?, ?,?,?,?,?, ?,?)", 
+    template.update("INSERT INTO pos_trade (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, provider_scheme, provider_value) " +
+    		"VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", 
         408, 407, 222, 221, BigDecimal.valueOf(222.987), toSqlDate(_now.toLocalDate()), toSqlTimestamp(tradeTime), tradeTime.getOffset().getAmountSeconds(), "CPARTY", "C222", "B", "408");
     
     template.update("INSERT INTO pos_trade2idkey VALUES (?,?)", 400, 501);

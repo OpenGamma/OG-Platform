@@ -23,6 +23,7 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.money.Currency;
 
 /**
  * A simple mutable implementation of {@code Trade}.
@@ -64,6 +65,23 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    * The trade time with offset.
    */
   private OffsetTime _tradeTime;
+  /**
+   * Amount paid for trade at time of purchase
+   */
+  private Double _premuim;
+  /**
+   * Currency of payment at time of purchase
+   */
+  private Currency _premuimCurrency;
+  /**
+   * Date of premium payment
+   */
+  private LocalDate _premiumDate;
+  /**
+   * Time of premium payment
+   */
+  private OffsetTime _premiumTime;
+  
 
   /**
    * Creates a trade which must be initialized by calling methods.
@@ -339,6 +357,46 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   public void setTradeTime(OffsetTime tradeTime) {
     _tradeTime = tradeTime;
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public Double getPremium() {
+    return _premuim;
+  }
+  
+  public void setPremuim(final Double premium) {
+    _premuim = premium;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public Currency getPremiumCurrency() {
+    return _premuimCurrency;
+  }
+  
+  public void setPremiumCurrency(Currency premuimCurrency) {
+    _premuimCurrency = premuimCurrency;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public LocalDate getPremiumDate() {
+    return _premiumDate;
+  }
+  
+  public void setPremiumDate(LocalDate premiumDate) {
+    _premiumDate = premiumDate;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public OffsetTime getPremiumTime() {
+    return _premiumTime;
+  }
+  
+  public void setPremiumTime(OffsetTime premiumTime) {
+    _premiumTime = premiumTime;
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -351,9 +409,13 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
       return CompareUtils.compareWithNull(getQuantity(), other.getQuantity()) == 0 &&
           ObjectUtils.equals(getCounterparty(), other.getCounterparty()) &&
           ObjectUtils.equals(getTradeDate(), other.getTradeDate()) &&
-          ObjectUtils.equals(getTradeTime(), getTradeTime()) &&
+          ObjectUtils.equals(getTradeTime(), other.getTradeTime()) &&
           ObjectUtils.equals(getSecurityKey(), other.getSecurityKey()) &&
-          ObjectUtils.equals(getSecurity(), other.getSecurity());
+          ObjectUtils.equals(getSecurity(), other.getSecurity()) &&
+          ObjectUtils.equals(getPremium(), other.getPremium()) && 
+          ObjectUtils.equals(getPremiumCurrency(), other.getPremiumCurrency()) &&
+          ObjectUtils.equals(getPremiumDate(), other.getPremiumDate()) &&
+          ObjectUtils.equals(getPremiumTime(), other.getPremiumTime());
     }
     return false;
   }
@@ -392,5 +454,5 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
         .append(']')
         .toString();
   }
-
+  
 }
