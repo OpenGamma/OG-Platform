@@ -83,7 +83,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   public void presentValueFromOptionPrice() {
     final double priceQuoted = 0.01;
     InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pv = METHOD.presentValueFromPrice(transactionNoPremium, priceQuoted);
+    double pv = METHOD.presentValueFromPrice(transactionNoPremium, priceQuoted).getAmount();
     double pvExpected = (priceQuoted - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
     assertEquals("Future option: present value from quoted price", pvExpected, pv);
   }
@@ -98,7 +98,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     double priceFuture = 0.9905;
     InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pv = METHOD.presentValueFromFuturePrice(transactionNoPremium, sabrBundle, priceFuture);
+    double pv = METHOD.presentValueFromFuturePrice(transactionNoPremium, sabrBundle, priceFuture).getAmount();
     double priceSecurity = METHOD_SECURITY.optionPriceFromFuturePrice(OPTION_EDU2, sabrBundle, priceFuture);
     double pvExpected = (priceSecurity - TRADE_PRICE) * QUANTITY * NOTIONAL * FUTURE_FACTOR;
     assertEquals("Future option: present value from future price", pvExpected, pv, 1.0E-2);
@@ -112,8 +112,8 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     InterestRateFutureSecurityDiscountingMethod methodFuture = new InterestRateFutureSecurityDiscountingMethod();
     double priceFuture = methodFuture.price(EDU2, CURVES_BUNDLE);
     InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-    double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE);
-    double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture);
+    double pvNoPremium = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
+    double pvNoPremiumExpected = METHOD.presentValueFromFuturePrice(transactionNoPremium, SABR_BUNDLE, priceFuture).getAmount();
     assertEquals("Future option: present value", pvNoPremiumExpected, pvNoPremium);
   }
 
@@ -123,7 +123,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, 0.0);
-    double pvNoPremiumMethod = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE);
+    double pvNoPremiumMethod = METHOD.presentValue(transactionNoPremium, SABR_BUNDLE).getAmount();
     double pvNoPremiumCalculator = PVC.visit(transactionNoPremium, SABR_BUNDLE);
     assertEquals("Future option: present value: Method vs Calculator", pvNoPremiumMethod, pvNoPremiumCalculator);
   }

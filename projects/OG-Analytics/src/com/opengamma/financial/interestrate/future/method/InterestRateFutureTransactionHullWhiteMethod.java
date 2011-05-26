@@ -11,6 +11,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value and its sensitivities for an interest rate future with Hull-White model convexity adjustment.
@@ -49,24 +50,24 @@ public class InterestRateFutureTransactionHullWhiteMethod extends InterestRateFu
     _securityMethod = new InterestRateFutureSecurityHullWhiteMethod(_data);
   }
 
-  @Override
-  public double presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
-    return presentValue((InterestRateFutureTransaction) instrument, curves);
-  }
-
   /**
    * Present value computation using the hull-White model for the convexity adjustment.
    * @param future The future.
    * @param curves The yield curves. Should contain the forward curve associated. 
    * @return The present value.
    */
-  public double presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     double futurePrice = _securityMethod.price(future.getUnderlyingFuture(), curves);
     double pv = presentValueFromPrice(future, futurePrice);
-    return pv;
+    return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(final InterestRateDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
+    return presentValue((InterestRateFutureTransaction) instrument, curves);
   }
 
 }

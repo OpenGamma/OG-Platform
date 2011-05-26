@@ -168,7 +168,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
-    _creationTime = ZonedDateTime.now();
+    _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
   }
 
   // --------------------------------------------------------------------------

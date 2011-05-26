@@ -21,6 +21,7 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.FunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.language.text.Ordinal;
 
 /**
  * Constructs an identifier bundle from a set of identifiers.
@@ -76,22 +77,7 @@ public class IdentifierBundleFunction implements PublishedFunction {
     final List<MetaParameter> args = new ArrayList<MetaParameter>(MAX_PARAMETERS);
     for (int i = 1; i <= MAX_PARAMETERS; i++) {
       final MetaParameter param = new MetaParameter("id" + i, JavaTypeInfo.builder(Data.class).allowNull().get());
-      final StringBuilder desc = new StringBuilder("The ");
-      switch (i) {
-        case 1:
-          desc.append("first");
-          break;
-        case 2:
-          desc.append("second");
-          break;
-        case 3:
-          desc.append("third");
-          break;
-        default:
-          desc.append(i).append("th");
-          break;
-      }
-      param.setDescription(desc.append(" identifier (or array of identifiers) to add to the bundle").toString());
+      param.setDescription("The " + Ordinal.get(i) + " identifier (or array of identifiers) to add to the bundle");
       args.add(param);
     }
     final FunctionInvoker invoker = new AbstractFunctionInvoker(args) {

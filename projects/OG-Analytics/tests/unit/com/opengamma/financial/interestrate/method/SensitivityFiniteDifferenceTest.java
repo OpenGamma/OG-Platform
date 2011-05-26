@@ -69,7 +69,7 @@ public class SensitivityFiniteDifferenceTest {
   public void curveSensitivityFRA() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final double deltaShift = 1.0E-8;
-    final double pv = FRA_METHOD.presentValue(FRA, curves);
+    final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
@@ -93,7 +93,7 @@ public class SensitivityFiniteDifferenceTest {
       final YieldCurveBundle curvesBumpedForward = new YieldCurveBundle();
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
-      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward);
+      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward).getAmount();
       sensiPvForwardFD[i] = (bumpedPv - pv) / deltaShift;
     }
 
@@ -118,7 +118,7 @@ public class SensitivityFiniteDifferenceTest {
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
     curvesBumped.setCurve("Bumped Curve", bumpedCurve);
-    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped);
+    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped).getAmount();
     double[] resDsc = new double[1];
     resDsc[0] = (bumpedPvDsc - pv) / deltaShift;
 
@@ -134,7 +134,7 @@ public class SensitivityFiniteDifferenceTest {
   public void curveSensitivityCentered() {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final double deltaShift = 1.0E-8;
-    final double pv = FRA_METHOD.presentValue(FRA, curves);
+    final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};

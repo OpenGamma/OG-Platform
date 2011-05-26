@@ -16,7 +16,6 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.CalendricalParseException;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatters;
@@ -60,7 +59,7 @@ public class BatchJobParameters {
     } catch (CalendricalParseException e) {
       // try to parse as if no time zone provided, e.g. 20100621162200. Use the system time zone.
       LocalDateTime localDateTime = s_dateTimeFormatter.parse(dateTime, LocalDateTime.rule());
-      return OffsetDateTime.of(localDateTime, ZonedDateTime.now().toOffsetDateTime().getOffset());
+      return OffsetDateTime.of(localDateTime, OffsetDateTime.now().getOffset());
     }
   }
 

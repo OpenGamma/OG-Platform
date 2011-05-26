@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * of risk (which is an estimate), rather than a system for accurate accounting of money.
  * <p>
  * This class is immutable and thread-safe.
-O */
+ */
 public final class CurrencyAmount {
 
   /**

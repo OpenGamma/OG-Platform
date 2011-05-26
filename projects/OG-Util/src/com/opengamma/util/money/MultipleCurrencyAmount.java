@@ -17,8 +17,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 /**
- * Class defining a container for currency amounts. It behaves as a set - if an amount is added with the same currency as one of the
- * elements, the amounts are added (i.e. adding EUR 100 to the container (EUR 200, CAD 100) would give (EUR 300, CAD 100)). 
+ * A currency amount in multiple currencies.
+ * <p>
+ * This is a container holding multiple {@link CurrencyAmount} instances.
+ * The amounts do not necessarily the same worth or value in each currency.
+ * <p>
+ * This class behaves as a set - if an amount is added with the same currency as one of the
+ * elements, the amounts are added. For example, adding EUR 100 to the container
+ * (EUR 200, CAD 100) would give (EUR 300, CAD 100). 
  */
 public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Double>> {
   //TODO does this need a copy method?
@@ -137,6 +143,10 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     return _backingMap.entrySet().iterator();
   }
 
+  public int size() {
+    return _backingMap.size();
+  }
+
   public CurrencyAmount[] getCurrencyAmounts() {
     final CurrencyAmount[] amounts = new CurrencyAmount[_backingMap.size()];
     int i = 0;
@@ -163,7 +173,6 @@ public class MultipleCurrencyAmount implements Iterable<Map.Entry<Currency, Doub
     }
     return CurrencyAmount.of(ccy, amount);
   }
-
 
   /**
    * Add a given currency amount. If the currency is already present, the amount is added to the existing amount. If the currency is not yet present, the currency is added
