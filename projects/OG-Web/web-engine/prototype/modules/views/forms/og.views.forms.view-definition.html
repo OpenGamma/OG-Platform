@@ -5,33 +5,34 @@
   <section>
     <div>
       <h2>Column Sets</h2>
-      <small>Optional short explaination goes here</small>
+      <small>
+        A list of named column sets. These allow the same analytics to be computed using different settings and
+        viewed side by side at the same time
+      </small>
       {{html item_3}}<!-- tabs -->
-      {{html item_4}}<!-- column set name -->
     </div>
-    <ul class="OG-form-column-values">
-      <li>
-        <a>Column Values</a>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel leo odio. Ut bibendum magna commodo dui ultrices dignissim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam est nibh, pharetra ut tempor ac, cursus dictum erat. Phasellus a mauris purus, a posuere lacus</p>
-        {{html item_5}}<!-- column values -->
-      </li>
-      <li>
-        <a>Specific Requirments</a>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel leo odio. Ut bibendum magna commodo dui ultrices dignissim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam est nibh, pharetra ut tempor ac, cursus dictum erat. Phasellus a mauris purus, a posuere lacus</p>
-        {{html item_6}}<!-- spesific requirments fields -->
-        {{html item_7}}<!-- constraints -->
-      </li>
-      <li>
-        <a>Default Constraints</a>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        {{html item_8}}<!-- constraints -->
-      </li>
-      <li>
-        <a>Resolution Rule Transform</a>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-        {{html item_9}}<!-- resolution rule transform fields -->
-        {{html item_10}}<!-- constraints -->
-      </li>
-    </ul>
+    <div class="OG-form-column-sets">
+      {{html item_4}}<!-- column set name -->
+      <ul>
+        <li>
+          <a>Column Values</a>
+          {{html item_5}}<!-- column values -->
+        </li>
+        <li>
+          <a>Specific Requirments</a>
+          {{html item_6}}<!-- spesific requirments fields -->
+          {{html item_7}}<!-- constraints -->
+        </li>
+        <li>
+          <a>Default Constraints</a>
+          <div>{{html item_8}}</div><!-- constraints -->
+        </li>
+        <li>
+          <a>Resolution Rule Transform</a>
+          {{html item_9}}<!-- resolution rule transform fields -->
+          {{html item_10}}<!-- constraints -->
+        </li>
+      </ul>
+    </div>
   </section>
 </div>
