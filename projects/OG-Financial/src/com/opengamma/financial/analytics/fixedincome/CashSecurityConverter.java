@@ -43,7 +43,7 @@ public class CashSecurityConverter implements CashSecurityVisitor<FixedIncomeIns
     final ZonedDateTime maturityDate = security.getMaturity().toZonedDateTime();
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currency.getCode() + "_CASH_CONVENTION");
-    return new CashDefinition(maturityDate, security.getRate(), convention);
+    return new CashDefinition(maturityDate, security.getRate() / 100, convention);
   }
 
 }

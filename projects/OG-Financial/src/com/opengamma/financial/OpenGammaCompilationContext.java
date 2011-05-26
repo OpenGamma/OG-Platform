@@ -6,6 +6,8 @@
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
@@ -24,6 +26,8 @@ public final class OpenGammaCompilationContext {
   private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
   private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
   private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
+  private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+  private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
 
   /**
    * Restricted constructor.
@@ -93,23 +97,28 @@ public final class OpenGammaCompilationContext {
    * @param compilationContext  the context to store in, not null
    * @param conventionBundleSource  the convention bundle source to store, not null
    */
-  public static void setConventionBundleSource(FunctionCompilationContext compilationContext, ConventionBundleSource conventionBundleSource) {
+  public static void setConventionBundleSource(FunctionCompilationContext compilationContext,
+      ConventionBundleSource conventionBundleSource) {
     set(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
 
-  public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext) {
+  public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(
+      final FunctionCompilationContext compilationContext) {
     return get(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
   }
 
-  public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveDefinitionSource source) {
+  public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext,
+      final InterpolatedYieldCurveDefinitionSource source) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);
   }
 
-  public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext) {
+  public static InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(
+      final FunctionCompilationContext compilationContext) {
     return get(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME);
   }
 
-  public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext, final InterpolatedYieldCurveSpecificationBuilder builder) {
+  public static void setInterpolatedYieldCurveSpecificationBuilder(final FunctionCompilationContext compilationContext,
+      final InterpolatedYieldCurveSpecificationBuilder builder) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME, builder);
   }
 
@@ -117,8 +126,24 @@ public final class OpenGammaCompilationContext {
     return get(compilationContext, CURRENCY_MATRIX_SOURCE_NAME);
   }
 
-  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext, final CurrencyMatrixSource currencyMatrixSource) {
+  public static void setCurrencyMatrixSource(final FunctionCompilationContext compilationContext,
+      final CurrencyMatrixSource currencyMatrixSource) {
     set(compilationContext, CURRENCY_MATRIX_SOURCE_NAME, currencyMatrixSource);
   }
 
+  public static HolidaySource getHolidaySource(FunctionCompilationContext compilationContext) {
+    return get(compilationContext, HOLIDAY_SOURCE_NAME);
+  }
+
+  public static void setHolidaySource(FunctionCompilationContext compilationContext, HolidaySource holidaySource) {
+    set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
+  }
+
+  public static ExchangeSource getExchangeSource(FunctionCompilationContext compilationContext) {
+    return get(compilationContext, EXCHANGE_SOURCE_NAME);
+  }
+
+  public static void setExchangeSource(FunctionCompilationContext compilationContext, ExchangeSource exchangeSource) {
+    set(compilationContext, EXCHANGE_SOURCE_NAME, exchangeSource);
+  }
 }

@@ -18,8 +18,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentConverter;
 import com.opengamma.financial.instrument.fra.FRADefinition;
-import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.id.Identifier;
 import com.opengamma.util.money.Currency;
 
@@ -50,6 +50,6 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
         .toZonedDateTime()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currencyCode + "_FRA_CONVENTION");
-    return new FRADefinition(startDate, maturityDate, security.getRate(), convention);
+    return new FRADefinition(startDate, maturityDate, security.getRate() / 100, convention);
   }
 }
