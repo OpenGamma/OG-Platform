@@ -24,9 +24,11 @@ import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverag
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
+import com.opengamma.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
@@ -94,7 +96,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
     Validate.notNull(curves);
     Validate.notNull(fra);
     final ForwardRateAgreementDiscountingMethod method = new ForwardRateAgreementDiscountingMethod();
-    return method.presentValue(fra, curves);
+    return method.presentValue(fra, curves).getAmount();
   }
 
   @Override
@@ -114,7 +116,7 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
    */
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     InterestRateFutureTransactionDiscountingMethod method = new InterestRateFutureTransactionDiscountingMethod();
-    return method.presentValue(future, curves);
+    return method.presentValue(future, curves).getAmount();
   }
 
   @Override
@@ -216,12 +218,15 @@ public class PresentValueCalculator extends AbstractInterestRateDerivativeVisito
   }
 
   @Override
-  /**
-   * CMS coupon pricing without convexity adjustment.
-   */
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
     CouponCMSDiscountingMethod method = new CouponCMSDiscountingMethod();
     return method.presentValue(cmsCoupon, curves);
+  }
+
+  @Override
+  public Double visitCouponIborGearing(final CouponIborGearing coupon, final YieldCurveBundle curves) {
+    CouponIborGearingDiscountingMethod method = new CouponIborGearingDiscountingMethod();
+    return method.presentValue(coupon, curves).getAmount();
   }
 
 }

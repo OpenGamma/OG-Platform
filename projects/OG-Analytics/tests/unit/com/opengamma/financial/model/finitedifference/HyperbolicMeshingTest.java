@@ -21,36 +21,36 @@ public class HyperbolicMeshingTest {
   private static final int N = 21;
   private static final double BETA = 0.1;
 
-  private static final MeshingFunction HYP_MESH = new HyperbolicMeshing(A, B, K, BETA, N);
+  private static final MeshingFunction HYP_MESH = new HyperbolicMeshing(A, B, K, N, BETA);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEqualPoints() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new HyperbolicMeshing(A, A, K, BETA, N);
+    final MeshingFunction mesh = new HyperbolicMeshing(A, A, K, N, BETA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoPoints() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new HyperbolicMeshing(A, B, K, BETA, 1);
+    final MeshingFunction mesh = new HyperbolicMeshing(A, B, K, 1, BETA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroBeta() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new HyperbolicMeshing(A, B, K, 0.0, N);
+    final MeshingFunction mesh = new HyperbolicMeshing(A, B, K, N, 0.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testKLow() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new HyperbolicMeshing(A, B, A - 0.1, 0.0, N);
+    final MeshingFunction mesh = new HyperbolicMeshing(A, B, A - 0.1, N, 0.0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testKHight() {
     @SuppressWarnings("unused")
-    final MeshingFunction mesh = new HyperbolicMeshing(A, B, B + 0.1, 0.0, N);
+    final MeshingFunction mesh = new HyperbolicMeshing(A, B, B + 0.1, N, 0.0);
   }
 
   @Test

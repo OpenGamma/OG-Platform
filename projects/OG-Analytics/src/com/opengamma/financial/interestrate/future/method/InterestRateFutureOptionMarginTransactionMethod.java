@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.future.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.method.PricingMethod;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Methods for the pricing of interest rate futures option with premium generic to all models.
@@ -19,10 +20,10 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @param price The quoted price.
    * @return The present value.
    */
-  public double presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
+  public CurrencyAmount presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
     double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() * option.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * option.getQuantity();
-    return pv;
+    return CurrencyAmount.of(option.getUnderlyingOption().getCurrency(), pv);
   }
 
 }

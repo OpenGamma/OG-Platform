@@ -32,6 +32,7 @@ import com.opengamma.financial.interestrate.payments.ContinuouslyMonitoredAverag
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
+import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -407,6 +408,16 @@ public class InterestRateDerivativeVisitorTest {
     @Override
     public Class<?> visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option) {
       return visit(option);
+    }
+
+    @Override
+    public Class<?> visitCouponIborGearing(CouponIborGearing payment, Object data) {
+      return visit(payment, data);
+    }
+
+    @Override
+    public Class<?> visitCouponIborGearing(CouponIborGearing payment) {
+      return visit(payment);
     }
   };
 

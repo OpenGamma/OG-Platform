@@ -23,14 +23,14 @@ static bool g_bEnabled = false;
 
 #ifdef _WIN32
 
+static HWND g_hwnd = NULL;
 static TCHAR *g_pszTitle = NULL;
 static HICON g_hIcon = NULL;
 
 static void _InitialiseNID (NOTIFYICONDATA *pnid) {
 	ZeroMemory (pnid, sizeof (NOTIFYICONDATA));
 	pnid->cbSize = sizeof (NOTIFYICONDATA);
-	// TODO: Can we route a window handle in if it's available? Should we create a dummy window for ourselves?
-	pnid->hWnd = HWND_DESKTOP;
+	pnid->hWnd = g_hwnd;
 	pnid->uID = 1732; // arbitrary guess?
 }
 
@@ -139,9 +139,16 @@ void CAlert::Good (const TCHAR *pszMessage) {
 	g_oMutex.Leave ();
 }
 
+#ifdef _WIN32
+bool CAlert::Enable (HWND hwnd) {
+#else /* ifdef _WIN32 */
 bool CAlert::Enable () {
+#endif /* ifdef _WIN32 */
 	bool bResult = false;
 	g_oMutex.Enter ();
+#ifdef _WIN32
+	g_hwnd = hwnd;
+#endif /* ifdef _WIN32 */
 	if (!g_bEnabled) {
 		if (_EnableImpl ()) {
 			g_bEnabled = true;
@@ -160,6 +167,9 @@ bool CAlert::Disable () {
 		g_bEnabled = false;
 		bResult = true;
 	}
+#ifdef _WIN32
+	g_hwnd = NULL;
+#endif /* ifdef _WIN32 */
 	g_oMutex.Leave ();
 	return bResult;
 }
