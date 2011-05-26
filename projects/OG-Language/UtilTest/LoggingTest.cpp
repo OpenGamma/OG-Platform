@@ -17,7 +17,7 @@ public:
 	CLogSettings (const TCHAR *pszLogConfiguration) {
 		m_pszLogConfiguration = pszLogConfiguration;
 	}
-	const TCHAR *GetLogConfiguration () {
+	const TCHAR *GetLogConfiguration () const {
 		return m_pszLogConfiguration;
 	}
 };

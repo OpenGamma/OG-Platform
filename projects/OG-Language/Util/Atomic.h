@@ -41,7 +41,7 @@ public:
 	int IncrementAndGet () {
 		return IncrementAndGet (&m_nValue);
 	}
-	int Get () {
+	int Get () const {
 #ifdef _WIN32
 		return m_nValue;
 #else
@@ -87,7 +87,7 @@ public:
 		return (PTYPE)apr_atomic_casptr ((volatile void**)&m_pValue, (void*)pNewValue, (void*)pCompareWith);
 #endif /* ifdef _WIN32 */
 	}
-	PTYPE Get () {
+	PTYPE Get () const {
 		return m_pValue;
 	}
 	void Set (PTYPE pValue) {

@@ -78,7 +78,7 @@ HMODULE CDllVersion::GetCurrentModule () {
 	}
 }
 
-PCTSTR CDllVersion::GetString (PCTSTR pszValue) {
+PCTSTR CDllVersion::GetString (PCTSTR pszValue) const {
 	if (m_pData) {
 		TCHAR szValue[128];
 		PCTSTR pszResult;
