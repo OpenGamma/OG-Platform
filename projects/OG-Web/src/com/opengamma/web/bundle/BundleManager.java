@@ -14,51 +14,79 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Manages the bundles and act as the root Bundle 
+ * Manages the CSS/Javascript bundles.
+ * <p>
+ * This acts as the root of the tree.
  */
 public class BundleManager {
 
   /**
-   * Map containing bundles referenced by id
+   * The map of bundles by ID.
    */
   private Map<String, Bundle> _bundleMap = new ConcurrentHashMap<String, Bundle>();
-  
-  private File _baseDir;
-  
-  public Bundle getBundle(String id) {
-    return _bundleMap.get(id);
-  }
-  
-  public void addBundle(Bundle abundle) {
-    ArgumentChecker.notNull(abundle, "bundle");
-    ArgumentChecker.notNull(abundle.getId(), "bundle.Id");
-    _bundleMap.put(abundle.getId(), abundle);
-    //recursively add children as well
-    for (BundleNode node : abundle.getChildNodes()) {
-      if (node instanceof Bundle) {
-        addBundle((Bundle) node);
-      }
-    }
-  }
-  
   /**
-   * Gets the baseDir field.
-   * @return the baseDir
+   * The base directory that the fragments are stored in.
+   */
+  private File _baseDir;
+
+  /**
+   * Creates an instance.
+   */
+  public BundleManager() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the base directory.
+   * 
+   * @return the base directory, may be null
    */
   public File getBaseDir() {
     return _baseDir;
   }
 
   /**
-   * Sets the baseDir field.
-   * @param baseDir  the baseDir
+   * Sets the base directory.
+   * 
+   * @param baseDir  the base directory, may be null
    */
   public void setBaseDir(File baseDir) {
     _baseDir = baseDir;
   }
   
+  //-------------------------------------------------------------------------
+  /**
+   * Looks up a bundle by ID.
+   * 
+   * @param id  the ID to look up, not null
+   * @return the bundle, null if not found
+   */
+  public Bundle getBundle(String id) {
+    return _bundleMap.get(id);
+  }
+
+  /**
+   * Adds a bundle to the manager.
+   * 
+   * @param bundle  the bundle to add, not null
+   */
+  public void addBundle(Bundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(bundle.getId(), "bundle.id");
+    
+    // recursively add children as well
+    for (Bundle loop : bundle.getAllBundles()) {
+      _bundleMap.put(loop.getId(), loop);
+    }
+  }
+
+  /**
+   * Gets the set of all bundle IDs.
+   * 
+   * @return the unmodifiable bundle ID set, not null
+   */
   public Set<String> getBundleIds() {
     return Collections.unmodifiableSet(_bundleMap.keySet());
   }
-  
+
 }

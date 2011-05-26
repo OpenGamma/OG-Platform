@@ -35,7 +35,7 @@ public class WebTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private TimeSeriesMaster<?> _timeSeriesMaster;
   /**
-   * The timeseries loader
+   * The time series loader.
    */
   @PropertyDefinition
   private TimeSeriesLoader _timeSeriesLoader;
@@ -50,7 +50,7 @@ public class WebTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private String _uriTimeSeriesId;
   /**
-   * The time series.
+   * The loaded time series.
    */
   @PropertyDefinition
   private TimeSeriesDocument<?> _timeSeries;
@@ -149,7 +149,7 @@ public class WebTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the timeseries loader
+   * Gets the time series loader.
    * @return the value of the property
    */
   public TimeSeriesLoader getTimeSeriesLoader() {
@@ -157,7 +157,7 @@ public class WebTimeSeriesData extends DirectBean {
   }
 
   /**
-   * Sets the timeseries loader
+   * Sets the time series loader.
    * @param timeSeriesLoader  the new value of the property
    */
   public void setTimeSeriesLoader(TimeSeriesLoader timeSeriesLoader) {
@@ -224,7 +224,7 @@ public class WebTimeSeriesData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time series.
+   * Gets the loaded time series.
    * @return the value of the property
    */
   public TimeSeriesDocument<?> getTimeSeries() {
@@ -232,7 +232,7 @@ public class WebTimeSeriesData extends DirectBean {
   }
 
   /**
-   * Sets the time series.
+   * Sets the loaded time series.
    * @param timeSeries  the new value of the property
    */
   public void setTimeSeries(TimeSeriesDocument<?> timeSeries) {

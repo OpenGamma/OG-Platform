@@ -6,15 +6,19 @@
 package com.opengamma.web.bundle;
 
 /**
- * Deployment mode, represents Development or Production mode
+ * Deployment mode, represents Development or Production mode.
  */
 public enum DeployMode {
+
   /**
-   * Development mode
+   * Development mode.
+   * Bundles will not be compressed in development.
    */
   DEV,
   /**
-   * Production mode
+   * Production mode.
+   * Bundles will be compressed in production.
    */
   PROD
+
 }

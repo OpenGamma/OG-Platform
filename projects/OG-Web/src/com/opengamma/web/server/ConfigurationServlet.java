@@ -17,10 +17,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * See http://cometd.org/book/export/html/64.
+ * Servlet to configure the cometd system.
  */
 public class ConfigurationServlet extends GenericServlet {
-  
+  // See http://cometd.org/book/export/html/64
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  @Override
   public void init() throws ServletException {
     // Grab Spring's ApplicationContent
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -33,7 +38,9 @@ public class ConfigurationServlet extends GenericServlet {
     }
   }
 
+  @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
     throw new ServletException();
   }
+
 }

@@ -17,6 +17,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -28,6 +29,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * P^D(0,t_1)\\frac{\\delta_P(F-K)}{1+\\delta_F F} \\quad \\mbox{and}\\quad F = \\frac{1}{\\delta_F}\\left( \\frac{P^j(0,t_1)}{P^j(0,t_2)}-1\\right)
  * \\end{equation*}
  * }
+ * This approach is valid subject to a independence hypothesis between the discounting curve and some spread.
+ * <P> Reference: Henrard, M. (2010). The irony in the derivatives discounting part II: the crisis. Wilmott Journal, 2(6):301-316.
  */
 public class ForwardRateAgreementDiscountingMethod implements PricingMethod {
 
@@ -37,7 +40,7 @@ public class ForwardRateAgreementDiscountingMethod implements PricingMethod {
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The present value.
    */
-  public double presentValue(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final ZZZForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(fra.getFundingCurveName());
@@ -45,11 +48,11 @@ public class ForwardRateAgreementDiscountingMethod implements PricingMethod {
     double discountFactorSettlement = discountingCurve.getDiscountFactor(fra.getPaymentTime());
     double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
     double presentValue = discountFactorSettlement * fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward);
-    return presentValue;
+    return CurrencyAmount.of(fra.getCurrency(), presentValue);
   }
 
   @Override
-  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ZZZForwardRateAgreement, "Forward rate agreement");
     return presentValue((ZZZForwardRateAgreement) instrument, curves);
   }

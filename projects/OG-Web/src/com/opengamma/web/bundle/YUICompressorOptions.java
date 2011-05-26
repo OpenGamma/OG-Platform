@@ -18,23 +18,34 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
- * Bean to capture YUICompressor options
+ * Bean to capture YUICompressor options.
  */
 @BeanDefinition
 public class YUICompressorOptions extends DirectBean {
-  
+
+  /**
+   * The line break position.
+   */
   @PropertyDefinition
   private int _lineBreakPosition;
-  
+  /**
+   * The munge flag.
+   */
   @PropertyDefinition
   private boolean _munge;
-  
+  /**
+   * The preserve semi-colon flag.
+   */
   @PropertyDefinition
   private boolean _preserveAllSemiColons;
-  
+  /**
+   * The optimize flag.
+   */
   @PropertyDefinition
   private boolean _optimize;
-  
+  /**
+   * The warn flag.
+   */
   @PropertyDefinition
   private boolean _warn;
 
@@ -94,7 +105,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the lineBreakPosition.
+   * Gets the line break position.
    * @return the value of the property
    */
   public int getLineBreakPosition() {
@@ -102,7 +113,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the lineBreakPosition.
+   * Sets the line break position.
    * @param lineBreakPosition  the new value of the property
    */
   public void setLineBreakPosition(int lineBreakPosition) {
@@ -119,7 +130,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the munge.
+   * Gets the munge flag.
    * @return the value of the property
    */
   public boolean isMunge() {
@@ -127,7 +138,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the munge.
+   * Sets the munge flag.
    * @param munge  the new value of the property
    */
   public void setMunge(boolean munge) {
@@ -144,7 +155,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the preserveAllSemiColons.
+   * Gets the preserve semi-colon flag.
    * @return the value of the property
    */
   public boolean isPreserveAllSemiColons() {
@@ -152,7 +163,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the preserveAllSemiColons.
+   * Sets the preserve semi-colon flag.
    * @param preserveAllSemiColons  the new value of the property
    */
   public void setPreserveAllSemiColons(boolean preserveAllSemiColons) {
@@ -169,7 +180,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optimize.
+   * Gets the optimize flag.
    * @return the value of the property
    */
   public boolean isOptimize() {
@@ -177,7 +188,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the optimize.
+   * Sets the optimize flag.
    * @param optimize  the new value of the property
    */
   public void setOptimize(boolean optimize) {
@@ -194,7 +205,7 @@ public class YUICompressorOptions extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the warn.
+   * Gets the warn flag.
    * @return the value of the property
    */
   public boolean isWarn() {
@@ -202,7 +213,7 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   /**
-   * Sets the warn.
+   * Sets the warn flag.
    * @param warn  the new value of the property
    */
   public void setWarn(boolean warn) {

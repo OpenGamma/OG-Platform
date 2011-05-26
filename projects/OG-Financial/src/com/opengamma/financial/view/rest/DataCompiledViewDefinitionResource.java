@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.google.common.collect.Lists;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 
 /**
@@ -30,12 +30,13 @@ public class DataCompiledViewDefinitionResource {
   public static final String PATH_LIVE_DATA_REQUIREMENTS = "liveDataRequirements";
   public static final String PATH_COMPUTATION_TARGETS = "computationTargets";
   public static final String PATH_COMPILED_CALCULATION_CONFIGURATIONS = "compiledCalculationConfigurations";
+  public static final String PATH_GRAPHS = "graphs";
   //CSON: just constants
   
-  private final CompiledViewDefinition _compiledViewDefinition;
+  private final CompiledViewDefinitionWithGraphs _compiledViewDefinition;
   
-  public DataCompiledViewDefinitionResource(CompiledViewDefinition compiledViewDefinition) {
-    _compiledViewDefinition = compiledViewDefinition;
+  public DataCompiledViewDefinitionResource(CompiledViewDefinitionWithGraphs compiledViewDefinitionWithGraphs) {
+    _compiledViewDefinition = compiledViewDefinitionWithGraphs;
   }
   
   @GET
@@ -56,6 +57,7 @@ public class DataCompiledViewDefinitionResource {
     return Response.ok(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations())).build();
   }
   
+  @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS + "/{calcConfigName}")
   public Response getCompiledViewCalculationConfiguration(@PathParam("calcConfigName") String calcConfigName) {
     return Response.ok(_compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName)).build();
@@ -83,6 +85,11 @@ public class DataCompiledViewDefinitionResource {
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
     return Response.ok(_compiledViewDefinition.getValidTo()).build();
+  }
+  
+  @Path(PATH_GRAPHS + "/{calcConfigName}")
+  public DataDependencyGraphExplorerResource getDependencyGraphExplorer(@PathParam("calcConfigName") String calcConfigName) {
+    return new DataDependencyGraphExplorerResource(_compiledViewDefinition.getDependencyGraphExplorer(calcConfigName));
   }
   
   //-------------------------------------------------------------------------

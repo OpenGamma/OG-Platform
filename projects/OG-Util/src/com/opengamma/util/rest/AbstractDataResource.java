@@ -36,6 +36,10 @@ public abstract class AbstractDataResource {
    * @return the bean, not null
    */
   public <T extends Bean> T decodeBean(final Class<T> cls, final Providers providers, final String msgBase64) {
+    return decode(cls, providers, msgBase64);
+  }
+  
+  public <T> T decode(final Class<T> cls, final Providers providers, final String msgBase64) {
     if (msgBase64 == null) {
       try {
         return cls.newInstance();

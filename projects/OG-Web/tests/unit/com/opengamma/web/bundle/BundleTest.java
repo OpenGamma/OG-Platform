@@ -45,7 +45,7 @@ public class BundleTest {
 
   public void test_fragments_only() throws Exception {
     Bundle cssBundleCommon = makeCssBundleCommon();    
-    List<Fragment> allFragment = cssBundleCommon.getAllFragment();
+    List<Fragment> allFragment = cssBundleCommon.getAllFragments();
     assertNotNull(allFragment);
     assertTrue(allFragment.size() == 3);
     assertEquals(FRAG_A, allFragment.get(0));
@@ -57,7 +57,7 @@ public class BundleTest {
     Bundle test = new Bundle();
     test.addChildNode(makeCssBundleCommon());
     test.addChildNode(makeCssUtil());
-    List<Fragment> allFragment = test.getAllFragment();
+    List<Fragment> allFragment = test.getAllFragments();
     assertNotNull(allFragment);
     assertTrue(allFragment.size() == 5);
     assertEquals(FRAG_A, allFragment.get(0));
@@ -82,7 +82,7 @@ public class BundleTest {
     //add fragment
     test.addChildNode(FRAG_D);
     
-    List<Fragment> allFragment = test.getAllFragment();
+    List<Fragment> allFragment = test.getAllFragments();
     assertNotNull(allFragment);
     assertTrue(allFragment.size() == 8);
     assertEquals(FRAG_B, allFragment.get(0));

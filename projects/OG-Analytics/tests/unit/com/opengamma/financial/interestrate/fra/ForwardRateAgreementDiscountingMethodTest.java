@@ -31,6 +31,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -83,8 +84,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final double forward = FRA_METHOD.parRate(FRA, curves);
     final double dfSettle = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getFixingYearFraction() * forward);
-    final double pv = FRA_METHOD.presentValue(FRA, curves);
-    assertEquals("FRA discounting: present value", expectedPv, pv, 1.0E-2);
+    final CurrencyAmount pv = FRA_METHOD.presentValue(FRA, curves);
+    assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
   }
 
   @Test
@@ -93,9 +94,9 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final ZZZForwardRateAgreementDefinition fraDefinitionSell = new ZZZForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, INDEX, FRA_RATE);
     final ZZZForwardRateAgreement fraSell = (ZZZForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVES);
-    final double pvBuy = FRA_METHOD.presentValue(FRA, curves);
-    final double pvSell = FRA_METHOD.presentValue(fraSell, curves);
-    assertEquals("FRA discounting: present value - buy/sell parity", pvSell, -pvBuy, 1.0E-2);
+    final CurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, curves);
+    final CurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, curves);
+    assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(), -pvBuy.getAmount(), 1.0E-2);
   }
 
   @Test
@@ -110,7 +111,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-8;
     final double forward = FRA_METHOD.parRate(FRA, curves);
-    final double pv = FRA_METHOD.presentValue(FRA, curves);
+    final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
@@ -138,7 +139,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
       final double bumpedForward = FRA_METHOD.parRate(fraBumpedForward, curvesBumpedForward);
-      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward);
+      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward).getAmount();
       sensiForwardForwardFD[i] = (bumpedForward - forward) / deltaShift;
       sensiPvForwardFD[i] = (bumpedPv - pv) / deltaShift;
       final DoublesPair pairForward = sensiForwardForward.get(i);
@@ -163,7 +164,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
     curvesBumped.setCurve("Bumped Curve", bumpedCurve);
-    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped);
+    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped).getAmount();
     final double resDsc = (bumpedPvDsc - pv) / deltaShift;
     final DoublesPair pair = tempFunding.get(0);
     assertEquals("Sensitivity pv to discounting curve:", nodeTimesFunding[1], pair.getFirst(), 1E-8);
@@ -175,7 +176,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-8;
-    final double pv = FRA_METHOD.presentValue(FRA, curves);
+    final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
@@ -199,7 +200,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
       final YieldCurveBundle curvesBumpedForward = new YieldCurveBundle();
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
-      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward);
+      final double bumpedPv = FRA_METHOD.presentValue(fraBumpedForward, curvesBumpedForward).getAmount();
       sensiPvForwardFD[i] = (bumpedPv - pv) / deltaShift;
     }
 
@@ -224,7 +225,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
     curvesBumped.setCurve("Bumped Curve", bumpedCurve);
-    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped);
+    final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped).getAmount();
     double[] resDsc = new double[1];
     resDsc[0] = (bumpedPvDsc - pv) / deltaShift;
 

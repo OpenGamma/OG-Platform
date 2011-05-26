@@ -73,7 +73,7 @@
   <!-- Debug items for testing-->
   <bean id="debugFunctionsLoader" class="com.opengamma.language.function.Loader">
     <property name="sessionContextFactory" ref="sessionContextFactory" />
-    <property name="functions">
+    <property name="functionProvider">
       <bean class="com.opengamma.language.function.FunctionProviderBean">
         <property name="functions">
           <list>
@@ -92,7 +92,7 @@
   </bean>
   <bean id="debugLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="sessionContextFactory" ref="sessionContextFactory" />
-    <property name="liveData">
+    <property name="liveDataProvider">
       <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
         <property name="liveData">
           <list>
@@ -105,7 +105,7 @@
   </bean>
   <bean id="debugProceduresLoader" class="com.opengamma.language.procedure.Loader">
     <property name="sessionContextFactory" ref="sessionContextFactory" />
-    <property name="procedures">
+    <property name="procedureProvider">
       <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
         <property name="procedures">
           <list>
@@ -120,13 +120,22 @@
   <!-- Standard functions, procedures and livedata -->
   <bean id="defaultFunctionsLoader" class="com.opengamma.language.function.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="functions">
-      <bean class="com.opengamma.language.function.ObjectFunctionProvider" />
+    <property name="functionProviders">
+      <list>
+        <bean class="com.opengamma.language.function.ObjectFunctionProvider" />
+        <bean class="com.opengamma.language.function.FunctionProviderBean">
+          <property name="functions">
+            <list>
+              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
+            </list>
+          </property>
+        </bean>
+      </list>
     </property>
   </bean>
   <bean id="defaultLiveDataLoader" class="com.opengamma.language.livedata.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="liveData">
+    <property name="liveDataProvider">
       <bean class="com.opengamma.language.livedata.LiveDataProviderBean">
         <property name="liveData">
           <list>
@@ -139,7 +148,7 @@
   </bean>
   <bean id="defaultProceduresLoader" class="com.opengamma.language.procedure.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
-    <property name="procedures">
+    <property name="procedureProvider">
       <bean class="com.opengamma.language.procedure.ProcedureProviderBean">
         <property name="procedures">
           <list>

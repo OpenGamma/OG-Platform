@@ -17,6 +17,7 @@ import com.opengamma.financial.interestrate.PresentValueSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.InterestRateFutureTransaction;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -31,7 +32,7 @@ public class InterestRateFutureTransactionDiscountingMethod extends InterestRate
    * @param curves The yield curves. Should contain the discounting and forward curves associated to the instrument.
    * @return The present value.
    */
-  public double presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getUnderlyingFuture().getForwardCurveName());
@@ -40,11 +41,11 @@ public class InterestRateFutureTransactionDiscountingMethod extends InterestRate
         / future.getUnderlyingFuture().getFixingPeriodAccrualFactor();
     double futurePrice = 1 - forward;
     double pv = presentValueFromPrice(future, futurePrice);
-    return pv;
+    return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
   }
 
   @Override
-  public double presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(InterestRateDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof InterestRateFutureTransaction, "Interest rate future transaction");
     return presentValue((InterestRateFutureTransaction) instrument, curves);
   }
