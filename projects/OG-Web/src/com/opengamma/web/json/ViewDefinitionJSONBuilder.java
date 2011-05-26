@@ -30,7 +30,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Custom JSON builder to convert ViewDefinition to JSON object and vice versa
+ * Custom JSON builder to convert ViewDefinition to JSON object and back again
  */
 public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDefinition> {
  
