@@ -151,6 +151,8 @@
     <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
     <property name="currencyMatrixSource" ref="sharedCurrencyMatrixSource" />
+    <property name="holidaySource" ref="sharedHolidaySource" />
+    <property name="exchangeSource" ref="sharedExchangeSource" />
   </bean>
   <bean id="demoFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="historicalDataSource" ref="sharedHistoricalDataProvider" />
