@@ -26,12 +26,12 @@ namespace com.opengamma.financial.security.future {
      
   }
   
-  message EquityIndexDividendFuture extends EquityFutureSecurity {
+  message EquityIndexDividendFutureSecurity extends EquityFutureSecurity {
 
     // No additional fields
     
     binding Java {
-      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFuture (this); }";
+      body "public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFutureSecurity (this); }";
     }
   }
   

@@ -28,4 +28,8 @@ public interface FutureSecurityVisitor<T> {
 
   T visitStockFutureSecurity(StockFutureSecurity security);
 
+  T visitEquityFutureSecurity(EquityFutureSecurity security);
+
+  T visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security);
+
 }

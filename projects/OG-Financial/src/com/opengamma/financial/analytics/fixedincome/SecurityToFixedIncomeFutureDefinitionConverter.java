@@ -28,6 +28,8 @@ import com.opengamma.financial.instrument.future.IRFutureDefinition;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
@@ -69,29 +71,29 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
     if (_underlyingConverter == null) {
       _underlyingConverter = new SecurityToFixedIncomeDefinitionConverter(_holidaySource, _conventionSource, _regionSource);
     }
-//    final LocalDate deliveryDateLD = null; //deliveryDate.toLocalDate();
-//    final List<BondFutureDeliverable> deliverableBasket = security.getBasket();
-//    final int n = deliverableBasket.size();
-//    final BondDefinition[] deliverableBonds = new BondDefinition[n];
-//    final double[] conversionFactors = new double[n];
-//    final int i = 0;
-//    for (final BondFutureDeliverable bfd : deliverableBasket) {
-//      final BondSecurity underlyingBond = null;
-//      final LocalDate lastTradeDate = underlyingBond.getLastTradeDate().getExpiry().toLocalDate();
-//      Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
-//      //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
-//      final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
-//      final Currency currency = security.getCurrency();
-//      final String conventionName = currency + "_BOND_FUTURE_DELIVERABLE_CONVENTION";
-//      final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName);
-//      final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);
-//      Validate.notNull(conventionBundle, "convention bundle " + conventionName);
-//      final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
-      //final BondDefinition deliverable = (BondDefinition) _underlyingConverter.visitBondSecurity(underlyingBond, conventionBundle);
-      //final BondConvention bondForwardConvention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar,
-      //    conventionBundle.isEOMConvention(), conventionName, conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
+    //    final LocalDate deliveryDateLD = null; //deliveryDate.toLocalDate();
+    //    final List<BondFutureDeliverable> deliverableBasket = security.getBasket();
+    //    final int n = deliverableBasket.size();
+    //    final BondDefinition[] deliverableBonds = new BondDefinition[n];
+    //    final double[] conversionFactors = new double[n];
+    //    final int i = 0;
+    //    for (final BondFutureDeliverable bfd : deliverableBasket) {
+    //      final BondSecurity underlyingBond = null;
+    //      final LocalDate lastTradeDate = underlyingBond.getLastTradeDate().getExpiry().toLocalDate();
+    //      Validate.isTrue(deliveryDateLD.isBefore(lastTradeDate), "The bond has expired before delivery");
+    //      //TODO bond futures are exchange-traded - check that this is the same calendar for the exchange as the currency
+    //      final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCurrency());
+    //      final Currency currency = security.getCurrency();
+    //      final String conventionName = currency + "_BOND_FUTURE_DELIVERABLE_CONVENTION";
+    //      final Identifier id = Identifier.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName);
+    //      final ConventionBundle conventionBundle = _conventionSource.getConventionBundle(id);
+    //      Validate.notNull(conventionBundle, "convention bundle " + conventionName);
+    //      final BusinessDayConvention businessDayConvention = conventionBundle.getBusinessDayConvention();
+    //final BondDefinition deliverable = (BondDefinition) _underlyingConverter.visitBondSecurity(underlyingBond, conventionBundle);
+    //final BondConvention bondForwardConvention = new BondConvention(conventionBundle.getSettlementDays(), conventionBundle.getDayCount(), businessDayConvention, calendar,
+    //    conventionBundle.isEOMConvention(), conventionName, conventionBundle.getExDividendDays(), conventionBundle.getYieldConvention());
 
-//    }
+    //    }
     return null; //new BondForwardDefinition(underlyingBond, deliveryDate.toLocalDate(), bondForwardConvention);
   }
 
@@ -135,8 +137,19 @@ public class SecurityToFixedIncomeFutureDefinitionConverter implements FutureSec
   public FixedIncomeFutureInstrumentDefinition<?> visitStockFutureSecurity(final StockFutureSecurity security) {
     throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from a StockFutureSecurity");
   }
-//
-//  private Calendar getCalendar(final Identifier regionId) {
-//    return new HolidaySourceCalendarAdapter(_holidaySource, RegionUtils.getRegions(_regionSource, regionId));
-//  }
+
+  //
+  //  private Calendar getCalendar(final Identifier regionId) {
+  //    return new HolidaySourceCalendarAdapter(_holidaySource, RegionUtils.getRegions(_regionSource, regionId));
+  //  }
+
+  @Override
+  public FixedIncomeFutureInstrumentDefinition<?> visitEquityFutureSecurity(EquityFutureSecurity security) {
+    throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from a EquityFutureSecurity");
+  }
+
+  @Override
+  public FixedIncomeFutureInstrumentDefinition<?> visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+    throw new OpenGammaRuntimeException("Cannot construct a FixedIncomeInstrumentDefinition from a EquityIndexDividendFutureSecurity");
+  }
 }

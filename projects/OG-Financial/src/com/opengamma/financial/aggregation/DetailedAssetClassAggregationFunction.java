@@ -22,6 +22,8 @@ import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
@@ -61,6 +63,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String STOCK_FUTURES = "Stock Futures";
   /* package */static final String BOND_OPTIONS = "Bond Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
+  /* package */static final String EQUITY_FUTURES = "Equity Futures";
+  /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
   /* package */static final String FUTURE_OPTIONS = "Future Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String OPTION_OPTIONS = "Option Options";
@@ -149,6 +153,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
+        }
+
+        @Override
+        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+          return EQUITY_FUTURES;
+        }
+
+        @Override
+        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURES;
         }
       }, new OptionSecurityVisitor<String>() {
 
