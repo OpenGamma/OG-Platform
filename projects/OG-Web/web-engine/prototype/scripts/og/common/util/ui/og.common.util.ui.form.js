@@ -1,8 +1,7 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text', 'og.api.rest'],

@@ -1,9 +1,8 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  *
  * Binds routes.go to each search form filter element
- *
  */
 $.register_module({
     name: 'og.common.search.filter',

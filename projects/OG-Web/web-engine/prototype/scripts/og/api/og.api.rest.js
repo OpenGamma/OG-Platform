@@ -1,4 +1,7 @@
-/**
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
  * provides wrappers for the REST API
  */
 $.register_module({

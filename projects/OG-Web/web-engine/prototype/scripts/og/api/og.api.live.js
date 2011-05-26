@@ -1,4 +1,9 @@
-// API for live two-way communication
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * API for live two-way communication
+ */
 $.register_module({
     name: 'og.api.live',
     dependencies: ['og.dev'],
