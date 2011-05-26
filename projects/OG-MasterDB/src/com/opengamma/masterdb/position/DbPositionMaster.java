@@ -6,6 +6,7 @@
 package com.opengamma.masterdb.position;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -50,6 +51,7 @@ import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.db.DbSource;
 import com.opengamma.util.db.Paging;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -97,6 +99,11 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         "t.cparty_value AS cparty_value, " +
         "t.provider_scheme AS trade_provider_scheme, " +
         "t.provider_value AS trade_provider_value, " +
+        "t.premium_value AS premium_value, " +
+        "t.premium_currency AS premium_currency, " +
+        "t.premium_date AS premium_date, " +
+        "t.premium_time AS premium_time, " +
+        "t.premium_zone_offset AS premium_zone_offset, " +
         "ts.key_scheme AS trade_key_scheme, " +
         "ts.key_value AS trade_key_value ";
   /**
@@ -402,6 +409,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final long tradeId = nextId("pos_master_seq");
       final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
       final Identifier counterpartyId = trade.getCounterpartyKey();
+      
       final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource()
         .addValue("trade_id", tradeId)
         .addValue("trade_oid", tradeOid)
@@ -410,11 +418,17 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addValue("quantity", trade.getQuantity())
         .addDate("trade_date", trade.getTradeDate())
         .addTimeNullIgnored("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
-        .addValue("zone_offset", trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null)
+        .addValue("zone_offset", (trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null))
         .addValue("cparty_scheme", counterpartyId.getScheme().getName())
         .addValue("cparty_value", counterpartyId.getValue())
         .addValue("provider_scheme", (position.getProviderKey() != null ? position.getProviderKey().getScheme().getName() : null))
-        .addValue("provider_value", (position.getProviderKey() != null ? position.getProviderKey().getValue() : null));
+        .addValue("provider_value", (position.getProviderKey() != null ? position.getProviderKey().getValue() : null))
+        .addValue("premium_value", (trade.getPremuim() != null ? trade.getPremuim() : null))
+        .addValue("premium_currency", (trade.getPremuimCurrency() != null ? trade.getPremuimCurrency().getCode() : null))
+        .addDateNullIgnored("premium_date", trade.getPremiumDate())
+        .addTimeNullIgnored("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
+        .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
+      
       tradeList.add(tradeArgs);
       
       // set the trade uniqueId
@@ -453,6 +467,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     // set the uniqueId
     position.setUniqueId(positionUid);
     document.setUniqueId(positionUid);
+            
     return document;
   }
 
@@ -475,9 +490,11 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   protected String sqlInsertTrades() {
     return "INSERT INTO pos_trade " +
-              "(id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value) " +
+              "(id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value, " +
+              "premium_value, premium_currency, premium_date, premium_time, premium_zone_offset) " +
             "VALUES " +
-              "(:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value)";
+              "(:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value, " +
+              ":premium_value, :premium_currency, :premium_date, :premium_time, :premium_zone_offset)";
   }
 
   /**
@@ -688,7 +705,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       final long tradeOid = rs.getLong("TRADE_OID");
       final BigDecimal tradeQuantity = extractBigDecimal(rs, "TRADE_QUANTITY");
       LocalDate tradeDate = DbDateUtils.fromSqlDate(rs.getDate("TRADE_DATE"));
-      LocalTime tradeTime = rs.getTimestamp("TRADE_TIME") != null ? DbDateUtils.fromSqlTime(rs.getTimestamp("TRADE_TIME")) : null;
+      final LocalTime tradeTime = rs.getTimestamp("TRADE_TIME") != null ? DbDateUtils.fromSqlTime(rs.getTimestamp("TRADE_TIME")) : null;
       int zoneOffset = rs.getInt("ZONE_OFFSET");
       final String cpartyScheme = rs.getString("CPARTY_SCHEME");
       final String cpartyValue = rs.getString("CPARTY_VALUE");
@@ -707,6 +724,26 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       if (providerScheme != null && providerValue != null) {
         _trade.setProviderKey(Identifier.of(providerScheme, providerValue));
       }
+      //set premium
+      Object premiumValue = rs.getObject("PREMIUM_VALUE");
+      if (premiumValue != null) {
+        _trade.setPremuim((Double) premiumValue);
+      }
+      final String currencyCode = rs.getString("PREMIUM_CURRENCY");
+      if (currencyCode != null) {
+        _trade.setPremuimCurrency(Currency.of(currencyCode));
+      }
+      final Date premiumDate = rs.getDate("PREMIUM_DATE");
+      if (premiumDate != null) {
+        _trade.setPremiumDate(DbDateUtils.fromSqlDate(premiumDate));
+      }
+
+      final LocalTime premiumTime = rs.getTimestamp("PREMIUM_TIME") != null ? DbDateUtils.fromSqlTime(rs.getTimestamp("PREMIUM_TIME")) : null;
+      int premiumZoneOffset = rs.getInt("PREMIUM_ZONE_OFFSET");
+      if (premiumTime != null) {
+        _trade.setPremiumTime(OffsetTime.of(premiumTime, ZoneOffset.ofTotalSeconds(premiumZoneOffset)));
+      }
+      
       _trade.setPositionId(_position.getUniqueId());
       _position.getTrades().add(_trade);
     }

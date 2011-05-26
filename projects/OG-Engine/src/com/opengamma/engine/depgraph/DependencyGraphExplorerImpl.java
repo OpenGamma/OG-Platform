@@ -25,6 +25,11 @@ public class DependencyGraphExplorerImpl implements DependencyGraphExplorer {
   }
   
   @Override
+  public DependencyGraph getWholeGraph() {
+    return _graph;
+  }
+  
+  @Override
   public DependencyGraph getSubgraphProducing(ValueSpecification output) {
     DependencyNode terminalNode = _graph.getNodeProducing(output);
     if (terminalNode == null) {

@@ -1,0 +1,13 @@
+.OG-config .OG-form .og-tabs-container {
+  margin-bottom: 10px;
+}
+
+.OG-config .OG-form .og-resolution-rule-transform select {
+  width: 300px;
+  vertical-align: inherit;
+}
+
+.OG-config .OG-form .og-resolution-rule-transform input {
+  width: 50px;
+  vertical-align: inherit;
+}

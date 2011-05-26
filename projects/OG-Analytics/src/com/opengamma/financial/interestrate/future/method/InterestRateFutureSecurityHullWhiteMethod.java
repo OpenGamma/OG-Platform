@@ -15,8 +15,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 
 /**
- * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White opne factor model.
- * No convexity adjustment is done. 
+ * Method to compute the price for an interest rate future with convexity adjustment from a Hull-White one factor model.
  */
 public class InterestRateFutureSecurityHullWhiteMethod {
 

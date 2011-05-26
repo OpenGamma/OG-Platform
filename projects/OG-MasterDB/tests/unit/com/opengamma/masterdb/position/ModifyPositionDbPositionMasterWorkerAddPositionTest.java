@@ -28,6 +28,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -85,7 +86,7 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(1, secKey.size());
     assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
   }
-
+  
   @Test
   public void test_addWithOneTrade_add() {
     
@@ -128,6 +129,84 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(tradeTime, testTrade.getTradeTime());
     assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyKey());
     assertEquals(secKey, testTrade.getSecurityKey());
+  }
+  
+  @Test
+  public void test_addWithOnePremiumTrade_add() {
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade.setPremuim(1000000.00);
+    trade.setPremuimCurrency(Currency.USD);
+    trade.setPremiumDate(tradeDate.plusDays(1));
+    trade.setPremiumTime(tradeTime);
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument test = _posMaster.add(doc);
+    
+    Instant now = Instant.now(_posMaster.getTimeSource());
+    UniqueIdentifier uid = test.getUniqueId();
+    assertNotNull(uid);
+    assertEquals("DbPos", uid.getScheme());
+    assertTrue(uid.isVersioned());
+    assertTrue(Long.parseLong(uid.getValue()) >= 1000);
+    assertEquals("0", uid.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageablePosition testPosition = test.getPosition();
+    assertNotNull(testPosition);
+    assertEquals(uid, testPosition.getUniqueId());
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    IdentifierBundle secKey = testPosition.getSecurityKey();
+    assertNotNull(secKey);
+    assertEquals(1, secKey.size());
+    assertTrue(secKey.getIdentifiers().contains(Identifier.of("A", "B")));
+    
+    assertNotNull(testPosition.getTrades());
+    assertEquals(1, testPosition.getTrades().size());
+    ManageableTrade testTrade = testPosition.getTrades().get(0);
+    assertNotNull(testTrade);
+    assertEquals(BigDecimal.TEN, testTrade.getQuantity());
+    assertEquals(tradeDate, testTrade.getTradeDate());
+    assertEquals(tradeTime, testTrade.getTradeTime());
+    assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyKey());
+    assertEquals(secKey, testTrade.getSecurityKey());
+    assertEquals(1000000.00, testTrade.getPremuim());
+    assertEquals(Currency.USD, testTrade.getPremuimCurrency());
+    assertEquals(tradeDate.plusDays(1), testTrade.getPremiumDate());
+    assertEquals(tradeTime, testTrade.getPremiumTime());
+    
+  }
+  
+  @Test
+  public void test_addWithOnePremiumTrade_addThenGet() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade.setPremuim(1000000.00);
+    trade.setPremuimCurrency(Currency.USD);
+    trade.setPremiumDate(tradeDate.plusDays(1));
+    trade.setPremiumTime(tradeTime);
+    
+    position.getTrades().add(trade);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    PositionDocument added = _posMaster.add(doc);
+    
+    PositionDocument test = _posMaster.get(added.getUniqueId());
+        
+    assertEquals(added, test);
   }
 
   @Test

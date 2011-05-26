@@ -6,6 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import org.testng.annotations.Test;
+
 import com.opengamma.math.interpolation.data.InterpolatorNDDataBundle;
 
 /**
@@ -16,7 +17,7 @@ public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate(null, new double[] {1, 2});
+    INTERPOLATOR.interpolate(null, new double[] {1, 2 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -26,13 +27,13 @@ public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongDimension() {
-    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2});
+    INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(FLAT_DATA), new double[] {1, 2 });
   }
 
   @Test
   public void testInterpolation() {
-    // testCosExp(INTERPOLATOR, 1e-1); // fairly awful interpolator
+    assertCosExp(INTERPOLATOR, 1e-1); // fairly awful interpolator
     assertFlat(INTERPOLATOR, 1e-12);
-
   }
+
 }

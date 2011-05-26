@@ -6,6 +6,11 @@
 
 package com.opengamma.language.livedata;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.MutableSessionContext;
@@ -17,37 +22,57 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Loader extends ContextInitializationBean {
 
-  private LiveDataProvider _liveData;
+  private List<LiveDataProvider> _liveDataProviders;
 
-  public void setLiveData(final LiveDataProvider liveData) {
-    ArgumentChecker.notNull(liveData, "liveData");
-    _liveData = liveData;
+  public void setLiveDataProvider(final LiveDataProvider liveDataProvider) {
+    ArgumentChecker.notNull(liveDataProvider, "liveDataProvider");
+    _liveDataProviders = Collections.singletonList(liveDataProvider);
   }
 
-  public LiveDataProvider getLiveData() {
-    return _liveData;
+  public LiveDataProvider getLiveDataProvider() {
+    if ((_liveDataProviders == null) || _liveDataProviders.isEmpty()) {
+      return null;
+    } else {
+      return _liveDataProviders.get(0);
+    }
+  }
+
+  public void setLiveDataProviders(final Collection<LiveDataProvider> liveDataProviders) {
+    ArgumentChecker.noNulls(liveDataProviders, "liveDataProviders");
+    ArgumentChecker.isFalse(liveDataProviders.isEmpty(), "liveDataProviders");
+    _liveDataProviders = new ArrayList<LiveDataProvider>(liveDataProviders);
+  }
+
+  public Collection<LiveDataProvider> getLiveDataProviders() {
+    return _liveDataProviders;
+  }
+
+  protected void addProviders(final AggregatingLiveDataProvider aggregator) {
+    for (LiveDataProvider provider : getLiveDataProviders()) {
+      aggregator.addProvider(provider);
+    }
   }
 
   // ContextInitializationBean
 
   @Override
   protected void assertPropertiesSet() {
-    ArgumentChecker.notNull(getLiveData(), "liveData");
+    ArgumentChecker.notNull(getLiveDataProviders(), "liveDataProviders");
   }
 
   @Override
   protected void initContext(final MutableSessionContext sessionContext) {
-    sessionContext.getLiveDataProvider().addProvider(getLiveData());
+    addProviders(sessionContext.getLiveDataProvider());
   }
 
   @Override
   protected void initContext(final MutableUserContext userContext) {
-    userContext.getLiveDataProvider().addProvider(getLiveData());
+    addProviders(userContext.getLiveDataProvider());
   }
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    globalContext.getLiveDataProvider().addProvider(getLiveData());
+    addProviders(globalContext.getLiveDataProvider());
   }
 
 }

@@ -26,6 +26,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 public class DataDependencyGraphExplorerResource extends AbstractDataResource {
 
   // CSOFF: just constants
+  public static final String PATH_WHOLE_GRAPH = "wholeGraph";
   public static final String PATH_SUBGRAPH_PRODUCING = "subgraphProducing";
   // CSON: just constants
   
@@ -34,6 +35,12 @@ public class DataDependencyGraphExplorerResource extends AbstractDataResource {
   public DataDependencyGraphExplorerResource(DependencyGraphExplorer explorer) {
     ArgumentChecker.notNull(explorer, "explorer");
     _explorer = explorer;
+  }
+  
+  @Path(PATH_WHOLE_GRAPH)
+  @GET
+  public Response getWholeGraph() {
+    return Response.ok(_explorer.getWholeGraph()).build();
   }
   
   @Path(PATH_SUBGRAPH_PRODUCING)
@@ -50,6 +57,12 @@ public class DataDependencyGraphExplorerResource extends AbstractDataResource {
       bld.queryParam("msg", outputMsg);
     }
     return bld.build();
+  }
+
+  public static URI uriWholeGraph(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path(DataDependencyGraphExplorerResource.PATH_WHOLE_GRAPH);
+    URI uriWholeGraph = bld.build();
+    return uriWholeGraph;
   }
   
 }
