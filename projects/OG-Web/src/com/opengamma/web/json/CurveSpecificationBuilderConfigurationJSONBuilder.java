@@ -25,7 +25,7 @@ import com.opengamma.util.time.Tenor;
 
 
 /**
- * Custom JSON builder to convert CurveSpecificationBuilderConfiguration to JSON object and vice versa
+ * Custom JSON builder to convert CurveSpecificationBuilderConfiguration to JSON object and back again
  */
 public class CurveSpecificationBuilderConfigurationJSONBuilder extends AbstractJSONBuilder<CurveSpecificationBuilderConfiguration> {
 

@@ -43,7 +43,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   /**
    * Offset from midnight to make all the converted ZonedDateTimes
    */
-  private long _timeOffset = 0L;
+  private long _timeOffset;
   
   public ZonedDateTimeEpochMillisConverter(final TimeZone timeZone) {
     _timeZone = timeZone;
@@ -57,6 +57,14 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     _timeZone = TimeZone.UTC; //TimeZone.of(java.util.TimeZone.getDefault().getID()) 
   }
   
+  /**
+   * DO NOT USE THIS METHOD UNLESS YOU KNOW EXACTLY WHAT IT'S FOR.
+   * The big problem is that this code assumes that the series within is midnight-aligned, and
+   * if you start storing these, things will go south rapidly as the back-end can't tell they're
+   * offset.
+   * @param timeZone the timeZone to use when constructing ZoneDateTimes 
+   * @param time the time offset to use from midnight.  Assumes input data is all midnight aligned.
+   */
   public ZonedDateTimeEpochMillisConverter(final TimeZone timeZone, final LocalTime time) {
     _timeZone = timeZone;
     _timeOffset = time.toNanoOfDay() / 1000000L; // TODO: fix with next version of JSR310.
@@ -146,14 +154,14 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
 
   @Override
   public long convertToLong(final ZonedDateTime dateTime) {
-    return dateTime.toInstant().toEpochMillisLong();
+    return dateTime.toInstant().toEpochMillisLong() - _timeOffset;
   }
 
   @Override
   public LongList convertToLong(final List<ZonedDateTime> dateTimes) {
     final LongList result = new LongArrayList(dateTimes.size());
     for (final ZonedDateTime date : dateTimes) {
-      result.add(date.toInstant().toEpochMillisLong());
+      result.add(date.toInstant().toEpochMillisLong() - _timeOffset);
     }
     return result;
   }
@@ -162,7 +170,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   public long[] convertToLong(final ZonedDateTime[] dateTimes) {
     final long[] results = new long[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      results[i] = dateTimes[i].toInstant().toEpochMillisLong();
+      results[i] = dateTimes[i].toInstant().toEpochMillisLong() - _timeOffset;
     }
     return results;
   }
@@ -217,7 +225,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     final Iterator<Entry<ZonedDateTime, Double>> iterator = dts.iterator();
     while (iterator.hasNext()) {
       final Entry<ZonedDateTime, Double> entry = iterator.next();
-      final long epochMillis = entry.getKey().toInstant().toEpochMillisLong();
+      final long epochMillis = entry.getKey().toInstant().toEpochMillisLong() - _timeOffset;
       dateTimes[i] = epochMillis;
       values[i] = entry.getValue();
       i++;
@@ -234,7 +242,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     final Iterator<Entry<ZonedDateTime, T>> iterator = dts.iterator();
     while (iterator.hasNext()) {
       final Entry<ZonedDateTime, T> entry = iterator.next();
-      final long epochMillis = entry.getKey().toInstant().toEpochMillisLong();
+      final long epochMillis = entry.getKey().toInstant().toEpochMillisLong() - _timeOffset;
       dateTimes[i] = epochMillis;
       values[i] = entry.getValue();
       i++;

@@ -1,0 +1,95 @@
+/**
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/* OG-form-column-sets */
+.OG-form-column-sets {
+  margin: 0 0 0 10px;
+}
+
+.OG-form-column-sets > ul {
+  margin: 0 0 0 10px;
+}
+
+.OG-form-column-sets li {
+  list-style: none;
+}
+
+.OG-form-column-sets > ul > li:before {
+  content: '-';
+  margin-left: -10px;
+}
+
+.OG-form-column-sets p {
+  margin: 0 0 10px 0;
+}
+
+.OG-form-column-sets select {
+  width: 150px;
+}
+
+.OG-form-column-sets > ul > li {
+  margin: 0 0 10px 0;
+}
+
+.OG-form-column-sets ul > li > a {
+  display: inline-block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.OG-form-column-sets li > ul > li > div:first-child {
+  background: #f4f4f4;
+  display: inline-block;
+  margin: 1px 0;
+  padding: 2px 4px;
+  vertical-align: middle;
+}
+
+.OG-form-column-sets ul > li > div + span {
+  display: inline-block;
+}
+
+.OG-form-column-sets .OG-icon.og-icon-add {
+  margin-left: -3px;
+}
+
+/* og-portfolio-requirement */
+.OG-form-column-sets .og-portfolio-requirement {
+  border-left: 1px solid #cacaca;
+  list-style: none;
+  padding: 20px 0 20px 20px;
+}
+
+  /* og-portfolio-requirements */
+  .OG-form-column-sets .og-portfolio-requirements {
+    border-left: 2px solid #f4f4f4;
+    padding: 20px 0 20px 20px;
+    list-style: none;
+  }
+
+  .OG-form-column-sets .og-portfolio-requirements > li > div:first-child {
+    background-color: #cacaca;
+    color: #fff;
+    padding: 1px 4px;
+  }
+
+  /* og-required-output */
+  .OG-form-column-sets .og-required-output {
+    margin: 0 0 10px 0;
+  }
+
+  .OG-form-column-sets .og-required-output label {
+    color: #999;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .OG-form-column-sets .og-required-output select {
+    width: 200px;
+  }
+
+  .OG-form-column-sets input[type="radio"] {
+    margin-top: 0;
+  }

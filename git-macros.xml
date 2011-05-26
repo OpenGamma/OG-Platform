@@ -89,7 +89,8 @@
 			<echo message="Checking out @{branch} for @{displayname} --------------------------" />
 			<git command="checkout" dir="@{dest}">
 				<args>
-					<arg value="-b @{branch}"/>
+					<arg value="-b"/>
+					<arg value="@{branch}"/>
 				</args>
 			</git>
 		</sequential>
