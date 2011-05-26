@@ -49,6 +49,7 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
     MutableFudgeMsg msg = context.newMessage();
     context.addToMessage(msg, COMPUTATION_TARGET_FIELD, null, node.getComputationTarget());
     if (node.getFunction() != null) {
+      //TODO : at the moment this is largely useless, the ParameterizedFunction's inner function is more interesting
       msg.add(FUNCTION_UNIQUE_ID_FIELD, null, node.getFunction().getUniqueId());
       context.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD, null, node.getFunction().getParameters());
     }
