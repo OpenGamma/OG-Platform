@@ -30,30 +30,30 @@
 
 class CSettings : public CAbstractSettings {
 private:
-	const TCHAR *GetAnnotationCache (const TCHAR *pszDefault) { return Get (SETTINGS_ANNOTATION_CACHE, pszDefault); }
-	unsigned long GetBusyTimeout (unsigned long dwDefault) { return Get (SETTINGS_BUSY_TIMEOUT, dwDefault); }
-	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
-	unsigned long GetConnectionTimeout (unsigned long dwDefault) { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
-	unsigned long GetIdleTimeout (unsigned long dwDefault) { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
-	const TCHAR *GetJarPath (CAbstractSettingProvider *poDefault) { return Get (SETTINGS_JAR_PATH, poDefault); }
-	const TCHAR *GetJvmLibrary (CAbstractSettingProvider *poDefault) { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
-	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
-	const TCHAR *GetServiceName (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
+	const TCHAR *GetAnnotationCache (const TCHAR *pszDefault) const { return Get (SETTINGS_ANNOTATION_CACHE, pszDefault); }
+	unsigned long GetBusyTimeout (unsigned long dwDefault) const { return Get (SETTINGS_BUSY_TIMEOUT, dwDefault); }
+	const TCHAR *GetConnectionPipe (const TCHAR *pszDefault) const { return Get (SETTINGS_CONNECTION_PIPE, pszDefault); }
+	unsigned long GetConnectionTimeout (unsigned long dwDefault) const { return Get (SETTINGS_CONNECTION_TIMEOUT, dwDefault); }
+	unsigned long GetIdleTimeout (unsigned long dwDefault) const { return Get (SETTINGS_IDLE_TIMEOUT, dwDefault); }
+	const TCHAR *GetJarPath (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JAR_PATH, poDefault); }
+	const TCHAR *GetJvmLibrary (const CAbstractSettingProvider *poDefault) const { return Get (SETTINGS_JVM_LIBRARY, poDefault); }
+	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
+	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32
-	const TCHAR *GetServiceSDDL (const TCHAR *pszDefault) { return Get (SETTINGS_SERVICE_SDDL, pszDefault); }
+	const TCHAR *GetServiceSDDL (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_SDDL, pszDefault); }
 #endif
 public:
-	const TCHAR *GetAnnotationCache ();
-	unsigned  long GetBusyTimeout ();
-	const TCHAR *GetConnectionPipe ();
-	unsigned long GetConnectionTimeout ();
-	unsigned long GetIdleTimeout ();
-	const TCHAR *GetJarPath ();
-	const TCHAR *GetJvmLibrary ();
-	const TCHAR *GetLogConfiguration ();
-	const TCHAR *GetServiceName ();
+	const TCHAR *GetAnnotationCache () const;
+	unsigned  long GetBusyTimeout () const;
+	const TCHAR *GetConnectionPipe () const;
+	unsigned long GetConnectionTimeout () const;
+	unsigned long GetIdleTimeout () const;
+	const TCHAR *GetJarPath () const;
+	const TCHAR *GetJvmLibrary () const;
+	const TCHAR *GetLogConfiguration () const;
+	const TCHAR *GetServiceName () const;
 #ifdef _WIN32
-	const TCHAR *GetServiceSDDL ();
+	const TCHAR *GetServiceSDDL () const;
 #endif /* ifdef _WIN32 */
 };
 

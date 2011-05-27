@@ -41,7 +41,7 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
     
     //set premium
-    trade.setPremuim(100.00);
+    trade.setPremium(100.00);
     trade.setPremiumCurrency(Currency.USD);
     trade.setPremiumDate(LocalDate.of(2011, 1, 6));
     trade.setPremiumTime(OffsetTime.parse("15:30+02:00"));

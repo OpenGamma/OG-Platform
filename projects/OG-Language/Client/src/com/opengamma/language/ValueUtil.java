@@ -209,14 +209,15 @@ public final class ValueUtil {
     if (value == null) {
       return null;
     }
+    if (value.getErrorValue() != null) {
+      // TODO: This is indistinguishable from the integer value. I reckon it should be an AbstractException instance containing the error value & any other payload. 
+      return value.getErrorValue();
+    }
     if (value.getBoolValue() != null) {
       return value.getBoolValue();
     }
     if (value.getDoubleValue() != null) {
       return value.getDoubleValue();
-    }
-    if (value.getErrorValue() != null) {
-      return value.getErrorValue();
     }
     if (value.getIntValue() != null) {
       return value.getIntValue();

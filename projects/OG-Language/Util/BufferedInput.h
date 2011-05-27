@@ -19,8 +19,8 @@ public:
 	CBufferedInput ();
 	~CBufferedInput ();
 	bool Read (CTimeoutIO *poSource, size_t cbMinimum, unsigned long timeout);
-	void *GetData ();
-	size_t GetAvailable ();
+	const void *GetData () const;
+	size_t GetAvailable () const;
 	void Discard (size_t cbAmount);
 };
 

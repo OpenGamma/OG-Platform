@@ -42,7 +42,7 @@ CSynchronousCallSlot::~CSynchronousCallSlot () {
 // Handles are created as the identifier combined with a sequence. Lower identifier numbers allow more bits for sequence
 // values allowing better detection of messaging errors. The high order bits are a header that indicates which are which
 
-fudge_i32 CSynchronousCallSlot::GetHandle () {
+fudge_i32 CSynchronousCallSlot::GetHandle () const {
 	if (m_nIdentifier >= 0) {
 		int nSequence = m_oSequence.Get ();
 #ifdef _DEBUG

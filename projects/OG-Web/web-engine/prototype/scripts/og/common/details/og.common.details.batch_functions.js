@@ -1,8 +1,7 @@
-/**
- * @copyright 2009 - 2010 by OpenGamma Inc
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.details.batch_functions',
     dependencies: [],
@@ -16,7 +15,7 @@ $.register_module({
             };
         return batch_functions = {
             results: rows.partial('<tr><td colspan="5">No results</td></tr>', 5),
-            errors: rows.partial('<tr><td colspan="7">No errors</td></tr>', 7),
+            errors: rows.partial('<tr><td colspan="7">No errors</td></tr>', 7)
         };
     }
 });

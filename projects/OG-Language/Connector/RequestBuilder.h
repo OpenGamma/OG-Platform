@@ -15,7 +15,7 @@
 // beyond the lifetime of the RequestBuilder, call DetachResponse.
 class CRequestBuilder {
 private:
-	CConnector *m_poConnector;
+	const CConnector *m_poConnector;
 	CConnector::CCall *m_poQuery;
 protected:
 	void *m_pResponse;
@@ -24,12 +24,12 @@ protected:
 	virtual void Init () { }
 	virtual void Done () { }
 	virtual void _Done () { }
-	virtual bool SendOk () { return true; }
+	virtual bool SendOk () const { return true; }
 public:
-	CRequestBuilder (CConnector *poConnector);
+	CRequestBuilder (const CConnector *poConnector);
     virtual ~CRequestBuilder ();
     static long GetDefaultTimeout ();
-    CConnector *GetConnector () { m_poConnector->Retain (); return m_poConnector; }
+    const CConnector *GetConnector () const { m_poConnector->Retain (); return m_poConnector; }
 #define REQUESTBUILDER_REQUEST(_objtype_) \
 protected: \
 	_objtype_ m_request; \
@@ -72,7 +72,7 @@ public: \
 #define REQUESTBUILDER_BEGIN(_class_) \
 	class _class_ : public CRequestBuilder { \
 	public: \
-		_class_ (CConnector *poConnector) : CRequestBuilder (poConnector) { Init (); } \
+		_class_ (const CConnector *poConnector) : CRequestBuilder (poConnector) { Init (); } \
 		~_class_ () { _Done (); Done (); }
 
 #define REQUESTBUILDER_END };

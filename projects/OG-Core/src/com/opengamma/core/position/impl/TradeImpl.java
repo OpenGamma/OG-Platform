@@ -68,7 +68,7 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   /**
    * Amount paid for trade at time of purchase
    */
-  private Double _premuim;
+  private Double _premium;
   /**
    * Currency of payment at time of purchase
    */
@@ -273,7 +273,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
    */
   public void addSecurityKey(final Identifier securityKeyIdentifier) {
     ArgumentChecker.notNull(securityKeyIdentifier, "securityKeyIdentifier");
-    setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
+    if (getSecurityKey() != null) {
+      setSecurityKey(getSecurityKey().withIdentifier(securityKeyIdentifier));
+    } else {
+      setSecurityKey(IdentifierBundle.of(securityKeyIdentifier));
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -361,11 +365,11 @@ public class TradeImpl implements Trade, MutableUniqueIdentifiable, Serializable
   //-------------------------------------------------------------------------
   @Override
   public Double getPremium() {
-    return _premuim;
+    return _premium;
   }
   
-  public void setPremuim(final Double premium) {
-    _premuim = premium;
+  public void setPremium(final Double premium) {
+    _premium = premium;
   }
   
   //-------------------------------------------------------------------------

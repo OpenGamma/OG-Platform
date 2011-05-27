@@ -307,8 +307,8 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     sourceTrade.setTradeTime(manTrade.getTradeTime());
     
     //set premium
-    sourceTrade.setPremuim(manTrade.getPremuim());
-    sourceTrade.setPremiumCurrency(manTrade.getPremuimCurrency());
+    sourceTrade.setPremium(manTrade.getPremium());
+    sourceTrade.setPremiumCurrency(manTrade.getPremiumCurrency());
     sourceTrade.setPremiumDate(manTrade.getPremiumDate());
     sourceTrade.setPremiumTime(manTrade.getPremiumTime());
   }

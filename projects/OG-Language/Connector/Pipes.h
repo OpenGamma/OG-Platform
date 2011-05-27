@@ -29,11 +29,11 @@ public:
 	~CClientPipes ();
 	bool Connect (const TCHAR *pszLanguageID, CNamedPipe *poService, unsigned long lTimeout);
 	bool Write (void *ptrBuffer, size_t cbBuffer, unsigned long lTimeout);
-	void *PeekInput (size_t cb, unsigned long lTimeout);
+	const void *PeekInput (size_t cb, unsigned long lTimeout);
 	void DiscardInput (size_t cb) { m_oInputBuffer.Discard (cb); }
 	void Disconnected () { m_bConnected = false; }
-	bool IsConnected () { return m_bConnected; }
-	unsigned long GetLastWrite () { return m_lLastWrite; }
+	bool IsConnected () const { return m_bConnected; }
+	unsigned long GetLastWrite () const { return m_lLastWrite; }
 };
 
 #endif /* ifndef __inc_og_language_connector_pipes_h */

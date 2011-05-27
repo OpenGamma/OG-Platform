@@ -47,45 +47,45 @@ LOGGING (com.opengamma.language.connector.Settings);
 #define DEFAULT_START_TIMEOUT		30000	/* 30s default */
 #define DEFAULT_STOP_TIMEOUT		2000	/* 2s default */
 
-const TCHAR *CSettings::GetConnectionPipe () {
+const TCHAR *CSettings::GetConnectionPipe () const {
 	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
-int CSettings::GetConnectTimeout () {
+int CSettings::GetConnectTimeout () const {
 	return GetConnectTimeout (DEFAULT_CONNECT_TIMEOUT);
 }
 
-bool CSettings::IsDisplayAlerts () {
+bool CSettings::IsDisplayAlerts () const {
 	return IsDisplayAlerts (DEFAULT_DISPLAY_ALERTS);
 }
 
-int CSettings::GetHeartbeatTimeout () {
+int CSettings::GetHeartbeatTimeout () const {
 	return GetHeartbeatTimeout (DEFAULT_HEARTBEAT_TIMEOUT);
 }
 
-const TCHAR *CSettings::GetInputPipePrefix () {
+const TCHAR *CSettings::GetInputPipePrefix () const {
 	return GetInputPipePrefix (DEFAULT_INPUT_PIPE_PREFIX);
 }
 
-const TCHAR *CSettings::GetLogConfiguration () {
+const TCHAR *CSettings::GetLogConfiguration () const {
 	return GetLogConfiguration (DEFAULT_LOG_CONFIGURATION);
 }
 
-int CSettings::GetMaxPipeAttempts () {
+int CSettings::GetMaxPipeAttempts () const {
 	return GetMaxPipeAttempts (DEFAULT_MAX_PIPE_ATTEMPTS);
 }
 
-const TCHAR *CSettings::GetOutputPipePrefix () {
+const TCHAR *CSettings::GetOutputPipePrefix () const {
 	return GetOutputPipePrefix (DEFAULT_OUTPUT_PIPE_PREFIX);
 }
 
-int CSettings::GetSendTimeout () {
+int CSettings::GetSendTimeout () const {
 	return GetSendTimeout (DEFAULT_SEND_TIMEOUT);
 }
 
 class CServiceExecutableDefault : public CAbstractSettingProvider {
 protected:
-	TCHAR *CalculateString () {
+	TCHAR *CalculateString () const {
 		TCHAR *pszExecutable = NULL;
 #ifdef _WIN32
 		// TODO: if the service is installed, get the executable from the service settings
@@ -144,22 +144,22 @@ protected:
 
 static CServiceExecutableDefault g_oServiceExecutableDefault;
 
-const TCHAR *CSettings::GetServiceExecutable () {
+const TCHAR *CSettings::GetServiceExecutable () const {
 	return GetServiceExecutable (&g_oServiceExecutableDefault);
 }
 
-const TCHAR *CSettings::GetServiceName () {
+const TCHAR *CSettings::GetServiceName () const {
 	return GetServiceName (ServiceDefaultServiceName ());
 }
 
-int CSettings::GetServicePoll () {
+int CSettings::GetServicePoll () const {
 	return GetServicePoll (DEFAULT_SERVICE_POLL);
 }
 
-int CSettings::GetStartTimeout () {
+int CSettings::GetStartTimeout () const {
 	return GetStartTimeout (DEFAULT_START_TIMEOUT);
 }
 
-int CSettings::GetStopTimeout () {
+int CSettings::GetStopTimeout () const {
 	return GetStopTimeout (DEFAULT_STOP_TIMEOUT);
 }
