@@ -6,11 +6,15 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
@@ -30,42 +34,61 @@ public enum InterestRateInstrumentType {
   /** Coupon bond */
   COUPON_BOND;
 
-  public static InterestRateInstrumentType getInstrumentTypeFromSecurity(Security security) {
-    if (security instanceof CashSecurity) {
-      return CASH;
-    }
-    if (security instanceof FRASecurity) {
-      return FRA;
-    }
-    if (security instanceof InterestRateFutureSecurity) {
-      return IR_FUTURE;
-    }
-    if (security instanceof BondSecurity) {
-      return COUPON_BOND;
-    }
-    if (security instanceof SwapSecurity) {
-      return SwapSecurityUtils.getSwapType((SwapSecurity) security);
-    }
-    throw new OpenGammaRuntimeException("Cannot handle this security");
+  private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
+
+  public static InterestRateInstrumentType getInstrumentTypeFromSecurity(FinancialSecurity security) {
+    return security.accept(TYPE_IDENTIFIER);
   }
 
-  public static boolean isFixedIncomeInstrumentType(Security security) {
-    if (security instanceof CashSecurity) {
+  public static boolean isFixedIncomeInstrumentType(FinancialSecurity security) {
+    try {
+      security.accept(TYPE_IDENTIFIER);
       return true;
+    } catch (OpenGammaRuntimeException e) {
+      // a bit nasty but ensures consistency with the other method
+      return false;
     }
-    if (security instanceof FRASecurity) {
-      return true;
+  }
+
+  private static class TypeIdentifier implements FinancialSecurityVisitor<InterestRateInstrumentType> {
+
+    @Override
+    public InterestRateInstrumentType visitBondSecurity(BondSecurity security) {
+      return COUPON_BOND;
     }
-    if (security instanceof InterestRateFutureSecurity) {
-      return true;
+
+    @Override
+    public InterestRateInstrumentType visitCashSecurity(CashSecurity security) {
+      return CASH;
     }
-    if (security instanceof BondSecurity) {
-      return true;
+
+    @Override
+    public InterestRateInstrumentType visitEquitySecurity(EquitySecurity security) {
+      throw new OpenGammaRuntimeException("EquitySecurity is not an interest rate instrument");
     }
-    if (security instanceof SwapSecurity) {
-      SwapSecurityUtils.getSwapType((SwapSecurity) security);
-      return true;
+
+    @Override
+    public InterestRateInstrumentType visitFRASecurity(FRASecurity security) {
+      return FRA;
     }
-    return false;
+
+    @Override
+    public InterestRateInstrumentType visitFutureSecurity(FutureSecurity security) {
+      if (security instanceof InterestRateFutureSecurity) {
+        return IR_FUTURE;
+      }
+      throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitOptionSecurity(OptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle this OptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitSwapSecurity(SwapSecurity security) {
+      return SwapSecurityUtils.getSwapType(security);
+    }
+
   }
 }

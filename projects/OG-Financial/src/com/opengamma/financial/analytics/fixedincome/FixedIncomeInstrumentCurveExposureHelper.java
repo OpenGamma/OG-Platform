@@ -6,12 +6,12 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
@@ -22,7 +22,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   private FixedIncomeInstrumentCurveExposureHelper() {
   }
 
-  public static String[] getCurveNamesForFundingCurveInstrument(StripInstrumentType type, String fundingCurveName, String forwardCurveName) {
+  public static String[] getCurveNamesForFundingCurveInstrument(StripInstrumentType type, String fundingCurveName,
+      String forwardCurveName) {
     switch (type) {
       case SWAP:
         return new String[] {fundingCurveName, forwardCurveName};
@@ -41,7 +42,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static String[] getCurveNamesForForwardCurveInstrument(StripInstrumentType type, String fundingCurveName, String forwardCurveName) {
+  public static String[] getCurveNamesForForwardCurveInstrument(StripInstrumentType type, String fundingCurveName,
+      String forwardCurveName) {
     switch (type) {
       case SWAP:
         return new String[] {fundingCurveName, forwardCurveName};
@@ -60,7 +62,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static String[] getCurveNamesForSecurity(Security security, String fundingCurveName, String forwardCurveName) {
+  public static String[] getCurveNamesForSecurity(FinancialSecurity security, String fundingCurveName,
+      String forwardCurveName) {
     InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     switch (type) {
       case SWAP_FIXED_IBOR:
@@ -80,9 +83,11 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
-  public static ValueProperties getValuePropertiesForSecurity(Security security, String fundingCurveName, String forwardCurveName) {
+  public static ValueProperties getValuePropertiesForSecurity(FinancialSecurity security, String fundingCurveName,
+      String forwardCurveName) {
     String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
-    Builder properties = ValueProperties.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security).getCode());
+    Builder properties = ValueProperties.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(security)
+        .getCode());
     for (String name : curveNames) {
       if (name.equals(fundingCurveName)) {
         properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);

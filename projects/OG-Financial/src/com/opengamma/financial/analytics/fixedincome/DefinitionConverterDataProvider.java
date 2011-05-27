@@ -20,6 +20,7 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -76,14 +77,17 @@ public class DefinitionConverterDataProvider {
       final ZonedDateTime swapStartDate, ZonedDateTime now, HistoricalDataSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
-      final UniqueIdentifier indexID = floatingLeg.getFloatingReferenceRateIdentifier();
-      final IdentifierBundle id = null; //TODO //IdentifierBundle.of(indexID);
+      final UniqueIdentifier indexUID = floatingLeg.getFloatingReferenceRateIdentifier();
+      @SuppressWarnings("deprecation")
+      final Identifier indexID = indexUID.toIdentifier();
+      final IdentifierBundle id = indexID.toBundle(); //TODO //IdentifierBundle.of(indexID);
       final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource.getHistoricalData(id,
                 _dataSourceName, null, _fieldName, swapStartDate.toLocalDate(), true, now.toLocalDate(), false);
-      if (tsPair == null) {
+      if (tsPair.getKey() == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
       FastBackedDoubleTimeSeries<LocalDate> localDateTS = tsPair.getSecond();
+      //TODO this normalization should not be done here
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR) {
         localDateTS = localDateTS.divide(100);
       } else if (type == InterestRateInstrumentType.SWAP_IBOR_IBOR) { //TODO not really - valid for tenor swaps but we really need to normalize the time series rather than doing it here

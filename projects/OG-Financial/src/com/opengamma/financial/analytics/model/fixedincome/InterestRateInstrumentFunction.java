@@ -56,7 +56,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Security security = target.getSecurity();
+    FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext
@@ -68,8 +68,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
     final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> visitor =
-        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter).create();
-    FixedIncomeInstrumentConverter<?> definition = ((FinancialSecurity) security).accept(visitor);
+        FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
+            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+            .create();
+    FixedIncomeInstrumentConverter<?> definition = (security).accept(visitor);
     Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     String forwardCurveName = curveNames.getFirst();
     String fundingCurveName = curveNames.getSecond();
@@ -91,11 +93,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         : (YieldAndDiscountCurve) fundingCurveObject;
     final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {forwardCurveName, fundingCurveName},
         new YieldAndDiscountCurve[] {forwardCurve, fundingCurve});
-    InterestRateDerivative derivative = definition.toDerivative(now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName));
+    InterestRateDerivative derivative = definition
+        .toDerivative(now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
+            fundingCurveName, forwardCurveName));
     return getComputedValues(derivative, bundle, security, curveNames);
   }
 
-  public abstract Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle, Security security, Pair<String, String> curveNames);
+  public abstract Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
+      FinancialSecurity security, Pair<String, String> curveNames);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -107,7 +112,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(target.getSecurity());
+    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+      return false;
+    }
+    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
   }
 
   @Override
@@ -127,8 +135,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     Security security = target.getSecurity();
     String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     return Collections.singleton(
-        new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, currency)
-            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+        new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties()
+            .with(ValuePropertyNames.CURRENCY, currency)
+            .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+            .get()));
   }
 
   @Override
@@ -137,7 +147,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
     return Collections
         .singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(),
-            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(target.getSecurity(), curveNames.getSecond(), curveNames.getFirst())));
+            FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(
+                (FinancialSecurity) target.getSecurity(),
+                curveNames.getSecond(), curveNames.getFirst())));
     //TODO relying on the order from YieldCurveFunction is not clever
   }
 

@@ -14,7 +14,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
+import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.Pair;
@@ -22,22 +22,26 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class InterestRateInstrumentPresentValueFunction extends InterestRateInstrumentFunction {
-  private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
+public class InterestRateInstrumentParRateFunction extends InterestRateInstrumentFunction {
+  private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
+  private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
 
-  public InterestRateInstrumentPresentValueFunction() {
-    super(VALUE_REQUIREMENT);
+  public InterestRateInstrumentParRateFunction(String valueRequirementName) {
+    super(valueRequirementName);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
       FinancialSecurity security, Pair<String, String> curveNames) {
-    final Double presentValue = derivative.accept(CALCULATOR, bundle);
+    final Double parRate = derivative.accept(CALCULATOR, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
         curveNames.getSecond(), curveNames.getFirst()));
-    return Collections.singleton(new ComputedValue(specification, presentValue));
+    return Collections.singleton(new ComputedValue(specification, parRate));
   }
 
+  @Override
+  public String getShortName() {
+    return "InterestRateInstrumentParRateFunction";
+  }
 }
