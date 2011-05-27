@@ -98,7 +98,7 @@ public class TradeImplTest {
     trades.add(trade1);
     
     TradeImpl trade2 = new TradeImpl(POSITION_UID, Identifier.of("C", "D"), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
-    trade2.setPremuim(100.00);
+    trade2.setPremium(100.00);
     trade2.setPremiumCurrency(Currency.USD);
     trade2.setPremiumDate(TRADE_OFFSET_DATETIME.toLocalDate().plusDays(1));
     trade2.setPremiumTime(TRADE_OFFSET_DATETIME.toOffsetTime().plusHours(1));

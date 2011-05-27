@@ -170,15 +170,15 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
-    trade1.setPremuim(1000000.00);
-    trade1.setPremuimCurrency(Currency.USD);
+    trade1.setPremium(1000000.00);
+    trade1.setPremiumCurrency(Currency.USD);
     trade1.setPremiumDate(tradeDate.plusDays(1));
     trade1.setPremiumTime(tradeTime);
     position.getTrades().add(trade1);
     
     ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
-    trade2.setPremuim(100.00);
-    trade2.setPremuimCurrency(Currency.GBP);
+    trade2.setPremium(100.00);
+    trade2.setPremiumCurrency(Currency.GBP);
     trade2.setPremiumDate(tradeDate.plusDays(10));
     trade2.setPremiumTime(tradeTime.plusHours(1));
     position.getTrades().add(trade2);

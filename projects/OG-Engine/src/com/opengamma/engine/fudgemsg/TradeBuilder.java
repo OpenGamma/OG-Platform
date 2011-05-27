@@ -133,7 +133,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (tradeTimeField != null) {
       trade.setTradeTime(message.getFieldValue(OffsetTime.class, tradeTimeField));
     }
-    trade.setPremuim(message.getDouble("premium"));
+    trade.setPremium(message.getDouble("premium"));
     String currencyCode = message.getString("premiumCurrency");
     if (currencyCode != null) {
       trade.setPremiumCurrency(Currency.of(currencyCode));
