@@ -33,6 +33,7 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
       FinancialSecurity security, Pair<String, String> curveNames) {
     Map<String, List<DoublesPair>> results = derivative.accept(CALCULATOR, bundle);
+    return null;
   }
 
 }
