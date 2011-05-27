@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  * @colordef #fffee5; light yellow for edit mode (on hover)
  */

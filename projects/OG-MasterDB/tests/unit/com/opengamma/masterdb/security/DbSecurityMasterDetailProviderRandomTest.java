@@ -19,10 +19,10 @@ import com.opengamma.util.test.DBTest;
 /**
  * Test DbSecurityMaster.
  */
-public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCaseMethods {
+public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements SecurityTestCaseMethods {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterRandomTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterDetailProviderRandomTest.class);
 
   private SecurityMasterTestCase _testCase;
 
@@ -31,7 +31,7 @@ public class DbSecurityMasterRandomTest extends DBTest implements SecurityTestCa
    * @param databaseVersion
    */
   @Factory(dataProvider = "databases", dataProviderClass = DBTest.class)
-  public DbSecurityMasterRandomTest(String databaseType, String databaseVersion) {
+  public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
     s_logger.info("running test for database={} version={}", databaseType, databaseVersion);
   }

@@ -60,10 +60,9 @@ $.register_module({
                                 $(this).dialog('close');
                                 api.rest.timeseries.put({
                                     handler: function (r) {
+                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
                                         routes.go(routes.hash(module.rules.load_new_timeseries,
-                                                $.extend({}, routes.last().args, {
-                                                    id: r.data.data[0].split('|')[1], 'new': true
-                                                })
+                                                $.extend({}, routes.last().args, {id: r.meta.id, 'new': true})
                                         ));
                                     },
                                     scheme_type: ui.dialog({return_field_value: 'scheme'}),
@@ -84,11 +83,14 @@ $.register_module({
                         message: 'Are you sure you want to permanently delete this timeseries?',
                         buttons: {
                             'Delete': function () {
-                                $(this).dialog('close');
                                 api.rest.timeseries.del({
-                                    handler: function () {
-                                        window.location.hash = routes.hash(og.views[page_name].rules['load'], {});
-                                    }, id: args.id
+                                    handler: function (r) {
+                                        if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                        ui.dialog({type: 'confirm', action: 'close'});
+                                        routes.go(routes.hash(module.rules.load_delete,
+                                                $.extend({}, routes.last().args, {deleted: true})
+                                        ));
+                                    }, id: routes.last().args.id
                                 });
                             }
                         }
@@ -165,7 +167,6 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
-                            // TODO: add in deleted message. Need delete api working first
                             f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
                             f.render_timeseries_table('.OG-timeseries .og-js-table', {

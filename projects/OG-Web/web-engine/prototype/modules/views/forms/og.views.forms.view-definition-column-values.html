@@ -1,6 +1,18 @@
 <ul>
   <li>
-    <div>- Security Type <select name=""><option value="">Bond</option></select></div>
+    <div>
+      - Security Type
+      <select name="type">
+        <option value="" selected="">Select</option>
+        <option value="BOND">Bond</option>
+        <option value="CASH">Cash</option>
+        <option value="EQUITY">Equity</option>
+        <option value="FRA">FRA</option>
+        <option value="FUTURE">Future</option>
+        <option value="EQUITY_OPTION">Option</option>
+        <option value="SWAP">Swap</option>
+      </select>
+    </div>
     <span class="OG-icon og-icon-remove">delete</span>
     <ul class="og-portfolio-requirements">
       <li>
@@ -13,9 +25,7 @@
               <option value="">Bond Coupon Payment</option>
             </select>
           </div>
-
           {{html item_0}}<!-- constraints -->
-
         </div>
       </li>
       <li>
