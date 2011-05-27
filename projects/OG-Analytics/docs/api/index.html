@@ -23,6 +23,7 @@
 
 {{ class_info['comment-text'] }}
 
+{% if class_info.has_key('constructors') %}
 <h3>Constructors</h3>
 {% for constructor, constructor_info in class_info['constructors'].items() %}
 {% set sig_array = constructor_info['signature'].lstrip("(").rstrip(")").split(",") %}
@@ -36,6 +37,7 @@
 
 {{ constructor_info['source-html'] }}
 {% endfor %}
+{% endif %}
 
 <h3>Methods</h3>
 {% for method_name, method_info in class_info['methods'].items() %}

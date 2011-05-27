@@ -18,7 +18,6 @@ ivy/
 bootstrap/
 tests/output/
 javadoc
-docs/
 lib/
 .idea/
 .DS_Store
