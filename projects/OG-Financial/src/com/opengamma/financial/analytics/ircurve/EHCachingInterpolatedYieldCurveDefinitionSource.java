@@ -67,7 +67,9 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
       return doc;
     } else {
       YieldCurveDefinition doc = _underlying.getDefinition(currency, name);
-      _latestDefinitionCache.put(new Element(cacheKey, doc, false, null, 10)); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data  
+      Element element = new Element(cacheKey, doc);
+      element.setTimeToLive(10); // TODO PLAT-1308: I've set TTL short to hide the fact that we return stale data
+      _latestDefinitionCache.put(element);   
       return doc;
     }
   }
