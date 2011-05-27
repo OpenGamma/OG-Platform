@@ -45,7 +45,7 @@ public:
 #ifdef _WIN32
 		return m_nValue;
 #else
-		return apr_atomic_read32 (&m_nValue);
+		return apr_atomic_read32 ((volatile apr_uint32_t*)&m_nValue);
 #endif
 	}
 	void Set (int nValue) {

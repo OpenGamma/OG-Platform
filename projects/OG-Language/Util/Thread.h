@@ -41,7 +41,7 @@ private:
 #else
 	static CAtomicInt s_oNextThreadId;
 	apr_thread_t *m_pThread;
-	CSemaphore m_oTerminate;
+	mutable CSemaphore m_oTerminate;
 	CMemoryPool m_oPool;
 	static void *APR_THREAD_FUNC StartProc (apr_thread_t *handle, void *pObject);
 #endif
