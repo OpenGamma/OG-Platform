@@ -116,6 +116,7 @@ public:
 };
 #endif /* if defined (_WIN32) && defined (_XHASH_) */
 
+// TODO: change this to an object
 typedef struct _rcstring {
 	volatile unsigned int nCount;
 	TCHAR szString[1];

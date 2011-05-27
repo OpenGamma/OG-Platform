@@ -15,11 +15,11 @@
 
 class CJVM {
 private:
-	CMutex m_oMutex;
+	mutable CMutex m_oMutex;
 	CLibrary *m_poModule;
 	JavaVM *m_pJVM;
 	JNIEnv *m_pEnv;
-	CThread *m_poBusyTask;
+	mutable CThread *m_poBusyTask;
 	bool m_bRunning;
 	CJVM (CLibrary *hModule, JavaVM *pJVM, JNIEnv *pEnv);
 	static bool Invoke (JNIEnv *pEnv, const char *pszMethod, const char *pszSignature, ...);
@@ -29,9 +29,9 @@ public:
 	static CJVM *Create ();
 	void Start (bool bAsync = true);
 	void Stop (bool bAsync = true);
-	bool IsBusy (unsigned long dwTimeout);
-	bool IsRunning ();
-	bool IsStopped ();
+	bool IsBusy (unsigned long dwTimeout) const;
+	bool IsRunning () const;
+	bool IsStopped () const;
 	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID);
 };
 

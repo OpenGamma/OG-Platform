@@ -171,7 +171,7 @@ static bool _IsRunning (pid_t pid) {
 }
 #endif
 
-bool CProcess::Wait (unsigned long lTimeout) {
+bool CProcess::Wait (unsigned long lTimeout) const {
 #ifdef _WIN32
 	switch (WaitForSingleObject (m_process, lTimeout)) {
 	case WAIT_ABANDONED :
@@ -238,7 +238,7 @@ CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameter
 #endif /* ifdef _WIN32 */
 }
 
-bool CProcess::IsAlive () {
+bool CProcess::IsAlive () const {
 #ifdef _WIN32
 	DWORD dwExitCode;
 	if (!GetExitCodeProcess (m_process, &dwExitCode)) {

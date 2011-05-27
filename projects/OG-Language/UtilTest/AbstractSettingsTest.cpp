@@ -31,7 +31,7 @@ public:
 		ASSERT (CacheGet (TEXT ("Bar")) == pszBar);
 		ASSERT (!CacheGet (TEXT ("Missing")));
 	}
-	const TCHAR *GetLogConfiguration () {
+	const TCHAR *GetLogConfiguration () const {
 		return TEXT ("");
 	}
 };
@@ -43,7 +43,7 @@ static void Caching () {
 
 class CTestSettingProvider : public CAbstractSettingProvider {
 protected:
-	TCHAR *CalculateString () {
+	TCHAR *CalculateString () const {
 		return _tcsdup (TEXT ("Foo"));
 	}
 };
@@ -59,7 +59,7 @@ static void Provider () {
 class CTestSettings : public CAbstractSettings {
 private:
 	const TCHAR *GetTest (const TCHAR *pszDefault) { return Get (TEXT ("test"), pszDefault); }
-	const TCHAR *GetTest (CTestSettingProvider *poDefault) { return Get (TEXT ("test"), poDefault); }
+	const TCHAR *GetTest (const CTestSettingProvider *poDefault) { return Get (TEXT ("test"), poDefault); }
 	int GetTest (int nDefault) { return Get (TEXT ("test"), nDefault); }
 public:
 	const TCHAR *GetTest1 () {
@@ -71,7 +71,7 @@ public:
 	int GetTest3 () {
 		return GetTest (42);
 	}
-	const TCHAR *GetLogConfiguration () {
+	const TCHAR *GetLogConfiguration () const {
 		return TEXT ("");
 	}
 };

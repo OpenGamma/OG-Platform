@@ -130,7 +130,7 @@ CAbstractSettings::~CAbstractSettings () {
 // unlikely that keys will be accessed at random, only once anyway, so speedy search lookups
 // from a hash implementation aren't that helpful.
 
-const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) {
+const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) const {
 	struct _setting *pCache = m_pCache;
 	while (pCache) {
 		if (!_tcsicmp (pszKey, pCache->pszKey)) return pCache->pszValue;
@@ -139,7 +139,7 @@ const TCHAR *CAbstractSettings::CacheGet (const TCHAR *pszKey) {
 	return NULL;
 }
 
-const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszValue) {
+const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const {
 	struct _setting *pCache = new struct _setting;
 	if (!pCache) {
 		LOGFATAL (TEXT ("Out of memory"));
@@ -154,7 +154,7 @@ const TCHAR *CAbstractSettings::CachePut (const TCHAR *pszKey, const TCHAR *pszV
 }
 
 #ifdef _WIN32
-PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) {
+PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) const {
 	DWORD dwType;
 	union {
 		TCHAR sz[MAX_PATH];
@@ -181,7 +181,7 @@ PCTSTR CAbstractSettings::RegistryGet (HKEY hkey, PCTSTR pszKey) {
 }
 #endif /* ifdef _WIN32 */
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) const {
 	const TCHAR *pszValue = CacheGet (pszKey);
 #ifdef _WIN32
 	if (!pszValue) {
@@ -194,17 +194,17 @@ const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey) {
 	return pszValue;
 }
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefault) {
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const TCHAR *pszDefault) const {
 	const TCHAR *pszValue = Get (pszKey);
 	return pszValue ? pszValue : pszDefault;
 }
 
-const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, CAbstractSettingProvider *poDefault) {
+const TCHAR *CAbstractSettings::Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const {
 	const TCHAR *pszValue = Get (pszKey);
 	return pszValue ? pszValue : poDefault->GetString ();
 }
 
-int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) {
+int CAbstractSettings::Get (const TCHAR *pszKey, int nDefault) const {
 	const TCHAR * pszValue = Get (pszKey);
 	return pszValue ? _tstoi (pszValue) : nDefault;
 }
@@ -254,7 +254,7 @@ CAbstractSettingProvider::~CAbstractSettingProvider () {
 	}
 }
 
-const TCHAR *CAbstractSettingProvider::GetString () {
+const TCHAR *CAbstractSettingProvider::GetString () const {
 	s_oMutex.Enter ();
 	if (!m_bCalculated) {
 		LOGDEBUG (TEXT ("Calculating default setting value"));

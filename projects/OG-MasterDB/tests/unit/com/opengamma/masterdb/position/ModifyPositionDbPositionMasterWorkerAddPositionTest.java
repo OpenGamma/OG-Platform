@@ -139,8 +139,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
-    trade.setPremuim(1000000.00);
-    trade.setPremuimCurrency(Currency.USD);
+    trade.setPremium(1000000.00);
+    trade.setPremiumCurrency(Currency.USD);
     trade.setPremiumDate(tradeDate.plusDays(1));
     trade.setPremiumTime(tradeTime);
     position.getTrades().add(trade);
@@ -178,8 +178,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertEquals(tradeTime, testTrade.getTradeTime());
     assertEquals(Identifier.of("CPS", "CPV"), testTrade.getCounterpartyKey());
     assertEquals(secKey, testTrade.getSecurityKey());
-    assertEquals(1000000.00, testTrade.getPremuim());
-    assertEquals(Currency.USD, testTrade.getPremuimCurrency());
+    assertEquals(1000000.00, testTrade.getPremium());
+    assertEquals(Currency.USD, testTrade.getPremiumCurrency());
     assertEquals(tradeDate.plusDays(1), testTrade.getPremiumDate());
     assertEquals(tradeTime, testTrade.getPremiumTime());
     
@@ -193,8 +193,8 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
-    trade.setPremuim(1000000.00);
-    trade.setPremuimCurrency(Currency.USD);
+    trade.setPremium(1000000.00);
+    trade.setPremiumCurrency(Currency.USD);
     trade.setPremiumDate(tradeDate.plusDays(1));
     trade.setPremiumTime(tradeTime);
     

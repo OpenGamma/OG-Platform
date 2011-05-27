@@ -35,7 +35,7 @@ protected:
 	virtual bool CancelIO ();
 	FILE_REFERENCE GetFile () { return m_file; }
 	void SetFile (FILE_REFERENCE file) { m_file = file; }
-	unsigned long IsLazyClosing () { return m_lLazyTimeout; }
+	unsigned long IsLazyClosing () const { return m_lLazyTimeout; }
 public:
 	CTimeoutIO (FILE_REFERENCE file);
 	virtual ~CTimeoutIO ();
@@ -45,7 +45,7 @@ public:
 	bool Close ();
 	bool LazyClose (unsigned long timeout);
 	bool CancelLazyClose ();
-	bool IsClosed () { return m_bClosed; }
+	bool IsClosed () const { return m_bClosed; }
 };
 
 // This is perhaps a dump place for this
