@@ -56,7 +56,7 @@ public class DependencyGraphBuilder implements FudgeBuilder<DependencyGraph> {
     int nodeId = getNodeId(node, nodeToId, context, msg);
     for (DependencyNode inputNode : node.getInputNodes()) {
       int inputNodeId = getNodeId(inputNode, nodeToId, context, msg);
-      edges.add(IntObjectPair.<Integer>of(inputNodeId, nodeId));
+      edges.add(IntObjectPair.of(inputNodeId, (Integer) nodeId));
     }
   }
 
