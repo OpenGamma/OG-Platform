@@ -70,6 +70,7 @@ import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.CappedPoweredPayoffStyle;
 import com.opengamma.financial.security.option.CashOrNothingPayoffStyle;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -642,5 +643,13 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
+
+  @Override
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    assertSecurities(EquityIndexOptionSecurity.class);
+  }
+  
+  
 
 }

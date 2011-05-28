@@ -53,5 +53,7 @@ public interface SecurityTestCaseMethods {
   void testForwardSwapSecurity();
 
   void testSwapSecurity();
+  
+  void testEquityIndexOptionSecurity();
 
 }

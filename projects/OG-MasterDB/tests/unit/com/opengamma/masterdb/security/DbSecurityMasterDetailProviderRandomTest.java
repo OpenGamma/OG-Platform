@@ -191,4 +191,10 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
     _testCase.testSwapSecurity();
   }
 
+  @Override
+  @Test
+  public void testEquityIndexOptionSecurity() {
+    _testCase.testEquityIndexOptionSecurity();
+  }
+
 }
