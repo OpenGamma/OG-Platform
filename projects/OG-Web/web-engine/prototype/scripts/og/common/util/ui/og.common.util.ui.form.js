@@ -1,8 +1,7 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text', 'og.api.rest'],
@@ -17,31 +16,24 @@ $.register_module({
          */
         Block = function (form, config) {
             var block = this, klass = 'Block', template = null, url = config.url, module = config.module,
-                handlers = config.handlers || [], extras = config.extras,
-                placeholder = 'form_block_placeholder_' + id_count++;
+                handlers = config.handlers || [], extras = config.extras;
             block.children = [];
             block.html = function (handler) {
                 if (template === null) return setTimeout(block.html.partial(handler), stall);
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
                         var html = template ? $('<p></p>').append($.tmpl(template, $.extend(
-                            result.reduce(function (acc, val, idx) {return acc[item_prefix + idx] = val, acc;}, {
-                                placeholder: '<span id="' + placeholder + '"></span>'
-                            }), extras
+                            result.reduce(function (acc, val, idx) {return acc[item_prefix + idx] = val, acc;}, {}),
+                            extras
                         ))).html() : result.join('');
                         return handler(html);
                     };
+                if (!block.children.length) return internal_handler();
                 block.children.forEach(function (val, idx) {
                     if (typeof val.html === 'function') return val.html(function (html) {
                         result[idx] = html, (total === ++done) && internal_handler();
                     });
                     throw new TypeError(klass + '#' + self + ': children[' + idx + '].html is not a function');
-                });
-            };
-            block.append = function (item) {
-                item.html(function (html) {
-                    $('#' + placeholder).before(html);
-                    block.children.push(item);
                 });
             };
             // initialize Block
@@ -110,7 +102,9 @@ $.register_module({
                     if (data) raw.forEach(function (value) {
                         var hier = value.name.split('.'), last = hier.pop();
                         try {
-                            hier.reduce(function (acc, level) {return acc[level]}, data)[last] = value.value;
+                            hier.reduce(function (acc, level) {
+                                return typeof acc[level] === 'object' ? acc[level] : (acc[level] = {});
+                            }, data)[last] = value.value;
                         } catch (error) {
                             data = null;
                             error = new Error(klass + '#' + self + ': could not drill down to data.' + value.name);

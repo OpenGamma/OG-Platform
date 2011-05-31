@@ -67,7 +67,7 @@ static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 	return po;
 }
 
-static char *_OptionFudgeAnnotationCache (CSettings *pSettings) {
+static char *_OptionFudgeAnnotationCache (const CSettings *pSettings) {
 	const TCHAR *pszCache = pSettings->GetAnnotationCache ();
 	if (!pszCache) {
 		LOGWARN (TEXT ("No path for Fudge annotation cache"));
@@ -187,7 +187,7 @@ static char *_ScanClassPath (char *pszBuffer, size_t *pcchUsed, size_t *pcchTota
 	return pszBuffer;
 }
 
-static char *_OptionClassPath (CSettings *pSettings) {
+static char *_OptionClassPath (const CSettings *pSettings) {
 	const TCHAR *pszPath = pSettings->GetJarPath ();
 	if (!pszPath) {
 		LOGWARN (TEXT ("No JAR folder available"));
@@ -414,7 +414,7 @@ void CJVM::Stop (bool bAsync) {
 	}
 }
 
-bool CJVM::IsBusy (unsigned long dwTimeout) {
+bool CJVM::IsBusy (unsigned long dwTimeout) const {
 	CThread *poBusyTask;
 	m_oMutex.Enter ();
 	poBusyTask = m_poBusyTask;
@@ -438,7 +438,7 @@ bool CJVM::IsBusy (unsigned long dwTimeout) {
 	}
 }
 
-bool CJVM::IsRunning () {
+bool CJVM::IsRunning () const {
 	bool bResult;
 	m_oMutex.Enter ();
 	bResult = m_bRunning;
@@ -480,6 +480,6 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 	m_oMutex.Leave ();
 }
 
-bool CJVM::IsStopped () {
+bool CJVM::IsStopped () const {
 	return Invoke (m_pEnv, "svcIsStopped", "()Z");
 }

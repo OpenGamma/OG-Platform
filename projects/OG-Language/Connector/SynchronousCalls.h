@@ -30,9 +30,9 @@ private:
 	void SignalSemaphore () { m_sem.Signal (); }
 	void PostAndRelease (int nSequence, FudgeMsg msg);
 public:
-	fudge_i32 GetHandle ();
-	int GetIdentifier () { return m_nIdentifier; }
-	int GetSequence () { return m_oSequence.Get (); }
+	fudge_i32 GetHandle () const;
+	int GetIdentifier () const { return m_nIdentifier; }
+	int GetSequence () const { return m_oSequence.Get (); }
 	FudgeMsg GetMessage (unsigned long lTimeout);
 	void Release ();
 };

@@ -17,6 +17,7 @@ import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test the {@link TradeBuilder} class.
@@ -38,6 +39,12 @@ public class TradeBuilderTest extends AbstractBuilderTestCase {
     trade.setCounterparty(new CounterpartyImpl(Identifier.of("G", "H")));
     trade.setTradeDate(LocalDate.of(2011, 1, 5));
     trade.setTradeTime(OffsetTime.parse("14:30+02:00"));
+    
+    //set premium
+    trade.setPremium(100.00);
+    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumDate(LocalDate.of(2011, 1, 6));
+    trade.setPremiumTime(OffsetTime.parse("15:30+02:00"));
     assertEncodeDecodeCycle(Trade.class, trade);
   }
 

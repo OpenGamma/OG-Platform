@@ -1,0 +1,37 @@
+/**
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+/* OG-form */
+.OG-form {line-height: 1.6em;}
+.OG-form h2 {margin: 30px 0 10px 0; padding: 5px 0; border-top: 1px dotted #e5e5e5; border-bottom: 1px dotted #e5e5e5;}
+.OG-form small {display: block; margin: 10px 0 10px 0; color: #999; font-style: italic;}
+.OG-form label {white-space: nowrap; overflow: hidden;}
+
+/* Form cols */
+.OG-form .og-c1 {width: 10%; display: inline-block; max-width: 50px;}
+.OG-form .og-c2 {width: 20%; display: inline-block; max-width: 100px;}
+.OG-form .og-c3 {width: 30%; display: inline-block; max-width: 200px;}
+.OG-form .og-c4 {width: 40%; display: inline-block; max-width: 250px;}
+.OG-form .og-c5 {width: 50%; display: inline-block; max-width: 350px;}
+.OG-form .og-c6 {width: 60%; display: inline-block; max-width: 500px;}
+.OG-form .og-c7 {width: 70%; display: inline-block; max-width: 600px;}
+.OG-form .og-c8 {width: 80%; display: inline-block; max-width: 700px;}
+
+/* Label on top */
+.OG-form .og-sub-form.og-lbl-top > div {margin-bottom: 10px;}
+.OG-form .og-sub-form.og-lbl-top input,
+.OG-form .og-sub-form.og-lbl-top select {display: block;}
+.OG-form .og-sub-form.og-lbl-top label {margin-bottom: 0; display: table;}
+
+  /* Label > Select inline */
+  .OG-form .og-sub-form.og-lbl-sel-inline > div {margin-bottom: 5px;}
+  .OG-form .og-sub-form.og-lbl-sel-inline label {display: inline-block; float: left;}
+  .OG-form .og-sub-form.og-lbl-sel-inline select {display: block;}
+
+  /* Input > Label inline */
+  .OG-form .og-sub-form.og-ipt-lbl-inline input {display: inline-block; float: left;}
+  .OG-form .og-sub-form.og-ipt-lbl-inline label {display: block; padding-left: 5px;}
+  .OG-form .og-sub-form.og-ipt-lbl-inline div {padding-bottom: 5px;}
+

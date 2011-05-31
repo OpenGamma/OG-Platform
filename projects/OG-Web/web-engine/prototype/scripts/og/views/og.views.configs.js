@@ -1,5 +1,6 @@
-/**
- * view for securities section
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.configs',
@@ -148,7 +149,7 @@ $.register_module({
                             item: 'history.configs.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name, handler: function (template) {
+                        api.text({module: module.name + '.' + args.type, handler: function (template) {
                             var json = details_json.templateData, $warning,
                                 warning_message = 'This configuration has been deleted';
                             if (json.configData) json.configData = JSON.stringify(json.configData, null, 4);
@@ -165,6 +166,26 @@ $.register_module({
                                     })));
                                 }
                             });
+
+                            /* TMP work on configs form */
+                            var form = new ui.Form({
+                                module: 'og.views.forms.view-definition',
+                                selector: '#OG-details .og-form-container'
+                            });
+                            form.children = [
+                                new form.Block({module: 'og.views.forms.view-definition-main'}),
+                                new form.Block({module: 'og.views.forms.view-definition-result-model-definition'}),
+                                new form.Block({module: 'og.views.forms.view-definition-execution-parameters'}),
+                                new form.Block({module: 'og.views.forms.tabs'}),
+                                new form.Block({module: 'og.views.forms.view-definition-column-set-name'}),
+                                new form.Block({module: 'og.views.forms.view-definition-column-values'}),
+                                new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
+                                new form.Block({module: 'og.views.forms.constraints'}),
+                                new form.Block({module: 'og.views.forms.constraints'}),
+                                new form.Block({module: 'og.views.forms.view-definition-resolution-rule-transform-fields'})
+                            ];
+                            form.dom();
+
                         }});
                     },
                     id: args.id,

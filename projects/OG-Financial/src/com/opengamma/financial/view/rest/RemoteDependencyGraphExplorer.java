@@ -25,6 +25,14 @@ public class RemoteDependencyGraphExplorer implements DependencyGraphExplorer {
     _client = FudgeRestClient.create();
   }
   
+
+  @Override
+  public DependencyGraph getWholeGraph() {
+    URI uriWholeGraph = DataDependencyGraphExplorerResource.uriWholeGraph(_baseUri);
+    return _client.access(uriWholeGraph).get(DependencyGraph.class);
+  }
+
+  
   @Override
   public DependencyGraph getSubgraphProducing(ValueSpecification output) {
     String encodedValueSpec = _client.encode(output);

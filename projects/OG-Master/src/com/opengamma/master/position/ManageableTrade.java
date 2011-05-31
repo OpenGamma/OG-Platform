@@ -21,12 +21,14 @@ import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
+import com.opengamma.core.position.Trade;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * A trade forming part of a position.
@@ -86,11 +88,51 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
    */
   @PropertyDefinition
   private Identifier _providerKey;
+  /**
+   * Amount paid for trade at time of purchase
+   */
+  @PropertyDefinition
+  private Double _premium;
+  /**
+   * Currency of payment at time of purchase
+   */
+  @PropertyDefinition
+  private Currency _premiumCurrency;
+  /**
+   * Date of premium payment
+   */
+  @PropertyDefinition
+  private LocalDate _premiumDate;
+  /**
+   * Time of premium payment
+   */
+  @PropertyDefinition
+  private OffsetTime _premiumTime;
 
   /**
    * Creates an instance.
    */
   public ManageableTrade() {
+  }
+
+  /**
+   * Creates an instance, copying the values from another {@link Trade} object.
+   * 
+   * @param trade the object to copy values from
+   */
+  public ManageableTrade(final Trade trade) {
+    ArgumentChecker.notNull(trade, "trade");
+    setUniqueId(trade.getUniqueId());
+    setPositionId(trade.getParentPositionId());
+    setQuantity(trade.getQuantity());
+    setSecurityKey(trade.getSecurityKey());
+    setTradeDate(trade.getTradeDate());
+    setTradeTime(trade.getTradeTime());
+    setCounterpartyKey(trade.getCounterparty().getIdentifier());
+    setPremium(trade.getPremium());
+    setPremiumCurrency(trade.getPremiumCurrency());
+    setPremiumDate(trade.getPremiumDate());
+    setPremiumTime(trade.getPremiumTime());
   }
 
   /**
@@ -179,6 +221,14 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
         return getCounterpartyKey();
       case 2064682670:  // providerKey
         return getProviderKey();
+      case -318452137:  // premium
+        return getPremium();
+      case 1136581512:  // premiumCurrency
+        return getPremiumCurrency();
+      case 651701925:  // premiumDate
+        return getPremiumDate();
+      case 652186052:  // premiumTime
+        return getPremiumTime();
     }
     return super.propertyGet(propertyName);
   }
@@ -209,6 +259,18 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
         return;
       case 2064682670:  // providerKey
         setProviderKey((Identifier) newValue);
+        return;
+      case -318452137:  // premium
+        setPremium((Double) newValue);
+        return;
+      case 1136581512:  // premiumCurrency
+        setPremiumCurrency((Currency) newValue);
+        return;
+      case 651701925:  // premiumDate
+        setPremiumDate((LocalDate) newValue);
+        return;
+      case 652186052:  // premiumTime
+        setPremiumTime((OffsetTime) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -437,6 +499,106 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
 
   //-----------------------------------------------------------------------
   /**
+   * Gets amount paid for trade at time of purchase
+   * @return the value of the property
+   */
+  public Double getPremium() {
+    return _premium;
+  }
+
+  /**
+   * Sets amount paid for trade at time of purchase
+   * @param premium  the new value of the property
+   */
+  public void setPremium(Double premium) {
+    this._premium = premium;
+  }
+
+  /**
+   * Gets the the {@code premium} property.
+   * @return the property, not null
+   */
+  public final Property<Double> premium() {
+    return metaBean().premium().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets currency of payment at time of purchase
+   * @return the value of the property
+   */
+  public Currency getPremiumCurrency() {
+    return _premiumCurrency;
+  }
+
+  /**
+   * Sets currency of payment at time of purchase
+   * @param premiumCurrency  the new value of the property
+   */
+  public void setPremiumCurrency(Currency premiumCurrency) {
+    this._premiumCurrency = premiumCurrency;
+  }
+
+  /**
+   * Gets the the {@code premiumCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> premiumCurrency() {
+    return metaBean().premiumCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets date of premium payment
+   * @return the value of the property
+   */
+  public LocalDate getPremiumDate() {
+    return _premiumDate;
+  }
+
+  /**
+   * Sets date of premium payment
+   * @param premiumDate  the new value of the property
+   */
+  public void setPremiumDate(LocalDate premiumDate) {
+    this._premiumDate = premiumDate;
+  }
+
+  /**
+   * Gets the the {@code premiumDate} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> premiumDate() {
+    return metaBean().premiumDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets time of premium payment
+   * @return the value of the property
+   */
+  public OffsetTime getPremiumTime() {
+    return _premiumTime;
+  }
+
+  /**
+   * Sets time of premium payment
+   * @param premiumTime  the new value of the property
+   */
+  public void setPremiumTime(OffsetTime premiumTime) {
+    this._premiumTime = premiumTime;
+  }
+
+  /**
+   * Gets the the {@code premiumTime} property.
+   * @return the property, not null
+   */
+  public final Property<OffsetTime> premiumTime() {
+    return metaBean().premiumTime().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageableTrade}.
    */
   public static class Meta extends BasicMetaBean {
@@ -478,6 +640,22 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
      */
     private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
     /**
+     * The meta-property for the {@code premium} property.
+     */
+    private final MetaProperty<Double> _premium = DirectMetaProperty.ofReadWrite(this, "premium", Double.class);
+    /**
+     * The meta-property for the {@code premiumCurrency} property.
+     */
+    private final MetaProperty<Currency> _premiumCurrency = DirectMetaProperty.ofReadWrite(this, "premiumCurrency", Currency.class);
+    /**
+     * The meta-property for the {@code premiumDate} property.
+     */
+    private final MetaProperty<LocalDate> _premiumDate = DirectMetaProperty.ofReadWrite(this, "premiumDate", LocalDate.class);
+    /**
+     * The meta-property for the {@code premiumTime} property.
+     */
+    private final MetaProperty<OffsetTime> _premiumTime = DirectMetaProperty.ofReadWrite(this, "premiumTime", OffsetTime.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -493,6 +671,10 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
       temp.put("tradeTime", _tradeTime);
       temp.put("counterpartyKey", _counterpartyKey);
       temp.put("providerKey", _providerKey);
+      temp.put("premium", _premium);
+      temp.put("premiumCurrency", _premiumCurrency);
+      temp.put("premiumDate", _premiumDate);
+      temp.put("premiumTime", _premiumTime);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -574,6 +756,38 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
      */
     public final MetaProperty<Identifier> providerKey() {
       return _providerKey;
+    }
+
+    /**
+     * The meta-property for the {@code premium} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> premium() {
+      return _premium;
+    }
+
+    /**
+     * The meta-property for the {@code premiumCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> premiumCurrency() {
+      return _premiumCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code premiumDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> premiumDate() {
+      return _premiumDate;
+    }
+
+    /**
+     * The meta-property for the {@code premiumTime} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OffsetTime> premiumTime() {
+      return _premiumTime;
     }
 
   }

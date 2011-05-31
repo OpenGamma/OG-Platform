@@ -24,84 +24,41 @@
   padding-top: 9px;
 }
 
-/**
- * Divider for icons
- */
-.OG-toolbar .og-icon-divider {
-  height: 30px;
-  border-left: 1px solid #fff;
-  border-right: 1px solid #d9d9d9;
-  display: inline-block;
-  margin: 0 3px;
-}
-
-/**
- * Tabs
- */
-.OG-toolbar .og-tabs {
-    position: relative;
-    display: inline-block;
-    white-space: nowrap;
-}
-
 .OG-toolbar .og-title {
     position: relative;
     padding-right: 20px;
     float: left;
 }
 
-.OG-toolbar .og-tab {
-  -moz-transform: skew(-20deg);
-  -webkit-transform: skew(-20deg);
-  background-color: #ccc;
-  background-image: -webkit-gradient(linear, left top, left bottom,
-      color-stop(0.0, #f9f9f9),
-      color-stop(0.50, #f2f3f5),
-      color-stop(0.51, #eaebed)
-  );
-  background-image: -moz-linear-gradient(#f9f9f9 50%, #f2f3f5 51%, #eaebed 100%);
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #fff;
-  color: #487287;
-  display: inline-block;
-  float: left;
+/**
+ * Divider for icons
+ */
+.OG-toolbar .og-icon-divider {
   height: 30px;
-  line-height: 30px;
-  padding: 0 10px;
-  left: -10px;
-  position: relative;
-  text-decoration: none;
-}
-
-.OG-toolbar .og-tab:hover {
-  background-color: #487287;
-  background-image: -webkit-gradient(linear, left top, left bottom,
-      color-stop(0.0, #4d7d94),
-      color-stop(0.50, #4d7d94),
-      color-stop(0.51, #4d7d94)
-  );
-  background-image: -moz-linear-gradient(#4d7d94 50%, #4d7d94 51%, #eaebed 100%);
-  background: #4d7d94;
-  border-left: 1px solid #4d7d94;
-  border-right: 1px solid #4d7d94;
-  color: #fff;
-}
-
-.OG-toolbar .og-tab span {
-  -moz-transform: skew(20deg);
-  -webkit-transform: skew(20deg);
+  border-left: 1px solid #efefef;
+  border-right: 1px solid #d9d9d9;
   display: inline-block;
+  margin: 0 3px;
+}
+
+.OG-toolbar .og-title {
+  position: relative;
+  padding-right: 20px;
+  float: left;
 }
 
 .OG-toolbar .og-active, .OG-toolbar .og-active:hover {
-    background: #e4e4e5;
-    border-left: 1px solid #fff;
-    border-right: 1px solid transparent;
-    color: #626262;
-    cursor: default;
+  background: #e4e4e5;
+  border-left: 1px solid #fff;
+  border-right: 1px solid transparent;
+  color: #626262;
+  cursor: default;
 }
 
 .OG-toolbar .og-active span {
-    text-shadow: 0 1px 0 #fff;
+  text-shadow: 0 1px 0 #fff;
 }
 
+.OG-toolbar .og-tab:first-child span {
+  margin-left: 0!important;
+}

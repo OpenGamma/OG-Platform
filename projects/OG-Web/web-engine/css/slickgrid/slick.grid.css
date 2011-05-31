@@ -82,6 +82,7 @@ classes should alter those!
 
 .slick-cell {
 	float: left;
+	background-color: white;
 
 	border: 1px solid transparent;
 	border-right: 1px dotted silver;

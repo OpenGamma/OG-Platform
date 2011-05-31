@@ -70,6 +70,10 @@ public class PDEGrid1D {
     }
   }
 
+  public PDEGrid1D(final MeshingFunction timeMesh, MeshingFunction spaceMesh) {
+    this(timeMesh.getPoints(), spaceMesh.getPoints());
+  }
+
   public PDEGrid1D(final double[] timeGrid, final double[] spaceGrid) {
     final int tNodes = timeGrid.length;
     final int xNodes = spaceGrid.length;

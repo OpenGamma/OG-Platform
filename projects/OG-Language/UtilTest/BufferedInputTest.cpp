@@ -62,7 +62,7 @@ static void ReadSequence () {
 	CTimeoutIO *poRead = new CTimeoutIO (file);
 #endif
 	CBufferedInput *poBuffer = new CBufferedInput ();
-	void *pSave = poBuffer->GetData ();
+	const void *pSave = poBuffer->GetData ();
 	// Enough room in the buffer to fulfill request
 	ASSERT (poBuffer->Read (poRead, cbInitialBuffer / 2, TIMEOUT_READ)); // 0.5
 	ASSERT (poBuffer->GetAvailable () >= cbInitialBuffer / 2);
