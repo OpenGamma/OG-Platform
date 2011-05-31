@@ -58,8 +58,7 @@
         parse = function (path) {
             // go with the first matching page (longest) or any pages with * rules
             var self = 'parse', pages = flat_pages.filter(function (val) { // add slash to paths so all vals match
-                    // .exec populates RegExp.$1 because .replace won't
-                    return slash_exp.exec(path), ~path.replace(slash_exp, RegExp.$1 + SL).indexOf(val);
+                    return ~path.replace(slash_exp, '$1' + SL).indexOf(val);
                 })
                 .filter(function (page, index) {
                     return !index || active_routes[page].some(function (val) {return !!val.rules.star;});
