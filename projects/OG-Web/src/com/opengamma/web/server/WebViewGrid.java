@@ -13,12 +13,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.cometd.Client;
@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -34,7 +37,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewTargetResultModel;
+import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCacheResponse;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -58,6 +67,7 @@ public abstract class WebViewGrid {
   
   private final WebViewGridStructure _gridStructure;
   private final ResultConverterCache _resultConverterCache;
+  private final ViewClient _viewClient;
   private final Client _local;
   private final Client _remote;
   private final String _nullCellValue;
@@ -69,13 +79,15 @@ public abstract class WebViewGrid {
   private final LongSet _historyOutputs = new LongArraySet();
   
   // Cell-based state
-  private final Set<WebGridCell> _fullConversionModeCells = new HashSet<WebGridCell>();
+  private final Set<WebGridCell> _fullConversionModeCells = new CopyOnWriteArraySet<WebGridCell>();
+  private final Set<WebGridCell> _explainCells = new CopyOnWriteArraySet<WebGridCell>();
   private final Map<WebGridCell, SortedMap<Long, Object>> _cellValueHistory = new HashMap<WebGridCell, SortedMap<Long, Object>>();
   
-  protected WebViewGrid(String name, CompiledViewDefinition compiledViewDefinition, List<UniqueIdentifier> targets,
+  protected WebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<UniqueIdentifier> targets,
       EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local,
       Client remote, String nullCellValue) {
     ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(compiledViewDefinition, "compiledViewDefinition");
     ArgumentChecker.notNull(targetTypes, "targetTypes");
     ArgumentChecker.notNull(resultConverterCache, "resultConverterCache");
@@ -83,6 +95,7 @@ public abstract class WebViewGrid {
     ArgumentChecker.notNull(remote, "remote");
     
     _name = name;
+    _viewClient = viewClient;
     _updateChannel = UPDATES_ROOT_CHANNEL + "/" + name;
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
     
@@ -157,15 +170,24 @@ public abstract class WebViewGrid {
           addCellHistory(cell, resultTimestamp, historyValue);
         }
         
+        boolean isExplain = isExplain(cell);
+        Object explainRows = null;
+        if (isExplain) {
+          explainRows = getJsonExplainRows(configName, value.getSpecification());
+        }
+        
         Object cellValue;
         if (rowInViewport) {
           // Client requires this row
-          if (isHistoryOutput) {
+          if (isHistoryOutput || isExplain) {
             Map<String, Object> cellData = new HashMap<String, Object>();
             cellData.put("display", displayValue);
             SortedMap<Long, Object> history = getCellHistory(cell, lastHistoryTime);
             if (history != null) {
               cellData.put("history", history.values());
+            }
+            if (explainRows != null) {
+              cellData.put("explain", explainRows);
             }
             cellValue = cellData;
           } else {
@@ -180,6 +202,89 @@ public abstract class WebViewGrid {
     }
     if (rowInViewport) {
       _remote.deliver(_local, _updateChannel, valuesToSend, null);
+    }
+  }
+  
+  private Object getJsonExplainRows(String calcConfigName, ValueSpecification valueSpecification) {
+    // TODO: this may not be the cycle corresponding to the result - some tracking of cycle IDs required
+    EngineResourceReference<? extends ViewCycle> cycleReference = getViewClient().createLatestCycleReference();
+    if (cycleReference == null) {
+      return null;
+    }
+    ViewCycle viewCycle = cycleReference.get();
+    CompiledViewDefinitionWithGraphs compiledViewDefinition = viewCycle.getCompiledViewDefinition();
+    DependencyGraphExplorer explorer = compiledViewDefinition.getDependencyGraphExplorer(calcConfigName);
+    DependencyGraph subgraph = explorer.getSubgraphProducing(valueSpecification);
+    if (subgraph == null) {
+      s_logger.warn("No subgraph producing value specification {}", valueSpecification);
+      return null;
+    }
+    DependencyNode outputNode = subgraph.getNodeProducing(valueSpecification);
+    if (outputNode == null) {
+      s_logger.warn("Subgraph does not contain a node producing specification {}", valueSpecification);
+    }
+    ComputationCacheQuery valueQuery = new ComputationCacheQuery();
+    valueQuery.setCalculationConfigurationName(calcConfigName);
+    valueQuery.setValueSpecifications(subgraph.getOutputSpecifications());
+    ComputationCacheResponse valueResponse = viewCycle.queryComputationCaches(valueQuery);
+    cycleReference.release();
+    
+    Map<ValueSpecification, Object> valueMap = new HashMap<ValueSpecification, Object>();
+    for (Pair<ValueSpecification, Object> valuePair : valueResponse.getResults()) {
+      valueMap.put(valuePair.getFirst(), valuePair.getSecond());
+    }
+    List<Object> rows = new ArrayList<Object>();
+    rows.add(getJsonExplainRow(0, -1, outputNode, valueSpecification, valueMap.get(valueSpecification), 0));
+    addInputJsonExplainRows(subgraph, outputNode, 0, 1, rows, valueMap);
+    return rows;
+  }
+  
+  private void addInputJsonExplainRows(DependencyGraph graph, DependencyNode node, int parentRowId, int indent, List<Object> rows, Map<ValueSpecification, Object> valueMap) {
+    for (ValueSpecification inputSpec : node.getInputValues()) {
+      DependencyNode inputNode = graph.getNodeProducing(inputSpec);
+      if (inputNode == null) {
+        s_logger.warn("Subgraph does not contain input node producing {}", inputSpec);
+      }
+      int rowId = rows.size();
+      rows.add(getJsonExplainRow(rowId, parentRowId, inputNode, inputSpec, valueMap.get(inputSpec), indent));
+      addInputJsonExplainRows(graph, inputNode, rowId, indent + 1, rows, valueMap);
+    }
+  }
+  
+  private Object getJsonExplainRow(int id, int parentRowId, DependencyNode node, ValueSpecification valueSpecification, Object value, int indent) {
+    Map<String, Object> columns = new HashMap<String, Object>();
+    String targetName = node.getComputationTarget().getName();
+    if (targetName == null) {
+      targetName = node.getComputationTarget().getUniqueId().toString();
+    }
+    String targetType = getTargetTypeName(node.getComputationTarget().getType());
+    String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
+    columns.put("rowId", id);
+    if (parentRowId > -1) {
+      columns.put("parentRowId", parentRowId);
+    }
+    columns.put("indent", indent);
+    columns.put("targetType", targetType);
+    columns.put("target", targetName);
+    columns.put("function", functionName);
+    columns.put("valueName", valueSpecification.getValueName().toString());
+    columns.put("properties", valueSpecification.getProperties().toString());
+    columns.put("value", value);
+    return columns;
+  }
+  
+  private String getTargetTypeName(ComputationTargetType targetType) {
+    switch (targetType) {
+      case PORTFOLIO_NODE:
+        return "Agg";
+      case POSITION:
+        return "Pos";
+      case SECURITY:
+        return "Sec";
+      case PRIMITIVE:
+        return "Prim";
+      default:
+        return null;
     }
   }
   
@@ -204,6 +309,25 @@ public abstract class WebViewGrid {
       _fullConversionModeCells.remove(cell);
     } else {
       _fullConversionModeCells.add(cell);
+    }
+  }
+  
+  public boolean isExplain(WebGridCell cell) {
+    return _explainCells.contains(cell);
+  }
+  
+  public void setExplain(WebGridCell cell, boolean isEnabled) {
+    // Ensure view cycle access is supported before the new entry is inserted, to avoid a race condition
+    if (_explainCells.size() == 0 && isEnabled) {
+      getViewClient().setViewCycleAccessSupported(true);
+    }
+    if (isEnabled) {
+      _explainCells.add(cell);
+    } else {
+      _explainCells.remove(cell);
+    }
+    if (_explainCells.size() == 0) {
+      getViewClient().setViewCycleAccessSupported(false);
     }
   }
   
@@ -244,7 +368,7 @@ public abstract class WebViewGrid {
       
       // Hack - the client should decide which columns it requires history for, taking into account the capabilities of
       // the renderer.
-      if (resultType.equals("PRIMITIVE")) {
+      if (resultType.equals("DOUBLE")) {
         addHistoryOutput(column.getId());
       }
     }
@@ -311,6 +435,10 @@ public abstract class WebViewGrid {
       return history;
     }
     return history.tailMap(lastTimestamp + 1);
+  }
+  
+  private ViewClient getViewClient() {
+    return _viewClient;
   }
 
   //-------------------------------------------------------------------------

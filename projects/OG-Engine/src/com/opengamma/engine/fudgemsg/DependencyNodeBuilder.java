@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -38,8 +39,10 @@ import com.opengamma.engine.value.ValueSpecification;
 public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
 
   private static final String COMPUTATION_TARGET_FIELD = "target";
-  private static final String FUNCTION_UNIQUE_ID_FIELD = "functionUniqueId";
+  private static final String PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD = "parameterizedFunctionUniqueId";
   private static final String FUNCTION_PARAMETERS_FIELD = "functionParameters";
+  private static final String FUNCTION_UNIQUE_ID_FIELD = "functionUniqueId";
+  private static final String FUNCTION_SHORT_NAME_FIELD = "functionShortName";
   private static final String INPUT_VALUES_FIELD = "inputValues";
   private static final String OUTPUT_VALUES_FIELD = "outputValues";
   private static final String TERMINAL_OUTPUT_VALUES_FIELD = "terminalOutputValues";
@@ -49,9 +52,11 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
     MutableFudgeMsg msg = context.newMessage();
     context.addToMessage(msg, COMPUTATION_TARGET_FIELD, null, node.getComputationTarget());
     if (node.getFunction() != null) {
-      //TODO PLAT-1305 : at the moment this is largely useless, the ParameterizedFunction's inner function is more interesting
-      msg.add(FUNCTION_UNIQUE_ID_FIELD, null, node.getFunction().getUniqueId());
+      msg.add(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD, null, node.getFunction().getUniqueId());
       context.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD, null, node.getFunction().getParameters());
+      FunctionDefinition functionDefinition = node.getFunction().getFunction().getFunctionDefinition();
+      msg.add(FUNCTION_UNIQUE_ID_FIELD, functionDefinition.getUniqueId());
+      msg.add(FUNCTION_SHORT_NAME_FIELD, functionDefinition.getShortName());
     }
     context.addToMessage(msg, INPUT_VALUES_FIELD, null, node.getInputValues());
     context.addToMessage(msg, OUTPUT_VALUES_FIELD, null, node.getOutputValues());
@@ -64,9 +69,12 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
   public DependencyNode buildObject(FudgeDeserializationContext context, FudgeMsg msg) {
     ComputationTarget target = context.fieldValueToObject(ComputationTarget.class, msg.getByName(COMPUTATION_TARGET_FIELD));
     
-    String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD);
+    String parameterizedFunctionUniqueId = msg.getString(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD);
     FudgeField functionParametersField = msg.getByName(FUNCTION_PARAMETERS_FIELD);
     FunctionParameters functionParameters = functionParametersField != null ? context.fieldValueToObject(FunctionParameters.class, functionParametersField) : null;
+    
+    String functionShortName = msg.getString(FUNCTION_SHORT_NAME_FIELD);
+    String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD);
     
     Set<ValueSpecification> inputValues = context.fieldValueToObject(Set.class, msg.getByName(INPUT_VALUES_FIELD));
     Set<ValueSpecification> outputValues = context.fieldValueToObject(Set.class, msg.getByName(OUTPUT_VALUES_FIELD));
@@ -74,9 +82,9 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
     
     DependencyNode node = new DependencyNode(target);
     
-    CompiledFunctionDefinition function = new CompiledFunctionDefinitionStub(target.getType());
+    CompiledFunctionDefinition function = new CompiledFunctionDefinitionStub(target.getType(), functionShortName, functionUniqueId);
     ParameterizedFunction parameterizedFunction = new ParameterizedFunction(function, functionParameters);
-    parameterizedFunction.setUniqueId(functionUniqueId);
+    parameterizedFunction.setUniqueId(parameterizedFunctionUniqueId);
     node.setFunction(parameterizedFunction);
     
     for (ValueSpecification inputValue : inputValues) {
@@ -98,14 +106,16 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
   private static class CompiledFunctionDefinitionStub implements CompiledFunctionDefinition {
 
     private final ComputationTargetType _targetType;
+    private final FunctionDefinition _functionDefinition;
     
-    public CompiledFunctionDefinitionStub(ComputationTargetType targetType) {
+    public CompiledFunctionDefinitionStub(ComputationTargetType targetType, String uniqueId, String shortName) {
       _targetType = targetType;
+      _functionDefinition = new FunctionDefinitionStub(uniqueId, shortName);
     }
     
     @Override
     public FunctionDefinition getFunctionDefinition() {
-      throw new UnsupportedOperationException();
+      return _functionDefinition;
     }
 
     @Override
@@ -155,6 +165,43 @@ public class DependencyNodeBuilder implements FudgeBuilder<DependencyNode> {
 
     @Override
     public Instant getLatestInvocationTime() {
+      throw new UnsupportedOperationException();
+    }
+    
+  }
+  
+  private static class FunctionDefinitionStub implements FunctionDefinition {
+    
+    private final String _uniqueId;
+    private final String _shortName;
+    
+    public FunctionDefinitionStub(String uniqueId, String shortName) {
+      _uniqueId = uniqueId;
+      _shortName = shortName;
+    }
+
+    @Override
+    public void init(FunctionCompilationContext context) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getUniqueId() {
+      return _uniqueId;
+    }
+
+    @Override
+    public String getShortName() {
+      return _shortName;
+    }
+
+    @Override
+    public FunctionParameters getDefaultParameters() {
       throw new UnsupportedOperationException();
     }
     

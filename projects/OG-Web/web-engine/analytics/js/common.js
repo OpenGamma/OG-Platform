@@ -79,7 +79,7 @@
     
     var self = this;
     
-    var _componentsByTabId = new Array();
+    var _componentsByTabId = {};
     
     this.registerTab = function(id, component) {
       _componentsByTabId[id] = component;
@@ -104,6 +104,14 @@
       if (component && component.restoreState) { 
         component.restoreState();
       }
+    }
+    
+    this.onTabContainerResized = function() {
+      $.each(_componentsByTabId, function(index, component) {
+        if (component.onContainerResized) {
+          component.onContainerResized();
+        }
+      });
     }
     
   }
