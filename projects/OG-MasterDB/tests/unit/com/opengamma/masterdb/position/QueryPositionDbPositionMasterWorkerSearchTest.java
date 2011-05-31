@@ -6,10 +6,14 @@
 package com.opengamma.masterdb.position;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.TimeZone;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +25,13 @@ import com.opengamma.id.IdentifierSearch;
 import com.opengamma.id.IdentifierSearchType;
 import com.opengamma.id.ObjectIdentifier;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.util.db.PagingRequest;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DBTest;
 
 /**
@@ -152,6 +160,41 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assertEquals(2, test.getDocuments().size());
     assert122(test.getDocuments().get(0));
     assert222(test.getDocuments().get(1));
+  }
+  
+  @Test
+  public void test_search_trades_withPremium() {
+    ManageablePosition position = new ManageablePosition(BigDecimal.TEN, Identifier.of("A", "B"));
+    
+    LocalDate tradeDate = _now.toLocalDate();
+    OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
+    
+    ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, Identifier.of("A", "B"), tradeDate, tradeTime, Identifier.of("CPS", "CPV"));
+    trade1.setPremium(1000000.00);
+    trade1.setPremiumCurrency(Currency.USD);
+    trade1.setPremiumDate(tradeDate.plusDays(1));
+    trade1.setPremiumTime(tradeTime);
+    position.getTrades().add(trade1);
+    
+    ManageableTrade trade2 = new ManageableTrade(BigDecimal.TEN, Identifier.of("C", "D"), tradeDate, tradeTime, Identifier.of("CPS2", "CPV2"));
+    trade2.setPremium(100.00);
+    trade2.setPremiumCurrency(Currency.GBP);
+    trade2.setPremiumDate(tradeDate.plusDays(10));
+    trade2.setPremiumTime(tradeTime.plusHours(1));
+    position.getTrades().add(trade2);
+    
+    PositionDocument doc = new PositionDocument();
+    doc.setPosition(position);
+    _posMaster.add(doc);
+    assertNotNull(trade1.getUniqueId());
+    assertNotNull(trade2.getUniqueId());
+    
+    PositionSearchRequest request = new PositionSearchRequest();
+    request.addTradeId(trade1.getUniqueId().getObjectId());
+    
+    PositionSearchResult test = _posMaster.search(request);
+    assertEquals(1, test.getDocuments().size());
+    assertEquals(doc, test.getDocuments().get(0));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

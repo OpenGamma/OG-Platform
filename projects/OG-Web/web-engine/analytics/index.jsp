@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/js/jquery/jquery-ui-1.8.5.custom.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.ui.core.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.ui.tabs.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.layout-1.2.0.js"></script>
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" charset="utf-8"  media="screen, print" />
     
     <!--[if IE]><script language="javascript" type="text/javascript" src="/js/excanvas/excanvas.min.js"></script><![endif]-->
@@ -21,6 +22,7 @@
     
     <script type="text/javascript" src="/js/jquery/jquery.transform-0.6.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.jdCrazyDots.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.scrollTo.js"></script>
 
     <script type="text/javascript" src="/js/slickgrid/slick.editors.js"></script>
     <script type="text/javascript" src="/js/slickgrid/slick.grid.js"></script>
@@ -37,6 +39,7 @@
     <script type="text/javascript" src="js/liveResultsClient.js"></script>
     <script type="text/javascript" src="js/formatting/columnFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/primitiveFormatter.js"></script>
+    <script type="text/javascript" src="js/formatting/doubleFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/matrixFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/interpolatedYieldCurveFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/interpolatedYieldCurveDetail.js"></script>
@@ -52,6 +55,7 @@
     <script type="text/javascript" src="js/popupManager.js"></script>
     <script type="text/javascript" src="js/portfolioViewer.js"></script>
     <script type="text/javascript" src="js/primitivesViewer.js"></script>
+    <script type="text/javascript" src="js/depGraphViewer.js"></script>
     <script type="text/javascript" src="js/tabbedViewResultsViewer.js"></script>
     <script type="text/javascript" src="js/home.js"></script>
     
@@ -62,6 +66,8 @@
     </script>
 
     <link rel="stylesheet" href="css/analytics-base.css" type="text/css" charset="utf-8" media="screen, print" />
+    <link rel="stylesheet" href="css/popup-column.css" type="text/css" charset="utf-8" media="screen, print" />
+    <link rel="stylesheet" href="css/ui-layout.css" type="text/css" charset="utf-8" media="screen, print" />
     <link rel="stylesheet" href="css/analytics-print.css" type="text/css" media="print" charset="utf-8" />
 
     <style type="text/css" media="screen, print">
@@ -114,23 +120,33 @@
         background: url(/images/tick-same.png) no-repeat;
       }
       
+      .slick-cell.highlighted {
+        background-color: #cbead7;
+      }
+      
+      .slick-cell.highlighted.explain-hover {
+        background-color: #ffff95;
+      }
+      
       .cell-contents {
         width: 100%;
         height: 100%;
         vertical-align: middle;
         position: relative;
+        background-color: inherit;
       }
       
       .cell-value {
         text-overflow: ellipsis;
         margin: 0;
         padding: 0 4px;
+        background-color: inherit;
       }
       
       .cell-value.right {
         position: absolute;
         right: 12px;
-        background: white;
+        background-color: inherit;
       }
       
       .negative {
@@ -191,13 +207,12 @@
       }
       
       .detail-popup {
-        z-index: 1;
         padding: 8px;
       }
-
-      .detail-content {
-        height: 100%;
+      
+      .detail-popup .detail-content {
         width: 100%;
+        height: 100%;
       }
 
       .header {
@@ -283,12 +298,21 @@
         font-weight: bold;
       }
 
-      #resultsViewer #tabs {
+      #resultsViewer {
         position: absolute;
-        top: 7em;
+        top: 7.5em;
         left: 1em;
         right: 1em;
         bottom: 1em;
+        background: beige;
+      }
+      
+      #resultsViewer #tabs {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
 
       #loading {

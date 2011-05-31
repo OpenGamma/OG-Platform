@@ -32,6 +32,6 @@ void LoggingInitImpl (const TCHAR *pszLogConfiguration) {
 	}
 }
 
-void LoggingInit (CAbstractSettings *poSettings) {
+void LoggingInit (const CAbstractSettings *poSettings) {
 	LoggingInitImpl (poSettings ? poSettings->GetLogConfiguration () : NULL);
 }
