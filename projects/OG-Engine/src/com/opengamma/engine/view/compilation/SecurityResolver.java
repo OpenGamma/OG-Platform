@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
@@ -22,10 +23,13 @@ import com.opengamma.id.IdentifierBundle;
 /**
  * 
  */
-/*package*/ class SecurityResolver {
+public final class SecurityResolver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityResolver.class);
   
+  private SecurityResolver() {
+  }
+
   /**
    * A small job that can be run in an executor to resolve a security against
    * a {@link SecuritySource}.
@@ -57,8 +61,8 @@ import com.opengamma.id.IdentifierBundle;
     }
   }
   
-  public static Map<IdentifierBundle, Security> resolveSecurities(Set<IdentifierBundle> securityKeys, ViewCompilationContext viewCompilationContext) {
-    ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewCompilationContext.getServices().getExecutorService());
+  public static Map<IdentifierBundle, Security> resolveSecurities(final Set<IdentifierBundle> securityKeys, final ExecutorService executorService, final SecuritySource securitySource) {
+    ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(executorService);
     boolean failed = false;
     
     Map<IdentifierBundle, Security> securitiesByKey = new ConcurrentHashMap<IdentifierBundle, Security>();
@@ -67,7 +71,7 @@ import com.opengamma.id.IdentifierBundle;
         failed = true;
         s_logger.warn("Had null security key in at least one position");
       } else {
-        completionService.submit(new SecurityResolutionJob(viewCompilationContext.getServices().getSecuritySource(), secKey, securitiesByKey), secKey);
+        completionService.submit(new SecurityResolutionJob(securitySource, secKey, securitiesByKey), secKey);
       }
     }
     
@@ -96,4 +100,8 @@ import com.opengamma.id.IdentifierBundle;
     return securitiesByKey;
   }
   
+  protected static Map<IdentifierBundle, Security> resolveSecurities(Set<IdentifierBundle> securityKeys, ViewCompilationContext viewCompilationContext) {
+    return resolveSecurities(securityKeys, viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getSecuritySource());
+  }
+
 }
