@@ -330,14 +330,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @Override
   public int hashCode() {
     int hash = 7;
-    hash = hash * 31 + _holidayIds.hashCode();
-    hash = hash * 31 + _name.hashCode();
-    hash = hash * 31 + _type.hashCode();
-    hash = hash * 31 + _providerKey.hashCode();
-    hash = hash * 31 + _dateToCheck.hashCode();
-    hash = hash * 31 + _currency.hashCode();
-    hash = hash * 31 + _regionKeys.hashCode();
-    hash = hash * 31 + _exchangeKeys.hashCode();
+    hash = hash * 31 + (_holidayIds == null ? 0 : _holidayIds.hashCode());
+    hash = hash * 31 + (_name == null ? 0 : _name.hashCode());
+    hash = hash * 31 + (_type == null ? 0 : _type.hashCode());
+    hash = hash * 31 + (_providerKey == null ? 0 : _providerKey.hashCode());
+    hash = hash * 31 + (_dateToCheck == null ? 0 : _dateToCheck.hashCode());
+    hash = hash * 31 + (_currency == null ? 0 : _currency.hashCode());
+    hash = hash * 31 + (_regionKeys == null ? 0 : _regionKeys.hashCode());
+    hash = hash * 31 + (_exchangeKeys == null ? 0 : _exchangeKeys.hashCode());
     return hash;
   }
 
