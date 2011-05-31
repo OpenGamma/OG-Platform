@@ -24,6 +24,7 @@ enum ClientServiceState {
 	STOPPED
 };
 
+// The "const" modifier applies to the start/stop state. A "const" client can send and receive messages.
 class CClientService {
 public:
 	// Callback for state changes (e.g. to be notified when fully connected). The callback is part of the
@@ -45,8 +46,8 @@ private:
 	class CRunnerThread;
 	// Attributes
 	TCHAR *m_pszLanguageID;
-	CAtomicInt m_oRefCount;
-	CMutex m_oStateMutex;
+	mutable CAtomicInt m_oRefCount;
+	mutable CMutex m_oStateMutex;
 	CMutex m_oStopMutex;
 	ClientServiceState m_eState;
 	CMutex m_oStateChangeMutex;
@@ -54,7 +55,7 @@ private:
 	CMutex m_oMessageReceivedMutex;
 	CMessageReceived *m_poMessageReceivedCallback;
 	CRunnerThread *m_poRunner;
-	CSemaphore m_oPipesSemaphore;
+	mutable CSemaphore m_oPipesSemaphore;
 	CClientPipes *m_poPipes;
 	CClientJVM *m_poJVM;
 	unsigned long m_lSendTimeout;
@@ -67,11 +68,11 @@ private:
 	bool ConnectPipes ();
 	bool CreatePipes ();
 	bool DispatchAndRelease (FudgeMsgEnvelope env);
-	bool IsFirstConnection () { return m_lShortTimeout != 0; }
+	bool IsFirstConnection () const { return m_lShortTimeout != 0; }
 	void FirstConnectionOk () { m_lSendTimeout = m_lShortTimeout; m_lShortTimeout = 0; }
-	bool HeartbeatNeeded (unsigned long lTimeout) { return GetTickCount () - m_poPipes->GetLastWrite () >= lTimeout; }
+	bool HeartbeatNeeded (unsigned long lTimeout) const { return GetTickCount () - m_poPipes->GetLastWrite () >= lTimeout; }
 	FudgeMsgEnvelope Recv (unsigned long lTimeout);
-	bool Send (int cProcessingDirectives, FudgeMsg msg);
+	bool Send (int cProcessingDirectives, FudgeMsg msg) const;
 	bool SendPoison ();
 	bool SetState (ClientServiceState eNewState);
 	bool StartJVM ();
@@ -79,13 +80,13 @@ private:
 public:
 	// Creation
 	static CClientService *Create (const TCHAR *pszLanguageID) { return new CClientService (pszLanguageID); }
-	void Retain () { m_oRefCount.IncrementAndGet (); }
-	static void Release (CClientService *poClientService) { if (!poClientService->m_oRefCount.DecrementAndGet ()) delete poClientService; }
+	void Retain () const { m_oRefCount.IncrementAndGet (); }
+	static void Release (const CClientService *poClientService) { if (!poClientService->m_oRefCount.DecrementAndGet ()) delete poClientService; }
 	// Control
 	bool Stop ();
 	bool Start ();
-	ClientServiceState GetState ();
-	bool Send (FudgeMsg msg);
+	ClientServiceState GetState () const;
+	bool Send (FudgeMsg msg) const;
 	void SetStateChangeCallback (CStateChange *poCallback);
 	void SetMessageReceivedCallback (CMessageReceived *poCallback);
 };

@@ -1,4 +1,7 @@
 /*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
  * This script extends JQuery.
  *
  * register_module is a function that helps manage large javascripts codebases.

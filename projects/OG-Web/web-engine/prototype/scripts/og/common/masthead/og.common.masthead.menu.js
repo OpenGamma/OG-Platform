@@ -1,10 +1,7 @@
-/**
- * Dropdown menus for masthead
- *
- * @copyright 2009 - 2010 by OpenGamma Inc
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.masthead.menu',
     dependencies: [],
@@ -40,8 +37,8 @@ $.register_module({
                 $('.og-icon-header-dropdown').parent().mouseleave(function () {
                     $(this).removeClass('open').find('.og-dd-menu').hide();
                 });
-                
-                /* 
+
+                /*
                     TODO
                     the old live api was used here to populated views, new rest call must be made instead. the old
                     code is left here for reference

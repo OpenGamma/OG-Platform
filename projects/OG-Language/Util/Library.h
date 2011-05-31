@@ -60,7 +60,7 @@ public:
 #endif
 		return po;
 	}
-	void *GetAddress (const char *pszLabel) {
+	void *GetAddress (const char *pszLabel) const {
 #ifdef _WIN32
 		return GetProcAddress (m_hModule, pszLabel);
 #else
@@ -92,7 +92,7 @@ private:
 		}
 	}
 public:
-	static CLibraryLock *CreateFromAddress (PVOID pAddressInLibrary) {
+	static CLibraryLock *CreateFromAddress (const void *pAddressInLibrary) {
 		HMODULE hDll = NULL;
 		if (GetModuleHandleEx (GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, (PCTSTR)pAddressInLibrary, &hDll)) {
 			return new CLibraryLock (hDll);

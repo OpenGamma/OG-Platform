@@ -61,14 +61,10 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
    */
   private static final String FIELD_TRADE_TIME = "tradeTime";
 
-  @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Trade trade) {
+  protected static MutableFudgeMsg buildMessageImpl(final FudgeSerializationContext context, final Trade trade) {
     final MutableFudgeMsg message = context.newMessage();
     if (trade.getUniqueId() != null) {
       context.addToMessage(message, FIELD_UNIQUE_ID, null, trade.getUniqueId());
-    }
-    if (trade.getParentPositionId() != null) {
-      context.addToMessage(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
     }
     if (trade.getQuantity() != null) {
       message.add(FIELD_QUANTITY, null, trade.getQuantity());
@@ -101,11 +97,17 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
   }
 
   @Override
-  public Trade buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializationContext context, final Trade trade) {
+    final MutableFudgeMsg message = buildMessageImpl(context, trade);
+    if (trade.getParentPositionId() != null) {
+      context.addToMessage(message, FIELD_PARENT_POSITION_ID, null, trade.getParentPositionId());
+    }
+    return message;
+  }
+
+  protected static TradeImpl buildObjectImpl(final FudgeDeserializationContext context, final FudgeMsg message) {
     FudgeField uidField = message.getByName(FIELD_UNIQUE_ID);
     UniqueIdentifier tradeId = uidField != null ? context.fieldValueToObject(UniqueIdentifier.class, uidField) : null;
-    FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);
-    UniqueIdentifier positionId = positionField != null ? context.fieldValueToObject(UniqueIdentifier.class, positionField) : null;
     FudgeField quantityField = message.getByName(FIELD_QUANTITY);
     FudgeField secKeyField = message.getByName(FIELD_SECURITYKEY);
     FudgeField counterpartyField = message.getByName(FIELD_COUNTERPARTY);
@@ -114,9 +116,6 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     TradeImpl trade = new TradeImpl();
     if (tradeId != null) {
       trade.setUniqueId(tradeId);
-    }
-    if (positionId != null) {
-      trade.setParentPositionId(positionId);
     }
     if (quantityField != null) {
       trade.setQuantity(message.getFieldValue(BigDecimal.class, quantityField));
@@ -133,7 +132,7 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     if (tradeTimeField != null) {
       trade.setTradeTime(message.getFieldValue(OffsetTime.class, tradeTimeField));
     }
-    trade.setPremuim(message.getDouble("premium"));
+    trade.setPremium(message.getDouble("premium"));
     String currencyCode = message.getString("premiumCurrency");
     if (currencyCode != null) {
       trade.setPremiumCurrency(Currency.of(currencyCode));
@@ -145,6 +144,16 @@ public class TradeBuilder implements FudgeBuilder<Trade> {
     FudgeField premiumTime = message.getByName("premiumTime");
     if (premiumTime != null) {
       trade.setPremiumTime(message.getFieldValue(OffsetTime.class, premiumTime));
+    }
+    return trade;
+  }
+
+  @Override
+  public Trade buildObject(final FudgeDeserializationContext context, final FudgeMsg message) {
+    final TradeImpl trade = buildObjectImpl(context, message);
+    FudgeField positionField = message.getByName(FIELD_PARENT_POSITION_ID);
+    if (positionField != null) {
+      trade.setParentPositionId(context.fieldValueToObject(UniqueIdentifier.class, positionField));
     }
     return trade;
   }

@@ -21,14 +21,14 @@ struct _setting {
 class CAbstractSettingProvider {
 private:
 	static CMutex s_oMutex;
-	bool m_bCalculated;
-	TCHAR *m_pszValue;
+	mutable bool m_bCalculated;
+	mutable TCHAR *m_pszValue;
 protected:
-	virtual TCHAR *CalculateString () = 0;
+	virtual TCHAR *CalculateString () const = 0;
 public:
 	CAbstractSettingProvider ();
 	~CAbstractSettingProvider ();
-	const TCHAR *GetString ();
+	const TCHAR *GetString () const;
 };
 
 class CAbstractSettings {
@@ -37,22 +37,22 @@ private:
 	HKEY m_hkeyLocal;
 	HKEY m_hkeyGlobal;
 #endif
-	struct _setting *m_pCache;
+	mutable struct _setting * m_pCache;
 protected:
-	const TCHAR *CacheGet (const TCHAR *pszKey);
-	const TCHAR *CachePut (const TCHAR *pszKey, const TCHAR *pszValue);
+	const TCHAR *CacheGet (const TCHAR *pszKey) const;
+	const TCHAR *CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const;
 #ifdef _WIN32
-	PCTSTR RegistryGet (HKEY hKey, PCTSTR pszKey);
+	PCTSTR RegistryGet (HKEY hKey, PCTSTR pszKey) const;
 #endif
-	const TCHAR *Get (const TCHAR *pszKey);
-	const TCHAR *Get (const TCHAR *pszKey, const TCHAR *pszDefault);
-	const TCHAR *Get (const TCHAR *pszKey, CAbstractSettingProvider *poDefault);
-	int Get (const TCHAR *pszKey, int nDefault);
+	const TCHAR *Get (const TCHAR *pszKey) const;
+	const TCHAR *Get (const TCHAR *pszKey, const TCHAR *pszDefault) const;
+	const TCHAR *Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const;
+	int Get (const TCHAR *pszKey, int nDefault) const;
 public:
 	CAbstractSettings ();
 	~CAbstractSettings ();
 	static bool GetSettingsLocation (TCHAR *pszBuffer, size_t cbBufferLen);
-	virtual const TCHAR *GetLogConfiguration () = 0;
+	virtual const TCHAR *GetLogConfiguration () const = 0;
 };
 
 #endif /* ifndef __inc_og_language_util_abstractsettings_h */

@@ -269,7 +269,7 @@ bool CClientJVM::FirstConnection () {
 	return bResult;
 }
 
-bool CClientJVM::IsAlive () {
+bool CClientJVM::IsAlive () const {
 #ifdef _WIN32
 	if (m_hService) {
 		SERVICE_STATUS ss;

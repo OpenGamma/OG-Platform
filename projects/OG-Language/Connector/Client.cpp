@@ -311,14 +311,14 @@ bool CClientService::Stop () {
 	return bResult;
 }
 
-ClientServiceState CClientService::GetState () {
+ClientServiceState CClientService::GetState () const {
 	m_oStateMutex.Enter ();
 	ClientServiceState eState = m_eState;
 	m_oStateMutex.Leave ();
 	return eState;
 }
 
-bool CClientService::Send (FudgeMsg msg) {
+bool CClientService::Send (FudgeMsg msg) const {
 	return Send (MESSAGE_DIRECTIVES_USER, msg);
 }
 
@@ -525,7 +525,7 @@ FudgeMsgEnvelope CClientService::Recv (unsigned long lTimeout) {
 	}
 }
 
-bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) {
+bool CClientService::Send (int cProcessingDirectives, FudgeMsg msg) const {
 	FudgeStatus status;
 	FudgeMsgEnvelope env;
 	fudge_byte *ptrBuffer;

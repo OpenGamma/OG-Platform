@@ -24,7 +24,7 @@ CAsynchronous::COperation::COperation (bool bVital) {
 }
 
 // If the operation was rescheduled, returns the number of times.
-int CAsynchronous::COperation::WasRescheduled () {
+int CAsynchronous::COperation::WasRescheduled () const {
 	if (m_nMustReschedule == 0) {
 		return 0;
 	} else if (m_nMustReschedule < 0) {
@@ -96,7 +96,7 @@ public:
 	}
 };
 
-void CAsynchronous::MakeCallbacks (CThread *poRunner) {
+void CAsynchronous::MakeCallbacks (const CThread *poRunner) {
 	LOGDEBUG (TEXT ("Waiting for thread control semaphore"));
 	m_semThread.Wait ();
 	LOGDEBUG (TEXT ("Thread control semaphore signalled"));

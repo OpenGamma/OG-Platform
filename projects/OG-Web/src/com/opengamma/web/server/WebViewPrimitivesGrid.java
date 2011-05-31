@@ -11,6 +11,7 @@ import java.util.Map;
 import org.cometd.Client;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -20,8 +21,8 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
  */
 public class WebViewPrimitivesGrid extends WebViewGrid {
 
-  protected WebViewPrimitivesGrid(CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
-    super("primitives", compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE),
+  protected WebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
+    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE),
         resultConverterCache, local, remote, "");
   }
 

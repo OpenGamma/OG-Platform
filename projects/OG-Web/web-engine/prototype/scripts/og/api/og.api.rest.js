@@ -1,4 +1,7 @@
-/**
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
  * provides wrappers for the REST API
  */
 $.register_module({
@@ -383,7 +386,7 @@ $.register_module({
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
-                        required: [{all_of: fields}]
+                        required: [{all_of: ['data_provider', 'data_field', 'scheme_type', 'identifier']}]
                     });
                     meta.type = 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
