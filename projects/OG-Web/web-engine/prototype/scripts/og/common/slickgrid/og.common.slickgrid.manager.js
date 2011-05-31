@@ -1,8 +1,7 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - 2011 by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.slickgrid.manager',
     dependencies: ['og.common.util.ui.message'],
@@ -103,7 +102,7 @@ $.register_module({
                             'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
-                            if (val === 'type') return acc[val] = filters.type.replace('option', 'equity_option'), acc;
+                            if (val === 'type') return acc[val] = filters.type, acc;
                             if (val === 'quantity') {
                                 acc.min_quantity = filters.min_quantity, acc.max_quantity = filters.max_quantity;
                                 return acc;

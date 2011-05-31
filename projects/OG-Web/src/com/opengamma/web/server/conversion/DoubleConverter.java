@@ -269,7 +269,7 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   @Override
   public String getFormatterName() {
-    return "PRIMITIVE";
+    return "DOUBLE";
   }
 
   private DoubleValueConversionSettings getConversion(ValueSpecification valueSpec) {

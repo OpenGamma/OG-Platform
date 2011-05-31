@@ -8,6 +8,7 @@ package com.opengamma.engine.view.compilation;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.position.impl.PositionImpl;
 import com.opengamma.core.position.impl.TradeImpl;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.view.ResultModelDefinition;
@@ -37,7 +39,7 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * Compiles Portfolio requirements into the dependency graphs.
  */
-/* package */final class PortfolioCompiler {
+public final class PortfolioCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCompiler.class);
 
@@ -52,7 +54,7 @@ import com.opengamma.util.monitor.OperationTimer;
    * @return the fully-resolved portfolio structure if any portfolio targets were required, {@code null}
    *         otherwise.
    */
-  public static Portfolio execute(ViewCompilationContext compilationContext) {
+  protected static Portfolio execute(ViewCompilationContext compilationContext) {
     // Everything we do here is geared towards the avoidance of resolution (of portfolios, positions, securities)
     // wherever possible, to prevent needless dependencies (on a position master, security master) when a view never
     // really has them.
@@ -124,6 +126,12 @@ import com.opengamma.util.monitor.OperationTimer;
     }
 
     Map<IdentifierBundle, Security> securitiesByKey = resolveSecurities(portfolio, compilationContext);
+    return createFullyResolvedPortfolio(portfolio, securitiesByKey);
+  }
+
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
+    final Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(portfolio.getRootNode());
+    final Map<IdentifierBundle, Security> securitiesByKey = SecurityResolver.resolveSecurities(securityKeys, executorService, securitySource);
     return createFullyResolvedPortfolio(portfolio, securitiesByKey);
   }
 
@@ -214,7 +222,10 @@ import com.opengamma.util.monitor.OperationTimer;
     if (rootNode == null) {
       return null;
     }
-    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getUniqueId(), rootNode.getName());
+    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(rootNode.getName());
+    if (rootNode.getUniqueId() != null) {
+      populatedNode.setUniqueId(rootNode.getUniqueId());
+    }
     // Take copies of any positions directly under this node, adding the resolved security instances. 
     for (Position position : rootNode.getPositions()) {
       Security security = position.getSecurity();

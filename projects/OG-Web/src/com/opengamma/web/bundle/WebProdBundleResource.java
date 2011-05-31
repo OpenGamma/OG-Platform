@@ -10,8 +10,14 @@ import java.net.URI;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * RESTful resource for a CSS/Javascript bundle in production mode.
@@ -30,26 +36,31 @@ public class WebProdBundleResource extends AbstractWebBundleResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response get(@PathParam("bundleId") String idStr) {
+  public Response get(@PathParam("bundleId") String idStr, @Context Request request) {
     Bundle bundle = data().getBundleManager().getBundle(idStr);
     if (bundle == null) {
       return null;
     }
     String compressedContent = data().getCompressor().compressBundle(bundle);
-    BundleType type = BundleType.getType(idStr);
-    String mimeType = null;
-    switch (type) {
-      case JS:
-        mimeType = "text/javascript";
-        break;
-      case CSS:
-        mimeType = "text/css";
-        break;
-      default:
-        mimeType = MediaType.TEXT_HTML;
-        break;
+    EntityTag etag = new EntityTag(DigestUtils.md5Hex(compressedContent));
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder == null) {
+      BundleType type = BundleType.getType(idStr);
+      String mimeType = null;
+      switch (type) {
+        case JS:
+          mimeType = "text/javascript";
+          break;
+        case CSS:
+          mimeType = "text/css";
+          break;
+        default:
+          mimeType = MediaType.TEXT_HTML;
+          break;
+      }
+      builder = Response.ok(compressedContent).header("Content-type", mimeType);
     }
-    return Response.ok(compressedContent).header("Content-type", mimeType).build();
+    return builder.tag(etag).build();
   }
 
   //-------------------------------------------------------------------------

@@ -40,7 +40,7 @@ FudgeMsg CRequestBuilder::RecvMsg (long lTimeout) {
 	return msg;
 }
 
-CRequestBuilder::CRequestBuilder (CConnector *poConnector) {
+CRequestBuilder::CRequestBuilder (const CConnector *poConnector) {
 	poConnector->Retain ();
 	m_poConnector = poConnector;
 	m_poQuery = NULL;

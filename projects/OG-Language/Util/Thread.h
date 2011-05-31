@@ -32,7 +32,7 @@ public:
 
 class CThread : public IRunnable {
 private:
-	CAtomicInt m_oRefCount;
+	mutable CAtomicInt m_oRefCount;
 	int m_nThreadId;
 #ifdef _WIN32
 	CLibraryLock *m_poModuleLock;
@@ -41,7 +41,7 @@ private:
 #else
 	static CAtomicInt s_oNextThreadId;
 	apr_thread_t *m_pThread;
-	CSemaphore m_oTerminate;
+	mutable CSemaphore m_oTerminate;
 	CMemoryPool m_oPool;
 	static void *APR_THREAD_FUNC StartProc (apr_thread_t *handle, void *pObject);
 #endif
@@ -65,19 +65,19 @@ public:
 		m_pThread = NULL;
 #endif
 	}
-	void Retain () {
+	void Retain () const {
 		m_oRefCount.IncrementAndGet ();
 	}
-	static void Release (CThread *poThread) {
+	static void Release (const CThread *poThread) {
 		if (poThread->m_oRefCount.DecrementAndGet () == 0) {
 			delete poThread;
 		}
 	}
 	bool Start (); // NOT RE-ENTRANT
-	int GetThreadId () {
+	int GetThreadId () const {
 		return m_nThreadId;
 	}
-	bool Wait (unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
+	bool Wait (unsigned long timeout = 0xFFFFFFFF) const { // NOT RE-ENTRANT
 #ifdef _WIN32
 		switch (WaitForSingleObject (m_hThread, timeout)) {
 		case WAIT_ABANDONED :
@@ -105,7 +105,7 @@ public:
 		}
 #endif
 	}
-	static bool WaitAndRelease (CThread *pThread, unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
+	static bool WaitAndRelease (const CThread *pThread, unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
 		bool result = pThread->Wait (timeout);
 		Release (pThread);
 		return result;

@@ -117,7 +117,7 @@ public class SensitivityFiniteDifferenceTest {
     final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[1], deltaShift);
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
-    curvesBumped.setCurve("Bumped Curve", bumpedCurve);
+    curvesBumped.replaceCurve("Bumped Curve", bumpedCurve);
     final double bumpedPvDsc = FRA_METHOD.presentValue(fraBumped, curvesBumped).getAmount();
     double[] resDsc = new double[1];
     resDsc[0] = (bumpedPvDsc - pv) / deltaShift;

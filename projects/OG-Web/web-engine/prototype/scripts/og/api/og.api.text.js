@@ -1,4 +1,9 @@
-// API call for making and caching static requests
+/*
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * API call for making and caching static requests
+ */
 $.register_module({
     name: 'og.api.text',
     dependencies: ['og.api.common'],

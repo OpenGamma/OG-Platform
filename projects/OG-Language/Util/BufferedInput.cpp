@@ -78,11 +78,11 @@ bool CBufferedInput::Read (CTimeoutIO *poSource, size_t cbMinimum, unsigned long
 	return true;
 }
 
-void *CBufferedInput::GetData () {
+const void *CBufferedInput::GetData () const {
 	return (char*)m_pData + m_cbDataStart;
 }
 
-size_t CBufferedInput::GetAvailable () {
+size_t CBufferedInput::GetAvailable () const {
 	return m_cbDataEnd - m_cbDataStart;
 }
 
