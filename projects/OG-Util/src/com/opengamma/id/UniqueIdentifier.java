@@ -48,6 +48,12 @@ import com.opengamma.util.PublicAPI;
 public final class UniqueIdentifier
     implements Comparable<UniqueIdentifier>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
 
+  /**
+   * Identification scheme for the UID.
+   * This allows a unique identifier to be stored and passed using the weaker {@code Identifier}.
+   */
+  public static final IdentificationScheme UID = IdentificationScheme.of("UID");
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -78,38 +84,51 @@ public final class UniqueIdentifier
   private final String _version;
 
   /**
-   * Obtains an identifier from a scheme and value indicating the latest version
+   * Obtains a unique identifier from a scheme and value indicating the latest version
    * of the identifier, also used for non-versioned identifiers.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
-   * @return the identifier, not null
+   * @return the unique identifier, not null
    */
   public static UniqueIdentifier of(String scheme, String value) {
     return of(scheme, value, null);
   }
 
   /**
-   * Obtains an identifier from a scheme, value and version.
+   * Obtains a unique identifier from a scheme, value and version.
    * 
    * @param scheme  the scheme of the identifier, not empty, not null
    * @param value  the value of the identifier, not empty, not null
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
-   * @return the identifier, not null
+   * @return the unique identifier, not null
    */
   public static UniqueIdentifier of(String scheme, String value, String version) {
     return new UniqueIdentifier(scheme, value, version);
   }
 
   /**
-   * Obtains an identifier from an {@code ObjectIdentifier} and a version.
+   * Obtains a unique identifier from an {@code ObjectIdentifier} and a version.
    * 
    * @param objectId  the object identifier, not null
    * @param version  the version of the identifier, empty treated as null, null treated as latest version
-   * @return the identifier, not null
+   * @return the unique identifier, not null
    */
   public static UniqueIdentifier of(ObjectIdentifier objectId, String version) {
     return new UniqueIdentifier(objectId.getScheme(), objectId.getValue(), version);
+  }
+
+  /**
+   * Obtains a unique identifier from a weak {@code Identifier}.
+   * 
+   * @param weakKey  the weak identifier key, not null
+   * @return the unique identifier, not null
+   */
+  public static UniqueIdentifier of(Identifier weakKey) {
+    if (weakKey.isNotScheme(UID)) {
+      throw new IllegalArgumentException("Identifier is not a valid UniqueIdentifier");
+    }
+    return parse(weakKey.getValue());
   }
 
   /**
@@ -244,28 +263,6 @@ public final class UniqueIdentifier
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the scheme as an {@code IdentificationScheme}.
-   * 
-   * @return the scheme, not null
-   * @deprecated this is an invalid conversion
-   */
-  @Deprecated
-  public IdentificationScheme getSchemeObject() {
-    return IdentificationScheme.of(getScheme());
-  }
-
-  /**
-   * Returns a generic identifier representing the same scheme and value as this unique identifier.
-   * 
-   * @return the identifier, not null
-   * @deprecated this is an invalid conversion
-   */
-  @Deprecated
-  public Identifier toIdentifier() {
-    return Identifier.of(getSchemeObject(), getValue());
-  }
-
-  /**
    * Checks if this represents the latest version of the item.
    * <p>
    * This simply checks if the version is null.
@@ -302,6 +299,16 @@ public final class UniqueIdentifier
     }
   }
 
+  /**
+   * Converts this unique identifier to a weak identifier key.
+   * 
+   * @return the weak identifier key, not null
+   */
+  public Identifier toIdentifier() {
+    return Identifier.of(UID, toString());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Compares this identifier to another based on the object identifier, ignoring the version.
    * <p>

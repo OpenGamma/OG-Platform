@@ -17,6 +17,7 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 
 /**
@@ -75,9 +76,15 @@ public final class SwapLegBeanOperation {
 
       @Override
       public SwapLeg visitFloatingInterestRateLeg(FloatingInterestRateLeg ignore) {
-        return new FloatingInterestRateLeg(dayCountBeanToDayCount(bean.getDayCount()), frequencyBeanToFrequency(bean.getFrequency()), identifierBeanToIdentifier(bean.getRegion()),
-            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()), NotionalBeanOperation.createNotional(bean.getNotional()), identifierBeanToIdentifier(
-                bean.getRateIdentifier()).toUniqueIdentifier(), bean.getRate(), bean.getSpread());
+        return new FloatingInterestRateLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            identifierBeanToIdentifier(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            UniqueIdentifier.of(identifierBeanToIdentifier(bean.getRateIdentifier())),
+            bean.getRate(),
+            bean.getSpread());
       }
     });
   }
