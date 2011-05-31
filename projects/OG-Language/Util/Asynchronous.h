@@ -23,7 +23,7 @@ public:
 		friend class CAsynchronous;
 	protected:
 		COperation (bool bVital = false);
-		int WasRescheduled ();
+		int WasRescheduled () const;
 		void MustReschedule ();
 		// OnScheduled is called after the operation is added to a queue, while the
 		// critical section is still held, and before the operation can be run. Do
@@ -34,8 +34,8 @@ public:
 		~COperation () { }
 	};
 private:
-	CAtomicInt m_oRefCount;
-	CMutex m_mutex;
+	mutable CAtomicInt m_oRefCount;
+	mutable CMutex m_mutex;
 	COperation *m_poHead;
 	COperation *m_poTail;
 	CThread *m_poRunner;
@@ -47,30 +47,30 @@ private:
 	long m_lTimeoutReschedule;
 	long m_lTimeoutInfoPeriod;
 	long m_lTimeoutAbortPeriod;
-	void MakeCallbacks (CThread *poRunner);
+	void MakeCallbacks (const CThread *poRunner);
 	friend class CAsynchronousRunnerThread;
 protected:
 	CAsynchronous ();
 	virtual ~CAsynchronous ();
 	virtual void OnThreadExit () { }
-	void EnterCriticalSection () { m_mutex.Enter (); }
-	void LeaveCriticalSection () { m_mutex.Leave (); }
+	void EnterCriticalSection () const { m_mutex.Enter (); }
+	void LeaveCriticalSection () const { m_mutex.Leave (); }
 public:
 	static CAsynchronous *Create () { return new CAsynchronous (); }
 	// Returns true if the operation was accepted, and delete will at some point be called on the
 	// operation.
 	bool Run (COperation *poOperation);
 	virtual void Poison ();
-	void Retain () { m_oRefCount.IncrementAndGet (); }
-	static void Release (CAsynchronous *poCaller) { if (!poCaller->m_oRefCount.DecrementAndGet ()) delete poCaller; }
+	void Retain () const { m_oRefCount.IncrementAndGet (); }
+	static void Release (const CAsynchronous *poCaller) { if (!poCaller->m_oRefCount.DecrementAndGet ()) delete poCaller; }
 	static void PoisonAndRelease (CAsynchronous *poCaller) { poCaller->Poison (); Release (poCaller); }
-	long GetTimeoutInactivity () { return m_lTimeoutInactivity; }
+	long GetTimeoutInactivity () const { return m_lTimeoutInactivity; }
 	void SetTimeoutInactivity (long lTimeoutInactivity) { m_lTimeoutInactivity = lTimeoutInactivity; }
-	long GetTimeoutReschedule () { return m_lTimeoutReschedule; }
+	long GetTimeoutReschedule () const { return m_lTimeoutReschedule; }
 	void SetTimeoutReschedule (long lTimeoutReschedule) { m_lTimeoutReschedule = lTimeoutReschedule; }
-	long GetTimeoutInfoPeriod () { return m_lTimeoutInfoPeriod; }
+	long GetTimeoutInfoPeriod () const { return m_lTimeoutInfoPeriod; }
 	void SetTimeoutInfoPeriod (long lTimeoutInfoPeriod) { m_lTimeoutInfoPeriod = lTimeoutInfoPeriod; }
-	long GetTimeoutAbortPeriod () { return m_lTimeoutAbortPeriod; }
+	long GetTimeoutAbortPeriod () const { return m_lTimeoutAbortPeriod; }
 	void SetTimeoutAbortPeriod (long lTimeoutAbortPeriod) { m_lTimeoutAbortPeriod = lTimeoutAbortPeriod; }
 	bool RecycleThread ();
 };

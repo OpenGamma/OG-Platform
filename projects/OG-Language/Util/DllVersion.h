@@ -38,7 +38,7 @@ private:
 	PBYTE m_pData;
 	void Init (HMODULE hModule);
 	void Init (PCTSTR pszModule);
-	PCTSTR GetString (PCTSTR pszString);
+	PCTSTR GetString (PCTSTR pszString) const;
 #else /* ifdef _WIN32 */
 #define ATTRIBUTE(name) static const TCHAR *s_psz##name;
 	DLLVERSION_ATTRIBUTES
@@ -53,7 +53,7 @@ public:
 	CDllVersion (PCTSTR pszModule);
 	~CDllVersion ();
 	static HMODULE GetCurrentModule ();
-#define ATTRIBUTE(name) const TCHAR *Get##name () { return GetString (TEXT (#name)); }
+#define ATTRIBUTE(name) const TCHAR *Get##name () const { return GetString (TEXT (#name)); }
 #else
 	// Non-Win32 version must defined the version constants before including this file
 	static void Initialise () {
@@ -61,7 +61,7 @@ public:
 		DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE
 	}
-#define ATTRIBUTE(name) const TCHAR *Get##name () { return s_psz##name ? s_psz##name : TEXT (DllVersion_##name); }
+#define ATTRIBUTE(name) const TCHAR *Get##name () const { return s_psz##name ? s_psz##name : TEXT (DllVersion_##name); }
 #endif
 	DLLVERSION_ATTRIBUTES
 #undef ATTRIBUTE

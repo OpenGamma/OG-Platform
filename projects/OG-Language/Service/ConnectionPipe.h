@@ -21,11 +21,11 @@ public:
 	~CConnectionPipe ();
 	static CConnectionPipe *Create (const TCHAR *pszSuffix = NULL);
 	ClientConnect *ReadMessage ();
-	const TCHAR *GetName () { return m_poPipe->GetName (); }
-	bool Close () { return m_poPipe->Close (); }
+	const TCHAR *GetName () const { return m_poPipe->GetName (); }
+	bool Close () const { return m_poPipe->Close (); }
 	bool LazyClose (unsigned long dwTimeout = 0);
 	bool CancelLazyClose () { return m_poPipe->CancelLazyClose (); }
-	bool IsClosed () { return m_poPipe->IsClosed (); }
+	bool IsClosed () const { return m_poPipe->IsClosed (); }
 };
 
 #endif /* ifndef __inc_og_language_service_connectionpipe_h */

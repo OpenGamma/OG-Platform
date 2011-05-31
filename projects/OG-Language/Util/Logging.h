@@ -38,7 +38,7 @@
 
 #include "AbstractSettings.h"
 
-void LoggingInit (CAbstractSettings *poSettings = NULL);
+void LoggingInit (const CAbstractSettings *poSettings = NULL);
 
 #else /* ifdef __cplusplus */
 

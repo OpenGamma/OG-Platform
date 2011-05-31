@@ -1,4 +1,7 @@
 /**
+ * @copyright 2009 - 2011 by OpenGamma Inc
+ * @license See distribution for license
+ *
  * a hash table that automatically discards old items like a queue
  */
 $.register_module({

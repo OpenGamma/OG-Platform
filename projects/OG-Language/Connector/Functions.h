@@ -18,9 +18,9 @@ REQUESTBUILDER_BEGIN (CFunctionInvoke)
 	void SetInvocationId (int nInvocationId) {
 		m_request._identifier = nInvocationId;
 	}
-	void SetParameters (int nCount, com_opengamma_language_Data **ppData) {
+	void SetParameters (int nCount, const com_opengamma_language_Data * const *ppData) {
 		m_request.fudgeCountParameter = nCount;
-		m_request._parameter = ppData;
+		m_request._parameter = (com_opengamma_language_Data**)ppData;
 	}
 	REQUESTBUILDER_RESPONSE (com_opengamma_language_function_Result)
 REQUESTBUILDER_END

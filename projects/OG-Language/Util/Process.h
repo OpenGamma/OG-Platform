@@ -20,13 +20,13 @@
 
 class CProcess {
 private:
-	PROCESS_REFERENCE	m_process;
+	PROCESS_REFERENCE m_process;
 	CProcess (PROCESS_REFERENCE process) { m_process = process; }
 public:
 	~CProcess ();
 	static bool GetCurrentModule (TCHAR *pszBuffer, size_t cchBuffer);
 	static CProcess *FindByName (const TCHAR *pszExecutable);
-	int GetProcessId () {
+	int GetProcessId () const {
 #ifdef _WIN32
 		return ::GetProcessId (m_process);
 #else
@@ -40,8 +40,8 @@ public:
 		return kill (m_process, SIGKILL) == 0;
 #endif
 	}
-	bool Wait (unsigned long lTimeout);
-	bool IsAlive ();
+	bool Wait (unsigned long lTimeout) const;
+	bool IsAlive () const;
 	static CProcess *Start (const TCHAR *pszExecutable, const TCHAR *pszParameters);
 };
 

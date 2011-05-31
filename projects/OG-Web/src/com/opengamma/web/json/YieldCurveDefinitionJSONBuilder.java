@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Custom JSON builder to convert YieldCurveDefinition to JSON object and vice versa
+ * Custom JSON builder to convert YieldCurveDefinition to JSON object and back again
  */
 public final class YieldCurveDefinitionJSONBuilder extends AbstractJSONBuilder<YieldCurveDefinition> {
   

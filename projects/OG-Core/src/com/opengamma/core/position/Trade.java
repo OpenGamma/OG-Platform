@@ -10,6 +10,7 @@ import javax.time.calendar.OffsetTime;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.money.Currency;
 
 /**
  * A single trade against a particular counterparty.
@@ -50,5 +51,34 @@ public interface Trade extends PositionOrTrade {
    * @return the trade time with offset, null if unknown
    */
   OffsetTime getTradeTime();
+  
+  /**
+   * Gets the amount paid for trade at time of purchase.
+   * 
+   * @return the premium, can be null
+   */
+  Double getPremium();
+  
+  /**
+   * Gets the currency of payment at time of purchase.
+   * 
+   * @return the premium currency, can be null
+   */
+  Currency getPremiumCurrency();
+  
+  /**
+   * Gets the date of payment at time of purchase, possibly different from trade date.
+   * 
+   * @return the premium date, can be null
+   */
+  LocalDate getPremiumDate();
+  
+  /**
+   * Gets the premuim time with offset.
+   * <p>
+   * The offset time and local date can be combined to find the instant of when premuim was paid.
+   * @return the premium time with offset, can be null
+   */
+  OffsetTime getPremiumTime();
 
 }

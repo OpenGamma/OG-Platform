@@ -19,7 +19,6 @@ import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 
 /**
  * 
@@ -41,13 +40,6 @@ public class CoupledFiniteDifferenceTest {
   private static final double VOL2 = 0.70;
 
   private static final EuropeanVanillaOption OPTION;
-  private static final ConvectionDiffusionPDEDataBundle DATA1;
-  private static final ConvectionDiffusionPDEDataBundle DATA2;
-
-  private static Surface<Double, Double, Double> A1;
-  private static Surface<Double, Double, Double> A2;
-  private static Surface<Double, Double, Double> B;
-  private static Surface<Double, Double, Double> C;
 
   static {
 
@@ -67,21 +59,16 @@ public class CoupledFiniteDifferenceTest {
     // UPPER = new NeumannBoundaryCondition(upper1stDev, 5 * FORWARD, false);
     UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 10 * FORWARD, false);
 
-    final Function<Double, Double> a1 = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        double s = ts[1];
-        return -s * s * VOL1 * VOL1 / 2;
-      }
-    };
+  }
 
-    final Function<Double, Double> a2 = new Function<Double, Double>() {
+  private ConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final double vol, final double rate, final double strike, final double lambda) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         double s = ts[1];
-        return -s * s * VOL2 * VOL2 / 2;
+        return -s * s * vol * vol / 2;
       }
     };
 
@@ -90,7 +77,7 @@ public class CoupledFiniteDifferenceTest {
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
         double s = ts[1];
-        return -s * RATE;
+        return -s * rate;
       }
     };
 
@@ -98,15 +85,7 @@ public class CoupledFiniteDifferenceTest {
       @Override
       public Double evaluate(final Double... ts) {
         Validate.isTrue(ts.length == 2);
-        return RATE;
-      }
-    };
-
-    final Function<Double, Double> zero = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(final Double... ts) {
-        Validate.isTrue(ts.length == 2);
-        return 0.0;
+        return rate + lambda;
       }
     };
 
@@ -118,13 +97,7 @@ public class CoupledFiniteDifferenceTest {
       }
     };
 
-    A1 = FunctionalDoublesSurface.from(a1);
-    A2 = FunctionalDoublesSurface.from(a2);
-    B = FunctionalDoublesSurface.from(b);
-    C = FunctionalDoublesSurface.from(c);
-
-    DATA1 = new ConvectionDiffusionPDEDataBundle(A1, B, C, payoff);
-    DATA2 = new ConvectionDiffusionPDEDataBundle(A2, B, C, payoff);
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
 
   @Test
@@ -132,6 +105,8 @@ public class CoupledFiniteDifferenceTest {
     CoupledFiniteDifference solver = new CoupledFiniteDifference();
     double lambda12 = 0.0;
     double lambda21 = 0.0;
+    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
     int timeNodes = 20;
     int spaceNodes = 150;
     double lowerMoneyness = 0.4;
@@ -153,7 +128,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, lambda12, lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -188,6 +163,8 @@ public class CoupledFiniteDifferenceTest {
     CoupledFiniteDifference solver = new CoupledFiniteDifference();
     double lambda12 = 0.2;
     double lambda21 = 0.5;
+    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda21);
     int timeNodes = 10;
     int spaceNodes = 150;
     double lowerMoneyness = 0.4;
@@ -209,7 +186,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(DATA1, DATA1, grid, LOWER, UPPER, lambda12, lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -231,7 +208,7 @@ public class CoupledFiniteDifferenceTest {
       } catch (Exception e) {
         impVol2 = 0.0;
       }
-      // System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
+      //  System.out.println(spot + "\t" + price1 + "\t" + price2 + "\t" + impVol1 + "\t" + impVol2);
       if (moneyness >= lowerMoneyness && moneyness <= upperMoneyness) {
         assertEquals(impVol1, impVol2, 1e-8);
         assertEquals(VOL1, impVol1, 2e-3);
@@ -262,9 +239,11 @@ public class CoupledFiniteDifferenceTest {
 
   @Test
   public void testSmile() {
-    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5);
+    CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
     double lambda12 = 0.2;
     double lambda21 = 2.0;
+    ConvectionDiffusionPDEDataBundle data1 = getConvectionDiffusionPDEDataBundle(VOL1, RATE, STRIKE, lambda12);
+    ConvectionDiffusionPDEDataBundle data2 = getConvectionDiffusionPDEDataBundle(VOL2, RATE, STRIKE, lambda21);
     int timeNodes = 20;
     int spaceNodes = 150;
     double lowerMoneyness = 0.0;
@@ -289,7 +268,7 @@ public class CoupledFiniteDifferenceTest {
 
     PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    PDEResults1D[] res = solver.solve(DATA1, DATA2, grid, LOWER, UPPER, lambda12, lambda21, null);
+    PDEResults1D[] res = solver.solve(data1, data2, grid, LOWER, UPPER, -lambda12, -lambda21, null);
     double df = YIELD_CURVE.getDiscountFactor(T);
     int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
