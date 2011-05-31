@@ -8,6 +8,7 @@ package com.opengamma.financial.aggregation;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -22,6 +23,7 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.PortfolioImpl;
 import com.opengamma.core.position.impl.PortfolioNodeImpl;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.UniqueIdentifierSupplier;
 
 /**
  * An aggregator of portfolios.
@@ -29,20 +31,32 @@ import com.opengamma.id.UniqueIdentifier;
 public class PortfolioAggregator {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregator.class);
-  private List<AggregationFunction<?>> _aggregationFunctions;
+
+  private static final UniqueIdentifierSupplier s_syntheticIdentifiers = new UniqueIdentifierSupplier("PortfolioAggregator");
+
+  private final List<AggregationFunction<?>> _aggregationFunctions;
 
   public PortfolioAggregator(AggregationFunction<?>... aggregationFunctions) {
     _aggregationFunctions = Arrays.asList(aggregationFunctions);
   }
   
+  public PortfolioAggregator(Collection<AggregationFunction<?>> aggregationFunctions) {
+    _aggregationFunctions = new ArrayList<AggregationFunction<?>>(aggregationFunctions);
+  }
+
+  private static UniqueIdentifier createSyntheticIdentifier() {
+    return s_syntheticIdentifiers.get();
+  }
+
   public Portfolio aggregate(Portfolio inputPortfolio) {
     String aggPortfolioId = buildPortfolioName(inputPortfolio.getUniqueId().getValue());
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
     UniqueIdentifier aggId = UniqueIdentifier.of(inputPortfolio.getUniqueId().getScheme(), aggPortfolioId);
-    PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName);
-    aggregate((PortfolioNodeImpl) aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    final PortfolioNodeImpl root = new PortfolioNodeImpl(createSyntheticIdentifier(), buildPortfolioName("Portfolio"));
+    PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName, root);
+    aggregate(root, flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;
   }
   
@@ -59,17 +73,21 @@ public class PortfolioAggregator {
     // drop into buckets - could drop straight into tree but this is easier because we can use faster lookups as we're going.
     for (Position position : flattenedPortfolio) {
       Object obj = nextFunction.classifyPosition(position);
-      String name = obj.toString();
-      if (buckets.containsKey(name)) {
-        buckets.get(name).add(position);
-      } else {
-        ArrayList<Position> list = new ArrayList<Position>();
-        list.add(position);
-        buckets.put(name, list);
+      if (obj != null) {
+        String name = obj.toString();
+        if (buckets.containsKey(name)) {
+          buckets.get(name).add(position);
+        } else {
+          ArrayList<Position> list = new ArrayList<Position>();
+          list.add(position);
+          buckets.put(name, list);
+        }
       }
     }
     for (String bucketName : buckets.keySet()) {
       PortfolioNodeImpl newNode = new PortfolioNodeImpl();
+      newNode.setUniqueId(createSyntheticIdentifier());
+      newNode.setParentNodeId(inputNode.getUniqueId());
       newNode.setName(bucketName);
       inputNode.addChildNode(newNode);
       if (functionList.isEmpty()) {
