@@ -102,7 +102,7 @@ $.register_module({
                             'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
-                            if (val === 'type') return acc[val] = filters.type.replace('option', 'equity_option'), acc;
+                            if (val === 'type') return acc[val] = filters.type, acc;
                             if (val === 'quantity') {
                                 acc.min_quantity = filters.min_quantity, acc.max_quantity = filters.max_quantity;
                                 return acc;
