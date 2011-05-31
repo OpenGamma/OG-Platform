@@ -29,7 +29,5 @@ namespace com.opengamma.financial.security.option {
         public final <T> T accept(com.opengamma.financial.security.FinancialSecurityVisitor<T> visitor) { return visitor.visitEquityIndexOptionSecurity(this); }
 JAVA;
     }
-    
   }
-   
 }

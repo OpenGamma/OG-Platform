@@ -32,6 +32,7 @@ import com.opengamma.financial.security.option.BondOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
@@ -200,6 +201,12 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
           return EQUITY_INDEX_OPTIONS;
+        }
+      }, new EquityOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitEquityOptionSecurity(EquityOptionSecurity equityOptionSecurity) {
+          return EQUITY_OPTIONS;
         }
       }));
     } else {

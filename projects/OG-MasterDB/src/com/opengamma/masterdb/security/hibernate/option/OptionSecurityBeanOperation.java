@@ -174,8 +174,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurity visitEquityOptionSecurity(EquityOptionSecurity security) {
-        return new EquityOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
-            currencyBeanToCurrency(bean.getCurrency()), bean.getPointValue(), bean.getExchange().getName());
+        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -320,10 +319,7 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurityBean visitEquityOptionSecurity(EquityOptionSecurity security) {
-        final OptionSecurityBean bean = createSecurityBean(security);
-        bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
-        bean.setPointValue(security.getPointValue());
-        return bean;
+        throw new UnsupportedOperationException();
       }
 
       @Override

@@ -49,10 +49,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
-      return ((OptionSecurity) target.getSecurity()) instanceof EquityOptionSecurity;
-    }
-    return false;
+    return (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity);
   }
 
   @Override

@@ -22,6 +22,7 @@ import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
 import com.opengamma.masterdb.security.hibernate.future.UnitBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.OptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBean;
 import com.opengamma.util.db.HibernateMappingFiles;
@@ -65,6 +66,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       
       OptionSecurityBean.class,
       EquityIndexOptionSecurityBean.class,
+      EquityOptionSecurityBean.class,
       
       SwapSecurityBean.class,
     };

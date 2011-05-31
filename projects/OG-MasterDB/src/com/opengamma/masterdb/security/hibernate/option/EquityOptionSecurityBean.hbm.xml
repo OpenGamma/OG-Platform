@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.option">
-  <union-subclass name="EquityOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equityoption">
+  <union-subclass name="EquityIndexOptionSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_equityindexoption">
     <property name="optionExerciseType" column="option_exercise_type" type="com.opengamma.masterdb.security.hibernate.option.OptionExerciseTypeUserType" not-null="true" />
     <property name="optionType" column="option_type" type="com.opengamma.masterdb.security.hibernate.option.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />
@@ -23,15 +23,15 @@
     <property name="pointValue" type="double" />
   </union-subclass>
 
-  <query name="EquityOptionSecurityBean.one.bySecurityId"><![CDATA[
+  <query name="EquityIndexOptionSecurityBean.one.bySecurityId"><![CDATA[
     from 
-      EquityOptionSecurityBean as s
+      EquityIndexOptionSecurityBean as s
     where
       s.securityId = :securityId
   ]]></query>
 
-  <query name="EquityOptionSecurityBean.all">
-    from EquityOptionSecurityBean
+  <query name="EquityIndexOptionSecurityBean.all">
+    from EquityIndexOptionSecurityBean
   </query>
 
 </hibernate-mapping>
