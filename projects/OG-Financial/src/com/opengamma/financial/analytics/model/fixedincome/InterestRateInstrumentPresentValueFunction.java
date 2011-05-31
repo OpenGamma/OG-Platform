@@ -33,7 +33,7 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
       FinancialSecurity security, Pair<String, String> curveNames) {
-    final Double presentValue = derivative.accept(CALCULATOR, bundle);
+    final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
         curveNames.getSecond(), curveNames.getFirst()));

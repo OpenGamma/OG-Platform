@@ -26,14 +26,14 @@ public class InterestRateInstrumentParRateFunction extends InterestRateInstrumen
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
 
-  public InterestRateInstrumentParRateFunction(String valueRequirementName) {
-    super(valueRequirementName);
+  public InterestRateInstrumentParRateFunction() {
+    super(VALUE_REQUIREMENT);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(InterestRateDerivative derivative, YieldCurveBundle bundle,
       FinancialSecurity security, Pair<String, String> curveNames) {
-    final Double parRate = derivative.accept(CALCULATOR, bundle);
+    final Double parRate = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
         curveNames.getSecond(), curveNames.getFirst()));

@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.fixedincome.CashSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FRASecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
@@ -48,30 +48,36 @@ import com.opengamma.util.tuple.Pair;
  */
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirementName;
+  private FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> _visitor;
 
   public InterestRateInstrumentFunction(String valueRequirementName) {
     _valueRequirementName = valueRequirementName;
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext
-        .getConventionBundleSource(executionContext);
-    final Clock snapshotClock = executionContext.getSnapshotClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+  public void init(FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext
+        .getConventionBundleSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
-    final FinancialSecurityVisitorAdapter<FixedIncomeInstrumentConverter<?>> visitor =
+    _visitor =
         FinancialSecurityVisitorAdapter.<FixedIncomeInstrumentConverter<?>> builder()
             .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
             .create();
-    FixedIncomeInstrumentConverter<?> definition = (security).accept(visitor);
+  }
+
+  @Override
+  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
+      ComputationTarget target, Set<ValueRequirement> desiredValues) {
+    FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Clock snapshotClock = executionContext.getSnapshotClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    FixedIncomeInstrumentConverter<?> definition = security.accept(_visitor);
+    //TODO see todo below
     Pair<String, String> curveNames = YieldCurveFunction.getDesiredValueCurveNames(desiredValues);
     String forwardCurveName = curveNames.getFirst();
     String fundingCurveName = curveNames.getSecond();
@@ -144,6 +150,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target,
       final Map<ValueSpecification, ValueRequirement> inputs) {
+    //final String forwardCurveName = YieldCurveFunction.getForwardCurveName(context);
+    //final String fundingCurveName = YieldCurveFunction.getFundingCurveName(context);
     final Pair<String, String> curveNames = YieldCurveFunction.getInputCurveNames(inputs);
     return Collections
         .singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(),
