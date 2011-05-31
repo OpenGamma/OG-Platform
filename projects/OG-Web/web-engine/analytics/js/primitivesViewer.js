@@ -28,7 +28,14 @@
         _dataView.setItems(_primitivesDetails.rows, "rowId");
       }
       _dataView.endUpdate();
-      var gridColumns = SlickGridHelper.makeGridColumns(self, "Target", "name", formatTargetName, _primitivesDetails.columns, _userConfig);
+      var targetColumn = {
+          id : "name",
+          name : "Target",
+          field : "name",
+          width : 450,
+          formatter : formatTargetName
+        };
+      var gridColumns = SlickGridHelper.makeGridColumns(self, targetColumn, _primitivesDetails.columns, _userConfig);
       
       var gridOptions = {
           editable: false,
@@ -99,6 +106,10 @@
     this.updateReceived = function(update, timestamp, latency) {
       _gridHelper.handleUpdate(update, _primitivesDetails.columns);
     }
+    
+    this.onContainerResized = function() {
+      _gridHelper.handleContainerResized();
+    }
 
     this.destroy = function() {
       _userConfig.onSparklinesToggled.unsubscribe(onSparklinesToggled);
@@ -115,7 +126,7 @@
     
     init();
     
-    this.popupManager = new PopupManager(_primitivesDetails.name, _dataView, _liveResultsClient, _userConfig);
+    this.popupManager = new PopupManager(null, null, null, _primitivesDetails.name, _dataView, _liveResultsClient, _userConfig);
     
   }
   

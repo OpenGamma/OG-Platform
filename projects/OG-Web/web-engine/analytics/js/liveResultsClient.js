@@ -220,6 +220,15 @@
       });
     }
     
+    function sendExplainMode(rowId, colId, enabled) {
+      _cometd.publish('/service/updates/explain', {
+        gridName: "portfolio",
+        rowId: rowId,
+        colId: colId,
+        enabled: enabled
+      });      
+    }
+    
     //-----------------------------------------------------------------------
     // Public API
     
@@ -257,6 +266,14 @@
     
     this.stopDetailedCellUpdates = function(gridName, rowId, colId) {
       sendUpdateMode(gridName, rowId, colId, "SUMMARY");
+    }
+    
+    this.startDepGraphExplain = function(rowId, colId) {
+      sendExplainMode(rowId, colId, true);
+    }
+    
+    this.stopDepGraphExplain = function(rowId, colId) {
+      sendExplainMode(rowId, colId, false);
     }
     
     this.connect = function() {

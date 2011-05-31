@@ -62,6 +62,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     subscribe("/service/initialize", "processInitializeRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
+    subscribe("/service/updates/explain", "processExplainRequest");
     subscribe("/service/currentview/pause", "processPauseRequest");
     subscribe("/service/currentview/resume", "processResumeRequest");
     getBayeux().addListener(this);
@@ -152,6 +153,20 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     long colId = (Long) dataMap.get("colId");
     ConversionMode mode = ConversionMode.valueOf((String) dataMap.get("mode"));
     webView.getGridByName(gridName).setConversionMode(WebGridCell.of(rowId, colId), mode);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public void processExplainRequest(Client remote, Message message) {
+    WebView webView = getClientView(remote);
+    if (webView == null) {
+      return;
+    }
+    Map<String, Object> dataMap = (Map<String, Object>) message.getData();
+    String gridName = (String) dataMap.get("gridName");
+    long rowId = (Long) dataMap.get("rowId");
+    long colId = (Long) dataMap.get("colId");
+    boolean isEnabled = (Boolean) dataMap.get("enabled");
+    webView.getGridByName(gridName).setExplain(WebGridCell.of(rowId, colId), isEnabled);    
   }
 
   public void processViewsRequest(Client remote, Message message) {
