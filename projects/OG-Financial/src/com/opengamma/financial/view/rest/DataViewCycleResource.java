@@ -79,7 +79,7 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_QUERY_CACHES)
   public Response queryComputationCaches(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ComputationCacheQuery query = decodeBean(ComputationCacheQuery.class, providers, msgBase64);
+    ComputationCacheQuery query = decode(ComputationCacheQuery.class, providers, msgBase64);
     ComputationCacheResponse result = _cycle.queryComputationCaches(query);
     return Response.ok(result).build();
   }
