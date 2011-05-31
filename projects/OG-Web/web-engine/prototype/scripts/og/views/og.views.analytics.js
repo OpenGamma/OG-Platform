@@ -28,7 +28,7 @@ $.register_module({
                 layout('analytics');
                 $('#OG-analytics .OG-toolbar').hide();
                 $('#OG-analytics .og-main').html('<iframe id="temp_analytics_frame" ' +
-                        'src="http://localhost:8080/analytics/" width="100%"></iframe>');
+                        'src="/analytics/" width="100%"></iframe>');
                 og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame'});
             },
             load_view: function (args) {
