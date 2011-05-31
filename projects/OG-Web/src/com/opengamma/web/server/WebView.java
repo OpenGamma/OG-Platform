@@ -104,7 +104,7 @@ public class WebView {
       return;
     }
     
-    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -112,7 +112,7 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
     
-    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -239,7 +239,11 @@ public class WebView {
           long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
           
           sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
-          processResult(update);
+          try {
+            processResult(update);
+          } catch (Exception e) {
+            s_logger.error("Error processing result with timestamp " + update.getResultTimestamp(), e);
+          }
           sendEndMessage();
           
           getRemote().endBatch();

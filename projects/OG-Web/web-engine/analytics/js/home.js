@@ -115,6 +115,8 @@
     });
     $backingList.combobox();
     $views.find('.ui-autocomplete-input')
+      .css('z-index', 10)
+      .css('position', 'relative')
       .keydown(function(e) {
         if (e.keyCode === 13) {
           this.blur();
