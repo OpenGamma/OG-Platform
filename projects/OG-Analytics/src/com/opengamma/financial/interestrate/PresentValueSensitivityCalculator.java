@@ -34,12 +34,7 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
-import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
-import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
-import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRMethod;
-import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -171,27 +166,27 @@ public class PresentValueSensitivityCalculator extends AbstractInterestRateDeriv
     return visitSwap(swap, curves);
   }
 
-  @Override
-  public Map<String, List<DoublesPair>> visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
-    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
-    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
-    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
-    return method.presentValueSensitivity(swaption, sabr).getSensitivity();
-  }
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
+  //    Validate.notNull(swaption);
+  //    Validate.notNull(curves);
+  //    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+  //    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+  //    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+  //    SwaptionPhysicalFixedIborSABRMethod method = new SwaptionPhysicalFixedIborSABRMethod();
+  //    return method.presentValueSensitivity(swaption, sabr).getSensitivity();
+  //  }
 
-  @Override
-  public Map<String, List<DoublesPair>> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
-    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
-    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
-    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-    SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
-    return method.presentValueSensitivity(swaption, sabr).getSensitivity();
-  }
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+  //    Validate.notNull(swaption);
+  //    Validate.notNull(curves);
+  //    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "No volatility information for the pricing");
+  //    // TODO: For the moment only SABR surface pricing is implemented. Add other pricing methods.
+  //    SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+  //    SwaptionCashFixedIborSABRMethod method = new SwaptionCashFixedIborSABRMethod();
+  //    return method.presentValueSensitivity(swaption, sabr).getSensitivity();
+  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
