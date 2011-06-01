@@ -160,7 +160,7 @@ public class CurveDefinitionAndSpecifications {
       if (liborTenor.getPeriod().equals(Period.ofDays(30))) {
         throw new OpenGammaRuntimeException("This shouldn't happen!");
       }
-      strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, liborTenor, "DEFAULT"));
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, liborTenor, "DEFAULT"));
     }
     for (Tenor tenorSwapTenor : tenorSwaps) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, tenorSwapTenor, "DEFAULT"));
