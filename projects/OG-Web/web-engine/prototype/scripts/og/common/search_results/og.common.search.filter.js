@@ -12,7 +12,7 @@ $.register_module({
             select = ['type'], // identify select form elements so we can handle these differently
             calendar = ['ob_date'], // calendar fields
             fields = ['name', 'type', 'quantity', 'data_source', 'identifier', 'data_provider', 'data_field',
-                'ob_time', 'ob_date', 'status'];
+                'ob_time', 'ob_date', 'status', 'observation_time'];
         return function (obj) { // obj holds a selector with the location of the filters container
             fields.forEach(function (filter) {
                 var event_type = ~select.indexOf(filter) || ~calendar.indexOf(filter) ? 'change' : 'keyup',
