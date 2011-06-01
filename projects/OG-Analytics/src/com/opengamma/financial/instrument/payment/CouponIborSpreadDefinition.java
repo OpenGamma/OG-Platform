@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -157,14 +158,15 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) { // The Ibor coupon has already fixed, it is now a fixed coupon.
       Double fixedRate = indexFixingTS.getValue(getFixingDate());
+      //TODO this is a fudge because of data issues. The behaviour should be that if it's the fixing day but before the fixing time (e.g. 9 a.m.) 
+      // then the previous day can be used. Otherwise, the exception should be thrown. 
       if (fixedRate == null) {
         final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(
             "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         if (fixedRate == null) {
-          fixedRate = 0.001;
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate() + " "
-          //    + indexFixingTS.getLatestTime());
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate() + " "
+              + indexFixingTS.getLatestTime());
         }
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
