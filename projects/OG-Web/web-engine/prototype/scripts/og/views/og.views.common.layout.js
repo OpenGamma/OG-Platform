@@ -13,7 +13,7 @@ $.register_module({
             }
             if (layout === 'default') {
                 $('#OG-details, #OG-sr').show();
-                $('#OG-analytics').hide();
+                $('#OG-analytics').hide().find('.og-main').empty();
             }
         }
     }
