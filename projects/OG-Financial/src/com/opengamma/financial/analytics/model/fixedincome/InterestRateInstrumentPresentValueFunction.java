@@ -36,7 +36,7 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
     final Double presentValue = CALCULATOR.visit(derivative, bundle);
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(
         VALUE_REQUIREMENT, security), FixedIncomeInstrumentCurveExposureHelper.getValuePropertiesForSecurity(security,
-        curveNames.getSecond(), curveNames.getFirst()));
+          curveNames.getSecond(), curveNames.getFirst()));
     return Collections.singleton(new ComputedValue(specification, presentValue));
   }
 

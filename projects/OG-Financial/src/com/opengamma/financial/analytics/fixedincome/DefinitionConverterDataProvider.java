@@ -10,8 +10,6 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
@@ -38,7 +36,6 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class DefinitionConverterDataProvider {
-  private static final Logger s_logger = LoggerFactory.getLogger(DefinitionConverterDataProvider.class);
   private final String _dataSourceName;
   private final String _fieldName;
   private final String _dataProvider = "CMPL"; // TODO: totally fix this.
