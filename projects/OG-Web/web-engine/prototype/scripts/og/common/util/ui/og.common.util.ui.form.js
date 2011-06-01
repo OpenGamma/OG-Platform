@@ -8,8 +8,8 @@ $.register_module({
     dependencies: ['og.api.text', 'og.api.rest'],
     obj: function () {
         var stall = 500, item_prefix = 'item_', id_count = 1,
-            form_template = '<form action="." id="${id}">' +
-                '{{html html}}<input type="submit" style="display: none;"></form>',
+            form_template = '<form action="." id="${id}"><div class="OG-form">' +
+                '{{html html}}<input type="submit" style="display: none;"></div></form>',
             api_text = og.api.text, api_rest = og.api.rest,
             Form, Block, Field;
         /**

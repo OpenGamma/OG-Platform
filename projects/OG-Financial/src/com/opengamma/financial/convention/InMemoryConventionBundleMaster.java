@@ -279,8 +279,6 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
         Period.ofMonths(10), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRK Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 11m")), "USD DEPOSIT 11m", act360, following,
         Period.ofMonths(11), 2);
-    addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDRL Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 12m")), "USD DEPOSIT 12m", act360, following,
-        Period.ofMonths(12), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR1 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 1y")), "USD DEPOSIT 1y", act360, following,
         Period.ofYears(1), 2);
     addConventionBundle(IdentifierBundle.of(SecurityUtils.bloombergTickerSecurityId("USDR2 Curncy"), Identifier.of(SIMPLE_NAME_SCHEME, "USD DEPOSIT 2y")), "USD DEPOSIT 2y", act360, following,
