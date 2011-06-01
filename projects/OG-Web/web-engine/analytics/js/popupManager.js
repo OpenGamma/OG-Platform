@@ -69,13 +69,13 @@
         delete _$explains[rowId];
       }
       removePopup($popup);
-      updateHighlightedCells();
       
       _liveResultsClient.stopDepGraphExplain(rowId, colId);
       var row = _dataView.getItemById(rowId);
       delete row.explainComponents[colId];
       $cell.unbind('mouseenter', handleExplainCellHoverIn);
       $cell.unbind('mouseleave', handleExplainCellHoverOut);
+      $cell.removeClass("explain");
       $cell.removeClass("explain-hover");
       
       if ($.isEmptyObject(_$explains)) {
@@ -131,17 +131,7 @@
       $cell.hover(handleExplainCellHoverIn, handleExplainCellHoverOut);
       $cell.data('rowId', rowId);
       $cell.data('colId', colId);
-    }
-    
-    function updateHighlightedCells() {
-      var highlightedCells = {};
-      for (rowId in _$explains) {
-        highlightedCells[rowId] = {}
-        for (colId in _$explains[rowId]) {
-          highlightedCells[rowId][colId] = true;
-        }
-      }
-      _grid.setHighlightedCells(highlightedCells);
+      $cell.addClass("explain");
     }
     
     //-----------------------------------------------------------------------
@@ -221,7 +211,6 @@
           _$explains[rowId] = {};
         }
         _$explains[rowId][colId] = $popup;
-        updateHighlightedCells();
         
         _liveResultsClient.startDepGraphExplain(rowId, colId);
         _liveResultsClient.triggerImmediateUpdate();

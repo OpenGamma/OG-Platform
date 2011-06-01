@@ -19,10 +19,9 @@
     
     this.postRender = function(cellNode, row, dataContext, colDef) {
       var $cell = $(cellNode);
-      if (!$cell.popupChecked && $cell.hasClass('highlighted')) {
-        // Must be a cell for which there is an associated popup
-        $cell.popupChecked = true;
-        _viewer.popupManager.onNewCell($cell, row, colDef.id);
+      if (!$cell.data('popupChecked')) {
+        $cell.data('popupChecked', true);
+        _viewer.popupManager.onNewCell($cell, dataContext.rowId, colDef.id);
       }
       if (!dataContext.dataReceived) {
         return;
@@ -34,11 +33,12 @@
       }
       
       var $cellContents = $cell.data("contents");
+      var formatter = ColumnFormatter.getFormatterForCell(_columnStructure, value.t);
       if (!$cellContents) {
         $cellContents = $("<div></div>").addClass("cell-contents").appendTo($cell.empty());
         $cell.data("contents", $cellContents);
-        if (_columnStructure.typeFormatter.createDetail) {
-          $("<div class='imgbutton revealmore'></div>")
+        if (formatter.createDetail) {
+          var $revealButton = $("<div class='imgbutton revealmore'></div>")
               .appendTo($cell)
               .position({
                 my: "right bottom",
@@ -51,10 +51,13 @@
               .click(function(ui) {
                 ui.stopPropagation();
                 _viewer.popupManager.toggleDetail($cell, _columnStructure, row);
-              });
+              })
+              .hide();
+          var handleCellHoverIn = function(e) { $revealButton.fadeTo(200, 1) };
+          var handleCellHoverOut = function(e) { $revealButton.fadeTo(200, 0) };
+          $cell.hover(handleCellHoverIn, handleCellHoverOut);
         }
       }
-      var formatter = ColumnFormatter.getFormatterForCell(_columnStructure, value.t);
       if (formatter.renderCell) {
         formatter.renderCell($cellContents, value, row, dataContext, colDef, _columnStructure, _userConfig);
       }

@@ -13,7 +13,7 @@
   function DepGraphViewer(_$container, rowId, colId, _liveResultsClient, _userConfig) {
     
     var self = this;
-    var _logger = new Logger("PopupManager", "debug");
+    var _logger = new Logger("DepGraphViewer", "debug");
     
     var _grid;
     var _gridHelper;
@@ -153,6 +153,7 @@
           _logger.warn("Dependency graph update received without grid structure");
           return;
         }
+        self.popupManager = new PopupManager(null, null, null, update['grid']['name'], _dataView, _liveResultsClient, _userConfig);
         _fullRows = update['grid']['rows'];
         $.each(_fullRows, function(idx, row) {
           if (row.indent >= 2) {
@@ -184,8 +185,6 @@
     //-----------------------------------------------------------------------
     
     init();
-    
-    this.popupManager = new PopupManager("Dep Graph", _dataView, _liveResultsClient, _userConfig);
   }
   
   $.extend(true, window, {
