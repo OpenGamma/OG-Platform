@@ -137,7 +137,7 @@
     //-----------------------------------------------------------------------
     // Public API
     
-    this.toggleDetail = function($cell, columnStructure, rowId) {
+    this.toggleDetail = function($cell, columnStructure, formatter, rowId) {
       var colId = columnStructure.colId;
       if (removeDetail(rowId, colId)) {
         return;
@@ -150,7 +150,7 @@
 
       var $popup = getPopup('detail-popup', $cell, rowId, colId);
       var $content = $("<div class='detail-content'></div>").appendTo($popup);
-      var detailComponent = columnStructure.typeFormatter.createDetail($popup, $content, rowId, columnStructure, _userConfig);
+      var detailComponent = formatter.createDetail($popup, $content, rowId, columnStructure, _userConfig);
       
       if (detailComponent.resize) {
         var afterResized = function() {

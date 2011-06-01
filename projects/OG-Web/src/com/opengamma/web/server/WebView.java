@@ -329,9 +329,9 @@ public class WebView {
     return gridStructures;
   }
   
-  public void setIncludeDepGraph(String gridName, WebGridCell cell, boolean includeDepGraph) {
-    if (!getPortfolioGrid().getName().equals(gridName)) {
-      throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + gridName);
+  public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
+    if (!getPortfolioGrid().getName().equals(parentGridName)) {
+      throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
     }
     
     if (includeDepGraph) {
@@ -343,7 +343,24 @@ public class WebView {
         getViewClient().setViewCycleAccessSupported(false);
       }
     }
-    getPortfolioGrid().setIncludeDepGraph(cell, includeDepGraph);
+    WebViewGrid grid = getPortfolioGrid().setIncludeDepGraph(cell, includeDepGraph);
+    if (grid != null) {
+      if (includeDepGraph) {
+        registerGrid(grid);
+      } else {
+        unregisterGrid(grid.getName());
+      }
+    }
+  }
+  
+  //-------------------------------------------------------------------------
+  
+  private void registerGrid(WebViewGrid grid) {
+    _gridsByName.put(grid.getName(), grid);
+  }
+  
+  private void unregisterGrid(String gridName) {
+    _gridsByName.remove(gridName);
   }
   
   //-------------------------------------------------------------------------

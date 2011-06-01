@@ -204,12 +204,15 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   
   //-------------------------------------------------------------------------
   
-  public void setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
+  public WebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
       String gridName = getName() + ".depgraph-" + cell.getRowId() + "-" + cell.getColumnId();      
-      _depGraphGrids.putIfAbsent(cell, new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), getLocalClient(), getRemoteClient()));
+      WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), getLocalClient(), getRemoteClient());
+      _depGraphGrids.putIfAbsent(cell, grid);
+      return grid;
     } else {
-      _depGraphGrids.remove(cell);
+      WebViewDepGraphGrid grid = _depGraphGrids.remove(cell);
+      return grid;
     }
   }
   

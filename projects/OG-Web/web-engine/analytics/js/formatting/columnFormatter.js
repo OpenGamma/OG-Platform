@@ -38,6 +38,7 @@
         $cellContents = $("<div></div>").addClass("cell-contents").appendTo($cell.empty());
         $cell.data("contents", $cellContents);
         if (formatter.createDetail) {
+          var rowId = dataContext['rowId'];
           var $revealButton = $("<div class='imgbutton revealmore'></div>")
               .appendTo($cell)
               .position({
@@ -50,7 +51,7 @@
               .button({ icons: { primary:'ui-icon-carat-1-s' }, text: false })
               .click(function(ui) {
                 ui.stopPropagation();
-                _viewer.popupManager.toggleDetail($cell, _columnStructure, row);
+                _viewer.popupManager.toggleDetail($cell, _columnStructure, formatter, rowId);
               })
               .hide();
           var handleCellHoverIn = function(e) { $revealButton.fadeTo(200, 1) };

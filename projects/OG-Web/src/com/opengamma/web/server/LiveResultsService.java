@@ -152,7 +152,11 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     long rowId = (Long) dataMap.get("rowId");
     long colId = (Long) dataMap.get("colId");
     ConversionMode mode = ConversionMode.valueOf((String) dataMap.get("mode"));
-    webView.getGridByName(gridName).setConversionMode(WebGridCell.of(rowId, colId), mode);
+    WebViewGrid grid = webView.getGridByName(gridName);
+    if (grid == null) {
+      s_logger.warn("Request to change update mode for cell in unknown grid '{}'", gridName);
+    }
+    grid.setConversionMode(WebGridCell.of(rowId, colId), mode);
   }
   
   @SuppressWarnings("unchecked")
