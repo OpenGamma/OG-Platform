@@ -17,6 +17,13 @@
 <@subsection title="Detail" if=!deleted>
     <@rowout label="Type">${security.securityType?replace("_", " ")}</@rowout>
     <#switch security.securityType>
+      <#case "Cash">
+        <@rowout label="Amount">${security.amount}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Maturity">${security.maturity.date} - ${security.maturity.zone}</@rowout>
+        <@rowout label="Rate">${security.rate}</@rowout>
+        <@rowout label="Region">${security.region?replace("_", " ")}</@rowout>
+        <#break>
       <#case "EQUITY">
         <@rowout label="Short name">${security.shortName}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
