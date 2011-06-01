@@ -48,7 +48,7 @@ $.register_module({
             // initialize Block
             if (url || module) {
                 if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module)  api_text({handler: function (result) {template = result;}, module: module});
+                else if (module) api_text({handler: function (result) {template = result;}, module: module});
             } else {
                 template = '';
             }
