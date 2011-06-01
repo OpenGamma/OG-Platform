@@ -165,8 +165,7 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
             "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate() + " "
-              + indexFixingTS.getLatestTime());
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),

@@ -22,7 +22,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * Class describing a generic swap with two legs. One should be payer and the other receiver.
  *
  */
-//TODO don't just want to pass in the array of time series
 public abstract class SwapDefinition implements FixedIncomeInstrumentWithDataConverter<Swap<? extends Payment, ? extends Payment>, DoubleTimeSeries<ZonedDateTime>[]> {
 
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;

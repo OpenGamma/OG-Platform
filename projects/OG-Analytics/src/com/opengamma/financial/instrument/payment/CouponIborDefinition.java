@@ -270,8 +270,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
             "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
         fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
         if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate() + " "
-              + indexFixingTimeSeries.getLatestTime());
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
         }
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
