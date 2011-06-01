@@ -18,7 +18,7 @@
       if (!value || !value.v) {
         return;
       }
-      $cell.html("<span class='cell-value'>Volatility Surface (" + value.v['xs'].length + " x " + value.v['ys'].length + ")</span>");
+      $cell.html("<span class='cell-value'>Volatility Surface (" + value.v['xCount'] + " x " + value.v['yCount'] + ")</span>");
     }
     
     this.createDetail = function($container, rowId, columnStructure, userConfig) {
