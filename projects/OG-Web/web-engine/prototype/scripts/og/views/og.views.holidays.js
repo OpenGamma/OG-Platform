@@ -36,7 +36,14 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'holidays',
                     'columns': [
-                        {id: 'name', name: 'Name', field: 'name', width: 100, cssClass: 'og-link', filter_type: 'input'},
+                        {
+                            id: 'name',
+                            name: 'Name',
+                            field: 'name',
+                            width: 100,
+                            cssClass: 'og-link',
+                            filter_type: 'input'
+                        },
                         {
                             id: 'type', name: 'Type', field: 'type', width: 200,
                             filter_type: 'select',
