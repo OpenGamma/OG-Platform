@@ -22,9 +22,9 @@
       }
       $cell.empty();
       var tickIndicatorClass;
-      var displayValue = value ? value.display : null;
-      var lastValue = value ? value.history[value.history.length - 1] : null;
-      var lastButOneValue = value ? value.history[value.history.length - 2] : null;
+      var displayValue = value ? value.v : null;
+      var lastValue = value ? value.h[value.h.length - 1] : null;
+      var lastButOneValue = value ? value.h[value.h.length - 2] : null;
       
       if (lastValue && lastButOneValue) {
         var diff = lastValue - lastButOneValue;
@@ -49,7 +49,7 @@
       if (value && userConfig.getSparklinesEnabled()) {
         $("<span class='primitive-history-sparkline'></span>")
             .appendTo($cell)
-            .sparkline(value.history, $.extend(true, {}, Common.sparklineDefaults, {width: 50, lineColor: 'rgb(71, 113, 135)'}));
+            .sparkline(value.h, $.extend(true, {}, Common.sparklineDefaults, {width: 50, lineColor: 'rgb(71, 113, 135)'}));
       }
       $cell.append("<span class='cell-value right'>" + displayValueHtml + "</span><span class='" + tickIndicatorClass + "' />");
     }

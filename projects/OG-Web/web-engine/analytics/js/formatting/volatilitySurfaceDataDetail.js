@@ -53,7 +53,7 @@
     // Public API
     
     this.updateValue = function(value) {
-      if (!value) {
+      if (!value || !value.v) {
         return;
       }
       

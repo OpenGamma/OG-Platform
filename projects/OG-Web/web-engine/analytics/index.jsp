@@ -208,6 +208,7 @@
       
       .detail-popup {
         padding: 8px;
+        position: absolute;
       }
       
       .detail-popup .detail-content {

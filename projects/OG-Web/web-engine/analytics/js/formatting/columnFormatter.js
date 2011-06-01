@@ -28,7 +28,7 @@
         return;
       }
       var value = dataContext[colDef.field];
-      if (!value) {
+      if (!value || !value.v) {
         $cell.empty().html("<span class='cell-value'>" + _columnStructure.nullValue + "</span>");
         return;
       }
@@ -54,14 +54,24 @@
               });
         }
       }
-      if (_columnStructure.typeFormatter.renderCell) {
-        _columnStructure.typeFormatter.renderCell($cellContents, value, row, dataContext, colDef, _columnStructure, _userConfig);
+      var formatter = ColumnFormatter.getFormatterForCell(_columnStructure, value.t);
+      if (formatter.renderCell) {
+        formatter.renderCell($cellContents, value, row, dataContext, colDef, _columnStructure, _userConfig);
       }
     }
     
   }
   
-  ColumnFormatter.getTypeFormatter = function(dataType) {
+  ColumnFormatter.getFormatterForCell = function(columnStructure, dynamicDataType) {
+    if (columnStructure.dynamic && dynamicDataType) {
+      return ColumnFormatter.getFormatterForType(dynamicDataType);
+    } else {
+      // Use cached lookup
+      return columnStructure.typeFormatter;
+    }
+  }
+  
+  ColumnFormatter.getFormatterForType = function(dataType) {
     if (!dataType) {
       return UnknownTypeFormatter;
     }
@@ -79,7 +89,7 @@
         return LabelledMatrix1DFormatter;
       default:
         return UnknownTypeFormatter;
-    }
+    }    
   }
   
   $.extend(true, window, {

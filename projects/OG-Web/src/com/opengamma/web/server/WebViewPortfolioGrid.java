@@ -28,7 +28,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 /**
  * Represents a portfolio grid
  */
-public class WebViewPortfolioGrid extends WebViewGrid {
+public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   
   private Map<Long, PortfolioRow> _rowIdToRowMap;
   
