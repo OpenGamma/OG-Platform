@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
@@ -46,7 +47,8 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
    * @param index The coupon Ibor index. Should of the same currency as the payment.
    * @param spread The spread paid above the Ibor rate.
    */
-  public CouponIborSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
+  public CouponIborSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate,
+      final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
     _spread = spread;
@@ -61,7 +63,8 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
    */
   public static CouponIborSpreadDefinition from(final CouponIborDefinition couponIbor, final double spread) {
     Validate.notNull(couponIbor, "Ibor coupon");
-    return new CouponIborSpreadDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(), couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(),
+    return new CouponIborSpreadDefinition(couponIbor.getCurrency(), couponIbor.getPaymentDate(),
+        couponIbor.getAccrualStartDate(), couponIbor.getAccrualEndDate(), couponIbor.getPaymentYearFraction(),
         couponIbor.getNotional(), couponIbor.getFixingDate(), couponIbor.getIndex(), spread);
   }
 
@@ -122,7 +125,8 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
   @Override
   public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
+    Validate.isTrue(date.isBefore(getFixingDate()),
+        "Do not have any fixing data but are asking for a derivative after the fixing date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least one curve required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
@@ -134,12 +138,14 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
+        fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), _spread, forwardCurveName);
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS,
+      final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(indexFixingTS, "Index fixing data time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
@@ -149,15 +155,27 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = actAct.getDayCountFraction(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The Ibor coupon has already fixed, it is now a fixed coupon.
-      final double fixedRate = indexFixingTS.getValue(getFixingDate());
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate + _spread);
+    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) { // The Ibor coupon has already fixed, it is now a fixed coupon.
+      Double fixedRate = indexFixingTS.getValue(getFixingDate());
+      if (fixedRate == null) {
+        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(
+            "Preceding").adjustDate(getIndex().getConvention().getWorkingDayCalendar(), getFixingDate().minusDays(1));
+        fixedRate = indexFixingTS.getValue(previousBusinessDay);
+        if (fixedRate == null) {
+          fixedRate = 0.001;
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate() + " "
+          //    + indexFixingTS.getLatestTime());
+        }
+      }
+      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
+          fixedRate + _spread);
     }
     // Ibor is not fixed yet, all the details are required.
     final double fixingTime = actAct.getDayCountFraction(date, getFixingDate());
     final double fixingPeriodStartTime = actAct.getDayCountFraction(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = actAct.getDayCountFraction(date, getFixingPeriodEndDate());
-    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+    return new CouponIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(),
+        fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         getFixingPeriodAccrualFactor(), _spread, forwardCurveName);
   }
 

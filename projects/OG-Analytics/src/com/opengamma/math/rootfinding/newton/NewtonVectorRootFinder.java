@@ -29,8 +29,10 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private final NewtonRootFinderMatrixUpdateFunction _updateFunction;
   private final MatrixAlgebra _algebra = new OGMatrixAlgebra();
 
-  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final NewtonRootFinderDirectionFunction directionFunction,
-      final NewtonRootFinderMatrixInitializationFunction initializationFunction, final NewtonRootFinderMatrixUpdateFunction updateFunction) {
+  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps,
+      final NewtonRootFinderDirectionFunction directionFunction,
+      final NewtonRootFinderMatrixInitializationFunction initializationFunction,
+      final NewtonRootFinderMatrixUpdateFunction updateFunction) {
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
     ArgumentChecker.notNegative(maxSteps, "maxSteps");
@@ -43,7 +45,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   }
 
   @Override
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DoubleMatrix1D startPosition) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return getRoot(function, jac.differentiate(function), startPosition);
   }
@@ -56,7 +59,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
    */
 
   @SuppressWarnings("synthetic-access")
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianFunction, final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
 
     final DataBundle data = new DataBundle();
@@ -81,7 +85,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
       } else {
-        estimate = _updateFunction.getUpdatedMatrix(jacobianFunction, data.getX(), data.getDeltaX(), data.getDeltaY(), estimate);
+        estimate = _updateFunction.getUpdatedMatrix(jacobianFunction, data.getX(), data.getDeltaX(), data.getDeltaY(),
+            estimate);
         jacReconCount++;
       }
       // if backtracking fails, could be that Jacobian estimate has drifted too far
@@ -89,7 +94,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
         estimate = _initializationFunction.getInitializedMatrix(jacobianFunction, data.getX());
         jacReconCount = 1;
         if (!getNextPosition(function, estimate, data)) {
-          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation. Final position: " + data.getX() + ", function value: " + data.getY());
+          throw new MathException("Failed to converge in backtracking, even after a Jacobian recalculation");//Final position: " + data.getX() + ", function value: " + data.getY());
         }
       }
       count++;
@@ -100,7 +105,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     return data.getX();
   }
 
-  private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix2D estimate, final DataBundle data) {
+  private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DoubleMatrix2D estimate, final DataBundle data) {
     final DoubleMatrix1D p = _directionFunction.getDirection(estimate, data.getY());
     if (data.getLambda0() < 1.0) {
       data.setLambda0(1.0);
@@ -132,7 +138,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     return true;
   }
 
-  protected void updatePosition(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+  protected void updatePosition(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DataBundle data) {
     final double lambda0 = data.getLambda0();
     final DoubleMatrix1D deltaX = (DoubleMatrix1D) _algebra.scale(p, -lambda0);
     final DoubleMatrix1D xNew = (DoubleMatrix1D) _algebra.add(data.getX(), deltaX);
@@ -143,14 +150,17 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     data.setG1(_algebra.getInnerProduct(yNew, yNew));
   }
 
-  private void bisectBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+  private void bisectBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DataBundle data) {
     do {
       data.setLambda0(data.getLambda0() * 0.1);
       updatePosition(p, function, data);
-    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2()) || Double.isInfinite(data.getG2()));
+    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2())
+        || Double.isInfinite(data.getG2()));
   }
 
-  private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+  private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DataBundle data) {
     final double lambda0 = data.getLambda0();
     final double g0 = data.getG0();
     final double lambda = Math.max(0.01 * lambda0, g0 * lambda0 * lambda0 / (data.getG1() + g0 * (2 * lambda0 - 1)));
@@ -158,7 +168,8 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     updatePosition(p, function, data);
   }
 
-  private void cubicBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+  private void cubicBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DataBundle data) {
     double temp1, temp2, temp3, temp4, temp5;
     final double lambda0 = data.getLambda0();
     final double lambda1 = data.getLambda1();

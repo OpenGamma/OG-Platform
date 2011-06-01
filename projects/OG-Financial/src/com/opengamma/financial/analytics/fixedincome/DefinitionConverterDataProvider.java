@@ -10,6 +10,8 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaldata.HistoricalDataSource;
@@ -25,6 +27,8 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
@@ -34,8 +38,10 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class DefinitionConverterDataProvider {
+  private static final Logger s_logger = LoggerFactory.getLogger(DefinitionConverterDataProvider.class);
   private final String _dataSourceName;
   private final String _fieldName;
+  private final String _dataProvider = "CMPL"; // TODO: totally fix this.
 
   public DefinitionConverterDataProvider(String dataSourceName, String fieldName) {
     _dataSourceName = dataSourceName;
@@ -81,8 +87,12 @@ public class DefinitionConverterDataProvider {
       @SuppressWarnings("deprecation")
       final Identifier indexID = indexUID.toIdentifier();
       final IdentifierBundle id = indexID.toBundle(); //TODO //IdentifierBundle.of(indexID);
-      final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource.getHistoricalData(id,
-                _dataSourceName, null, _fieldName, swapStartDate.toLocalDate(), true, now.toLocalDate(), false);
+      LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
+          .minusDays(7);
+      final Pair<UniqueIdentifier, LocalDateDoubleTimeSeries> tsPair = dataSource
+          .getHistoricalData(id,
+                _dataSourceName, _dataProvider, _fieldName, startDate, true,
+              now.toLocalDate(), true);
       if (tsPair.getKey() == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + indexID.toString());
       }
@@ -92,10 +102,14 @@ public class DefinitionConverterDataProvider {
         localDateTS = localDateTS.divide(100);
       } else if (type == InterestRateInstrumentType.SWAP_IBOR_IBOR) { //TODO not really - valid for tenor swaps but we really need to normalize the time series rather than doing it here
         localDateTS = localDateTS.divide(10000);
+      } else {
+        throw new OpenGammaRuntimeException("Couldn't identify swap type");
       }
+      FastLongDoubleTimeSeries convertedTS = localDateTS
+          .toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
       LocalTime fixingTime = LocalTime.of(11, 0);
       return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime),
-          localDateTS.toFastLongDoubleTimeSeries());
+          convertedTS);
     }
     return null;
   }

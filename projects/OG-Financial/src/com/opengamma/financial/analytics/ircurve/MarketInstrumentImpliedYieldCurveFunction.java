@@ -297,6 +297,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
         }
+        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+          parRates[i] = 1.0 - marketValue / 100;
+        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
+          parRates[i] = marketValue / 10000.;
+        } else {
+          parRates[i] = marketValue / 100.;
+        }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
         forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);

@@ -23,8 +23,6 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
@@ -92,7 +90,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
         InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currencyString + "_SWAP"));
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate,
         fixedLeg, calendar, currency, conventions, payFixed);
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = getFloatingSwapLegDefinitionUsingInitialRate(
+    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = getFloatingSwapLegDefinition(
         effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
     return new SwapFixedIborSpreadDefinition(fixedLegDefinition, floatingLegDefinition);
   }
@@ -118,7 +116,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       final ZonedDateTime maturityDate, final FixedInterestRateLeg fixedLeg, final Calendar calendar,
       final Currency currency, final ConventionBundle conventions, boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
-    final double fixedRate = fixedLeg.getRate();
+    final double fixedRate = fixedLeg.getRate() / 100; //TODO this should not be hard-coded here
     return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(),
         effectiveDate, maturityDate, fixedLeg.getFrequency(), calendar, fixedLeg.getDayCount(),
         fixedLeg.getBusinessDayConvention(), conventions.isEOMConvention(), notional, fixedRate, isPayer);
@@ -126,46 +124,41 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
 
   //TODO this method and the one below are different because the initial floating rate is a required field in the floating leg definition at the moment. When this is changed, the 
   // check can be done in the method.
-  private AnnuityDefinition<? extends PaymentDefinition> getFloatingSwapLegDefinitionUsingInitialRate(
-      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
-      final FloatingInterestRateLeg floatLeg, final Calendar calendar, final Currency currency, boolean isPayer) {
-    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
-    final double initialFloatingRate = floatLeg.getInitialFloatingRate();
-    final double spread = floatLeg.getSpread();
-    // TODO: index period can be different from leg period
-    // FIXME: convert frequency to period in a better way
-    Frequency freq = floatLeg.getFrequency();
-    Period tenor = Period.ofMonths(3);
-    if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
-      tenor = Period.ofMonths(12);
-    } else if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
-      tenor = Period.ofMonths(6);
-    } else if (freq.getConventionName() == Frequency.QUARTERLY_NAME) {
-      tenor = Period.ofMonths(3);
-    } else if (freq.getConventionName() == Frequency.MONTHLY_NAME) {
-      tenor = Period.ofMonths(1);
-    } else {
-      throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
-    }
-    //TODO check this
-    ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
-    final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
-        indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
-
-    AnnuityCouponIborSpreadDefinition annuity = AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate,
-        notional, index, spread, isPayer);
-    CouponIborSpreadDefinition firstFloatingPeriod = annuity.getNthPayment(0);
-    CouponFixedDefinition firstFixing = CouponFixedDefinition.from(firstFloatingPeriod, initialFloatingRate);
-    int n = annuity.getNumberOfPayments();
-    PaymentDefinition[] payments = new PaymentDefinition[n];
-    payments[0] = firstFixing;
-    for (int i = 1; i < n; i++) {
-      payments[i] = annuity.getNthPayment(i);
-    }
-    return new AnnuityDefinition<PaymentDefinition>(payments);
-  }
+  //  private AnnuityDefinition<? extends PaymentDefinition> getFloatingSwapLegDefinitionUsingInitialRate(
+  //      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  //      final FloatingInterestRateLeg floatLeg, final Calendar calendar, final Currency currency, boolean isPayer) {
+  //    final double notional = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
+  //    final double initialFloatingRate = floatLeg.getInitialFloatingRate() / 100;
+  //    final double spread = floatLeg.getSpread();
+  //    // TODO: index period can be different from leg period
+  //    Frequency freq = floatLeg.getFrequency();
+  //    Period tenor = getTenor(freq);
+  //    //TODO check this
+  //    ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
+  //        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
+  //    final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
+  //        indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
+  //
+  //    PaymentDefinition[] payments = fixFirstCoupon(effectiveDate, maturityDate, isPayer, notional, initialFloatingRate,
+  //        spread, index);
+  //    return new AnnuityDefinition<PaymentDefinition>(payments);
+  //  }
+  //
+  //  private PaymentDefinition[] fixFirstCoupon(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate,
+  //      boolean isPayer, final double notional, final double initialFloatingRate, final double spread,
+  //      final IborIndex index) {
+  //    AnnuityCouponIborSpreadDefinition annuity = AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate,
+  //        notional, index, spread, isPayer);
+  //    CouponIborSpreadDefinition firstFloatingPeriod = annuity.getNthPayment(0);
+  //    CouponFixedDefinition firstFixing = CouponFixedDefinition.from(firstFloatingPeriod, initialFloatingRate);
+  //    int n = annuity.getNumberOfPayments();
+  //    PaymentDefinition[] payments = new PaymentDefinition[n];
+  //    payments[0] = firstFixing;
+  //    for (int i = 1; i < n; i++) {
+  //      payments[i] = annuity.getNthPayment(i);
+  //    }
+  //    return payments;
+  //  }
 
   //TODO see above
   private AnnuityCouponIborSpreadDefinition getFloatingSwapLegDefinition(final ZonedDateTime effectiveDate,
@@ -176,7 +169,19 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
     // TODO: index period can be different from leg period
     // FIXME: convert frequency to period in a better way
     Frequency freq = floatLeg.getFrequency();
-    Period tenor = Period.ofMonths(3);
+    Period tenor = getTenor(freq);
+    //TODO check this
+    ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
+        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
+    final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
+        indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
+
+    return AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer);
+  }
+
+  // FIXME: convert frequency to period in a better way
+  private Period getTenor(Frequency freq) {
+    Period tenor;
     if (freq.getConventionName() == Frequency.ANNUAL_NAME) {
       tenor = Period.ofMonths(12);
     } else if (freq.getConventionName() == Frequency.SEMI_ANNUAL_NAME) {
@@ -189,13 +194,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<FixedIncomeIns
       throw new OpenGammaRuntimeException(
           "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
     }
-    //TODO check this
-    ConventionBundle indexConvention = _conventionSource.getConventionBundle(Identifier.of(
-        InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
-    final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar,
-        indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
-
-    return AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer);
+    return tenor;
   }
-
 }
