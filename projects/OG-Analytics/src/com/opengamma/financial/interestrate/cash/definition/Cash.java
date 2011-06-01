@@ -138,4 +138,8 @@ public class Cash implements InterestRateDerivative {
     return Double.doubleToLongBits(_yearFraction) == Double.doubleToLongBits(other._yearFraction);
   }
 
+  @Override
+  public String toString() {
+    return "Cash[t = " + _maturity + ", r = " + _rate + ", curve = " + _curveName;
+  }
 }

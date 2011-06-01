@@ -272,6 +272,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           parRates[i] = 1.0 - marketValue / 100;
+        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
+          parRates[i] = marketValue / 10000;
         } else {
           parRates[i] = marketValue / 100.;
         }
@@ -297,7 +299,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
           //    _forwardCurveDefinitionName);
           derivative = swapConverter.getSwap((SwapSecurity) strip.getSecurity(), _fundingCurveDefinitionName,
               _forwardCurveDefinitionName, marketValue / 100., 0.0, now);
-        } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {
+        } else if (strip.getInstrumentType() == StripInstrumentType.CASH) {          
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, _forwardCurveDefinitionName);
         } else if (strip.getInstrumentType() == StripInstrumentType.FRA) {
           derivative = financialSecurity.accept(instrumentAdapter).toDerivative(now, _fundingCurveDefinitionName,
@@ -316,6 +318,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         if (derivative == null) {
           throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
+        }
+        if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
+          parRates[i] = 1.0 - marketValue / 100;
+        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
+          parRates[i] = marketValue / 10000;
+        } else {
+          parRates[i] = marketValue / 100.;
         }
         derivatives.add(derivative);
         initialRatesGuess[i++] = 0.01;
@@ -469,10 +478,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction 
         }
         if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
           parRates[i] = 1.0 - marketValue / 100;
+        } else if (strip.getInstrumentType() == StripInstrumentType.TENOR_SWAP) {
+          parRates[i] = marketValue / 10000;
         } else {
           parRates[i] = marketValue / 100.;
         }
-
         derivatives.add(derivative);
         initialRatesGuess[i] = 0.01;
         nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
