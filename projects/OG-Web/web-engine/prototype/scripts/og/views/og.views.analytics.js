@@ -26,7 +26,10 @@ $.register_module({
             load: function (args) {
                 masthead.menu.set_tab(page_name);
                 layout('analytics');
-                $('#OG-analytics .og-main').html('default ' + page_name + ' page');
+                $('#OG-analytics .OG-toolbar').hide();
+                $('#OG-analytics .og-main').html('<iframe id="temp_analytics_frame" ' +
+                        'src="/analytics/" width="100%"></iframe>');
+                og.common.util.ui.expand_height_to_window_bottom({element: '#temp_analytics_frame'});
             },
             load_view: function (args) {
                 check_state({args: args, conditions: [{new_page: analytics.load}]});
