@@ -32,7 +32,7 @@ $.register_module({
                 processor: function (data) {
                     var indices = index.split('.'), last = indices.pop(), result = {};
                     $('#' + ids.widget + ' tr.og-js-with').each(function (idx, el) {
-                        var $el = $(el), optional = $el.find('.og-labeled input').filter(':checked').length,
+                        var $el = $(el), optional = $el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val(),
                             value = deconvert($el.find('input.og-js-value').val(), optional);
                         if (!key) throw Error('Type in a with constraint must be defined.');
