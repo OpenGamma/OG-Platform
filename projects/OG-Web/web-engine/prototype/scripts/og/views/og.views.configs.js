@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -182,7 +182,9 @@ $.register_module({
                                 new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({module: 'og.views.forms.view-definition-resolution-rule-transform-fields'})
+                                new form.Block({
+                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
+                                })
                             ];
                             form.dom();
 

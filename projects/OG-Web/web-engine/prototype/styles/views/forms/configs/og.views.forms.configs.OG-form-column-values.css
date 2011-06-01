@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 
@@ -11,18 +11,36 @@
 .OG-form-column-values select {width: 150px;}
 .OG-form-column-values > li {margin: 0 0 10px 0;}
 .OG-form-column-values > li > a {font-weight: bold;}
-.OG-form-column-values li > ul > li > div:first-child {background: #f4f4f4; display: inline-block; padding: 2px 4px; margin: 1px 0; vertical-align: middle;}
+.OG-form-column-values li > ul > li > div:first-child {
+    background: #f4f4f4;
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px 0;
+    vertical-align: middle;
+}
 .OG-form-column-values ul > li > div + span {display: inline-block;}
 .OG-form-column-values .OG-icon.og-icon-add {margin-left: -3px;}
 /* og-portfolio-requirement */
-.OG-form-column-values .og-portfolio-requirement {border-left: 1px solid #cacaca;padding: 20px 0 20px 20px;list-style: none;}
+.OG-form-column-values .og-portfolio-requirement {
+    border-left: 1px solid #cacaca;
+    padding: 20px 0 20px 20px;
+    list-style: none;
+}
 
-  /* og-portfolio-requirements */
-  .OG-form-column-values .og-portfolio-requirements {border-left: 2px solid #f4f4f4; padding: 20px 0 20px 20px; list-style: none;}
-  .OG-form-column-values .og-portfolio-requirements > li > div:first-child {padding: 1px 4px; background-color: #cacaca; color: #fff;}
+/* og-portfolio-requirements */
+.OG-form-column-values .og-portfolio-requirements {
+    border-left: 2px solid #f4f4f4;
+    padding: 20px 0 20px 20px;
+    list-style: none;
+}
+.OG-form-column-values .og-portfolio-requirements > li > div:first-child {
+    padding: 1px 4px;
+    background-color: #cacaca;
+    color: #fff;
+}
 
-  /* og-required-output */
-  .OG-form-column-values .og-required-output {margin: 0 0 10px 0;}
-  .OG-form-column-values .og-required-output label {display: block; margin-bottom: 3px; color: #999;}
-  .OG-form-column-values .og-required-output select {width: 200px;}
-  .OG-form-column-values input[type="radio"]{margin-top: 0;}
+/* og-required-output */
+.OG-form-column-values .og-required-output {margin: 0 0 10px 0;}
+.OG-form-column-values .og-required-output label {display: block; margin-bottom: 3px; color: #999;}
+.OG-form-column-values .og-required-output select {width: 200px;}
+.OG-form-column-values input[type="radio"]{margin-top: 0;}
