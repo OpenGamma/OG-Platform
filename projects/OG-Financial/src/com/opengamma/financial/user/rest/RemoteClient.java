@@ -12,6 +12,7 @@ import org.fudgemsg.FudgeContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotMaster;
 import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
 import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
@@ -66,6 +67,10 @@ public class RemoteClient {
       return notImplemented("heartbeat");
     }
 
+    public RestTarget getMarketDataSnapshotMaster() {
+      return notImplemented("marketDataSnapshotMaster");
+    }
+
   }
 
   /**
@@ -79,6 +84,7 @@ public class RemoteClient {
     private URI _viewDefinitionRepository;
     private RestTarget _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
+    private RestTarget _marketDataSnapshotMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
       _portfolioMaster = portfolioMaster;
@@ -132,6 +138,15 @@ public class RemoteClient {
     @Override
     public RestTarget getHeartbeat() {
       return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
+    }
+
+    public void setMarketDataSnapshotMaster(final RestTarget marketDataSnapshotMaster) {
+      _marketDataSnapshotMaster = marketDataSnapshotMaster;
+    }
+
+    @Override
+    public RestTarget getMarketDataSnapshotMaster() {
+      return (_marketDataSnapshotMaster != null) ? _marketDataSnapshotMaster : super.getMarketDataSnapshotMaster();
     }
 
   }
@@ -188,6 +203,7 @@ public class RemoteClient {
   private SecurityMaster _securityMaster;
   private ManageableViewDefinitionRepository _viewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
+  private RemoteMarketDataSnapshotMaster _marketDataSnapshotMaster;
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
     _clientId = clientId;
@@ -232,6 +248,13 @@ public class RemoteClient {
       _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _targetProvider.getInterpolatedYieldCurveDefinitionMaster());
     }
     return _interpolatedYieldCurveDefinitionMaster;
+  }
+
+  public RemoteMarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    if (_marketDataSnapshotMaster == null) {
+      _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
+    }
+    return _marketDataSnapshotMaster;
   }
 
   /**
