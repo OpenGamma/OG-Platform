@@ -28,6 +28,8 @@ import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -69,6 +71,7 @@ public class MarketDataSnapshotMasterResource {
   }
 
   @POST
+  // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
   @Path("searchMetadata")
   public FudgeMsgEnvelope searchMetaData(final FudgeMsgEnvelope payload) {
     final MarketDataSnapshotSearchResult result = searchImpl(payload);
@@ -89,6 +92,14 @@ public class MarketDataSnapshotMasterResource {
     final MarketDataSnapshotSearchRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchRequest.class, payload.getMessage());
     final MarketDataSnapshotSearchResult result = getSnapshotMaster().search(request);
     return result;
+  }
+
+  @POST
+  @Path("history")
+  public FudgeMsgEnvelope history(final FudgeMsgEnvelope payload) {
+    final MarketDataSnapshotHistoryRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryRequest.class, payload.getMessage());
+    final MarketDataSnapshotHistoryResult result = getSnapshotMaster().history(request);
+    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
   }
 
   @POST

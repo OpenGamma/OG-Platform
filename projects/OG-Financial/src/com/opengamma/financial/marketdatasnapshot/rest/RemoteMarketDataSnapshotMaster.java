@@ -19,6 +19,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -69,8 +71,15 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
   }
 
   public MarketDataSnapshotMetadataSearchResult searchMetadata(final MarketDataSnapshotSearchRequest request) {
+    // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
     final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("searchMetadata"), getFudgeSerializationContext().objectToFudgeMsg(request));
     return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotMetadataSearchResult.class, response.getMessage());
+  }
+
+  @Override
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
+    final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializationContext().objectToFudgeMsg(request));
+    return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
   }
 
   @Override

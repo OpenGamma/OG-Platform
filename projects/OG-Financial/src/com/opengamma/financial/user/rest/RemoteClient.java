@@ -193,6 +193,11 @@ public class RemoteClient {
       return _baseTarget.resolve(ClientResource.HEARTBEAT_PATH);
     }
 
+    @Override
+    public RestTarget getMarketDataSnapshotMaster() {
+      return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH);
+    }
+
   }
 
   private final String _clientId;
@@ -250,6 +255,7 @@ public class RemoteClient {
     return _interpolatedYieldCurveDefinitionMaster;
   }
 
+  // TODO: [PLAT-1321] should be a MarketDataSnapshotMaster, not Remote... once the metadata query has moved
   public RemoteMarketDataSnapshotMaster getMarketDataSnapshotMaster() {
     if (_marketDataSnapshotMaster == null) {
       _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
