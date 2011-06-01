@@ -1,7 +1,7 @@
 <div class="OG-grid-box">
   <div class="og-title">Constraints</div>
   <div class="OG-gradient-02 og-container">
-  <table>
+  <table id="${widget}">
     <tfoot>
       <tr>
         <td colspan="6">
@@ -10,18 +10,21 @@
       </tr>
     </tfoot>
     <tbody class="OG-constraints">
-    <tr>
-      <td><input type="radio"><label for="">With</label></td>
-      <td><input type="radio"><label for="">Without</label></td>
-      <td class="og-with"><input type="text" /><span>=</span><input type="text" /></td>
+    <tr id="${row_with}" class="og-js-with">
+      <td><label><input class="og-js-radio" value="with" type="radio">With</label></td>
+      <td><label><input class="og-js-radio" value="without" type="radio">Without</label></td>
+      <td class="og-with">
+        <input type="text" class="og-js-key" placeholder="type" /><span>=</span>
+        <input type="text" class="og-js-value" placeholder="allow all" />
+      </td>
       <td class="og-labeled"><input type="checkbox" title="make this constraint optional" /></td>
       <td class="og-remove"><span class="OG-icon og-icon-remove" title="delete this constraint"></span></td>
       <td class="og-add"><span class="OG-icon og-icon-add" title="add a new constraint"></span></td>
     </tr>
-    <tr>
-      <td><input type="radio"><label for="">With</label></td>
-      <td><input type="radio"><label for="">Without</label></td>
-      <td class="og-without"><input class="" type="text" /></td>
+    <tr id="${row_without}" class="og-js-without">
+      <td><label><input class="og-js-radio" value="with" type="radio">With</label></td>
+      <td><label><input class="og-js-radio" value="without" type="radio">Without</label></td>
+      <td class="og-without"><input type="text" class="og-js-key" placeholder="all" /></td>
       <td class="og-labeled"><input type="checkbox" title="make this constraint optional" /></td>
       <td class="og-remove"><span class="OG-icon og-icon-remove" title="delete this constraint"></span></td>
       <td class="og-add"><span class="OG-icon og-icon-add" title="add a new constraint"></span></td>
