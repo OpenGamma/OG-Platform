@@ -38,7 +38,11 @@ $.register_module({
                 return setTimeout(api.partial(config), 500);
             if (!do_not_cache) // set it to null before making the request
                 html_cache[url] = null;
-            $.ajax({url: url, success: handler, error: handler});
+            $.ajax({url: url, success: handler, error: function (response) {
+                do_not_cache = true;
+                delete html_cache[url];
+                handler('Error (HTTP ' + response.status + ') retrieving: ' + url);
+            }});
         };
     }
 });
