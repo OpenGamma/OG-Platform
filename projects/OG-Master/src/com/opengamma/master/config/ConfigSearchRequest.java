@@ -6,16 +6,18 @@
 package com.opengamma.master.config;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.ObjectIdentifier;
@@ -170,6 +172,30 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigSearchRequest<?> other = (ConfigSearchRequest<?>) obj;
+      return JodaBeanUtils.equal(getConfigIds(), other.getConfigIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of configuration object identifiers, null to not limit by configuration object identifiers.
@@ -254,33 +280,50 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      * The meta-property for the {@code configIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _configIds = DirectMetaProperty.ofReadWrite(this, "configIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _configIds = DirectMetaProperty.ofReadWrite(
+        this, "configIds", ConfigSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ConfigSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(this, "type", (Class) Class.class);
+    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", ConfigSearchRequest.class, (Class) Class.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "configIds",
+        "name",
+        "type");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("configIds", _configIds);
-      temp.put("name", _name);
-      temp.put("type", _type);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ConfigSearchRequest<T> createBean() {
-      return new ConfigSearchRequest<T>();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -804471786:  // configIds
+          return _configIds;
+        case 3373707:  // name
+          return _name;
+        case 3575610:  // type
+          return _type;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ConfigSearchRequest<T>> builder() {
+      return new BasicBeanBuilder<ConfigSearchRequest<T>>(new ConfigSearchRequest<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

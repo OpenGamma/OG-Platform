@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.portfolio;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -208,6 +210,45 @@ public class WebPortfoliosData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebPortfoliosData other = (WebPortfoliosData) obj;
+      return JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriPortfolioId(), other.getUriPortfolioId()) &&
+          JodaBeanUtils.equal(getUriNodeId(), other.getUriNodeId()) &&
+          JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getPortfolio(), other.getPortfolio()) &&
+          JodaBeanUtils.equal(getParentNode(), other.getParentNode()) &&
+          JodaBeanUtils.equal(getNode(), other.getNode()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPortfolioId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriNodeId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParentNode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -489,7 +530,7 @@ public class WebPortfoliosData extends DirectBean {
   /**
    * The meta-bean for {@code WebPortfoliosData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -498,72 +539,113 @@ public class WebPortfoliosData extends DirectBean {
     /**
      * The meta-property for the {@code portfolioMaster} property.
      */
-    private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(this, "portfolioMaster", PortfolioMaster.class);
+    private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
+        this, "portfolioMaster", WebPortfoliosData.class, PortfolioMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
-    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(this, "positionMaster", PositionMaster.class);
+    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
+        this, "positionMaster", WebPortfoliosData.class, PositionMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebPortfoliosData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriPortfolioId} property.
      */
-    private final MetaProperty<String> _uriPortfolioId = DirectMetaProperty.ofReadWrite(this, "uriPortfolioId", String.class);
+    private final MetaProperty<String> _uriPortfolioId = DirectMetaProperty.ofReadWrite(
+        this, "uriPortfolioId", WebPortfoliosData.class, String.class);
     /**
      * The meta-property for the {@code uriNodeId} property.
      */
-    private final MetaProperty<String> _uriNodeId = DirectMetaProperty.ofReadWrite(this, "uriNodeId", String.class);
+    private final MetaProperty<String> _uriNodeId = DirectMetaProperty.ofReadWrite(
+        this, "uriNodeId", WebPortfoliosData.class, String.class);
     /**
      * The meta-property for the {@code uriPositionId} property.
      */
-    private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(this, "uriPositionId", String.class);
+    private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(
+        this, "uriPositionId", WebPortfoliosData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebPortfoliosData.class, String.class);
     /**
      * The meta-property for the {@code portfolio} property.
      */
-    private final MetaProperty<PortfolioDocument> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", PortfolioDocument.class);
+    private final MetaProperty<PortfolioDocument> _portfolio = DirectMetaProperty.ofReadWrite(
+        this, "portfolio", WebPortfoliosData.class, PortfolioDocument.class);
     /**
      * The meta-property for the {@code parentNode} property.
      */
-    private final MetaProperty<ManageablePortfolioNode> _parentNode = DirectMetaProperty.ofReadWrite(this, "parentNode", ManageablePortfolioNode.class);
+    private final MetaProperty<ManageablePortfolioNode> _parentNode = DirectMetaProperty.ofReadWrite(
+        this, "parentNode", WebPortfoliosData.class, ManageablePortfolioNode.class);
     /**
      * The meta-property for the {@code node} property.
      */
-    private final MetaProperty<ManageablePortfolioNode> _node = DirectMetaProperty.ofReadWrite(this, "node", ManageablePortfolioNode.class);
+    private final MetaProperty<ManageablePortfolioNode> _node = DirectMetaProperty.ofReadWrite(
+        this, "node", WebPortfoliosData.class, ManageablePortfolioNode.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<PortfolioDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", PortfolioDocument.class);
+    private final MetaProperty<PortfolioDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebPortfoliosData.class, PortfolioDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "portfolioMaster",
+        "positionMaster",
+        "uriInfo",
+        "uriPortfolioId",
+        "uriNodeId",
+        "uriPositionId",
+        "uriVersionId",
+        "portfolio",
+        "parentNode",
+        "node",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("portfolioMaster", _portfolioMaster);
-      temp.put("positionMaster", _positionMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriPortfolioId", _uriPortfolioId);
-      temp.put("uriNodeId", _uriNodeId);
-      temp.put("uriPositionId", _uriPositionId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("portfolio", _portfolio);
-      temp.put("parentNode", _parentNode);
-      temp.put("node", _node);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebPortfoliosData createBean() {
-      return new WebPortfoliosData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -772274742:  // portfolioMaster
+          return _portfolioMaster;
+        case -1840419605:  // positionMaster
+          return _positionMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case -72522889:  // uriPortfolioId
+          return _uriPortfolioId;
+        case 1130377033:  // uriNodeId
+          return _uriNodeId;
+        case 1240319664:  // uriPositionId
+          return _uriPositionId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case 1121781064:  // portfolio
+          return _portfolio;
+        case -244857396:  // parentNode
+          return _parentNode;
+        case 3386882:  // node
+          return _node;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebPortfoliosData> builder() {
+      return new BasicBeanBuilder<WebPortfoliosData>(new WebPortfoliosData());
     }
 
     @Override

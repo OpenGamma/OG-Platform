@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.position;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueIdentifier;
@@ -165,6 +167,39 @@ public class WebPositionsData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebPositionsData other = (WebPositionsData) obj;
+      return JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriPositionId(), other.getUriPositionId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getPosition(), other.getPosition()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriPositionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPosition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -371,7 +406,7 @@ public class WebPositionsData extends DirectBean {
   /**
    * The meta-bean for {@code WebPositionsData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -380,57 +415,89 @@ public class WebPositionsData extends DirectBean {
     /**
      * The meta-property for the {@code positionMaster} property.
      */
-    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(this, "positionMaster", PositionMaster.class);
+    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
+        this, "positionMaster", WebPositionsData.class, PositionMaster.class);
     /**
      * The meta-property for the {@code securityLoader} property.
      */
-    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(this, "securityLoader", SecurityLoader.class);
+    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
+        this, "securityLoader", WebPositionsData.class, SecurityLoader.class);
     /**
      * The meta-property for the {@code securitySource} property.
      */
-    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(this, "securitySource", SecuritySource.class);
+    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
+        this, "securitySource", WebPositionsData.class, SecuritySource.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebPositionsData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriPositionId} property.
      */
-    private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(this, "uriPositionId", String.class);
+    private final MetaProperty<String> _uriPositionId = DirectMetaProperty.ofReadWrite(
+        this, "uriPositionId", WebPositionsData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebPositionsData.class, String.class);
     /**
      * The meta-property for the {@code position} property.
      */
-    private final MetaProperty<PositionDocument> _position = DirectMetaProperty.ofReadWrite(this, "position", PositionDocument.class);
+    private final MetaProperty<PositionDocument> _position = DirectMetaProperty.ofReadWrite(
+        this, "position", WebPositionsData.class, PositionDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<PositionDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", PositionDocument.class);
+    private final MetaProperty<PositionDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebPositionsData.class, PositionDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "positionMaster",
+        "securityLoader",
+        "securitySource",
+        "uriInfo",
+        "uriPositionId",
+        "uriVersionId",
+        "position",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("positionMaster", _positionMaster);
-      temp.put("securityLoader", _securityLoader);
-      temp.put("securitySource", _securitySource);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriPositionId", _uriPositionId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("position", _position);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebPositionsData createBean() {
-      return new WebPositionsData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1840419605:  // positionMaster
+          return _positionMaster;
+        case -903470221:  // securityLoader
+          return _securityLoader;
+        case -702456965:  // securitySource
+          return _securitySource;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case 1240319664:  // uriPositionId
+          return _uriPositionId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case 747804969:  // position
+          return _position;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebPositionsData> builder() {
+      return new BasicBeanBuilder<WebPositionsData>(new WebPositionsData());
     }
 
     @Override

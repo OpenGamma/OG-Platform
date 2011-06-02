@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.exchange;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -144,6 +146,35 @@ public class WebExchangeData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebExchangeData other = (WebExchangeData) obj;
+      return JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriExchangeId(), other.getUriExchangeId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -300,7 +331,7 @@ public class WebExchangeData extends DirectBean {
   /**
    * The meta-bean for {@code WebExchangeData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -309,47 +340,73 @@ public class WebExchangeData extends DirectBean {
     /**
      * The meta-property for the {@code exchangeMaster} property.
      */
-    private final MetaProperty<ExchangeMaster> _exchangeMaster = DirectMetaProperty.ofReadWrite(this, "exchangeMaster", ExchangeMaster.class);
+    private final MetaProperty<ExchangeMaster> _exchangeMaster = DirectMetaProperty.ofReadWrite(
+        this, "exchangeMaster", WebExchangeData.class, ExchangeMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebExchangeData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriExchangeId} property.
      */
-    private final MetaProperty<String> _uriExchangeId = DirectMetaProperty.ofReadWrite(this, "uriExchangeId", String.class);
+    private final MetaProperty<String> _uriExchangeId = DirectMetaProperty.ofReadWrite(
+        this, "uriExchangeId", WebExchangeData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebExchangeData.class, String.class);
     /**
      * The meta-property for the {@code exchange} property.
      */
-    private final MetaProperty<ExchangeDocument> _exchange = DirectMetaProperty.ofReadWrite(this, "exchange", ExchangeDocument.class);
+    private final MetaProperty<ExchangeDocument> _exchange = DirectMetaProperty.ofReadWrite(
+        this, "exchange", WebExchangeData.class, ExchangeDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<ExchangeDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", ExchangeDocument.class);
+    private final MetaProperty<ExchangeDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebExchangeData.class, ExchangeDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "exchangeMaster",
+        "uriInfo",
+        "uriExchangeId",
+        "uriVersionId",
+        "exchange",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("exchangeMaster", _exchangeMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriExchangeId", _uriExchangeId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("exchange", _exchange);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebExchangeData createBean() {
-      return new WebExchangeData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -652001691:  // exchangeMaster
+          return _exchangeMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case 772498730:  // uriExchangeId
+          return _uriExchangeId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case 1989774883:  // exchange
+          return _exchange;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebExchangeData> builder() {
+      return new BasicBeanBuilder<WebExchangeData>(new WebExchangeData());
     }
 
     @Override

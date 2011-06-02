@@ -7,18 +7,21 @@ package com.opengamma.master.position;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.Identifier;
@@ -55,12 +58,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    */
   @PropertyDefinition
   private UniqueIdentifier _uniqueId;
-  /**
-   * The position name, not null.
-   */
-  @PropertyDefinition(get = "manual", set = "")
-  @SuppressWarnings("unused")
-  private String _name = "";
   /**
    * The quantity.
    * This field must not be null for the object to be valid.
@@ -140,6 +137,7 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    * Gets a suitable name for the position.
    * @return the name, not null
    */
+  @DerivedProperty
   public String getName() {
     if (getQuantity() != null && getSecurityKey() != null && getSecurityKey().size() > 0) {
       final String amount = JdkUtils.stripTrailingZeros(getQuantity()).toPlainString() + " x ";
@@ -226,8 +224,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case 3373707:  // name
-        return getName();
       case -1285004149:  // quantity
         return getQuantity();
       case 1550083839:  // securityKey
@@ -236,6 +232,8 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
         return getTrades();
       case 2064682670:  // providerKey
         return getProviderKey();
+      case 3373707:  // name
+        return getName();
     }
     return super.propertyGet(propertyName);
   }
@@ -247,8 +245,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case -294460212:  // uniqueId
         setUniqueId((UniqueIdentifier) newValue);
         return;
-      case 3373707:  // name
-        throw new UnsupportedOperationException("Property cannot be written: name");
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
         return;
@@ -261,8 +257,39 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
       case 2064682670:  // providerKey
         setProviderKey((Identifier) newValue);
         return;
+      case 3373707:  // name
+        throw new UnsupportedOperationException("Property cannot be written: name");
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageablePosition other = (ManageablePosition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityKey(), other.getSecurityKey()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
+          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -291,15 +318,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
    */
   public final Property<UniqueIdentifier> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -420,9 +438,18 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ManageablePosition}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -431,48 +458,74 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
-    /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadOnly(this, "name", String.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageablePosition.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(this, "quantity", BigDecimal.class);
+    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
+        this, "quantity", ManageablePosition.class, BigDecimal.class);
     /**
      * The meta-property for the {@code securityKey} property.
      */
-    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(
+        this, "securityKey", ManageablePosition.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ManageableTrade>> _trades = DirectMetaProperty.ofReadWrite(this, "trades", (Class) List.class);
+    private final MetaProperty<List<ManageableTrade>> _trades = DirectMetaProperty.ofReadWrite(
+        this, "trades", ManageablePosition.class, (Class) List.class);
     /**
      * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
+        this, "providerKey", ManageablePosition.class, Identifier.class);
+    /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadOnly(
+        this, "name", ManageablePosition.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "quantity",
+        "securityKey",
+        "trades",
+        "providerKey",
+        "name");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("name", _name);
-      temp.put("quantity", _quantity);
-      temp.put("securityKey", _securityKey);
-      temp.put("trades", _trades);
-      temp.put("providerKey", _providerKey);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageablePosition createBean() {
-      return new ManageablePosition();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case -1285004149:  // quantity
+          return _quantity;
+        case 1550083839:  // securityKey
+          return _securityKey;
+        case -865715313:  // trades
+          return _trades;
+        case 2064682670:  // providerKey
+          return _providerKey;
+        case 3373707:  // name
+          return _name;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageablePosition> builder() {
+      return new BasicBeanBuilder<ManageablePosition>(new ManageablePosition());
     }
 
     @Override
@@ -492,14 +545,6 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
      */
     public final MetaProperty<UniqueIdentifier> uniqueId() {
       return _uniqueId;
-    }
-
-    /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
     }
 
     /**
@@ -532,6 +577,14 @@ public class ManageablePosition extends DirectBean implements MutableUniqueIdent
      */
     public final MetaProperty<Identifier> providerKey() {
       return _providerKey;
+    }
+
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
   }

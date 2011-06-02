@@ -7,16 +7,18 @@ package com.opengamma.master.security;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -272,6 +274,36 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecuritySearchRequest other = (SecuritySearchRequest) obj;
+      return JodaBeanUtils.equal(getSecurityIds(), other.getSecurityIds()) &&
+          JodaBeanUtils.equal(getSecurityKeys(), other.getSecurityKeys()) &&
+          JodaBeanUtils.equal(getIdentifierValue(), other.getIdentifierValue()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security object identifiers, null to not limit by security object identifiers.
@@ -454,47 +486,73 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code securityIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(this, "securityIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _securityIds = DirectMetaProperty.ofReadWrite(
+        this, "securityIds", SecuritySearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code securityKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(this, "securityKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _securityKeys = DirectMetaProperty.ofReadWrite(
+        this, "securityKeys", SecuritySearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code identifierValue} property.
      */
-    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(this, "identifierValue", String.class);
+    private final MetaProperty<String> _identifierValue = DirectMetaProperty.ofReadWrite(
+        this, "identifierValue", SecuritySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", SecuritySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code securityType} property.
      */
-    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(this, "securityType", String.class);
+    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
+        this, "securityType", SecuritySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code fullDetail} property.
      */
-    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(this, "fullDetail", Boolean.TYPE);
+    private final MetaProperty<Boolean> _fullDetail = DirectMetaProperty.ofReadWrite(
+        this, "fullDetail", SecuritySearchRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "securityIds",
+        "securityKeys",
+        "identifierValue",
+        "name",
+        "securityType",
+        "fullDetail");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("securityIds", _securityIds);
-      temp.put("securityKeys", _securityKeys);
-      temp.put("identifierValue", _identifierValue);
-      temp.put("name", _name);
-      temp.put("securityType", _securityType);
-      temp.put("fullDetail", _fullDetail);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public SecuritySearchRequest createBean() {
-      return new SecuritySearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1550081880:  // securityIds
+          return _securityIds;
+        case 807958868:  // securityKeys
+          return _securityKeys;
+        case 2085582408:  // identifierValue
+          return _identifierValue;
+        case 3373707:  // name
+          return _name;
+        case 808245914:  // securityType
+          return _securityType;
+        case -1233600576:  // fullDetail
+          return _fullDetail;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SecuritySearchRequest> builder() {
+      return new BasicBeanBuilder<SecuritySearchRequest>(new SecuritySearchRequest());
     }
 
     @Override
