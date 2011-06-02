@@ -25,6 +25,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.transport.jaxrs.RestClient;
+import com.opengamma.transport.jaxrs.RestRuntimeException;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
@@ -66,20 +67,22 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
 
   @Override
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
-    final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("search"), getFudgeSerializationContext().objectToFudgeMsg(request));
-    return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchResult.class, response.getMessage());
-  }
-
-  public MarketDataSnapshotMetadataSearchResult searchMetadata(final MarketDataSnapshotSearchRequest request) {
-    // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
-    final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("searchMetadata"), getFudgeSerializationContext().objectToFudgeMsg(request));
-    return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotMetadataSearchResult.class, response.getMessage());
+    try {
+      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("search"), getFudgeSerializationContext().objectToFudgeMsg(request));
+      return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchResult.class, response.getMessage());
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
+    }
   }
 
   @Override
   public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
-    final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializationContext().objectToFudgeMsg(request));
-    return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
+    try {
+      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("history"), getFudgeSerializationContext().objectToFudgeMsg(request));
+      return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryResult.class, response.getMessage());
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
+    }
   }
 
   @Override
@@ -94,17 +97,21 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
 
   @Override
   public MarketDataSnapshotDocument get(final UniqueIdentifier uniqueId) {
-    // [PLAT-1316] Note the document returned is incomplete
-    final FudgeMsg response = getRestClient().getMsg(getTargetBase().resolveBase("securities").resolve(uniqueId.toString()));
-    if (response == null) {
-      throw new DataNotFoundException("Unique identifier " + uniqueId + " not found");
+    try {
+      // [PLAT-1316] Note the document returned is incomplete
+      final FudgeMsg response = getRestClient().getMsg(getTargetBase().resolveBase("securities").resolve(uniqueId.toString()));
+      if (response == null) {
+        throw new DataNotFoundException("Unique identifier " + uniqueId + " not found");
+      }
+      final MarketDataSnapshotDocument document = new MarketDataSnapshotDocument();
+      final FudgeDeserializationContext fdc = getFudgeDeserializationContext();
+      document.setUniqueId(fdc.fieldValueToObject(UniqueIdentifier.class, response.getByName("uniqueId")));
+      final StructuredMarketDataSnapshot snapshot = fdc.fieldValueToObject(StructuredMarketDataSnapshot.class, response.getByName("snapshot"));
+      document.setSnapshot(new ManageableMarketDataSnapshot(snapshot));
+      return document;
+    } catch (RestRuntimeException ex) {
+      throw ex.translate();
     }
-    final MarketDataSnapshotDocument document = new MarketDataSnapshotDocument();
-    final FudgeDeserializationContext fdc = getFudgeDeserializationContext();
-    document.setUniqueId(fdc.fieldValueToObject(UniqueIdentifier.class, response.getByName("uniqueId")));
-    final StructuredMarketDataSnapshot snapshot = fdc.fieldValueToObject(StructuredMarketDataSnapshot.class, response.getByName("snapshot"));
-    document.setSnapshot(new ManageableMarketDataSnapshot(snapshot));
-    return document;
   }
 
   @Override
