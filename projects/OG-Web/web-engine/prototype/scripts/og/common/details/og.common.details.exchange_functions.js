@@ -20,6 +20,5 @@ $.register_module({
                 $(selector).html(html);
             };
         return exchange_functions = {render_info: render_info};
-
     }
 });
