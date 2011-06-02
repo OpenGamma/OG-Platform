@@ -11,6 +11,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.cometd.Client;
@@ -54,8 +55,10 @@ public class WebView {
   private AtomicBoolean _isInit = new AtomicBoolean(false);
   
   private final Map<String, WebViewGrid> _gridsByName;
-  private WebViewGrid _portfolioGrid;
-  private WebViewGrid _primitivesGrid;
+  private RequirementBasedWebViewGrid _portfolioGrid;
+  private RequirementBasedWebViewGrid _primitivesGrid;
+  
+  private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
       final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {    
@@ -104,7 +107,7 @@ public class WebView {
       return;
     }
     
-    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -112,7 +115,7 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
     
-    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -124,7 +127,7 @@ public class WebView {
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getJsonGridStructures(), null);
+    getRemote().deliver(getLocal(), "/initialize", getInitialJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -315,15 +318,49 @@ public class WebView {
   
   //-------------------------------------------------------------------------
   
-  public Map<String, Object> getJsonGridStructures() {
+  public Map<String, Object> getInitialJsonGridStructures() {
     Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
-      gridStructures.put("primitives", getPrimitivesGrid().getJsonGridStructure());
+      gridStructures.put("primitives", getPrimitivesGrid().getInitialJsonGridStructure());
     }
     if (getPortfolioGrid() != null) {
-      gridStructures.put("portfolio", getPortfolioGrid().getJsonGridStructure());
+      gridStructures.put("portfolio", getPortfolioGrid().getInitialJsonGridStructure());
     }
     return gridStructures;
+  }
+  
+  public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
+    if (!getPortfolioGrid().getName().equals(parentGridName)) {
+      throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
+    }
+    
+    if (includeDepGraph) {
+      if (_activeDepGraphCount.getAndIncrement() == 0) {
+        getViewClient().setViewCycleAccessSupported(true);
+      }
+    } else {
+      if (_activeDepGraphCount.decrementAndGet() == 0) {
+        getViewClient().setViewCycleAccessSupported(false);
+      }
+    }
+    WebViewGrid grid = getPortfolioGrid().setIncludeDepGraph(cell, includeDepGraph);
+    if (grid != null) {
+      if (includeDepGraph) {
+        registerGrid(grid);
+      } else {
+        unregisterGrid(grid.getName());
+      }
+    }
+  }
+  
+  //-------------------------------------------------------------------------
+  
+  private void registerGrid(WebViewGrid grid) {
+    _gridsByName.put(grid.getName(), grid);
+  }
+  
+  private void unregisterGrid(String gridName) {
+    _gridsByName.remove(gridName);
   }
   
   //-------------------------------------------------------------------------
@@ -332,11 +369,11 @@ public class WebView {
     return _executorService;
   }
   
-  private WebViewGrid getPortfolioGrid() {
+  private RequirementBasedWebViewGrid getPortfolioGrid() {
     return _portfolioGrid;
   }
   
-  private WebViewGrid getPrimitivesGrid() {
+  private RequirementBasedWebViewGrid getPrimitivesGrid() {
     return _primitivesGrid;
   }
   

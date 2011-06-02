@@ -15,7 +15,7 @@
     this.supportsHistory = false;
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      $cell.html("<span class='cell-value'>" + value.name + "</span>");
+      $cell.html("<span class='cell-value'>" + value.v.name + "</span>");
     }
     
   }

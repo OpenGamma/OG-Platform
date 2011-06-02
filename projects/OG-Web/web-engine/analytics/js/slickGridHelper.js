@@ -123,33 +123,36 @@
           if (!latestValue) {
             continue;
           }
-          var isExplain = false;
           if (detailComponents && detailComponents[column.colId]) {
-            detailComponents[column.colId].updateValue(latestValue);
+            detailComponents[column.colId].updateValue(latestValue.v);
           }
           if (explainComponents && explainComponents[column.colId]) {
-            explainComponents[column.colId].updateValue(latestValue.explain);
-            isExplain = true;
+            explainComponents[column.colId].updateValue(latestValue.dg);
           }
-          if (column.typeFormatter.supportsHistory) {
-            if (!gridRow[column.colId]) {
-              gridRow[column.colId] = {};
-            }
-            gridRow[column.colId].display = latestValue.display;
+          if (latestValue.dg && !latestValue.v) {
+            // Row is out of viewport
+            continue;
+          }
+          var formatter = ColumnFormatter.getFormatterForCell(column, latestValue.t);
+          if (!gridRow[column.colId]) {
+            gridRow[column.colId] = {};
+          }
+          if (latestValue.t) {
+            gridRow[column.colId].t = latestValue.t;
+          }
+          gridRow[column.colId].v = latestValue.v;
+          if (formatter.supportsHistory) {
             // Push the history in
-            if (!gridRow[column.colId].history) {
-              gridRow[column.colId].history = new Array();
+            if (!gridRow[column.colId].h) {
+              gridRow[column.colId].h = new Array();
             }
-            if (latestValue.history) {
-              gridRow[column.colId].history = gridRow[column.colId].history.concat(latestValue.history);
-              var historyCount = gridRow[column.colId].history.length;
-              if (gridRow[column.colId].history.length > 20) {
-                gridRow[column.colId].history = gridRow[column.colId].history.slice(historyCount - 20);
+            if (latestValue.h) {
+              gridRow[column.colId].h = gridRow[column.colId].h.concat(latestValue.h);
+              var historyCount = gridRow[column.colId].h.length;
+              if (gridRow[column.colId].h.length > 20) {
+                gridRow[column.colId].h = gridRow[column.colId].h.slice(historyCount - 20);
               }
             }
-          } else {
-            // No history, so just replace the value
-            gridRow[column.colId] = isExplain && latestValue.display ? latestValue.display : latestValue;
           }
         }
         _dataView.updateItem(row.rowId, gridRow);

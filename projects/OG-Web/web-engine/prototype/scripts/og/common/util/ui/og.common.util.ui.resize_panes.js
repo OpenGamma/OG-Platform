@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * Draggable resize bar that sits between two elements that require resizing.
