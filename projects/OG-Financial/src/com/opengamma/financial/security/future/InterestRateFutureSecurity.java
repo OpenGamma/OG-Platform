@@ -7,8 +7,8 @@ public class InterestRateFutureSecurity extends com.opengamma.financial.security
   private static final long serialVersionUID = 61732422917l;
   private String _cashRateType;
   public static final String CASH_RATE_TYPE_KEY = "cashRateType";
-  public InterestRateFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String cashRateType) {
-    super (expiry, tradingExchange, settlementExchange, currency);
+  public InterestRateFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String cashRateType) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
     if (cashRateType == null) throw new NullPointerException ("cashRateType' cannot be null");
     _cashRateType = cashRateType;
   }
@@ -24,8 +24,8 @@ public class InterestRateFutureSecurity extends com.opengamma.financial.security
       throw new IllegalArgumentException ("Fudge message is not a InterestRateFutureSecurity - field 'cashRateType' is not string", e);
     }
   }
-  public InterestRateFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String cashRateType) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency);
+  public InterestRateFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, String cashRateType) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
     if (cashRateType == null) throw new NullPointerException ("cashRateType' cannot be null");
     _cashRateType = cashRateType;
   }

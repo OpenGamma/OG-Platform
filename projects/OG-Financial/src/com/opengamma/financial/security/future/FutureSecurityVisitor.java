@@ -18,6 +18,10 @@ public interface FutureSecurityVisitor<T> {
 
   T visitEnergyFutureSecurity(EnergyFutureSecurity security);
 
+  T visitEquityFutureSecurity(EquityFutureSecurity security);
+
+  T visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security);
+
   T visitFXFutureSecurity(FXFutureSecurity security);
 
   T visitIndexFutureSecurity(IndexFutureSecurity security);
@@ -27,9 +31,5 @@ public interface FutureSecurityVisitor<T> {
   T visitMetalFutureSecurity(MetalFutureSecurity security);
 
   T visitStockFutureSecurity(StockFutureSecurity security);
-
-  T visitEquityFutureSecurity(EquityFutureSecurity security);
-
-  T visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security);
 
 }

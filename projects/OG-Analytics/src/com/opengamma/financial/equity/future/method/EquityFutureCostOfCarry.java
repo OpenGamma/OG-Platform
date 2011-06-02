@@ -6,9 +6,8 @@
 package com.opengamma.financial.equity.future.method;
 
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
+
 import org.apache.commons.lang.Validate;
-
-
 
 /**
  * Method to compute a future's present value given the current value of its underlying asset and a cost of carry. 
@@ -19,9 +18,9 @@ public class EquityFutureCostOfCarry {
   public double presentValue(final EquityFuture future, final double assetValue, final double costOfCarry) {
     Validate.notNull(future, "Future");
     Validate.notNull(costOfCarry, "Cost of Carry");
-    
-    double fwdPrice = assetValue * Math.exp(costOfCarry * future.getTimeToDelivery()); 
-    return (fwdPrice - future.getStrike()) * future.getPointValue() * future.getNumContracts();
-    
+
+    double fwdPrice = assetValue * Math.exp(costOfCarry * future.getTimeToSettlement());
+    return (fwdPrice - future.getStrike()) * future.getUnitAmount();
+
   }
 }

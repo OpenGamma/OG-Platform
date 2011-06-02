@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.equity.future.method;
 
-import org.apache.commons.lang.Validate;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute a future's present value given market price.
@@ -17,6 +18,6 @@ public abstract class EquityFutureMarkToMarket {
   public static double presentValue(final EquityFuture future, final double mktPrice) {
     Validate.notNull(future, "Future");
     Validate.notNull(mktPrice, "Market Price");
-    return (mktPrice - future.getStrike()) * future.getPointValue() * future.getNumContracts();
+    return (mktPrice - future.getStrike()) * future.getUnitAmount();
   }
 }

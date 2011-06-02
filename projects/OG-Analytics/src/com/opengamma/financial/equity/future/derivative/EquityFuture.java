@@ -5,62 +5,59 @@
  */
 package com.opengamma.financial.equity.future.derivative;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.equity.EquityDerivative;
 import com.opengamma.financial.equity.EquityDerivativeVisitor;
+import com.opengamma.util.money.Currency;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
 public class EquityFuture implements EquityDerivative {
-  private final double _timeToFixing;
-  private final double _timeToDelivery;
+  private final double _timeToExpiry;
+  private final double _timeToSettlement;
   private final double _strike;
-  private final double _pointValue;
-  private final int _numContracts;
-  private final String _assetName;
+  private final double _unitAmount;
+  private final Currency _currency;
 
   /**
    * Skeleton. Needs to be described in full
-   * @param timeToFixing    date-time (in years as a double)  at which the reference index is fixed  
-   * @param timeToDelivery  date-time (in years as a double)  of settlement
-   * @param strike        Set strike price at trade time. Note that we may handle margin by resetting this at the end of each trading day
-   * @param pointValue    The unit value per tick, in given currency  
-   * @param numContracts    The number of contracts bought or sold. If sold, this will be a negative integer. 
-   * @param assetName     Market reference to the underlying dividend index
+   * @param timeToExpiry    time (in years as a double) until the date-time at which the reference index is fixed  
+   * @param timeToSettlement  time (in years as a double) until the date-time at which the contract is settled
+   * @param strike         Set strike price at trade time. Note that we may handle margin by resetting this at the end of each trading day
+   * @param currency       The reporting currency of the future
+   *  @param unitAmount    The unit value per tick, in given currency  
    */
-
-  public EquityFuture(final double timeToFixing,
-                      final double timeToDelivery,
+  public EquityFuture(final double timeToExpiry,
+                      final double timeToSettlement,
                       final double strike,
-                      final double pointValue,
-                      int numContracts, final String assetName) {
-    Validate.isTrue(pointValue > 0, "point value must be positive");
-    Validate.notNull(assetName, "asset name");
-    _timeToFixing = timeToFixing;
-    _timeToDelivery = timeToDelivery;
+                      final Currency currency,
+                      final double unitAmount) {
+    // TODO Case -  Validate!!!
+    Validate.isTrue(unitAmount > 0, "point value must be positive");
+    _timeToExpiry = timeToExpiry;
+    _timeToSettlement = timeToSettlement;
     _strike = strike;
-    _pointValue = pointValue;
-    _numContracts = numContracts;
-    _assetName = assetName;
+    _unitAmount = unitAmount;
+    _currency = currency;
   }
 
   /**
    * Gets the date when the reference rate is set 
    * @return the fixing date (in years as a double)
    */
-  public double getTimeToFixing() {
-    return _timeToFixing;
+  public double getTimeToExpiry() {
+    return _timeToExpiry;
   }
 
   /**
    * Gets the date when payments are made 
    * @return the delivery date (in years as a double)
    */
-  public double getTimeToDelivery() {
-    return _timeToDelivery;
+  public double getTimeToSettlement() {
+    return _timeToSettlement;
   }
 
   /**
@@ -75,25 +72,8 @@ public class EquityFuture implements EquityDerivative {
    * Gets the point value.
    * @return the point value
    */
-  public double getPointValue() {
-    return _pointValue;
-  }
-
-  /**
-   * Gets the numContracts.
-   * @return the numContracts
-   */
-  public int getNumContracts() {
-    return _numContracts;
-  }
-
-  /**
-   * Gets the assetName.
-   * @return the assetName
-   * !!! Could we perhaps use this identifier to get information such as i) currency ii) daysToSpot ???
-   */
-  public String getAssetName() {
-    return _assetName;
+  public double getUnitAmount() {
+    return _unitAmount;
   }
 
   @Override
@@ -112,16 +92,15 @@ public class EquityFuture implements EquityDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _assetName.hashCode();
-    result = prime * result + _numContracts;
+    result = prime * result + _currency.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_pointValue);
+    temp = Double.doubleToLongBits(_unitAmount);
     result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ temp >>> 32);
-    temp = Double.doubleToLongBits(_timeToDelivery);
+    temp = Double.doubleToLongBits(_timeToSettlement);
     result = prime * result + (int) (temp ^ temp >>> 32);
-    temp = Double.doubleToLongBits(_timeToFixing);
+    temp = Double.doubleToLongBits(_timeToExpiry);
     result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
@@ -138,22 +117,21 @@ public class EquityFuture implements EquityDerivative {
       return false;
     }
     EquityFuture other = (EquityFuture) obj;
-    if (!ObjectUtils.equals(_assetName, other._assetName)) {
+
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
-    if (_numContracts != other._numContracts) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_pointValue) != Double.doubleToLongBits(other._pointValue)) {
+
+    if (Double.doubleToLongBits(_unitAmount) != Double.doubleToLongBits(other._unitAmount)) {
       return false;
     }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
     }
-    if (Double.doubleToLongBits(_timeToDelivery) != Double.doubleToLongBits(other._timeToDelivery)) {
+    if (Double.doubleToLongBits(_timeToSettlement) != Double.doubleToLongBits(other._timeToSettlement)) {
       return false;
     }
-    if (Double.doubleToLongBits(_timeToFixing) != Double.doubleToLongBits(other._timeToFixing)) {
+    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other._timeToExpiry)) {
       return false;
     }
     return true;

@@ -13,11 +13,13 @@ namespace com.opengamma.financial.security.future {
   
     required string securityType [default = "FUTURE"];
     
-    required util.time.Expiry expiry;
+    required com.opengamma.util.time.Expiry expiry;
     required string tradingExchange;
     required string settlementExchange;
     required com.opengamma.util.money.Currency currency;
-  
+    // required string settlementType [default = "CASH"];
+    required double unitAmount;
+      
     binding Java {
       body <<<JAVA
         public abstract <T> T accept(FutureSecurityVisitor<T> visitor);

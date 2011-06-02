@@ -212,6 +212,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }

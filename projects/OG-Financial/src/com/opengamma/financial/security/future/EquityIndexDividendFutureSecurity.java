@@ -5,14 +5,14 @@ package com.opengamma.financial.security.future;
 public class EquityIndexDividendFutureSecurity extends com.opengamma.financial.security.future.EquityFutureSecurity implements java.io.Serializable {
   public <T> T accept (FutureSecurityVisitor<T> visitor) { return visitor.visitEquityIndexDividendFutureSecurity (this); }
   private static final long serialVersionUID = 1l;
-  public EquityIndexDividendFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, com.opengamma.util.time.Expiry lastTradeDate, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.id.Identifier assetIdentifier) {
-    super (expiry, tradingExchange, settlementExchange, currency, lastTradeDate, settlementDate, assetIdentifier);
+  public EquityIndexDividendFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, com.opengamma.financial.security.DateTimeWithZone settlementDate) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount, settlementDate);
   }
   protected EquityIndexDividendFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
   }
-  public EquityIndexDividendFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, com.opengamma.util.time.Expiry lastTradeDate, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.id.Identifier assetIdentifier, com.opengamma.id.Identifier underlyingIdentifier, String underlyingType, Double pointValue) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, lastTradeDate, settlementDate, assetIdentifier, underlyingIdentifier, underlyingType, pointValue);
+  public EquityIndexDividendFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, com.opengamma.financial.security.DateTimeWithZone settlementDate, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount, settlementDate, underlyingIdentifier);
   }
   protected EquityIndexDividendFutureSecurity (final EquityIndexDividendFutureSecurity source) {
     super (source);

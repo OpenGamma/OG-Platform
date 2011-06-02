@@ -7,8 +7,8 @@ public class EnergyFutureSecurity extends com.opengamma.financial.security.futur
   private static final long serialVersionUID = 11346605593l;
   private com.opengamma.id.Identifier _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  public EnergyFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String commodityType) {
-    super (expiry, tradingExchange, settlementExchange, currency, commodityType);
+  public EnergyFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount, String commodityType) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount, commodityType);
   }
   protected EnergyFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
@@ -25,8 +25,8 @@ public class EnergyFutureSecurity extends com.opengamma.financial.security.futur
       }
     }
   }
-  public EnergyFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String commodityType, Double unitNumber, String unitName, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, commodityType, unitNumber, unitName);
+  public EnergyFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, String commodityType, Double unitNumber, String unitName, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount, commodityType, unitNumber, unitName);
     if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;

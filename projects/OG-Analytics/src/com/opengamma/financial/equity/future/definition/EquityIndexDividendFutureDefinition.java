@@ -6,31 +6,31 @@
 package com.opengamma.financial.equity.future.definition;
 
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.util.money.Currency;
+
 import javax.time.calendar.ZonedDateTime;
-import org.apache.commons.lang.Validate;
 
 /**
  * Each time a view is recalculated, the security definition 
  * creates an analytic derivative for the current time. 
  */
-public class EquityIndexDividendFutureDefinition {
+public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition {
 
-  /*
-   * See InterestRateFutureTransactionDefinition. Need to 
-  
-  public EquityIndexDividendFuture toDerivative(ZonedDateTime date, double priceMeaningWhat, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    
-    double fixingDate = 0.0;
-    double deliveryDate = 0.0;
-    double strike = 0.0;
-    double pointValue = 10.0;
-    String indexName = "";
-    String curveName = "";
-    
-    return EquityIndexDividendFuture(fixingDate, deliveryDate, priceMeaningWhat, pointValue,indexName, curveName); 
-  }
+  /**
+   * @param expiryDate
+   * @param settlementDate
+   * @param strikePrice
+   * @param currency
+   * @param unitValue
    */
+  public EquityIndexDividendFutureDefinition(ZonedDateTime expiryDate, ZonedDateTime settlementDate, double strikePrice, Currency currency, double unitValue) {
+    super(expiryDate, settlementDate, strikePrice, currency, unitValue);
+  }
+
+  @Override
+  public EquityIndexDividendFuture toDerivative(ZonedDateTime date) {
+    return (EquityIndexDividendFuture) super.toDerivative(date);
+
+  }
 
 }

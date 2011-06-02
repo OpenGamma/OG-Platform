@@ -7,28 +7,27 @@ public class IndexFutureSecurity extends com.opengamma.financial.security.future
   private static final long serialVersionUID = 11346605593l;
   private com.opengamma.id.Identifier _underlyingIdentifier;
   public static final String UNDERLYING_IDENTIFIER_KEY = "underlyingIdentifier";
-  public IndexFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (expiry, tradingExchange, settlementExchange, currency);
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
-    else {
-      _underlyingIdentifier = underlyingIdentifier;
-    }
+  public IndexFutureSecurity (com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, double unitAmount) {
+    super (expiry, tradingExchange, settlementExchange, currency, unitAmount);
   }
   protected IndexFutureSecurity (final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (UNDERLYING_IDENTIFIER_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a IndexFutureSecurity - field 'underlyingIdentifier' is not present");
-    try {
-      _underlyingIdentifier = com.opengamma.id.Identifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a IndexFutureSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+    if (fudgeField != null)  {
+      try {
+        final com.opengamma.id.Identifier fudge1;
+        fudge1 = com.opengamma.id.Identifier.fromFudgeMsg (fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+        setUnderlyingIdentifier (fudge1);
+      }
+      catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException ("Fudge message is not a IndexFutureSecurity - field 'underlyingIdentifier' is not Identifier message", e);
+      }
     }
   }
-  public IndexFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, com.opengamma.id.Identifier underlyingIdentifier) {
-    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency);
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
+  public IndexFutureSecurity (com.opengamma.id.UniqueIdentifier uniqueId, String name, String securityType, com.opengamma.id.IdentifierBundle identifiers, com.opengamma.util.time.Expiry expiry, String tradingExchange, String settlementExchange, com.opengamma.util.money.Currency currency, String settlementType, double unitAmount, com.opengamma.id.Identifier underlyingIdentifier) {
+    super (uniqueId, name, securityType, identifiers, expiry, tradingExchange, settlementExchange, currency, settlementType, unitAmount);
+    if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;
     }
@@ -76,7 +75,7 @@ public class IndexFutureSecurity extends com.opengamma.financial.security.future
     return _underlyingIdentifier;
   }
   public void setUnderlyingIdentifier (com.opengamma.id.Identifier underlyingIdentifier) {
-    if (underlyingIdentifier == null) throw new NullPointerException ("'underlyingIdentifier' cannot be null");
+    if (underlyingIdentifier == null) _underlyingIdentifier = null;
     else {
       _underlyingIdentifier = underlyingIdentifier;
     }
