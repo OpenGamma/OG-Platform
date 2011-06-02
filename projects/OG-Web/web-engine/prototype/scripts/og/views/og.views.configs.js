@@ -182,7 +182,9 @@ $.register_module({
                                 new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({module: 'og.views.forms.view-definition-resolution-rule-transform-fields'})
+                                new form.Block({
+                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
+                                })
                             ];
                             form.dom();
 

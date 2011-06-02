@@ -185,7 +185,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       where += getDbHelper().sqlWildcardQuery("AND UPPER(name) ", "UPPER(:name)", request.getName());
     }
     if (request.getSecurityType() != null) {
-      where += "AND sec_type = :sec_type ";
+      where += "AND UPPER(sec_type) = UPPER(:sec_type) ";
     }
     if (request.getSecurityIds() != null) {
       StringBuilder buf = new StringBuilder(request.getSecurityIds().size() * 10);
