@@ -18,6 +18,7 @@ import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -208,7 +209,7 @@ public class RemoteClient {
   private SecurityMaster _securityMaster;
   private ManageableViewDefinitionRepository _viewDefinitionRepository;
   private InterpolatedYieldCurveDefinitionMaster _interpolatedYieldCurveDefinitionMaster;
-  private RemoteMarketDataSnapshotMaster _marketDataSnapshotMaster;
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
     _clientId = clientId;
@@ -255,8 +256,7 @@ public class RemoteClient {
     return _interpolatedYieldCurveDefinitionMaster;
   }
 
-  // TODO: [PLAT-1321] should be a MarketDataSnapshotMaster, not Remote... once the metadata query has moved
-  public RemoteMarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
     if (_marketDataSnapshotMaster == null) {
       _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
     }
