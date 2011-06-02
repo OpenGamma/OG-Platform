@@ -33,6 +33,8 @@
         handle: '.popup-head',
         cursor: 'move',
         placeholder: 'popup-placeholder',
+        revert: 200,
+        smooth: true,
         helper: function (evt, ui) { return $(ui).clone().appendTo('#resultsViewer').show(); },
         opacity: 0.8
       });

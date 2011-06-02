@@ -120,11 +120,11 @@
         background: url(/images/tick-same.png) no-repeat;
       }
 
-      .slick-cell.highlighted {
+      .slick-cell.explain {
         background-color: #cbead7;
       }
 
-      .slick-cell.highlighted.explain-hover {
+      .slick-cell.explain.explain-hover {
         background-color: #ffff95;
       }
 
@@ -208,6 +208,7 @@
 
       .detail-popup {
         padding: 8px;
+        position: absolute;
       }
 
       .detail-popup .detail-content {

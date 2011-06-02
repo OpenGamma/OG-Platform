@@ -62,7 +62,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     subscribe("/service/initialize", "processInitializeRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
-    subscribe("/service/updates/explain", "processExplainRequest");
+    subscribe("/service/updates/depgraph", "processDepGraphRequest");
     subscribe("/service/currentview/pause", "processPauseRequest");
     subscribe("/service/currentview/resume", "processResumeRequest");
     getBayeux().addListener(this);
@@ -152,11 +152,15 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     long rowId = (Long) dataMap.get("rowId");
     long colId = (Long) dataMap.get("colId");
     ConversionMode mode = ConversionMode.valueOf((String) dataMap.get("mode"));
-    webView.getGridByName(gridName).setConversionMode(WebGridCell.of(rowId, colId), mode);
+    WebViewGrid grid = webView.getGridByName(gridName);
+    if (grid == null) {
+      s_logger.warn("Request to change update mode for cell in unknown grid '{}'", gridName);
+    }
+    grid.setConversionMode(WebGridCell.of(rowId, colId), mode);
   }
   
   @SuppressWarnings("unchecked")
-  public void processExplainRequest(Client remote, Message message) {
+  public void processDepGraphRequest(Client remote, Message message) {
     WebView webView = getClientView(remote);
     if (webView == null) {
       return;
@@ -165,8 +169,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     String gridName = (String) dataMap.get("gridName");
     long rowId = (Long) dataMap.get("rowId");
     long colId = (Long) dataMap.get("colId");
-    boolean isEnabled = (Boolean) dataMap.get("enabled");
-    webView.getGridByName(gridName).setExplain(WebGridCell.of(rowId, colId), isEnabled);    
+    boolean includeDepGraph = (Boolean) dataMap.get("includeDepGraph");
+    webView.setIncludeDepGraph(gridName, WebGridCell.of(rowId, colId), includeDepGraph);
   }
 
   public void processViewsRequest(Client remote, Message message) {

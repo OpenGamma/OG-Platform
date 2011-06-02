@@ -19,7 +19,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 /**
  * Represents a primitives grid
  */
-public class WebViewPrimitivesGrid extends WebViewGrid {
+public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
 
   protected WebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
     super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE),

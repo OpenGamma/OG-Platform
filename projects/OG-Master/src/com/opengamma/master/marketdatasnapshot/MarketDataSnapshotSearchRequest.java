@@ -50,6 +50,14 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
   private String _name;
 
   /**
+   * Whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
+   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
+   * data.
+   */
+  @PropertyDefinition
+  private boolean _includeData = true;
+
+  /**
    * Creates an instance.
    */
   public MarketDataSnapshotSearchRequest() {
@@ -125,6 +133,8 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
         return getSnapshotIds();
       case 3373707:  // name
         return getName();
+      case 274670706:  // includeData
+        return isIncludeData();
     }
     return super.propertyGet(propertyName);
   }
@@ -138,6 +148,9 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
         return;
       case 3373707:  // name
         setName((String) newValue);
+        return;
+      case 274670706:  // includeData
+        setIncludeData((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue);
@@ -189,6 +202,37 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
+   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
+   * data.
+   * @return the value of the property
+   */
+  public boolean isIncludeData() {
+    return _includeData;
+  }
+
+  /**
+   * Sets whether to include the snapshot data in the search results. {@code true} to include the data, or {@code false}
+   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
+   * data.
+   * @param includeData  the new value of the property
+   */
+  public void setIncludeData(boolean includeData) {
+    this._includeData = includeData;
+  }
+
+  /**
+   * Gets the the {@code includeData} property.
+   * to omit it. Defaults to {@code true}. Note that a master may ignore this value and always return the full
+   * data.
+   * @return the property, not null
+   */
+  public final Property<Boolean> includeData() {
+    return metaBean().includeData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code MarketDataSnapshotSearchRequest}.
    */
   public static class Meta extends AbstractSearchRequest.Meta {
@@ -207,6 +251,10 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
     /**
+     * The meta-property for the {@code includeData} property.
+     */
+    private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(this, "includeData", Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map;
@@ -216,6 +264,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
       LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
       temp.put("snapshotIds", _snapshotIds);
       temp.put("name", _name);
+      temp.put("includeData", _includeData);
       _map = Collections.unmodifiableMap(temp);
     }
 
@@ -249,6 +298,14 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code includeData} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> includeData() {
+      return _includeData;
     }
 
   }
