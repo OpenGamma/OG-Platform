@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * This function sets the height of an element to exactly the amount of px

@@ -11,6 +11,16 @@
 </#if>
     	"securityType":"${security.securityType}",
     <#switch security.securityType>
+      <#case "Cash">
+      "amount":"${security.amount}",
+      "currency":"${security.currency}",
+      "maturity": {
+            "date": "${security.maturity.date}",
+            "zone": "${security.maturity.zone}"
+        },
+      "rate":"${security.rate}",
+      "region":"${security.region?replace("_", " ")}"
+      <#break>
       <#case "EQUITY">
     	"shortName":"${security.shortName}",
     	"exchange":"${security.exchange}",

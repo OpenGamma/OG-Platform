@@ -28,6 +28,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -127,6 +129,10 @@ public class DbMarketDataSnapshotMaster extends AbstractDocumentDbMaster<MarketD
     String search = sqlSelectFrom() + "WHERE main.id IN (" + inner + ") ORDER BY main.id" + sqlAdditionalOrderBy(false);
     String count = "SELECT COUNT(*) FROM snp_snapshot " + where;
     return new String[] {search, count };
+  }
+
+  public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
+    return doHistory(request, new MarketDataSnapshotHistoryResult(), new MarketDataSnapshotDocumentExtractor());
   }
 
   //-------------------------------------------------------------------------

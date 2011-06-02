@@ -28,6 +28,8 @@ import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -45,17 +47,13 @@ public class MarketDataSnapshotMasterResource {
     _fudgeContext = fudgeContext;
   }
 
-  
   private FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
-  
-
   private MarketDataSnapshotMaster getSnapshotMaster() {
     return _snapshotMaster;
   }
-
 
   public FudgeSerializationContext getFudgeSerializationContext() {
     return new FudgeSerializationContext(getFudgeContext());
@@ -64,21 +62,21 @@ public class MarketDataSnapshotMasterResource {
   public FudgeDeserializationContext getFudgeDeserializationContext() {
     return new FudgeDeserializationContext(getFudgeContext());
   }
-  
-  
+
   @POST
   @Path("search")
   public FudgeMsgEnvelope search(final FudgeMsgEnvelope payload) {
     final MarketDataSnapshotSearchResult result = searchImpl(payload);
     return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
   }
-  
+
   @POST
+  // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
   @Path("searchMetadata")
   public FudgeMsgEnvelope searchMetaData(final FudgeMsgEnvelope payload) {
     final MarketDataSnapshotSearchResult result = searchImpl(payload);
-    List<MarketDataSnapshotMetadataDocument> docs = 
-      new ArrayList<MarketDataSnapshotMetadataDocument>(result.getDocuments().size());
+    List<MarketDataSnapshotMetadataDocument> docs =
+        new ArrayList<MarketDataSnapshotMetadataDocument>(result.getDocuments().size());
 
     for (final MarketDataSnapshotDocument doc : result.getDocuments()) {
       MarketDataSnapshotMetadataDocument metaDoc = new MarketDataSnapshotMetadataDocument(doc);
@@ -86,25 +84,30 @@ public class MarketDataSnapshotMasterResource {
     }
     MarketDataSnapshotMetadataSearchResult metaResult = new MarketDataSnapshotMetadataSearchResult(docs);
     metaResult.setPaging(result.getPaging());
-    
+
     return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(metaResult));
   }
-  
-
 
   private MarketDataSnapshotSearchResult searchImpl(final FudgeMsgEnvelope payload) {
     final MarketDataSnapshotSearchRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotSearchRequest.class, payload.getMessage());
     final MarketDataSnapshotSearchResult result = getSnapshotMaster().search(request);
     return result;
   }
-  
-  
+
+  @POST
+  @Path("history")
+  public FudgeMsgEnvelope history(final FudgeMsgEnvelope payload) {
+    final MarketDataSnapshotHistoryRequest request = getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotHistoryRequest.class, payload.getMessage());
+    final MarketDataSnapshotHistoryResult result = getSnapshotMaster().history(request);
+    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
+  }
+
   @POST
   @Path("add")
   public FudgeMsgEnvelope add(final FudgeMsgEnvelope payload) {
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
     final ManageableMarketDataSnapshot snapshotDefinition = dctx.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
-        
+
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(snapshotDefinition);
     document = _snapshotMaster.add(document);
     if (document == null) {
@@ -149,7 +152,7 @@ public class MarketDataSnapshotMasterResource {
     final UniqueIdentifier uid = UniqueIdentifier.parse(uidString);
     final FudgeDeserializationContext dctx = new FudgeDeserializationContext(getFudgeContext());
     final ManageableMarketDataSnapshot snapshot = dctx.fieldValueToObject(ManageableMarketDataSnapshot.class, payload.getMessage().getByName("snapshot"));
-    
+
     MarketDataSnapshotDocument document = new MarketDataSnapshotDocument(uid, snapshot);
     try {
       document = _snapshotMaster.update(document);
@@ -159,14 +162,12 @@ public class MarketDataSnapshotMasterResource {
       final MutableFudgeMsg resp = getFudgeContext().newMessage();
       resp.add("uniqueId", document.getUniqueId().toFudgeMsg(getFudgeContext()));
       return new FudgeMsgEnvelope(resp);
-      
+
     } catch (DataNotFoundException e) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
   }
-  
-  
-  
+
   /**
    * For debugging purposes only.
    * 

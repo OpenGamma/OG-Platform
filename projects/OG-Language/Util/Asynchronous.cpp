@@ -186,6 +186,7 @@ abandonLoop:
 		}
 		delete poOperation;
 	}
+	m_poTail = NULL;
 	if (m_poRunner != poRunner) {
 		LOGDEBUG (TEXT ("Signalling thread control semaphore"));
 		m_semThread.Signal ();

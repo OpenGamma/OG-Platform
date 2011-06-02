@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * API call for making and caching static requests
@@ -38,7 +38,7 @@ $.register_module({
                 return setTimeout(api.partial(config), 500);
             if (!do_not_cache) // set it to null before making the request
                 html_cache[url] = null;
-            $.ajax({url: url, success: handler});
+            $.ajax({url: url, success: handler, error: handler});
         };
     }
 });

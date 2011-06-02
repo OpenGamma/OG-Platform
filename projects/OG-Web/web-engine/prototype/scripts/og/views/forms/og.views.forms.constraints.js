@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -20,9 +20,7 @@ $.register_module({
                 deconvert = function (datum, optional) {
                     var array = datum.split(/,\s*/g), result;
                     if (!optional && array.length === 1) return datum ? datum : null;
-                    result = array.reduce(function (acc, val, idx) {
-                        return val ? (acc[idx] = val, acc) : acc;
-                    }, {});
+                    result = array.reduce(function (acc, val, idx) {return val ? (acc[idx] = val, acc) : acc;}, {});
                     if (optional) result.optional = null;
                     return result;
                 };
@@ -52,8 +50,8 @@ $.register_module({
                         var item;
                         $widget = $('#' + ids.widget)
                         rows = {
-                            'with': $('#' + ids.row_with).remove().attr('id', ''),
-                            without: $('#' + ids.row_without).remove().attr('id', '')
+                            'with': $('#' + ids.row_with).remove().removeAttr('id'),
+                            without: $('#' + ids.row_without).remove().removeAttr('id')
                         };
                         render = {
                             'with': function (datum, $replace, $after) {
