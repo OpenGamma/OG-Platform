@@ -55,7 +55,7 @@
     }
     
     function formatValue(row, cell, value, columnDef, dataContext) {
-      return "<span class='cell-value'>" + value + "</span>";
+      return value;
     }
     
     function formatHeader(row, cell, value, columnDef, dataContext) {

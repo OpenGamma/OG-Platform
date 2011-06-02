@@ -109,7 +109,7 @@
     
     function assignFormatters(columns) {
       $.each(columns, function(index, column) {
-        column.typeFormatter = ColumnFormatter.getTypeFormatter(column.dataType);
+        column.typeFormatter = ColumnFormatter.getFormatterForType(column.dataType);
       });
     }
     
@@ -220,12 +220,12 @@
       });
     }
     
-    function sendExplainMode(rowId, colId, enabled) {
-      _cometd.publish('/service/updates/explain', {
+    function sendDepGraphMode(rowId, colId, enabled) {
+      _cometd.publish('/service/updates/depgraph', {
         gridName: "portfolio",
         rowId: rowId,
         colId: colId,
-        enabled: enabled
+        includeDepGraph: enabled
       });      
     }
     
@@ -269,11 +269,11 @@
     }
     
     this.startDepGraphExplain = function(rowId, colId) {
-      sendExplainMode(rowId, colId, true);
+      sendDepGraphMode(rowId, colId, true);
     }
     
     this.stopDepGraphExplain = function(rowId, colId) {
-      sendExplainMode(rowId, colId, false);
+      sendDepGraphMode(rowId, colId, false);
     }
     
     this.connect = function() {
@@ -288,9 +288,9 @@
     this.onDisconnected = new EventManager();
     
     /**
-     * Fired before a update is requested to allow UI components to contribute to the request, for example by inserting
-     * viewport details. This way, multiple UI components can consume the same type of data while maintaining requests
-     * for the minimum possible set of data.
+     * Fired before an update is requested to allow UI components to contribute to the request, for example by
+     * inserting viewport details. This way, multiple UI components can consume the same type of data while maintaining
+     * requests for the minimum possible set of data.
      */
     this.beforeUpdateRequested = new EventManager();
     
