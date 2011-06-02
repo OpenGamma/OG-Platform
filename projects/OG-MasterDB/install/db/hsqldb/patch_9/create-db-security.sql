@@ -193,6 +193,24 @@ CREATE TABLE sec_equityoption (
     constraint sec_fk_equityoption2exchange foreign key (exchange_id) references sec_exchange (id)
 );
 
+CREATE TABLE sec_fxoption (
+    id bigint not null,
+    security_id bigint not null,
+    put_amount double precision not null,
+    call_amount double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    put_currency_id bigint,
+    call_currency_id bigint,
+    settlement_date timestamp,
+    settlement_zone varchar(50),
+    primary key (id),
+    constraint sec_fk_fxoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxoption2putcurrency foreign key (put_currency_id) references sec_currency (id),
+    constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id),
+);
+
 CREATE TABLE sec_frequency (
     id bigint not null,
     name varchar(255) not null unique,

@@ -162,8 +162,9 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurity visitFXOptionSecurity(FXOptionSecurity security) {
-        return new FXOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean
-            .getUnderlying()), currencyBeanToCurrency(bean.getCurrency()), bean.getCounterparty(), currencyBeanToCurrency(bean.getPutCurrency()), currencyBeanToCurrency(bean.getCallCurrency()));
+//        return new FXOptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean
+//            .getUnderlying()), currencyBeanToCurrency(bean.getCurrency()), bean.getCounterparty(), currencyBeanToCurrency(bean.getPutCurrency()), currencyBeanToCurrency(bean.getCallCurrency()));
+        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -304,11 +305,12 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurityBean visitFXOptionSecurity(FXOptionSecurity security) {
-        final OptionSecurityBean bean = createSecurityBean(security);
-        bean.setCounterparty(security.getCounterparty());
-        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
-        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getCode()));
-        return bean;
+//        final OptionSecurityBean bean = createSecurityBean(security);
+//        bean.setCounterparty(security.getCounterparty());
+//        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
+//        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getCode()));
+//        return bean;
+        throw new UnsupportedOperationException();
       }
 
       @Override

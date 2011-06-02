@@ -35,6 +35,7 @@ CREATE INDEX ix_sec_security_corr_to_instant ON sec_security(corr_to_instant);
 CREATE INDEX ix_sec_security_name ON sec_security(name);
 CREATE INDEX ix_sec_security_nameu ON sec_security(upper(name));
 CREATE INDEX ix_sec_security_sec_type ON sec_security(sec_type);
+CREATE INDEX ix_sec_security_sec_typeu ON sec_security(upper(sec_type));
 
 CREATE TABLE sec_idkey (
     id bigint not null,
@@ -191,6 +192,24 @@ CREATE TABLE sec_equityoption (
     constraint sec_fk_equityoption2sec foreign key (security_id) references sec_security (id),
     constraint sec_fk_equityoption2currency foreign key (currency_id) references sec_currency (id),
     constraint sec_fk_equityoption2exchange foreign key (exchange_id) references sec_exchange (id)
+);
+
+CREATE TABLE sec_fxoption (
+    id bigint not null,
+    security_id bigint not null,
+    put_amount double precision not null,
+    call_amount double precision not null,
+    expiry_date timestamp not null,
+    expiry_zone varchar(50) not null,
+    expiry_accuracy smallint not null,
+    put_currency_id bigint,
+    call_currency_id bigint,
+    settlement_date timestamp,
+    settlement_zone varchar(50),
+    primary key (id),
+    constraint sec_fk_fxoption2sec foreign key (security_id) references sec_security (id),
+    constraint sec_fk_fxoption2putcurrency foreign key (put_currency_id) references sec_currency (id),
+    constraint sec_fk_fxoption2callcurrency foreign key (call_currency_id) references sec_currency (id)
 );
 
 CREATE TABLE sec_frequency (
