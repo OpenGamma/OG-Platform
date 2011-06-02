@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.marketdatasnapshot.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -68,24 +65,6 @@ public class MarketDataSnapshotMasterResource {
   public FudgeMsgEnvelope search(final FudgeMsgEnvelope payload) {
     final MarketDataSnapshotSearchResult result = searchImpl(payload);
     return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(result));
-  }
-
-  @POST
-  // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
-  @Path("searchMetadata")
-  public FudgeMsgEnvelope searchMetaData(final FudgeMsgEnvelope payload) {
-    final MarketDataSnapshotSearchResult result = searchImpl(payload);
-    List<MarketDataSnapshotMetadataDocument> docs =
-        new ArrayList<MarketDataSnapshotMetadataDocument>(result.getDocuments().size());
-
-    for (final MarketDataSnapshotDocument doc : result.getDocuments()) {
-      MarketDataSnapshotMetadataDocument metaDoc = new MarketDataSnapshotMetadataDocument(doc);
-      docs.add(metaDoc);
-    }
-    MarketDataSnapshotMetadataSearchResult metaResult = new MarketDataSnapshotMetadataSearchResult(docs);
-    metaResult.setPaging(result.getPaging());
-
-    return new FudgeMsgEnvelope(getFudgeSerializationContext().objectToFudgeMsg(metaResult));
   }
 
   private MarketDataSnapshotSearchResult searchImpl(final FudgeMsgEnvelope payload) {

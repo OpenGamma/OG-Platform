@@ -75,17 +75,6 @@ public final class RemoteMarketDataSnapshotMaster implements MarketDataSnapshotM
     }
   }
 
-  public MarketDataSnapshotMetadataSearchResult searchMetadata(final MarketDataSnapshotSearchRequest request) {
-    try {
-      // TODO: [PLAT-1317] the URL should be 'metadata', not 'searchMetadata'
-      // TODO: Note that this could be redundant as the search request has an "includeData" parameter
-      final FudgeMsgEnvelope response = getRestClient().post(getTargetBase().resolve("searchMetadata"), getFudgeSerializationContext().objectToFudgeMsg(request));
-      return getFudgeDeserializationContext().fudgeMsgToObject(MarketDataSnapshotMetadataSearchResult.class, response.getMessage());
-    } catch (RestRuntimeException ex) {
-      throw ex.translate();
-    }
-  }
-
   @Override
   public MarketDataSnapshotHistoryResult history(final MarketDataSnapshotHistoryRequest request) {
     try {
