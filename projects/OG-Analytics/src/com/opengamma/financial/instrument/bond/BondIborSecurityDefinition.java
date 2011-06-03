@@ -12,18 +12,27 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.instrument.FixedIncomeInstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
+import com.opengamma.financial.interestrate.payments.Payment;
 
 /**
  * Describes a floating coupon bond (or Floating Rate Note) issue with Ibor-like coupon.
  */
-public class BondIborDescriptionDefinition extends BondDescriptionDefinition<CouponIborDefinition> {
+public class BondIborSecurityDefinition extends BondSecurityDefinition<CouponIborDefinition> {
 
+  /**
+   * The default notional for the security.
+   */
   private static final double DEFAULT_NOTIONAL = 1.0;
+  /**
+   * The default ex-coupn number of days.
+   */
   private static final int DEFAULT_EX_COUPON_DAYS = 0;
 
   /**
@@ -35,7 +44,7 @@ public class BondIborDescriptionDefinition extends BondDescriptionDefinition<Cou
    * @param calendar The calendar used to compute the standard settlement date.
    * @param dayCount The coupon day count convention.
    */
-  public BondIborDescriptionDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponIborDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
+  public BondIborSecurityDefinition(AnnuityPaymentFixedDefinition nominal, AnnuityCouponIborDefinition coupon, int exCouponDays, int settlementDays, Calendar calendar, DayCount dayCount) {
     super(nominal, coupon, exCouponDays, settlementDays, calendar, dayCount);
   }
 
@@ -50,18 +59,33 @@ public class BondIborDescriptionDefinition extends BondDescriptionDefinition<Cou
    * @param isEOM The end-of-month flag.
    * @return The fixed coupon bond.
    */
-  public static BondIborDescriptionDefinition from(ZonedDateTime maturityDate, ZonedDateTime firstAccrualDate, IborIndex index, int settlementDays, DayCount dayCount,
-      BusinessDayConvention businessDay, boolean isEOM) {
+  public static BondIborSecurityDefinition from(ZonedDateTime maturityDate, ZonedDateTime firstAccrualDate, IborIndex index, int settlementDays, DayCount dayCount, BusinessDayConvention businessDay,
+      boolean isEOM) {
     Validate.notNull(maturityDate, "Maturity date");
     Validate.notNull(firstAccrualDate, "First accrual date");
     Validate.notNull(index, "Ibor index");
     Validate.notNull(dayCount, "Day count");
     Validate.notNull(businessDay, "Business day convention");
     AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(firstAccrualDate, maturityDate, DEFAULT_NOTIONAL, index, false);
-    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate),
+    PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(index.getCurrency(), businessDay.adjustDate(index.getCalendar(), maturityDate), 
         DEFAULT_NOTIONAL)};
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
-    return new BondIborDescriptionDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
+    return new BondIborSecurityDefinition(nominal, coupon, DEFAULT_EX_COUPON_DAYS, settlementDays, index.getCalendar(), dayCount);
+  }
+
+  @Override
+  public BondSecurity<? extends Payment> toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    return null;
+  }
+
+  @Override
+  public <U, V> V accept(FixedIncomeInstrumentDefinitionVisitor<U, V> visitor, U data) {
+    return visitor.visitBondIborSecurityDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(FixedIncomeInstrumentDefinitionVisitor<?, V> visitor) {
+    return visitor.visitBondIborSecurityDefinition(this);
   }
 
 }

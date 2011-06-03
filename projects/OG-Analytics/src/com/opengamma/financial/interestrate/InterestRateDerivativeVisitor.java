@@ -9,8 +9,11 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.Bond;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondForward;
-import com.opengamma.financial.interestrate.bond.definition.BondTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.definition.Cash;
 import com.opengamma.financial.interestrate.fra.ZZZForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.definition.ForwardRateAgreement;
@@ -58,7 +61,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondFuture(BondFuture bondFuture, S data);
 
-  T visitBondTransaction(BondTransaction<? extends Payment> bond, S data);
+  T visitBondFixedSecurity(BondFixedSecurity bond, S data);
+
+  T visitBondFixedTransaction(BondFixedTransaction bond, S data);
+
+  T visitBondIborSecurity(BondIborSecurity bond, S data);
+
+  T visitBondIborTransaction(BondIborTransaction bond, S data);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity, S data);
 
@@ -128,7 +137,13 @@ public interface InterestRateDerivativeVisitor<S, T> {
 
   T visitBondFuture(BondFuture bondFuture);
 
-  T visitBondTransaction(BondTransaction<? extends Payment> bond);
+  T visitBondFixedSecurity(BondFixedSecurity bond);
+
+  T visitBondFixedTransaction(BondFixedTransaction bond);
+
+  T visitBondIborSecurity(BondIborSecurity bond);
+
+  T visitBondIborTransaction(BondIborTransaction bond);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity);
 

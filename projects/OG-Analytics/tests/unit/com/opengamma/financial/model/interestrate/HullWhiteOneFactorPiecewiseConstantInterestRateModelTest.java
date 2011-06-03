@@ -102,4 +102,24 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
   }
+
+  @Test
+  /**
+   * Test the bond volatility (called alpha) vs a hard-coded value.
+   */
+  public void bondVolatility() {
+    double expiry1 = 0.25;
+    double expiry2 = 2.25;
+    double numeraire = 10.0;
+    double maturity = 9.0;
+    double alphaExpected = -0.015191631;
+    double alpha = MODEL.alpha(expiry1, expiry2, numeraire, maturity, MODEL_PARAMETERS); //All data
+    assertEquals("Hull-White one factor: bond volatility (alpha) - all", alphaExpected, alpha, 1E-8);
+    alphaExpected = -0.015859116;
+    alpha = MODEL.alpha(0.0, expiry2, numeraire, maturity, MODEL_PARAMETERS);//From today
+    assertEquals("Hull-White one factor: bond volatility (alpha)- today", alphaExpected, alpha, 1E-8);
+    alphaExpected = 0.111299267;
+    alpha = MODEL.alpha(0.0, expiry2, expiry2, maturity, MODEL_PARAMETERS);// From today with expiry numeraire
+    assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", alphaExpected, alpha, 1E-8);
+  }
 }

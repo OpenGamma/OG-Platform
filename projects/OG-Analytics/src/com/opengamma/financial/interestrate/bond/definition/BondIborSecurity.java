@@ -13,25 +13,27 @@ import com.opengamma.financial.interestrate.payments.Payment;
 /**
  * Describes a Ibor floating coupon bond (Floating Rate Note) issue.
  */
-public class BondIborDescription extends BondDescription<Payment> {
+public class BondIborSecurity extends BondSecurity<Payment> {
 
   /**
    * Ibor floating bond constructor from the nominal and the coupons.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
-   * @param coupon The bond Ibor coupons. The coupons notional should be in line with the bond nominal.
+   * @param coupon The bond Ibor coupons. Can be Ibor coupons or fixed coupons (if the fixing is already known). The coupons notional should be in line with the bond nominal.
+   * @param settlementTime The time (in years) to settlement date. 
+   * @param discountCurveName The name of the curve used for settlement amount discounting.
    */
-  public BondIborDescription(AnnuityPaymentFixed nominal, GenericAnnuity<Payment> coupon) {
-    super(nominal, coupon);
+  public BondIborSecurity(AnnuityPaymentFixed nominal, GenericAnnuity<Payment> coupon, double settlementTime, String discountCurveName) {
+    super(nominal, coupon, settlementTime, discountCurveName);
   }
 
   @Override
   public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitBondIborSecurity(this, data);
   }
 
   @Override
   public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitBondIborSecurity(this);
   }
 
 }
