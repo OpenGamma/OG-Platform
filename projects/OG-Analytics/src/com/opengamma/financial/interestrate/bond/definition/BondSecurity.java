@@ -12,12 +12,13 @@ import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.util.money.Currency;
 
 /**
  * Describes a generic single currency bond issue.
  * @param <C> The coupon type.
  */
-public abstract class BondDescription<C extends Payment> implements InterestRateDerivative {
+public abstract class BondSecurity<C extends Payment> implements InterestRateDerivative {
   /**
    * The nominal payments. For bullet bond, it is restricted to a single payment.
    */
@@ -26,17 +27,30 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
    * The bond coupons. The coupons notional should be in line with the bond nominal.
    */
   private final GenericAnnuity<C> _coupon;
+  /**
+   * The time (in years) to settlement date. Used for dirty/clean price computation.
+   */
+  private final double _settlementTime;
+  /**
+   * The name of the curve used for settlement amount discounting.
+   */
+  private final String _repoCurveName;
 
   /**
    * Bond constructor from the bond nominal and coupon.
    * @param nominal The notional payments.
    * @param coupon The bond coupons.
+   * @param settlementTime The time (in years) to settlement date. 
+   * @param repoCurveName The name of the curve used for settlement amount discounting.
    */
-  public BondDescription(GenericAnnuity<PaymentFixed> nominal, GenericAnnuity<C> coupon) {
+  public BondSecurity(GenericAnnuity<PaymentFixed> nominal, GenericAnnuity<C> coupon, double settlementTime, String repoCurveName) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
+    Validate.notNull(repoCurveName, "Repo curve name");
     _nominal = nominal;
     _coupon = coupon;
+    _settlementTime = settlementTime;
+    _repoCurveName = repoCurveName;
   }
 
   /**
@@ -55,11 +69,35 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
     return _coupon;
   }
 
+  /**
+   * Gets the settlement time.
+   * @return The settlement time.
+   */
+  public double getSettlementTime() {
+    return _settlementTime;
+  }
+
+  /**
+   * Gets the bond currency.
+   * @return The bond currency.
+   */
+  public Currency getCurrency() {
+    return _nominal.getCurrency();
+  }
+
+  /**
+   * Gets the name of the curve used for settlement amount discounting.
+   * @return The curve name.
+   */
+  public String getRepoCurveName() {
+    return _repoCurveName;
+  }
+
   @Override
   public String toString() {
-    String result = "Bond Description:\n";
-    result += "Nominal: " + _nominal.toString();
-    result += "Coupon: " + _coupon.toString();
+    String result = "Bond Description:";
+    result += "\nNominal: " + _nominal.toString();
+    result += "\nCoupon: " + _coupon.toString();
     return result;
   }
 
@@ -83,7 +121,7 @@ public abstract class BondDescription<C extends Payment> implements InterestRate
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondDescription<?> other = (BondDescription<?>) obj;
+    BondSecurity<?> other = (BondSecurity<?>) obj;
     if (!ObjectUtils.equals(_coupon, other._coupon)) {
       return false;
     }

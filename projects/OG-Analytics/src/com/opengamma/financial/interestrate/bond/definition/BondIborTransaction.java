@@ -5,25 +5,33 @@
  */
 package com.opengamma.financial.interestrate.bond.definition;
 
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.financial.interestrate.InterestRateDerivativeVisitor;
 
 /**
  * Describes a transaction on a Ibor floating coupon bond (Floating Rate Note) issue.
  */
-public class BondIborTransaction extends BondTransaction<Payment> {
+public class BondIborTransaction extends BondTransaction<BondIborSecurity> {
 
   /**
    * Ibor coupon bond transaction constructor from transaction details.
    * @param bondTransaction The bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
-   * @param settlement Transaction settlement payment (time and amount).
+   * @param settlementAmount Transaction settlement payment (time and amount).
    * @param bondStandard Description of the underlying bond with standard settlement date.
-   * @param spotTime Description of the standard spot time.
    * @param notionalStandard The notional at the standard spot time.
    */
-  public BondIborTransaction(BondIborDescription bondTransaction, double quantity, PaymentFixed settlement, BondIborDescription bondStandard, double spotTime, double notionalStandard) {
-    super(bondTransaction, quantity, settlement, bondStandard, spotTime, notionalStandard);
+  public BondIborTransaction(BondIborSecurity bondTransaction, double quantity, double settlementAmount, BondIborSecurity bondStandard, double notionalStandard) {
+    super(bondTransaction, quantity, settlementAmount, bondStandard, notionalStandard);
+  }
+
+  @Override
+  public <S, T> T accept(InterestRateDerivativeVisitor<S, T> visitor, S data) {
+    return visitor.visitBondIborTransaction(this, data);
+  }
+
+  @Override
+  public <T> T accept(InterestRateDerivativeVisitor<?, T> visitor) {
+    return visitor.visitBondIborTransaction(this);
   }
 
 }

@@ -71,7 +71,7 @@ public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixed(list.toArray(getPayments()));
+    return new AnnuityCouponFixed(list.toArray(new CouponFixed[0]));
   }
 
   /**
