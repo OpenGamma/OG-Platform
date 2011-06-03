@@ -36,7 +36,7 @@ public class SimpleCurrencyMatrix extends AbstractCurrencyMatrix {
     if (source.equals(target)) {
       // This shouldn't happen in sensible code
       if (rate != 1.0) {
-        // This definately shouldn't happen
+        // This definitely shouldn't happen
         throw new IllegalArgumentException("rate");
       }
       return;

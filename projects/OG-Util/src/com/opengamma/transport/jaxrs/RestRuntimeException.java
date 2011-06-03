@@ -5,6 +5,9 @@
  */
 package com.opengamma.transport.jaxrs;
 
+import org.apache.http.HttpStatus;
+
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -53,6 +56,22 @@ public class RestRuntimeException extends OpenGammaRuntimeException {
 
   public int getStatusCode() {
     return _statusCode;
+  }
+
+  /**
+   * Translates the exception to another one in the Java type system based on the status code.
+   * 
+   * @return the translated exception, or this object if no translation is defined 
+   */
+  public RuntimeException translate() {
+    switch (getStatusCode()) {
+      case HttpStatus.SC_BAD_REQUEST:
+        return new IllegalArgumentException(this);
+      case HttpStatus.SC_NOT_FOUND:
+        return new DataNotFoundException(getMessage(), this);
+      default:
+        return this;
+    }
   }
 
 }

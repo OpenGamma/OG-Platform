@@ -3,7 +3,7 @@
   <head>
     <title>OpenGamma Analytics</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    
+
     <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.event.drag-2.0.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.json-2.2.js"></script>
@@ -12,31 +12,34 @@
     <script type="text/javascript" src="/js/jquery/jquery-ui-1.8.5.custom.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.ui.core.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.ui.tabs.min.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.layout-1.2.0.js"></script>
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" charset="utf-8"  media="screen, print" />
-    
+
     <!--[if IE]><script language="javascript" type="text/javascript" src="/js/excanvas/excanvas.min.js"></script><![endif]-->
-    
+
     <script type="text/javascript" src="/js/cometd/cometd.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.cometd.js"></script>
-    
+
     <script type="text/javascript" src="/js/jquery/jquery.transform-0.6.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.jdCrazyDots.js"></script>
+    <script type="text/javascript" src="/js/jquery/jquery.scrollTo.js"></script>
 
     <script type="text/javascript" src="/js/slickgrid/slick.editors.js"></script>
     <script type="text/javascript" src="/js/slickgrid/slick.grid.js"></script>
     <script type="text/javascript" src="/js/slickgrid/slick.model.js"></script>
     <link rel="stylesheet" href="/css/slickgrid/slick.grid.css" type="text/css" charset="utf-8" media="screen, print" />
-    
+
     <script type="text/javascript" src="/js/flot/jquery.flot.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.selection.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.navigate.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.crosshair.js"></script>
-  
+
     <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/userConfig.js"></script>
     <script type="text/javascript" src="js/liveResultsClient.js"></script>
     <script type="text/javascript" src="js/formatting/columnFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/primitiveFormatter.js"></script>
+    <script type="text/javascript" src="js/formatting/doubleFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/matrixFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/interpolatedYieldCurveFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/interpolatedYieldCurveDetail.js"></script>
@@ -52,9 +55,10 @@
     <script type="text/javascript" src="js/popupManager.js"></script>
     <script type="text/javascript" src="js/portfolioViewer.js"></script>
     <script type="text/javascript" src="js/primitivesViewer.js"></script>
+    <script type="text/javascript" src="js/depGraphViewer.js"></script>
     <script type="text/javascript" src="js/tabbedViewResultsViewer.js"></script>
     <script type="text/javascript" src="js/home.js"></script>
-    
+
     <script type="text/javascript">
       var config = {
         contextPath: '${pageContext.request.contextPath}'
@@ -62,6 +66,8 @@
     </script>
 
     <link rel="stylesheet" href="css/analytics-base.css" type="text/css" charset="utf-8" media="screen, print" />
+    <link rel="stylesheet" href="css/popup-column.css" type="text/css" charset="utf-8" media="screen, print" />
+    <link rel="stylesheet" href="css/ui-layout.css" type="text/css" charset="utf-8" media="screen, print" />
     <link rel="stylesheet" href="css/analytics-print.css" type="text/css" media="print" charset="utf-8" />
 
     <style type="text/css" media="screen, print">
@@ -113,26 +119,36 @@
       .tickindicator.same {
         background: url(/images/tick-same.png) no-repeat;
       }
-      
+
+      .slick-cell.explain {
+        background-color: #cbead7;
+      }
+
+      .slick-cell.explain.explain-hover {
+        background-color: #ffff95;
+      }
+
       .cell-contents {
         width: 100%;
         height: 100%;
         vertical-align: middle;
         position: relative;
+        background-color: inherit;
       }
-      
+
       .cell-value {
         text-overflow: ellipsis;
         margin: 0;
         padding: 0 4px;
+        background-color: inherit;
       }
-      
+
       .cell-value.right {
         position: absolute;
         right: 12px;
-        background: white;
+        background-color: inherit;
       }
-      
+
       .negative {
         color: red;
       }
@@ -189,15 +205,15 @@
         left: 8px;
         right: 8px;
       }
-      
+
       .detail-popup {
-        z-index: 1;
         padding: 8px;
+        position: absolute;
       }
 
-      .detail-content {
-        height: 100%;
+      .detail-popup .detail-content {
         width: 100%;
+        height: 100%;
       }
 
       .header {
@@ -283,17 +299,42 @@
         font-weight: bold;
       }
 
+      #resultsViewer {
+        position: absolute;
+        top: 40px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
+      }
+
       #resultsViewer #tabs {
         position: absolute;
-        top: 7em;
-        left: 1em;
-        right: 1em;
-        bottom: 1em;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      
+      #resultsViewer #tabs .export-button {
+        float: right;
+        border: 0;
+        margin: -3.4em -1em 0 0;
+      }
+      
+      #resultsViewer #tabs .export-button a {
+        margin: 0;
+        padding: 0;
+      }
+      
+      #resultsViewer #tabs .export-button .ui-button-text {
+        font-size: 0.8em;
+        padding: 0.4em 0.5em;
       }
 
       #loading {
+        position: absolute;
         margin: 5em auto;
-        position: relative;
         width: 0;
       }
 
@@ -358,14 +399,14 @@
    </style>
   </head>
   <body>
-    <div class="header"></div>
     <div class="viewcontrols">
-      <div>
+      <div style="left: 5px; top: 10px; position: absolute">
         <div id="views"></div>
         <div id="changeView"></div>
         <div id="sparklines" class="imgbutton sparklines"></div>
       </div>
-      <div id="currentviewcontrols">
+      <div id="currentviewcontrols" style="position: absolute; right: 5px; top: 7px;">
+      <div></div>
         <div id="viewstatus"><p>No view loaded</p></div>
         <div id="resume" class="imgbutton resume"></div>
         <div id="pause" class="imgbutton pause"></div>

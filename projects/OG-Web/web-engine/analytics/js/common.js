@@ -79,7 +79,8 @@
     
     var self = this;
     
-    var _componentsByTabId = new Array();
+    var _componentsByTabId = {};
+    var _activeComponent;
     
     this.registerTab = function(id, component) {
       _componentsByTabId[id] = component;
@@ -87,6 +88,10 @@
     
     this.getTabs = function() {
       return _componentsByTabId;
+    }
+    
+    this.getActiveComponent = function() {
+      return _activeComponent;
     }
     
     this.onSelectTab = function(event, ui) {
@@ -104,6 +109,15 @@
       if (component && component.restoreState) { 
         component.restoreState();
       }
+      _activeComponent = component;
+    }
+    
+    this.onTabContainerResized = function() {
+      $.each(_componentsByTabId, function(index, component) {
+        if (component.onContainerResized) {
+          component.onContainerResized();
+        }
+      });
     }
     
   }
@@ -118,6 +132,11 @@
     spotColor: 'rgb(71, 113, 135)',
     minSpotColor: 'rgb(176, 54, 29)',
     maxSpotColor: 'rgb(29, 176, 54)',
+  }
+  
+  Common.addExportCsvButton = function($container, url) {
+    var $exportCsvButtonContainer = $("<div class='export-button'></div>").appendTo($container);
+    $("<a href='" + url + "' target='_blank'>CSV</a>").appendTo($exportCsvButtonContainer).button();
   }
   
   $.extend(true, window, {

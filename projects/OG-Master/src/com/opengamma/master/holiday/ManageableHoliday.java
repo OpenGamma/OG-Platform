@@ -8,20 +8,22 @@ package com.opengamma.master.holiday;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
@@ -207,6 +209,35 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableHoliday other = (ManageableHoliday) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getRegionKey(), other.getRegionKey()) &&
+          JodaBeanUtils.equal(getExchangeKey(), other.getExchangeKey()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the holiday.
@@ -377,7 +408,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   /**
    * The meta-bean for {@code ManageableHoliday}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -386,48 +417,74 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableHoliday.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
+    private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", ManageableHoliday.class, HolidayType.class);
     /**
      * The meta-property for the {@code regionKey} property.
      */
-    private final MetaProperty<Identifier> _regionKey = DirectMetaProperty.ofReadWrite(this, "regionKey", Identifier.class);
+    private final MetaProperty<Identifier> _regionKey = DirectMetaProperty.ofReadWrite(
+        this, "regionKey", ManageableHoliday.class, Identifier.class);
     /**
      * The meta-property for the {@code exchangeKey} property.
      */
-    private final MetaProperty<Identifier> _exchangeKey = DirectMetaProperty.ofReadWrite(this, "exchangeKey", Identifier.class);
+    private final MetaProperty<Identifier> _exchangeKey = DirectMetaProperty.ofReadWrite(
+        this, "exchangeKey", ManageableHoliday.class, Identifier.class);
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", ManageableHoliday.class, Currency.class);
     /**
      * The meta-property for the {@code holidayDates} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _holidayDates = DirectMetaProperty.ofReadWrite(this, "holidayDates", (Class) List.class);
+    private final MetaProperty<List<LocalDate>> _holidayDates = DirectMetaProperty.ofReadWrite(
+        this, "holidayDates", ManageableHoliday.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "type",
+        "regionKey",
+        "exchangeKey",
+        "currency",
+        "holidayDates");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("type", _type);
-      temp.put("regionKey", _regionKey);
-      temp.put("exchangeKey", _exchangeKey);
-      temp.put("currency", _currency);
-      temp.put("holidayDates", _holidayDates);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageableHoliday createBean() {
-      return new ManageableHoliday();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 3575610:  // type
+          return _type;
+        case 74328779:  // regionKey
+          return _regionKey;
+        case -1755004612:  // exchangeKey
+          return _exchangeKey;
+        case 575402001:  // currency
+          return _currency;
+        case -367347:  // holidayDates
+          return _holidayDates;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableHoliday> builder() {
+      return new DirectBeanBuilder<ManageableHoliday>(new ManageableHoliday());
     }
 
     @Override

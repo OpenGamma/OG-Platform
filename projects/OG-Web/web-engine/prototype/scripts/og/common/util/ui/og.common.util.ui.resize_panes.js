@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2010 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * Draggable resize bar that sits between two elements that require resizing.
@@ -13,7 +13,6 @@
  * TODO: Doubclick to set to center (or 40/60?)
  *
  */
-
 $.register_module({
     name: 'og.common.util.ui.resize_panes',
     dependencies: [],

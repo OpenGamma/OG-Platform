@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 
@@ -23,7 +23,7 @@
 .OG-form .og-sub-form.og-lbl-top > div {margin-bottom: 10px;}
 .OG-form .og-sub-form.og-lbl-top input,
 .OG-form .og-sub-form.og-lbl-top select {display: block;}
-.OG-form .og-sub-form.og-lbl-top label {margin-bottom: 0;}
+.OG-form .og-sub-form.og-lbl-top label {margin-bottom: 0; display: table;}
 
   /* Label > Select inline */
   .OG-form .og-sub-form.og-lbl-sel-inline > div {margin-bottom: 5px;}

@@ -32,6 +32,7 @@ import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateDerivative;
 import com.opengamma.financial.interestrate.ParRateCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSensitivity;
@@ -113,6 +114,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
   private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
+  private static final PresentValueCurveSensitivitySABRCalculator PVSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   // Pricing functions
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -168,7 +170,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSets.createCurves1();
     final SABRInterestRateParameter sabrParameter = TestsDataSets.createSABR1(new SABRHaganAlternativeVolatilityFunction());
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    PVSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
   }
 
   @Test
@@ -184,7 +186,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final PresentValueSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
     assertEquals(pvsLongPayer.getSensitivity(), pvsShortPayer_1.getSensitivity());
     // PresentValueCalculator
-    final Map<String, List<DoublesPair>> pvscLongPayer = PVSC.visit(SWAPTION_LONG_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvscLongPayer = PVSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
     assertEquals(pvsLongPayer.getSensitivity(), pvscLongPayer);
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.

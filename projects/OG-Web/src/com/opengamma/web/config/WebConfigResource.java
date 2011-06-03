@@ -14,8 +14,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -58,18 +62,23 @@ public class WebConfigResource extends AbstractWebConfigResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String getJSON() {
+  public Response getHTML(@Context Request request) {
+    EntityTag etag = new EntityTag(data().getConfig().getUniqueId().toString());
+    ResponseBuilder builder = request.evaluatePreconditions(etag);
+    if (builder != null) {
+      return builder.build();
+    }
     FlexiBean out = createRootData();
     ConfigDocument<?> doc = data().getConfig();
-   
-    String json = toJSON(doc.getValue());
-    if (json != null) {
-      out.put("configData", json);
+    String jsonConfig = toJSON(doc.getValue());
+    if (jsonConfig != null) {
+      out.put("configJSON", jsonConfig);
     } else {
-      out.put("configData", StringEscapeUtils.escapeJavaScript(createXML(doc)));
+      out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     }
     out.put("type", data().getTypeMap().inverse().get(doc.getType()));
-    return getFreemarker().build("configs/jsonconfig.ftl", out);
+    String json = getFreemarker().build("configs/jsonconfig.ftl", out);
+    return Response.ok(json).tag(etag).build();
   }
 
   private String toJSON(final Object config) {
@@ -119,18 +128,26 @@ public class WebConfigResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(
       @FormParam("name") String name,
-      @FormParam("configJSON") String json) {
+      @FormParam("configJSON") String json,
+      @FormParam("configXML") String xml) {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
+    xml = StringUtils.trimToNull(xml);
     // JSON allows a null config to just change the name
     if (name == null) {
       return Response.status(Status.BAD_REQUEST).build();
     }
-    updateConfig(name, json != null ? parseJSON(json).getFirst() : null);
+    Object configValue = null;
+    if (json != null) {
+      configValue = parseJSON(json).getFirst();
+    } else if (xml != null) {
+      configValue = parseXML(xml).getFirst();
+    }
+    updateConfig(name, configValue);
     return Response.ok().build();
   }
 

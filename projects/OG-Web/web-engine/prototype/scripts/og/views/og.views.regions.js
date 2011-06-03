@@ -1,5 +1,6 @@
-/**
- * view for positions section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.regions',

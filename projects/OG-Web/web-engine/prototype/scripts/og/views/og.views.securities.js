@@ -1,5 +1,6 @@
-/**
- * view for securities section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.securities',
@@ -98,7 +99,7 @@ $.register_module({
                         {
                             id: 'type', name: 'Type', field: 'type', width: 80,
                             filter_type: 'select',
-                            filter_type_options: ['BOND', 'CASH', 'OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
+                            filter_type_options: ['BOND', 'CASH', 'EQUITY_OPTION', 'FRA', 'FUTURE', 'EQUITY', 'SWAP']
                         },
                         {
                             id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link',

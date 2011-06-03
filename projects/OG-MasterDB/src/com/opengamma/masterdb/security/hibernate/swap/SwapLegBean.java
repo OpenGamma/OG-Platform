@@ -11,6 +11,7 @@ import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.FrequencyBean;
 import com.opengamma.masterdb.security.hibernate.IdentifierBean;
+import com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean;
 
 /**
  * A bean representation of a {@link SwapLeg}.
@@ -26,7 +27,7 @@ public class SwapLegBean {
   private NotionalBean _notional;
   private double _rate;
   private double _spread;
-  private IdentifierBean _rateIdentifier;
+  private UniqueIdentifierBean _rateIdentifier;
 
   public SwapLegType getSwapLegType() {
     return _swapLegType;
@@ -152,7 +153,7 @@ public class SwapLegBean {
    * Gets the rateIdentifier field.
    * @return the rateIdentifier
    */
-  public IdentifierBean getRateIdentifier() {
+  public UniqueIdentifierBean getRateIdentifier() {
     return _rateIdentifier;
   }
 
@@ -160,7 +161,7 @@ public class SwapLegBean {
    * Sets the rateIdentifier field.
    * @param rateIdentifier  the rateIdentifier
    */
-  public void setRateIdentifier(IdentifierBean rateIdentifier) {
+  public void setRateIdentifier(UniqueIdentifierBean rateIdentifier) {
     _rateIdentifier = rateIdentifier;
   }
 

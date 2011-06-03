@@ -23,7 +23,7 @@ public class SensitivityFiniteDifference {
   /**
    * Compute the present value rate sensitivity for a set of node time by finite difference.
    * @param instrument The instrument.
-   * @param curves The yield curve bundle.
+   * @param curves The yield curve bundle. The bumped curve will be added to the curve bundle.
    * @param pv The initial instrument present value.
    * @param curveToBumpName The name of the curve to bump.
    * @param curveBumpedName The name of the curve after bumped. The name should be used in the instrument construction.
@@ -34,7 +34,7 @@ public class SensitivityFiniteDifference {
    * Indicates how the finite difference is computed. Not null
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InterestRateDerivative instrument, final YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
+  public static double[] curveSensitivity(final InterestRateDerivative instrument, YieldCurveBundle curves, double pv, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
       double deltaShift, PricingMethod method, final FiniteDifferenceType differenceType) {
     Validate.notNull(instrument, "Instrument");
     Validate.notNull(curves, "Curves");
@@ -51,14 +51,15 @@ public class SensitivityFiniteDifference {
       yields[loopnode + 1] = curveToBump.getInterestRate(nodeTimesExtended[loopnode + 1]);
     }
     final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    if (!curves.containsName(curveBumpedName)) {
+      curves.setCurve(curveBumpedName, curveToBump);
+    }
     switch (differenceType) {
       case FORWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
-          final YieldCurveBundle curvesBumped = new YieldCurveBundle();
-          curvesBumped.addAll(curves);
-          curvesBumped.setCurve(curveBumpedName, curveBumped);
-          final double bumpedpv = method.presentValue(instrument, curvesBumped).getAmount();
+          curves.replaceCurve(curveBumpedName, curveBumped);
+          final double bumpedpv = method.presentValue(instrument, curves).getAmount();
           result[loopnode] = (bumpedpv - pv) / deltaShift;
         }
         return result;
@@ -66,24 +67,18 @@ public class SensitivityFiniteDifference {
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           final YieldAndDiscountCurve curveBumpedPlus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
           final YieldAndDiscountCurve curveBumpedMinus = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], -deltaShift);
-          final YieldCurveBundle curvesBumpedPlus = new YieldCurveBundle();
-          curvesBumpedPlus.addAll(curves);
-          curvesBumpedPlus.setCurve(curveBumpedName, curveBumpedPlus);
-          final YieldCurveBundle curvesBumpedMinus = new YieldCurveBundle();
-          curvesBumpedMinus.addAll(curves);
-          curvesBumpedMinus.setCurve(curveBumpedName, curveBumpedMinus);
-          final double bumpedpvPlus = method.presentValue(instrument, curvesBumpedPlus).getAmount();
-          final double bumpedpvMinus = method.presentValue(instrument, curvesBumpedMinus).getAmount();
+          curves.replaceCurve(curveBumpedName, curveBumpedPlus);
+          final double bumpedpvPlus = method.presentValue(instrument, curves).getAmount();
+          curves.replaceCurve(curveBumpedName, curveBumpedMinus);
+          final double bumpedpvMinus = method.presentValue(instrument, curves).getAmount();
           result[loopnode] = (bumpedpvPlus - bumpedpvMinus) / (2 * deltaShift);
         }
         return result;
       case BACKWARD:
         for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], -deltaShift);
-          final YieldCurveBundle curvesBumped = new YieldCurveBundle();
-          curvesBumped.addAll(curves);
-          curvesBumped.setCurve(curveBumpedName, curveBumped);
-          final double bumpedpv = method.presentValue(instrument, curvesBumped).getAmount();
+          curves.replaceCurve(curveBumpedName, curveBumped);
+          final double bumpedpv = method.presentValue(instrument, curves).getAmount();
           result[loopnode] = (pv - bumpedpv) / deltaShift;
         }
         return result;

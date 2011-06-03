@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.holiday;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.holiday.HolidayDocument;
@@ -144,6 +146,35 @@ public class WebHolidayData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebHolidayData other = (WebHolidayData) obj;
+      return JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriHolidayId(), other.getUriHolidayId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getHoliday(), other.getHoliday()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriHolidayId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHoliday());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -300,7 +331,7 @@ public class WebHolidayData extends DirectBean {
   /**
    * The meta-bean for {@code WebHolidayData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -309,47 +340,73 @@ public class WebHolidayData extends DirectBean {
     /**
      * The meta-property for the {@code holidayMaster} property.
      */
-    private final MetaProperty<HolidayMaster> _holidayMaster = DirectMetaProperty.ofReadWrite(this, "holidayMaster", HolidayMaster.class);
+    private final MetaProperty<HolidayMaster> _holidayMaster = DirectMetaProperty.ofReadWrite(
+        this, "holidayMaster", WebHolidayData.class, HolidayMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebHolidayData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriHolidayId} property.
      */
-    private final MetaProperty<String> _uriHolidayId = DirectMetaProperty.ofReadWrite(this, "uriHolidayId", String.class);
+    private final MetaProperty<String> _uriHolidayId = DirectMetaProperty.ofReadWrite(
+        this, "uriHolidayId", WebHolidayData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebHolidayData.class, String.class);
     /**
      * The meta-property for the {@code holiday} property.
      */
-    private final MetaProperty<HolidayDocument> _holiday = DirectMetaProperty.ofReadWrite(this, "holiday", HolidayDocument.class);
+    private final MetaProperty<HolidayDocument> _holiday = DirectMetaProperty.ofReadWrite(
+        this, "holiday", WebHolidayData.class, HolidayDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<HolidayDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", HolidayDocument.class);
+    private final MetaProperty<HolidayDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebHolidayData.class, HolidayDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "holidayMaster",
+        "uriInfo",
+        "uriHolidayId",
+        "uriVersionId",
+        "holiday",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("holidayMaster", _holidayMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriHolidayId", _uriHolidayId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("holiday", _holiday);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebHolidayData createBean() {
-      return new WebHolidayData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 246258906:  // holidayMaster
+          return _holidayMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case -872009849:  // uriHolidayId
+          return _uriHolidayId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case 1091905624:  // holiday
+          return _holiday;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebHolidayData> builder() {
+      return new DirectBeanBuilder<WebHolidayData>(new WebHolidayData());
     }
 
     @Override

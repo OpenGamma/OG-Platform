@@ -1,5 +1,6 @@
-/**
- * view for securities section
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
  */
 $.register_module({
     name: 'og.views.configs',
@@ -181,7 +182,9 @@ $.register_module({
                                 new form.Block({module: 'og.views.forms.view-definition-specific-requirements-fields'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
                                 new form.Block({module: 'og.views.forms.constraints'}),
-                                new form.Block({module: 'og.views.forms.view-definition-resolution-rule-transform-fields'})
+                                new form.Block({
+                                    module: 'og.views.forms.view-definition-resolution-rule-transform-fields'
+                                })
                             ];
                             form.dom();
 

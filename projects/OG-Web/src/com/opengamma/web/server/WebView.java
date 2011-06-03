@@ -11,7 +11,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.time.Instant;
 
 import org.cometd.Client;
 import org.cometd.Message;
@@ -27,6 +30,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -54,8 +58,10 @@ public class WebView {
   private AtomicBoolean _isInit = new AtomicBoolean(false);
   
   private final Map<String, WebViewGrid> _gridsByName;
-  private WebViewGrid _portfolioGrid;
-  private WebViewGrid _primitivesGrid;
+  private RequirementBasedWebViewGrid _portfolioGrid;
+  private RequirementBasedWebViewGrid _primitivesGrid;
+  
+  private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final String viewDefinitionName,
       final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {    
@@ -104,7 +110,7 @@ public class WebView {
       return;
     }
     
-    WebViewGrid portfolioGrid = new WebViewPortfolioGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -112,7 +118,7 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
     
-    WebViewGrid primitivesGrid = new WebViewPrimitivesGrid(compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -124,7 +130,7 @@ public class WebView {
   }
   
   private void notifyInitialized() {
-    getRemote().deliver(getLocal(), "/initialize", getJsonGridStructures(), null);
+    getRemote().deliver(getLocal(), "/initialize", getInitialJsonGridStructures(), null);
   }
   
   /*package*/ void reconnected() {
@@ -189,8 +195,8 @@ public class WebView {
     }
   }
   
-  private SortedMap<Long, Long> processViewportData(Map<String, Object> viewportData) {
-    SortedMap<Long, Long> result = new TreeMap<Long, Long>();
+  private SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
+    SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
     if (viewportData.isEmpty()) {
       return result;
     }
@@ -198,7 +204,8 @@ public class WebView {
     Object[] lastTimes = (Object[]) viewportData.get("lastTimestamps");
     for (int i = 0; i < ids.length; i++) {
       if (ids[i] instanceof Number) {
-        Long rowId = (Long) ids[i];
+        long jsRowId = (Long) ids[i];
+        int rowId = (int) jsRowId;
         if (lastTimes[i] != null) {
           Long lastTime = (Long) lastTimes[i];
           result.put(rowId, lastTime);
@@ -239,7 +246,11 @@ public class WebView {
           long resultTimestampMillis = update.getResultTimestamp().toEpochMillisLong();
           
           sendStartMessage(resultTimestampMillis, resultTimestampMillis - liveDataTimestampMillis);
-          processResult(update);
+          try {
+            processResult(update);
+          } catch (Exception e) {
+            s_logger.error("Error processing result with timestamp " + update.getResultTimestamp(), e);
+          }
           sendEndMessage();
           
           getRemote().endBatch();
@@ -311,15 +322,62 @@ public class WebView {
   
   //-------------------------------------------------------------------------
   
-  public Map<String, Object> getJsonGridStructures() {
+  public Map<String, Object> getInitialJsonGridStructures() {
     Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
-      gridStructures.put("primitives", getPrimitivesGrid().getJsonGridStructure());
+      gridStructures.put("primitives", getPrimitivesGrid().getInitialJsonGridStructure());
     }
     if (getPortfolioGrid() != null) {
-      gridStructures.put("portfolio", getPortfolioGrid().getJsonGridStructure());
+      gridStructures.put("portfolio", getPortfolioGrid().getInitialJsonGridStructure());
     }
     return gridStructures;
+  }
+  
+  public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
+    if (!getPortfolioGrid().getName().equals(parentGridName)) {
+      throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
+    }
+    
+    if (includeDepGraph) {
+      if (_activeDepGraphCount.getAndIncrement() == 0) {
+        getViewClient().setViewCycleAccessSupported(true);
+      }
+    } else {
+      if (_activeDepGraphCount.decrementAndGet() == 0) {
+        getViewClient().setViewCycleAccessSupported(false);
+      }
+    }
+    WebViewGrid grid = getPortfolioGrid().setIncludeDepGraph(cell, includeDepGraph);
+    if (grid != null) {
+      if (includeDepGraph) {
+        registerGrid(grid);
+      } else {
+        unregisterGrid(grid.getName());
+      }
+    }
+  }
+  
+  public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
+    WebViewGrid grid = getGridByName(gridName);
+    if (grid == null) {
+      throw new OpenGammaRuntimeException("Unknown grid '" + gridName + "'");
+    }
+    ViewComputationResultModel latestResult = getViewClient().getLatestResult();
+    if (latestResult == null) {
+      return null;
+    }
+    String csv = grid.dumpContentsToCsv(latestResult);
+    return Pair.of(latestResult.getValuationTime(), csv);
+  }
+  
+  //-------------------------------------------------------------------------
+  
+  private void registerGrid(WebViewGrid grid) {
+    _gridsByName.put(grid.getName(), grid);
+  }
+  
+  private void unregisterGrid(String gridName) {
+    _gridsByName.remove(gridName);
   }
   
   //-------------------------------------------------------------------------
@@ -328,11 +386,11 @@ public class WebView {
     return _executorService;
   }
   
-  private WebViewGrid getPortfolioGrid() {
+  private RequirementBasedWebViewGrid getPortfolioGrid() {
     return _portfolioGrid;
   }
   
-  private WebViewGrid getPrimitivesGrid() {
+  private RequirementBasedWebViewGrid getPrimitivesGrid() {
     return _primitivesGrid;
   }
   

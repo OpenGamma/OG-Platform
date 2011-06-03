@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.portfolio;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -119,6 +121,26 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PortfolioHistoryRequest other = (PortfolioHistoryRequest) obj;
+      return JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of nodes to return.
@@ -166,22 +188,33 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
     /**
      * The meta-property for the {@code depth} property.
      */
-    private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(this, "depth", Integer.TYPE);
+    private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(
+        this, "depth", PortfolioHistoryRequest.class, Integer.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "depth");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("depth", _depth);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public PortfolioHistoryRequest createBean() {
-      return new PortfolioHistoryRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 95472323:  // depth
+          return _depth;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends PortfolioHistoryRequest> builder() {
+      return new DirectBeanBuilder<PortfolioHistoryRequest>(new PortfolioHistoryRequest());
     }
 
     @Override

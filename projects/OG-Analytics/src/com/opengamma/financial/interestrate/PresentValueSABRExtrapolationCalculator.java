@@ -8,8 +8,10 @@ package com.opengamma.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.interestrate.payments.method.CapFloorCMSSABRExtrapolationRightReplicationMethod;
+import com.opengamma.financial.interestrate.payments.method.CapFloorIborSABRExtrapolationRightMethod;
 import com.opengamma.financial.interestrate.payments.method.CouponCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.financial.interestrate.swaption.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.SwaptionPhysicalFixedIbor;
@@ -34,6 +36,21 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
   }
 
   @Override
+  public Double visitCapFloorIbor(final CapFloorIbor cap, final YieldCurveBundle curves) {
+    Validate.notNull(cap);
+    Validate.notNull(curves);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
+      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameter) {
+        SABRInterestRateExtrapolationParameter sabrExtrapolation = (SABRInterestRateExtrapolationParameter) sabr.getSABRParameter();
+        CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
+        return method.presentValue(cap, sabr).getAmount();
+      }
+    }
+    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCapFloorIbor requires a SABRInterestRateExtrapolationParameter as data.");
+  }
+
+  @Override
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
     Validate.notNull(swaption);
     Validate.notNull(curves);
@@ -45,7 +62,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
         return method.presentValue(swaption, sabr);
       }
     }
-    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateDataBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
   }
 
   @Override
@@ -60,7 +77,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
         return method.presentValue(swaption, sabr);
       }
     }
-    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateDataBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
 
   }
 
@@ -76,7 +93,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
         return replication.presentValue(payment, sabr);
       }
     }
-    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateExtrapolationParameter as data.");
   }
 
   @Override
@@ -91,7 +108,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
         return replication.presentValue(payment, sabr);
       }
     }
-    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateExtrapolationParameter as data.");
   }
 
 }

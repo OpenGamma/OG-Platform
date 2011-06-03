@@ -5,19 +5,20 @@
  */
 package com.opengamma.master;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.Instant;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectIdentifiable;
@@ -165,6 +166,31 @@ public abstract class AbstractDocument extends DirectBean
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractDocument other = (AbstractDocument) obj;
+      return JodaBeanUtils.equal(getVersionFromInstant(), other.getVersionFromInstant()) &&
+          JodaBeanUtils.equal(getVersionToInstant(), other.getVersionToInstant()) &&
+          JodaBeanUtils.equal(getCorrectionFromInstant(), other.getCorrectionFromInstant()) &&
+          JodaBeanUtils.equal(getCorrectionToInstant(), other.getCorrectionToInstant());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionToInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionFromInstant());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectionToInstant());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the start of an interval that the version of the document is accurate for.
@@ -287,7 +313,7 @@ public abstract class AbstractDocument extends DirectBean
   /**
    * The meta-bean for {@code AbstractDocument}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -296,36 +322,56 @@ public abstract class AbstractDocument extends DirectBean
     /**
      * The meta-property for the {@code versionFromInstant} property.
      */
-    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(this, "versionFromInstant", Instant.class);
+    private final MetaProperty<Instant> _versionFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionFromInstant", AbstractDocument.class, Instant.class);
     /**
      * The meta-property for the {@code versionToInstant} property.
      */
-    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(this, "versionToInstant", Instant.class);
+    private final MetaProperty<Instant> _versionToInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionToInstant", AbstractDocument.class, Instant.class);
     /**
      * The meta-property for the {@code correctionFromInstant} property.
      */
-    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(this, "correctionFromInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionFromInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionFromInstant", AbstractDocument.class, Instant.class);
     /**
      * The meta-property for the {@code correctionToInstant} property.
      */
-    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(this, "correctionToInstant", Instant.class);
+    private final MetaProperty<Instant> _correctionToInstant = DirectMetaProperty.ofReadWrite(
+        this, "correctionToInstant", AbstractDocument.class, Instant.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "versionFromInstant",
+        "versionToInstant",
+        "correctionFromInstant",
+        "correctionToInstant");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("versionFromInstant", _versionFromInstant);
-      temp.put("versionToInstant", _versionToInstant);
-      temp.put("correctionFromInstant", _correctionFromInstant);
-      temp.put("correctionToInstant", _correctionToInstant);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public AbstractDocument createBean() {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 2006263519:  // versionFromInstant
+          return _versionFromInstant;
+        case 1577022702:  // versionToInstant
+          return _versionToInstant;
+        case 1808757913:  // correctionFromInstant
+          return _correctionFromInstant;
+        case 973465896:  // correctionToInstant
+          return _correctionToInstant;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends AbstractDocument> builder() {
       throw new UnsupportedOperationException("AbstractDocument is an abstract class");
     }
 

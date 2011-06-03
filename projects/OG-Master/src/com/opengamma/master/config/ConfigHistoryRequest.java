@@ -5,17 +5,19 @@
  */
 package com.opengamma.master.config;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.InstantProvider;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.master.AbstractHistoryRequest;
@@ -126,6 +128,26 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigHistoryRequest<?> other = (ConfigHistoryRequest<?>) obj;
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the class of the configuration.
@@ -166,22 +188,33 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(this, "type", (Class) Class.class);
+    private final MetaProperty<Class<T>> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", ConfigHistoryRequest.class, (Class) Class.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "type");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("type", _type);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ConfigHistoryRequest<T> createBean() {
-      return new ConfigHistoryRequest<T>();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return _type;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ConfigHistoryRequest<T>> builder() {
+      return new DirectBeanBuilder<ConfigHistoryRequest<T>>(new ConfigHistoryRequest<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

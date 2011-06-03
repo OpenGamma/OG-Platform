@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.bond.definition;
+package com.opengamma.financial.interestrate.bond.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -23,9 +23,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.instrument.bond.BondFixedDescriptionDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
-import com.opengamma.financial.instrument.bond.BondIborDescriptionDefinition;
+import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
@@ -36,6 +36,8 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
@@ -50,9 +52,9 @@ public class BondTransactionDiscountingMethodTest {
   // to derivatives: common
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
+  private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
   // to derivatives: first coupon
@@ -69,7 +71,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final ZonedDateTime MATURITY_DATE_FIXED = START_ACCRUAL_DATE_FIXED.plus(BOND_TENOR_FIXED);
   private static final double RATE_FIXED = 0.0325;
   private static final YieldConvention YIELD_CONVENTION_FIXED = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final BondFixedDescriptionDefinition BOND_DESCRIPTION_DEFINITION_FIXED = BondFixedDescriptionDefinition.from(CUR, MATURITY_DATE_FIXED, START_ACCRUAL_DATE_FIXED, PAYMENT_TENOR_FIXED,
+  private static final BondFixedSecurityDefinition BOND_DESCRIPTION_DEFINITION_FIXED = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE_FIXED, START_ACCRUAL_DATE_FIXED, PAYMENT_TENOR_FIXED,
       RATE_FIXED, SETTLEMENT_DAYS_FIXED, CALENDAR, DAY_COUNT_FIXED, BUSINESS_DAY_FIXED, YIELD_CONVENTION_FIXED, IS_EOM_FIXED);
   // Transaction fixed
   private static final double PRICE_FIXED = 0.90;
@@ -89,7 +91,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_2 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_2);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_2 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_2, PRICE_FIXED);
-  private static final PaymentFixed BOND_SETTLEMENT_FIXED_2 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_2, -PRICE_FIXED * QUANTITY_FIXED, DISCOUNTING_CURVE_NAME);
+  private static final PaymentFixed BOND_SETTLEMENT_FIXED_2 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_2, -PRICE_FIXED * QUANTITY_FIXED, REPO_CURVE_NAME);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_2 = BOND_TRANSACTION_DEFINITION_FIXED_2.toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
   // Transaction future
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FIXED_3 = DateUtil.getUTCDate(2011, 8, 24);
@@ -98,7 +100,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final AnnuityPaymentFixed NOMINAL_TR_FIXED_3 = BOND_DESCRIPTION_DEFINITION_FIXED.getNominal().toDerivative(REFERENCE_DATE_Z, CURVES_NAME).trimBefore(BOND_SETTLEMENT_TIME_FIXED_3);
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION_FIXED_3 = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED,
       BOND_SETTLEMENT_DATE_FIXED_3, PRICE_FIXED);
-  private static final PaymentFixed BOND_SETTLEMENT_FIXED_3 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_3, -PRICE_FIXED * QUANTITY_FIXED, DISCOUNTING_CURVE_NAME);
+  private static final PaymentFixed BOND_SETTLEMENT_FIXED_3 = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FIXED_3, -PRICE_FIXED * QUANTITY_FIXED, REPO_CURVE_NAME);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE_Z, CURVES_NAME);
   // Ibor coupon Quarterly 2Y
   private static final DayCount DAY_COUNT_FRN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -114,13 +116,10 @@ public class BondTransactionDiscountingMethodTest {
   private static final int SETTLEMENT_DAYS_FRN = 3; // Standard for euro-bonds.
   private static final ZonedDateTime START_ACCRUAL_DATE_FRN = DateUtil.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE_FRN = START_ACCRUAL_DATE_FRN.plus(BOND_TENOR_FRN);
-  private static final BondIborDescriptionDefinition BOND_DESCRIPTION_DEFINITION_FRN = BondIborDescriptionDefinition.from(MATURITY_DATE_FRN, START_ACCRUAL_DATE_FRN, IBOR_INDEX, SETTLEMENT_DAYS_FRN,
+  private static final BondIborSecurityDefinition BOND_DESCRIPTION_DEFINITION_FRN = BondIborSecurityDefinition.from(MATURITY_DATE_FRN, START_ACCRUAL_DATE_FRN, IBOR_INDEX, SETTLEMENT_DAYS_FRN,
       DAY_COUNT_FRN, BUSINESS_DAY_FRN, IS_EOM_FRN);
   // Transaction FRN
   private static final double FIRST_FIXING = 0.02;
-  static {
-    //  BOND_DESCRIPTION_DEFINITION_FRN.getCoupon().getNthPayment(0).fixingProcess(FIRST_FIXING); // First coupon has fixed already.
-  }
   private static final double PRICE_FRN = 0.99;
   private static final ZonedDateTime BOND_SETTLEMENT_DATE_FRN = DateUtil.getUTCDate(2011, 8, 24);
   private static final double BOND_SETTLEMENT_TIME_FRN = ACT_ACT.getDayCountFraction(REFERENCE_DATE_Z, BOND_SETTLEMENT_DATE_FRN);
@@ -132,15 +131,11 @@ public class BondTransactionDiscountingMethodTest {
       .trimBefore(BOND_SETTLEMENT_TIME_FRN);
   private static final BondIborTransactionDefinition BOND_TRANSACTION_DEFINITION_FRN = new BondIborTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FRN, QUANTITY_FRN, BOND_SETTLEMENT_DATE_FRN,
       PRICE_FRN);
-  private static final PaymentFixed BOND_SETTLEMENT_FRN = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FRN, -PRICE_FRN * QUANTITY_FRN, DISCOUNTING_CURVE_NAME);
+  private static final PaymentFixed BOND_SETTLEMENT_FRN = new PaymentFixed(CUR, BOND_SETTLEMENT_TIME_FRN, -PRICE_FRN * QUANTITY_FRN, REPO_CURVE_NAME);
   private static final BondIborTransaction BOND_TRANSACTION_FRN = BOND_TRANSACTION_DEFINITION_FRN.toDerivative(REFERENCE_DATE_Z, FIXING_TS, CURVES_NAME);
   // Calculators
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueSensitivityCalculator PVSC = PresentValueSensitivityCalculator.getInstance();
-
-  static {
-
-  }
 
   @Test
   public void testPVFixedBondSettlePast() {

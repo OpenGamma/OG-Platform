@@ -1,0 +1,21 @@
+.ui-layout-pane {
+  overflow: auto;
+  background: white;
+}
+
+.ui-layout-resizer  {
+  background: inherit;
+}
+
+.ui-layout-toggler  {
+}
+
+.ui-layout-resizer:hover {
+  background: #477187;
+}
+.ui-layout-resizer:hover .ui-layout-toggler {
+  background: #63be88;
+}
+.ui-layout-resizer:hover .ui-layout-toggler:hover {
+  background: #63be88;
+}

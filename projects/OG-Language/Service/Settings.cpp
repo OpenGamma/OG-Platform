@@ -94,7 +94,7 @@ private:
 #endif
 
 #define MAX_ENV_LEN 32767
-	TCHAR *CalculateString () {
+	TCHAR *CalculateString () const {
 		TCHAR *pszLibrary = NULL;
 #ifdef _WIN32
 		TCHAR *pszPath = new TCHAR[MAX_ENV_LEN];
@@ -192,15 +192,15 @@ private:
 
 static CJvmLibraryDefault g_oJvmLibraryDefault;
 
-const TCHAR *CSettings::GetJvmLibrary () {
+const TCHAR *CSettings::GetJvmLibrary () const {
 	return GetJvmLibrary (&g_oJvmLibraryDefault);
 }
 
-const TCHAR *CSettings::GetConnectionPipe () {
+const TCHAR *CSettings::GetConnectionPipe () const {
 	return GetConnectionPipe (ServiceDefaultConnectionPipe ());
 }
 
-unsigned long CSettings::GetConnectionTimeout () {
+unsigned long CSettings::GetConnectionTimeout () const {
 	return GetConnectionTimeout (DEFAULT_CONNECTION_TIMEOUT);
 }
 
@@ -208,7 +208,7 @@ class CJarPathDefault : public CAbstractSettingProvider {
 protected:
 #define CLIENT_JAR_NAME		TEXT ("client.jar")
 #define CLIENT_JAR_LEN		10
-	TCHAR *CalculateString () {
+	TCHAR *CalculateString () const {
 		TCHAR *pszJarPath = NULL;
 		// Scan backwards from the module to find a path which has Client.jar in. This works if all of the
 		// JARs and DLLs are in the same folder, but also in the case of a build system where we have sub-folders
@@ -263,32 +263,32 @@ protected:
 
 static CJarPathDefault g_oJarPathDefault;
 
-const TCHAR *CSettings::GetJarPath () {
+const TCHAR *CSettings::GetJarPath () const {
 	return GetJarPath (&g_oJarPathDefault);
 }
 
-const TCHAR *CSettings::GetAnnotationCache () {
+const TCHAR *CSettings::GetAnnotationCache () const {
 	return GetAnnotationCache (GetJarPath ());
 }
 
-unsigned long CSettings::GetBusyTimeout () {
+unsigned long CSettings::GetBusyTimeout () const {
 	return GetBusyTimeout (DEFAULT_BUSY_TIMEOUT);
 }
 
-const TCHAR *CSettings::GetLogConfiguration () {
+const TCHAR *CSettings::GetLogConfiguration () const {
 	return GetLogConfiguration (DEFAULT_LOG_CONFIGURATION);
 }
 
-unsigned long CSettings::GetIdleTimeout () {
+unsigned long CSettings::GetIdleTimeout () const {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
 
-const TCHAR *CSettings::GetServiceName () {
+const TCHAR *CSettings::GetServiceName () const {
 	return GetServiceName (ServiceDefaultServiceName ());
 }
 
 #ifdef _WIN32
-const TCHAR *CSettings::GetServiceSDDL () {
+const TCHAR *CSettings::GetServiceSDDL () const {
 	return GetServiceSDDL (DEFAULT_SDDL);
 }
 #endif /* ifdef _WIN32 */

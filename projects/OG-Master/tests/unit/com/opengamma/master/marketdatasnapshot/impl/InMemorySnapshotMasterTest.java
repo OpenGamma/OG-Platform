@@ -28,6 +28,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.marketdatasnapshot.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
@@ -113,6 +115,22 @@ public class InMemorySnapshotMasterTest {
     List<MarketDataSnapshotDocument> docs = result.getDocuments();
     assertEquals(1, docs.size());
     assertEquals(true, docs.contains(doc2));
+  }
+
+  public void test_history_emptyMaster() {
+    MarketDataSnapshotHistoryRequest request = new MarketDataSnapshotHistoryRequest();
+    request.setObjectId(doc1.getUniqueId().getObjectId());
+    MarketDataSnapshotHistoryResult result = testEmpty.history(request);
+    assertEquals(0, result.getPaging().getTotalItems());
+    assertEquals(0, result.getDocuments().size());
+  }
+
+  public void test_history_populatedMaster() {
+    MarketDataSnapshotHistoryRequest request = new MarketDataSnapshotHistoryRequest();
+    request.setObjectId(doc1.getUniqueId().getObjectId());
+    MarketDataSnapshotHistoryResult result = testPopulated.history(request);
+    assertEquals(1, result.getPaging().getTotalItems());
+    assertEquals(1, result.getDocuments().size());
   }
 
   //-------------------------------------------------------------------------

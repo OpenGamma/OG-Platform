@@ -1,8 +1,7 @@
-/**
- * @copyright 2009 - 2010 by OpenGamma Inc
+/*
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
-
 $.register_module({
     name: 'og.common.details.exchange_functions',
     dependencies: [],
@@ -21,6 +20,5 @@ $.register_module({
                 $(selector).html(html);
             };
         return exchange_functions = {render_info: render_info};
-
     }
 });
