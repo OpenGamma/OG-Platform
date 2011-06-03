@@ -43,7 +43,7 @@ public final class PairBuilder implements FudgeBuilder<Pair<?, ?>> {
       msg.add("firstDouble", object.getFirst());
     } else {
       if (object.getFirst() != null) {
-        context.addToMessage(msg, FIRST_FIELD_NAME, null, object.getFirst());
+        context.addToMessageWithClassHeaders(msg, FIRST_FIELD_NAME, null, object.getFirst());
       }
     }
     if (object instanceof LongDoublePair || object instanceof IntDoublePair || object instanceof DoublesPair) {

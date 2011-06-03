@@ -18,8 +18,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -760,7 +760,7 @@ public class TimeSeriesSearchRequest<T> extends DirectBean {
 
     @Override
     public BeanBuilder<? extends TimeSeriesSearchRequest<T>> builder() {
-      return new BasicBeanBuilder<TimeSeriesSearchRequest<T>>(new TimeSeriesSearchRequest<T>());
+      return new DirectBeanBuilder<TimeSeriesSearchRequest<T>>(new TimeSeriesSearchRequest<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

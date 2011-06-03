@@ -13,8 +13,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -374,7 +374,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
 
     @Override
     public BeanBuilder<? extends ManageableMarketDataSnapshot> builder() {
-      return new BasicBeanBuilder<ManageableMarketDataSnapshot>(new ManageableMarketDataSnapshot());
+      return new DirectBeanBuilder<ManageableMarketDataSnapshot>(new ManageableMarketDataSnapshot());
     }
 
     @Override

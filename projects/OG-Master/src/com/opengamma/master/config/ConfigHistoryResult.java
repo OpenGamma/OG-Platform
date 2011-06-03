@@ -13,7 +13,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractHistoryResult;
@@ -141,7 +141,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
 
     @Override
     public BeanBuilder<? extends ConfigHistoryResult<T>> builder() {
-      return new BasicBeanBuilder<ConfigHistoryResult<T>>(new ConfigHistoryResult<T>());
+      return new DirectBeanBuilder<ConfigHistoryResult<T>>(new ConfigHistoryResult<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

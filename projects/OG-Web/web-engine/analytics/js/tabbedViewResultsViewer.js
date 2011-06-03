@@ -68,8 +68,8 @@
         var $portfolioContainer = $("<div id='portfolio'></div>");
         _$tabsContainer.append($portfolioContainer);
         _portfolio = new PortfolioViewer($portfolioContainer, _$layout, _$popupList, portfolioDetails, _liveResultsClient, _userConfig);
-        _$tabsContainer.tabs("add", "#portfolio", "Portfolio");
         _tabManager.registerTab("portfolio", _portfolio);
+        _$tabsContainer.tabs("add", "#portfolio", "Portfolio");
       }
       
       var primitivesDetails = _gridStructures.primitives;
@@ -77,10 +77,9 @@
         var $primitivesContainer = $("<div id='primitives'></div>");
         _$tabsContainer.append($primitivesContainer);
         _primitives = new PrimitivesViewer($primitivesContainer, primitivesDetails, _liveResultsClient, _userConfig);
-        _$tabsContainer.tabs("add", "#primitives", "Primitives");
         _tabManager.registerTab("primitives", _primitives);
+        _$tabsContainer.tabs("add", "#primitives", "Primitives");
       }
-
     }
     
     function handleCenterResized() {

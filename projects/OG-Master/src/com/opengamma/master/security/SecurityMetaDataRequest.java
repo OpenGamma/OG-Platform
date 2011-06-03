@@ -13,7 +13,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -159,7 +159,7 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
 
     @Override
     public BeanBuilder<? extends SecurityMetaDataRequest> builder() {
-      return new BasicBeanBuilder<SecurityMetaDataRequest>(new SecurityMetaDataRequest());
+      return new DirectBeanBuilder<SecurityMetaDataRequest>(new SecurityMetaDataRequest());
     }
 
     @Override

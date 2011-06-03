@@ -55,15 +55,21 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
     }
     return result;
   }
-  
-  @Override
-  public String getFormatterName() {
-    return "VOLATILITY_SURFACE_DATA";
-  }
 
   @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, VolatilitySurfaceData value) {
     return null;
+  }
+
+  @Override
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, VolatilitySurfaceData value) {
+    // Could actually serialise the surface to a string if this is an issue
+    return "Volatility Surface (" + value.getXs().length + " x " + value.getYs().length + ")";
+  }
+  
+  @Override
+  public String getFormatterName() {
+    return "VOLATILITY_SURFACE_DATA";
   }
   
 }

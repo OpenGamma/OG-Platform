@@ -12,7 +12,7 @@ import javax.time.InstantProvider;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
@@ -140,7 +140,7 @@ public class PositionHistoryRequest extends AbstractHistoryRequest {
 
     @Override
     public BeanBuilder<? extends PositionHistoryRequest> builder() {
-      return new BasicBeanBuilder<PositionHistoryRequest>(new PositionHistoryRequest());
+      return new DirectBeanBuilder<PositionHistoryRequest>(new PositionHistoryRequest());
     }
 
     @Override

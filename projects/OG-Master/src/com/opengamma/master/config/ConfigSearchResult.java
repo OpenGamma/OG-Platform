@@ -13,7 +13,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractSearchResult;
@@ -140,7 +140,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument<T
 
     @Override
     public BeanBuilder<? extends ConfigSearchResult<T>> builder() {
-      return new BasicBeanBuilder<ConfigSearchResult<T>>(new ConfigSearchResult<T>());
+      return new DirectBeanBuilder<ConfigSearchResult<T>>(new ConfigSearchResult<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

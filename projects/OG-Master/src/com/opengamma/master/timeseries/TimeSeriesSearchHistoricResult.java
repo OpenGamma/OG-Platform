@@ -15,8 +15,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -214,7 +214,7 @@ public class TimeSeriesSearchHistoricResult<T> extends DirectBean {
 
     @Override
     public BeanBuilder<? extends TimeSeriesSearchHistoricResult<T>> builder() {
-      return new BasicBeanBuilder<TimeSeriesSearchHistoricResult<T>>(new TimeSeriesSearchHistoricResult<T>());
+      return new DirectBeanBuilder<TimeSeriesSearchHistoricResult<T>>(new TimeSeriesSearchHistoricResult<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

@@ -12,7 +12,7 @@ import javax.time.InstantProvider;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ObjectIdentifiable;
@@ -140,7 +140,7 @@ public class RegionHistoryRequest extends AbstractHistoryRequest {
 
     @Override
     public BeanBuilder<? extends RegionHistoryRequest> builder() {
-      return new BasicBeanBuilder<RegionHistoryRequest>(new RegionHistoryRequest());
+      return new DirectBeanBuilder<RegionHistoryRequest>(new RegionHistoryRequest());
     }
 
     @Override
