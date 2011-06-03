@@ -13,7 +13,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -154,7 +154,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
 
     @Override
     public BeanBuilder<? extends SecuritySearchResult> builder() {
-      return new BasicBeanBuilder<SecuritySearchResult>(new SecuritySearchResult());
+      return new DirectBeanBuilder<SecuritySearchResult>(new SecuritySearchResult());
     }
 
     @Override

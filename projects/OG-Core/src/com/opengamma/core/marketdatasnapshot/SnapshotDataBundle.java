@@ -13,8 +13,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -153,7 +153,7 @@ public class SnapshotDataBundle extends DirectBean {
 
     @Override
     public BeanBuilder<? extends SnapshotDataBundle> builder() {
-      return new BasicBeanBuilder<SnapshotDataBundle>(new SnapshotDataBundle());
+      return new DirectBeanBuilder<SnapshotDataBundle>(new SnapshotDataBundle());
     }
 
     @Override

@@ -14,7 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -233,7 +233,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
 
     @Override
     public BeanBuilder<? extends SecurityDocument> builder() {
-      return new BasicBeanBuilder<SecurityDocument>(new SecurityDocument());
+      return new DirectBeanBuilder<SecurityDocument>(new SecurityDocument());
     }
 
     @Override

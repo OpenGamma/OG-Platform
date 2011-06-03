@@ -13,7 +13,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -155,7 +155,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
 
     @Override
     public BeanBuilder<? extends MarketDataSnapshotHistoryResult> builder() {
-      return new BasicBeanBuilder<MarketDataSnapshotHistoryResult>(new MarketDataSnapshotHistoryResult());
+      return new DirectBeanBuilder<MarketDataSnapshotHistoryResult>(new MarketDataSnapshotHistoryResult());
     }
 
     @Override
