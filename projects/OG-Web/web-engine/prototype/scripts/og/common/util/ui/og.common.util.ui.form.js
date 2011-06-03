@@ -83,7 +83,7 @@ $.register_module({
         /**
          * @class Form
          */
-        Form = function (config) {
+        return Form = function (config) {
             var form = new Block(null, config), selector = config.selector, $root = $(selector), $form,
                 klass = 'Form', form_events = {'form:load': [], 'form:unload': [], 'form:submit': [], 'form:error': []},
                 dom_events = {},
@@ -139,6 +139,5 @@ $.register_module({
             if (config.handlers) form.attach(config.handlers);
             return form;
         };
-        return Form;
     }
 });
