@@ -14,7 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -226,7 +226,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
 
     @Override
     public BeanBuilder<? extends PortfolioDocument> builder() {
-      return new BasicBeanBuilder<PortfolioDocument>(new PortfolioDocument());
+      return new DirectBeanBuilder<PortfolioDocument>(new PortfolioDocument());
     }
 
     @Override

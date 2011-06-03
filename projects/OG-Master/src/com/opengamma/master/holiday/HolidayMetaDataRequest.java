@@ -13,7 +13,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -159,7 +159,7 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
 
     @Override
     public BeanBuilder<? extends HolidayMetaDataRequest> builder() {
-      return new BasicBeanBuilder<HolidayMetaDataRequest>(new HolidayMetaDataRequest());
+      return new DirectBeanBuilder<HolidayMetaDataRequest>(new HolidayMetaDataRequest());
     }
 
     @Override

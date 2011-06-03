@@ -14,7 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -233,7 +233,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
 
     @Override
     public BeanBuilder<? extends ExchangeDocument> builder() {
-      return new BasicBeanBuilder<ExchangeDocument>(new ExchangeDocument());
+      return new DirectBeanBuilder<ExchangeDocument>(new ExchangeDocument());
     }
 
     @Override

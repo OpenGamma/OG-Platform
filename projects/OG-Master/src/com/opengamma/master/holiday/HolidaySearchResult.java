@@ -13,7 +13,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -154,7 +154,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
 
     @Override
     public BeanBuilder<? extends HolidaySearchResult> builder() {
-      return new BasicBeanBuilder<HolidaySearchResult>(new HolidaySearchResult());
+      return new DirectBeanBuilder<HolidaySearchResult>(new HolidaySearchResult());
     }
 
     @Override

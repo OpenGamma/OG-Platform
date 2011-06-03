@@ -13,8 +13,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -525,7 +525,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
 
     @Override
     public BeanBuilder<? extends MetaData<T>> builder() {
-      return new BasicBeanBuilder<MetaData<T>>(new MetaData<T>());
+      return new DirectBeanBuilder<MetaData<T>>(new MetaData<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
