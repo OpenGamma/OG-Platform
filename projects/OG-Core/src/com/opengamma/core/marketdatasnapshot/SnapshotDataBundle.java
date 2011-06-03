@@ -5,17 +5,19 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.Identifier;
 
@@ -67,6 +69,25 @@ public class SnapshotDataBundle extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SnapshotDataBundle other = (SnapshotDataBundle) obj;
+      return JodaBeanUtils.equal(getDataPoints(), other.getDataPoints());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPoints());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the market values in the bundle
@@ -96,7 +117,7 @@ public class SnapshotDataBundle extends DirectBean {
   /**
    * The meta-bean for {@code SnapshotDataBundle}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -106,22 +127,33 @@ public class SnapshotDataBundle extends DirectBean {
      * The meta-property for the {@code dataPoints} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Identifier, Double>> _dataPoints = DirectMetaProperty.ofReadWrite(this, "dataPoints", (Class) Map.class);
+    private final MetaProperty<Map<Identifier, Double>> _dataPoints = DirectMetaProperty.ofReadWrite(
+        this, "dataPoints", SnapshotDataBundle.class, (Class) Map.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "dataPoints");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("dataPoints", _dataPoints);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public SnapshotDataBundle createBean() {
-      return new SnapshotDataBundle();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1186222381:  // dataPoints
+          return _dataPoints;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends SnapshotDataBundle> builder() {
+      return new BasicBeanBuilder<SnapshotDataBundle>(new SnapshotDataBundle());
     }
 
     @Override

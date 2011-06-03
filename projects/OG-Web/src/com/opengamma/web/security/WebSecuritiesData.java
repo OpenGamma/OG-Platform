@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.security;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.security.SecurityDocument;
@@ -155,6 +157,37 @@ public class WebSecuritiesData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebSecuritiesData other = (WebSecuritiesData) obj;
+      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -336,7 +369,7 @@ public class WebSecuritiesData extends DirectBean {
   /**
    * The meta-bean for {@code WebSecuritiesData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -345,52 +378,81 @@ public class WebSecuritiesData extends DirectBean {
     /**
      * The meta-property for the {@code securityMaster} property.
      */
-    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(this, "securityMaster", SecurityMaster.class);
+    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
+        this, "securityMaster", WebSecuritiesData.class, SecurityMaster.class);
     /**
      * The meta-property for the {@code securityLoader} property.
      */
-    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(this, "securityLoader", SecurityLoader.class);
+    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
+        this, "securityLoader", WebSecuritiesData.class, SecurityLoader.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebSecuritiesData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriSecurityId} property.
      */
-    private final MetaProperty<String> _uriSecurityId = DirectMetaProperty.ofReadWrite(this, "uriSecurityId", String.class);
+    private final MetaProperty<String> _uriSecurityId = DirectMetaProperty.ofReadWrite(
+        this, "uriSecurityId", WebSecuritiesData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebSecuritiesData.class, String.class);
     /**
      * The meta-property for the {@code security} property.
      */
-    private final MetaProperty<SecurityDocument> _security = DirectMetaProperty.ofReadWrite(this, "security", SecurityDocument.class);
+    private final MetaProperty<SecurityDocument> _security = DirectMetaProperty.ofReadWrite(
+        this, "security", WebSecuritiesData.class, SecurityDocument.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<SecurityDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", SecurityDocument.class);
+    private final MetaProperty<SecurityDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebSecuritiesData.class, SecurityDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "securityMaster",
+        "securityLoader",
+        "uriInfo",
+        "uriSecurityId",
+        "uriVersionId",
+        "security",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("securityMaster", _securityMaster);
-      temp.put("securityLoader", _securityLoader);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriSecurityId", _uriSecurityId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("security", _security);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebSecuritiesData createBean() {
-      return new WebSecuritiesData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          return _securityMaster;
+        case -903470221:  // securityLoader
+          return _securityLoader;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case 1433303815:  // uriSecurityId
+          return _uriSecurityId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case 949122880:  // security
+          return _security;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebSecuritiesData> builder() {
+      return new BasicBeanBuilder<WebSecuritiesData>(new WebSecuritiesData());
     }
 
     @Override

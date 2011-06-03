@@ -7,16 +7,18 @@ package com.opengamma.master.exchange;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -224,6 +226,30 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExchangeSearchRequest other = (ExchangeSearchRequest) obj;
+      return JodaBeanUtils.equal(getExchangeIds(), other.getExchangeIds()) &&
+          JodaBeanUtils.equal(getExchangeKeys(), other.getExchangeKeys()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of exchange object identifiers, null to not limit by exchange object identifiers.
@@ -307,32 +333,49 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code exchangeIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(this, "exchangeIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _exchangeIds = DirectMetaProperty.ofReadWrite(
+        this, "exchangeIds", ExchangeSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code exchangeKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(this, "exchangeKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(
+        this, "exchangeKeys", ExchangeSearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ExchangeSearchRequest.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "exchangeIds",
+        "exchangeKeys",
+        "name");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("exchangeIds", _exchangeIds);
-      temp.put("exchangeKeys", _exchangeKeys);
-      temp.put("name", _name);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ExchangeSearchRequest createBean() {
-      return new ExchangeSearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1755006571:  // exchangeIds
+          return _exchangeIds;
+        case 1429431991:  // exchangeKeys
+          return _exchangeKeys;
+        case 3373707:  // name
+          return _name;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ExchangeSearchRequest> builder() {
+      return new BasicBeanBuilder<ExchangeSearchRequest>(new ExchangeSearchRequest());
     }
 
     @Override

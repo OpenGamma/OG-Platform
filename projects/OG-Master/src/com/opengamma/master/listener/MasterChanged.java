@@ -6,19 +6,21 @@
 package com.opengamma.master.listener;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.Instant;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -132,6 +134,31 @@ public class MasterChanged extends DirectBean implements Serializable {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MasterChanged other = (MasterChanged) obj;
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getBeforeId(), other.getBeforeId()) &&
+          JodaBeanUtils.equal(getAfterId(), other.getAfterId()) &&
+          JodaBeanUtils.equal(getVersionInstant(), other.getVersionInstant());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBeforeId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAfterId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionInstant());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the type of change that occurred.
@@ -242,7 +269,7 @@ public class MasterChanged extends DirectBean implements Serializable {
   /**
    * The meta-bean for {@code MasterChanged}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -251,37 +278,57 @@ public class MasterChanged extends DirectBean implements Serializable {
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<MasterChangedType> _type = DirectMetaProperty.ofReadWrite(this, "type", MasterChangedType.class);
+    private final MetaProperty<MasterChangedType> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", MasterChanged.class, MasterChangedType.class);
     /**
      * The meta-property for the {@code beforeId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _beforeId = DirectMetaProperty.ofReadWrite(this, "beforeId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _beforeId = DirectMetaProperty.ofReadWrite(
+        this, "beforeId", MasterChanged.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code afterId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _afterId = DirectMetaProperty.ofReadWrite(this, "afterId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _afterId = DirectMetaProperty.ofReadWrite(
+        this, "afterId", MasterChanged.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code versionInstant} property.
      */
-    private final MetaProperty<Instant> _versionInstant = DirectMetaProperty.ofReadWrite(this, "versionInstant", Instant.class);
+    private final MetaProperty<Instant> _versionInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionInstant", MasterChanged.class, Instant.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "type",
+        "beforeId",
+        "afterId",
+        "versionInstant");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("type", _type);
-      temp.put("beforeId", _beforeId);
-      temp.put("afterId", _afterId);
-      temp.put("versionInstant", _versionInstant);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public MasterChanged createBean() {
-      return new MasterChanged();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return _type;
+        case 1466459386:  // beforeId
+          return _beforeId;
+        case -1076033513:  // afterId
+          return _afterId;
+        case 2084044265:  // versionInstant
+          return _versionInstant;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends MasterChanged> builder() {
+      return new BasicBeanBuilder<MasterChanged>(new MasterChanged());
     }
 
     @Override

@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.view.rest;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 
@@ -86,6 +88,29 @@ public class AttachToViewProcessRequest extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AttachToViewProcessRequest other = (AttachToViewProcessRequest) obj;
+      return JodaBeanUtils.equal(getViewDefinitionName(), other.getViewDefinitionName()) &&
+          JodaBeanUtils.equal(getExecutionOptions(), other.getExecutionOptions()) &&
+          JodaBeanUtils.equal(isNewBatchProcess(), other.isNewBatchProcess());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -170,7 +195,7 @@ public class AttachToViewProcessRequest extends DirectBean {
   /**
    * The meta-bean for {@code AttachToViewProcessRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -179,32 +204,49 @@ public class AttachToViewProcessRequest extends DirectBean {
     /**
      * The meta-property for the {@code viewDefinitionName} property.
      */
-    private final MetaProperty<String> _viewDefinitionName = DirectMetaProperty.ofReadWrite(this, "viewDefinitionName", String.class);
+    private final MetaProperty<String> _viewDefinitionName = DirectMetaProperty.ofReadWrite(
+        this, "viewDefinitionName", AttachToViewProcessRequest.class, String.class);
     /**
      * The meta-property for the {@code executionOptions} property.
      */
-    private final MetaProperty<ViewExecutionOptions> _executionOptions = DirectMetaProperty.ofReadWrite(this, "executionOptions", ViewExecutionOptions.class);
+    private final MetaProperty<ViewExecutionOptions> _executionOptions = DirectMetaProperty.ofReadWrite(
+        this, "executionOptions", AttachToViewProcessRequest.class, ViewExecutionOptions.class);
     /**
      * The meta-property for the {@code newBatchProcess} property.
      */
-    private final MetaProperty<Boolean> _newBatchProcess = DirectMetaProperty.ofReadWrite(this, "newBatchProcess", Boolean.TYPE);
+    private final MetaProperty<Boolean> _newBatchProcess = DirectMetaProperty.ofReadWrite(
+        this, "newBatchProcess", AttachToViewProcessRequest.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "viewDefinitionName",
+        "executionOptions",
+        "newBatchProcess");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("viewDefinitionName", _viewDefinitionName);
-      temp.put("executionOptions", _executionOptions);
-      temp.put("newBatchProcess", _newBatchProcess);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public AttachToViewProcessRequest createBean() {
-      return new AttachToViewProcessRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -10926973:  // viewDefinitionName
+          return _viewDefinitionName;
+        case -1448089498:  // executionOptions
+          return _executionOptions;
+        case -1977436267:  // newBatchProcess
+          return _newBatchProcess;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends AttachToViewProcessRequest> builder() {
+      return new BasicBeanBuilder<AttachToViewProcessRequest>(new AttachToViewProcessRequest());
     }
 
     @Override

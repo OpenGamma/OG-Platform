@@ -6,20 +6,22 @@
 package com.opengamma.master.position;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.id.Identifier;
@@ -274,6 +276,47 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableTrade other = (ManageableTrade) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getPositionId(), other.getPositionId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityKey(), other.getSecurityKey()) &&
+          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getTradeTime(), other.getTradeTime()) &&
+          JodaBeanUtils.equal(getCounterpartyKey(), other.getCounterpartyKey()) &&
+          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getPremium(), other.getPremium()) &&
+          JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
+          JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
+          JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterpartyKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPremium());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -601,7 +644,7 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
   /**
    * The meta-bean for {@code ManageableTrade}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -610,77 +653,121 @@ public class ManageableTrade extends DirectBean implements MutableUniqueIdentifi
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableTrade.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code positionId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(this, "positionId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _positionId = DirectMetaProperty.ofReadWrite(
+        this, "positionId", ManageableTrade.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(this, "quantity", BigDecimal.class);
+    private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
+        this, "quantity", ManageableTrade.class, BigDecimal.class);
     /**
      * The meta-property for the {@code securityKey} property.
      */
-    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(this, "securityKey", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _securityKey = DirectMetaProperty.ofReadWrite(
+        this, "securityKey", ManageableTrade.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code tradeDate} property.
      */
-    private final MetaProperty<LocalDate> _tradeDate = DirectMetaProperty.ofReadWrite(this, "tradeDate", LocalDate.class);
+    private final MetaProperty<LocalDate> _tradeDate = DirectMetaProperty.ofReadWrite(
+        this, "tradeDate", ManageableTrade.class, LocalDate.class);
     /**
      * The meta-property for the {@code tradeTime} property.
      */
-    private final MetaProperty<OffsetTime> _tradeTime = DirectMetaProperty.ofReadWrite(this, "tradeTime", OffsetTime.class);
+    private final MetaProperty<OffsetTime> _tradeTime = DirectMetaProperty.ofReadWrite(
+        this, "tradeTime", ManageableTrade.class, OffsetTime.class);
     /**
      * The meta-property for the {@code counterpartyKey} property.
      */
-    private final MetaProperty<Identifier> _counterpartyKey = DirectMetaProperty.ofReadWrite(this, "counterpartyKey", Identifier.class);
+    private final MetaProperty<Identifier> _counterpartyKey = DirectMetaProperty.ofReadWrite(
+        this, "counterpartyKey", ManageableTrade.class, Identifier.class);
     /**
      * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
+        this, "providerKey", ManageableTrade.class, Identifier.class);
     /**
      * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<Double> _premium = DirectMetaProperty.ofReadWrite(this, "premium", Double.class);
+    private final MetaProperty<Double> _premium = DirectMetaProperty.ofReadWrite(
+        this, "premium", ManageableTrade.class, Double.class);
     /**
      * The meta-property for the {@code premiumCurrency} property.
      */
-    private final MetaProperty<Currency> _premiumCurrency = DirectMetaProperty.ofReadWrite(this, "premiumCurrency", Currency.class);
+    private final MetaProperty<Currency> _premiumCurrency = DirectMetaProperty.ofReadWrite(
+        this, "premiumCurrency", ManageableTrade.class, Currency.class);
     /**
      * The meta-property for the {@code premiumDate} property.
      */
-    private final MetaProperty<LocalDate> _premiumDate = DirectMetaProperty.ofReadWrite(this, "premiumDate", LocalDate.class);
+    private final MetaProperty<LocalDate> _premiumDate = DirectMetaProperty.ofReadWrite(
+        this, "premiumDate", ManageableTrade.class, LocalDate.class);
     /**
      * The meta-property for the {@code premiumTime} property.
      */
-    private final MetaProperty<OffsetTime> _premiumTime = DirectMetaProperty.ofReadWrite(this, "premiumTime", OffsetTime.class);
+    private final MetaProperty<OffsetTime> _premiumTime = DirectMetaProperty.ofReadWrite(
+        this, "premiumTime", ManageableTrade.class, OffsetTime.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "positionId",
+        "quantity",
+        "securityKey",
+        "tradeDate",
+        "tradeTime",
+        "counterpartyKey",
+        "providerKey",
+        "premium",
+        "premiumCurrency",
+        "premiumDate",
+        "premiumTime");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("positionId", _positionId);
-      temp.put("quantity", _quantity);
-      temp.put("securityKey", _securityKey);
-      temp.put("tradeDate", _tradeDate);
-      temp.put("tradeTime", _tradeTime);
-      temp.put("counterpartyKey", _counterpartyKey);
-      temp.put("providerKey", _providerKey);
-      temp.put("premium", _premium);
-      temp.put("premiumCurrency", _premiumCurrency);
-      temp.put("premiumDate", _premiumDate);
-      temp.put("premiumTime", _premiumTime);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageableTrade createBean() {
-      return new ManageableTrade();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 1381039140:  // positionId
+          return _positionId;
+        case -1285004149:  // quantity
+          return _quantity;
+        case 1550083839:  // securityKey
+          return _securityKey;
+        case 752419634:  // tradeDate
+          return _tradeDate;
+        case 752903761:  // tradeTime
+          return _tradeTime;
+        case 624096149:  // counterpartyKey
+          return _counterpartyKey;
+        case 2064682670:  // providerKey
+          return _providerKey;
+        case -318452137:  // premium
+          return _premium;
+        case 1136581512:  // premiumCurrency
+          return _premiumCurrency;
+        case 651701925:  // premiumDate
+          return _premiumDate;
+        case 652186052:  // premiumTime
+          return _premiumTime;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableTrade> builder() {
+      return new BasicBeanBuilder<ManageableTrade>(new ManageableTrade());
     }
 
     @Override

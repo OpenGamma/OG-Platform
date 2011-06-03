@@ -32,12 +32,11 @@ public class IdentifierBundleMapperTest {
     IdentifierBundle bundleA2B2 = IdentifierBundle.of(idA2, idB2);
     IdentifierBundle bundleA1B2 = IdentifierBundle.of(idA1, idB2);
     final String testSchemeName = "TEST_SCHEME_1";
-    IdentificationScheme testScheme = IdentificationScheme.of(testSchemeName);
     IdentifierBundleMapper<String> mapper = new IdentifierBundleMapper<String>(testSchemeName);
     String obj = "TEST1";
     UniqueIdentifier uid1 = mapper.add(bundleA1B1, obj);
     // check the uid is what we expect.
-    assertEquals(testScheme, uid1.getSchemeObject());
+    assertEquals(testSchemeName, uid1.getScheme());
     assertEquals("1", uid1.getValue());
     // check the uid works to retrieve
     assertEquals(obj, mapper.get(uid1));
@@ -73,7 +72,7 @@ public class IdentifierBundleMapperTest {
     String obj2 = "TEST2";
     UniqueIdentifier uid3 = mapper.add(bundleA2B2, obj2);
     // check the uid is what we expect.
-    assertEquals(testScheme, uid3.getSchemeObject());
+    assertEquals(testSchemeName, uid3.getScheme());
     assertEquals("2", uid3.getValue());
     // look into the below state, but i think it's ok as the behaviour changed
     //try {

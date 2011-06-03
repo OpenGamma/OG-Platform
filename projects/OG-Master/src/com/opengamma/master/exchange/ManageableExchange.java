@@ -6,20 +6,22 @@
 package com.opengamma.master.exchange;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.TimeZone;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeUtils;
@@ -202,6 +204,35 @@ public class ManageableExchange extends DirectBean implements Exchange {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableExchange other = (ManageableExchange) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getRegionKey(), other.getRegionKey()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getDetail(), other.getDetail());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDetail());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the exchange.
@@ -366,7 +397,7 @@ public class ManageableExchange extends DirectBean implements Exchange {
   /**
    * The meta-bean for {@code ManageableExchange}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -375,48 +406,74 @@ public class ManageableExchange extends DirectBean implements Exchange {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableExchange.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", ManageableExchange.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ManageableExchange.class, String.class);
     /**
      * The meta-property for the {@code regionKey} property.
      */
-    private final MetaProperty<IdentifierBundle> _regionKey = DirectMetaProperty.ofReadWrite(this, "regionKey", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _regionKey = DirectMetaProperty.ofReadWrite(
+        this, "regionKey", ManageableExchange.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code timeZone} property.
      */
-    private final MetaProperty<TimeZone> _timeZone = DirectMetaProperty.ofReadWrite(this, "timeZone", TimeZone.class);
+    private final MetaProperty<TimeZone> _timeZone = DirectMetaProperty.ofReadWrite(
+        this, "timeZone", ManageableExchange.class, TimeZone.class);
     /**
      * The meta-property for the {@code detail} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ManageableExchangeDetail>> _detail = DirectMetaProperty.ofReadWrite(this, "detail", (Class) List.class);
+    private final MetaProperty<List<ManageableExchangeDetail>> _detail = DirectMetaProperty.ofReadWrite(
+        this, "detail", ManageableExchange.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "identifiers",
+        "name",
+        "regionKey",
+        "timeZone",
+        "detail");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("identifiers", _identifiers);
-      temp.put("name", _name);
-      temp.put("regionKey", _regionKey);
-      temp.put("timeZone", _timeZone);
-      temp.put("detail", _detail);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageableExchange createBean() {
-      return new ManageableExchange();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 1368189162:  // identifiers
+          return _identifiers;
+        case 3373707:  // name
+          return _name;
+        case 74328779:  // regionKey
+          return _regionKey;
+        case -2077180903:  // timeZone
+          return _timeZone;
+        case -1335224239:  // detail
+          return _detail;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableExchange> builder() {
+      return new BasicBeanBuilder<ManageableExchange>(new ManageableExchange());
     }
 
     @Override

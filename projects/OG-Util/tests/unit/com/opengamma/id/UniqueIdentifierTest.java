@@ -157,11 +157,6 @@ public class UniqueIdentifierTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSchemeAsObject() {
-    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
-    assertEquals(IdentificationScheme.of("id1"), test.getSchemeObject());
-  }
-
   public void test_isLatest_noVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
     assertEquals(true, test.isLatest());
@@ -190,6 +185,12 @@ public class UniqueIdentifierTest {
   public void test_toLatest_version() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "1");
     assertEquals(UniqueIdentifier.of("id1", "value1"), test.toLatest());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toIdentifier() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertEquals(Identifier.of(UniqueIdentifier.UID, "id1~value1"), test.toIdentifier());
   }
 
   //-------------------------------------------------------------------------

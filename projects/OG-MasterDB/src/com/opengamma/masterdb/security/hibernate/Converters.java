@@ -19,6 +19,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.DateTimeWithZone;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -37,17 +38,31 @@ public final class Converters {
     return Currency.of(currencyBean.getName());
   }
 
-  public static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {
-    if (identifierBean == null) {
+  //-------------------------------------------------------------------------
+  public static Identifier identifierBeanToIdentifier(IdentifierBean hibernateBean) {
+    if (hibernateBean == null) {
       return null;
     }
-    return Identifier.of(identifierBean.getScheme(), identifierBean.getIdentifier());
+    return Identifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
   }
 
   public static IdentifierBean identifierToIdentifierBean(final Identifier identifier) {
     return new IdentifierBean(identifier.getScheme().getName(), identifier.getValue());
   }
 
+  //-------------------------------------------------------------------------
+  public static UniqueIdentifier uniqueIdentifierBeanToUniqueIdentifier(UniqueIdentifierBean hibernateBean) {
+    if (hibernateBean == null) {
+      return null;
+    }
+    return UniqueIdentifier.of(hibernateBean.getScheme(), hibernateBean.getIdentifier());
+  }
+
+  public static UniqueIdentifierBean uniqueIdentifierToUniqueIdentifierBean(final UniqueIdentifier identifier) {
+    return new UniqueIdentifierBean(identifier.getScheme(), identifier.getValue());
+  }
+
+  //-------------------------------------------------------------------------
   public static Expiry expiryBeanToExpiry(final ExpiryBean bean) {
     if (bean == null) {
       return null;
