@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.time.Instant;
+
 import org.cometd.Client;
 import org.cometd.Message;
 import org.slf4j.Logger;
@@ -28,6 +30,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
@@ -192,8 +195,8 @@ public class WebView {
     }
   }
   
-  private SortedMap<Long, Long> processViewportData(Map<String, Object> viewportData) {
-    SortedMap<Long, Long> result = new TreeMap<Long, Long>();
+  private SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
+    SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
     if (viewportData.isEmpty()) {
       return result;
     }
@@ -201,7 +204,8 @@ public class WebView {
     Object[] lastTimes = (Object[]) viewportData.get("lastTimestamps");
     for (int i = 0; i < ids.length; i++) {
       if (ids[i] instanceof Number) {
-        Long rowId = (Long) ids[i];
+        long jsRowId = (Long) ids[i];
+        int rowId = (int) jsRowId;
         if (lastTimes[i] != null) {
           Long lastTime = (Long) lastTimes[i];
           result.put(rowId, lastTime);
@@ -351,6 +355,21 @@ public class WebView {
         unregisterGrid(grid.getName());
       }
     }
+  }
+  
+  public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
+    WebViewGrid grid = getGridByName(gridName);
+    if (grid == null) {
+      s_logger.warn("Dump request received for unknown grid '{}'", gridName);
+      return null;
+    }
+    ViewComputationResultModel latestResult = getViewClient().getLatestResult();
+    if (latestResult == null) {
+      s_logger.warn("Dump request received before result available");
+      return null;
+    }
+    String csv = grid.dumpContentsToCsv(latestResult);
+    return Pair.of(latestResult.getValuationTime(), csv);
   }
   
   //-------------------------------------------------------------------------

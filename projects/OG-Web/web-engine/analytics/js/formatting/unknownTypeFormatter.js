@@ -15,7 +15,8 @@
     this.supportsHistory = false;
     
     this.renderCell = function($cell, value, row, dataContext, colDef, columnStructure, userConfig) {
-      $cell.html("<span class='cell-value'>" + value.v.name + "</span>");
+      var type = value.v.name ? value.v.name : "Unknown anonymous type"
+      $cell.html("<span class='cell-value'>" + type + "</span>");
     }
     
   }

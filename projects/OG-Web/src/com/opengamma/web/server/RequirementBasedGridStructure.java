@@ -35,7 +35,8 @@ public class RequirementBasedGridStructure {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementBasedGridStructure.class);
 
-  private final Map<UniqueIdentifier, Long> _targetIdMap;
+  private final Map<UniqueIdentifier, Integer> _targetIdMap;
+  private final List<WebViewGridColumn> _orderedColumns;
   private final Map<RequirementBasedColumnKey, WebViewGridColumn> _specificationBasedColumns;
 
   public RequirementBasedGridStructure(CompiledViewDefinition compiledViewDefinition, EnumSet<ComputationTargetType> targetTypes,
@@ -47,9 +48,10 @@ public class RequirementBasedGridStructure {
     ValueSpecificationAnalysisResult analysisResult = analyseValueSpecifications(compiledViewDefinition, requirements, targetTypes, targets);
     Map<RequirementBasedColumnKey, WebViewGridColumn> specificationBasedColumns = new HashMap<RequirementBasedColumnKey, WebViewGridColumn>();
     Map<RequirementBasedColumnKey, WebViewGridColumn> requirementBasedColumns = new HashMap<RequirementBasedColumnKey, WebViewGridColumn>();
+    List<WebViewGridColumn> orderedColumns = new ArrayList<WebViewGridColumn>();
 
     // Generate columns in correct order
-    long colId = 0;
+    int colId = 0;
     for (RequirementBasedColumnKey requirement : requirements) {
       if (requirementBasedColumns.containsKey(requirement)) {
         continue;
@@ -59,6 +61,7 @@ public class RequirementBasedGridStructure {
       String columnDescription = getColumnDescription(requirement);
       WebViewGridColumn column = new WebViewGridColumn(colId++, columnHeader, columnDescription, requirement.getValueName());
       requirementBasedColumns.put(requirement, column);
+      orderedColumns.add(column);
     }
 
     for (Map.Entry<RequirementBasedColumnKey, RequirementBasedColumnKey> specToRequirement : analysisResult.getSpecificationToRequirement().entrySet()) {
@@ -75,13 +78,14 @@ public class RequirementBasedGridStructure {
     }
 
     _specificationBasedColumns = specificationBasedColumns;
+    _orderedColumns = orderedColumns;
 
     // Order of targets could be important, so use a linked map
     if (targets == null) {
       targets = analysisResult.getTargets();
     }
-    _targetIdMap = new LinkedHashMap<UniqueIdentifier, Long>();
-    long nextId = 0;
+    _targetIdMap = new LinkedHashMap<UniqueIdentifier, Integer>();
+    int nextId = 0;
     for (UniqueIdentifier target : targets) {
       _targetIdMap.put(target, nextId++);
     }
@@ -173,15 +177,15 @@ public class RequirementBasedGridStructure {
     return _specificationBasedColumns.get(new RequirementBasedColumnKey(calcConfigName, valueSpec.getValueName(), valueSpec.getProperties()));
   }
 
-  public Collection<WebViewGridColumn> getColumns() {
-    return Collections.unmodifiableSet(new HashSet<WebViewGridColumn>(_specificationBasedColumns.values()));
+  public List<WebViewGridColumn> getColumns() {
+    return Collections.unmodifiableList(_orderedColumns);
   }
 
-  public Map<UniqueIdentifier, Long> getTargets() {
+  public Map<UniqueIdentifier, Integer> getTargets() {
     return Collections.unmodifiableMap(_targetIdMap);
   }
 
-  public Long getRowId(UniqueIdentifier target) {
+  public Integer getRowId(UniqueIdentifier target) {
     return _targetIdMap.get(target);
   }
 

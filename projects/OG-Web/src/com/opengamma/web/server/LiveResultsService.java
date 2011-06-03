@@ -34,7 +34,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
 
-  private Map<Client, WebView> _clientViews = new HashMap<Client, WebView>();
+  private Map<String, WebView> _clientViews = new HashMap<String, WebView>();
   
   /**
    * The executor service used to call web clients back asynchronously.
@@ -79,20 +79,20 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     // Tidy up
     s_logger.debug("Client " + client.getId() + " disconnected");
     if (_clientViews.containsKey(client)) {
-      WebView view = _clientViews.remove(client);
+      WebView view = _clientViews.remove(client.getId());
       view.shutdown();
     }
   }
   
-  private WebView getClientView(Client remote) {
+  public WebView getClientView(String clientId) {
     synchronized (_clientViews) {
-      return _clientViews.get(remote);
+      return _clientViews.get(clientId);
     }
   }
 
   private void initializeClientView(final Client remote, final String viewDefinitionName, final UserPrincipal user) {
     synchronized (_clientViews) {
-      WebView webView = _clientViews.get(remote);
+      WebView webView = _clientViews.get(remote.getId());
       if (webView != null) {
         if (webView.getViewDefinitionName().equals(viewDefinitionName)) {
           // Already initialized
@@ -101,7 +101,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         }
         // Existing view is different - client is switching views
         webView.shutdown();
-        _clientViews.remove(remote);
+        _clientViews.remove(remote.getId());
       }
       
       ViewClient viewClient = getViewProcessor().createViewClient(user);
@@ -111,7 +111,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + viewDefinitionName + "'", e);
       }
-      _clientViews.put(remote, webView);
+      _clientViews.put(remote.getId(), webView);
     }
   }
 
@@ -133,7 +133,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   
   public void processUpdateRequest(Client remote, Message message) {
     s_logger.info("Received portfolio data request from {}, getting client view...", remote);
-    WebView webView = getClientView(remote);
+    WebView webView = getClientView(remote.getId());
     if (webView == null) {
       // Disconnected client has come back to life
       return;
@@ -143,34 +143,34 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   
   @SuppressWarnings("unchecked")
   public void processUpdateModeRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote);
+    WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
     Map<String, Object> dataMap = (Map<String, Object>) message.getData();
     String gridName = (String) dataMap.get("gridName");
-    long rowId = (Long) dataMap.get("rowId");
-    long colId = (Long) dataMap.get("colId");
+    long jsRowId = (Long) dataMap.get("rowId");
+    long jsColId = (Long) dataMap.get("colId");
     ConversionMode mode = ConversionMode.valueOf((String) dataMap.get("mode"));
     WebViewGrid grid = webView.getGridByName(gridName);
     if (grid == null) {
       s_logger.warn("Request to change update mode for cell in unknown grid '{}'", gridName);
     }
-    grid.setConversionMode(WebGridCell.of(rowId, colId), mode);
+    grid.setConversionMode(WebGridCell.of((int) jsRowId, (int) jsColId), mode);
   }
   
   @SuppressWarnings("unchecked")
   public void processDepGraphRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote);
+    WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
     Map<String, Object> dataMap = (Map<String, Object>) message.getData();
     String gridName = (String) dataMap.get("gridName");
-    long rowId = (Long) dataMap.get("rowId");
-    long colId = (Long) dataMap.get("colId");
+    long jsRowId = (Long) dataMap.get("rowId");
+    long jsColId = (Long) dataMap.get("colId");
     boolean includeDepGraph = (Boolean) dataMap.get("includeDepGraph");
-    webView.setIncludeDepGraph(gridName, WebGridCell.of(rowId, colId), includeDepGraph);
+    webView.setIncludeDepGraph(gridName, WebGridCell.of((int) jsRowId, (int) jsColId), includeDepGraph);
   }
 
   public void processViewsRequest(Client remote, Message message) {
@@ -192,7 +192,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   }
   
   public void processPauseRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote);
+    WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
@@ -200,7 +200,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   }
   
   public void processResumeRequest(Client remote, Message message) {
-    WebView webView = getClientView(remote);
+    WebView webView = getClientView(remote.getId());
     if (webView == null) {
       return;
     }
