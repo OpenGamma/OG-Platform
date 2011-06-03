@@ -48,7 +48,7 @@ $.register_module({
                 handlers: [
                     {type: 'form:load', handler: function () {
                         var item;
-                        $widget = $('#' + ids.widget)
+                        $widget = $('#' + ids.widget);
                         rows = {
                             'with': $('#' + ids.row_with).remove().removeAttr('id'),
                             without: $('#' + ids.row_without).remove().removeAttr('id')
@@ -57,7 +57,7 @@ $.register_module({
                             'with': function (datum, $replace, $after) {
                                 var item, add = function (item) {
                                     var $row = rows['with'].clone(), $inputs = $row.find('input'),
-                                        value = convert(datum[item]);;
+                                        value = convert(datum[item]);
                                     $inputs[0].checked = 'checked', $inputs[2].value = item, $inputs[3].value = value;
                                     if (datum[item] && typeof datum[item] === 'object' && ('optional' in datum[item]))
                                         $inputs[4].checked = 'checked';
