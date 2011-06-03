@@ -1,7 +1,9 @@
 /*
- * This file overwrites Jquery UI CSS from @see /styles/lib/jquery/ui/jquery.ui.core.css
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ *  This file overwrites Jquery UI CSS from @see /styles/lib/jquery/ui/jquery.ui.core.css
  */
-
 .ui-icon {
     background-image: url(/prototype/images/common/sprites/icons.png)!important;
 }
