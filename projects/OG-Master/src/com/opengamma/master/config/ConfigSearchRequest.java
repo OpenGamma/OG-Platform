@@ -15,7 +15,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -323,7 +323,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
 
     @Override
     public BeanBuilder<? extends ConfigSearchRequest<T>> builder() {
-      return new BasicBeanBuilder<ConfigSearchRequest<T>>(new ConfigSearchRequest<T>());
+      return new DirectBeanBuilder<ConfigSearchRequest<T>>(new ConfigSearchRequest<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

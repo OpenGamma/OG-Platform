@@ -13,7 +13,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -329,7 +329,7 @@ public class ConfigDocument<T> extends AbstractDocument {
 
     @Override
     public BeanBuilder<? extends ConfigDocument<T>> builder() {
-      return new BasicBeanBuilder<ConfigDocument<T>>(new ConfigDocument<T>());
+      return new DirectBeanBuilder<ConfigDocument<T>>(new ConfigDocument<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

@@ -15,7 +15,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -168,7 +168,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
 
     @Override
     public BeanBuilder<? extends SecurityMetaDataResult> builder() {
-      return new BasicBeanBuilder<SecurityMetaDataResult>(new SecurityMetaDataResult());
+      return new DirectBeanBuilder<SecurityMetaDataResult>(new SecurityMetaDataResult());
     }
 
     @Override

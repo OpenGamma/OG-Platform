@@ -13,8 +13,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -532,7 +532,7 @@ public class TimeSeriesDocument<T> extends DirectBean implements UniqueIdentifia
 
     @Override
     public BeanBuilder<? extends TimeSeriesDocument<T>> builder() {
-      return new BasicBeanBuilder<TimeSeriesDocument<T>>(new TimeSeriesDocument<T>());
+      return new DirectBeanBuilder<TimeSeriesDocument<T>>(new TimeSeriesDocument<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

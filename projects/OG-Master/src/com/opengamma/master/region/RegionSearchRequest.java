@@ -19,7 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -567,7 +567,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
 
     @Override
     public BeanBuilder<? extends RegionSearchRequest> builder() {
-      return new BasicBeanBuilder<RegionSearchRequest>(new RegionSearchRequest());
+      return new DirectBeanBuilder<RegionSearchRequest>(new RegionSearchRequest());
     }
 
     @Override

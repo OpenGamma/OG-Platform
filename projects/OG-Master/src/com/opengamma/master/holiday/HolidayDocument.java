@@ -14,7 +14,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -351,7 +351,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
 
     @Override
     public BeanBuilder<? extends HolidayDocument> builder() {
-      return new BasicBeanBuilder<HolidayDocument>(new HolidayDocument());
+      return new DirectBeanBuilder<HolidayDocument>(new HolidayDocument());
     }
 
     @Override

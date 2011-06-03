@@ -36,6 +36,17 @@ public interface ResultConverter<T> {
   Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, T value);
   
   /**
+   * Converts from a function result into a more primitive object suitable for rendering to CSV format. This might be
+   * the full {@link double} value in the case of a number, or a string representation of more complex objects.
+   * 
+   * @param context  the converter context
+   * @param valueSpec  the value specification if applicable, may be {@code null}
+   * @param value  a function result, not {@code null}
+   * @return  the converted, JSON-friendly value for inclusion in a CSV file
+   */
+  String convertToText(ResultConverterCache context, ValueSpecification valueSpec, T value);
+  
+  /**
    * A unique name which indicates to a client both
    * <ul>
    *   <li>how it should interpret the converted result</li>

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.AbstractHistoryResult;
@@ -127,7 +127,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
 
     @Override
     public BeanBuilder<? extends PositionHistoryResult> builder() {
-      return new BasicBeanBuilder<PositionHistoryResult>(new PositionHistoryResult());
+      return new DirectBeanBuilder<PositionHistoryResult>(new PositionHistoryResult());
     }
 
     @Override
