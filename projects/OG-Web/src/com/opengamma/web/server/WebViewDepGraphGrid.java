@@ -252,14 +252,14 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   protected List<Object> getInitialJsonRowStructures() {
     return _rowStructure;
   }
-  
+
   @Override
-  protected String[] getColumnHeaders() {
+  protected String[][] getCsvColumnHeaders() {
     return null;
   }
 
   @Override
-  protected String[][] getRows(ViewComputationResultModel result) {
+  protected String[][] getCsvRows(ViewComputationResultModel result) {
     return null;
   }
 

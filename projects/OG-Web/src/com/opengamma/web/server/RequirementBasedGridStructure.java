@@ -198,7 +198,7 @@ public class RequirementBasedGridStructure {
   }
 
   private static String getColumnDescription(RequirementBasedColumnKey requirementBasedKey) {
-    return requirementBasedKey.getValueName() + ": \n" + getPropertiesString(requirementBasedKey.getValueProperties());
+    return getPropertiesString(requirementBasedKey.getValueProperties());
   }
 
   private static String getPropertiesString(ValueProperties constraints) {

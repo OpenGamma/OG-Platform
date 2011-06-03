@@ -167,7 +167,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     long colId = column.getId();
     detailsToSend.put("colId", colId);
     detailsToSend.put("header", column.getHeader());
-    detailsToSend.put("description", column.getDescription());
+    detailsToSend.put("description", column.getValueName() + ":\n" + column.getDescription());
     detailsToSend.put("nullValue", _nullCellValue);
     
     String resultType = getConverterCache().getKnownResultTypeName(column.getValueName());
@@ -184,7 +184,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     return detailsToSend;
   }
   
-  protected abstract void addRowDetails(UniqueIdentifier target, long rowId, Map<String, Object> details);
+  protected abstract void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details);
   
   //-------------------------------------------------------------------------
   
@@ -260,19 +260,26 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   //-------------------------------------------------------------------------
   
   @Override
-  protected String[] getColumnHeaders() {
+  protected String[][] getCsvColumnHeaders() {
     Collection<WebViewGridColumn> columns = getGridStructure().getColumns();
-    String[] result = new String[columns.size()];
+    int additionalColumns = getAdditionalCsvColumnCount();
+    int columnCount = columns.size() + additionalColumns;
+    String[] header1 = new String[columnCount];
+    String[] header2 = new String[columnCount];
+    supplementCsvColumnHeaders(header1);
+    int offset = getCsvDataColumnOffset();
     for (WebViewGridColumn column : columns) {
-      result[column.getId()] = column.getHeader();
+      header1[offset + column.getId()] = column.getHeader();
+      header2[offset + column.getId()] = column.getDescription();
     }
-    return result;
+    return new String[][] {header1, header2};
   }
 
   @Override
-  protected String[][] getRows(ViewComputationResultModel result) {
-    int columnCount = getGridStructure().getColumns().size();
+  protected String[][] getCsvRows(ViewComputationResultModel result) {
     String[][] rows = new String[getGridStructure().getTargets().size()][];
+    int columnCount = getGridStructure().getColumns().size() + getAdditionalCsvColumnCount();
+    int offset = getCsvDataColumnOffset();
     for (ComputationTargetSpecification target : result.getAllTargets()) {
       Integer rowId = getGridStructure().getRowId(target.getUniqueId());
       if (rowId == null) {
@@ -280,6 +287,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       }
       ViewTargetResultModel resultModel = result.getTargetResult(target);
       String[] values = new String[columnCount];
+      supplementCsvRowData(rowId, target, values);
       rows[rowId] = values;
       for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
         for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
@@ -296,11 +304,25 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
           }
           int colId = column.getId();
           ResultConverter<Object> converter = originalValue != null ? getConverter(column, value.getSpecification().getValueName(), originalValue.getClass()) : null;
-          values[colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
+          values[offset + colId] = converter.convertToText(getConverterCache(), value.getSpecification(), originalValue);
         }
       }
     }
     return rows;
+  }
+
+  protected int getAdditionalCsvColumnCount() {
+    return 0;
+  }
+  
+  protected int getCsvDataColumnOffset() {
+    return 0;
+  }
+  
+  protected void supplementCsvColumnHeaders(String[] headers) {
+  }
+  
+  protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
   }
   
   //-------------------------------------------------------------------------

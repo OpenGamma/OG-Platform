@@ -213,11 +213,13 @@ public abstract class WebViewGrid {
   /*package*/ String dumpContentsToCsv(ViewComputationResultModel result) {
     StringWriter stringWriter = new StringWriter();
     CSVWriter csvWriter = new CSVWriter(stringWriter);
-    String[] columnHeaders = getColumnHeaders();
+    String[][] columnHeaders = getCsvColumnHeaders();
     if (columnHeaders != null) {
-      csvWriter.writeNext(columnHeaders);
+      for (String[] header : columnHeaders) {
+        csvWriter.writeNext(header);
+      }
     }
-    String[][] rows = getRows(result);
+    String[][] rows = getCsvRows(result);
     if (rows != null) {
       for (String[] row : rows) {
         csvWriter.writeNext(row);
@@ -226,8 +228,8 @@ public abstract class WebViewGrid {
     return stringWriter.toString();
   }
   
-  protected abstract String[] getColumnHeaders();
+  protected abstract String[][] getCsvColumnHeaders();
 
-  protected abstract String[][] getRows(ViewComputationResultModel result);
+  protected abstract String[][] getCsvRows(ViewComputationResultModel result);
   
 }

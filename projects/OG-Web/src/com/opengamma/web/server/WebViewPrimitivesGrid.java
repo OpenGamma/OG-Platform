@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.cometd.Client;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -27,9 +28,31 @@ public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
   }
 
   @Override
-  protected void addRowDetails(UniqueIdentifier target, long rowId, Map<String, Object> details) {
+  protected void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details) {
     // TODO: resolve the target and use a more sensible name
     details.put("name", target.toString());
+  }
+  
+  //-------------------------------------------------------------------------
+
+  @Override
+  protected void supplementCsvColumnHeaders(String[] headers) {
+    headers[0] = "Target";
+  }
+
+  @Override
+  protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
+    row[0] = target.toString();
+  }
+
+  @Override
+  protected int getAdditionalCsvColumnCount() {
+    return 1;
+  }
+
+  @Override
+  protected int getCsvDataColumnOffset() {
+    return 1;
   }
   
 }

@@ -360,12 +360,10 @@ public class WebView {
   public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     WebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
-      s_logger.warn("Dump request received for unknown grid '{}'", gridName);
-      return null;
+      throw new OpenGammaRuntimeException("Unknown grid '" + gridName + "'");
     }
     ViewComputationResultModel latestResult = getViewClient().getLatestResult();
     if (latestResult == null) {
-      s_logger.warn("Dump request received before result available");
       return null;
     }
     String csv = grid.dumpContentsToCsv(latestResult);

@@ -30,7 +30,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
  */
 public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
   
-  private Map<Long, PortfolioRow> _rowIdToRowMap;
+  private Map<Integer, PortfolioRow> _rowIdToRowMap;
   
   public WebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote) {
     this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, local, remote);
@@ -41,30 +41,37 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
         EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, local,
         remote, "undefined"); 
-    _rowIdToRowMap = new HashMap<Long, PortfolioRow>();
+    _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
-      long rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
+      int rowId = getGridStructure().getRowId(row.getTarget().getUniqueId());
       _rowIdToRowMap.put(rowId, row);
     }
   }
   
   @Override
-  protected void addRowDetails(UniqueIdentifier target, long rowId, Map<String, Object> details) {
+  protected void addRowDetails(UniqueIdentifier target, int rowId, Map<String, Object> details) {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
     details.put("indent", row.getDepth());
     if (row.getParentRow() != null) {
-      long parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget().getUniqueId());
+      int parentRowId = getGridStructure().getRowId(row.getParentRow().getTarget().getUniqueId());
       details.put("parentRowId", parentRowId);
     }
     ComputationTargetType targetType = row.getTarget().getType();
     details.put("type", targetType.toString());
+    String rowName = getRowName(row, targetType);
+    details.put("position", rowName);
+  }
+
+  private String getRowName(PortfolioRow row, ComputationTargetType targetType) {
+    String rowName;
     if (targetType == ComputationTargetType.POSITION) {
       Security security = row.getPosition().getSecurity();
       String des = security.getName();
-      details.put("position", des + " (" + row.getPosition().getQuantity().toPlainString() + ")");
+      rowName = des + " (" + row.getPosition().getQuantity().toPlainString() + ")";
     } else {
-      details.put("position", row.getAggregateName());
+      rowName = row.getAggregateName();
     }
+    return rowName;
   }
   
   private static List<UniqueIdentifier> getTargets(List<PortfolioRow> rows) {
@@ -102,5 +109,35 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
       }
     }
   }
+  
+  //-------------------------------------------------------------------------
+  
+  @Override
+  protected int getAdditionalCsvColumnCount() {
+    return 3;
+  }
+
+  @Override
+  protected int getCsvDataColumnOffset() {
+    // All at start
+    return 3;
+  }
+
+  @Override
+  protected void supplementCsvColumnHeaders(String[] headers) {
+    headers[0] = "ID";
+    headers[1] = "Parent ID";
+    headers[2] = "Position";
+  }
+
+  @Override
+  protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
+    PortfolioRow portfolioRow = _rowIdToRowMap.get(rowId);
+    PortfolioRow parentRow = portfolioRow.getParentRow();
+    String parentRowIdText = parentRow != null ? getGridStructure().getRowId(parentRow.getTarget().getUniqueId()).toString() : null;
+    row[0] = Integer.toString(rowId);
+    row[1] = parentRowIdText;
+    row[2] = getRowName(portfolioRow, target.getType());
+  }  
   
 }
