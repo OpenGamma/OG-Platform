@@ -29,7 +29,7 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
@@ -41,7 +41,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final OptionSecurity option = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final StandardOptionDataBundle data = getDataBundle(executionContext.getSecuritySource(), executionContext.getSnapshotClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
@@ -64,7 +64,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return results;
   }
 
-  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final OptionSecurity security) {
+  protected ValueSpecification getResultSpecification(final String valueName, final ComputationTarget target, final EquityOptionSecurity security) {
     // REVIEW 2010-10-28 Andrew -- Do all values produced have a currency? Aren't the derivitive greeks unitless?
     return new ValueSpecification(valueName, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get());
   }
@@ -74,7 +74,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     if (!canApplyTo(context, target)) {
       return null;
     }
-    final OptionSecurity security = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
       results.add(getResultSpecification(valueName, target, security));
@@ -100,14 +100,14 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction.NonCo
     return new ValueRequirement(ValueRequirementNames.COST_OF_CARRY, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final OptionSecurity security) {
+  protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final EquityOptionSecurity security) {
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.with(ValuePropertyNames.CURRENCY,
         security.getCurrency().getCode()).get());
   }
 
   protected abstract <S extends OptionDefinition, T extends StandardOptionDataBundle> AnalyticOptionModel<S, T> getModel();
 
-  protected abstract OptionDefinition getOptionDefinition(OptionSecurity option);
+  protected abstract OptionDefinition getOptionDefinition(EquityOptionSecurity option);
 
-  protected abstract <S extends StandardOptionDataBundle> S getDataBundle(SecuritySource secMaster, Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
+  protected abstract <S extends StandardOptionDataBundle> S getDataBundle(SecuritySource secMaster, Clock relevantTime, EquityOptionSecurity option, FunctionInputs inputs);
 }

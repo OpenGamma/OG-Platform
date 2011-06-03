@@ -192,8 +192,9 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurity visitSwaptionSecurity(SwaptionSecurity security) {
-        return new SwaptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
-            currencyBeanToCurrency(bean.getCurrency()));
+//        return new SwaptionSecurity(exerciseType, payoffStyle, bean.getOptionType(), bean.getStrike(), expiryBeanToExpiry(bean.getExpiry()), identifierBeanToIdentifier(bean.getUnderlying()),
+//            currencyBeanToCurrency(bean.getCurrency()));
+        throw new UnsupportedOperationException();
       }
     });
     return sec;
@@ -341,8 +342,9 @@ public final class OptionSecurityBeanOperation extends AbstractSecurityBeanOpera
 
       @Override
       public OptionSecurityBean visitSwaptionSecurity(SwaptionSecurity security) {
-        final OptionSecurityBean bean = createSecurityBean(security);
-        return bean;
+//        final OptionSecurityBean bean = createSecurityBean(security);
+//        return bean;
+        throw new UnsupportedOperationException();
       }
 
     });

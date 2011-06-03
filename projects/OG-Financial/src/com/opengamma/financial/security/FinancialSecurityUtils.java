@@ -18,6 +18,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.money.Currency;
@@ -130,6 +131,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Currency visitFXOptionSecurity(FXOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Currency visitSwaptionSecurity(SwaptionSecurity security) {
           return null;
         }
       });

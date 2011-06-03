@@ -13,9 +13,8 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.financial.security.option.VanillaPayoffStyle;
 
 /**
  * 
@@ -31,7 +30,7 @@ public class BjerksundStenslandModelFunction extends StandardOptionDataAnalyticO
   }
 
   @Override
-  protected AmericanVanillaOptionDefinition getOptionDefinition(final OptionSecurity option) {
+  protected AmericanVanillaOptionDefinition getOptionDefinition(final EquityOptionSecurity option) {
     return new AmericanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
   }
 
@@ -40,11 +39,17 @@ public class BjerksundStenslandModelFunction extends StandardOptionDataAnalyticO
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (!(target.getSecurity() instanceof OptionSecurity)) {
+    if (!(target.getSecurity() instanceof EquityOptionSecurity)) {
       return false;
     }
-    final OptionSecurity optionSecurity = (OptionSecurity) target.getSecurity();
+    final EquityOptionSecurity optionSecurity = (EquityOptionSecurity) target.getSecurity();
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
+    /*
     if ((optionSecurity.getExerciseType() instanceof AmericanExerciseType) && (optionSecurity.getPayoffStyle() instanceof VanillaPayoffStyle)) {
+      return true;
+    }
+    */
+    if (optionSecurity.getExerciseType() instanceof AmericanExerciseType) {
       return true;
     }
     return false;
