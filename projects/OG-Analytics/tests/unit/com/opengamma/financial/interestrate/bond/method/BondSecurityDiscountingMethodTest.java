@@ -157,7 +157,16 @@ public class BondSecurityDiscountingMethodTest {
     double yield = 0.04;
     double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
     double dirtyPriceExpected = 1.04173525; // To be check with another source.
-    assertEquals("Fixed coupon bond security: dirty price from yield", dirtyPriceExpected, dirtyPrice, 1E-6);
+    assertEquals("Fixed coupon bond security: dirty price from yield", dirtyPriceExpected, dirtyPrice, 1E-8);
+  }
+
+  @Test
+  public void cleanPriceFromYieldUSStreet() {
+    double yield = 0.04;
+    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    double cleanPriceExpected = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    double cleanPrice = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    assertEquals("Fixed coupon bond security: dirty price from yield", cleanPriceExpected, cleanPrice, 1E-8);
   }
 
   @Test
@@ -168,6 +177,33 @@ public class BondSecurityDiscountingMethodTest {
     double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
     double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: dirty price from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
+  }
+
+  @Test
+  public void yieldFromDirtyPriceUSStreet() {
+    double yield = 0.04;
+    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    assertEquals("Fixed coupon bond security: yield from dirty price", yield, yieldComputed, 1E-10);
+  }
+
+  @Test
+  public void yieldFromCurvesUSStreet() {
+    double dirtyPrice = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    double yieldExpected = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    double yieldComputed = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    assertEquals("Fixed coupon bond security: yield from dirty price", yieldExpected, yieldComputed, 1E-10);
+  }
+
+  @Test
+  public void yieldFromCleanPriceUSStreet() {
+    double yield = 0.04;
+    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    double cleanPrice = METHOD.cleanPriceFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    double yieldComputed = METHOD.yieldFromCleanPrice(BOND_FIXED_SECURITY_1, cleanPrice);
+    assertEquals("Fixed coupon bond security: yield from clean price", yield, yieldComputed, 1E-10);
+    double cleanPrice2 = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_1, yieldComputed);
+    assertEquals("Fixed coupon bond security: yield from clean price", cleanPrice, cleanPrice2, 1E-10);
   }
 
   // UKT 5 09/07/14 - ISIN-GB0031829509 To check figures in the ex-dividend period
@@ -232,6 +268,14 @@ public class BondSecurityDiscountingMethodTest {
     double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
     double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
     assertEquals("Fixed coupon bond security: dirty price from yield UK - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
+  }
+
+  @Test
+  public void yieldFromDirtyPriceUKExDividend() {
+    double yield = 0.04;
+    double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
+    double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_G, dirtyPrice);
+    assertEquals("Fixed coupon bond security: yield from dirty price", yield, yieldComputed, 1E-10);
   }
 
 }

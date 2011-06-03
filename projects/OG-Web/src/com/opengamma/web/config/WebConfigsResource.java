@@ -153,19 +153,41 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.APPLICATION_JSON)
   public Response postJSON(
       @FormParam("name") String name,
-      @FormParam("configJSON") String json) {
+      @FormParam("configJSON") String json,
+      @FormParam("configXML") String xml) {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
-    if (name == null || json == null) {
-      return Response.status(Status.BAD_REQUEST).build();
+    xml = StringUtils.trimToNull(xml);
+    Response result = null;
+    if (isEmptyName(name) || isEmptyConfigData(json, xml)) {
+      result = Response.status(Status.BAD_REQUEST).build();
+    } else {
+      Pair<Object, Class<?>> typedValue = null;
+      if (json != null) {
+        typedValue = parseJSON(json);
+      } else if (xml != null) {
+        typedValue = parseXML(xml);
+      }
+      if (typedValue == null) {
+        result = Response.status(Status.BAD_REQUEST).build();
+      } else {
+        ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
+        doc.setName(name);
+        doc.setValue(typedValue.getFirst());
+        ConfigDocument<?> added = data().getConfigMaster().add(doc);
+        URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
+        result = Response.created(uri).build();
+      }
     }
-    final Pair<Object, Class<?>> typedValue = parseJSON(json);
-    ConfigDocument<Object> doc = new ConfigDocument<Object>(typedValue.getSecond());
-    doc.setName(name);
-    doc.setValue(typedValue.getFirst());
-    ConfigDocument<?> added = data().getConfigMaster().add(doc);
-    URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
-    return Response.created(uri).build();
+    return result;
+  }
+
+  private boolean isEmptyConfigData(String json, String xml) {
+    return (json == null && xml == null);
+  }
+
+  private boolean isEmptyName(String name) {
+    return name == null;
   }
 
   //-------------------------------------------------------------------------
