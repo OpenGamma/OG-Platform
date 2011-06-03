@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.batch;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -114,6 +116,29 @@ public class BatchGetRequest extends DirectBean {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchGetRequest other = (BatchGetRequest) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getDataPagingRequest(), other.getDataPagingRequest()) &&
+          JodaBeanUtils.equal(getErrorPagingRequest(), other.getErrorPagingRequest());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorPagingRequest());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the batch.
@@ -202,7 +227,7 @@ public class BatchGetRequest extends DirectBean {
   /**
    * The meta-bean for {@code BatchGetRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -211,32 +236,49 @@ public class BatchGetRequest extends DirectBean {
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", BatchGetRequest.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code dataPagingRequest} property.
      */
-    private final MetaProperty<PagingRequest> _dataPagingRequest = DirectMetaProperty.ofReadWrite(this, "dataPagingRequest", PagingRequest.class);
+    private final MetaProperty<PagingRequest> _dataPagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "dataPagingRequest", BatchGetRequest.class, PagingRequest.class);
     /**
      * The meta-property for the {@code errorPagingRequest} property.
      */
-    private final MetaProperty<PagingRequest> _errorPagingRequest = DirectMetaProperty.ofReadWrite(this, "errorPagingRequest", PagingRequest.class);
+    private final MetaProperty<PagingRequest> _errorPagingRequest = DirectMetaProperty.ofReadWrite(
+        this, "errorPagingRequest", BatchGetRequest.class, PagingRequest.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "dataPagingRequest",
+        "errorPagingRequest");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("dataPagingRequest", _dataPagingRequest);
-      temp.put("errorPagingRequest", _errorPagingRequest);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public BatchGetRequest createBean() {
-      return new BatchGetRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case -100490791:  // dataPagingRequest
+          return _dataPagingRequest;
+        case 704383035:  // errorPagingRequest
+          return _errorPagingRequest;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends BatchGetRequest> builder() {
+      return new BasicBeanBuilder<BatchGetRequest>(new BatchGetRequest());
     }
 
     @Override

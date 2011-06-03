@@ -35,14 +35,14 @@
         <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="pay_notionaltype" not-null="true" />
         <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="pay_notionalcurrency_id" />
         <property name="amount" type="double" column="pay_notionalamount" />
-        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
           <property name="scheme" type="string" column="pay_notionalscheme" />
           <property name="identifier" type="string" column="pay_notionalid" />
         </component>
       </component>
       <property name="rate" type="double" column="pay_rate" />
       <property name="spread" type="double" column="pay_spread" />
-      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
         <property name="scheme" type="string" column="pay_rateidentifierscheme" />
         <property name="identifier" type="string" column="pay_rateidentifierid" />
       </component>
@@ -60,14 +60,14 @@
         <property name="notionalType" type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType" column="receive_notionaltype" not-null="true" />
         <many-to-one name="currency" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" column="receive_notionalcurrency_id" />
         <property name="amount" type="double" column="receive_notionalamount" />
-        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+        <component name="identifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
           <property name="scheme" type="string" column="receive_notionalscheme" />
           <property name="identifier" type="string" column="receive_notionalid" />
         </component>
       </component>
       <property name="rate" type="double" column="receive_rate" />
       <property name="spread" type="double" column="receive_spread" />
-      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.IdentifierBean">
+      <component name="rateIdentifier" class="com.opengamma.masterdb.security.hibernate.UniqueIdentifierBean">
         <property name="scheme" type="string" column="receive_rateidentifierscheme" />
         <property name="identifier" type="string" column="receive_rateidentifierid" />
       </component>

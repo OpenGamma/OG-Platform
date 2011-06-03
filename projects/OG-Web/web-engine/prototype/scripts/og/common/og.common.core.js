@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  *
  * This script extends JQuery.
@@ -13,6 +13,7 @@
 
 (function ($, window, document, undefined) {
     var default_obj = {debug: window.location.hash.split('/').some(function (val) {return val === 'debug=true';})},
+        check_dependencies,
         /** @private */
         output = function () {
             if (this.debug && typeof console !== 'undefined' && console.log)
@@ -24,7 +25,7 @@
         };
     $.extend(default_obj, {warn: output.partial('[warning]'), log: output});
     /** @private */
-    var check_dependencies = function (module) {
+    check_dependencies = function (module) {
         if (!$.isArray(module.dependencies)) return default_obj.warn(module.name + ' does not define dependencies');
         module.dependencies.forEach(function (dependency) {
             try {

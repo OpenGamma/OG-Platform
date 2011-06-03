@@ -37,7 +37,7 @@ public class ValueRequirementNamesFunction implements PublishedFunction {
         // Ignore
       }
     }
-    Collections.sort(list);
+    Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
     s_valueRequirementNames = new LinkedHashSet<String>(list);
   }
 

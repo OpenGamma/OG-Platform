@@ -8,18 +8,20 @@ package com.opengamma.master.region;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.TimeZone;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.region.RegionClassification;
 import com.opengamma.core.region.RegionUtils;
@@ -305,6 +307,36 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RegionSearchRequest other = (RegionSearchRequest) obj;
+      return JodaBeanUtils.equal(getRegionIds(), other.getRegionIds()) &&
+          JodaBeanUtils.equal(getRegionKeys(), other.getRegionKeys()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
+          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getChildrenOfId(), other.getChildrenOfId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getChildrenOfId());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the set of region object identifiers, null to not limit by region object identifiers.
@@ -469,47 +501,73 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      * The meta-property for the {@code regionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(this, "regionIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _regionIds = DirectMetaProperty.ofReadWrite(
+        this, "regionIds", RegionSearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code regionKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(this, "regionKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(
+        this, "regionKeys", RegionSearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", RegionSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code classification} property.
      */
-    private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(this, "classification", RegionClassification.class);
+    private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(
+        this, "classification", RegionSearchRequest.class, RegionClassification.class);
     /**
      * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
+        this, "providerKey", RegionSearchRequest.class, Identifier.class);
     /**
      * The meta-property for the {@code childrenOfId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _childrenOfId = DirectMetaProperty.ofReadWrite(this, "childrenOfId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _childrenOfId = DirectMetaProperty.ofReadWrite(
+        this, "childrenOfId", RegionSearchRequest.class, UniqueIdentifier.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "regionIds",
+        "regionKeys",
+        "name",
+        "classification",
+        "providerKey",
+        "childrenOfId");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("regionIds", _regionIds);
-      temp.put("regionKeys", _regionKeys);
-      temp.put("name", _name);
-      temp.put("classification", _classification);
-      temp.put("providerKey", _providerKey);
-      temp.put("childrenOfId", _childrenOfId);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public RegionSearchRequest createBean() {
-      return new RegionSearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 74326820:  // regionIds
+          return _regionIds;
+        case -1990775032:  // regionKeys
+          return _regionKeys;
+        case 3373707:  // name
+          return _name;
+        case 382350310:  // classification
+          return _classification;
+        case 2064682670:  // providerKey
+          return _providerKey;
+        case 178436081:  // childrenOfId
+          return _childrenOfId;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends RegionSearchRequest> builder() {
+      return new BasicBeanBuilder<RegionSearchRequest>(new RegionSearchRequest());
     }
 
     @Override

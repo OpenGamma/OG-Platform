@@ -1,5 +1,5 @@
 /**
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -75,7 +75,7 @@ $.register_module({
                         $.each(field_names, function (k, field_name) {
                             tmp_val = field_values[k];
                             if (field_names[k] === 'type') {
-                                data[from + i][field_name] = tmp_val.toLowerCase();
+                                data[from + i][field_name] = tmp_val;
                             } else data[from + i][field_name] = tmp_val;
                         });
                         if (filters.type) data[from + i].type = filters.type.replace(/_/g, ' ');
@@ -102,7 +102,7 @@ $.register_module({
                             'data_field', 'ob_time', 'ob_date', 'observation_time', 'status', 'quantity'];
                         return fields.reduce(function (acc, val) {
                             if (!filters[val]) return acc;
-                            if (val === 'type') return acc[val] = filters.type.replace('option', 'equity_option'), acc;
+                            if (val === 'type') return acc[val] = filters.type, acc;
                             if (val === 'quantity') {
                                 acc.min_quantity = filters.min_quantity, acc.max_quantity = filters.max_quantity;
                                 return acc;

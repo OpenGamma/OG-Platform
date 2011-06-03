@@ -6,21 +6,23 @@
 package com.opengamma.master.region;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.TimeZone;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.region.Region;
@@ -255,6 +257,37 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableRegion other = (ManageableRegion) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
+          JodaBeanUtils.equal(getParentRegionIds(), other.getParentRegionIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getFullName(), other.getFullName()) &&
+          JodaBeanUtils.equal(getData(), other.getData());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParentRegionIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFullName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getData());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the region.
@@ -457,7 +490,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   /**
    * The meta-bean for {@code ManageableRegion}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -466,53 +499,82 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", ManageableRegion.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundle.class);
+    private final MetaProperty<IdentifierBundle> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", ManageableRegion.class, IdentifierBundle.class);
     /**
      * The meta-property for the {@code classification} property.
      */
-    private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(this, "classification", RegionClassification.class);
+    private final MetaProperty<RegionClassification> _classification = DirectMetaProperty.ofReadWrite(
+        this, "classification", ManageableRegion.class, RegionClassification.class);
     /**
      * The meta-property for the {@code parentRegionIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<UniqueIdentifier>> _parentRegionIds = DirectMetaProperty.ofReadWrite(this, "parentRegionIds", (Class) Set.class);
+    private final MetaProperty<Set<UniqueIdentifier>> _parentRegionIds = DirectMetaProperty.ofReadWrite(
+        this, "parentRegionIds", ManageableRegion.class, (Class) Set.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", ManageableRegion.class, String.class);
     /**
      * The meta-property for the {@code fullName} property.
      */
-    private final MetaProperty<String> _fullName = DirectMetaProperty.ofReadWrite(this, "fullName", String.class);
+    private final MetaProperty<String> _fullName = DirectMetaProperty.ofReadWrite(
+        this, "fullName", ManageableRegion.class, String.class);
     /**
      * The meta-property for the {@code data} property.
      */
-    private final MetaProperty<FlexiBean> _data = DirectMetaProperty.ofReadWrite(this, "data", FlexiBean.class);
+    private final MetaProperty<FlexiBean> _data = DirectMetaProperty.ofReadWrite(
+        this, "data", ManageableRegion.class, FlexiBean.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "uniqueId",
+        "identifiers",
+        "classification",
+        "parentRegionIds",
+        "name",
+        "fullName",
+        "data");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("uniqueId", _uniqueId);
-      temp.put("identifiers", _identifiers);
-      temp.put("classification", _classification);
-      temp.put("parentRegionIds", _parentRegionIds);
-      temp.put("name", _name);
-      temp.put("fullName", _fullName);
-      temp.put("data", _data);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageableRegion createBean() {
-      return new ManageableRegion();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 1368189162:  // identifiers
+          return _identifiers;
+        case 382350310:  // classification
+          return _classification;
+        case 1273190810:  // parentRegionIds
+          return _parentRegionIds;
+        case 3373707:  // name
+          return _name;
+        case 1330852282:  // fullName
+          return _fullName;
+        case 3076010:  // data
+          return _data;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableRegion> builder() {
+      return new BasicBeanBuilder<ManageableRegion>(new ManageableRegion());
     }
 
     @Override

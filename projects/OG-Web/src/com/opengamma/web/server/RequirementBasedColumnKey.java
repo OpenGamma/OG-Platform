@@ -11,13 +11,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class WebViewGridColumnKey {
+public class RequirementBasedColumnKey {
 
   private final String _calcConfigName;
   private final String _valueName;
   private final ValueProperties _valueProperties;
   
-  public WebViewGridColumnKey(String calcConfigName, String valueName, ValueProperties valueProperties) {
+  public RequirementBasedColumnKey(String calcConfigName, String valueName, ValueProperties valueProperties) {
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(valueProperties, "valueProperties");
@@ -56,10 +56,10 @@ public class WebViewGridColumnKey {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof WebViewGridColumnKey)) {
+    if (!(obj instanceof RequirementBasedColumnKey)) {
       return false;
     }
-    WebViewGridColumnKey other = (WebViewGridColumnKey) obj;
+    RequirementBasedColumnKey other = (RequirementBasedColumnKey) obj;
     if (!_calcConfigName.equals(other._calcConfigName)) {
       return false;
     }

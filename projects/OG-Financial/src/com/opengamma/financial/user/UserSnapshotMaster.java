@@ -10,6 +10,8 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.listener.MasterChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -79,6 +81,11 @@ public class UserSnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest request) {
     return _underlying.search(request);
+  }
+
+  @Override
+  public MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request) {
+    return _underlying.history(request);
   }
 
   @Override

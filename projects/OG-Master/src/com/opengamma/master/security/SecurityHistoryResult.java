@@ -7,13 +7,14 @@ package com.opengamma.master.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.BasicBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.AbstractHistoryResult;
@@ -105,16 +106,29 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
 
   @Override
   protected Object propertyGet(String propertyName) {
-    switch (propertyName.hashCode()) {
-    }
     return super.propertyGet(propertyName);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue) {
-    switch (propertyName.hashCode()) {
-    }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -130,17 +144,18 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public SecurityHistoryResult createBean() {
-      return new SecurityHistoryResult();
+    public BeanBuilder<? extends SecurityHistoryResult> builder() {
+      return new BasicBeanBuilder<SecurityHistoryResult>(new SecurityHistoryResult());
     }
 
     @Override

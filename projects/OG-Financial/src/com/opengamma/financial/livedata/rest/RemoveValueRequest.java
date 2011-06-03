@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.livedata.rest;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.Identifier;
@@ -79,6 +81,29 @@ public class RemoveValueRequest extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RemoveValueRequest other = (RemoveValueRequest) obj;
+      return JodaBeanUtils.equal(getValueRequirement(), other.getValueRequirement()) &&
+          JodaBeanUtils.equal(getIdentifier(), other.getIdentifier()) &&
+          JodaBeanUtils.equal(getValueName(), other.getValueName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValueRequirement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValueName());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -160,7 +185,7 @@ public class RemoveValueRequest extends DirectBean {
   /**
    * The meta-bean for {@code RemoveValueRequest}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -169,32 +194,49 @@ public class RemoveValueRequest extends DirectBean {
     /**
      * The meta-property for the {@code valueRequirement} property.
      */
-    private final MetaProperty<ValueRequirement> _valueRequirement = DirectMetaProperty.ofReadWrite(this, "valueRequirement", ValueRequirement.class);
+    private final MetaProperty<ValueRequirement> _valueRequirement = DirectMetaProperty.ofReadWrite(
+        this, "valueRequirement", RemoveValueRequest.class, ValueRequirement.class);
     /**
      * The meta-property for the {@code identifier} property.
      */
-    private final MetaProperty<Identifier> _identifier = DirectMetaProperty.ofReadWrite(this, "identifier", Identifier.class);
+    private final MetaProperty<Identifier> _identifier = DirectMetaProperty.ofReadWrite(
+        this, "identifier", RemoveValueRequest.class, Identifier.class);
     /**
      * The meta-property for the {@code valueName} property.
      */
-    private final MetaProperty<String> _valueName = DirectMetaProperty.ofReadWrite(this, "valueName", String.class);
+    private final MetaProperty<String> _valueName = DirectMetaProperty.ofReadWrite(
+        this, "valueName", RemoveValueRequest.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "valueRequirement",
+        "identifier",
+        "valueName");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("valueRequirement", _valueRequirement);
-      temp.put("identifier", _identifier);
-      temp.put("valueName", _valueName);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public RemoveValueRequest createBean() {
-      return new RemoveValueRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -755281390:  // valueRequirement
+          return _valueRequirement;
+        case -1618432855:  // identifier
+          return _identifier;
+        case -765894756:  // valueName
+          return _valueName;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends RemoveValueRequest> builder() {
+      return new BasicBeanBuilder<RemoveValueRequest>(new RemoveValueRequest());
     }
 
     @Override

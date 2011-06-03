@@ -3,7 +3,7 @@
   <head>
     <title>OpenGamma Analytics</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    
+
     <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.event.drag-2.0.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.json-2.2.js"></script>
@@ -14,12 +14,12 @@
     <script type="text/javascript" src="/js/jquery/jquery.ui.tabs.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.layout-1.2.0.js"></script>
     <link rel="stylesheet" href="/css/jquery/smoothness/jquery-ui-1.8.5.custom.css" type="text/css" charset="utf-8"  media="screen, print" />
-    
+
     <!--[if IE]><script language="javascript" type="text/javascript" src="/js/excanvas/excanvas.min.js"></script><![endif]-->
-    
+
     <script type="text/javascript" src="/js/cometd/cometd.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.cometd.js"></script>
-    
+
     <script type="text/javascript" src="/js/jquery/jquery.transform-0.6.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.jdCrazyDots.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.scrollTo.js"></script>
@@ -28,12 +28,12 @@
     <script type="text/javascript" src="/js/slickgrid/slick.grid.js"></script>
     <script type="text/javascript" src="/js/slickgrid/slick.model.js"></script>
     <link rel="stylesheet" href="/css/slickgrid/slick.grid.css" type="text/css" charset="utf-8" media="screen, print" />
-    
+
     <script type="text/javascript" src="/js/flot/jquery.flot.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.selection.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.navigate.js"></script>
     <script type="text/javascript" src="/js/flot/jquery.flot.crosshair.js"></script>
-  
+
     <script type="text/javascript" src="js/common.js"></script>
     <script type="text/javascript" src="js/userConfig.js"></script>
     <script type="text/javascript" src="js/liveResultsClient.js"></script>
@@ -58,7 +58,7 @@
     <script type="text/javascript" src="js/depGraphViewer.js"></script>
     <script type="text/javascript" src="js/tabbedViewResultsViewer.js"></script>
     <script type="text/javascript" src="js/home.js"></script>
-    
+
     <script type="text/javascript">
       var config = {
         contextPath: '${pageContext.request.contextPath}'
@@ -119,15 +119,15 @@
       .tickindicator.same {
         background: url(/images/tick-same.png) no-repeat;
       }
-      
-      .slick-cell.highlighted {
+
+      .slick-cell.explain {
         background-color: #cbead7;
       }
-      
-      .slick-cell.highlighted.explain-hover {
+
+      .slick-cell.explain.explain-hover {
         background-color: #ffff95;
       }
-      
+
       .cell-contents {
         width: 100%;
         height: 100%;
@@ -135,20 +135,20 @@
         position: relative;
         background-color: inherit;
       }
-      
+
       .cell-value {
         text-overflow: ellipsis;
         margin: 0;
         padding: 0 4px;
         background-color: inherit;
       }
-      
+
       .cell-value.right {
         position: absolute;
         right: 12px;
         background-color: inherit;
       }
-      
+
       .negative {
         color: red;
       }
@@ -205,11 +205,12 @@
         left: 8px;
         right: 8px;
       }
-      
+
       .detail-popup {
         padding: 8px;
+        position: absolute;
       }
-      
+
       .detail-popup .detail-content {
         width: 100%;
         height: 100%;
@@ -300,13 +301,13 @@
 
       #resultsViewer {
         position: absolute;
-        top: 7.5em;
-        left: 1em;
-        right: 1em;
-        bottom: 1em;
-        background: beige;
+        top: 40px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fff;
       }
-      
+
       #resultsViewer #tabs {
         position: absolute;
         top: 0;
@@ -316,8 +317,8 @@
       }
 
       #loading {
+        position: absolute;
         margin: 5em auto;
-        position: relative;
         width: 0;
       }
 
@@ -382,14 +383,14 @@
    </style>
   </head>
   <body>
-    <div class="header"></div>
     <div class="viewcontrols">
-      <div>
+      <div style="left: 5px; top: 10px; position: absolute">
         <div id="views"></div>
         <div id="changeView"></div>
         <div id="sparklines" class="imgbutton sparklines"></div>
       </div>
-      <div id="currentviewcontrols">
+      <div id="currentviewcontrols" style="position: absolute; right: 5px; top: 7px;">
+      <div></div>
         <div id="viewstatus"><p>No view loaded</p></div>
         <div id="resume" class="imgbutton resume"></div>
         <div id="pause" class="imgbutton pause"></div>

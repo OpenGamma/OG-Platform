@@ -101,16 +101,16 @@ $.register_module({
                 slickgrid: {
                     'selector': '.og-js-results-slick', 'page_type': 'timeseries',
                     'columns': [
-                        {id: 'data_source', name: 'Datasource', field: 'data_source', width: 90, cssClass: 'og-uppercase',
-                                filter_type: 'input'},
-                        {id: 'identifier', name: 'Identifiers', field: 'identifier', width: 150, cssClass: 'og-link',
-                                filter_type: 'input'},
-                        {id: 'data_provider', name: 'Data Provider',  field: 'data_provider', width: 85, cssClass: 'og-link',
-                                filter_type: 'input'},
+                        {id: 'data_source', name: 'Datasource', field: 'data_source', width: 90,
+                            cssClass: 'og-uppercase', filter_type: 'input'},
+                        {id: 'identifier', name: 'Identifiers', field: 'identifier', width: 150,
+                            cssClass: 'og-link', filter_type: 'input'},
+                        {id: 'data_provider', name: 'Data Provider',  field: 'data_provider', width: 85,
+                            cssClass: 'og-link', filter_type: 'input'},
                         {id: 'data_field', name: 'Data Field', field: 'data_field', width: 70, cssClass: 'og-link',
-                                filter_type: 'input'},
+                            filter_type: 'input'},
                         {id: 'observation_time', name: 'Observation Time', field: 'observation_time', width: 120,
-                                cssClass: 'og-link', filter_type: 'input'}
+                            cssClass: 'og-link', filter_type: 'input'}
                     ]
                 },
                 toolbar: {
@@ -167,15 +167,14 @@ $.register_module({
                         api.text({module: module.name, handler: function (template) {
                             var stop_loading = ui.message.partial({location: '#OG-details', destroy: true});
                             $.tmpl(template, details_json.templateData).appendTo($('#OG-details .og-main').empty());
-                            f.render_timeseries_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
+                            f.render_identifiers('.OG-timeseries .og-js-identifiers', details_json.identifiers);
                             ui.render_plot('.OG-timeseries .og-js-timeseriesPlot', details_json.timeseries.data);
-                            f.render_timeseries_table('.OG-timeseries .og-js-table', {
+                            f.render_table('.OG-timeseries .og-js-table', {
                                 'fieldLabels': details_json.timeseries.fieldLabels,
                                 'data': details_json.timeseries.data
                             }, stop_loading);
-                            // Hook up CSV button
-                            $('.OG-timeseries .og-js-timeSeriesCsv').click(function () {
-                                window.location.href = 'http://localhost:8080/jax/timeseries/Tss::3535.csv';
+                            $('.og-js-timeSeriesCsv').click(function () {
+                                window.location.href = '/jax/timeseries/' + args.id + '.csv';
                             });
                             ui.expand_height_to_window_bottom({element: '.OG-timeseries .og-dataPoints tbody'});
                             ui.expand_height_to_window_bottom({element: '.OG-timeseries .og-dataPoints table'});
@@ -190,14 +189,18 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/:id?' + filter_rule_str, method: module.name + '.load'},
-            load_filter:
-                {route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'},
-            load_delete:
-                {route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'},
-            load_timeseries:
-                {route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name},
-            load_new_timeseries:
-                {route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name}
+            load_filter: {
+                route: '/' + page_name + '/filter:/:id?' + filter_rule_str, method: module.name + '.load_filter'
+            },
+            load_delete: {
+                route: '/' + page_name + '/:id/deleted:' + filter_rule_str, method: module.name + '.load_delete'
+            },
+            load_timeseries: {
+                route: '/' + page_name + '/:id' + filter_rule_str, method: module.name + '.load_' + page_name
+            },
+            load_new_timeseries: {
+                route: '/' + page_name + '/:id/new:' + filter_rule_str, method: module.name + '.load_new_' + page_name
+            }
         };
         return timeseries = {
             load: function (args) {

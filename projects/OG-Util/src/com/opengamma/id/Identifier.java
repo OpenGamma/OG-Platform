@@ -183,17 +183,6 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, S
   }
 
   /**
-   * Converts this Identifier to a UniqueIdentifier.
-   * 
-   * @return a UniqueIdentifier with the same scheme and value as this Identifier
-   * @deprecated this is an invalid conversion
-   */
-  @Deprecated
-  public UniqueIdentifier toUniqueIdentifier() {
-    return UniqueIdentifier.of(getScheme().getName(), getValue());
-  }
-
-  /**
    * Converts this Identifier to a bundle.
    * 
    * @return a bundle wrapping this identifier, not null

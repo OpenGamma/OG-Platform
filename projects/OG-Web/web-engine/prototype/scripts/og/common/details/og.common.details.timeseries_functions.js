@@ -1,5 +1,5 @@
 /*
- * @copyright 2009 - 2011 by OpenGamma Inc
+ * @copyright 2009 - present by OpenGamma Inc
  * @license See distribution for license
  */
 $.register_module({
@@ -12,7 +12,7 @@ $.register_module({
              * @param {String} selector
              * @param {json} data
              */
-            render_timeseries_table = function (selector, json, handler) {
+            render_table = function (selector, json, handler) {
                 var CHUNK = 500, length = json.data.length,$parent = $(selector).html([
                         '<table class="OG-table-style-01"><thead><tr><td>', json.fieldLabels[0], '</td><td>',
                         json.fieldLabels[1], '</td></tr></thead><tbody></tbody></table>'
@@ -32,7 +32,7 @@ $.register_module({
                     };
                 render(0, CHUNK);
             },
-            render_timeseries_identifiers = function (selector, json) {
+            render_identifiers = function (selector, json) {
                 var html = [];
                 json.forEach(function (datum) {
                     var date_text = '', start_date = datum.date.start, end_date = datum.date.end;
@@ -46,8 +46,8 @@ $.register_module({
             }
 
         return timeseries_functions = {
-            render_timeseries_table: render_timeseries_table,
-            render_timeseries_identifiers: render_timeseries_identifiers
+            render_table: render_table,
+            render_identifiers: render_identifiers
         };
 
     }

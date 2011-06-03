@@ -50,6 +50,6 @@ public class FRASecurityConverter implements FRASecurityVisitor<FixedIncomeInstr
         .toZonedDateTime()); // just in case
     final Convention convention = new Convention(conventions.getSettlementDays(), conventions.getDayCount(),
         conventions.getBusinessDayConvention(), calendar, currencyCode + "_FRA_CONVENTION");
-    return new FRADefinition(startDate, maturityDate, security.getRate(), convention);
+    return new FRADefinition(startDate, maturityDate, security.getRate() / 100, convention);
   }
 }

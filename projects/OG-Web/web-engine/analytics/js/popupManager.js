@@ -69,13 +69,13 @@
         delete _$explains[rowId];
       }
       removePopup($popup);
-      updateHighlightedCells();
       
       _liveResultsClient.stopDepGraphExplain(rowId, colId);
       var row = _dataView.getItemById(rowId);
       delete row.explainComponents[colId];
       $cell.unbind('mouseenter', handleExplainCellHoverIn);
       $cell.unbind('mouseleave', handleExplainCellHoverOut);
+      $cell.removeClass("explain");
       $cell.removeClass("explain-hover");
       
       if ($.isEmptyObject(_$explains)) {
@@ -131,23 +131,13 @@
       $cell.hover(handleExplainCellHoverIn, handleExplainCellHoverOut);
       $cell.data('rowId', rowId);
       $cell.data('colId', colId);
-    }
-    
-    function updateHighlightedCells() {
-      var highlightedCells = {};
-      for (rowId in _$explains) {
-        highlightedCells[rowId] = {}
-        for (colId in _$explains[rowId]) {
-          highlightedCells[rowId][colId] = true;
-        }
-      }
-      _grid.setHighlightedCells(highlightedCells);
+      $cell.addClass("explain");
     }
     
     //-----------------------------------------------------------------------
     // Public API
     
-    this.toggleDetail = function($cell, columnStructure, rowId) {
+    this.toggleDetail = function($cell, columnStructure, formatter, rowId) {
       var colId = columnStructure.colId;
       if (removeDetail(rowId, colId)) {
         return;
@@ -160,7 +150,7 @@
 
       var $popup = getPopup('detail-popup', $cell, rowId, colId);
       var $content = $("<div class='detail-content'></div>").appendTo($popup);
-      var detailComponent = columnStructure.typeFormatter.createDetail($popup, $content, rowId, columnStructure, _userConfig);
+      var detailComponent = formatter.createDetail($popup, $content, rowId, columnStructure, _userConfig);
       
       if (detailComponent.resize) {
         var afterResized = function() {
@@ -221,7 +211,6 @@
           _$explains[rowId] = {};
         }
         _$explains[rowId][colId] = $popup;
-        updateHighlightedCells();
         
         _liveResultsClient.startDepGraphExplain(rowId, colId);
         _liveResultsClient.triggerImmediateUpdate();

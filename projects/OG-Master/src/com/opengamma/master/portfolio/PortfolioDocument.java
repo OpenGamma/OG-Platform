@@ -6,15 +6,17 @@
 package com.opengamma.master.portfolio;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.AbstractDocument;
@@ -102,6 +104,28 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PortfolioDocument other = (PortfolioDocument) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getPortfolio(), other.getPortfolio()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolio());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio unique identifier.
@@ -168,27 +192,41 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", UniqueIdentifier.class);
+    private final MetaProperty<UniqueIdentifier> _uniqueId = DirectMetaProperty.ofReadWrite(
+        this, "uniqueId", PortfolioDocument.class, UniqueIdentifier.class);
     /**
      * The meta-property for the {@code portfolio} property.
      */
-    private final MetaProperty<ManageablePortfolio> _portfolio = DirectMetaProperty.ofReadWrite(this, "portfolio", ManageablePortfolio.class);
+    private final MetaProperty<ManageablePortfolio> _portfolio = DirectMetaProperty.ofReadWrite(
+        this, "portfolio", PortfolioDocument.class, ManageablePortfolio.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "uniqueId",
+        "portfolio");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("uniqueId", _uniqueId);
-      temp.put("portfolio", _portfolio);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public PortfolioDocument createBean() {
-      return new PortfolioDocument();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return _uniqueId;
+        case 1121781064:  // portfolio
+          return _portfolio;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends PortfolioDocument> builder() {
+      return new BasicBeanBuilder<PortfolioDocument>(new PortfolioDocument());
     }
 
     @Override

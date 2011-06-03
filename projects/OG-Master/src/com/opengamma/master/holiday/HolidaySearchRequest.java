@@ -8,20 +8,21 @@ package com.opengamma.master.holiday;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.base.Objects;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierSearch;
@@ -308,38 +309,147 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     return true;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof HolidaySearchRequest) {
-      HolidaySearchRequest other = (HolidaySearchRequest) obj;
-      return Objects.equal(_holidayIds, other._holidayIds) &&
-              Objects.equal(_name, other._name) &&
-              Objects.equal(_type, other._type) &&
-              Objects.equal(_providerKey, other._providerKey) &&
-              Objects.equal(_dateToCheck, other._dateToCheck) &&
-              Objects.equal(_currency, other._currency) &&
-              Objects.equal(_regionKeys, other._regionKeys) &&
-              Objects.equal(_exchangeKeys, other._exchangeKeys);
-    }
-    return super.equals(obj);
-  }
+//  public static void main(String[] args) {
+//    HolidaySearchRequest a = new HolidaySearchRequest();
+//    a.setCurrency(Currency.of("GBP"));
+//    a.setDateToCheck(LocalDate.of(2011, 6, 23));
+//    a.setExchangeKeys(new IdentifierSearch(Identifier.of("BLOOMBERG_UUID", "hkjhkjk")));
+//    a.setName("Foo Bar files");
+//    a.setPagingRequest(PagingRequest.ALL);
+//    a.setType(HolidayType.CURRENCY);
+//
+//    HolidaySearchRequest b = new HolidaySearchRequest();
+//    b.setCurrency(Currency.of("GBP"));
+//    b.setDateToCheck(LocalDate.of(2011, 6, 23));
+//    b.setExchangeKeys(new IdentifierSearch(Identifier.of("BLOOMBERG_UUID", "hkjhkjk")));
+//    b.setName("Foo Bar files");
+//    b.setPagingRequest(PagingRequest.ALL);
+//    b.setType(HolidayType.CURRENCY);
+//
+//    HolidayType[] values = HolidayType.values();
+//    for (int j = 0; j < 15; j++) {
+//      int total = 0;
+//      long start = System.nanoTime();
+//      for (int i = 0; i < 100000; i++) {
+////        if (a.hashCode() > 0) {
+////          total += a.getType().ordinal();
+////        }
+//        if (a.equals(b)) {
+//          total += a.getType().ordinal();
+//        }
+//        a.setType(values[total % 4]);
+//        b.setType(values[total % 4]);
+//      }
+//      long end = System.nanoTime();
+//      System.out.println(total);
+//      System.out.println(((end - start) / 1000) + "us");
+//      a.setType(HolidayType.CURRENCY);
+//      b.setType(HolidayType.CURRENCY);
+//    }
+//  }
 
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = hash * 31 + _holidayIds.hashCode();
-    hash = hash * 31 + _name.hashCode();
-    hash = hash * 31 + _type.hashCode();
-    hash = hash * 31 + _providerKey.hashCode();
-    hash = hash * 31 + _dateToCheck.hashCode();
-    hash = hash * 31 + _currency.hashCode();
-    hash = hash * 31 + _regionKeys.hashCode();
-    hash = hash * 31 + _exchangeKeys.hashCode();
-    return hash;
-  }
+//  @Override
+//  public int hashCode() {
+//      // override to gain better performance using propertyGet(String)
+//      int hash = getClass().hashCode();
+//      Set<String> names = propertyNames();
+//      for (String name : names) {
+//          Object value = propertyGet(name);
+//          hash += BeanUtils.hashCode(value);
+//      }
+//      return hash;
+//  }
+
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj == this) {
+//      return true;
+//    }
+//    if (obj != null && obj.getClass() == getClass()) {
+//      DirectBean other = (DirectBean) obj;
+//      for (MetaProperty<?> mp : other.metaBean().metaPropertyIterable()) {
+//        if (Objects.equal(mp.get(this), mp.get(other)) == false) {
+//          return false;
+//        }
+//      }
+//      return true;
+//    }
+//    return false;
+//  }
+//
+//  @Override
+//  public boolean equals(Object obj) {
+//    if (obj == this) {
+//      return true;
+//    }
+//    if (obj != null && obj.getClass() == getClass()) {
+//      HolidaySearchRequest other = (HolidaySearchRequest) obj;
+//      for (int i = 0; i < 8; i++) {
+//        if (Objects.equal(this.propertyGet(i), other.propertyGet(i)) == false) {
+//          return false;
+//        }
+//      }
+//      return true;
+//    }
+//    return super.equals(obj);
+//  }
+//
+//  protected Object propertyGet(int propertyIndex) {
+//    switch (propertyIndex) {
+//      case 0: // holidayIds
+//        return getHolidayIds();
+//      case 1: // name
+//        return getName();
+//      case 2: // type
+//        return getType();
+//      case 3: // providerKey
+//        return getProviderKey();
+//      case 4: // dateToCheck
+//        return getDateToCheck();
+//      case 5: // currency
+//        return getCurrency();
+//      case 6: // regionKeys
+//        return getRegionKeys();
+//      case 7: // exchangeKeys
+//        return getExchangeKeys();
+//    }
+//    return super.propertyGet("");
+//  }
+
+//  @Override
+//  public boolean equals(Object obj) {
+//    // override as currently a performance hotspot
+//    if (obj == this) {
+//      return true;
+//    }
+//    if (obj != null && getClass() == obj.getClass()) {
+//      HolidaySearchRequest other = (HolidaySearchRequest) obj;
+//      return BeanUtils.equal(_holidayIds, other._holidayIds) &&
+//          BeanUtils.equal(_name, other._name) &&
+//          BeanUtils.equal(_type, other._type) &&
+//          BeanUtils.equal(_providerKey, other._providerKey) &&
+//          BeanUtils.equal(_dateToCheck, other._dateToCheck) &&
+//          BeanUtils.equal(_currency, other._currency) &&
+//          BeanUtils.equal(_regionKeys, other._regionKeys) &&
+//          BeanUtils.equal(_exchangeKeys, other._exchangeKeys);
+//    }
+//    return super.equals(obj);
+//  }
+//
+//  @Override
+//  public int hashCode() {
+//    // override as currently a performance hotspot
+//    int hash = 7;
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayIds());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getRegionKeys());
+//    hash = hash * 31 + JodaBeanUtils.hashCode(getExchangeKeys());
+//    return hash;
+//  }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
@@ -409,6 +519,40 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidaySearchRequest other = (HolidaySearchRequest) obj;
+      return JodaBeanUtils.equal(getHolidayIds(), other.getHolidayIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getProviderKey(), other.getProviderKey()) &&
+          JodaBeanUtils.equal(getDateToCheck(), other.getDateToCheck()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionKeys(), other.getRegionKeys()) &&
+          JodaBeanUtils.equal(getExchangeKeys(), other.getExchangeKeys()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionKeys());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeKeys());
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -634,57 +778,89 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      * The meta-property for the {@code holidayIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectIdentifier>> _holidayIds = DirectMetaProperty.ofReadWrite(this, "holidayIds", (Class) List.class);
+    private final MetaProperty<List<ObjectIdentifier>> _holidayIds = DirectMetaProperty.ofReadWrite(
+        this, "holidayIds", HolidaySearchRequest.class, (Class) List.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", HolidaySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code type} property.
      */
-    private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(this, "type", HolidayType.class);
+    private final MetaProperty<HolidayType> _type = DirectMetaProperty.ofReadWrite(
+        this, "type", HolidaySearchRequest.class, HolidayType.class);
     /**
      * The meta-property for the {@code providerKey} property.
      */
-    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(this, "providerKey", Identifier.class);
+    private final MetaProperty<Identifier> _providerKey = DirectMetaProperty.ofReadWrite(
+        this, "providerKey", HolidaySearchRequest.class, Identifier.class);
     /**
      * The meta-property for the {@code dateToCheck} property.
      */
-    private final MetaProperty<LocalDate> _dateToCheck = DirectMetaProperty.ofReadWrite(this, "dateToCheck", LocalDate.class);
+    private final MetaProperty<LocalDate> _dateToCheck = DirectMetaProperty.ofReadWrite(
+        this, "dateToCheck", HolidaySearchRequest.class, LocalDate.class);
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(this, "currency", Currency.class);
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+        this, "currency", HolidaySearchRequest.class, Currency.class);
     /**
      * The meta-property for the {@code regionKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(this, "regionKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _regionKeys = DirectMetaProperty.ofReadWrite(
+        this, "regionKeys", HolidaySearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-property for the {@code exchangeKeys} property.
      */
-    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(this, "exchangeKeys", IdentifierSearch.class);
+    private final MetaProperty<IdentifierSearch> _exchangeKeys = DirectMetaProperty.ofReadWrite(
+        this, "exchangeKeys", HolidaySearchRequest.class, IdentifierSearch.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "holidayIds",
+        "name",
+        "type",
+        "providerKey",
+        "dateToCheck",
+        "currency",
+        "regionKeys",
+        "exchangeKeys");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("holidayIds", _holidayIds);
-      temp.put("name", _name);
-      temp.put("type", _type);
-      temp.put("providerKey", _providerKey);
-      temp.put("dateToCheck", _dateToCheck);
-      temp.put("currency", _currency);
-      temp.put("regionKeys", _regionKeys);
-      temp.put("exchangeKeys", _exchangeKeys);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public HolidaySearchRequest createBean() {
-      return new HolidaySearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1121781952:  // holidayIds
+          return _holidayIds;
+        case 3373707:  // name
+          return _name;
+        case 3575610:  // type
+          return _type;
+        case 2064682670:  // providerKey
+          return _providerKey;
+        case 14222271:  // dateToCheck
+          return _dateToCheck;
+        case 575402001:  // currency
+          return _currency;
+        case -1990775032:  // regionKeys
+          return _regionKeys;
+        case 1429431991:  // exchangeKeys
+          return _exchangeKeys;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends HolidaySearchRequest> builder() {
+      return new BasicBeanBuilder<HolidaySearchRequest>(new HolidaySearchRequest());
     }
 
     @Override
