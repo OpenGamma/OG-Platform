@@ -5,19 +5,21 @@
  */
 package com.opengamma.web.bundle;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Data class for web-based bundles.
@@ -130,6 +132,37 @@ public class WebBundlesData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebBundlesData other = (WebBundlesData) obj;
+      return JodaBeanUtils.equal(getBundleManager(), other.getBundleManager()) &&
+          JodaBeanUtils.equal(getDevBundleManager(), other.getDevBundleManager()) &&
+          JodaBeanUtils.equal(getCompressor(), other.getCompressor()) &&
+          JodaBeanUtils.equal(getMode(), other.getMode()) &&
+          JodaBeanUtils.equal(getStyleTag(), other.getStyleTag()) &&
+          JodaBeanUtils.equal(getScriptTag(), other.getScriptTag()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompressor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStyleTag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -314,7 +347,7 @@ public class WebBundlesData extends DirectBean {
   /**
    * The meta-bean for {@code WebBundlesData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -323,52 +356,81 @@ public class WebBundlesData extends DirectBean {
     /**
      * The meta-property for the {@code bundleManager} property.
      */
-    private final MetaProperty<BundleManager> _bundleManager = DirectMetaProperty.ofReadWrite(this, "bundleManager", BundleManager.class);
+    private final MetaProperty<BundleManager> _bundleManager = DirectMetaProperty.ofReadWrite(
+        this, "bundleManager", WebBundlesData.class, BundleManager.class);
     /**
      * The meta-property for the {@code devBundleManager} property.
      */
-    private final MetaProperty<BundleManager> _devBundleManager = DirectMetaProperty.ofReadWrite(this, "devBundleManager", BundleManager.class);
+    private final MetaProperty<BundleManager> _devBundleManager = DirectMetaProperty.ofReadWrite(
+        this, "devBundleManager", WebBundlesData.class, BundleManager.class);
     /**
      * The meta-property for the {@code compressor} property.
      */
-    private final MetaProperty<BundleCompressor> _compressor = DirectMetaProperty.ofReadWrite(this, "compressor", BundleCompressor.class);
+    private final MetaProperty<BundleCompressor> _compressor = DirectMetaProperty.ofReadWrite(
+        this, "compressor", WebBundlesData.class, BundleCompressor.class);
     /**
      * The meta-property for the {@code mode} property.
      */
-    private final MetaProperty<DeployMode> _mode = DirectMetaProperty.ofReadWrite(this, "mode", DeployMode.class);
+    private final MetaProperty<DeployMode> _mode = DirectMetaProperty.ofReadWrite(
+        this, "mode", WebBundlesData.class, DeployMode.class);
     /**
      * The meta-property for the {@code styleTag} property.
      */
-    private final MetaProperty<StyleTag> _styleTag = DirectMetaProperty.ofReadWrite(this, "styleTag", StyleTag.class);
+    private final MetaProperty<StyleTag> _styleTag = DirectMetaProperty.ofReadWrite(
+        this, "styleTag", WebBundlesData.class, StyleTag.class);
     /**
      * The meta-property for the {@code scriptTag} property.
      */
-    private final MetaProperty<ScriptTag> _scriptTag = DirectMetaProperty.ofReadWrite(this, "scriptTag", ScriptTag.class);
+    private final MetaProperty<ScriptTag> _scriptTag = DirectMetaProperty.ofReadWrite(
+        this, "scriptTag", WebBundlesData.class, ScriptTag.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebBundlesData.class, UriInfo.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "bundleManager",
+        "devBundleManager",
+        "compressor",
+        "mode",
+        "styleTag",
+        "scriptTag",
+        "uriInfo");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("bundleManager", _bundleManager);
-      temp.put("devBundleManager", _devBundleManager);
-      temp.put("compressor", _compressor);
-      temp.put("mode", _mode);
-      temp.put("styleTag", _styleTag);
-      temp.put("scriptTag", _scriptTag);
-      temp.put("uriInfo", _uriInfo);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebBundlesData createBean() {
-      return new WebBundlesData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1459962059:  // bundleManager
+          return _bundleManager;
+        case 862647990:  // devBundleManager
+          return _devBundleManager;
+        case -369448763:  // compressor
+          return _compressor;
+        case 3357091:  // mode
+          return _mode;
+        case 1997897769:  // styleTag
+          return _styleTag;
+        case 249937615:  // scriptTag
+          return _scriptTag;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebBundlesData> builder() {
+      return new BasicBeanBuilder<WebBundlesData>(new WebBundlesData());
     }
 
     @Override

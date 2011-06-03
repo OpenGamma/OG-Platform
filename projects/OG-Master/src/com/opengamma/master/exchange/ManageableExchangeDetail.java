@@ -5,20 +5,22 @@
  */
 package com.opengamma.master.exchange;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.PublicSPI;
 
@@ -256,6 +258,61 @@ public class ManageableExchangeDetail extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableExchangeDetail other = (ManageableExchangeDetail) obj;
+      return JodaBeanUtils.equal(getProductGroup(), other.getProductGroup()) &&
+          JodaBeanUtils.equal(getProductName(), other.getProductName()) &&
+          JodaBeanUtils.equal(getProductType(), other.getProductType()) &&
+          JodaBeanUtils.equal(getProductCode(), other.getProductCode()) &&
+          JodaBeanUtils.equal(getCalendarStart(), other.getCalendarStart()) &&
+          JodaBeanUtils.equal(getCalendarEnd(), other.getCalendarEnd()) &&
+          JodaBeanUtils.equal(getDayStart(), other.getDayStart()) &&
+          JodaBeanUtils.equal(getDayRangeType(), other.getDayRangeType()) &&
+          JodaBeanUtils.equal(getDayEnd(), other.getDayEnd()) &&
+          JodaBeanUtils.equal(getPhaseName(), other.getPhaseName()) &&
+          JodaBeanUtils.equal(getPhaseType(), other.getPhaseType()) &&
+          JodaBeanUtils.equal(getPhaseStart(), other.getPhaseStart()) &&
+          JodaBeanUtils.equal(getPhaseEnd(), other.getPhaseEnd()) &&
+          JodaBeanUtils.equal(getRandomStartMin(), other.getRandomStartMin()) &&
+          JodaBeanUtils.equal(getRandomStartMax(), other.getRandomStartMax()) &&
+          JodaBeanUtils.equal(getRandomEndMin(), other.getRandomEndMin()) &&
+          JodaBeanUtils.equal(getRandomEndMax(), other.getRandomEndMax()) &&
+          JodaBeanUtils.equal(getLastConfirmed(), other.getLastConfirmed()) &&
+          JodaBeanUtils.equal(getNotes(), other.getNotes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProductGroup());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProductName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProductType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProductCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarStart());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendarEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayStart());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayRangeType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseStart());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPhaseEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMin());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomStartMax());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMin());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRandomEndMax());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastConfirmed());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotes());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -737,7 +794,7 @@ public class ManageableExchangeDetail extends DirectBean {
   /**
    * The meta-bean for {@code ManageableExchangeDetail}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -746,112 +803,177 @@ public class ManageableExchangeDetail extends DirectBean {
     /**
      * The meta-property for the {@code productGroup} property.
      */
-    private final MetaProperty<String> _productGroup = DirectMetaProperty.ofReadWrite(this, "productGroup", String.class);
+    private final MetaProperty<String> _productGroup = DirectMetaProperty.ofReadWrite(
+        this, "productGroup", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code productName} property.
      */
-    private final MetaProperty<String> _productName = DirectMetaProperty.ofReadWrite(this, "productName", String.class);
+    private final MetaProperty<String> _productName = DirectMetaProperty.ofReadWrite(
+        this, "productName", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code productType} property.
      */
-    private final MetaProperty<String> _productType = DirectMetaProperty.ofReadWrite(this, "productType", String.class);
+    private final MetaProperty<String> _productType = DirectMetaProperty.ofReadWrite(
+        this, "productType", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code productCode} property.
      */
-    private final MetaProperty<String> _productCode = DirectMetaProperty.ofReadWrite(this, "productCode", String.class);
+    private final MetaProperty<String> _productCode = DirectMetaProperty.ofReadWrite(
+        this, "productCode", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code calendarStart} property.
      */
-    private final MetaProperty<LocalDate> _calendarStart = DirectMetaProperty.ofReadWrite(this, "calendarStart", LocalDate.class);
+    private final MetaProperty<LocalDate> _calendarStart = DirectMetaProperty.ofReadWrite(
+        this, "calendarStart", ManageableExchangeDetail.class, LocalDate.class);
     /**
      * The meta-property for the {@code calendarEnd} property.
      */
-    private final MetaProperty<LocalDate> _calendarEnd = DirectMetaProperty.ofReadWrite(this, "calendarEnd", LocalDate.class);
+    private final MetaProperty<LocalDate> _calendarEnd = DirectMetaProperty.ofReadWrite(
+        this, "calendarEnd", ManageableExchangeDetail.class, LocalDate.class);
     /**
      * The meta-property for the {@code dayStart} property.
      */
-    private final MetaProperty<String> _dayStart = DirectMetaProperty.ofReadWrite(this, "dayStart", String.class);
+    private final MetaProperty<String> _dayStart = DirectMetaProperty.ofReadWrite(
+        this, "dayStart", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code dayRangeType} property.
      */
-    private final MetaProperty<String> _dayRangeType = DirectMetaProperty.ofReadWrite(this, "dayRangeType", String.class);
+    private final MetaProperty<String> _dayRangeType = DirectMetaProperty.ofReadWrite(
+        this, "dayRangeType", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code dayEnd} property.
      */
-    private final MetaProperty<String> _dayEnd = DirectMetaProperty.ofReadWrite(this, "dayEnd", String.class);
+    private final MetaProperty<String> _dayEnd = DirectMetaProperty.ofReadWrite(
+        this, "dayEnd", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code phaseName} property.
      */
-    private final MetaProperty<String> _phaseName = DirectMetaProperty.ofReadWrite(this, "phaseName", String.class);
+    private final MetaProperty<String> _phaseName = DirectMetaProperty.ofReadWrite(
+        this, "phaseName", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code phaseType} property.
      */
-    private final MetaProperty<String> _phaseType = DirectMetaProperty.ofReadWrite(this, "phaseType", String.class);
+    private final MetaProperty<String> _phaseType = DirectMetaProperty.ofReadWrite(
+        this, "phaseType", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-property for the {@code phaseStart} property.
      */
-    private final MetaProperty<LocalTime> _phaseStart = DirectMetaProperty.ofReadWrite(this, "phaseStart", LocalTime.class);
+    private final MetaProperty<LocalTime> _phaseStart = DirectMetaProperty.ofReadWrite(
+        this, "phaseStart", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code phaseEnd} property.
      */
-    private final MetaProperty<LocalTime> _phaseEnd = DirectMetaProperty.ofReadWrite(this, "phaseEnd", LocalTime.class);
+    private final MetaProperty<LocalTime> _phaseEnd = DirectMetaProperty.ofReadWrite(
+        this, "phaseEnd", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code randomStartMin} property.
      */
-    private final MetaProperty<LocalTime> _randomStartMin = DirectMetaProperty.ofReadWrite(this, "randomStartMin", LocalTime.class);
+    private final MetaProperty<LocalTime> _randomStartMin = DirectMetaProperty.ofReadWrite(
+        this, "randomStartMin", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code randomStartMax} property.
      */
-    private final MetaProperty<LocalTime> _randomStartMax = DirectMetaProperty.ofReadWrite(this, "randomStartMax", LocalTime.class);
+    private final MetaProperty<LocalTime> _randomStartMax = DirectMetaProperty.ofReadWrite(
+        this, "randomStartMax", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code randomEndMin} property.
      */
-    private final MetaProperty<LocalTime> _randomEndMin = DirectMetaProperty.ofReadWrite(this, "randomEndMin", LocalTime.class);
+    private final MetaProperty<LocalTime> _randomEndMin = DirectMetaProperty.ofReadWrite(
+        this, "randomEndMin", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code randomEndMax} property.
      */
-    private final MetaProperty<LocalTime> _randomEndMax = DirectMetaProperty.ofReadWrite(this, "randomEndMax", LocalTime.class);
+    private final MetaProperty<LocalTime> _randomEndMax = DirectMetaProperty.ofReadWrite(
+        this, "randomEndMax", ManageableExchangeDetail.class, LocalTime.class);
     /**
      * The meta-property for the {@code lastConfirmed} property.
      */
-    private final MetaProperty<LocalDate> _lastConfirmed = DirectMetaProperty.ofReadWrite(this, "lastConfirmed", LocalDate.class);
+    private final MetaProperty<LocalDate> _lastConfirmed = DirectMetaProperty.ofReadWrite(
+        this, "lastConfirmed", ManageableExchangeDetail.class, LocalDate.class);
     /**
      * The meta-property for the {@code notes} property.
      */
-    private final MetaProperty<String> _notes = DirectMetaProperty.ofReadWrite(this, "notes", String.class);
+    private final MetaProperty<String> _notes = DirectMetaProperty.ofReadWrite(
+        this, "notes", ManageableExchangeDetail.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "productGroup",
+        "productName",
+        "productType",
+        "productCode",
+        "calendarStart",
+        "calendarEnd",
+        "dayStart",
+        "dayRangeType",
+        "dayEnd",
+        "phaseName",
+        "phaseType",
+        "phaseStart",
+        "phaseEnd",
+        "randomStartMin",
+        "randomStartMax",
+        "randomEndMin",
+        "randomEndMax",
+        "lastConfirmed",
+        "notes");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("productGroup", _productGroup);
-      temp.put("productName", _productName);
-      temp.put("productType", _productType);
-      temp.put("productCode", _productCode);
-      temp.put("calendarStart", _calendarStart);
-      temp.put("calendarEnd", _calendarEnd);
-      temp.put("dayStart", _dayStart);
-      temp.put("dayRangeType", _dayRangeType);
-      temp.put("dayEnd", _dayEnd);
-      temp.put("phaseName", _phaseName);
-      temp.put("phaseType", _phaseType);
-      temp.put("phaseStart", _phaseStart);
-      temp.put("phaseEnd", _phaseEnd);
-      temp.put("randomStartMin", _randomStartMin);
-      temp.put("randomStartMax", _randomStartMax);
-      temp.put("randomEndMin", _randomEndMin);
-      temp.put("randomEndMax", _randomEndMax);
-      temp.put("lastConfirmed", _lastConfirmed);
-      temp.put("notes", _notes);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ManageableExchangeDetail createBean() {
-      return new ManageableExchangeDetail();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 992343760:  // productGroup
+          return _productGroup;
+        case -1491817446:  // productName
+          return _productName;
+        case -1491615543:  // productType
+          return _productType;
+        case -1492131972:  // productCode
+          return _productCode;
+        case 1952067524:  // calendarStart
+          return _calendarStart;
+        case 404251837:  // calendarEnd
+          return _calendarEnd;
+        case 1920217638:  // dayStart
+          return _dayStart;
+        case 761807323:  // dayRangeType
+          return _dayRangeType;
+        case -1338796129:  // dayEnd
+          return _dayEnd;
+        case -426196314:  // phaseName
+          return _phaseName;
+        case -425994411:  // phaseType
+          return _phaseType;
+        case -322011225:  // phaseStart
+          return _phaseStart;
+        case -1676324512:  // phaseEnd
+          return _phaseEnd;
+        case -882488205:  // randomStartMin
+          return _randomStartMin;
+        case -882488443:  // randomStartMax
+          return _randomStartMax;
+        case -961403366:  // randomEndMin
+          return _randomEndMin;
+        case -961403604:  // randomEndMax
+          return _randomEndMax;
+        case 1696487785:  // lastConfirmed
+          return _lastConfirmed;
+        case 105008833:  // notes
+          return _notes;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ManageableExchangeDetail> builder() {
+      return new BasicBeanBuilder<ManageableExchangeDetail>(new ManageableExchangeDetail());
     }
 
     @Override

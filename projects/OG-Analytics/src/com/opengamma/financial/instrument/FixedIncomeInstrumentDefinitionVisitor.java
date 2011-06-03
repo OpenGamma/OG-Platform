@@ -7,7 +7,11 @@ package com.opengamma.financial.instrument;
 
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.bond.BondDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondForwardDefinition;
+import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.fra.FRADefinition;
 import com.opengamma.financial.instrument.fra.ZZZForwardRateAgreementDefinition;
@@ -45,6 +49,22 @@ public interface FixedIncomeInstrumentDefinitionVisitor<T, U> {
   U visitBondForwardDefinition(BondForwardDefinition bondForward, T data);
 
   U visitBondForwardDefinition(BondForwardDefinition bondForward);
+
+  U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond, T data);
+
+  U visitBondFixedTransactionDefinition(BondFixedTransactionDefinition bond);
+
+  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond, T data);
+
+  U visitBondFixedSecurityDefinition(BondFixedSecurityDefinition bond);
+
+  U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond, T data);
+
+  U visitBondIborTransactionDefinition(BondIborTransactionDefinition bond);
+
+  U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, T data);
+
+  U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond);
 
   U visitCashDefinition(CashDefinition cash, T data);
 

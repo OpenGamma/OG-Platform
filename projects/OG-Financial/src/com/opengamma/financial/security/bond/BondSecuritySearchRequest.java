@@ -5,15 +5,17 @@
  */
 package com.opengamma.financial.security.bond;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -109,6 +111,28 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondSecuritySearchRequest other = (BondSecuritySearchRequest) obj;
+      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
+          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the issuer name of the bond, wildcards allowed, null not to match on issuer name.
@@ -172,27 +196,41 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
     /**
      * The meta-property for the {@code issuerName} property.
      */
-    private final MetaProperty<String> _issuerName = DirectMetaProperty.ofReadWrite(this, "issuerName", String.class);
+    private final MetaProperty<String> _issuerName = DirectMetaProperty.ofReadWrite(
+        this, "issuerName", BondSecuritySearchRequest.class, String.class);
     /**
      * The meta-property for the {@code issuerType} property.
      */
-    private final MetaProperty<String> _issuerType = DirectMetaProperty.ofReadWrite(this, "issuerType", String.class);
+    private final MetaProperty<String> _issuerType = DirectMetaProperty.ofReadWrite(
+        this, "issuerType", BondSecuritySearchRequest.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "issuerName",
+        "issuerType");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("issuerName", _issuerName);
-      temp.put("issuerType", _issuerType);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public BondSecuritySearchRequest createBean() {
-      return new BondSecuritySearchRequest();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          return _issuerName;
+        case 1459974547:  // issuerType
+          return _issuerType;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends BondSecuritySearchRequest> builder() {
+      return new BasicBeanBuilder<BondSecuritySearchRequest>(new BondSecuritySearchRequest());
     }
 
     @Override

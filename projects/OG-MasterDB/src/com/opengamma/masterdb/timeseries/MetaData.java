@@ -5,17 +5,19 @@
  */
 package com.opengamma.masterdb.timeseries;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.IdentifierBundleWithDates;
 
@@ -155,6 +157,41 @@ import com.opengamma.id.IdentifierBundleWithDates;
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MetaData<?> other = (MetaData<?>) obj;
+      return JodaBeanUtils.equal(getTimeSeriesId(), other.getTimeSeriesId()) &&
+          JodaBeanUtils.equal(getIdentifierBundleId(), other.getIdentifierBundleId()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getObservationTime(), other.getObservationTime()) &&
+          JodaBeanUtils.equal(getIdentifiers(), other.getIdentifiers()) &&
+          JodaBeanUtils.equal(getEarliestDate(), other.getEarliestDate()) &&
+          JodaBeanUtils.equal(getLatestDate(), other.getLatestDate());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierBundleId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifiers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -386,7 +423,7 @@ import com.opengamma.id.IdentifierBundleWithDates;
   /**
    * The meta-bean for {@code MetaData}.
    */
-  public static class Meta<T> extends BasicMetaBean {
+  public static class Meta<T> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -396,64 +433,99 @@ import com.opengamma.id.IdentifierBundleWithDates;
     /**
      * The meta-property for the {@code timeSeriesId} property.
      */
-    private final MetaProperty<Long> _timeSeriesId = DirectMetaProperty.ofReadWrite(this, "timeSeriesId", Long.class);
+    private final MetaProperty<Long> _timeSeriesId = DirectMetaProperty.ofReadWrite(
+        this, "timeSeriesId", MetaData.class, Long.class);
     /**
      * The meta-property for the {@code identifierBundleId} property.
      */
-    private final MetaProperty<Long> _identifierBundleId = DirectMetaProperty.ofReadWrite(this, "identifierBundleId", Long.class);
+    private final MetaProperty<Long> _identifierBundleId = DirectMetaProperty.ofReadWrite(
+        this, "identifierBundleId", MetaData.class, Long.class);
     /**
      * The meta-property for the {@code dataSource} property.
      */
-    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(this, "dataSource", String.class);
+    private final MetaProperty<String> _dataSource = DirectMetaProperty.ofReadWrite(
+        this, "dataSource", MetaData.class, String.class);
     /**
      * The meta-property for the {@code dataProvider} property.
      */
-    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(this, "dataProvider", String.class);
+    private final MetaProperty<String> _dataProvider = DirectMetaProperty.ofReadWrite(
+        this, "dataProvider", MetaData.class, String.class);
     /**
      * The meta-property for the {@code dataField} property.
      */
-    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(this, "dataField", String.class);
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", MetaData.class, String.class);
     /**
      * The meta-property for the {@code observationTime} property.
      */
-    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(this, "observationTime", String.class);
+    private final MetaProperty<String> _observationTime = DirectMetaProperty.ofReadWrite(
+        this, "observationTime", MetaData.class, String.class);
     /**
      * The meta-property for the {@code identifiers} property.
      */
-    private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(this, "identifiers", IdentifierBundleWithDates.class);
+    private final MetaProperty<IdentifierBundleWithDates> _identifiers = DirectMetaProperty.ofReadWrite(
+        this, "identifiers", MetaData.class, IdentifierBundleWithDates.class);
     /**
      * The meta-property for the {@code earliestDate} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _earliestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "earliestDate", Object.class);
+    private final MetaProperty<T> _earliestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "earliestDate", MetaData.class, Object.class);
     /**
      * The meta-property for the {@code latestDate} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _latestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "latestDate", Object.class);
+    private final MetaProperty<T> _latestDate = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "latestDate", MetaData.class, Object.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "timeSeriesId",
+        "identifierBundleId",
+        "dataSource",
+        "dataProvider",
+        "dataField",
+        "observationTime",
+        "identifiers",
+        "earliestDate",
+        "latestDate");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("timeSeriesId", _timeSeriesId);
-      temp.put("identifierBundleId", _identifierBundleId);
-      temp.put("dataSource", _dataSource);
-      temp.put("dataProvider", _dataProvider);
-      temp.put("dataField", _dataField);
-      temp.put("observationTime", _observationTime);
-      temp.put("identifiers", _identifiers);
-      temp.put("earliestDate", _earliestDate);
-      temp.put("latestDate", _latestDate);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public MetaData<T> createBean() {
-      return new MetaData<T>();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1709694943:  // timeSeriesId
+          return _timeSeriesId;
+        case 704215302:  // identifierBundleId
+          return _identifierBundleId;
+        case 1272470629:  // dataSource
+          return _dataSource;
+        case 339742651:  // dataProvider
+          return _dataProvider;
+        case -386794640:  // dataField
+          return _dataField;
+        case 951232793:  // observationTime
+          return _observationTime;
+        case 1368189162:  // identifiers
+          return _identifiers;
+        case 239226785:  // earliestDate
+          return _earliestDate;
+        case -125315115:  // latestDate
+          return _latestDate;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends MetaData<T>> builder() {
+      return new BasicBeanBuilder<MetaData<T>>(new MetaData<T>());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })

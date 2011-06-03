@@ -6,16 +6,18 @@
 package com.opengamma.master.holiday;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.master.AbstractMetaDataResult;
@@ -78,6 +80,26 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidayMetaDataResult other = (HolidayMetaDataResult) obj;
+      return JodaBeanUtils.equal(getHolidayTypes(), other.getHolidayTypes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayTypes());
+    return hash ^ super.hashCode();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the list if valid holiday types.
@@ -121,22 +143,33 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
      * The meta-property for the {@code holidayTypes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<HolidayType>> _holidayTypes = DirectMetaProperty.ofReadWrite(this, "holidayTypes", (Class) List.class);
+    private final MetaProperty<List<HolidayType>> _holidayTypes = DirectMetaProperty.ofReadWrite(
+        this, "holidayTypes", HolidayMetaDataResult.class, (Class) List.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "holidayTypes");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap(super.metaPropertyMap());
-      temp.put("holidayTypes", _holidayTypes);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public HolidayMetaDataResult createBean() {
-      return new HolidayMetaDataResult();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 15120129:  // holidayTypes
+          return _holidayTypes;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends HolidayMetaDataResult> builder() {
+      return new BasicBeanBuilder<HolidayMetaDataResult>(new HolidayMetaDataResult());
     }
 
     @Override

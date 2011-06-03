@@ -6,17 +6,19 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -344,6 +346,33 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     super.propertySet(propertyName, newValue);
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ResultModelDefinition other = (ResultModelDefinition) obj;
+      return JodaBeanUtils.equal(getAggregatePositionOutputMode(), other.getAggregatePositionOutputMode()) &&
+          JodaBeanUtils.equal(getPositionOutputMode(), other.getPositionOutputMode()) &&
+          JodaBeanUtils.equal(getTradeOutputMode(), other.getTradeOutputMode()) &&
+          JodaBeanUtils.equal(getSecurityOutputMode(), other.getSecurityOutputMode()) &&
+          JodaBeanUtils.equal(getPrimitiveOutputMode(), other.getPrimitiveOutputMode());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAggregatePositionOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPrimitiveOutputMode());
+    return hash;
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the aggregate position output mode (portfolio nodes).
@@ -551,7 +580,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   /**
    * The meta-bean for {@code ResultModelDefinition}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -560,42 +589,65 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     /**
      * The meta-property for the {@code aggregatePositionOutputMode} property.
      */
-    private final MetaProperty<ResultOutputMode> _aggregatePositionOutputMode = DirectMetaProperty.ofReadWrite(this, "aggregatePositionOutputMode", ResultOutputMode.class);
+    private final MetaProperty<ResultOutputMode> _aggregatePositionOutputMode = DirectMetaProperty.ofReadWrite(
+        this, "aggregatePositionOutputMode", ResultModelDefinition.class, ResultOutputMode.class);
     /**
      * The meta-property for the {@code positionOutputMode} property.
      */
-    private final MetaProperty<ResultOutputMode> _positionOutputMode = DirectMetaProperty.ofReadWrite(this, "positionOutputMode", ResultOutputMode.class);
+    private final MetaProperty<ResultOutputMode> _positionOutputMode = DirectMetaProperty.ofReadWrite(
+        this, "positionOutputMode", ResultModelDefinition.class, ResultOutputMode.class);
     /**
      * The meta-property for the {@code tradeOutputMode} property.
      */
-    private final MetaProperty<ResultOutputMode> _tradeOutputMode = DirectMetaProperty.ofReadWrite(this, "tradeOutputMode", ResultOutputMode.class);
+    private final MetaProperty<ResultOutputMode> _tradeOutputMode = DirectMetaProperty.ofReadWrite(
+        this, "tradeOutputMode", ResultModelDefinition.class, ResultOutputMode.class);
     /**
      * The meta-property for the {@code securityOutputMode} property.
      */
-    private final MetaProperty<ResultOutputMode> _securityOutputMode = DirectMetaProperty.ofReadWrite(this, "securityOutputMode", ResultOutputMode.class);
+    private final MetaProperty<ResultOutputMode> _securityOutputMode = DirectMetaProperty.ofReadWrite(
+        this, "securityOutputMode", ResultModelDefinition.class, ResultOutputMode.class);
     /**
      * The meta-property for the {@code primitiveOutputMode} property.
      */
-    private final MetaProperty<ResultOutputMode> _primitiveOutputMode = DirectMetaProperty.ofReadWrite(this, "primitiveOutputMode", ResultOutputMode.class);
+    private final MetaProperty<ResultOutputMode> _primitiveOutputMode = DirectMetaProperty.ofReadWrite(
+        this, "primitiveOutputMode", ResultModelDefinition.class, ResultOutputMode.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "aggregatePositionOutputMode",
+        "positionOutputMode",
+        "tradeOutputMode",
+        "securityOutputMode",
+        "primitiveOutputMode");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("aggregatePositionOutputMode", _aggregatePositionOutputMode);
-      temp.put("positionOutputMode", _positionOutputMode);
-      temp.put("tradeOutputMode", _tradeOutputMode);
-      temp.put("securityOutputMode", _securityOutputMode);
-      temp.put("primitiveOutputMode", _primitiveOutputMode);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public ResultModelDefinition createBean() {
-      return new ResultModelDefinition();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1633131628:  // aggregatePositionOutputMode
+          return _aggregatePositionOutputMode;
+        case -798411699:  // positionOutputMode
+          return _positionOutputMode;
+        case -1772765496:  // tradeOutputMode
+          return _tradeOutputMode;
+        case -583556700:  // securityOutputMode
+          return _securityOutputMode;
+        case 545428107:  // primitiveOutputMode
+          return _primitiveOutputMode;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends ResultModelDefinition> builder() {
+      return new BasicBeanBuilder<ResultModelDefinition>(new ResultModelDefinition());
     }
 
     @Override

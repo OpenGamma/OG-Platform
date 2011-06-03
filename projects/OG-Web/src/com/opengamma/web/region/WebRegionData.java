@@ -6,20 +6,22 @@
 package com.opengamma.web.region;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicBeanBuilder;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.master.region.RegionDocument;
@@ -167,6 +169,39 @@ public class WebRegionData extends DirectBean {
         return;
     }
     super.propertySet(propertyName, newValue);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebRegionData other = (WebRegionData) obj;
+      return JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriRegionId(), other.getUriRegionId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getRegionParents(), other.getRegionParents()) &&
+          JodaBeanUtils.equal(getRegionChildren(), other.getRegionChildren()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionParents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionChildren());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -373,7 +408,7 @@ public class WebRegionData extends DirectBean {
   /**
    * The meta-bean for {@code WebRegionData}.
    */
-  public static class Meta extends BasicMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -382,59 +417,91 @@ public class WebRegionData extends DirectBean {
     /**
      * The meta-property for the {@code regionMaster} property.
      */
-    private final MetaProperty<RegionMaster> _regionMaster = DirectMetaProperty.ofReadWrite(this, "regionMaster", RegionMaster.class);
+    private final MetaProperty<RegionMaster> _regionMaster = DirectMetaProperty.ofReadWrite(
+        this, "regionMaster", WebRegionData.class, RegionMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(this, "uriInfo", UriInfo.class);
+    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
+        this, "uriInfo", WebRegionData.class, UriInfo.class);
     /**
      * The meta-property for the {@code uriRegionId} property.
      */
-    private final MetaProperty<String> _uriRegionId = DirectMetaProperty.ofReadWrite(this, "uriRegionId", String.class);
+    private final MetaProperty<String> _uriRegionId = DirectMetaProperty.ofReadWrite(
+        this, "uriRegionId", WebRegionData.class, String.class);
     /**
      * The meta-property for the {@code uriVersionId} property.
      */
-    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(this, "uriVersionId", String.class);
+    private final MetaProperty<String> _uriVersionId = DirectMetaProperty.ofReadWrite(
+        this, "uriVersionId", WebRegionData.class, String.class);
     /**
      * The meta-property for the {@code region} property.
      */
-    private final MetaProperty<RegionDocument> _region = DirectMetaProperty.ofReadWrite(this, "region", RegionDocument.class);
+    private final MetaProperty<RegionDocument> _region = DirectMetaProperty.ofReadWrite(
+        this, "region", WebRegionData.class, RegionDocument.class);
     /**
      * The meta-property for the {@code regionParents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<RegionDocument>> _regionParents = DirectMetaProperty.ofReadWrite(this, "regionParents", (Class) List.class);
+    private final MetaProperty<List<RegionDocument>> _regionParents = DirectMetaProperty.ofReadWrite(
+        this, "regionParents", WebRegionData.class, (Class) List.class);
     /**
      * The meta-property for the {@code regionChildren} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<RegionDocument>> _regionChildren = DirectMetaProperty.ofReadWrite(this, "regionChildren", (Class) List.class);
+    private final MetaProperty<List<RegionDocument>> _regionChildren = DirectMetaProperty.ofReadWrite(
+        this, "regionChildren", WebRegionData.class, (Class) List.class);
     /**
      * The meta-property for the {@code versioned} property.
      */
-    private final MetaProperty<RegionDocument> _versioned = DirectMetaProperty.ofReadWrite(this, "versioned", RegionDocument.class);
+    private final MetaProperty<RegionDocument> _versioned = DirectMetaProperty.ofReadWrite(
+        this, "versioned", WebRegionData.class, RegionDocument.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map;
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+        this, null,
+        "regionMaster",
+        "uriInfo",
+        "uriRegionId",
+        "uriVersionId",
+        "region",
+        "regionParents",
+        "regionChildren",
+        "versioned");
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    /**
+     * Restricted constructor.
+     */
     protected Meta() {
-      LinkedHashMap temp = new LinkedHashMap();
-      temp.put("regionMaster", _regionMaster);
-      temp.put("uriInfo", _uriInfo);
-      temp.put("uriRegionId", _uriRegionId);
-      temp.put("uriVersionId", _uriVersionId);
-      temp.put("region", _region);
-      temp.put("regionParents", _regionParents);
-      temp.put("regionChildren", _regionChildren);
-      temp.put("versioned", _versioned);
-      _map = Collections.unmodifiableMap(temp);
     }
 
     @Override
-    public WebRegionData createBean() {
-      return new WebRegionData();
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1820969354:  // regionMaster
+          return _regionMaster;
+        case -173275078:  // uriInfo
+          return _uriInfo;
+        case -2147467077:  // uriRegionId
+          return _uriRegionId;
+        case 666567687:  // uriVersionId
+          return _uriVersionId;
+        case -934795532:  // region
+          return _region;
+        case 2045674357:  // regionParents
+          return _regionParents;
+        case -524241645:  // regionChildren
+          return _regionChildren;
+        case -1407102089:  // versioned
+          return _versioned;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends WebRegionData> builder() {
+      return new BasicBeanBuilder<WebRegionData>(new WebRegionData());
     }
 
     @Override
