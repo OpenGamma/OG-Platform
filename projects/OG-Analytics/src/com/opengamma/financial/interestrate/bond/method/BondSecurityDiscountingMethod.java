@@ -11,6 +11,10 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.rootfinding.BracketRoot;
+import com.opengamma.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.math.rootfinding.RealSingleRootFinder;
 
 /**
  * Class with methods related to bond security valued by discounting.
@@ -21,6 +25,14 @@ public class BondSecurityDiscountingMethod {
    * The present value calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  /**
+   * The root bracket used for yield finding.
+   */
+  private static final BracketRoot BRACKETER = new BracketRoot();
+  /**
+   * The root finder used for yield finding.
+   */
+  private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
 
   /**
    * Compute the present value of a bond security (without settlement amount payment).
@@ -111,6 +123,63 @@ public class BondSecurityDiscountingMethod {
       return pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / nominal;
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getConventionName() + " is not supported.");
+  }
+
+  /**
+   * Computes the clean price from the conventional yield.
+   * @param bond  The bond security.
+   * @param yield The bond yield.
+   * @return The clean price.
+   */
+  public double cleanPriceFromYield(final BondFixedSecurity bond, final double yield) {
+    double dirtyPrice = dirtyPriceFromYield(bond, yield);
+    double cleanPrice = cleanPriceFromDirtyPrice(bond, dirtyPrice);
+    return cleanPrice;
+  }
+
+  /**
+   * Compute the conventional yield from the dirty price.
+   * @param bond The bond security.
+   * @param dirtyPrice The bond dirty price.
+   * @return The yield.
+   */
+  public double yieldFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
+    /**
+     * Inner function used to find the yield.
+     */
+    final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double y) {
+        return dirtyPriceFromYield(bond, y) - dirtyPrice;
+      }
+    };
+    final double[] range = BRACKETER.getBracketedPoints(priceResidual, 0.00, 0.20);
+    double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
+    return yield;
+  }
+
+  /**
+   * Compute the conventional yield from the dirty price.
+   * @param bond The bond security.
+   * @param curves The curve bundle.
+   * @return The yield.
+   */
+  public double yieldFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    double dirtyPrice = dirtyPriceFromCurves(bond, curves);
+    double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    return yield;
+  }
+
+  /**
+   * Compute the conventional yield from the clean price.
+   * @param bond The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The yield.
+   */
+  public double yieldFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    double dirtyPrice = dirtyPriceFromCleanPrice(bond, cleanPrice);
+    double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    return yield;
   }
 
 }
