@@ -30,6 +30,7 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.bond.calculator.CleanPriceFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.calculator.DirtyPriceFromCurvesCalculator;
+import com.opengamma.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -206,6 +207,55 @@ public class BondSecurityDiscountingMethodTest {
     assertEquals("Fixed coupon bond security: yield from clean price", cleanPrice, cleanPrice2, 1E-10);
   }
 
+  @Test
+  public void modifiedDurationFromYieldUSStreet() {
+    double yield = 0.04;
+    double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    double modifiedDurationExpected = 4.566199225; // To be check with another source.
+    assertEquals("Fixed coupon bond security: modified duration from yield US Street - hard coded value", modifiedDurationExpected, modifiedDuration, 1E-8);
+    double shift = 1.0E-6;
+    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield);
+    double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift);
+    double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield - shift);
+    double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
+    assertEquals("Fixed coupon bond security: modified duration from yield US Street - finite difference", modifiedDurationFD, modifiedDuration, 1E-8);
+  }
+
+  @Test
+  public void modifiedDurationFromCurvesUSStreet() {
+    double yield = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    double modifiedDuration = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    assertEquals("Fixed coupon bond security: modified duration from curves US Street", modifiedDurationExpected, modifiedDuration, 1E-8);
+  }
+
+  @Test
+  public void modifiedDurationFromDirtyPriceUSStreet() {
+    double dirtyPrice = 0.95;
+    double yield = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    double modifiedDurationExpected = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
+    double modifiedDuration = METHOD.modifiedDurationFromDirtyPrice(BOND_FIXED_SECURITY_1, dirtyPrice);
+    assertEquals("Fixed coupon bond security: modified duration from curves US Street", modifiedDurationExpected, modifiedDuration, 1E-8);
+  }
+
+  @Test
+  public void modifiedDurationFromYieldUSStreetLastPeriod() {
+    final ZonedDateTime referenceDate = DateUtil.getUTCDate(2016, 6, 3); // In last period
+    final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
+    double yield = 0.04;
+    double dirtyPrice = METHOD.modifiedDurationFromYield(bondSecurity, yield);
+    double dirtyPriceExpected = bondSecurity.getAccrualFactorToNextCoupon() / COUPON_PER_YEAR_G / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR_G);
+    assertEquals("Fixed coupon bond security: modified duration from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
+  }
+
+  @Test
+  public void modifiedDurationFromCurvesUSStreetMethodVsCalculator() {
+    double mdMethod = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_1, CURVES);
+    ModifiedDurationFromCurvesCalculator calculator = ModifiedDurationFromCurvesCalculator.getInstance();
+    double mdCalculator = calculator.visit(BOND_FIXED_SECURITY_1, CURVES);
+    assertEquals("Fixed coupon bond security: modified duration from curves US Street : Method vs Calculator", mdMethod, mdCalculator, 1E-8);
+  }
+
   // UKT 5 09/07/14 - ISIN-GB0031829509 To check figures in the ex-dividend period
   private static final String ISSUER_G = "UK";
   private static final String REPO_TYPE_G = "General collateral";
@@ -275,7 +325,21 @@ public class BondSecurityDiscountingMethodTest {
     double yield = 0.04;
     double dirtyPrice = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
     double yieldComputed = METHOD.yieldFromDirtyPrice(BOND_FIXED_SECURITY_G, dirtyPrice);
-    assertEquals("Fixed coupon bond security: yield from dirty price", yield, yieldComputed, 1E-10);
+    assertEquals("Fixed coupon bond security: yield from dirty price UK", yield, yieldComputed, 1E-10);
+  }
+
+  @Test
+  public void modifiedDurationFromYieldUKExDividend() {
+    double yield = 0.04;
+    double modifiedDuration = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_G, yield);
+    double modifiedDurationExpected = 2.7730477202; // To be check with another source.
+    assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - hard coded value", modifiedDurationExpected, modifiedDuration, 1E-8);
+    double shift = 1.0E-6;
+    double dirty = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield);
+    double dirtyP = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield + shift);
+    double dirtyM = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G, yield - shift);
+    double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
+    assertEquals("Fixed coupon bond security: modified duration from yield UK DMO - finite difference", modifiedDurationFD, modifiedDuration, 1E-8);
   }
 
 }
