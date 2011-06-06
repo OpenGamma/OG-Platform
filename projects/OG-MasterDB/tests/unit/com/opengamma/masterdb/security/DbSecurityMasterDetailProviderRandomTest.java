@@ -133,8 +133,8 @@ public class DbSecurityMasterDetailProviderRandomTest extends DBTest implements 
 
   @Override
   @Test
-  public void testFutureOptionSecurity() {
-    _testCase.testFutureOptionSecurity();
+  public void testIRFutureOptionSecurity() {
+    _testCase.testIRFutureOptionSecurity();
   }
 
   @Override

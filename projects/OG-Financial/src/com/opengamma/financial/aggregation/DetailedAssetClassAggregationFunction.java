@@ -36,6 +36,8 @@ import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
 import com.opengamma.financial.security.option.OptionOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -67,6 +69,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /* package */static final String BOND_OPTIONS = "Bond Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
   /* package */static final String FUTURE_OPTIONS = "Future Options";
+  /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String OPTION_OPTIONS = "Option Options";
   /* package */static final String SWAPTIONS = "Swaptions";
@@ -221,6 +224,12 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitSwaptionSecurity(SwaptionSecurity swaptionSecurity) {
           return SWAPTIONS;
+        }
+      }, new IRFutureOptionSecurityVisitor<String>() {
+
+        @Override
+        public String visitIRFutureOptionSecurity(IRFutureOptionSecurity irFutureOptionSecurity) {
+          return IRFUTURE_OPTIONS;
         }
       }));
     } else {
