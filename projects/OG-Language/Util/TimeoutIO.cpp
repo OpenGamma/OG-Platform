@@ -1,13 +1,10 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 
 #include "stdafx.h"
-
-// I/O functions which support timeouts
-
 #include "Logging.h"
 #include "TimeoutIO.h"
 #include "Mutex.h"
@@ -15,11 +12,14 @@
 
 LOGGING (com.opengamma.language.util.TimeoutIO);
 
+/// Critical section for lazy close operations. A mutex could be created
+/// for each I/O instance, but the close operation is rare enough that
+/// a global section can be shared easily enough.
 static CMutex g_oClosing;
-#ifndef _WIN32
-static CMutex g_oBlockedThread;
-#endif /* ifndef _WIN32 */
 
+/// Creates a new I/O instance.
+///
+/// @param[in] file underlying O/S handle
 CTimeoutIO::CTimeoutIO (FILE_REFERENCE file) {
 	LOGINFO (TEXT ("File opened"));
 	m_file = file;
@@ -31,6 +31,7 @@ CTimeoutIO::CTimeoutIO (FILE_REFERENCE file) {
 #endif /* ifdef _WIN32 */
 }
 
+/// Destroys the I/O instance.
 CTimeoutIO::~CTimeoutIO () {
 	LOGINFO (TEXT ("File closed"));
 #ifdef _WIN32
@@ -45,6 +46,10 @@ CTimeoutIO::~CTimeoutIO () {
 
 #ifdef _WIN32
 
+/// Blocks the caller until the I/O completes, the timeout elapses or a lazy timeout elapses.
+///
+/// @param[in] timeout maximum time to wait in milliseconds
+/// @return true if the I/O completed, false otherwise
 bool CTimeoutIO::WaitOnOverlapped (unsigned long timeout) {
 	DWORD dwError = GetLastError ();
 	if (dwError != ERROR_IO_PENDING) {
@@ -98,6 +103,12 @@ waitOnSignal:
 
 #else /* ifdef _WIN32 */
 
+/// Begin an overlapped I/O operation, blocking until the I/O is able to complete, the timeout
+/// elapses or a lazy timeout occurs.
+///
+/// @param[in] timeout maximum time to wait in milliseconds
+/// @param[in] bRead true for a read operation, false for a write
+/// @return true if an I/O operation is available, false otherwise
 bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 	m_oBlockedThread.Set (CThread::CurrentRef ());
 	fd_set fds;
@@ -121,12 +132,20 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 	}
 }
 
+/// Complete an overlapped I/O operation.
 void CTimeoutIO::EndOverlapped () {
 	m_oBlockedThread.Set (NULL);
 }
 
 #endif /* ifdef _WIN32 */
 
+/// Read from the underlying, returning when at least one byte has been read, the timeout elapses
+/// or a lazy timeout occurs.
+///
+/// @param[out] pBuffer buffer to read into
+/// @param[in] cbBuffer size of buffer in bytes
+/// @param[in] timeout maximum time to wait in milliseconds
+/// @return the number of bytes read, if any
 size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) {
 	if (IsClosed ()) {
 		LOGWARN (TEXT ("File already closed"));
@@ -197,6 +216,13 @@ timeoutOperation:
 #endif
 }
 
+/// Write to the underlying, returning when at least one byte has been written, the timeout elapses
+/// or a lazy timeout occurs.
+///
+/// @param[in] pBuffer buffer to write
+/// @param[in] cbBuffer number of bytes in the buffer
+/// @param[in] timeout maximum time to wait in milliseconds
+/// @return number of bytes written, if any
 size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long timeout) {
 	if (IsClosed ()) {
 		LOGWARN (TEXT ("File already closed"));
@@ -267,6 +293,9 @@ timeoutOperation:
 #endif
 }
 
+/// Flushes all open file buffers, for O/S that support buffering.
+///
+/// @return true if the buffers were flushed (or the O/S does not support it), false otherwise
 bool CTimeoutIO::Flush () {
 #ifdef _WIN32
 	return FlushFileBuffers (m_file) ? true : false;
@@ -276,6 +305,10 @@ bool CTimeoutIO::Flush () {
 #endif
 }
 
+/// Attempts to cancel the current overlapped I/O operation. Code blocked in Read or Write will then resume and
+/// either resume the blocking operation, or abort it fully.
+///
+/// @return true if the operation could be cancelled, false otherwise
 bool CTimeoutIO::CancelIO () {
 #ifdef _WIN32
 	SetEvent (m_overlapped.hEvent);
@@ -291,7 +324,9 @@ bool CTimeoutIO::CancelIO () {
 	return true;
 }
 
-// Cancel any pending I/O and close the underlying resource
+/// Cancels any pending I/O and closes the underlying resources.
+///
+/// @return true if the resources could be closed (or were closed already), false if there was a problem
 bool CTimeoutIO::Close () {
 	if (m_bClosed) {
 		LOGWARN (TEXT ("Already closed"));
@@ -310,7 +345,11 @@ bool CTimeoutIO::Close () {
 	return true;
 }
 
-// The current (or next) I/O operation will timeout after the given time (if shorter than the timeout on the I/O)
+/// Sets the timeout period for the current (or next) I/O operation. This may be shorter than the timeout on the
+/// I/O operation itself allowing a long running operation to be interrupted and abandoned
+///
+/// @param[in] timeout maximum time to wait between underlying I/O operations
+/// @return true if the lazy closing threshold could be set, false otherwise
 bool CTimeoutIO::LazyClose (unsigned long timeout) {
 	if (timeout == 0) {
 		return Close ();
@@ -329,7 +368,9 @@ bool CTimeoutIO::LazyClose (unsigned long timeout) {
 	}
 }
 
-// Cancels the previous call to LazyClose - i.e. current and future I/O operations will be allowed their requested timeout
+/// Cancels the previous call to LazyClose - i.e. current and future I/O operations will be allowed their requested timeout
+///
+/// @return true if the lazy closing threshold could be reset, false otherwise
 bool CTimeoutIO::CancelLazyClose () {
 	LOGDEBUG (TEXT ("Cancelling lazy close (was ") << m_lLazyTimeout << TEXT ("ms)"));
 	m_lLazyTimeout = 0;

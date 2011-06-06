@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -28,8 +28,10 @@
 
 // Force library initialization (C++)
 #ifdef __cplusplus
+/// Forces library initialisation during static startup.
 class CFudgeInitialiser {
 public:
+	/// Creates a CFudgeInitialiser instance, initialising the Fudge library.
 	CFudgeInitialiser () {
 		FudgeStatus status = Fudge_init ();
 		assert (status == FUDGE_OK);
