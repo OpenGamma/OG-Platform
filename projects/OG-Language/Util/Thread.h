@@ -153,7 +153,7 @@ public:
 	/// @param[in] timeout maximum time to wait in milliseconds
 	/// @return true if the thread completed, false otherwise. The thread is always released regardless
 	///         of the return value.
-	static bool WaitAndRelease (const CThread *pThread, unsigned long timeout = 0xFFFFFFFF) { // NOT RE-ENTRANT
+	static bool WaitAndRelease (const CThread *pThread, unsigned long timeout = 0xFFFFFFFF) {
 		bool result = pThread->Wait (timeout);
 		Release (pThread);
 		return result;
@@ -184,31 +184,30 @@ public:
 #endif
 	}
 
-	/// Returns a reference to the calling thread that can be used with Interrupt.
-	///
-	/// @return a thread reference
-	static void *CurrentRef () {
-#ifdef _WIN32
-		return (void*)GetCurrentThreadId ();
-#elif defined (HAVE_PTHREAD)
-		return (void*)pthread_self ();
-#else
-		// TODO
-		return NULL;
-#endif
-	}
-
-	/// Interrupts a thread. On Posix, a SIGALRM is sent. No other implementations exist.
-	///
-	/// @param[in] pThreadRef thread to interrupt, as returned by CurrentRef
-	static void Interrupt (void *pThreadRef) {
+#ifndef _WIN32
 #ifdef HAVE_PTHREAD
-		pthread_kill ((pthread_t)pThreadRef, SIGALRM);
-#endif
+	typedef pthread_t INTERRUPTIBLE_HANDLE;
+#endif /* ifdef HAVE_PTHREAD */
+
+	/// Gets an interruptible reference for the calling thread.
+	///
+	/// @return the interruptible reference
+	static INTERRUPTIBLE_HANDLE GetInterruptible () {
+#ifdef HAVE_PTHREAD
+		return pthread_self ();
+#endif /* ifdef HAVE_PTHREAD */
 	}
 
-	// TODO: CurrentRef should really return an object of a type IInterruptible that the Interrupt method
-	// can be defined on. It should then be called GetInterruptible.
+	/// Interrupts a thread, sending it SIGALRM, to release any blocking operations.
+	///
+	/// @param[in] handle interruptible handle returned by GetInterruptible
+	static void Interrupt (INTERRUPTIBLE_HANDLE handle) {
+#ifdef HAVE_PTHREAD
+		pthread_kill (handle, SIGALRM);
+#endif /* ifdef HAVE_PTHREAD */
+	}
+
+#endif /* ifndef _WIN32 */
 
 };
 

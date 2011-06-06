@@ -110,7 +110,7 @@ waitOnSignal:
 /// @param[in] bRead true for a read operation, false for a write
 /// @return true if an I/O operation is available, false otherwise
 bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
-	m_oBlockedThread.Set (CThread::CurrentRef ());
+	m_oBlockedThread.Set (CThread::GetInterruptible ());
 	fd_set fds;
 	FD_ZERO (&fds);
 	FD_SET (m_file, &fds);
@@ -313,10 +313,10 @@ bool CTimeoutIO::CancelIO () {
 #ifdef _WIN32
 	SetEvent (m_overlapped.hEvent);
 #else
-	void *pBlockedThread = m_oBlockedThread.GetAndSet (NULL);
-	if (pBlockedThread) {
+	CThread::INTERRUPTIBLE_HANDLE hBlockedThread = m_oBlockedThread.GetAndSet (NULL);
+	if (hBlockedThread) {
 		LOGDEBUG (TEXT ("Interrupting thread blocked on I/O"));
-		CThread::Interrupt (pBlockedThread);
+		CThread::Interrupt (hBlockedThread);
 	} else {
 		LOGDEBUG (TEXT ("No pending I/O to cancel"));
 	}

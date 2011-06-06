@@ -46,6 +46,8 @@ CNamedPipe::~CNamedPipe () {
 
 #ifndef _WIN32
 
+#define TIMEOUT_IO_DEFAULT 1000
+
 /// Set timeout, buffer, and signalling properties on a Unix Domain Socket.
 ///
 /// @param[in] sock socket to configure

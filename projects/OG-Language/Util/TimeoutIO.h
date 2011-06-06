@@ -7,7 +7,7 @@
 #ifndef __inc_og_language_util_timeoutio_h
 #define __inc_og_language_util_timeoutio_h
 
-#include "Atomic.h"
+#include "Thread.h"
 
 /// I/O functions which support timeouts.
 class CTimeoutIO {
@@ -17,19 +17,16 @@ private:
 	/// Overlapped I/O structure
 	OVERLAPPED m_overlapped;
 
-/// O/S file reference is HANDLE
-#define FILE_REFERENCE		HANDLE
+	/// O/S file reference is HANDLE
+	typedef HANDLE FILE_REFERENCE;	
 
 #else /* ifdef _WIN32 */
 
 	/// Reference to the thread blocked on I/O
-	CAtomicPointer<void*> m_oBlockedThread;
+	CAtomicPointer<CThread::INTERRUPTIBLE_HANDLE> m_oBlockedThread;
 
-/// Default I/O timeout
-#define TIMEOUT_IO_DEFAULT	1000
-
-/// O/S file reference is int
-#define FILE_REFERENCE		int
+	/// O/S file reference is int
+	typedef int FILE_REFERENCE;
 
 #endif /* ifdef _WIN32 */
 	
